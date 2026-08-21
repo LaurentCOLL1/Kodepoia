@@ -14,6 +14,10 @@ from kodepoia.project.initializer import ProjectInitializer
 from kodepoia.project.wizard import ProjectWizardState
 
 
+PRESELECTION_REPEATS = 4
+ACCEPTANCE_REPEATS = 5
+
+
 def _project_init(args: argparse.Namespace) -> int:
     state = ProjectWizardState(
         name=args.name,
@@ -56,6 +60,7 @@ def _benchmark_metadata(
     phase: str,
     *,
     role: BenchmarkRole | None = None,
+    repeats: int = 1,
 ) -> dict[str, object]:
     metadata: dict[str, object] = {
         "phase": phase,
@@ -65,6 +70,12 @@ def _benchmark_metadata(
         "cpu_count": os.cpu_count(),
         "machine": platform.machine(),
         "processor": platform.processor(),
+        "repeats": repeats,
+        "generation_controls": {
+            "seed_base": 101,
+            "temperature": 0.0,
+            "num_predict": 256,
+        },
     }
     if role is not None:
         metadata["benchmark_role"] = role.value
@@ -88,23 +99,39 @@ def _require_loopback_url(url: str) -> None:
         )
 
 
+def _validate_repeats(repeats: int, *, acceptance: bool = False) -> None:
+    minimum = 4 if acceptance else 1
+    if not minimum <= repeats <= 8:
+        if acceptance:
+            raise SystemExit("R3 local acceptance requires between 4 and 8 repetitions")
+        raise SystemExit("Benchmark repetitions must be between 1 and 8")
+
+
 def _bench_models(args: argparse.Namespace) -> int:
+    _validate_repeats(args.repeats)
     client = OllamaClient(args.url)
     candidates = list(dict.fromkeys(args.model))
     _validate_installed_candidates(client, candidates)
     role = BenchmarkRole(args.role)
-    results = BaselineBench(client).run(candidates, role=role)
+    results = BaselineBench(client).run(candidates, role=role, repeats=args.repeats)
     output = Path(args.output)
     BaselineBench.save(
         results,
         output,
-        metadata=_benchmark_metadata(client, candidates, "baseline", role=role),
+        metadata=_benchmark_metadata(
+            client,
+            candidates,
+            "baseline",
+            role=role,
+            repeats=args.repeats,
+        ),
     )
     print(
         json.dumps(
             {
                 "output": str(output),
                 "role": role.value,
+                "repeats": args.repeats,
                 "summary": BaselineBench.summarize(results),
             },
             ensure_ascii=False,
@@ -116,14 +143,20 @@ def _bench_models(args: argparse.Namespace) -> int:
 
 def _r3_accept(args: argparse.Namespace) -> int:
     _require_loopback_url(args.url)
+    _validate_repeats(args.repeats, acceptance=True)
     candidates = list(dict.fromkeys(args.model))
     if not 2 <= len(candidates) <= 3:
         raise SystemExit("R3 local acceptance requires exactly two or three distinct models")
     client = OllamaClient(args.url)
     _validate_installed_candidates(client, candidates)
-    results = BaselineBench(client).run(candidates)
+    results = BaselineBench(client).run(candidates, repeats=args.repeats)
     output = Path(args.output)
-    metadata = _benchmark_metadata(client, candidates, "R3-local-acceptance")
+    metadata = _benchmark_metadata(
+        client,
+        candidates,
+        "R3-local-acceptance",
+        repeats=args.repeats,
+    )
     metadata["acceptance_completed"] = True
     metadata["candidate_count"] = len(candidates)
     metadata["ollama_url"] = args.url
@@ -133,6 +166,7 @@ def _r3_accept(args: argparse.Namespace) -> int:
         "R3_local_acceptance": "COMPLETED",
         "output": str(output),
         "candidates": candidates,
+        "repeats": args.repeats,
         "summary": BaselineBench.summarize(results),
     }
     print(json.dumps(payload, ensure_ascii=False, indent=2))
@@ -179,12 +213,24 @@ def build_parser() -> argparse.ArgumentParser:
         default=BenchmarkRole.BASELINE.value,
         help="FAST disables thinking for latency; CORE/CODER auto-enable supported thinking",
     )
+    bench.add_argument(
+        "--repeats",
+        type=int,
+        default=PRESELECTION_REPEATS,
+        help="repeat each model benchmark 1-8 times (official preselection default: 4)",
+    )
     bench.add_argument("--url", default="http://127.0.0.1:11434")
     bench.add_argument("--output", default=".kodepoia/benchmarks/r3-baseline.json")
     bench.set_defaults(func=_bench_models)
 
     r3 = commands.add_parser("r3-accept")
     r3.add_argument("--model", action="append", required=True)
+    r3.add_argument(
+        "--repeats",
+        type=int,
+        default=ACCEPTANCE_REPEATS,
+        help="repeat each finalist 4-8 times (official acceptance default: 5)",
+    )
     r3.add_argument("--url", default="http://127.0.0.1:11434")
     r3.add_argument("--output", default=".kodepoia/benchmarks/r3-local-acceptance.json")
     r3.set_defaults(func=_r3_accept)

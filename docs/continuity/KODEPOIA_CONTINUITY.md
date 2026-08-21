@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. **R5 — KodeGodot 4.7.x est IN PROGRESS. R5.1 à R5.5 sont ACCEPTED AND MERGED. R5.6 est sur PR #28, branche `agent/r5-6-governed-acceptance`. Le premier probe matériel réel a trouvé un unique défaut : `engine_version` a été tué au timeout fixe de 15 s sur Godot 4.7.2 Steam / Windows 11 build 26220, alors que les 4 autres étapes du probe passaient. Le correctif R5.6 augmente le timeout version à 90 s, préserve seulement les chemins desktop nécessaires dans le sandbox et conserve les secrets hors environnement enfant. Le correctif est maintenant CI ACCEPTED sur head `25ddef21718eb09d361830259e62fa0e703469f1`.** Prochaine action : synchroniser la branche et rerun `-ProbeOnly` uniquement avec le Godot Steam déjà identifié. Ne pas fusionner PR #28, ne pas marquer R5 COMPLETE et ne pas commencer R6 avant revue du rapport `.kodepoia/benchmarks/r5-local-acceptance.json`.
+> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. **R5 — KodeGodot 4.7.x est IN PROGRESS. R5.1 à R5.5 sont ACCEPTED AND MERGED. R5.6 est sur PR #28, branche `agent/r5-6-governed-acceptance`. Le premier probe matériel réel a trouvé un unique défaut : `engine_version` a été tué au timeout fixe de 15 s sur Godot 4.7.2 Steam / Windows 11 build 26220, alors que les 4 autres étapes du probe passaient. Le correctif R5.6 augmente le timeout version à 90 s, préserve seulement les chemins desktop nécessaires dans le sandbox et conserve les secrets hors environnement enfant. Le correctif et la documentation sont maintenant CI ACCEPTED sur le head final `45dc35243a51a5c67830a01f70517a1233a9dac7`.** Prochaine action : synchroniser la branche et rerun `-ProbeOnly` uniquement avec le Godot Steam déjà identifié. Ne pas fusionner PR #28, ne pas marquer R5 COMPLETE et ne pas commencer R6 avant revue du rapport `.kodepoia/benchmarks/r5-local-acceptance.json`.
 
 ## Source de vérité et contraintes
 
@@ -21,11 +21,13 @@
 - R5.3 : ACCEPTED AND MERGED — PR #25, merge `d2641862b98a969b9adfc905f818e01b3d7e4730`.
 - R5.4 : ACCEPTED AND MERGED — PR #26, merge `b81cf430249e341219dcb759cb49f67697c27782`.
 - R5.5 : ACCEPTED AND MERGED — PR #27, merge `c4409c78eacfa1777d22d7e0995d4db7dbdaa5a2`.
-- R5.6 : **IMPLEMENTED; STARTUP-LATENCY FIX CI ACCEPTED; HARDWARE PROBE RE-RUN PENDING**.
+- R5.6 : **IMPLEMENTED; STARTUP-LATENCY FIX + FINAL DOCS CI ACCEPTED; HARDWARE PROBE RE-RUN PENDING**.
 - Active R5.6 branch: `agent/r5-6-governed-acceptance`.
-- Active R5.6 PR: **#28**, OPEN, DO NOT MERGE YET.
+- Active R5.6 PR: **#28**, OPEN, MERGEABLE, DO NOT MERGE YET.
 - Pre-probe fully green head: `532bb7fedc9519d89778a971c0c457ec8f6c1c2b`.
-- Startup-latency hardened head with accepted CI: `25ddef21718eb09d361830259e62fa0e703469f1`.
+- Startup-latency hardened functional head: `25ddef21718eb09d361830259e62fa0e703469f1`.
+- Final probe-rerun head: `45dc35243a51a5c67830a01f70517a1233a9dac7`.
+- Final head CI: Repository Guard `32536200325` SUCCESS; Python Core `32536200334` SUCCESS Windows+Ubuntu incl. PowerShell + embedded UI; standalone UI Smoke `32536200352` SUCCESS Windows.
 - R6 : **NOT STARTED**.
 - Modèles acceptés : KodeFast=`granite4.1:3b`, KodeCore=`gpt-oss:20b`, KodeCoder=`ornith:9b`.
 - `north-mini-code-1.0:Q4_K_M` reste candidat futur KodeDeepCoder.
@@ -184,16 +186,16 @@ Implemented on the same PR #28 branch:
 - helper records direct `Godot --version` startup time;
 - helper distinct-port validation was rewritten unambiguously.
 
-### Hardened CI accepted
+### Final hardened CI accepted
 
-Functional/documentation head:
-`25ddef21718eb09d361830259e62fa0e703469f1`
+Exact branch head authorized for probe rerun:
+`45dc35243a51a5c67830a01f70517a1233a9dac7`
 
-- Repository Guard `32536038483` SUCCESS;
-- Python Core `32536038479` SUCCESS Windows+Ubuntu;
+- Repository Guard `32536200325` SUCCESS;
+- Python Core `32536200334` SUCCESS Windows+Ubuntu;
 - PowerShell acceptance-runner syntax SUCCESS Windows;
 - embedded UI smoke SUCCESS Windows;
-- standalone KodeStudio UI Smoke `32536038474` SUCCESS Windows.
+- standalone KodeStudio UI Smoke `32536200352` SUCCESS Windows.
 
 Next action is now authorized: rerun **ProbeOnly only**. Do not jump directly to full acceptance.
 
@@ -232,6 +234,12 @@ Expected branch:
 
 ```text
 agent/r5-6-governed-acceptance
+```
+
+Expected exact head for this rerun:
+
+```text
+45dc35243a51a5c67830a01f70517a1233a9dac7
 ```
 
 Rerun the probe using the already-known Steam Godot path:

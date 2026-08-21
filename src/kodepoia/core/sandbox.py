@@ -94,6 +94,8 @@ class ProcessSandbox:
                     break
                 time.sleep(0.02)
             stdout, stderr = process.communicate()
+            if self.kill_switch.triggered and not timed_out and process.returncode != 0:
+                cancelled = True
         finally:
             self.kill_switch.unregister(process)
 

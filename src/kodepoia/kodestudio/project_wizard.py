@@ -351,7 +351,7 @@ def create_project_dialog(parent=None):
                         spin.setSpecialValueText("unlimited")
                     self.budget_table.setCellWidget(row, column, spin)
 
-        def _refresh_adaptive(self) -> None:
+        def _refresh_adaptive(self, *_args: object) -> None:
             is_game = self.project_type.currentData() is ProjectType.GAME
             for widget in (
                 self.engine,

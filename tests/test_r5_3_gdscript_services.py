@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -26,9 +27,11 @@ func damage(amount: int):
 class FakeProcess:
     def __init__(self) -> None:
         self.closed = False
+        self.returncode: int | None = None
 
     def close(self) -> None:
         self.closed = True
+        self.returncode = 0
 
 
 class FakeSandbox:
@@ -61,24 +64,44 @@ def test_gdscript_inspector_reports_structure_and_typing(tmp_path: Path) -> None
 
 
 def test_service_ports_are_bounded_and_distinct() -> None:
-    assert GodotServicePorts().lsp == 6005
-    assert GodotServicePorts().dap == 6006
+    ports = GodotServicePorts()
+    assert ports.lsp == 6005
+    assert ports.dap == 6006
+    assert ports.debug == 6007
     with pytest.raises(ValueError):
-        GodotServicePorts(80, 6006)
+        GodotServicePorts(80, 6006, 6007)
     with pytest.raises(ValueError):
-        GodotServicePorts(6005, 6005)
+        GodotServicePorts(6005, 6005, 6007)
+    with pytest.raises(ValueError):
+        GodotServicePorts(6005, 6006, 49152)
 
 
 def test_services_construct_only_managed_loopback_godot_command(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     (tmp_path / "project.godot").write_text("config_version=5\n", encoding="utf-8")
     sandbox = FakeSandbox()
     services = GodotEditorServices(tmp_path, executable="godot", sandbox=sandbox)  # type: ignore[arg-type]
-    monkeypatch.setattr(GodotEditorServices, "_wait_loopback", staticmethod(lambda port, deadline: None))
-    result = services.start(GodotServicePorts(6105, 6106), timeout=5)
+
+    def fake_lsp(*, timeout: float = 10.0):
+        del timeout
+        services.lsp = SimpleNamespace(initialized=True)
+        return services.lsp
+
+    def fake_dap(*, timeout: float = 10.0):
+        del timeout
+        services.dap = SimpleNamespace(initialized=True)
+        return services.dap
+
+    monkeypatch.setattr(services, "connect_lsp", fake_lsp)
+    monkeypatch.setattr(services, "connect_dap", fake_dap)
+    result = services.start(GodotServicePorts(6105, 6106, 6107), timeout=5)
     assert result["started"] is True
+    assert result["lsp_initialized"] is True
+    assert result["dap_initialized"] is True
+    assert result["ports"] == {"lsp": 6105, "dap": 6106, "debug": 6107}
     assert sandbox.calls[0][0] == [
         "godot", "--headless", "--editor", "--path", ".",
         "--lsp-port", "6105", "--dap-port", "6106",
+        "--debug-server", "tcp://127.0.0.1:6107",
     ]
     services.close()
     assert sandbox.process.closed is True
@@ -99,7 +122,7 @@ def test_godot_tool_catalog_never_exposes_remote_host_or_arbitrary_launch_fields
         "kodegodot_dap_launch_project",
         "kodegodot_dap_threads",
     } <= names
-    forbidden = {"host", "hostname", "argv", "args", "flags", "program", "command", "cwd"}
+    forbidden = {"host", "hostname", "address", "argv", "args", "flags", "program", "command", "cwd"}
     for entry in catalog:
         params = entry["function"]["parameters"]
         assert params["additionalProperties"] is False

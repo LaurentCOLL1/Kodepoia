@@ -39,7 +39,7 @@ build/
 out/
 coverage/
 
-# Godot generated/import cache
+# Godot generated/import cache and local export credentials
 .godot/
 .import/
 
@@ -54,9 +54,12 @@ tmp/
 *.sqlite-wal
 *.sqlite-shm
 
-# Kodepoia local hardware/runtime evidence and managed worktrees
+# Kodepoia local hardware/runtime evidence and managed outputs
 /.kodepoia/benchmarks/
 /.kodepoia/worktrees/
+/.kodepoia/exports/
+/.kodepoia/captures/
+/.kodepoia/acceptance/
 
 # AI model weights and caches: managed by KodeModelRegistry, not Git
 *.gguf

@@ -26,13 +26,13 @@ class KodeCodeToolAPI:
         self.patch = PatchTool(self.boundary)
         self.worktrees = GitWorktreeTool(self.boundary)
         self._dispatch: dict[str, Callable[[dict[str, Any]], Any]] = {
-            "code.files.list": self._files_list,
-            "code.files.read": self._files_read,
-            "code.search": self._search,
-            "code.patch.replace_once": self._patch_replace_once,
-            "code.git.worktree.list": self._worktree_list,
-            "code.git.worktree.add": self._worktree_add,
-            "code.git.worktree.remove": self._worktree_remove,
+            "kodecode_files_list": self._files_list,
+            "kodecode_files_read": self._files_read,
+            "kodecode_search": self._search,
+            "kodecode_patch_replace_once": self._patch_replace_once,
+            "kodecode_git_worktree_list": self._worktree_list,
+            "kodecode_git_worktree_add": self._worktree_add,
+            "kodecode_git_worktree_remove": self._worktree_remove,
         }
 
     def invoke(self, tool_name: str, arguments: dict[str, Any] | None = None) -> Any:
@@ -42,13 +42,25 @@ class KodeCodeToolAPI:
         return handler(dict(arguments or {}))
 
     def catalog(self) -> list[dict[str, Any]]:
-        """Return Ollama-compatible function schemas for the R4.1 tool surface."""
+        """Return function schemas for the R4.1 tool surface."""
 
         return [
-            self._schema("code.files.list", "List workspace files", {"path": {"type": "string"}, "recursive": {"type": "boolean"}}),
-            self._schema("code.files.read", "Read a UTF-8 workspace file", {"path": {"type": "string"}}, ["path"]),
             self._schema(
-                "code.search",
+                "kodecode_files_list",
+                "List workspace files",
+                {
+                    "path": {"type": "string"},
+                    "recursive": {"type": "boolean"},
+                },
+            ),
+            self._schema(
+                "kodecode_files_read",
+                "Read a UTF-8 workspace file",
+                {"path": {"type": "string"}},
+                ["path"],
+            ),
+            self._schema(
+                "kodecode_search",
                 "Search workspace text",
                 {
                     "query": {"type": "string"},
@@ -60,8 +72,8 @@ class KodeCodeToolAPI:
                 ["query"],
             ),
             self._schema(
-                "code.patch.replace_once",
-                "Atomically replace one exact text occurrence with an optional SHA-256 precondition",
+                "kodecode_patch_replace_once",
+                "Atomically replace one exact text occurrence with a SHA-256 precondition",
                 {
                     "path": {"type": "string"},
                     "old_text": {"type": "string"},
@@ -70,9 +82,13 @@ class KodeCodeToolAPI:
                 },
                 ["path", "old_text", "new_text"],
             ),
-            self._schema("code.git.worktree.list", "List Git worktrees using porcelain output", {}),
             self._schema(
-                "code.git.worktree.add",
+                "kodecode_git_worktree_list",
+                "List Git worktrees using porcelain output",
+                {},
+            ),
+            self._schema(
+                "kodecode_git_worktree_add",
                 "Create a managed linked Git worktree",
                 {
                     "name": {"type": "string"},
@@ -83,7 +99,7 @@ class KodeCodeToolAPI:
                 ["name"],
             ),
             self._schema(
-                "code.git.worktree.remove",
+                "kodecode_git_worktree_remove",
                 "Remove a clean managed linked Git worktree",
                 {"name": {"type": "string"}},
                 ["name"],
@@ -133,27 +149,27 @@ class KodeCodeToolAPI:
         return [asdict(item) for item in matches]
 
     def _patch_replace_once(self, args: dict[str, Any]) -> dict[str, Any]:
-        return asdict(
-            self.patch.replace_once(
-                str(args["path"]),
-                old_text=str(args["old_text"]),
-                new_text=str(args["new_text"]),
-                expected_sha256=str(args["expected_sha256"]) if args.get("expected_sha256") is not None else None,
-            )
+        expected = args.get("expected_sha256")
+        result = self.patch.replace_once(
+            str(args["path"]),
+            old_text=str(args["old_text"]),
+            new_text=str(args["new_text"]),
+            expected_sha256=str(expected) if expected is not None else None,
         )
+        return asdict(result)
 
     def _worktree_list(self, _args: dict[str, Any]) -> list[dict[str, Any]]:
         return [asdict(item) for item in self.worktrees.list()]
 
     def _worktree_add(self, args: dict[str, Any]) -> dict[str, Any]:
-        return asdict(
-            self.worktrees.add(
-                str(args["name"]),
-                branch=str(args["branch"]) if args.get("branch") is not None else None,
-                start_point=str(args.get("start_point", "HEAD")),
-                detach=bool(args.get("detach", False)),
-            )
+        branch = args.get("branch")
+        result = self.worktrees.add(
+            str(args["name"]),
+            branch=str(branch) if branch is not None else None,
+            start_point=str(args.get("start_point", "HEAD")),
+            detach=bool(args.get("detach", False)),
         )
+        return asdict(result)
 
     def _worktree_remove(self, args: dict[str, Any]) -> dict[str, bool]:
         self.worktrees.remove(str(args["name"]))

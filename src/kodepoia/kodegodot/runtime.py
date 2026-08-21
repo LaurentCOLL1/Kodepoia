@@ -13,6 +13,13 @@ from kodepoia.kodegodot.exporting import GodotExportPresetInspector
 _VERSION = re.compile(r"(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?(?P<tail>.*)")
 _OUTPUT_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._ -]{0,127}$")
 
+# Godot 4.7 has a documented Windows startup regression around probing drives.
+# Keep the process kill-switch controlled, but allow enough time for the CLI to
+# return on affected Windows 11 systems instead of misclassifying startup delay
+# as an incompatible engine.
+VERSION_TIMEOUT_SECONDS = 90.0
+CHECK_SCRIPT_TIMEOUT_SECONDS = 120.0
+
 
 class SandboxRunner(Protocol):
     def run(
@@ -76,10 +83,17 @@ class GodotRuntime:
             allowed_executables={executable_name},
         )
 
-    def version(self, *, timeout: float = 15.0) -> GodotVersionInfo:
+    def version(self, *, timeout: float = VERSION_TIMEOUT_SECONDS) -> GodotVersionInfo:
+        if not 1.0 <= float(timeout) <= 300.0:
+            raise ValueError("Godot version timeout must be between 1 and 300 seconds")
         result = self.runner.run([self.executable, "--version"], cwd=self.boundary.root, timeout=timeout)
         if result.returncode != 0 or result.timed_out or result.cancelled:
-            raise RuntimeError(f"Unable to query Godot version: rc={result.returncode} stderr={result.stderr.strip()}")
+            raise RuntimeError(
+                "Unable to query Godot version: "
+                f"rc={result.returncode} timed_out={result.timed_out} "
+                f"cancelled={result.cancelled} timeout={float(timeout):g}s "
+                f"stderr={result.stderr.strip()}"
+            )
         raw = result.stdout.strip().splitlines()[0] if result.stdout.strip() else ""
         match = _VERSION.match(raw)
         if not match:
@@ -102,7 +116,7 @@ class GodotRuntime:
             raise RuntimeError(f"KodeGodot R5 requires Godot 4.7.x, got {info.raw}")
         return info
 
-    def check_script(self, path: str, *, timeout: float = 60.0) -> GodotInvocationResult:
+    def check_script(self, path: str, *, timeout: float = CHECK_SCRIPT_TIMEOUT_SECONDS) -> GodotInvocationResult:
         target = self.boundary.resolve(path, must_exist=True)
         if not target.is_file() or target.suffix.lower() != ".gd":
             raise ValueError(f"GDScript file required: {path}")

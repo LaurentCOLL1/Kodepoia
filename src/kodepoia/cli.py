@@ -7,7 +7,7 @@ import platform
 from pathlib import Path
 from urllib.parse import urlparse
 
-from kodepoia.bench.baseline import BaselineBench
+from kodepoia.bench.baseline import BaselineBench, BenchmarkRole
 from kodepoia.brain.ollama import OllamaClient
 from kodepoia.project.dna import ApprovalPolicy, Dimension, Platform, ProjectType
 from kodepoia.project.initializer import ProjectInitializer
@@ -50,8 +50,14 @@ def _ollama_status(args: argparse.Namespace) -> int:
     return 0
 
 
-def _benchmark_metadata(client: OllamaClient, candidates: list[str], phase: str) -> dict[str, object]:
-    return {
+def _benchmark_metadata(
+    client: OllamaClient,
+    candidates: list[str],
+    phase: str,
+    *,
+    role: BenchmarkRole | None = None,
+) -> dict[str, object]:
+    metadata: dict[str, object] = {
         "phase": phase,
         "ollama_version": client.version(),
         "candidates": candidates,
@@ -60,6 +66,9 @@ def _benchmark_metadata(client: OllamaClient, candidates: list[str], phase: str)
         "machine": platform.machine(),
         "processor": platform.processor(),
     }
+    if role is not None:
+        metadata["benchmark_role"] = role.value
+    return metadata
 
 
 def _validate_installed_candidates(client: OllamaClient, candidates: list[str]) -> None:
@@ -81,17 +90,23 @@ def _require_loopback_url(url: str) -> None:
 
 def _bench_models(args: argparse.Namespace) -> int:
     client = OllamaClient(args.url)
-    _validate_installed_candidates(client, args.model)
-    results = BaselineBench(client).run(args.model)
+    candidates = list(dict.fromkeys(args.model))
+    _validate_installed_candidates(client, candidates)
+    role = BenchmarkRole(args.role)
+    results = BaselineBench(client).run(candidates, role=role)
     output = Path(args.output)
     BaselineBench.save(
         results,
         output,
-        metadata=_benchmark_metadata(client, args.model, "baseline"),
+        metadata=_benchmark_metadata(client, candidates, "baseline", role=role),
     )
     print(
         json.dumps(
-            {"output": str(output), "summary": BaselineBench.summarize(results)},
+            {
+                "output": str(output),
+                "role": role.value,
+                "summary": BaselineBench.summarize(results),
+            },
             ensure_ascii=False,
             indent=2,
         )
@@ -158,6 +173,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     bench = commands.add_parser("bench-models")
     bench.add_argument("--model", action="append", required=True)
+    bench.add_argument(
+        "--role",
+        choices=[item.value for item in BenchmarkRole],
+        default=BenchmarkRole.BASELINE.value,
+        help="FAST disables thinking for latency; CORE/CODER auto-enable supported thinking",
+    )
     bench.add_argument("--url", default="http://127.0.0.1:11434")
     bench.add_argument("--output", default=".kodepoia/benchmarks/r3-baseline.json")
     bench.set_defaults(func=_bench_models)

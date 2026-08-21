@@ -3,20 +3,83 @@ from __future__ import annotations
 import os
 import subprocess
 import time
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping, Sequence
+from typing import BinaryIO, Mapping, Sequence
 
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 
 
-@dataclass(frozen=True, slots=True)
 class SandboxResult:
-    returncode: int
-    stdout: str
-    stderr: str
-    timed_out: bool = False
-    cancelled: bool = False
+    __slots__ = ("returncode", "stdout", "stderr", "timed_out", "cancelled")
+
+    def __init__(
+        self,
+        returncode: int,
+        stdout: str,
+        stderr: str,
+        timed_out: bool = False,
+        cancelled: bool = False,
+    ) -> None:
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        self.timed_out = timed_out
+        self.cancelled = cancelled
+
+
+class ManagedProcess:
+    """Persistent subprocess registered with the global Kodepoia kill switch."""
+
+    def __init__(self, process: subprocess.Popen[bytes], kill_switch: KillSwitch) -> None:
+        self.process = process
+        self.kill_switch = kill_switch
+        self._closed = False
+
+    @property
+    def stdin(self) -> BinaryIO:
+        if self.process.stdin is None:
+            raise RuntimeError("Managed process has no stdin pipe")
+        return self.process.stdin
+
+    @property
+    def stdout(self) -> BinaryIO:
+        if self.process.stdout is None:
+            raise RuntimeError("Managed process has no stdout pipe")
+        return self.process.stdout
+
+    @property
+    def stderr(self) -> BinaryIO:
+        if self.process.stderr is None:
+            raise RuntimeError("Managed process has no stderr pipe")
+        return self.process.stderr
+
+    @property
+    def returncode(self) -> int | None:
+        return self.process.poll()
+
+    def close(self) -> None:
+        if self._closed:
+            return
+        self._closed = True
+        try:
+            if self.process.poll() is None:
+                self.kill_switch._stop_process(self.process)
+            try:
+                self.process.wait(timeout=2.0)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+                self.process.wait(timeout=2.0)
+        finally:
+            self.kill_switch.unregister(self.process)
+            for stream in (self.process.stdin, self.process.stdout, self.process.stderr):
+                if stream is not None:
+                    stream.close()
+
+    def __enter__(self) -> ManagedProcess:
+        return self
+
+    def __exit__(self, _exc_type: object, _exc: object, _tb: object) -> None:
+        self.close()
 
 
 class ProcessSandbox:
@@ -37,14 +100,12 @@ class ProcessSandbox:
         self.allowed_executables = {item.lower() for item in (allowed_executables or set())}
         self.kill_switch = kill_switch or GLOBAL_KILL_SWITCH
 
-    def run(
+    def _validate_launch(
         self,
         argv: Sequence[str],
-        *,
-        cwd: Path | None = None,
-        timeout: float = 60.0,
-        env: Mapping[str, str] | None = None,
-    ) -> SandboxResult:
+        cwd: Path | None,
+        env: Mapping[str, str] | None,
+    ) -> tuple[Path, dict[str, str]]:
         if not argv:
             raise ValueError("argv cannot be empty")
         if self.kill_switch.triggered:
@@ -68,7 +129,41 @@ class ProcessSandbox:
         }
         if env:
             clean_env.update({str(key): str(value) for key, value in env.items()})
+        return workdir, clean_env
 
+    def spawn_piped(
+        self,
+        argv: Sequence[str],
+        *,
+        cwd: Path | None = None,
+        env: Mapping[str, str] | None = None,
+    ) -> ManagedProcess:
+        """Launch a persistent binary stdio process under sandbox/kill-switch policy."""
+
+        workdir, clean_env = self._validate_launch(argv, cwd, env)
+        process = subprocess.Popen(
+            list(argv),
+            cwd=workdir,
+            env=clean_env,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=False,
+            shell=False,
+            bufsize=0,
+        )
+        self.kill_switch.register(process)
+        return ManagedProcess(process, self.kill_switch)
+
+    def run(
+        self,
+        argv: Sequence[str],
+        *,
+        cwd: Path | None = None,
+        timeout: float = 60.0,
+        env: Mapping[str, str] | None = None,
+    ) -> SandboxResult:
+        workdir, clean_env = self._validate_launch(argv, cwd, env)
         process = subprocess.Popen(
             list(argv),
             cwd=workdir,

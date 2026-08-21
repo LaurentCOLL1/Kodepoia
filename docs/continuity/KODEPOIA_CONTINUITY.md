@@ -37,30 +37,33 @@ Project DNA, Wizard adaptatif, plateformes/budgets/inputs, policies, tools, capa
 
 ### R3 — IMPLEMENTATION COMPLETE / HARDWARE-LOCAL ACCEPTANCE PENDING
 
-Streaming Ollama, images, tools, structured output, thinking, keep-alive, unload, semantic RAG orchestré, routing par capacités, benchmark local, `r3-accept` local-only et runner Windows sont implémentés. FAST et CORE ont maintenant une présélection locale ; CODER puis l'acceptation finale restent à faire.
+Streaming Ollama, images, tools, structured output, thinking, keep-alive, unload, semantic RAG orchestré, routing par capacités, benchmark local, `r3-accept` local-only et runner Windows sont implémentés. FAST et CORE ont un gagnant provisoire. CODER v1 est terminé mais a révélé un biais cold-load ; le hardening de préchargement puis CODER v2 et l'acceptation finale restent nécessaires.
 
 ## Benchmark R3 — politique autoritative
 
-- 4 répétitions minimum par modèle pour FAST/CORE/CODER ; le PC cible a exécuté 5 répétitions pour CORE v1 et CORE v2, ce qui est valide ;
+- 4 répétitions minimum par modèle pour FAST/CORE/CODER ; 5 répétitions sont valides et ont été utilisées pour CORE et CODER v1 ;
 - 5 répétitions par finaliste pour `r3-accept` ;
 - `temperature=0` ;
 - seeds déterministes à partir de 101 ;
-- reload du modèle entre répétitions ;
+- unload entre répétitions pour mesurer le coût réel de changement de modèle ;
+- chaque répétition doit désormais **précharger le modèle par une requête Ollama non notée** avant les tâches ;
+- timeout de tâche : 120 s ; timeout dédié de preload : 240 s ;
+- le cold-load reste dans les métriques de praticabilité, mais ne doit plus devenir artificiellement une mauvaise réponse à la première tâche ;
+- résumé : `avg_cold_load_s`, `avg_preload_elapsed_s`, `preload_failures`, `preload_timeouts` en plus des scores/latences/tok-s ;
 - FAST / BASELINE : `num_predict=256` ;
 - CORE / CODER : `num_predict=1024` ;
 - `r3-accept` : profil full-capability thinking-aware, budget 1024 ;
 - FAST force `think=false` ; CORE/CODER activent le thinking si `/api/show` l'annonce ; GPT-OSS utilise `think="medium"` ;
 - `done_reason` est conservé ;
-- `generation_budget_exhausted` est détecté explicitement lorsqu'un modèle consomme tout le budget en thinking sans produire de contenu final ;
-- score, répétabilité, minimum, pass-rate par tâche, latence, tok/s, cold-load, erreurs, VRAM et budget-exhaustions sont examinés ;
-- validateurs stricts : `KODEPOIA_OK`, `CharacterBody3D`, `var count: int = 0`, `worktree`, JSON structurel et vrais tool calls.
+- `generation_budget_exhausted` est détecté explicitement lorsqu'un modèle consomme tout le budget en thinking sans contenu final ;
+- validateurs stricts : `KODEPOIA_OK`, `CharacterBody3D`, `var count: int = 0`, `worktree`, JSON structurel et vrais Ollama tool calls.
 
 ## FAST v2 — TERMINÉ
 
 Preuve : `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
 
-- `granite4.1:3b` : 28/32, score 0.875 x4, stddev score 0 ; 129.512 tok/s ; 22.212 s/repeat ; timing stddev 0.179 s ; cold-load 15.484 s.
-- `qwen3.5:4b` : 28/32, score 0.875 x4, stddev score 0 ; 80.690 tok/s ; 24.068 s/repeat ; timing stddev 8.244 s ; cold-load 13.797 s.
+- `granite4.1:3b` : 28/32, score 0.875 x4, 129.512 tok/s, cold-load 15.484 s.
+- `qwen3.5:4b` : 28/32, score 0.875 x4, 80.690 tok/s, cold-load 13.797 s.
 - Les deux passent exact/Python/Godot/GDScript/debug/JSON/tools 4/4 et échouent Git worktree 4/4.
 
 **Décision FAST provisoire : `granite4.1:3b` gagne KodeFast.** `qwen3.5:4b` reste fallback compact/multimodal.
@@ -69,81 +72,107 @@ Preuve : `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
 
 Preuve : `.kodepoia/benchmarks/r3-preselect-core.json`.
 
-Le PC cible a exécuté 5 répétitions avec l'ancien budget 256. Ce run a montré que Qwen 9B épuisait le budget de thinking avant contenu final, ce qui a conduit au hardening 1024 + `done_reason` + `generation_budget_exhausted`. GPT-OSS était déjà leader provisoire. Qwen3.6 27B a été écarté du rerun quotidien en raison d'environ 3.13 tok/s et de neuf timeouts de 120 s.
+Le budget 256 a révélé un défaut de mesure pour le thinking, corrigé avec 1024 + `done_reason` + `generation_budget_exhausted`. `qwen3.6:27b` a aussi été écarté du CORE quotidien à cause d'environ 3.13 tok/s et neuf timeouts de 120 s.
 
 ## CORE v2 — TERMINÉ / DÉCISION PRISE
 
-Preuve fournie par le PC cible : `.kodepoia/benchmarks/r3-preselect-core-v2.json`.
-
-Le run a utilisé Windows 11, Python 3.12.4, Ollama 0.32.14, `benchmark_role=core`, `temperature=0`, `num_predict=1024` et **5 répétitions par modèle**.
+Preuve : `.kodepoia/benchmarks/r3-preselect-core-v2.json`.
 
 ### `qwen3.5:9b`
+- 25/40, score 0.625 x5 ;
+- 54.609 tok/s ;
+- exact/Godot/GDScript/debug/tools 5/5 ; Python reasoning/structured/software-engineering 0/5 ;
+- 15 `generation_budget_exhausted`, tous `done_reason="length"`, `eval_count=1024`, thinking non vide, contenu final vide.
 
-- 25/40, score 0.625 ; repeats 0.625 x5 ; score stddev 0.0 ;
-- 54.609 tok/s ; 110.930 s/repeat ; cold-load moyen 29.020 s ;
-- exact instruction, Godot, GDScript typé, debugging et tool calling : 5/5 chacun ;
-- Python reasoning, structured output et software engineering / Git worktree : 0/5 chacun ;
-- 15 erreurs, toutes `generation_budget_exhausted` ;
-- pour les 15 échecs : `done_reason="length"`, `eval_count=1024`, thinking non vide, réponse finale vide.
-
-Conclusion : le passage 256 → 1024 ne résout pas la boucle de thinking sur ces catégories. Le modèle n'est pas déclaré intrinsèquement mauvais ; il est **non fiable pour KodeCore avec la politique reasoning bornée actuelle**. Il reste intéressant comme plus petit modèle multimodal/vision ou fallback non-thinking à tester plus tard si nécessaire.
+Il reste disponible comme plus petit candidat multimodal/vision ou fallback non-thinking, mais pas comme CORE reasoning par défaut.
 
 ### `gpt-oss:20b`
+- 40/40, score 1.0 x5 ;
+- 15.399 tok/s ;
+- 8 catégories 5/5 ; 0 erreur ; 0 budget exhaustion ;
+- cold-load ~90.985 s ;
+- environ 10.1 GB résidents en VRAM pendant le run.
 
-- 40/40, score 1.000 ; repeats 1.0 x5 ; score stddev 0.0 ; minimum 1.0 ;
-- 15.399 tok/s ; 154.905 s/repeat ; timing stddev 0.603 s ;
-- cold-load moyen 90.985 s ;
-- 8 catégories : 5/5 chacune ;
-- 0 erreur ; 0 budget exhaustion ; thinking `medium` ;
-- Ollama a rapporté environ 14.1 GB de modèle dont environ 10.1 GB résidents en VRAM pendant le run.
+**Décision CORE provisoire : `gpt-oss:20b` gagne KodeCore.** KodeVRAM/keep-alive doivent limiter le churn de reload.
 
-Malgré un débit brut plus faible, les tâches utiles une fois le modèle chargé restent compétitives : le coût majeur est le **cold-load**, pas la fiabilité ou la génération chaude. KodeVRAM/keep-alive devront éviter les unload/reload inutiles pendant une session CORE active.
+## CODER v1 — DIAGNOSTIC TERMINÉ
 
-**Décision CORE provisoire : `gpt-oss:20b` gagne KodeCore.**
+Preuve : `.kodepoia/benchmarks/r3-preselect-coder.json`.
 
-Ne pas faire de CORE v3. Passer à CODER.
+Le PC cible a exécuté **5 répétitions**, `temperature=0`, `num_predict=1024`.
 
-## CODER — PROCHAINE OPÉRATION MATÉRIELLE
+### `qwen2.5-coder:7b-instruct`
+- 30/40, score 0.750 x5, stddev 0 ;
+- 82.296 tok/s ;
+- exact/Python/Godot/GDScript/debug/JSON : 5/5 ;
+- **tool calling 0/5** : produit du JSON textuel au lieu d'un vrai `tool_calls` Ollama ;
+- **software engineering/worktree 0/5** : répond `Git Subtree`.
 
-Candidats :
-- `qwen2.5-coder:7b-instruct`
-- `devstral-small-2:24b`
-- `north-mini-code-1.0:Q4_K_M`
+Décision : garder comme petit helper de code rapide possible, mais **ne pas sélectionner comme KodeCoder agentique par défaut**.
 
-Raisons : Qwen 2.5 Coder est compact ; Devstral Small 2 est spécifiquement agentic software engineering mais son modèle Q4_K_M est d'environ 15 GB et doit être mesuré sur 12 GB VRAM ; North Mini Code est un MoE 30B total / 3B actifs orienté code/terminal, donc son efficacité réelle doit être mesurée plutôt qu'inférée.
+### `devstral-small-2:24b`
+- raw 30/40, score apparent 0.750 ; repeats 0.25 / 0.875 / 0.875 / 0.875 / 0.875 ;
+- 3.968 tok/s ; 291.038 s/repeat ;
+- cinq timeouts successifs de 120 s lors de la première répétition avant stabilisation ;
+- vrais tools/JSON fonctionnent ;
+- **worktree 0/5**, répond `sparse checkout`.
 
-Avant le run :
+Décision : **retiré du concours KodeCoder par défaut** sur ce PC (trop lent + mauvaise réponse repo systématique).
+
+### `north-mini-code-1.0:Q4_K_M`
+- raw 35/40, score apparent 0.875 x5, stddev 0 ;
+- 12.838 tok/s ; environ 10.03 GB résidents VRAM ; thinking=true ;
+- Python/Godot/GDScript/debug/JSON/**vrais tools**/**worktree** : **5/5** ;
+- exact-instruction raw 0/5, mais chaque échec est **un timeout de 120 s sur la première tâche juste après unload**, jamais une mauvaise réponse ;
+- après chaque timeout de chargement, les sept tâches suivantes réussissent.
+
+Conclusion : **leader substantif CODER v1**, mais son score brut est contaminé par le cold-load. Ne pas figer KodeCoder avant CODER v2.
+
+## Biais cold-load découvert et hardening en cours
+
+Cause exacte : le harness v1 faisait `unload(model)` à la fin d'une répétition, puis utilisait la première tâche notée pour recharger le modèle suivant. Les gros modèles pouvaient donc perdre `exact-instruction` uniquement parce que leur cold-load dépassait le timeout de tâche 120 s.
+
+Correctif ajouté sur PR #8 :
+- `OllamaClient.preload()` via requête `/api/chat` vide ;
+- timeout preload dédié 240 s ;
+- preload non noté avant les tâches ;
+- cold-load conservé dans le temps total et les métriques ;
+- `preload_failures` / `preload_timeouts` séparés des erreurs de tâche ;
+- tests couvrant le fait qu'un preload timeout n'est pas automatiquement un échec de connaissance.
+
+Ne demander aucune nouvelle opération matérielle avant CI verte de ce hardening.
+
+## CODER v2 — PROCHAINE OPÉRATION APRÈS CI VERTE
+
+Finalistes CODER :
+- `gpt-oss:20b` — 40/40 CORE, vrais tools + worktree, meilleur candidat warm/fallback ;
+- `north-mini-code-1.0:Q4_K_M` — meilleur contenu CODER v1 et spécialisé agentic coding, mais cold-load très coûteux.
+
+Après `git pull` du commit validé :
 
 ```powershell
-git switch agent/r1-r3-acceptance-hardening
-git pull
-.\.venv\Scripts\Activate.ps1
+python -m kodepoia.cli bench-models --role coder --repeats 5 --model "gpt-oss:20b" --model "north-mini-code-1.0:Q4_K_M" --output ".kodepoia/benchmarks/r3-preselect-coder-v2.json"
 ```
 
-Puis :
-
-```powershell
-python -m kodepoia.cli bench-models --role coder --repeats 4 --model "qwen2.5-coder:7b-instruct" --model "devstral-small-2:24b" --model "north-mini-code-1.0:Q4_K_M" --output ".kodepoia/benchmarks/r3-preselect-coder.json"
-```
-
-Le CLI doit utiliser `num_predict=1024`. Ne pas lancer `r3-accept` avant analyse du rapport CODER.
+Ne pas lancer `r3-accept` avant analyse de CODER v2.
 
 ## Séquence obligatoire avant R4
 
 1. Garder PR #8 ouverte.
 2. FAST v2 : terminé ; `granite4.1:3b` gagnant provisoire.
-3. CORE v1 : diagnostic terminé ; hardening budget/done_reason effectué.
-4. CORE v2 : terminé ; `gpt-oss:20b` gagnant provisoire.
-5. Faire `git pull` puis exécuter CODER avec les trois candidats, 4 répétitions, budget 1024.
-6. Analyser CODER et sélectionner KodeCoder provisoire.
-7. Choisir les 2–3 finalistes de l'acceptation R3 parmi les rôles retenus.
-8. Exécuter `r3_accept_local.ps1` avec 5 répétitions et profil thinking-aware.
-9. Vérifier `.kodepoia/benchmarks/r3-local-acceptance.json`.
-10. Enregistrer les rôles/modèles dans ce fichier et `R3_STATUS.md`.
-11. Marquer R3 COMPLETE seulement si les résultats sont acceptables.
-12. Revalider CI.
-13. Fusionner PR #8.
-14. Seulement ensuite commencer R4.
+3. CORE v2 : terminé ; `gpt-oss:20b` gagnant provisoire.
+4. CODER v1 : diagnostic terminé ; North leader substantif, biais cold-load découvert.
+5. Valider par CI le hardening preload/cold-load.
+6. Faire `git pull` puis CODER v2 : GPT-OSS vs North, 5 répétitions.
+7. Analyser CODER v2 et sélectionner KodeCoder provisoire.
+8. Choisir les 2–3 finalistes R3 exacts.
+9. Exécuter `r3_accept_local.ps1` avec 5 répétitions.
+10. Vérifier `.kodepoia/benchmarks/r3-local-acceptance.json`.
+11. Enregistrer les rôles/modèles finaux dans ce fichier et `R3_STATUS.md`.
+12. Marquer R3 COMPLETE seulement si les résultats sont acceptables.
+13. Revalider CI.
+14. Fusionner PR #8.
+15. Seulement ensuite commencer R4.
 
 ## Politique de continuité
 

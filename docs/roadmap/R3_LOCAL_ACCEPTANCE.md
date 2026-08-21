@@ -11,6 +11,7 @@ R3 cannot be marked `COMPLETE` from GitHub Actions alone because model quality, 
 - Two or three distinct candidate Ollama models already installed locally.
 - Ollama endpoint must be loopback only: `127.0.0.1`, `localhost` or `::1`.
 - FAST/CORE/CODER preselection must already have been reviewed so the final candidates are chosen from measured local evidence.
+- The cold-load separation hardening must have green CI before the final run.
 
 ## 1. Inspect the local environment
 
@@ -63,6 +64,8 @@ and writes:
 
 The current acceptance harness uses the **full-capability thinking-aware** profile: supported thinking is enabled, GPT-OSS uses its supported reasoning level, the generation budget is `num_predict=1024`, and Ollama `done_reason` / generation-budget exhaustion are preserved for review.
 
+Each repetition also performs an **unscored preload before the scored tasks**. The preload has a dedicated longer timeout. Its cost remains part of performance/hardware-fit evidence but no longer converts a slow model load into a false wrong answer on the first task. The report therefore separates task correctness from `avg_cold_load_s`, `avg_preload_elapsed_s`, `preload_failures` and `preload_timeouts`.
+
 ## 4. Structural evidence automatically checked
 
 The PowerShell wrapper refuses to report success unless the JSON contains:
@@ -83,10 +86,12 @@ Before changing R3 to `COMPLETE`, inspect the report and compare at minimum:
 - tool-call success;
 - Godot/GDScript correctness;
 - software-engineering/debugging correctness;
-- elapsed time and cold-load behavior;
+- elapsed time and **separate cold-load/preload behavior**;
 - average tokens/s when Ollama exposes the metric;
 - `size_vram`, parameter size and quantization when Ollama exposes them;
-- `done_reason`, generation-budget exhaustion, timeouts or model-load/runtime errors.
+- `done_reason`, generation-budget exhaustion, task timeouts, `preload_failures` and `preload_timeouts`.
+
+A slow cold-load can still disqualify a model from a default role for practical reasons, but it must not be misreported as a knowledge or instruction-following failure.
 
 The purpose is not merely to produce a JSON file. The report must show that at least two real local finalists were actually compared on the target workstation and that the chosen routing candidates are usable within the machine's performance constraints.
 
@@ -97,7 +102,7 @@ R3 may be marked `COMPLETE` only when all of the following are true:
 1. R1/R2 hardening CI is green.
 2. FAST/CORE/CODER preselection has been reviewed and concrete finalists have been recorded.
 3. The local acceptance report exists and passes structural validation.
-4. The benchmark results have been reviewed for correctness, repeatability and practical hardware fit.
+4. The benchmark results have been reviewed for correctness, repeatability and practical hardware fit, with cold-load separated from task correctness.
 5. The selected model roles/candidates are recorded in the project continuity/status documentation.
 6. The PR containing R1–R3 hardening is safe to merge.
 

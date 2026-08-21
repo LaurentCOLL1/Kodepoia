@@ -1,0 +1,71 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+id_rsa
+id_ed25519
+credentials.json
+secrets.json
+
+# Python/tooling caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Node / .NET / generic build
+node_modules/
+bin/
+obj/
+dist/
+build/
+out/
+coverage/
+
+# Godot generated/import cache
+.godot/
+.import/
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+.cache/
+tmp/
+
+# Local databases/state
+*.sqlite-wal
+*.sqlite-shm
+
+# AI model weights and caches: managed by KodeModelRegistry, not Git
+*.gguf
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.onnx
+models-cache/
+model-cache/
+checkpoints/
+loras/
+
+# Generated release artifacts
+artifacts/
+releases-local/

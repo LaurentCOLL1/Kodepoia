@@ -1,0 +1,26 @@
+name: Architecture change
+description: Propose a change to a frozen Kodepoia v1.0 foundation
+title: "[ADR proposal] "
+labels: ["architecture"]
+body:
+  - type: markdown
+    attributes:
+      value: "Kodepoia v1.0 foundations are frozen. A foundation change requires an ADR."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Architectural problem
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: true
+  - type: textarea
+    id: migration
+    attributes:
+      label: Migration and rollback
+    validations:
+      required: true

@@ -16,8 +16,12 @@
 - [x] R1.8 — KodeDataGovernance classification and movement policy
 - [x] R1.9 — KodeBackup local snapshots + SHA-256 integrity + guarded restore
 - [x] R1.10 — KodeRecovery atomic task checkpoints + pending-task discovery
-- [ ] R1.11 — KodeResearchGuard
+- [x] R1.11 — KodeResearchGuard untrusted envelopes + injection indicators
 - [ ] R1.12 — KodeStudio minimal
+
+## Security invariant for research
+
+Web/GitHub/YouTube/document content can be useful evidence but has `instruction_authority = none` permanently. Pattern flags are diagnostics only; even unflagged external content remains untrusted data and cannot directly authorize an action.
 
 ## Sandbox note
 

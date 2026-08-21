@@ -37,68 +37,82 @@ Project DNA, Wizard adaptatif, plateformes/budgets/inputs, policies, tools, capa
 
 ### R3 — IMPLEMENTATION COMPLETE / HARDWARE-LOCAL ACCEPTANCE PENDING
 
-Streaming Ollama, images, tools, structured output, thinking, keep-alive, unload, semantic RAG orchestré, routing par capacités, benchmark local, `r3-accept` local-only et runner Windows sont implémentés. L'acceptation matérielle reste en cours.
+Streaming Ollama, images, tools, structured output, thinking, keep-alive, unload, semantic RAG orchestré, routing par capacités, benchmark local, `r3-accept` local-only et runner Windows sont implémentés. FAST et CORE ont maintenant une présélection locale ; CODER puis l'acceptation finale restent à faire.
 
-## Benchmark R3 — politique actuelle
+## Benchmark R3 — politique autoritative
 
-Le benchmark a été durci plusieurs fois à partir des résultats réels du PC cible.
-
-Politique autoritative :
-- 4 répétitions par modèle pour les présélections FAST/CORE/CODER ;
+- 4 répétitions minimum par modèle pour FAST/CORE/CODER ; le PC cible a exécuté 5 répétitions pour CORE v1 et CORE v2, ce qui est valide ;
 - 5 répétitions par finaliste pour `r3-accept` ;
 - `temperature=0` ;
 - seeds déterministes à partir de 101 ;
 - reload du modèle entre répétitions ;
 - FAST / BASELINE : `num_predict=256` ;
 - CORE / CODER : `num_predict=1024` ;
-- `r3-accept` utilise désormais un profil full-capability thinking-aware et le budget 1024 ;
+- `r3-accept` : profil full-capability thinking-aware, budget 1024 ;
 - FAST force `think=false` ; CORE/CODER activent le thinking si `/api/show` l'annonce ; GPT-OSS utilise `think="medium"` ;
-- `done_reason` Ollama est conservé dans les metrics ;
-- le harness détecte explicitement `generation_budget_exhausted` lorsqu'un modèle consomme tout le budget dans `thinking` sans produire de réponse finale ;
-- score moyen, scores par répétition, stddev, minimum, pass-rate par tâche, latence, tok/s, cold-load, erreurs et budget-exhaustions sont enregistrés ;
+- `done_reason` est conservé ;
+- `generation_budget_exhausted` est détecté explicitement lorsqu'un modèle consomme tout le budget en thinking sans produire de contenu final ;
+- score, répétabilité, minimum, pass-rate par tâche, latence, tok/s, cold-load, erreurs, VRAM et budget-exhaustions sont examinés ;
 - validateurs stricts : `KODEPOIA_OK`, `CharacterBody3D`, `var count: int = 0`, `worktree`, JSON structurel et vrais tool calls.
 
 ## FAST v2 — TERMINÉ
 
 Preuve : `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
 
-- `granite4.1:3b` : 28/32, 0.875 x4, score stddev 0 ; 129.512 tok/s ; 22.212 s/repeat ; timing stddev 0.179 s ; cold-load 15.484 s.
-- `qwen3.5:4b` : 28/32, 0.875 x4, score stddev 0 ; 80.690 tok/s ; 24.068 s/repeat ; timing stddev 8.244 s ; cold-load 13.797 s.
+- `granite4.1:3b` : 28/32, score 0.875 x4, stddev score 0 ; 129.512 tok/s ; 22.212 s/repeat ; timing stddev 0.179 s ; cold-load 15.484 s.
+- `qwen3.5:4b` : 28/32, score 0.875 x4, stddev score 0 ; 80.690 tok/s ; 24.068 s/repeat ; timing stddev 8.244 s ; cold-load 13.797 s.
 - Les deux passent exact/Python/Godot/GDScript/debug/JSON/tools 4/4 et échouent Git worktree 4/4.
 
 **Décision FAST provisoire : `granite4.1:3b` gagne KodeFast.** `qwen3.5:4b` reste fallback compact/multimodal.
 
-## CORE v1 — DIAGNOSTIC TERMINÉ, SCORE NON FINAL
+## CORE v1 — DIAGNOSTIC TERMINÉ
 
 Preuve : `.kodepoia/benchmarks/r3-preselect-core.json`.
 
-Le PC cible a exécuté **5 répétitions** par candidat avec l'ancien budget CORE `num_predict=256`.
+Le PC cible a exécuté 5 répétitions avec l'ancien budget 256. Ce run a montré que Qwen 9B épuisait le budget de thinking avant contenu final, ce qui a conduit au hardening 1024 + `done_reason` + `generation_budget_exhausted`. GPT-OSS était déjà leader provisoire. Qwen3.6 27B a été écarté du rerun quotidien en raison d'environ 3.13 tok/s et de neuf timeouts de 120 s.
 
-### qwen3.5:9b
+## CORE v2 — TERMINÉ / DÉCISION PRISE
 
-Rapport brut : 20/40, score apparent 0.50, 55.121 tok/s, 70.479 s/repeat, cold-load moyen 33.816 s.
+Preuve fournie par le PC cible : `.kodepoia/benchmarks/r3-preselect-core-v2.json`.
 
-Ce 50 % **n'est pas un score de capacité valide**. Les 20 échecs (Python reasoning, Godot, structured output, software engineering sur les 5 repeats) ont tous : réponse finale vide + thinking non vide + `eval_count=256` exactement + aucune erreur transport. Le budget était consommé par le raisonnement avant la réponse finale.
+Le run a utilisé Windows 11, Python 3.12.4, Ollama 0.32.14, `benchmark_role=core`, `temperature=0`, `num_predict=1024` et **5 répétitions par modèle**.
 
-Décision : **rerun obligatoire avec 1024 tokens**.
+### `qwen3.5:9b`
 
-### gpt-oss:20b
+- 25/40, score 0.625 ; repeats 0.625 x5 ; score stddev 0.0 ;
+- 54.609 tok/s ; 110.930 s/repeat ; cold-load moyen 29.020 s ;
+- exact instruction, Godot, GDScript typé, debugging et tool calling : 5/5 chacun ;
+- Python reasoning, structured output et software engineering / Git worktree : 0/5 chacun ;
+- 15 erreurs, toutes `generation_budget_exhausted` ;
+- pour les 15 échecs : `done_reason="length"`, `eval_count=1024`, thinking non vide, réponse finale vide.
 
-Rapport : 39/40, score 0.975 ; repeats 1.0 / 1.0 / 0.875 / 1.0 / 1.0 ; 15.676 tok/s ; 180.232 s/repeat ; cold-load moyen 94.285 s.
+Conclusion : le passage 256 → 1024 ne résout pas la boucle de thinking sur ces catégories. Le modèle n'est pas déclaré intrinsèquement mauvais ; il est **non fiable pour KodeCore avec la politique reasoning bornée actuelle**. Il reste intéressant comme plus petit modèle multimodal/vision ou fallback non-thinking à tester plus tard si nécessaire.
 
-Il passe 5/5 Python, Godot, GDScript, debugging, JSON structuré, tool calling et Git worktree. Son seul échec est un timeout de 120 s sur `exact-instruction` au repeat 3, pas une réponse incorrecte.
+### `gpt-oss:20b`
 
-**Leader CORE provisoire : `gpt-oss:20b`**, mais coût de latence/cold-load élevé ; comparer équitablement à Qwen 9B v2 avant décision.
+- 40/40, score 1.000 ; repeats 1.0 x5 ; score stddev 0.0 ; minimum 1.0 ;
+- 15.399 tok/s ; 154.905 s/repeat ; timing stddev 0.603 s ;
+- cold-load moyen 90.985 s ;
+- 8 catégories : 5/5 chacune ;
+- 0 erreur ; 0 budget exhaustion ; thinking `medium` ;
+- Ollama a rapporté environ 14.1 GB de modèle dont environ 10.1 GB résidents en VRAM pendant le run.
 
-### qwen3.6:27b
+Malgré un débit brut plus faible, les tâches utiles une fois le modèle chargé restent compétitives : le coût majeur est le **cold-load**, pas la fiabilité ou la génération chaude. KodeVRAM/keep-alive devront éviter les unload/reload inutiles pendant une session CORE active.
 
-Rapport brut : 10/40, 3.131 tok/s, 673.694 s/repeat et 9 timeouts de 120 s. Son score est lui aussi partiellement biaisé par l'ancien budget, mais la mesure de performance matérielle est déjà concluante : cette variante 27B est trop lente pour devenir le CORE quotidien sur ce PC.
+**Décision CORE provisoire : `gpt-oss:20b` gagne KodeCore.**
 
-Décision : **retiré du rerun CORE v2**. Cela ne juge pas la qualité intrinsèque de Qwen3.6 ; uniquement sa praticabilité sur le matériel cible.
+Ne pas faire de CORE v3. Passer à CODER.
 
-## Prochaine opération matérielle — CORE v2
+## CODER — PROCHAINE OPÉRATION MATÉRIELLE
 
-Avant toute chose :
+Candidats :
+- `qwen2.5-coder:7b-instruct`
+- `devstral-small-2:24b`
+- `north-mini-code-1.0:Q4_K_M`
+
+Raisons : Qwen 2.5 Coder est compact ; Devstral Small 2 est spécifiquement agentic software engineering mais son modèle Q4_K_M est d'environ 15 GB et doit être mesuré sur 12 GB VRAM ; North Mini Code est un MoE 30B total / 3B actifs orienté code/terminal, donc son efficacité réelle doit être mesurée plutôt qu'inférée.
+
+Avant le run :
 
 ```powershell
 git switch agent/r1-r3-acceptance-hardening
@@ -106,39 +120,30 @@ git pull
 .\.venv\Scripts\Activate.ps1
 ```
 
-Puis rerun uniquement les deux CORE encore viables :
+Puis :
 
 ```powershell
-python -m kodepoia.cli bench-models --role core --repeats 4 --model "qwen3.5:9b" --model "gpt-oss:20b" --output ".kodepoia/benchmarks/r3-preselect-core-v2.json"
+python -m kodepoia.cli bench-models --role coder --repeats 4 --model "qwen2.5-coder:7b-instruct" --model "devstral-small-2:24b" --model "north-mini-code-1.0:Q4_K_M" --output ".kodepoia/benchmarks/r3-preselect-coder.json"
 ```
 
-Le CLI doit afficher `num_predict: 1024` dans la sortie. Ne pas lancer CODER avant analyse de ce rapport.
-
-## CODER — après revue CORE v2
-
-Candidats :
-- `qwen2.5-coder:7b-instruct`
-- `devstral-small-2:24b`
-- `north-mini-code-1.0:Q4_K_M`
+Le CLI doit utiliser `num_predict=1024`. Ne pas lancer `r3-accept` avant analyse du rapport CODER.
 
 ## Séquence obligatoire avant R4
 
 1. Garder PR #8 ouverte.
-2. FAST v2 : terminé, Granite gagnant provisoire.
-3. CORE v1 : diagnostic terminé, défaut de budget découvert et corrigé.
-4. Faire `git pull` après CI verte du nouveau hardening.
-5. Exécuter CORE v2 : Qwen 9B vs GPT-OSS 20B, 4 répétitions, budget 1024.
-6. Analyser CORE v2.
-7. Exécuter CODER avec 4 répétitions et budget 1024.
-8. Analyser CODER.
-9. Choisir 2–3 finalistes.
-10. Exécuter `r3_accept_local.ps1` avec 5 répétitions et profil thinking-aware.
-11. Vérifier `.kodepoia/benchmarks/r3-local-acceptance.json`.
-12. Enregistrer rôles/modèles dans ce fichier et `R3_STATUS.md`.
-13. Marquer R3 COMPLETE seulement si les résultats sont acceptables.
-14. Revalider CI.
-15. Fusionner PR #8.
-16. Seulement ensuite commencer R4.
+2. FAST v2 : terminé ; `granite4.1:3b` gagnant provisoire.
+3. CORE v1 : diagnostic terminé ; hardening budget/done_reason effectué.
+4. CORE v2 : terminé ; `gpt-oss:20b` gagnant provisoire.
+5. Faire `git pull` puis exécuter CODER avec les trois candidats, 4 répétitions, budget 1024.
+6. Analyser CODER et sélectionner KodeCoder provisoire.
+7. Choisir les 2–3 finalistes de l'acceptation R3 parmi les rôles retenus.
+8. Exécuter `r3_accept_local.ps1` avec 5 répétitions et profil thinking-aware.
+9. Vérifier `.kodepoia/benchmarks/r3-local-acceptance.json`.
+10. Enregistrer les rôles/modèles dans ce fichier et `R3_STATUS.md`.
+11. Marquer R3 COMPLETE seulement si les résultats sont acceptables.
+12. Revalider CI.
+13. Fusionner PR #8.
+14. Seulement ensuite commencer R4.
 
 ## Politique de continuité
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kodepoia"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "Local-first AI development environment for games and applications"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -24,6 +24,7 @@ dev = [
 ]
 
 [project.scripts]
+kodepoia = "kodepoia.cli:main"
 kodepoia-studio = "kodepoia.kodestudio.app:main"
 
 [tool.hatch.build.targets.wheel]

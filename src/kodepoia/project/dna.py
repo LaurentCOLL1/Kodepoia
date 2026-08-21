@@ -42,6 +42,12 @@ class DecisionState(StrEnum):
     UNDECIDED = "undecided"
 
 
+class ApprovalPolicy(StrEnum):
+    DENY = "deny"
+    ASK = "ask"
+    ALLOW_TRUSTED = "allow_trusted"
+
+
 @dataclass(slots=True)
 class PerformanceBudget:
     target_fps: int = 60
@@ -49,6 +55,16 @@ class PerformanceBudget:
     max_vram_mb: int | None = None
     max_ram_mb: int | None = None
     max_build_mb: int | None = None
+
+    def validate(self) -> None:
+        if self.target_fps <= 0 or self.min_fps <= 0:
+            raise ValueError("FPS budgets must be positive")
+        if self.min_fps > self.target_fps:
+            raise ValueError("Minimum FPS cannot exceed target FPS")
+        for name in ("max_vram_mb", "max_ram_mb", "max_build_mb"):
+            value = getattr(self, name)
+            if value is not None and value <= 0:
+                raise ValueError(f"{name} must be positive when defined")
 
 
 @dataclass(slots=True)
@@ -67,24 +83,53 @@ class ProjectDNA:
     multiplayer: DecisionState = DecisionState.NO
     performance: dict[str, PerformanceBudget] = field(default_factory=dict)
     tools: dict[str, bool] = field(default_factory=dict)
+    download_policy: ApprovalPolicy = ApprovalPolicy.ASK
+    install_policy: ApprovalPolicy = ApprovalPolicy.ASK
     lineage: dict[str, str] = field(default_factory=dict)
     capabilities: dict[str, DecisionState] = field(default_factory=dict)
 
     def validate(self) -> None:
+        if self.schema_version != 1:
+            raise ValueError(f"Unsupported Project DNA schema version: {self.schema_version}")
         if not self.name.strip():
             raise ValueError("Project name is required")
         if not self.platforms:
             raise ValueError("At least one target platform is required")
+        if len(self.platforms) != len(set(self.platforms)):
+            raise ValueError("Target platforms must be unique")
         if self.project_type is ProjectType.GAME and not self.dimension:
             raise ValueError("Game projects require a dimension")
+        if self.project_type is not ProjectType.GAME and self.dimension is not None:
+            raise ValueError("Only game projects can define a game dimension")
+
         mobile = {Platform.ANDROID, Platform.IOS} & set(self.platforms)
+        normalized_inputs = {item.lower() for item in self.inputs}
         if not mobile:
-            forbidden = {"touch", "gyro", "accelerometer"} & {item.lower() for item in self.inputs}
+            forbidden = {"touch", "gyro", "accelerometer"} & normalized_inputs
             if forbidden:
-                raise ValueError(f"Mobile-only inputs selected without mobile platform: {sorted(forbidden)}")
-        for platform in self.performance:
-            if Platform(platform) not in self.platforms:
+                raise ValueError(
+                    f"Mobile-only inputs selected without mobile platform: {sorted(forbidden)}"
+                )
+        if Platform.XR not in self.platforms and "motion_controllers" in normalized_inputs:
+            raise ValueError("XR motion controllers selected without XR target")
+
+        target_platforms = {platform.value for platform in self.platforms}
+        for platform, budget in self.performance.items():
+            if platform not in target_platforms:
                 raise ValueError(f"Performance budget defined for non-target platform: {platform}")
+            budget.validate()
+
+        for key, value in self.capabilities.items():
+            if not key.strip():
+                raise ValueError("Capability names cannot be empty")
+            if not isinstance(value, DecisionState):
+                raise ValueError(f"Capability {key} must use DecisionState")
+        for key, value in self.tools.items():
+            if not key.strip() or not isinstance(value, bool):
+                raise ValueError("Tool configuration must map non-empty names to booleans")
+        for key, value in self.lineage.items():
+            if not key.strip() or not isinstance(value, str):
+                raise ValueError("Lineage must map non-empty names to strings")
 
     def to_dict(self) -> dict[str, Any]:
         self.validate()
@@ -103,19 +148,41 @@ class ProjectDNA:
     def save(self, path: Path) -> None:
         self.validate()
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(yaml.safe_dump(self.to_dict(), sort_keys=False, allow_unicode=True), encoding="utf-8")
+        path.write_text(
+            yaml.safe_dump(self.to_dict(), sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
 
     @classmethod
     def load(cls, path: Path) -> "ProjectDNA":
         raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-        performance = {key: PerformanceBudget(**value) for key, value in raw.get("performance", {}).items()}
+        if not isinstance(raw, dict):
+            raise ValueError("Project DNA must be a YAML object")
+        performance = {
+            key: PerformanceBudget(**value) for key, value in raw.get("performance", {}).items()
+        }
         dna = cls(
-            schema_version=int(raw["schema_version"]), name=raw["name"], project_type=ProjectType(raw["project_type"]),
-            platforms=[Platform(item) for item in raw["platforms"]], engine=raw.get("engine"), engine_version=raw.get("engine_version"),
-            dimension=Dimension(raw["dimension"]) if raw.get("dimension") else None, genres=list(raw.get("genres", [])),
-            inputs=list(raw.get("inputs", [])), graphics_style=raw.get("graphics_style"), online=DecisionState(raw.get("online", "no")),
-            multiplayer=DecisionState(raw.get("multiplayer", "no")), performance=performance, tools=dict(raw.get("tools", {})),
-            lineage=dict(raw.get("lineage", {})), capabilities={key: DecisionState(value) for key, value in raw.get("capabilities", {}).items()},
+            schema_version=int(raw["schema_version"]),
+            name=str(raw["name"]),
+            project_type=ProjectType(raw["project_type"]),
+            platforms=[Platform(item) for item in raw["platforms"]],
+            engine=raw.get("engine"),
+            engine_version=raw.get("engine_version"),
+            dimension=Dimension(raw["dimension"]) if raw.get("dimension") else None,
+            genres=list(raw.get("genres", [])),
+            inputs=list(raw.get("inputs", [])),
+            graphics_style=raw.get("graphics_style"),
+            online=DecisionState(raw.get("online", "no")),
+            multiplayer=DecisionState(raw.get("multiplayer", "no")),
+            performance=performance,
+            tools={str(key): bool(value) for key, value in raw.get("tools", {}).items()},
+            download_policy=ApprovalPolicy(raw.get("download_policy", "ask")),
+            install_policy=ApprovalPolicy(raw.get("install_policy", "ask")),
+            lineage={str(key): str(value) for key, value in raw.get("lineage", {}).items()},
+            capabilities={
+                str(key): DecisionState(value)
+                for key, value in raw.get("capabilities", {}).items()
+            },
         )
         dna.validate()
         return dna

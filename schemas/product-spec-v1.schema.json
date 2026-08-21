@@ -3,13 +3,66 @@
   "$id": "https://kodepoia.local/schemas/product-spec-v1.schema.json",
   "title": "Kodepoia Product Spec v1",
   "type": "object",
-  "required": ["schema_version", "product_name", "vision", "requirements"],
+  "required": [
+    "schema_version",
+    "product_name",
+    "vision",
+    "document_type",
+    "summary",
+    "goals",
+    "success_metrics",
+    "constraints",
+    "mvp",
+    "requirements",
+    "out_of_scope"
+  ],
   "properties": {
     "schema_version": {"const": 1},
     "product_name": {"type": "string", "minLength": 1},
-    "vision": {"type": "string"},
-    "mvp": {"type": "array", "items": {"type": "string"}},
-    "requirements": {"type": "array", "items": {"type": "object", "required": ["id", "title", "description", "acceptance"], "properties": {"id": {"type": "string"}, "title": {"type": "string"}, "description": {"type": "string"}, "priority": {"type": "string"}, "acceptance": {"type": "array"}, "code_refs": {"type": "array"}, "test_refs": {"type": "array"}}}}
+    "vision": {"type": "string", "minLength": 1},
+    "document_type": {"enum": ["gdd", "prd", "technical_spec"]},
+    "summary": {"type": "string"},
+    "goals": {"$ref": "#/$defs/stringList"},
+    "success_metrics": {"$ref": "#/$defs/stringList"},
+    "constraints": {"$ref": "#/$defs/stringList"},
+    "mvp": {"$ref": "#/$defs/stringList"},
+    "out_of_scope": {"$ref": "#/$defs/stringList"},
+    "requirements": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/requirement"}
+    }
+  },
+  "$defs": {
+    "stringList": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "acceptanceCriterion": {
+      "type": "object",
+      "required": ["id", "text"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "requirement": {
+      "type": "object",
+      "required": ["id", "title", "description", "priority", "acceptance", "code_refs", "test_refs"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "description": {"type": "string"},
+        "priority": {"enum": ["P0", "P1", "P2", "P3"]},
+        "acceptance": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/acceptanceCriterion"}
+        },
+        "code_refs": {"$ref": "#/$defs/stringList"},
+        "test_refs": {"$ref": "#/$defs/stringList"}
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": false
 }

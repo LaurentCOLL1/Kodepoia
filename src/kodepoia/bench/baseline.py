@@ -1,12 +1,26 @@
 from __future__ import annotations
 
 import json
+import platform
+import re
+import statistics
 import time
 from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
+from enum import StrEnum
 from pathlib import Path
+from typing import Any
 
 from kodepoia.brain.base import BrainMessage
 from kodepoia.brain.ollama import OllamaClient
+from kodepoia.exceptions import BrainUnavailable
+
+
+class BenchmarkRole(StrEnum):
+    BASELINE = "baseline"
+    FAST = "fast"
+    CORE = "core"
+    CODER = "coder"
 
 
 @dataclass(frozen=True, slots=True)
@@ -14,45 +28,459 @@ class BenchTask:
     id: str
     prompt: str
     expected_contains: tuple[str, ...] = ()
+    forbidden_contains: tuple[str, ...] = ()
+    exact_response: str | None = None
+    response_regex: str | None = None
+    response_schema: dict[str, Any] | None = None
+    tools: tuple[dict[str, Any], ...] = ()
+    expect_tool_call: bool = False
 
 
 @dataclass(frozen=True, slots=True)
 class BenchResult:
     model: str
     task_id: str
+    repeat: int
+    seed: int
     elapsed_s: float
     passed: bool
     response: str
     metrics: dict[str, object]
+    tokens_per_second: float | None = None
+    structured_valid: bool | None = None
+    tool_called: bool | None = None
+    thinking_mode: bool | str | None = None
+    error: str | None = None
+
+
+STRUCTURED_STATUS_SCHEMA = {
+    "type": "object",
+    "properties": {"status": {"type": "string", "enum": ["ok"]}},
+    "required": ["status"],
+    "additionalProperties": False,
+}
+
+PROJECT_DNA_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "get_project_dna",
+        "description": "Return the current Kodepoia project DNA.",
+        "parameters": {"type": "object", "properties": {}, "additionalProperties": False},
+    },
+}
 
 
 DEFAULT_TASKS = (
-    BenchTask("structured-reply", "Reply with exactly KODEPOIA_OK", ("KODEPOIA_OK",)),
-    BenchTask("python-reasoning", "In one sentence, explain why mutable default arguments in Python functions are risky.", ("mutable",)),
-    BenchTask("godot-awareness", "Name the Godot 4 node used for a kinematic 3D character body.", ("CharacterBody3D",)),
+    BenchTask(
+        "exact-instruction",
+        "Reply with exactly KODEPOIA_OK",
+        exact_response="KODEPOIA_OK",
+    ),
+    BenchTask(
+        "python-reasoning",
+        "In one sentence, explain why mutable default arguments in Python functions are risky.",
+        ("mutable",),
+    ),
+    BenchTask(
+        "godot-awareness",
+        "Name only the Godot 4 node used for a script-controlled 3D character body.",
+        ("CharacterBody3D",),
+        ("KinematicBody3D", "KinematicCharacter3D"),
+    ),
+    BenchTask(
+        "gdscript-typing",
+        "Write one Godot 4 GDScript declaration for an integer variable named count initialized to 0, with an explicit type.",
+        response_regex=r"\bvar\s+count\s*:\s*int\s*=\s*0\b",
+    ),
+    BenchTask(
+        "debugging",
+        "What value is commonly used instead of [] as a safe Python function default when the function may mutate the list?",
+        ("None",),
+    ),
+    BenchTask(
+        "structured-output",
+        "Return a JSON object whose status is ok.",
+        response_schema=STRUCTURED_STATUS_SCHEMA,
+    ),
+    BenchTask(
+        "tool-calling",
+        "Use the get_project_dna tool now. Do not invent the project DNA yourself.",
+        tools=(PROJECT_DNA_TOOL,),
+        expect_tool_call=True,
+    ),
+    BenchTask(
+        "software-engineering",
+        "Name only the Git feature that lets one repository have multiple working directories attached to different branches.",
+        response_regex=r"(?i)\bworktrees?\b",
+    ),
 )
 
 
 class BaselineBench:
+    FAST_NUM_PREDICT = 256
+    THINKING_NUM_PREDICT = 1024
+    PRELOAD_TIMEOUT_S = 240.0
+
     def __init__(self, client: OllamaClient, tasks: tuple[BenchTask, ...] = DEFAULT_TASKS) -> None:
         self.client = client
         self.tasks = tasks
 
-    def run(self, models: list[str]) -> list[BenchResult]:
+    @staticmethod
+    def _structured_matches(content: str, schema: dict[str, Any]) -> bool:
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError:
+            return False
+        if schema.get("type") == "object" and not isinstance(payload, dict):
+            return False
+        if isinstance(payload, dict):
+            for key in schema.get("required", []):
+                if key not in payload:
+                    return False
+            properties = schema.get("properties", {})
+            for key, definition in properties.items():
+                if key not in payload:
+                    continue
+                if "enum" in definition and payload[key] not in definition["enum"]:
+                    return False
+                if definition.get("type") == "string" and not isinstance(payload[key], str):
+                    return False
+            if schema.get("additionalProperties") is False and set(payload) - set(properties):
+                return False
+        return True
+
+    @staticmethod
+    def _content_matches(content: str, task: BenchTask) -> bool:
+        stripped = content.strip()
+        lowered = stripped.lower()
+        if task.exact_response is not None and stripped != task.exact_response:
+            return False
+        if not all(expected.lower() in lowered for expected in task.expected_contains):
+            return False
+        if any(forbidden.lower() in lowered for forbidden in task.forbidden_contains):
+            return False
+        if task.response_regex is not None and re.search(task.response_regex, stripped) is None:
+            return False
+        return True
+
+    @classmethod
+    def num_predict_for_role(cls, role: BenchmarkRole | str) -> int:
+        role = BenchmarkRole(role)
+        if role in {BenchmarkRole.CORE, BenchmarkRole.CODER}:
+            return cls.THINKING_NUM_PREDICT
+        return cls.FAST_NUM_PREDICT
+
+    @staticmethod
+    def _tokens_per_second(metrics: dict[str, object]) -> float | None:
+        count = metrics.get("eval_count")
+        duration = metrics.get("eval_duration")
+        if not isinstance(count, (int, float)) or not isinstance(duration, (int, float)):
+            return None
+        if duration <= 0:
+            return None
+        return float(count) / (float(duration) / 1_000_000_000.0)
+
+    @staticmethod
+    def _generation_budget_exhausted(
+        *,
+        content: str,
+        thinking: str | None,
+        tool_called: bool | None,
+        metrics: dict[str, object],
+        num_predict: int,
+    ) -> bool:
+        eval_count = metrics.get("eval_count")
+        return bool(
+            thinking
+            and not content.strip()
+            and not tool_called
+            and isinstance(eval_count, (int, float))
+            and eval_count >= num_predict
+        )
+
+    def _runtime_metrics(self, model: str) -> dict[str, object]:
+        running_models = getattr(self.client, "running_models", None)
+        if not callable(running_models):
+            return {}
+        try:
+            running = running_models()
+        except BrainUnavailable:
+            return {}
+        for item in running:
+            if str(item.get("name")) != model:
+                continue
+            metrics: dict[str, object] = {}
+            for key in ("size", "size_vram", "expires_at"):
+                if key in item:
+                    metrics[f"ollama_{key}"] = item[key]
+            details = item.get("details")
+            if isinstance(details, dict):
+                for key in ("family", "parameter_size", "quantization_level"):
+                    if key in details:
+                        metrics[f"ollama_{key}"] = details[key]
+            return metrics
+        return {}
+
+    def _preload_model(self, model: str) -> dict[str, object]:
+        preload = getattr(self.client, "preload", None)
+        if not callable(preload):
+            return {"preload_supported": False}
+        start = time.perf_counter()
+        try:
+            data = preload(model, keep_alive="2m", timeout=self.PRELOAD_TIMEOUT_S)
+        except BrainUnavailable as exc:
+            elapsed = time.perf_counter() - start
+            message = str(exc)
+            return {
+                "preload_supported": True,
+                "preload_elapsed_s": elapsed,
+                "preload_failed": True,
+                "preload_timed_out": "timed out" in message.lower(),
+                "preload_error": message,
+            }
+        elapsed = time.perf_counter() - start
+        metrics: dict[str, object] = {
+            "preload_supported": True,
+            "preload_elapsed_s": elapsed,
+            "preload_failed": False,
+            "preload_timed_out": False,
+        }
+        for key in ("done_reason", "total_duration", "load_duration"):
+            if key in data:
+                metrics[f"preload_{key}"] = data[key]
+        return metrics
+
+    def _thinking_mode(self, model: str, role: BenchmarkRole) -> bool | str | None:
+        if role in {BenchmarkRole.BASELINE, BenchmarkRole.FAST}:
+            return False
+        show_model = getattr(self.client, "show_model", None)
+        if not callable(show_model):
+            return None
+        try:
+            details = show_model(model)
+        except BrainUnavailable:
+            return None
+        capabilities = {str(value).lower() for value in details.get("capabilities", [])}
+        if "thinking" not in capabilities:
+            return None
+        model_details = details.get("details", {})
+        family = str(model_details.get("family", "")).lower() if isinstance(model_details, dict) else ""
+        normalized = model.lower()
+        if family == "gptoss" or normalized.startswith("gpt-oss"):
+            return "medium"
+        return True
+
+    def run(
+        self,
+        models: list[str],
+        *,
+        role: BenchmarkRole | str = BenchmarkRole.BASELINE,
+        repeats: int = 1,
+        seed_base: int = 101,
+        temperature: float = 0.0,
+        num_predict: int | None = None,
+    ) -> list[BenchResult]:
         if len(models) < 2:
             raise ValueError("Baseline comparison requires at least two models")
+        if not 1 <= repeats <= 8:
+            raise ValueError("Benchmark repeats must be between 1 and 8")
+        role = BenchmarkRole(role)
+        resolved_num_predict = num_predict or self.num_predict_for_role(role)
         results: list[BenchResult] = []
         for model in models:
-            for task in self.tasks:
-                start = time.perf_counter()
-                response = self.client.chat(model, [BrainMessage("user", task.prompt)], think=False, keep_alive="2m")
-                elapsed = time.perf_counter() - start
-                lowered = response.content.lower()
-                passed = all(expected.lower() in lowered for expected in task.expected_contains)
-                results.append(BenchResult(model, task.id, elapsed, passed, response.content, response.metrics or {}))
+            think = self._thinking_mode(model, role)
+            for repeat in range(1, repeats + 1):
+                seed = seed_base + repeat - 1
+                options = {
+                    "seed": seed,
+                    "temperature": temperature,
+                    "num_predict": resolved_num_predict,
+                }
+                preload_metrics = self._preload_model(model)
+                for task_index, task in enumerate(self.tasks):
+                    start = time.perf_counter()
+                    try:
+                        response = self.client.chat(
+                            model,
+                            [BrainMessage("user", task.prompt)],
+                            tools=list(task.tools) or None,
+                            response_schema=task.response_schema,
+                            think=think,
+                            keep_alive="2m",
+                            options=options,
+                        )
+                    except BrainUnavailable as exc:
+                        metrics: dict[str, object] = {}
+                        if task_index == 0:
+                            metrics.update(preload_metrics)
+                        results.append(
+                            BenchResult(
+                                model=model,
+                                task_id=task.id,
+                                repeat=repeat,
+                                seed=seed,
+                                elapsed_s=time.perf_counter() - start,
+                                passed=False,
+                                response="",
+                                metrics=metrics,
+                                structured_valid=False if task.response_schema is not None else None,
+                                tool_called=False if task.expect_tool_call else None,
+                                thinking_mode=think,
+                                error=str(exc),
+                            )
+                        )
+                        continue
+
+                    elapsed = time.perf_counter() - start
+                    content_valid = self._content_matches(response.content, task)
+                    structured_valid = (
+                        self._structured_matches(response.content, task.response_schema)
+                        if task.response_schema is not None
+                        else None
+                    )
+                    tool_called = bool(response.tool_calls) if task.expect_tool_call else None
+                    passed = content_valid
+                    if structured_valid is not None:
+                        passed = passed and structured_valid
+                    if tool_called is not None:
+                        passed = passed and tool_called
+                    metrics = dict(response.metrics or {})
+                    metrics.update(self._runtime_metrics(model))
+                    if task_index == 0:
+                        metrics.update(preload_metrics)
+                    if response.thinking:
+                        metrics["thinking_chars"] = len(response.thinking)
+                    budget_exhausted = self._generation_budget_exhausted(
+                        content=response.content,
+                        thinking=response.thinking,
+                        tool_called=tool_called,
+                        metrics=metrics,
+                        num_predict=resolved_num_predict,
+                    )
+                    if budget_exhausted:
+                        metrics["generation_budget_exhausted"] = True
+                    results.append(
+                        BenchResult(
+                            model=model,
+                            task_id=task.id,
+                            repeat=repeat,
+                            seed=seed,
+                            elapsed_s=elapsed,
+                            passed=passed,
+                            response=response.content,
+                            metrics=metrics,
+                            tokens_per_second=self._tokens_per_second(metrics),
+                            structured_valid=structured_valid,
+                            tool_called=tool_called,
+                            thinking_mode=think,
+                            error=(
+                                "generation budget exhausted before final answer"
+                                if budget_exhausted
+                                else None
+                            ),
+                        )
+                    )
+                unload = getattr(self.client, "unload", None)
+                if callable(unload):
+                    try:
+                        unload(model)
+                    except BrainUnavailable:
+                        pass
         return results
 
     @staticmethod
-    def save(results: list[BenchResult], path: Path) -> None:
+    def summarize(results: list[BenchResult]) -> dict[str, dict[str, object]]:
+        summary: dict[str, dict[str, object]] = {}
+        models = list(dict.fromkeys(item.model for item in results))
+        for model in models:
+            rows = [item for item in results if item.model == model]
+            speeds = [item.tokens_per_second for item in rows if item.tokens_per_second is not None]
+            repeat_ids = sorted({item.repeat for item in rows})
+            repeat_scores: list[float] = []
+            repeat_elapsed: list[float] = []
+            cold_load_seconds: list[float] = []
+            preload_elapsed_seconds: list[float] = []
+            preload_failures = 0
+            preload_timeouts = 0
+            for repeat in repeat_ids:
+                repeat_rows = [item for item in rows if item.repeat == repeat]
+                repeat_scores.append(
+                    sum(item.passed for item in repeat_rows) / len(repeat_rows) if repeat_rows else 0.0
+                )
+                first = repeat_rows[0] if repeat_rows else None
+                preload_elapsed = first.metrics.get("preload_elapsed_s") if first is not None else None
+                extra_elapsed = float(preload_elapsed) if isinstance(preload_elapsed, (int, float)) else 0.0
+                repeat_elapsed.append(sum(item.elapsed_s for item in repeat_rows) + extra_elapsed)
+                if isinstance(preload_elapsed, (int, float)):
+                    preload_elapsed_seconds.append(float(preload_elapsed))
+                preload_load_duration = (
+                    first.metrics.get("preload_load_duration") if first is not None else None
+                )
+                if isinstance(preload_load_duration, (int, float)):
+                    cold_load_seconds.append(float(preload_load_duration) / 1_000_000_000.0)
+                elif isinstance(preload_elapsed, (int, float)):
+                    cold_load_seconds.append(float(preload_elapsed))
+                else:
+                    load_duration = first.metrics.get("load_duration") if first is not None else None
+                    if isinstance(load_duration, (int, float)):
+                        cold_load_seconds.append(float(load_duration) / 1_000_000_000.0)
+                if first is not None and first.metrics.get("preload_failed") is True:
+                    preload_failures += 1
+                if first is not None and first.metrics.get("preload_timed_out") is True:
+                    preload_timeouts += 1
+            task_pass_rates: dict[str, float] = {}
+            for task_id in dict.fromkeys(item.task_id for item in rows):
+                task_rows = [item for item in rows if item.task_id == task_id]
+                task_pass_rates[task_id] = round(
+                    sum(item.passed for item in task_rows) / len(task_rows), 4
+                )
+            summary[model] = {
+                "passed": sum(item.passed for item in rows),
+                "total": len(rows),
+                "score": round(sum(item.passed for item in rows) / len(rows), 4) if rows else 0.0,
+                "repeats": len(repeat_ids),
+                "repeat_scores": [round(value, 4) for value in repeat_scores],
+                "score_stddev": round(statistics.pstdev(repeat_scores), 4) if len(repeat_scores) > 1 else 0.0,
+                "min_repeat_score": round(min(repeat_scores), 4) if repeat_scores else 0.0,
+                "avg_repeat_elapsed_s": round(statistics.mean(repeat_elapsed), 3) if repeat_elapsed else 0.0,
+                "elapsed_stddev_s": round(statistics.pstdev(repeat_elapsed), 3) if len(repeat_elapsed) > 1 else 0.0,
+                "avg_tokens_per_second": round(statistics.mean(speeds), 3) if speeds else None,
+                "tokens_per_second_stddev": round(statistics.pstdev(speeds), 3) if len(speeds) > 1 else 0.0 if speeds else None,
+                "avg_cold_load_s": round(statistics.mean(cold_load_seconds), 3) if cold_load_seconds else None,
+                "avg_preload_elapsed_s": (
+                    round(statistics.mean(preload_elapsed_seconds), 3)
+                    if preload_elapsed_seconds
+                    else None
+                ),
+                "preload_failures": preload_failures,
+                "preload_timeouts": preload_timeouts,
+                "task_pass_rates": task_pass_rates,
+                "errors": sum(item.error is not None for item in rows),
+                "budget_exhaustions": sum(
+                    item.metrics.get("generation_budget_exhausted") is True for item in rows
+                ),
+                "thinking_mode": rows[0].thinking_mode if rows else None,
+            }
+        return summary
+
+    @staticmethod
+    def save(
+        results: list[BenchResult],
+        path: Path,
+        *,
+        metadata: dict[str, object] | None = None,
+    ) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps([asdict(item) for item in results], ensure_ascii=False, indent=2), encoding="utf-8")
+        report = {
+            "schema_version": 2,
+            "generated_at": datetime.now(UTC).isoformat(),
+            "host": {
+                "platform": platform.platform(),
+                "python": platform.python_version(),
+                "processor": platform.processor(),
+            },
+            "metadata": metadata or {},
+            "summary": BaselineBench.summarize(results),
+            "results": [asdict(item) for item in results],
+        }
+        path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")

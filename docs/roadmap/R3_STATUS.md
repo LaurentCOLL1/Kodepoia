@@ -12,35 +12,31 @@ Original implementation:
 
 Acceptance hardening:
 - PR #8 — `R1-R3 Acceptance Hardening`.
-- CI hardening has been validated on Windows and Ubuntu during PR #8.
-- KodeStudio UI smoke is validated on Windows.
-- Repository Guard is validated on Windows and Ubuntu.
+- Hardening is validated iteratively on Windows/Ubuntu with Repository Guard, Python Core and KodeStudio UI smoke.
 
 ## Implemented
 
 - [x] Model-agnostic Brain protocol.
 - [x] Local Ollama adapter using `/api/version`, `/api/tags`, `/api/chat` and `/api/embed`.
-- [x] Non-streaming chat.
-- [x] Streaming `stream_chat`.
+- [x] Non-streaming and streaming chat.
 - [x] Tool-call payload/result support.
 - [x] JSON-schema / structured-output support.
 - [x] Thinking and keep-alive parameters.
 - [x] Image payload support for multimodal messages.
 - [x] Explicit model unload support.
+- [x] Explicit unscored Ollama preload support before benchmark tasks.
 - [x] KodeModelRegistry with FAST / CORE / CODER / EMBED / VISION roles.
-- [x] Capability-aware KodeModelRouter driven by task profile and VRAM fit.
-- [x] Persistent SQLite KodeMemory with WAL, scopes, importance, metadata and governance flags.
-- [x] Embedding persistence and cosine semantic retrieval.
-- [x] Semantic retrieval wired into the Orchestrator: query embedding → semantic search → ContextBuilder.
-- [x] KodeContext token budget, mandatory-context handling and relevance priority.
-- [x] Streaming Orchestrator path.
+- [x] Capability-aware KodeModelRouter.
+- [x] Persistent SQLite KodeMemory + semantic retrieval wired into the Orchestrator.
+- [x] KodeContext token budget and streaming Orchestrator path.
 - [x] `kodepoia ollama-status` local diagnostic.
-- [x] Expanded `kodepoia bench-models` benchmark and JSON output.
-- [x] Role-aware benchmark policy: FAST 256 tokens/no thinking; CORE/CODER 1024 tokens/capability-aware thinking.
+- [x] Role-aware repeated benchmark and JSON report.
+- [x] FAST 256 tokens/no thinking; CORE/CODER 1024 tokens/capability-aware thinking.
 - [x] Ollama `done_reason` retention and explicit `generation_budget_exhausted` detection.
-- [x] `kodepoia r3-accept` local-only acceptance command requiring two or three distinct installed candidates and full-capability thinking-aware evaluation.
-- [x] Mocked Ollama API tests so CI validates protocols without requiring downloaded models.
-- [x] R3 hardening CI on Windows and Ubuntu.
+- [x] Cold-load separation: preload is measured separately from scored task correctness.
+- [x] Preload diagnostics: `avg_cold_load_s`, `avg_preload_elapsed_s`, `preload_failures`, `preload_timeouts`.
+- [x] `kodepoia r3-accept` local-only acceptance requiring two or three installed candidates and full-capability thinking-aware evaluation.
+- [x] Mocked Ollama API/benchmark tests.
 
 ## Local preselection evidence
 
@@ -55,49 +51,75 @@ Evidence: `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
 
 ### CORE — completed
 
-CORE v1 evidence: `.kodepoia/benchmarks/r3-preselect-core.json` exposed a too-small 256-token thinking budget and triggered benchmark hardening.
-
-CORE v2 evidence: `.kodepoia/benchmarks/r3-preselect-core-v2.json`, run on the target workstation with Windows 11, Python 3.12.4, Ollama 0.32.14, 5 repeats and `num_predict=1024`.
+CORE v2 evidence: `.kodepoia/benchmarks/r3-preselect-core-v2.json`, target workstation, five repeats, `num_predict=1024`.
 
 `qwen3.5:9b`:
 - 25/40, score 0.625 x5;
 - 54.609 tok/s;
-- 15/40 tasks ended in explicit `generation_budget_exhausted` with `done_reason="length"` and `eval_count=1024`;
-- passes exact/Godot/GDScript/debug/tools 5/5, but Python reasoning/structured output/software engineering 0/5 under the current bounded-thinking policy.
+- 15 deterministic `generation_budget_exhausted` cases.
 
 `gpt-oss:20b`:
 - 40/40, score 1.0 x5;
 - 15.399 tok/s;
 - all eight categories 5/5;
-- 0 errors and 0 budget exhaustions;
-- cold-load approximately 90.985 s, which must be mitigated operationally with keep-alive/KodeVRAM policy.
+- 0 errors, 0 budget exhaustions;
+- cold-load about 90.985 s.
 
 **Provisional KodeCore winner: `gpt-oss:20b`.**
 
-`qwen3.5:9b` remains available as a smaller multimodal/fallback candidate; it is not deleted or declared intrinsically weak.
+### CODER v1 — diagnostic completed
 
-### CODER — pending
+Evidence: `.kodepoia/benchmarks/r3-preselect-coder.json`, five repeats, `num_predict=1024`.
 
-Candidates:
-- `qwen2.5-coder:7b-instruct`
-- `devstral-small-2:24b`
-- `north-mini-code-1.0:Q4_K_M`
+`qwen2.5-coder:7b-instruct`:
+- 30/40, 0.750 x5, 82.296 tok/s;
+- core coding/Godot/GDScript/debug/JSON tasks pass 5/5;
+- native tool calling 0/5;
+- software-engineering worktree 0/5 (`Git Subtree`).
 
-Next evidence file: `.kodepoia/benchmarks/r3-preselect-coder.json`.
+`devstral-small-2:24b`:
+- raw 30/40;
+- 3.968 tok/s;
+- first repetition contains five consecutive 120 s timeouts;
+- software-engineering worktree 0/5 (`sparse checkout`).
+
+`north-mini-code-1.0:Q4_K_M`:
+- raw 35/40, apparent 0.875 x5, 12.838 tok/s;
+- Python/Godot/GDScript/debug/structured/native-tools/worktree all 5/5;
+- raw exact-instruction 0/5 consists entirely of 120 s timeouts on the **first task after unload**, followed by successful warm tasks;
+- about 10.03 GB resident VRAM observed while running.
+
+CODER v1 therefore exposed a **cold-load scoring bias**. North is the substantive coding leader but cannot be declared final from the raw 0.875 score.
+
+### Cold-load benchmark hardening — implementation complete, CI validation required
+
+The benchmark now preloads each model using an unscored empty Ollama chat request before any scored task. Preload uses a dedicated 240 s timeout. Its cost remains in end-to-end timing and cold-load metrics, but does not automatically become a knowledge failure. Tests explicitly verify that preload failure and task correctness are separate dimensions.
+
+## Next hardware step — CODER v2 after CI green
+
+Do not rerun Devstral/Qwen2.5-Coder as default contenders. Compare the two realistic agentic finalists under the corrected cold-load policy:
+
+```powershell
+python -m kodepoia.cli bench-models --role coder --repeats 5 --model "gpt-oss:20b" --model "north-mini-code-1.0:Q4_K_M" --output ".kodepoia/benchmarks/r3-preselect-coder-v2.json"
+```
+
+Do not run official `r3-accept` until CODER v2 is reviewed.
 
 ## Remaining hardware-local acceptance
 
-R3 remains intentionally incomplete until CODER preselection is reviewed, 2–3 final candidates are selected, and the official target-PC acceptance report is generated and reviewed.
+R3 remains intentionally incomplete until:
+1. cold-load hardening CI is green;
+2. CODER v2 is reviewed;
+3. 2–3 final candidates are selected;
+4. official target-PC `r3-accept` is generated and reviewed.
 
-### Prepared Windows runner
-
-From the Kodepoia repository root:
+Prepared runner:
 
 ```powershell
 .\scripts\r3_accept_local.ps1 -ListOnly
 ```
 
-Then run two or three installed finalists:
+Then, after finalist selection only:
 
 ```powershell
 .\scripts\r3_accept_local.ps1 -Model modelA,modelB
@@ -105,31 +127,8 @@ Then run two or three installed finalists:
 .\scripts\r3_accept_local.ps1 -Model modelA,modelB,modelC
 ```
 
-Detailed procedure: `docs/roadmap/R3_LOCAL_ACCEPTANCE.md`.
-
-The wrapper verifies:
-- Python 3.12+;
-- loopback-only Ollama (`127.0.0.1`, `localhost` or `::1`);
-- local `ollama-status` connectivity;
-- exactly two or three distinct installed candidates;
-- generation of `.kodepoia/benchmarks/r3-local-acceptance.json`;
-- `phase == R3-local-acceptance`;
-- `acceptance_completed == true`;
-- `loopback_verified == true`;
-- candidate count and per-model summary presence.
-
-## Review required before completion
-
-The final report must be reviewed for:
-- pass/total score and repeatability;
-- structured-output success;
-- tool-call success;
-- Godot/GDScript correctness;
-- general software-engineering/debugging correctness;
-- elapsed time and tokens/s;
-- VRAM/model metadata when Ollama exposes them;
-- model-load/runtime errors and generation-budget exhaustion.
+Final evidence: `.kodepoia/benchmarks/r3-local-acceptance.json`.
 
 ## Completion rule
 
-R3 becomes `COMPLETE` only after CODER preselection and the target workstation's `.kodepoia/benchmarks/r3-local-acceptance.json` have been reviewed and accepted. PR #8 remains open until that hardware-local evidence exists. R4 must not begin before R3 is accepted.
+R3 becomes `COMPLETE` only after the target workstation's official local acceptance report is structurally valid, technically reviewed, selected roles are recorded, final CI is green, and PR #8 is safe to merge. R4 must not begin before R3 is accepted.

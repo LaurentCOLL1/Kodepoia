@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import platform
+import re
+import statistics
 import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -26,6 +28,9 @@ class BenchTask:
     id: str
     prompt: str
     expected_contains: tuple[str, ...] = ()
+    forbidden_contains: tuple[str, ...] = ()
+    exact_response: str | None = None
+    response_regex: str | None = None
     response_schema: dict[str, Any] | None = None
     tools: tuple[dict[str, Any], ...] = ()
     expect_tool_call: bool = False
@@ -35,6 +40,8 @@ class BenchTask:
 class BenchResult:
     model: str
     task_id: str
+    repeat: int
+    seed: int
     elapsed_s: float
     passed: bool
     response: str
@@ -64,7 +71,11 @@ PROJECT_DNA_TOOL = {
 
 
 DEFAULT_TASKS = (
-    BenchTask("exact-instruction", "Reply with exactly KODEPOIA_OK", ("KODEPOIA_OK",)),
+    BenchTask(
+        "exact-instruction",
+        "Reply with exactly KODEPOIA_OK",
+        exact_response="KODEPOIA_OK",
+    ),
     BenchTask(
         "python-reasoning",
         "In one sentence, explain why mutable default arguments in Python functions are risky.",
@@ -72,13 +83,14 @@ DEFAULT_TASKS = (
     ),
     BenchTask(
         "godot-awareness",
-        "Name the Godot 4 node used for a kinematic 3D character body.",
+        "Name only the Godot 4 node used for a script-controlled 3D character body.",
         ("CharacterBody3D",),
+        ("KinematicBody3D", "KinematicCharacter3D"),
     ),
     BenchTask(
         "gdscript-typing",
         "Write one Godot 4 GDScript declaration for an integer variable named count initialized to 0, with an explicit type.",
-        ("int", "count"),
+        response_regex=r"\bvar\s+count\s*:\s*int\s*=\s*0\b",
     ),
     BenchTask(
         "debugging",
@@ -98,8 +110,8 @@ DEFAULT_TASKS = (
     ),
     BenchTask(
         "software-engineering",
-        "Name the Git feature that lets one repository have multiple working directories attached to different branches.",
-        ("worktree",),
+        "Name only the Git feature that lets one repository have multiple working directories attached to different branches.",
+        response_regex=r"(?i)\bworktrees?\b",
     ),
 )
 
@@ -131,6 +143,20 @@ class BaselineBench:
                     return False
             if schema.get("additionalProperties") is False and set(payload) - set(properties):
                 return False
+        return True
+
+    @staticmethod
+    def _content_matches(content: str, task: BenchTask) -> bool:
+        stripped = content.strip()
+        lowered = stripped.lower()
+        if task.exact_response is not None and stripped != task.exact_response:
+            return False
+        if not all(expected.lower() in lowered for expected in task.expected_contains):
+            return False
+        if any(forbidden.lower() in lowered for forbidden in task.forbidden_contains):
+            return False
+        if task.response_regex is not None and re.search(task.response_regex, stripped) is None:
+            return False
         return True
 
     @staticmethod
@@ -191,81 +217,96 @@ class BaselineBench:
         models: list[str],
         *,
         role: BenchmarkRole | str = BenchmarkRole.BASELINE,
+        repeats: int = 1,
+        seed_base: int = 101,
+        temperature: float = 0.0,
+        num_predict: int = 256,
     ) -> list[BenchResult]:
         if len(models) < 2:
             raise ValueError("Baseline comparison requires at least two models")
+        if not 1 <= repeats <= 8:
+            raise ValueError("Benchmark repeats must be between 1 and 8")
         role = BenchmarkRole(role)
         results: list[BenchResult] = []
         for model in models:
             think = self._thinking_mode(model, role)
-            for task in self.tasks:
-                start = time.perf_counter()
-                try:
-                    response = self.client.chat(
-                        model,
-                        [BrainMessage("user", task.prompt)],
-                        tools=list(task.tools) or None,
-                        response_schema=task.response_schema,
-                        think=think,
-                        keep_alive="2m",
+            for repeat in range(1, repeats + 1):
+                seed = seed_base + repeat - 1
+                options = {
+                    "seed": seed,
+                    "temperature": temperature,
+                    "num_predict": num_predict,
+                }
+                for task in self.tasks:
+                    start = time.perf_counter()
+                    try:
+                        response = self.client.chat(
+                            model,
+                            [BrainMessage("user", task.prompt)],
+                            tools=list(task.tools) or None,
+                            response_schema=task.response_schema,
+                            think=think,
+                            keep_alive="2m",
+                            options=options,
+                        )
+                    except BrainUnavailable as exc:
+                        results.append(
+                            BenchResult(
+                                model=model,
+                                task_id=task.id,
+                                repeat=repeat,
+                                seed=seed,
+                                elapsed_s=time.perf_counter() - start,
+                                passed=False,
+                                response="",
+                                metrics={},
+                                structured_valid=False if task.response_schema is not None else None,
+                                tool_called=False if task.expect_tool_call else None,
+                                thinking_mode=think,
+                                error=str(exc),
+                            )
+                        )
+                        continue
+
+                    elapsed = time.perf_counter() - start
+                    content_valid = self._content_matches(response.content, task)
+                    structured_valid = (
+                        self._structured_matches(response.content, task.response_schema)
+                        if task.response_schema is not None
+                        else None
                     )
-                except BrainUnavailable as exc:
+                    tool_called = bool(response.tool_calls) if task.expect_tool_call else None
+                    passed = content_valid
+                    if structured_valid is not None:
+                        passed = passed and structured_valid
+                    if tool_called is not None:
+                        passed = passed and tool_called
+                    metrics = dict(response.metrics or {})
+                    metrics.update(self._runtime_metrics(model))
+                    if response.thinking:
+                        metrics["thinking_chars"] = len(response.thinking)
                     results.append(
                         BenchResult(
                             model=model,
                             task_id=task.id,
-                            elapsed_s=time.perf_counter() - start,
-                            passed=False,
-                            response="",
-                            metrics={},
-                            structured_valid=False if task.response_schema is not None else None,
-                            tool_called=False if task.expect_tool_call else None,
+                            repeat=repeat,
+                            seed=seed,
+                            elapsed_s=elapsed,
+                            passed=passed,
+                            response=response.content,
+                            metrics=metrics,
+                            tokens_per_second=self._tokens_per_second(metrics),
+                            structured_valid=structured_valid,
+                            tool_called=tool_called,
                             thinking_mode=think,
-                            error=str(exc),
                         )
                     )
-                    continue
-
-                elapsed = time.perf_counter() - start
-                lowered = response.content.lower()
-                contains_ok = all(
-                    expected.lower() in lowered for expected in task.expected_contains
-                )
-                structured_valid = (
-                    self._structured_matches(response.content, task.response_schema)
-                    if task.response_schema is not None
-                    else None
-                )
-                tool_called = bool(response.tool_calls) if task.expect_tool_call else None
-                passed = contains_ok
-                if structured_valid is not None:
-                    passed = passed and structured_valid
-                if tool_called is not None:
-                    passed = passed and tool_called
-                metrics = dict(response.metrics or {})
-                metrics.update(self._runtime_metrics(model))
-                if response.thinking:
-                    metrics["thinking_chars"] = len(response.thinking)
-                results.append(
-                    BenchResult(
-                        model=model,
-                        task_id=task.id,
-                        elapsed_s=elapsed,
-                        passed=passed,
-                        response=response.content,
-                        metrics=metrics,
-                        tokens_per_second=self._tokens_per_second(metrics),
-                        structured_valid=structured_valid,
-                        tool_called=tool_called,
-                        thinking_mode=think,
-                    )
-                )
-            unload = getattr(self.client, "unload", None)
-            if callable(unload):
-                try:
-                    unload(model)
-                except BrainUnavailable:
-                    pass
+                unload = getattr(self.client, "unload", None)
+                if callable(unload):
+                    try:
+                        unload(model)
+                    except BrainUnavailable:
+                        pass
         return results
 
     @staticmethod
@@ -275,12 +316,40 @@ class BaselineBench:
         for model in models:
             rows = [item for item in results if item.model == model]
             speeds = [item.tokens_per_second for item in rows if item.tokens_per_second is not None]
+            repeat_ids = sorted({item.repeat for item in rows})
+            repeat_scores: list[float] = []
+            repeat_elapsed: list[float] = []
+            cold_load_seconds: list[float] = []
+            for repeat in repeat_ids:
+                repeat_rows = [item for item in rows if item.repeat == repeat]
+                repeat_scores.append(
+                    sum(item.passed for item in repeat_rows) / len(repeat_rows) if repeat_rows else 0.0
+                )
+                repeat_elapsed.append(sum(item.elapsed_s for item in repeat_rows))
+                first = repeat_rows[0] if repeat_rows else None
+                load_duration = first.metrics.get("load_duration") if first is not None else None
+                if isinstance(load_duration, (int, float)):
+                    cold_load_seconds.append(float(load_duration) / 1_000_000_000.0)
+            task_pass_rates: dict[str, float] = {}
+            for task_id in dict.fromkeys(item.task_id for item in rows):
+                task_rows = [item for item in rows if item.task_id == task_id]
+                task_pass_rates[task_id] = round(
+                    sum(item.passed for item in task_rows) / len(task_rows), 4
+                )
             summary[model] = {
                 "passed": sum(item.passed for item in rows),
                 "total": len(rows),
                 "score": round(sum(item.passed for item in rows) / len(rows), 4) if rows else 0.0,
-                "elapsed_s": round(sum(item.elapsed_s for item in rows), 3),
-                "avg_tokens_per_second": round(sum(speeds) / len(speeds), 3) if speeds else None,
+                "repeats": len(repeat_ids),
+                "repeat_scores": [round(value, 4) for value in repeat_scores],
+                "score_stddev": round(statistics.pstdev(repeat_scores), 4) if len(repeat_scores) > 1 else 0.0,
+                "min_repeat_score": round(min(repeat_scores), 4) if repeat_scores else 0.0,
+                "avg_repeat_elapsed_s": round(statistics.mean(repeat_elapsed), 3) if repeat_elapsed else 0.0,
+                "elapsed_stddev_s": round(statistics.pstdev(repeat_elapsed), 3) if len(repeat_elapsed) > 1 else 0.0,
+                "avg_tokens_per_second": round(statistics.mean(speeds), 3) if speeds else None,
+                "tokens_per_second_stddev": round(statistics.pstdev(speeds), 3) if len(speeds) > 1 else 0.0 if speeds else None,
+                "avg_cold_load_s": round(statistics.mean(cold_load_seconds), 3) if cold_load_seconds else None,
+                "task_pass_rates": task_pass_rates,
                 "errors": sum(item.error is not None for item in rows),
                 "thinking_mode": rows[0].thinking_mode if rows else None,
             }
@@ -295,7 +364,7 @@ class BaselineBench:
     ) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         report = {
-            "schema_version": 1,
+            "schema_version": 2,
             "generated_at": datetime.now(UTC).isoformat(),
             "host": {
                 "platform": platform.platform(),

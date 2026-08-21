@@ -15,9 +15,12 @@ class OllamaClient:
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
 
-    def _urlopen(self, request: urllib.request.Request):
+    def _urlopen(self, request: urllib.request.Request, *, timeout: float | None = None):
         try:
-            return urllib.request.urlopen(request, timeout=self.timeout)
+            return urllib.request.urlopen(
+                request,
+                timeout=self.timeout if timeout is None else timeout,
+            )
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             raise BrainUnavailable(f"Ollama unavailable at {self.base_url}: {exc}") from exc
 
@@ -26,6 +29,8 @@ class OllamaClient:
         method: str,
         path: str,
         payload: dict[str, Any] | None = None,
+        *,
+        timeout: float | None = None,
     ) -> dict[str, Any]:
         data = json.dumps(payload).encode("utf-8") if payload is not None else None
         request = urllib.request.Request(
@@ -35,7 +40,7 @@ class OllamaClient:
             headers={"Content-Type": "application/json"} if data else {},
         )
         try:
-            with self._urlopen(request) as response:
+            with self._urlopen(request, timeout=timeout) as response:
                 decoded = json.loads(response.read().decode("utf-8"))
         except json.JSONDecodeError as exc:
             raise BrainUnavailable(f"Invalid JSON returned by Ollama: {exc}") from exc
@@ -130,6 +135,25 @@ class OllamaClient:
             if isinstance(item, dict):
                 result.append(dict(item))
         return result
+
+    def preload(
+        self,
+        model: str,
+        *,
+        keep_alive: str | int = "2m",
+        timeout: float = 240.0,
+    ) -> dict[str, Any]:
+        """Load a model without turning the cold-load cost into a scored task."""
+        return self._request(
+            "POST",
+            "/api/chat",
+            {
+                "model": model,
+                "stream": False,
+                "keep_alive": keep_alive,
+            },
+            timeout=timeout,
+        )
 
     def chat(
         self,

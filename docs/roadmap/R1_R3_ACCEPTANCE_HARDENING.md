@@ -1,120 +1,52 @@
 # R1–R3 Acceptance Hardening
 
-This corrective phase preserves the frozen Kodepoia v1.0 architecture and closes acceptance gaps found during the post-R3 audit.
+This corrective phase preserved the frozen Kodepoia v1.0 architecture and closed the acceptance gaps discovered after the initial R1–R3 implementation.
 
-## Rule
+## Final state
 
-A roadmap phase may be marked `COMPLETE` only when each frozen requirement has all of the following:
+- R1: **COMPLETE**.
+- R2: **COMPLETE**.
+- R3: **COMPLETE — hardware-local acceptance passed**.
+- PR #8 — `R1-R3 Acceptance Hardening`: **MERGED into `main`** on 21 August 2026.
+- Merge commit: `8e16e6a7d9f6c38d26a663ba9bdafd4950dba7c4`.
 
-1. an implementation;
-2. an automated test where automation is possible;
-3. CI evidence for repository-portable behavior;
-4. hardware-local evidence when the requirement depends on the target workstation.
+## Acceptance rule used
 
-## R1 acceptance matrix
+A phase was only considered complete when its frozen requirements had implementation, test/CI evidence where portable, and hardware-local evidence where workstation-dependent.
 
-- [x] Guardian deterministic allow / confirm / deny decisions.
-- [x] Permission scopes.
-- [x] Append-only audit chain.
-- [x] SafeChange snapshots.
-- [x] Restricted ProcessSandbox.
-- [x] Secrets redaction.
-- [x] Schema migration support.
-- [x] Data governance.
-- [x] Verified SHA-256 backup archives and restore.
-- [x] Atomic recovery checkpoint and simulated restart/resume.
-- [x] ResearchGuard.
-- [x] Global KillSwitch capable of terminating active protected subprocesses.
-- [x] KodeStudio exposes the emergency stop.
-- [x] KodeStudio offscreen UI smoke test exists.
-- [x] CI confirmation for this hardening PR.
+## R1 acceptance
 
-**R1 acceptance status: COMPLETE.**
+Accepted capabilities include Guardian decisions, permissions, append-only audit, SafeChange snapshots, ProcessSandbox, Secrets, Schema/DataGovernance, verified backup/restore, atomic recovery/resume, ResearchGuard, global KillSwitch, KodeStudio emergency STOP and Windows UI smoke.
 
-## R2 acceptance matrix
+## R2 acceptance
 
-- [x] Mandatory target platform selection.
-- [x] Adaptive game/non-game questions.
-- [x] Mobile input questions only when Android/iOS is targeted.
-- [x] XR input questions only when XR is targeted.
-- [x] Graphics style and genres.
-- [x] Per-target performance budgets.
-- [x] YES / NO / UNDECIDED capability states.
-- [x] Local AI/creation tool choices.
-- [x] Download and install policies.
-- [x] Project lineage.
-- [x] YAML Project DNA persistence.
-- [x] PRD/GDD ProductSpec, MVP, requirements and acceptance criteria.
-- [x] Requirement traceability to code/test references.
-- [x] Project DNA and ProductSpec JSON Schemas synchronized with the Python domain model.
-- [x] KodeStudio exposes the same validated domain model.
-- [x] Windows-only validation rejects mobile-only inputs.
-- [x] Qt `StrEnum` boundaries normalized and regression-tested.
-- [x] CI confirmation for this hardening PR.
+Accepted capabilities include mandatory platform selection, adaptive project questions, platform-specific inputs, performance budgets, capability states, local tool/download/install policies, lineage, YAML Project DNA, PRD/GDD ProductSpec, MVP/requirements/acceptance criteria, traceability, synchronized schemas and the Qt `StrEnum` boundary fix with regression coverage.
 
-**R2 acceptance status: COMPLETE.**
+## R3 acceptance
 
-## R3 acceptance matrix
+Accepted capabilities include model-agnostic KodeBrain, local Ollama streaming/non-streaming, tools, structured output, thinking, images, keep-alive, unload/preload, FAST/CORE/CODER/EMBED/VISION registry/routing, persistent semantic memory, token-budgeted context, streamed orchestration, deterministic repeated benchmarks, strict validators, `done_reason`/budget diagnostics, cold-load separation and local-only `r3-accept`.
 
-- [x] Model-agnostic Brain protocol.
-- [x] Ollama local adapter.
-- [x] Non-streaming chat.
-- [x] Streaming chat.
-- [x] Tool-call payload/result support.
-- [x] Structured-output payload support.
-- [x] Thinking and keep-alive support.
-- [x] Image payload support for multimodal Ollama messages.
-- [x] Model unload and unscored preload support.
-- [x] FAST / CORE / CODER / EMBED / VISION registry and routing.
-- [x] Capability-aware routing for tools and structured output.
-- [x] Persistent SQLite/WAL memory.
-- [x] Embedding persistence and semantic retrieval.
-- [x] Semantic retrieval wired into the Orchestrator context path.
-- [x] Token-budgeted Context Builder.
-- [x] Streaming Orchestrator path.
-- [x] Expanded repeated multi-model benchmark.
-- [x] Strict validators for exact instruction, Godot 4, typed GDScript, Git worktree, structured JSON and real Ollama tool calls.
-- [x] Thinking-budget / `done_reason` diagnostics.
-- [x] Cold-load separated from scored correctness.
-- [x] `kodepoia r3-accept` enforces two or three distinct installed local models and writes hardware-local evidence.
-- [x] CI coverage for benchmark/acceptance hardening.
-- [x] Hardware-local R3 acceptance report generated and technically reviewed on the target workstation.
+Official evidence: `.kodepoia/benchmarks/r3-local-acceptance.json`.
 
-## R3 hardware-local evidence
+Accepted defaults on the target workstation:
+- `KodeFast` → `granite4.1:3b` — 35/40, 131.366 tok/s; Git worktree is a known 0/5 weakness and must route to CORE/CODER.
+- `KodeCore` → `gpt-oss:20b` — 40/40, all eight categories 5/5.
+- `KodeCoder` → `ornith:9b` — 40/40, all eight categories 5/5, 64.512 tok/s, ~6.31 GB resident VRAM.
 
-Official evidence: `.kodepoia/benchmarks/r3-local-acceptance.json` generated on 2026-08-21.
+All three final candidates had zero transport errors, preload failures/timeouts and budget exhaustions in the official acceptance. The architecture remains model-agnostic.
 
-Environment:
-- Windows 11;
-- Python 3.12.4;
-- Ollama 0.32.14;
-- loopback URL `http://127.0.0.1:11434` verified;
-- 5 repetitions per finalist;
-- `temperature=0`;
-- `num_predict=1024`;
-- profile `full-capability-thinking-aware`;
-- `acceptance_completed=true`.
+## Final CI and merge evidence
 
-Accepted defaults:
-- `KodeFast` → `granite4.1:3b`;
-- `KodeCore` → `gpt-oss:20b`;
-- `KodeCoder` → `ornith:9b`.
+Final hardening head: `e3f62b4d74f36e05f3041d56853ad50b7378c73c`.
 
-Final results:
-- Granite: 35/40, 0.875 x5, 131.366 tok/s, zero errors/preload failures/timeouts/budget exhaustions; its only systematic weakness is Git worktree 0/5, so non-trivial repository decisions are routed to CORE/CODER.
-- GPT-OSS: 40/40, 1.0 x5, all eight categories 5/5, 15.909 tok/s, zero errors/preload failures/timeouts/budget exhaustions.
-- Ornith: 40/40, 1.0 x5, all eight categories 5/5, 64.512 tok/s, zero errors/preload failures/timeouts/budget exhaustions, ~6.31 GB resident VRAM.
+- R0 Repository Guard run `32504945920` — **SUCCESS**.
+- Python Core run `32504946020` — **SUCCESS** on Ubuntu and Windows, including PowerShell runner syntax.
+- KodeStudio UI Smoke run `32504946114` — **SUCCESS**.
 
-**R3 acceptance status: COMPLETE.**
+PR #8 was merged only after these checks were green.
 
-## Completion policy result
+## Phase closure
 
-R1, R2 and R3 now satisfy the hardening acceptance policy on this branch.
+The R1–R3 acceptance-hardening phase is **CLOSED**. Do not reopen it without new evidence or an ADR-level reason.
 
-The remaining integration gate before R4 is repository-level:
-
-1. final CI on the acceptance-documentation head must be green;
-2. PR #8 must be merged into `main`;
-3. `main` must be verified after merge;
-4. continuity must reflect the merged state;
-5. only then may R4 begin.
+**R4 — KodeCode is now AUTHORIZED / NOT STARTED.** New R4 work must branch from the latest `main`.

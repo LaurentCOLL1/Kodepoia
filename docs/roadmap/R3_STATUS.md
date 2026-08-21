@@ -1,116 +1,86 @@
 # R3 — KodeBrain + Ollama + KodeMemory + KodeContext — Status
 
 **Phase:** R3  
-**Status:** COMPLETE — HARDWARE-LOCAL ACCEPTANCE PASSED  
+**Status:** COMPLETE — HARDWARE-LOCAL ACCEPTANCE PASSED — MERGED TO MAIN  
 **Updated:** 2026-08-21
 
-## Validation evidence
+## Repository state
 
-Original implementation:
-- PR #5 — `R3: implement KodeBrain, Memory, Context and ModelRouter`.
-- Merge commit: `b5e61dea1d50ccfc8ffff6f1e525f95a39b8096f`.
+- PR #8 — `R1-R3 Acceptance Hardening`: **MERGED**.
+- Merge commit: `8e16e6a7d9f6c38d26a663ba9bdafd4950dba7c4`.
+- Final hardening CI head: `e3f62b4d74f36e05f3041d56853ad50b7378c73c`.
+- Final CI: R0 Repository Guard, Python Core (Ubuntu/Windows + PowerShell syntax) and KodeStudio UI Smoke all **SUCCESS**.
+- `main` contains the accepted R3 implementation/status.
 
-Acceptance hardening:
-- PR #8 — `R1-R3 Acceptance Hardening`.
-- Role-aware repeated benchmark, strict validators, thinking-budget diagnostics and cold-load/preload separation are implemented and CI-covered.
-- Final target-workstation evidence: `.kodepoia/benchmarks/r3-local-acceptance.json` generated on 2026-08-21.
-
-## Implemented
+## Implemented and accepted
 
 - [x] Model-agnostic Brain protocol.
-- [x] Local Ollama adapter with non-streaming + streaming chat.
+- [x] Local Ollama non-streaming + streaming chat.
 - [x] Tools, structured output, thinking, images, keep-alive, unload and preload.
-- [x] KodeModelRegistry with FAST / CORE / CODER / EMBED / VISION roles.
+- [x] KodeModelRegistry FAST / CORE / CODER / EMBED / VISION.
 - [x] Capability-aware KodeModelRouter.
-- [x] Persistent SQLite KodeMemory + semantic retrieval wired into Orchestrator.
+- [x] Persistent SQLite KodeMemory + embeddings + semantic retrieval wired into Orchestrator.
 - [x] KodeContext token budget and streamed orchestration.
-- [x] Repeated role-aware local benchmark with deterministic seeds/temperature.
-- [x] Strict validators for exact instruction, Godot 4, typed GDScript, Git worktree, structured JSON and true Ollama tool calls.
-- [x] `done_reason` + generation-budget diagnostics.
-- [x] Cold-load separated from scored correctness with unscored preload and dedicated timeout.
-- [x] `kodepoia r3-accept` local-only acceptance path and Windows runner.
+- [x] Repeated role-aware local benchmark with deterministic controls.
+- [x] Strict exact/Godot/GDScript/Git/JSON/real-tool validators.
+- [x] `done_reason` and generation-budget diagnostics.
+- [x] Cold-load separated from scored correctness using unscored preload.
+- [x] Local-only `r3-accept` and Windows runner.
+- [x] Final hardware-local acceptance on target PC.
 
-## Preselection decisions
-
-- KodeFast candidate: `granite4.1:3b`.
-- KodeCore candidate: `gpt-oss:20b`.
-- KodeCoder candidate: `ornith:9b`.
-- Future optional `KodeDeepCoder` candidate: `north-mini-code-1.0:Q4_K_M` for later repository-scale/long-horizon evaluation.
-
-## Official R3 hardware-local acceptance — PASSED
+## Official R3 hardware-local acceptance
 
 Evidence: `.kodepoia/benchmarks/r3-local-acceptance.json`.
 
 Environment:
-- Windows 11 target workstation;
+- Windows 11;
 - Python 3.12.4;
 - Ollama 0.32.14;
-- local loopback endpoint `http://127.0.0.1:11434` verified;
+- `http://127.0.0.1:11434`, loopback verified;
 - 5 repetitions per finalist;
 - `temperature=0`;
 - `num_predict=1024`;
-- acceptance profile `full-capability-thinking-aware`.
-
-Structural acceptance metadata passed:
-- `phase == R3-local-acceptance`;
-- `acceptance_completed == true`;
-- `candidate_count == 3`;
-- `loopback_verified == true`;
-- all selected finalists present in the benchmark summary.
+- profile `full-capability-thinking-aware`;
+- `acceptance_completed=true`;
+- `candidate_count=3`.
 
 ### Accepted KodeFast — `granite4.1:3b`
-
-- 35/40, score **0.875 x5**, score stddev 0.0;
+- 35/40, 0.875 x5, stddev 0.0;
 - 131.366 tok/s;
-- 24.089 s average scored repeat;
-- 16.294 s average preload/cold-load;
-- exact/Python/Godot/GDScript/debug/structured-output/native-tools: 5/5 each;
+- 16.294 s preload/cold-load;
+- exact/Python/Godot/GDScript/debug/JSON/native-tools: 5/5;
 - software-engineering/worktree: 0/5;
-- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions.
+- 0 errors, preload failures/timeouts or budget exhaustions.
 
-Acceptance rationale: the role is intentionally FAST/routing/lightweight. It is not trusted for repository-workflow decisions such as Git worktree; those tasks must route to CORE/CODER. Its measured latency/throughput and seven reliable categories make it suitable for the intended role.
+Routing constraint: non-trivial Git/repository-management work must go to CORE/CODER, not Granite.
 
 ### Accepted KodeCore — `gpt-oss:20b`
-
-- **40/40, score 1.000 x5**, score stddev 0.0;
+- 40/40, 1.0 x5, stddev 0.0;
 - 15.909 tok/s;
-- 152.993 s average scored repeat;
-- 90.435 s average preload/cold-load;
-- all eight categories 5/5 including structured output, real tool calling and software-engineering/worktree;
-- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions;
-- thinking mode `medium`.
-
-Acceptance rationale: perfect repeatable capability evidence for reasoning/general engineering. KodeVRAM/keep-alive should avoid unnecessary reload churn because cold-load is expensive.
+- 90.435 s preload/cold-load;
+- all eight categories 5/5;
+- 0 errors, preload failures/timeouts or budget exhaustions;
+- thinking `medium`.
 
 ### Accepted KodeCoder — `ornith:9b`
-
-- **40/40, score 1.000 x5**, score stddev 0.0;
-- **64.512 tok/s**;
-- **53.149 s average scored repeat**;
-- **36.116 s average preload/cold-load**;
-- all eight categories 5/5 including structured output, real tool calling and software-engineering/worktree;
-- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions;
-- Ollama reports about 6.31 GB model and 6.31 GB resident VRAM, so it fits fully in the target 12 GB VRAM;
+- 40/40, 1.0 x5, stddev 0.0;
+- 64.512 tok/s;
+- 36.116 s preload/cold-load;
+- all eight categories 5/5;
+- 0 errors, preload failures/timeouts or budget exhaustions;
+- about 6.31 GB resident VRAM;
 - thinking enabled.
 
-Acceptance rationale: perfect repeatable capability evidence with substantially better latency and memory fit than the heavier coding finalists.
-
-## Accepted R3 model roles
+## Accepted defaults
 
 - `KodeFast` → `granite4.1:3b`
 - `KodeCore` → `gpt-oss:20b`
 - `KodeCoder` → `ornith:9b`
 
-Routing constraint: Git/repository-management and other non-trivial software-engineering decisions must not be delegated to Granite because the final acceptance reproduced its 0/5 worktree weakness. Route those tasks to Ornith or GPT-OSS.
+`north-mini-code-1.0:Q4_K_M` remains an optional future `KodeDeepCoder` candidate for repository-scale/long-horizon evaluation.
 
-The architecture remains model-agnostic: these are the accepted local defaults for the current target workstation, not permanent architectural dependencies.
+These are hardware-specific defaults, not architectural lock-in. Kodepoia remains model-agnostic.
 
-## Completion rule result
+## Next phase
 
-All R3 functional and hardware-local acceptance criteria are satisfied. R3 is therefore **COMPLETE** on the hardening branch.
-
-Final sequence before R4:
-1. run final CI for the acceptance-documentation head;
-2. merge PR #8 only if final CI is green;
-3. verify `main` after merge;
-4. only then begin R4.
+R3 is closed. **R4 — KodeCode is AUTHORIZED / NOT STARTED.** Start R4 only from the latest `main` on a new dedicated branch, preserving the frozen v1.0 architecture.

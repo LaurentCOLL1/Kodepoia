@@ -40,6 +40,9 @@ class GodotToolAPI:
             "kodegodot_services_stop": self._services_stop,
             "kodegodot_lsp_symbols": self._lsp_symbols,
             "kodegodot_lsp_diagnostics": self._lsp_diagnostics,
+            "kodegodot_dap_initialize": self._dap_initialize,
+            "kodegodot_dap_launch_project": self._dap_launch_project,
+            "kodegodot_dap_threads": self._dap_threads,
         }
 
     def invoke(self, tool_name: str, arguments: dict[str, Any] | None = None) -> Any:
@@ -73,7 +76,7 @@ class GodotToolAPI:
             ),
             self._schema(
                 "kodegodot_services_start",
-                "Start Godot editor LSP/DAP services bound by Kodepoia to local loopback ports",
+                "Start Godot editor LSP/DAP services on local loopback ports",
                 {
                     "lsp_port": {"type": "integer", "minimum": 1024, "maximum": 65535},
                     "dap_port": {"type": "integer", "minimum": 1024, "maximum": 65535},
@@ -83,6 +86,9 @@ class GodotToolAPI:
             self._schema("kodegodot_services_stop", "Stop the managed Godot LSP/DAP service process", {}),
             self._schema("kodegodot_lsp_symbols", "Read GDScript document symbols through Godot LSP", path, ["path"]),
             self._schema("kodegodot_lsp_diagnostics", "Read current GDScript diagnostics through Godot LSP", path, ["path"]),
+            self._schema("kodegodot_dap_initialize", "Connect to and initialize Godot DAP on loopback", {}),
+            self._schema("kodegodot_dap_launch_project", "Launch the pre-registered Godot project debug configuration", {}),
+            self._schema("kodegodot_dap_threads", "Read debug threads from the connected Godot DAP session", {}),
         ]
 
     @staticmethod
@@ -161,3 +167,25 @@ class GodotToolAPI:
         assert self.services.lsp is not None
         target = self.documents.boundary.resolve(str(args["path"]), must_exist=True)
         return self.services.lsp.diagnostics(target)
+
+    def _dap_initialize(self, _args: dict[str, Any]) -> dict[str, Any]:
+        if self.services.dap is None:
+            session = self.services.connect_dap()
+        else:
+            session = self.services.dap
+        return {"initialized": session.initialized, "capabilities": dict(session.capabilities)}
+
+    def _dap_launch_project(self, _args: dict[str, Any]) -> dict[str, Any]:
+        if self.services.dap is None:
+            self.services.connect_dap()
+        assert self.services.dap is not None
+        config = self.services.dap.spec.configurations[0]
+        body = self.services.dap.start_configuration(config)
+        self.services.dap.configuration_done()
+        return {"launched": True, "body": body}
+
+    def _dap_threads(self, _args: dict[str, Any]) -> list[dict[str, Any]]:
+        if self.services.dap is None:
+            self.services.connect_dap()
+        assert self.services.dap is not None
+        return self.services.dap.threads()

@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from kodepoia.kodecode.files import FileTool
 from kodepoia.kodecode.git_worktree import GitWorktreeTool
+from kodepoia.kodecode.parser_tool import ParserTool
 from kodepoia.kodecode.patch import PatchTool
 from kodepoia.kodecode.search import SearchTool
 from kodepoia.kodecode.workspace import WorkspaceBoundary
@@ -25,6 +26,7 @@ class KodeCodeToolAPI:
         self.search_tool = SearchTool(self.boundary)
         self.patch = PatchTool(self.boundary)
         self.worktrees = GitWorktreeTool(self.boundary)
+        self.parser = ParserTool(self.boundary)
         self._dispatch: dict[str, Callable[[dict[str, Any]], Any]] = {
             "kodecode_files_list": self._files_list,
             "kodecode_files_read": self._files_read,
@@ -33,6 +35,8 @@ class KodeCodeToolAPI:
             "kodecode_git_worktree_list": self._worktree_list,
             "kodecode_git_worktree_add": self._worktree_add,
             "kodecode_git_worktree_remove": self._worktree_remove,
+            "kodecode_parser_capabilities": self._parser_capabilities,
+            "kodecode_parser_parse": self._parser_parse,
         }
 
     def invoke(self, tool_name: str, arguments: dict[str, Any] | None = None) -> Any:
@@ -42,7 +46,7 @@ class KodeCodeToolAPI:
         return handler(dict(arguments or {}))
 
     def catalog(self) -> list[dict[str, Any]]:
-        """Return function schemas for the R4.1 tool surface."""
+        """Return function schemas for the current KodeCode tool surface."""
 
         return [
             self._schema(
@@ -103,6 +107,21 @@ class KodeCodeToolAPI:
                 "Remove a clean managed linked Git worktree",
                 {"name": {"type": "string"}},
                 ["name"],
+            ),
+            self._schema(
+                "kodecode_parser_capabilities",
+                "Report installed Tree-sitter grammar capabilities and ABI compatibility",
+                {},
+            ),
+            self._schema(
+                "kodecode_parser_parse",
+                "Parse a workspace source file with Tree-sitter and return a tolerant syntax summary",
+                {
+                    "path": {"type": "string"},
+                    "language": {"type": ["string", "null"]},
+                    "max_nodes": {"type": "integer", "minimum": 1, "maximum": 2000},
+                },
+                ["path"],
             ),
         ]
 
@@ -174,3 +193,14 @@ class KodeCodeToolAPI:
     def _worktree_remove(self, args: dict[str, Any]) -> dict[str, bool]:
         self.worktrees.remove(str(args["name"]))
         return {"removed": True}
+
+    def _parser_capabilities(self, _args: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.parser.capabilities()
+
+    def _parser_parse(self, args: dict[str, Any]) -> dict[str, Any]:
+        language = args.get("language")
+        return self.parser.parse_file(
+            str(args["path"]),
+            language=str(language) if language is not None else None,
+            max_nodes=int(args.get("max_nodes", 200)),
+        )

@@ -27,10 +27,11 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           lfs: false
-      - uses: actions/setup-python@v5
+          persist-credentials: false
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install repository checker dependencies
@@ -43,3 +44,22 @@ jobs:
         run: python -m compileall -q src
       - name: Run R1 unit tests
         run: python -m unittest discover -s tests -v
+      - name: Protected Core construction smoke test
+        run: python -m kodepoia core-check
+
+  kodestudio-smoke:
+    name: kodestudio-smoke-windows
+    needs: core
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          lfs: false
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install KodeStudio
+        run: python -m pip install -e ".[ui]"
+      - name: Offscreen KodeStudio smoke test
+        run: python -m kodepoia.kodestudio --smoke-test

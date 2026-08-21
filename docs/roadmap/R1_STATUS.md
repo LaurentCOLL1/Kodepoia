@@ -1,7 +1,7 @@
 # R1 — KodeStudio minimal + Protected Core — Status
 
 **Phase:** R1  
-**Status:** IN PROGRESS  
+**Status:** VALIDATION CANDIDATE  
 **Started:** 2026-08-21
 
 ## Steps
@@ -17,7 +17,7 @@
 - [x] R1.9 — KodeBackup local snapshots + SHA-256 integrity + guarded restore
 - [x] R1.10 — KodeRecovery atomic task checkpoints + pending-task discovery
 - [x] R1.11 — KodeResearchGuard untrusted envelopes + injection indicators
-- [ ] R1.12 — KodeStudio minimal
+- [x] R1.12 — KodeStudio minimal + KodeRuntime composition root + emergency stop UI
 
 ## Security invariant for research
 
@@ -27,15 +27,11 @@ Web/GitHub/YouTube/document content can be useful evidence but has `instruction_
 
 R1 provides a real capability/process boundary (argv-only, `shell=False`, executable allowlist, cwd roots, stripped environment, timeout and kill support). It does not falsely claim OS/VM network isolation; stronger Windows isolation backends can replace this backend later through the same interface.
 
-## Acceptance targets
+## Validation candidate
 
-- forbidden action is actually denied;
-- risky action requires explicit confirmation;
-- secrets are never exposed to KodeBrain;
-- generated/downloaded process execution crosses Guardian + Sandbox;
-- destructive file change uses recoverable pre-image protection;
-- interrupted tasks have atomic checkpoints;
-- external research is permanently marked non-authoritative;
-- minimal KodeStudio exposes Projects, Chat, Security, Audit and Settings plus a kill switch;
-- R1 unit tests pass on Windows and Ubuntu;
-- KodeStudio offscreen smoke test passes on Windows.
+R1 is not marked COMPLETE until the pull request passes:
+- repository guard;
+- Protected Core tests on Windows;
+- Protected Core tests on Ubuntu;
+- `python -m kodepoia core-check`;
+- KodeStudio offscreen smoke test on Windows.

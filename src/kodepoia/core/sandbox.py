@@ -30,12 +30,7 @@ class SandboxViolation(RuntimeError):
 
 
 class KodeSandbox:
-    """Capability-limited subprocess boundary.
-
-    R1 deliberately does not claim OS-level virtualization. Commands are argv-only,
-    shell=False, cwd-scoped, allowlisted and Guardian-gated. Stronger Windows
-    isolation backends can be plugged in later without changing this interface.
-    """
+    """Capability-limited subprocess boundary; stronger OS backends may replace it later."""
 
     def __init__(self, guardian: KodeGuardian, profile: SandboxProfile) -> None:
         self.guardian = guardian
@@ -52,12 +47,14 @@ class KodeSandbox:
         cwd = cwd.resolve()
         if not any(cwd == root.resolve() or cwd.is_relative_to(root.resolve()) for root in self.profile.allowed_roots):
             raise SandboxViolation(f"working directory escapes sandbox roots: {cwd}")
-        request = ActionRequest(ActionKind.PROCESS_RUN, actor, cwd, argv[0], {"argv": list(argv), "cwd": str(cwd)})
-        self.guardian.require_allowed(request, confirmed=confirmed)
-        child_env: dict[str, str] = dict(os.environ) if self.profile.inherit_environment else {}
+        self.guardian.require_allowed(ActionRequest(ActionKind.PROCESS_RUN, actor, cwd, argv[0], {"argv": list(argv), "cwd": str(cwd)}), confirmed=confirmed)
+        if self.profile.inherit_environment:
+            child_env = dict(os.environ)
+        else:
+            safe_keys = ("PATH", "SYSTEMROOT", "WINDIR", "TEMP", "TMP", "COMSPEC", "PATHEXT", "HOME", "LANG")
+            child_env = {key: os.environ[key] for key in safe_keys if key in os.environ}
         if env:
             child_env.update({str(k): str(v) for k, v in env.items()})
-        child_env.setdefault("PATH", os.environ.get("PATH", ""))
         creationflags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0) if os.name == "nt" else 0
         process = subprocess.Popen(list(argv), cwd=cwd, env=child_env, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=False, creationflags=creationflags)
         self._children.add(process)

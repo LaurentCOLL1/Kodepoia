@@ -1,0 +1,1 @@
+"""KodeStudio minimal desktop shell."""

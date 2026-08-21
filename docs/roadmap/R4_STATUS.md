@@ -22,58 +22,49 @@ Per roadmap v1.0, R4 delivers:
 Integration evidence:
 - PR #11 — `R4.1 KodeCode safe tool foundation` — MERGED.
 - Merge commit: `91f3d77cc375021efcb24172b2859a27748843b8`.
+- R0 Repository Guard `32508868032` — SUCCESS.
+- Python Core `32508868396` — SUCCESS Ubuntu + Windows.
+- KodeStudio UI Smoke `32508868371` — SUCCESS Windows.
 
-Implementation and acceptance:
-- [x] `WorkspaceBoundary` rejects absolute paths and workspace escapes after resolution.
-- [x] File listing and UTF-8 reads are workspace-scoped and size-bounded.
-- [x] Recursive listing/search skip symlinks resolving outside the workspace.
-- [x] Deterministic text/regex search with generated/cache exclusions.
-- [x] Exact single-occurrence patch with optional SHA-256 stale-content precondition.
-- [x] Patch writes use same-directory atomic replacement, preserve exact UTF-8 bytes/newlines and file mode.
-- [x] Git worktree operations go through `ProcessSandbox`; no shell execution is exposed.
-- [x] Managed worktrees are confined under `.kodepoia/worktrees/`.
-- [x] Git refs/names reject option-injection shapes.
-- [x] Git worktree listing uses the stable porcelain format.
-- [x] `KodeCodeToolAPI` exposes only explicit structured operations and function schemas.
-- [x] Unit tests cover boundary escape, search, patch guards/newline preservation, structured API and worktree dispatch/parser.
-- [x] R0 Repository Guard run `32508868032` — SUCCESS on final documentation head.
-- [x] Python Core run `32508868396` — SUCCESS on Ubuntu and Windows.
-- [x] KodeStudio UI Smoke run `32508868371` — SUCCESS on Windows.
+Implemented: workspace confinement, safe file read/list/search, exact atomic patching with stale-content protection, ProcessSandbox-backed Git worktrees, explicit structured Tool API, path/symlink/injection hardening and tests.
 
 ## R4.2 — Tree-sitter parser layer
 
-**Status: ACCEPTED ON `agent/r4-2-tree-sitter` / MERGE PENDING.**
+**Status: ACCEPTED AND MERGED TO `main`.**
+
+Integration evidence:
+- PR #13 — `R4.2 Tree-sitter parser layer` — MERGED.
+- Merge commit: `ae1cfaa914962dec75950ec11d609c6b6fb929fb`.
+- Final accepted branch head: `d76824deadc52724411f2ea9b6d5548be6c74432`.
+- R0 Repository Guard `32511436827` — SUCCESS on final head.
+- Python Core `32511437141` — SUCCESS Ubuntu + Windows on final head with `.[dev,code]`.
+- KodeStudio UI Smoke `32511437097` — SUCCESS Windows on final head.
 
 Implementation:
-- [x] Optional `code` extra uses official `tree-sitter>=0.26,<0.27` Python runtime.
+- [x] Optional `code` extra uses `tree-sitter>=0.26,<0.27`.
 - [x] Packaged grammar providers: Python 0.25.x, JavaScript 0.25.x, TypeScript/TSX 0.23.2.x.
-- [x] Provider-based `TreeSitterLanguageRegistry` with aliases, extension detection and collision-safe dynamic registration.
-- [x] Capability discovery reports runtime version, supported ABI range, grammar ABI/semantic version and compatibility errors.
+- [x] Provider-based `TreeSitterLanguageRegistry` with aliases, extension detection, dynamic registration and collision checks.
+- [x] Capability discovery reports runtime version, supported ABI range, grammar ABI/semantic version, compatibility and errors.
 - [x] ABI compatibility is enforced before a grammar is used.
-- [x] GDScript (`.gd`) is registered as an optional discoverable provider without an implicit source/Git dependency.
-- [x] `TreeSitterParserService` performs tolerant parsing and named-node extraction even when syntax contains errors.
-- [x] `IncrementalParseSession` uses `Tree.edit()` + `Parser.parse(old_tree=...)` and reports `changed_ranges`.
-- [x] `ParserTool` confines file parsing to `WorkspaceBoundary` and applies source-size/node-count limits.
+- [x] GDScript (`.gd`) is registered as an optional discoverable provider without an implicit source/Git runtime dependency.
+- [x] `TreeSitterParserService` performs tolerant parsing and named-node extraction on valid or malformed syntax.
+- [x] `IncrementalParseSession` uses `Tree.edit()` + `Parser.parse(old_tree=...)` and exposes `changed_ranges`.
+- [x] `ParserTool` confines file parsing to `WorkspaceBoundary`, with source-size and node-count limits.
 - [x] Structured tools `kodecode_parser_capabilities` and `kodecode_parser_parse` are exposed through `KodeCodeToolAPI`.
-- [x] Tests parse Python, JavaScript, TypeScript and TSX with their real installed grammars.
-- [x] Tests cover malformed-source tolerance, incremental edits, changed ranges, provider discovery/extensibility and structured invocation.
-- [x] R0 Repository Guard run `32511222866` — SUCCESS on Ubuntu and Windows.
-- [x] Python Core run `32511222875` — SUCCESS on Ubuntu and Windows with `.[dev,code]`.
-- [x] KodeStudio UI Smoke run `32511222895` — SUCCESS on Windows.
-
-Acceptance head: `560cddc894a6a1a73ec725c2bb2419314b6cb7d5`.
+- [x] Tests load and parse real Python, JavaScript, TypeScript and TSX grammars.
+- [x] Tests cover ABI checks, malformed-source tolerance, incremental edits, changed ranges, GDScript discovery, provider extensibility and structured invocation.
 
 ### R4.2 dependency/ABI policy
 
 - Current Python runtime family: Tree-sitter 0.26.x.
-- Runtime supported grammar ABI range is discovered at runtime; for Tree-sitter 0.26.0 this is ABI 13..15.
-- A grammar outside the runtime-supported ABI interval is reported incompatible and is not loaded.
-- Language packages are lazy-loaded; base Kodepoia can run without the `code` extra.
-- GDScript grammar support is intentionally provider-based until a reproducible Python wheel/distribution policy is accepted; no runtime Git download is introduced by R4.2.
+- Supported grammar ABI range is discovered at runtime; Tree-sitter 0.26.0 reports ABI 13..15.
+- Grammars outside the supported runtime ABI interval are reported incompatible and refused.
+- Grammar providers are lazy-loaded so base Kodepoia can still start without the `code` extra.
+- GDScript stays provider-based until a reproducible Python distribution path is adopted; no silent runtime Internet/Git install is allowed.
 
 ## Remaining R4 work
 
-### R4.3 — LSP — NEXT AFTER R4.2 MERGE
+### R4.3 — LSP — NEXT / NOT STARTED
 - [ ] JSON-RPC transport abstraction.
 - [ ] Server lifecycle/capabilities.
 - [ ] document symbols / definitions / references / diagnostics baseline.
@@ -99,10 +90,10 @@ Acceptance head: `560cddc894a6a1a73ec725c2bb2419314b6cb7d5`.
 
 ## Current acceptance decision
 
-R4 remains **IN PROGRESS**, not COMPLETE. R4.1 is accepted and merged on `main`. R4.2 has satisfied implementation, tests and cross-platform CI acceptance on its branch; PR #13 must still be merged before R4.2 becomes part of the `main` source of truth. LSP/DAP/graphs/orchestration remain pending.
+R4 remains **IN PROGRESS**, not COMPLETE. R4.1 and R4.2 are accepted and merged on `main`. R4.3 LSP is the next authorized sub-phase and is **NOT STARTED**. DAP, graphs and final orchestration/acceptance remain pending.
 
 ## Reference research used for implementation
 
-- py-tree-sitter 0.26.0 documents `LANGUAGE_VERSION=15`, `MIN_COMPATIBLE_LANGUAGE_VERSION=13`, `Language.abi_version`, `Parser.parse(..., old_tree=...)`, `Tree.edit()` and `Tree.changed_ranges()`.
-- PyPI publishes precompiled Python wheels for `tree-sitter`, `tree-sitter-python`, `tree-sitter-javascript` and `tree-sitter-typescript` on supported major platforms.
-- PrestonKnopp/tree-sitter-gdscript is an active MIT GDScript grammar listed in the Tree-sitter parser ecosystem, but R4.2 does not make its source repository a runtime dependency.
+- py-tree-sitter 0.26.x documents runtime ABI compatibility metadata, `Parser.parse(..., old_tree=...)`, `Tree.edit()` and `Tree.changed_ranges()`.
+- PyPI publishes binary wheels for the selected Python/JavaScript/TypeScript grammar packages on supported major platforms; Windows + Ubuntu were verified by CI.
+- GDScript is recognized as a Tree-sitter provider target but is not made a hidden network/runtime dependency.

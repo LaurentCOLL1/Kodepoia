@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping, Sequence
 
-from kodepoia.core.kill_switch import KillSwitch
+from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,7 +35,7 @@ class ProcessSandbox:
     ) -> None:
         self.root = root.resolve(strict=False)
         self.allowed_executables = {item.lower() for item in (allowed_executables or set())}
-        self.kill_switch = kill_switch or KillSwitch()
+        self.kill_switch = kill_switch or GLOBAL_KILL_SWITCH
 
     def run(
         self,

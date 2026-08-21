@@ -126,18 +126,55 @@ class TreeSitterLanguageRegistry:
     """Provider-based Tree-sitter registry with explicit ABI compatibility checks.
 
     Grammar modules are imported lazily. Kodepoia can therefore start without the
-    optional ``code`` extra, report missing capabilities cleanly, and add future
-    language providers without changing the parser core.
+    optional ``code`` extra, report missing capabilities cleanly, and register
+    future language providers without changing the parser core.
     """
 
     def __init__(self, specs: Iterable[LanguageProviderSpec] | None = None) -> None:
-        selected = tuple(specs or DEFAULT_LANGUAGE_SPECS)
-        self._specs = {spec.language_id: spec for spec in selected}
+        self._specs: dict[str, LanguageProviderSpec] = {}
         self._aliases: dict[str, str] = {}
+        self._extensions: dict[str, str] = {}
+        selected = DEFAULT_LANGUAGE_SPECS if specs is None else tuple(specs)
         for spec in selected:
-            self._aliases[spec.language_id.lower()] = spec.language_id
-            for alias in spec.aliases:
-                self._aliases[alias.lower()] = spec.language_id
+            self.register(spec)
+
+    def register(self, spec: LanguageProviderSpec) -> None:
+        language_id = spec.language_id.strip().lower()
+        if not language_id:
+            raise ValueError("language_id cannot be empty")
+        if language_id in self._specs:
+            raise ValueError(f"Tree-sitter language already registered: {language_id}")
+        if not spec.module_name.strip() or not spec.factory_name.strip():
+            raise ValueError("module_name and factory_name cannot be empty")
+
+        aliases = tuple(alias.strip().lower() for alias in spec.aliases if alias.strip())
+        extensions = tuple(self._normalize_extension(item) for item in spec.extensions)
+        if not extensions:
+            raise ValueError("At least one file extension is required")
+
+        for alias in (language_id, *aliases):
+            owner = self._aliases.get(alias)
+            if owner is not None:
+                raise ValueError(f"Tree-sitter alias collision: {alias} already belongs to {owner}")
+        for extension in extensions:
+            owner = self._extensions.get(extension)
+            if owner is not None:
+                raise ValueError(
+                    f"Tree-sitter extension collision: {extension} already belongs to {owner}"
+                )
+
+        normalized = LanguageProviderSpec(
+            language_id=language_id,
+            module_name=spec.module_name.strip(),
+            factory_name=spec.factory_name.strip(),
+            extensions=extensions,
+            aliases=aliases,
+        )
+        self._specs[language_id] = normalized
+        for alias in (language_id, *aliases):
+            self._aliases[alias] = language_id
+        for extension in extensions:
+            self._extensions[extension] = language_id
 
     def specs(self) -> tuple[LanguageProviderSpec, ...]:
         return tuple(self._specs.values())
@@ -151,12 +188,7 @@ class TreeSitterLanguageRegistry:
 
     def detect_path(self, path: str | Path) -> str | None:
         suffix = Path(path).suffix.lower()
-        if not suffix:
-            return None
-        for spec in self._specs.values():
-            if suffix in spec.extensions:
-                return spec.language_id
-        return None
+        return self._extensions.get(suffix) if suffix else None
 
     def capability(self, language: str) -> LanguageCapability:
         language_id = self.resolve_id(language)
@@ -282,6 +314,13 @@ class TreeSitterLanguageRegistry:
             grammar_semantic_version=None,
             error=error,
         )
+
+    @staticmethod
+    def _normalize_extension(extension: str) -> str:
+        normalized = extension.strip().lower()
+        if not normalized:
+            raise ValueError("File extension cannot be empty")
+        return normalized if normalized.startswith(".") else f".{normalized}"
 
 
 class TreeSitterParserService:

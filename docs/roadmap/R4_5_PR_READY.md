@@ -1,0 +1,1 @@
+R4.5 implementation is ready for PR CI validation. This file is part of acceptance documentation, not a temporary marker.

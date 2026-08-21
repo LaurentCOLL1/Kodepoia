@@ -18,6 +18,8 @@ class ParserTool:
         registry: TreeSitterLanguageRegistry | None = None,
         max_parse_bytes: int = 2_000_000,
     ) -> None:
+        if max_parse_bytes < 1:
+            raise ValueError("max_parse_bytes must be positive")
         self.boundary = boundary
         self.registry = registry or TreeSitterLanguageRegistry()
         self.service = TreeSitterParserService(self.registry)
@@ -33,6 +35,9 @@ class ParserTool:
         language: str | None = None,
         max_nodes: int = 200,
     ) -> dict[str, Any]:
+        if not 1 <= max_nodes <= 2000:
+            raise ValueError("max_nodes must be between 1 and 2000")
+
         target = self.boundary.resolve(path, must_exist=True)
         if not target.is_file():
             raise IsADirectoryError(path)

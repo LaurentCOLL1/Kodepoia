@@ -111,6 +111,14 @@ class OllamaClient:
         data = self._request("GET", "/api/tags")
         return [str(item.get("name")) for item in data.get("models", [])]
 
+    def show_model(self, model: str, *, verbose: bool = False) -> dict[str, Any]:
+        """Return Ollama's local metadata/capabilities for one installed model."""
+        return self._request("POST", "/api/show", {"model": model, "verbose": verbose})
+
+    def model_capabilities(self, model: str) -> set[str]:
+        data = self.show_model(model)
+        return {str(value).lower() for value in data.get("capabilities", [])}
+
     def running_models(self) -> list[dict[str, Any]]:
         data = self._request("GET", "/api/ps")
         result: list[dict[str, Any]] = []

@@ -23,7 +23,7 @@ Evidence: `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
 - `qwen3.5:4b`: 28/32, score 0.875 x4, 80.690 tok/s.
 - Both pass exact/Python/Godot/GDScript/debug/JSON/tools 4/4 and fail Git worktree 4/4.
 
-**Provisional KodeFast winner: `granite4.1:3b`.**
+**KodeFast winner: `granite4.1:3b`.**
 
 `qwen3.5:4b` remains a compact multimodal fallback candidate.
 
@@ -43,7 +43,7 @@ Evidence: `.kodepoia/benchmarks/r3-preselect-core-v2.json`.
 - 0 errors, 0 budget exhaustions.
 - Cold-load about 90.985 s.
 
-**Provisional KodeCore winner: `gpt-oss:20b`.**
+**KodeCore winner: `gpt-oss:20b`.**
 
 `qwen3.5:9b` remains available as a smaller multimodal/non-thinking fallback candidate.
 
@@ -59,9 +59,7 @@ Evidence: `.kodepoia/benchmarks/r3-preselect-coder.json`.
 
 The harness now preloads each model with a non-scored empty Ollama chat request before scored tasks. Preload uses a dedicated 240 s timeout. Cold-load remains a practicality metric but is no longer misclassified as a knowledge failure.
 
-Validated functional/documentary head before CODER v2: `e07278744870f979ff9a128ee0b93de44717cdcc`.
-
-## CODER v2 — COMPLETE / PROVISIONAL WINNER SELECTED
+## CODER v2 — COMPLETE
 
 Evidence: `.kodepoia/benchmarks/r3-preselect-coder-v2.json`.
 
@@ -81,10 +79,7 @@ Target workstation: Windows 11, Python 3.12.4, Ollama 0.32.14. Five repetitions 
 - 201.761 s average scored repeat.
 - 114.093 s average cold-load/preload.
 - All eight categories 5/5, including true tool calling and Git worktree.
-- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions.
-- About 10.03 GB reported resident in VRAM while running.
-
-The corrected preload proves that North's old 35/40 score was a harness artifact: it now passes exact instruction 5/5.
+- About 10.03 GB reported resident in VRAM.
 
 ### `ornith:9b`
 - 40/40, score **1.000** x5, score stddev 0.0.
@@ -93,37 +88,72 @@ The corrected preload proves that North's old 35/40 score was a harness artifact
 - **36.418 s average cold-load/preload**.
 - All eight categories 5/5, including structured output, true tool calling and Git worktree.
 - 0 errors, 0 preload failures/timeouts, 0 budget exhaustions.
-- Ollama reports about **6.31 GB model size and 6.31 GB resident VRAM**, so it fits fully in the target 12 GB VRAM.
+- Ollama reports about **6.31 GB model size and 6.31 GB resident VRAM**.
 
 ### `laguna-xs-2.1:Q4_K_M`
 - 25/40, score **0.625** x5, score stddev 0.0.
 - 19.950 tok/s.
-- 263.606 s average scored repeat.
-- 116.359 s average cold-load/preload.
-- Passes exact/Python/Godot/GDScript/debug 5/5.
-- **Structured output 0/5, native tool calling 0/5, software-engineering/worktree 0/5.**
-- Failures are deterministic empty final responses under the current Ollama `/api/chat` + format/tools integration, with no preload timeout and no generation-budget exhaustion.
+- Structured output 0/5, native tool calling 0/5, software-engineering/worktree 0/5 under the current Ollama chat integration.
+- Removed from R3 final selection.
 
-Because Ollama upstream advertises Laguna XS 2.1 as tools/thinking capable, this is treated as an **operational incompatibility with Kodepoia's current Ollama chat/tool path on the target setup**, not proof that the underlying model is intrinsically incapable. It is removed from R3 final selection.
+**KodeCoder winner: `ornith:9b`.**
 
-## CODER decision
+`north-mini-code-1.0:Q4_K_M` remains a strong future `KodeDeepCoder` / long-horizon repository candidate. `gpt-oss:20b` remains a valid coding fallback/reviewer.
 
-**Provisional KodeCoder winner: `ornith:9b`.**
+## Official R3 hardware acceptance — COMPLETE / PASSED
 
-Rationale: it ties GPT-OSS and North at perfect, perfectly repeatable correctness, but is approximately 3.5x faster than North and 4.1x faster than GPT-OSS in generation throughput, has by far the shortest scored-repeat time, the lowest cold-load among the three perfect models, and fits fully in 12 GB VRAM.
+Evidence: `.kodepoia/benchmarks/r3-local-acceptance.json`.
 
-`north-mini-code-1.0:Q4_K_M` remains a strong future `KodeDeepCoder` / long-horizon repository candidate because it is explicitly trained for agentic software engineering and also achieved 40/40 once cold-load was separated. It is not selected as the default daily coder because its hardware cost is much higher without measurable quality gain in this R3 suite.
+Finalists:
+- KodeFast: `granite4.1:3b`
+- KodeCore: `gpt-oss:20b`
+- KodeCoder: `ornith:9b`
 
-`gpt-oss:20b` remains KodeCore and is also a valid coding fallback/reviewer.
+Acceptance environment and controls:
+- Windows 11 target workstation;
+- Python 3.12.4;
+- Ollama 0.32.14;
+- loopback URL `http://127.0.0.1:11434` verified;
+- `acceptance_completed=true`;
+- 5 repeats;
+- `temperature=0`;
+- `num_predict=1024`;
+- profile `full-capability-thinking-aware`.
 
-## R3 final hardware acceptance candidates
+Final results:
 
-The natural three role finalists are now:
+### `granite4.1:3b`
+- 35/40, **0.875 x5**, stddev 0.0;
+- 131.366 tok/s;
+- 16.294 s cold-load/preload;
+- seven categories 5/5 including JSON and real tool calling;
+- software-engineering/worktree 0/5;
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions.
 
-- KodeFast candidate: `granite4.1:3b`
-- KodeCore candidate: `gpt-oss:20b`
-- KodeCoder candidate: `ornith:9b`
+Accepted for FAST because the role is lightweight/routing-oriented. Repository-management/Git decisions must be routed away from Granite to CORE/CODER.
 
-Run official `r3-accept` only with these three unless new evidence appears. Default acceptance uses five repeats and the full-capability thinking-aware profile.
+### `gpt-oss:20b`
+- **40/40, 1.000 x5**, stddev 0.0;
+- 15.909 tok/s;
+- 90.435 s cold-load/preload;
+- all eight categories 5/5;
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions;
+- thinking `medium`.
 
-R3 remains `PENDING ACCEPTANCE` until `.kodepoia/benchmarks/r3-local-acceptance.json` is generated, structurally validated, technically reviewed, roles are recorded, final CI is green, and PR #8 is safe to merge.
+### `ornith:9b`
+- **40/40, 1.000 x5**, stddev 0.0;
+- **64.512 tok/s**;
+- **36.116 s cold-load/preload**;
+- all eight categories 5/5;
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions;
+- ~6.31 GB resident VRAM; thinking enabled.
+
+## Final accepted defaults for the target workstation
+
+- `KodeFast` → `granite4.1:3b`
+- `KodeCore` → `gpt-oss:20b`
+- `KodeCoder` → `ornith:9b`
+
+These are measured local defaults, not architectural lock-in. Kodepoia remains model-agnostic and may re-benchmark replacements later.
+
+R3 hardware-local acceptance is complete. Final CI and PR #8 merge are the remaining repository-integration steps before R4.

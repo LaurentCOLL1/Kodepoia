@@ -103,7 +103,6 @@ def test_lsp_session_lifecycle_navigation_and_diagnostics(tmp_path: Path) -> Non
     methods = [message.get("method") for message in channel.sent if "method" in message]
     assert methods == [
         "initialize",
-        "workspace/configuration",
         "initialized",
         "textDocument/didOpen",
         "textDocument/documentSymbol",

@@ -33,6 +33,9 @@ def test_kodestudio_builds_and_exposes_emergency_stop() -> None:
 def test_project_wizard_contains_r2_acceptance_fields() -> None:
     qt_app()
     dialog = create_project_dialog()
+    dialog.show()
+    QApplication.processEvents()
+
     assert dialog.findChild(QTableWidget, "performanceBudgets") is not None
     assert dialog.findChild(QComboBox, "downloadPolicy") is not None
     assert dialog.findChild(QComboBox, "installPolicy") is not None
@@ -43,8 +46,13 @@ def test_project_wizard_contains_r2_acceptance_fields() -> None:
     touch = dialog.findChild(QCheckBox, "input_touch")
     android = dialog.findChild(QCheckBox, "platform_android")
     assert touch is not None and android is not None
-    assert touch.isHidden()
+    assert not touch.isVisible()
+
     android.setChecked(True)
     QApplication.processEvents()
-    assert not touch.isHidden()
+    assert touch.isVisible()
+
+    android.setChecked(False)
+    QApplication.processEvents()
+    assert not touch.isVisible()
     dialog.close()

@@ -41,7 +41,9 @@ if ([int]$VersionParts[0] -lt 3 -or ([int]$VersionParts[0] -eq 3 -and [int]$Vers
     throw "Python 3.12+ is required. Found $VersionText"
 }
 
+$GodotVersionWatch = [System.Diagnostics.Stopwatch]::StartNew()
 $GodotVersion = (& $Godot --version | Select-Object -First 1).Trim()
+$GodotVersionWatch.Stop()
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($GodotVersion)) {
     throw "Unable to query Godot version from: $Godot"
 }
@@ -54,7 +56,8 @@ foreach ($port in @($LspPort, $DapPort, $DebugPort)) {
         throw "R5 LSP/DAP/debug ports must be between 1024 and 49151. Found $port."
     }
 }
-if (@($LspPort, $DapPort, $DebugPort | Select-Object -Unique).Count -ne 3) {
+$UniquePorts = @($LspPort, $DapPort, $DebugPort) | Select-Object -Unique
+if (@($UniquePorts).Count -ne 3) {
     throw "R5 LSP, DAP and debug ports must be distinct."
 }
 
@@ -82,7 +85,7 @@ Write-Host "Repository : $RepoRoot"
 Write-Host "Branch     : $Branch"
 Write-Host "Python     : $VersionText"
 Write-Host "Godot      : $Godot"
-Write-Host "Godot ver. : $GodotVersion"
+Write-Host ("Godot ver. : {0} ({1:N2} s direct startup)" -f $GodotVersion, $GodotVersionWatch.Elapsed.TotalSeconds)
 Write-Host "Ports      : LSP=$LspPort DAP=$DapPort DEBUG=$DebugPort"
 
 & $Python @Args

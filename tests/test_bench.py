@@ -31,27 +31,59 @@ class FakeBrain:
         else:
             content = "KODEPOIA_OK"
         thinking = "reasoning" if kwargs.get("think") in {True, "medium"} else None
-        tool_calls = ({"function": {"name": "get_project_dna", "arguments": {}}},) if "get_project_dna" in prompt else ()
+        tool_calls = (
+            ({"function": {"name": "get_project_dna", "arguments": {}}},)
+            if "get_project_dna" in prompt
+            else ()
+        )
         return BrainResponse(
             content,
             model,
             thinking=thinking,
             tool_calls=tool_calls,
-            metrics={"eval_count": 3, "eval_duration": 1_000_000_000, "load_duration": 2_000_000_000},
+            metrics={
+                "eval_count": 3,
+                "eval_duration": 1_000_000_000,
+                "load_duration": 2_000_000_000,
+                "done_reason": "stop",
+            },
         )
 
     def show_model(self, model):
         if model == "plain":
             return {"capabilities": ["completion"], "details": {"family": "plain"}}
         if model == "gpt-oss:20b":
-            return {"capabilities": ["completion", "thinking", "tools"], "details": {"family": "gptoss"}}
-        return {"capabilities": ["completion", "thinking", "tools"], "details": {"family": "qwen35"}}
+            return {
+                "capabilities": ["completion", "thinking", "tools"],
+                "details": {"family": "gptoss"},
+            }
+        return {
+            "capabilities": ["completion", "thinking", "tools"],
+            "details": {"family": "qwen35"},
+        }
 
     def running_models(self):
         return []
 
     def unload(self, model):
         self.unloaded.append(model)
+
+
+class ExhaustedThinkingBrain(FakeBrain):
+    def chat(self, model, messages, **kwargs):
+        self.calls.append((model, messages[0].content, kwargs))
+        budget = kwargs["options"]["num_predict"]
+        return BrainResponse(
+            "",
+            model,
+            thinking="reasoning that consumed the entire generation budget",
+            metrics={
+                "eval_count": budget,
+                "eval_duration": 1_000_000_000,
+                "load_duration": 2_000_000_000,
+                "done_reason": "length",
+            },
+        )
 
 
 def test_baseline_requires_multiple_models() -> None:
@@ -91,6 +123,7 @@ def test_baseline_runs_repeated_and_saves(tmp_path: Path) -> None:
     assert summary["one"]["min_repeat_score"] == 1.0
     assert summary["one"]["score_stddev"] == 0.0
     assert summary["one"]["task_pass_rates"]["x"] == 1.0
+    assert summary["one"]["budget_exhaustions"] == 0
     path = tmp_path / "bench.json"
     bench.save(results, path)
     assert path.exists()
@@ -120,15 +153,16 @@ def test_strict_content_validators_reject_false_positives() -> None:
     assert not BaselineBench._content_matches("Answer: KODEPOIA_OK", exact)
 
 
-def test_fast_profile_disables_thinking() -> None:
+def test_fast_profile_disables_thinking_and_uses_small_budget() -> None:
     brain = FakeBrain()
     bench = BaselineBench(brain, (BenchTask("x", "x", exact_response="KODEPOIA_OK"),))
     results = bench.run(["qwen3.5:4b", "plain"], role=BenchmarkRole.FAST)
     assert [item.thinking_mode for item in results] == [False, False]
     assert all(call[2]["think"] is False for call in brain.calls)
+    assert all(call[2]["options"]["num_predict"] == 256 for call in brain.calls)
 
 
-def test_core_profile_auto_enables_supported_thinking() -> None:
+def test_core_profile_auto_enables_thinking_and_uses_large_budget() -> None:
     brain = FakeBrain()
     bench = BaselineBench(brain, (BenchTask("x", "x", exact_response="KODEPOIA_OK"),))
     results = bench.run(["qwen3.6:27b", "gpt-oss:20b", "plain"], role=BenchmarkRole.CORE)
@@ -136,3 +170,16 @@ def test_core_profile_auto_enables_supported_thinking() -> None:
     assert modes["qwen3.6:27b"] is True
     assert modes["gpt-oss:20b"] == "medium"
     assert modes["plain"] is None
+    assert all(call[2]["options"]["num_predict"] == 1024 for call in brain.calls)
+
+
+def test_thinking_budget_exhaustion_is_explicitly_reported() -> None:
+    brain = ExhaustedThinkingBrain()
+    bench = BaselineBench(brain, (BenchTask("x", "x", exact_response="KODEPOIA_OK"),))
+    results = bench.run(["qwen3.5:9b", "qwen3.6:27b"], role=BenchmarkRole.CORE)
+    assert all(not item.passed for item in results)
+    assert all(item.error == "generation budget exhausted before final answer" for item in results)
+    assert all(item.metrics["generation_budget_exhausted"] is True for item in results)
+    summary = BaselineBench.summarize(results)
+    assert summary["qwen3.5:9b"]["budget_exhaustions"] == 1
+    assert summary["qwen3.6:27b"]["budget_exhaustions"] == 1

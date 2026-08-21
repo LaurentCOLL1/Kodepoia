@@ -63,6 +63,7 @@ class OllamaClient:
         response_schema: dict[str, Any] | str | None = None,
         think: bool | str | None = None,
         keep_alive: str | int = "5m",
+        options: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "model": model,
@@ -76,6 +77,8 @@ class OllamaClient:
             payload["format"] = response_schema
         if think is not None:
             payload["think"] = think
+        if options:
+            payload["options"] = dict(options)
         return payload
 
     @staticmethod
@@ -136,6 +139,7 @@ class OllamaClient:
         response_schema: dict[str, Any] | str | None = None,
         think: bool | str | None = None,
         keep_alive: str | int = "5m",
+        options: dict[str, Any] | None = None,
     ) -> BrainResponse:
         payload = self._chat_payload(
             model,
@@ -145,6 +149,7 @@ class OllamaClient:
             response_schema=response_schema,
             think=think,
             keep_alive=keep_alive,
+            options=options,
         )
         return self._brain_response(self._request("POST", "/api/chat", payload), model)
 
@@ -157,6 +162,7 @@ class OllamaClient:
         response_schema: dict[str, Any] | str | None = None,
         think: bool | str | None = None,
         keep_alive: str | int = "5m",
+        options: dict[str, Any] | None = None,
     ) -> Iterator[BrainResponse]:
         payload = self._chat_payload(
             model,
@@ -166,6 +172,7 @@ class OllamaClient:
             response_schema=response_schema,
             think=think,
             keep_alive=keep_alive,
+            options=options,
         )
         request = urllib.request.Request(
             f"{self.base_url}/api/chat",

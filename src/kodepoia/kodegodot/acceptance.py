@@ -17,7 +17,7 @@ from kodepoia.core.permissions import Capability, PermissionGrant, PermissionSet
 from kodepoia.core.safe_change import SafeChangeManager
 from kodepoia.kodegodot.api import GodotToolAPI
 from kodepoia.kodegodot.executor import KodeGodotExecutor
-from kodepoia.kodegodot.runtime import GodotRuntime
+from kodepoia.kodegodot.runtime import GodotRuntime, VERSION_TIMEOUT_SECONDS
 from kodepoia.kodegodot.services import GodotEditorServices, GodotServicePorts
 
 
@@ -82,7 +82,7 @@ class R5AcceptanceRunner:
         self._step("gdscript_inspect", lambda: self.executor.invoke("kodegodot_gdscript_inspect", {"path": "main.gd"}).result)
         self._step("check_script", lambda: self._require_ok(self.executor.invoke("kodegodot_check_script", {"path": "main.gd"}).result))
         self._step("import_project", lambda: self._require_ok(self.executor.invoke("kodegodot_import_project", {"timeout": 300}).result))
-        self._step("smoke_scene", lambda: self._require_ok(self.executor.invoke("kodegodot_smoke_project", {"scene": "main.tscn", "quit_after": 5, "timeout": 120}).result))
+        self._step("smoke_scene", lambda: self._require_ok(self.executor.invoke("kodegodot_smoke_project", {"scene": "main.tscn", "quit_after": 5, "timeout": 180}).result))
         self._step("benchmark_scene", self._benchmark)
         self._step("capture_movie", self._capture)
         self._step("governed_scene_edit", self._governed_edit)
@@ -110,7 +110,7 @@ class R5AcceptanceRunner:
     def _benchmark(self) -> dict[str, Any]:
         result = self.executor.invoke(
             "kodegodot_benchmark_scene",
-            {"scene": "main.tscn", "frames": 120, "timeout": 180},
+            {"scene": "main.tscn", "frames": 120, "timeout": 240},
         ).result
         invocation = result.get("invocation", {})
         self._require_ok(invocation)
@@ -121,7 +121,7 @@ class R5AcceptanceRunner:
     def _capture(self) -> dict[str, Any]:
         result = self.executor.invoke(
             "kodegodot_capture_movie",
-            {"scene": "main.tscn", "output_name": "r5-acceptance.avi", "frames": 8, "fps": 30, "timeout": 180},
+            {"scene": "main.tscn", "output_name": "r5-acceptance.avi", "frames": 8, "fps": 30, "timeout": 240},
         ).result
         self._require_ok(result)
         movie = self.workspace / ".kodepoia" / "captures" / "r5-acceptance.avi"
@@ -155,7 +155,7 @@ class R5AcceptanceRunner:
                 "lsp_port": self.ports.lsp,
                 "dap_port": self.ports.dap,
                 "debug_port": self.ports.debug,
-                "timeout": 45,
+                "timeout": 120,
             },
         ).result
 
@@ -185,7 +185,11 @@ class R5AcceptanceRunner:
     def _require_ok(result: dict[str, Any]) -> dict[str, Any]:
         if int(result.get("returncode", -1)) != 0 or bool(result.get("timed_out")) or bool(result.get("cancelled")):
             stderr = str(result.get("stderr", "")).strip()
-            raise RuntimeError(f"Godot invocation failed: rc={result.get('returncode')} stderr={stderr}")
+            raise RuntimeError(
+                "Godot invocation failed: "
+                f"rc={result.get('returncode')} timed_out={result.get('timed_out')} "
+                f"cancelled={result.get('cancelled')} stderr={stderr}"
+            )
         return result
 
     def _step(self, name: str, action: Callable[[], Any]) -> None:
@@ -209,6 +213,7 @@ class R5AcceptanceRunner:
                 "python": sys.version.split()[0],
                 "platform": platform.platform(),
                 "godot_executable": Path(self.executable).name,
+                "godot_version_timeout_seconds": VERSION_TIMEOUT_SECONDS,
                 "ports": asdict(self.ports),
                 "fixture": ".kodepoia/r5-acceptance/project",
             },

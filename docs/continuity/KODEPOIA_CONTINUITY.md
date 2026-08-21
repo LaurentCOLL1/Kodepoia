@@ -76,8 +76,6 @@ Le benchmark R3 a d'abord été durci pour éviter de désavantager les modèles
 - GPT-OSS utilise `think="medium"` ;
 - le mode de thinking est enregistré dans les résultats.
 
-Les CI du head `ce81c5a02e125eceb11356a5392ba65083e68104` étaient SUCCESS pour Repository Guard, Python Core et KodeStudio UI Smoke avant le second hardening décrit ci-dessous.
-
 ### Second hardening déclenché par 4 runs FAST réels
 
 Le PC cible a exécuté manuellement quatre fois l'ancien benchmark FAST sur `granite4.1:3b` et `qwen3.5:4b`.
@@ -94,7 +92,7 @@ Ces quatre runs ont révélé que les scores simples n'étaient pas suffisamment
 
 Conclusion : ces quatre fichiers sont utiles comme **preuve diagnostique**, mais ne constituent pas la présélection finale.
 
-Le second hardening est maintenant codé sur la branche :
+Le second hardening est maintenant codé et validé :
 - `OllamaClient.chat/stream_chat` acceptent les `options` Ollama ;
 - contrôle fixe du benchmark : `temperature=0`, seed series à partir de 101, `num_predict=256` ;
 - `bench-models` effectue **4 répétitions par défaut**, configurable 1–8 ;
@@ -106,9 +104,12 @@ Le second hardening est maintenant codé sur la branche :
 - validateurs stricts : exact `KODEPOIA_OK`, `CharacterBody3D` sans legacy names, vraie syntaxe `var count: int = 0`, vrai `worktree`, JSON structuré et tool call structurels ;
 - tests automatisés ajoutés pour répétitions, seeds/options et faux positifs.
 
-Documentation autoritative : `docs/roadmap/R3_MODEL_PRESELECTION.md`.
+Preuve CI du second hardening sur `67199b88081e41f8f8673cd37b278ca7d26667af` :
+- R0 Repository Guard run `32468107489` : SUCCESS ;
+- Python Core run `32468107580` : SUCCESS ;
+- KodeStudio UI Smoke run `32468107448` : SUCCESS.
 
-**Avant toute nouvelle présélection matérielle, attendre que les CI du head contenant ce second hardening soient SUCCESS, puis faire `git pull`.**
+Documentation autoritative : `docs/roadmap/R3_MODEL_PRESELECTION.md`.
 
 ## Modèles actuellement retenus pour la présélection locale
 
@@ -130,26 +131,23 @@ Ces modèles sont installés sur le PC cible au 21 août 2026. Aucun rôle n'est
 
 ## Procédure matérielle locale R3
 
-Avant tout benchmark, sur le PC cible :
+Prochaine action sur le PC cible :
 
 ```powershell
 git switch agent/r1-r3-acceptance-hardening
 git pull
 .\.venv\Scripts\Activate.ps1
-python --version
-ollama --version
-ollama list
 ```
 
-Puis exécuter les trois présélections décrites dans `docs/roadmap/R3_MODEL_PRESELECTION.md` : FAST, CORE, CODER. Les rapports attendus sont :
+Puis **réexécuter uniquement FAST** avec le harness v2 :
 
-```text
-.kodepoia/benchmarks/r3-preselect-fast.json
-.kodepoia/benchmarks/r3-preselect-core.json
-.kodepoia/benchmarks/r3-preselect-coder.json
+```powershell
+python -m kodepoia.cli bench-models --role fast --repeats 4 --model "granite4.1:3b" --model "qwen3.5:4b" --output ".kodepoia/benchmarks/r3-preselect-fast-v2.json"
 ```
 
-La présélection officielle utilise 4 répétitions par modèle. Après analyse, choisir au maximum trois finalistes et seulement ensuite lancer l'acceptation locale, qui utilise 5 répétitions par défaut :
+Ne pas lancer CORE/CODER avant analyse du rapport FAST v2.
+
+Après FAST, les futures présélections CORE et CODER utiliseront également 4 répétitions. Après analyse des trois groupes, choisir au maximum trois finalistes et lancer l'acceptation locale, qui utilise 5 répétitions par défaut :
 
 ```powershell
 .\scripts\r3_accept_local.ps1 -Model finalistA,finalistB,finalistC
@@ -166,20 +164,19 @@ R3 ne devient COMPLETE qu'après revue des scores, dispersion/répétabilité, m
 ## Séquence obligatoire restante avant R4
 
 1. Garder PR #8 ouverte.
-2. Attendre CI verte sur le second hardening benchmark.
-3. Mettre à jour la copie locale de `agent/r1-r3-acceptance-hardening`.
-4. Réexécuter FAST avec le harness v2 et 4 répétitions automatiques.
-5. Analyser le rapport FAST v2.
-6. Exécuter CORE puis CODER avec 4 répétitions chacun.
-7. Analyser les trois rapports.
-8. Choisir 2–3 finalistes.
-9. Exécuter `scripts/r3_accept_local.ps1 -Model ...` (5 répétitions par défaut).
-10. Vérifier `.kodepoia/benchmarks/r3-local-acceptance.json`.
-11. Enregistrer les modèles/rôles retenus dans ce fichier et `R3_STATUS.md`.
-12. Marquer R3 COMPLETE seulement si les résultats sont acceptables.
-13. Revalider la CI si un commit de statut est ajouté.
-14. Fusionner PR #8.
-15. Seulement ensuite commencer R4.
+2. Mettre à jour la copie locale de `agent/r1-r3-acceptance-hardening`.
+3. Réexécuter FAST v2 avec 4 répétitions automatiques.
+4. Analyser le rapport FAST v2.
+5. Exécuter CORE puis CODER avec 4 répétitions chacun.
+6. Analyser les trois rapports.
+7. Choisir 2–3 finalistes.
+8. Exécuter `scripts/r3_accept_local.ps1 -Model ...` (5 répétitions par défaut).
+9. Vérifier `.kodepoia/benchmarks/r3-local-acceptance.json`.
+10. Enregistrer les modèles/rôles retenus dans ce fichier et `R3_STATUS.md`.
+11. Marquer R3 COMPLETE seulement si les résultats sont acceptables.
+12. Revalider la CI si un commit de statut est ajouté.
+13. Fusionner PR #8.
+14. Seulement ensuite commencer R4.
 
 ## Politique de mise à jour de la continuité
 

@@ -1,88 +1,264 @@
 # Kodepoia — Continuité / reprise par un autre LLM
 
-**Dernière mise à jour : 21 août 2026**
+**Dernière mise à jour : 22 août 2026**
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. **R5 — KodeGodot 4.7.x est IN PROGRESS. R5.1 Engine/project foundation est ACCEPTED AND MERGED via PR #22.** R5.2 Scene/resource intelligence est NEXT / NOT STARTED. R5.3–R5.6 ne sont pas commencées. Lire architecture, ADR, roadmap, `R4_STATUS.md`, `R5_STATUS.md`, puis ce fichier avant de reprendre. Ne pas rouvrir R4 sans nouvelle preuve ou ADR.
+> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. **R5 — KodeGodot 4.7.x est IN PROGRESS. R5.1 à R5.5 sont ACCEPTED AND MERGED. R5.6 est IMPLEMENTED / CI ACCEPTED / HARDWARE-LOCAL ACCEPTANCE PENDING sur PR #28, branche `agent/r5-6-governed-acceptance`.** Ne pas fusionner PR #28, ne pas marquer R5 COMPLETE et ne pas commencer R6 avant revue du rapport `.kodepoia/benchmarks/r5-local-acceptance.json`. Lire architecture, ADR, `R5_STATUS.md`, `R5_LOCAL_ACCEPTANCE.md` puis ce fichier avant reprise.
 
 ## Source de vérité et contraintes
 
 - Dépôt : `LaurentCOLL1/Kodepoia`.
 - Visibilité GitHub : **PUBLIC volontairement** ; ne pas traiter ce choix comme une anomalie.
-- Source de vérité active après R5.1 : `main`.
-- R5.1 PR #22 — **MERGED** ; merge `47f78db21dfd97ac228548358edce1ac5a73cce3`.
 - Architecture : v1.0 gelée.
 - R1 : COMPLETE.
 - R2 : COMPLETE.
 - R3 : COMPLETE — hardware-local acceptance passed.
 - R4 : COMPLETE — final governed orchestration acceptance passed.
 - R5 : **IN PROGRESS**.
-- R5.1 : **ACCEPTED AND MERGED**.
-- R5.2 : NEXT / NOT STARTED.
-- R5.3–R5.6 : NOT STARTED.
+- R5.1 : ACCEPTED AND MERGED.
+- R5.2 : ACCEPTED AND MERGED — PR #24, merge `7720bfc90951e2180b909004b7fa8320d93a6e27`.
+- R5.3 : ACCEPTED AND MERGED — PR #25, merge `d2641862b98a969b9adfc905f818e01b3d7e4730`.
+- R5.4 : ACCEPTED AND MERGED — PR #26, merge `b81cf430249e341219dcb759cb49f67697c27782`.
+- R5.5 : ACCEPTED AND MERGED — PR #27, merge `c4409c78eacfa1777d22d7e0995d4db7dbdaa5a2`.
+- R5.6 : **IMPLEMENTED / CI ACCEPTED / HARDWARE-LOCAL ACCEPTANCE PENDING**.
+- Active R5.6 branch: `agent/r5-6-governed-acceptance`.
+- Active R5.6 PR: **#28**, OPEN, DO NOT MERGE YET.
+- R6 : **NOT STARTED**.
 - Modèles acceptés : KodeFast=`granite4.1:3b`, KodeCore=`gpt-oss:20b`, KodeCoder=`ornith:9b`.
 - `north-mini-code-1.0:Q4_K_M` reste candidat futur KodeDeepCoder.
 - Git/repository/software-engineering non trivial ne doit pas être routé vers Granite.
 
-## R4 — KodeCode — COMPLETE
+## R4 boundary remains mandatory
 
-R4.1 à R4.6 sont ACCEPTED AND MERGED. R4 fournit la frontière obligatoire pour R5 : WorkspaceBoundary, ProcessSandbox/kill switch, structured Tool API, Tree-sitter, LSP, DAP, code graphs, Guardian/Permissions/SafeChange/Audit et orchestration gouvernée.
+R4 supplies WorkspaceBoundary, ProcessSandbox/global kill switch, structured Tool API, LSP, DAP, code graphs, Guardian/Permissions/SafeChange/Audit and governed orchestration.
 
-Do not bypass the R4 executor/security boundary when adding Godot-specific operations.
+KodeGodot must not bypass that boundary. R5.6 now enforces it through `KodeGodotExecutor` rather than calling mutable/executable Godot tools directly from the Brain.
 
-## R5 subdivision
+## R5 delivered state
 
-1. R5.1 Engine/project foundation — ACCEPTED AND MERGED.
-2. R5.2 Scene/resource intelligence — NEXT / NOT STARTED.
-3. R5.3 GDScript + Godot LSP/DAP specialization — NOT STARTED.
-4. R5.4 2D/3D domain intelligence and safe edits — NOT STARTED.
-5. R5.5 Headless automation/import/export/capture/benchmarks — NOT STARTED.
-6. R5.6 Governed orchestration + real Godot acceptance — NOT STARTED.
+### R5.1 — Engine/project foundation
 
-## R5.1 — ACCEPTED AND MERGED
+Accepted and merged. Protected Godot 4.7.x runtime/project inspection, named CLI operations, workspace confinement and no-arbitrary-argv Tool API.
 
-PR #22 merged at `47f78db21dfd97ac228548358edce1ac5a73cce3`.
+### R5.2 — Scene/resource intelligence
+
+Accepted and merged via PR #24.
 
 Delivered:
-- new `src/kodepoia/kodegodot/` package;
-- `GodotProjectInspector` parses `project.godot` without evaluating Godot Variant expressions;
-- project metadata includes config version, application name, main scene, rendering methods, feature strings and Godot asset counts;
-- `GodotRuntime` uses R1 `ProcessSandbox` and global kill switch;
-- Godot version parser with explicit `4.7.x` compatibility check;
-- named CLI operations only: engine version, GDScript `--check-only --script`, headless `--import`, bounded headless project/scene smoke;
-- all script/scene paths are confined through `WorkspaceBoundary`;
-- `GodotToolAPI` exposes only named structured functions, `additionalProperties=false`, no arbitrary `argv`, `args` or `flags` input;
-- runtime timeout and smoke frame count are bounded in implementation, not only JSON schema;
-- tests cover metadata, 4.7 compatibility, exact CLI construction, workspace escape, bounds and Tool API secrecy.
+- Godot 4 text `.tscn/.tres` structural parser;
+- format 3 validation;
+- ext/sub resources, nodes, connections, IDs/UIDs/paths;
+- raw Variant preservation without evaluation;
+- provenance lines and dependency extraction;
+- bounded workspace-scoped document tools.
 
-Accepted functional head `041728735d761d1f17abeb38cce86f9b951db36a`:
-- Repository Guard `32525599593` SUCCESS;
-- Python Core `32525599591` SUCCESS Ubuntu+Windows;
-- UI Smoke `32525599578` SUCCESS Windows.
+Accepted CI:
+- Repository Guard `32528439136` SUCCESS;
+- Python Core `32528439126` SUCCESS Windows+Ubuntu;
+- UI Smoke `32528439139` SUCCESS Windows.
 
-Accepted final documentation head `3d96115eca23086c349c02122bf2df25cb5272e3`:
-- Repository Guard `32525764358` SUCCESS;
-- Python Core `32525764337` SUCCESS Ubuntu+Windows;
-- UI Smoke `32525764403` SUCCESS Windows.
+### R5.3 — GDScript + native Godot LSP/DAP
 
-R5.1 intentionally does not yet expose general export, movie, LSP/DAP ports, scene mutation or arbitrary command execution. Those belong to later accepted sub-phases.
+Accepted and merged via PR #25.
 
-## Godot 4.7 external contract used by R5
+Delivered:
+- GDScript structure/static-typing inspector;
+- Godot native LSP/DAP specialization using R4 protocol clients;
+- symbols, diagnostics, DAP initialize/project launch/threads;
+- loopback-only host policy and no arbitrary launch fields.
 
-Official Godot 4.7 documentation confirms the CLI capabilities needed by the frozen R5 roadmap: `--version`, `--path`, `--headless`, `--check-only` with `--script`, `--import`, `--quit-after`, `--scene`, `--lsp-port`, `--dap-port`, `--export-release`/`--export-debug`/`--export-pack` and `--write-movie`. Godot may ignore unknown CLI arguments, therefore Kodepoia must continue constructing allowlisted commands itself rather than forwarding arbitrary model-supplied flags.
+Accepted CI:
+- Repository Guard `32528908533` SUCCESS;
+- Python Core `32528908562` SUCCESS Windows+Ubuntu;
+- UI Smoke `32528908573` SUCCESS Windows.
 
-Godot 4 text scenes/resources use format 3 and string UIDs; R5.2 should model descriptors, external/internal resources, nodes and connections with provenance rather than editing them as unstructured text.
+### R5.4 — 2D/3D intelligence + guarded scene edits
 
-## Next sequence
+Accepted and merged via PR #26.
 
-1. Merge the R5.1 post-merge normalization PR after required checks are green.
-2. Then `main` is the sole source of truth for R5.1 completion.
-3. Start R5.2 only on a new branch created from that normalized `main`.
-4. Preserve the R4 Tool API/governance boundary while adding scene/resource intelligence.
-5. Do not mark R5 COMPLETE before R5.1–R5.6 including real Godot acceptance are all accepted and merged.
-6. R6 must not start before R5 completion.
+Delivered:
+- 2D/3D/hybrid node/domain analysis;
+- CharacterBody/collision/navigation/TileMap/UI/camera/mesh/light awareness;
+- guarded existing-property-only `.tscn` edit;
+- SHA-256 stale precondition;
+- unique node/property target and provenance line;
+- atomic write and protected-property rejection.
+
+Accepted CI:
+- Repository Guard `32529333497` SUCCESS;
+- Python Core `32529333471` SUCCESS Windows+Ubuntu;
+- UI Smoke `32529333485` SUCCESS Windows.
+
+### R5.5 — Headless automation/export/capture/benchmark
+
+Accepted and merged via PR #27.
+
+Delivered:
+- non-secret export preset inspection;
+- named release/debug/pack exports into `.kodepoia/exports`;
+- bounded AVI movie capture into `.kodepoia/captures`;
+- bounded headless benchmark;
+- Kodepoia-constructed commands only;
+- output-name/path confinement.
+
+Accepted CI:
+- Repository Guard `32529677551` SUCCESS;
+- Python Core `32529677569` SUCCESS Windows+Ubuntu;
+- UI Smoke `32529677534` SUCCESS Windows.
+
+## R5.6 — Current active acceptance gate
+
+PR #28 adds:
+- `KodeGodotExecutor` with per-tool policy;
+- Guardian + PermissionSet + SafeChange + Audit enforcement;
+- additional FILE_WRITE checks for indirect Godot writes (`--import`, export, capture);
+- Orchestrator tool catalog/routing for KodeCode + KodeGodot without executor bypass;
+- explicit managed Godot service command:
+
+```text
+godot --headless --editor --path . --lsp-port 6005 --dap-port 6006 --debug-server tcp://127.0.0.1:6007
+```
+
+- `GodotServicePorts` defaults: LSP 6005, DAP 6006, debug 6007;
+- allowed service port range: 1024–49151; all three distinct;
+- fixed host `127.0.0.1`, no remote-host Tool API field;
+- real protocol LSP/DAP initialization with retry, replacing earlier dummy TCP readiness connections;
+- disposable local fixture: `.kodepoia/r5-acceptance/project`;
+- Python runner: `kodepoia.kodegodot.accept_cli`;
+- Windows helper: `scripts/r5_accept_local.ps1`;
+- report: `.kodepoia/benchmarks/r5-local-acceptance.json`;
+- PowerShell helper validates Python 3.12+, exact R5.6 branch, selected Godot executable family 4.7.x and port bounds before running acceptance.
+
+### R5.6 CI evidence
+
+First CI exposed one obsolete R5.3 test which monkeypatched the old private `_wait_loopback` method. The code was not weakened. The regression test was migrated to the stronger protocol-ready service contract.
+
+Accepted functional head:
+`c8bd7c090bc9618970fb355eee2ed1a5523e5e79`
+
+- Repository Guard `32533673288` SUCCESS;
+- Python Core `32533673215` SUCCESS Windows+Ubuntu;
+- PowerShell acceptance-runner syntax SUCCESS Windows;
+- embedded UI smoke SUCCESS Windows;
+- standalone UI Smoke `32533673205` SUCCESS Windows.
+
+Later helper/documentation commits add direct Godot 4.7.x preflight and the final local acceptance procedure. Their final branch head must also remain CI-green before asking the user to run the hardware acceptance.
+
+## Godot 4.7 external contract confirmed on 22 August 2026
+
+Official Godot documentation/current upstream references confirm:
+- `--lsp-port` and `--dap-port` exist and recommend ports 1024–49151;
+- `--debug-server <uri>` accepts a loopback URI such as `tcp://127.0.0.1:6007`;
+- Godot native LSP/DAP requires a running project/editor instance;
+- common/default integration ports are LSP 6005 and DAP 6006, with project debug server 6007 in the official VS Code launch example;
+- CLI export uses an existing named preset from `export_presets.cfg`;
+- real export requires matching installed export templates.
+
+Do not expose these services to a non-loopback host.
+
+## Target-workstation procedure — next manual operation
+
+Detailed source of truth:
+`docs/roadmap/R5_LOCAL_ACCEPTANCE.md`
+
+The user should only run this after final PR #28 CI is green.
+
+Repository synchronization:
+
+```powershell
+cd M:\Kodepoia
+git fetch --all --prune
+git switch agent/r5-6-governed-acceptance
+git pull
+git branch --show-current
+git status
+```
+
+Expected branch:
+
+```text
+agent/r5-6-governed-acceptance
+```
+
+First run the probe:
+
+```powershell
+.\scripts\r5_accept_local.ps1 -ProbeOnly
+```
+
+If Godot is not on PATH:
+
+```powershell
+.\scripts\r5_accept_local.ps1 -ProbeOnly -GodotPath "C:\path\to\Godot_v4.7.x-stable_win64.exe"
+```
+
+After a successful probe, run full acceptance:
+
+```powershell
+.\scripts\r5_accept_local.ps1
+```
+
+or with explicit Godot path:
+
+```powershell
+.\scripts\r5_accept_local.ps1 -GodotPath "C:\path\to\Godot_v4.7.x-stable_win64.exe"
+```
+
+If default ports are occupied, use three distinct ports in 1024–49151, e.g.:
+
+```powershell
+.\scripts\r5_accept_local.ps1 -LspPort 6105 -DapPort 6106 -DebugPort 6107
+```
+
+Full acceptance requires matching Godot 4.7.x Windows export templates. If `export_release` is the only missing step because templates are absent, install the exact matching templates through Godot **Editor → Manage Export Templates…**, then rerun. Do not weaken Kodepoia export checks.
+
+Expected report:
+
+```text
+M:\Kodepoia\.kodepoia\benchmarks\r5-local-acceptance.json
+```
+
+User must send back that JSON or, if no usable report exists, the complete PowerShell output.
+
+Do not manually edit status or merge the PR.
+
+## Hardware acceptance completion rule
+
+R5 can move to COMPLETE only when reviewed evidence proves:
+- phase `R5-local-acceptance`;
+- `probe_only == false`;
+- `acceptance_completed == true`;
+- zero failed steps;
+- actual Godot 4.7.x check/import/smoke/benchmark/capture succeed;
+- governed scene edit creates a SafeChange snapshot;
+- real LSP symbols/diagnostics succeed;
+- real DAP initialize/project launch/threads succeed;
+- Windows Desktop release export produces a non-empty executable;
+- audit hash chain verifies;
+- final PR #28 CI is green.
+
+Then and only then:
+1. update R5 status to COMPLETE;
+2. update continuity with acceptance evidence;
+3. merge PR #28;
+4. verify `main` CI/state;
+5. normalize continuity if required;
+6. authorize R6.
+
+## User operational preference — permanent
+
+Whenever the user must personally perform an operation, explain the entire procedure in detail:
+- why intervention is necessary;
+- prerequisites;
+- exact commands/actions;
+- expected result;
+- error recovery;
+- what output/file to send back;
+- what must **not** be done yet.
+
+Do not ask the user to repeat information already known.
 
 ## Permanent rules
 
-Update continuity in the same cycle for phase/PR/acceptance/prerequisite changes. Never declare COMPLETE from partial CI. Preserve Guardian/Sandbox/Secrets/Health/Budget. No direct system access outside Tool API. Public repository visibility is intentional. Do not return to R4 except for a demonstrated regression or an ADR-worthy architecture change.
+Update continuity in the same work cycle for phase/PR/acceptance/prerequisite changes. Never declare COMPLETE from partial CI. Preserve Guardian/Sandbox/Secrets/Health/Budget. No direct system access outside Tool API. Public repository visibility is intentional. Do not return to R4 except for a demonstrated regression or ADR-worthy architecture change. Do not begin R6 before R5 completion.

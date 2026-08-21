@@ -119,6 +119,7 @@ DEFAULT_TASKS = (
 class BaselineBench:
     FAST_NUM_PREDICT = 256
     THINKING_NUM_PREDICT = 1024
+    PRELOAD_TIMEOUT_S = 240.0
 
     def __init__(self, client: OllamaClient, tasks: tuple[BenchTask, ...] = DEFAULT_TASKS) -> None:
         self.client = client
@@ -220,6 +221,35 @@ class BaselineBench:
             return metrics
         return {}
 
+    def _preload_model(self, model: str) -> dict[str, object]:
+        preload = getattr(self.client, "preload", None)
+        if not callable(preload):
+            return {"preload_supported": False}
+        start = time.perf_counter()
+        try:
+            data = preload(model, keep_alive="2m", timeout=self.PRELOAD_TIMEOUT_S)
+        except BrainUnavailable as exc:
+            elapsed = time.perf_counter() - start
+            message = str(exc)
+            return {
+                "preload_supported": True,
+                "preload_elapsed_s": elapsed,
+                "preload_failed": True,
+                "preload_timed_out": "timed out" in message.lower(),
+                "preload_error": message,
+            }
+        elapsed = time.perf_counter() - start
+        metrics: dict[str, object] = {
+            "preload_supported": True,
+            "preload_elapsed_s": elapsed,
+            "preload_failed": False,
+            "preload_timed_out": False,
+        }
+        for key in ("done_reason", "total_duration", "load_duration"):
+            if key in data:
+                metrics[f"preload_{key}"] = data[key]
+        return metrics
+
     def _thinking_mode(self, model: str, role: BenchmarkRole) -> bool | str | None:
         if role in {BenchmarkRole.BASELINE, BenchmarkRole.FAST}:
             return False
@@ -266,7 +296,8 @@ class BaselineBench:
                     "temperature": temperature,
                     "num_predict": resolved_num_predict,
                 }
-                for task in self.tasks:
+                preload_metrics = self._preload_model(model)
+                for task_index, task in enumerate(self.tasks):
                     start = time.perf_counter()
                     try:
                         response = self.client.chat(
@@ -279,6 +310,9 @@ class BaselineBench:
                             options=options,
                         )
                     except BrainUnavailable as exc:
+                        metrics: dict[str, object] = {}
+                        if task_index == 0:
+                            metrics.update(preload_metrics)
                         results.append(
                             BenchResult(
                                 model=model,
@@ -288,7 +322,7 @@ class BaselineBench:
                                 elapsed_s=time.perf_counter() - start,
                                 passed=False,
                                 response="",
-                                metrics={},
+                                metrics=metrics,
                                 structured_valid=False if task.response_schema is not None else None,
                                 tool_called=False if task.expect_tool_call else None,
                                 thinking_mode=think,
@@ -312,6 +346,8 @@ class BaselineBench:
                         passed = passed and tool_called
                     metrics = dict(response.metrics or {})
                     metrics.update(self._runtime_metrics(model))
+                    if task_index == 0:
+                        metrics.update(preload_metrics)
                     if response.thinking:
                         metrics["thinking_chars"] = len(response.thinking)
                     budget_exhausted = self._generation_budget_exhausted(
@@ -363,16 +399,35 @@ class BaselineBench:
             repeat_scores: list[float] = []
             repeat_elapsed: list[float] = []
             cold_load_seconds: list[float] = []
+            preload_elapsed_seconds: list[float] = []
+            preload_failures = 0
+            preload_timeouts = 0
             for repeat in repeat_ids:
                 repeat_rows = [item for item in rows if item.repeat == repeat]
                 repeat_scores.append(
                     sum(item.passed for item in repeat_rows) / len(repeat_rows) if repeat_rows else 0.0
                 )
-                repeat_elapsed.append(sum(item.elapsed_s for item in repeat_rows))
                 first = repeat_rows[0] if repeat_rows else None
-                load_duration = first.metrics.get("load_duration") if first is not None else None
-                if isinstance(load_duration, (int, float)):
-                    cold_load_seconds.append(float(load_duration) / 1_000_000_000.0)
+                preload_elapsed = first.metrics.get("preload_elapsed_s") if first is not None else None
+                extra_elapsed = float(preload_elapsed) if isinstance(preload_elapsed, (int, float)) else 0.0
+                repeat_elapsed.append(sum(item.elapsed_s for item in repeat_rows) + extra_elapsed)
+                if isinstance(preload_elapsed, (int, float)):
+                    preload_elapsed_seconds.append(float(preload_elapsed))
+                preload_load_duration = (
+                    first.metrics.get("preload_load_duration") if first is not None else None
+                )
+                if isinstance(preload_load_duration, (int, float)):
+                    cold_load_seconds.append(float(preload_load_duration) / 1_000_000_000.0)
+                elif isinstance(preload_elapsed, (int, float)):
+                    cold_load_seconds.append(float(preload_elapsed))
+                else:
+                    load_duration = first.metrics.get("load_duration") if first is not None else None
+                    if isinstance(load_duration, (int, float)):
+                        cold_load_seconds.append(float(load_duration) / 1_000_000_000.0)
+                if first is not None and first.metrics.get("preload_failed") is True:
+                    preload_failures += 1
+                if first is not None and first.metrics.get("preload_timed_out") is True:
+                    preload_timeouts += 1
             task_pass_rates: dict[str, float] = {}
             for task_id in dict.fromkeys(item.task_id for item in rows):
                 task_rows = [item for item in rows if item.task_id == task_id]
@@ -392,6 +447,13 @@ class BaselineBench:
                 "avg_tokens_per_second": round(statistics.mean(speeds), 3) if speeds else None,
                 "tokens_per_second_stddev": round(statistics.pstdev(speeds), 3) if len(speeds) > 1 else 0.0 if speeds else None,
                 "avg_cold_load_s": round(statistics.mean(cold_load_seconds), 3) if cold_load_seconds else None,
+                "avg_preload_elapsed_s": (
+                    round(statistics.mean(preload_elapsed_seconds), 3)
+                    if preload_elapsed_seconds
+                    else None
+                ),
+                "preload_failures": preload_failures,
+                "preload_timeouts": preload_timeouts,
                 "task_pass_rates": task_pass_rates,
                 "errors": sum(item.error is not None for item in rows),
                 "budget_exhaustions": sum(

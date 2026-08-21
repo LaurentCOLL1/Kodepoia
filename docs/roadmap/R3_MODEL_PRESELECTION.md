@@ -2,185 +2,128 @@
 
 This preselection step runs before official `r3-accept`. It compares models by intended Kodepoia role so latency-oriented FAST candidates are not scored with the same thinking policy as CORE/CODER candidates.
 
-## Repetition and scoring policy
+## Authoritative benchmark policy
 
-Official preselection uses at least **4 repetitions per model**. `bench-models --repeats N` supports 1–8 repetitions for diagnostics. Official `r3-accept` uses **5 repetitions per finalist** by default and rejects fewer than 4.
+- Preselection: at least 4 repetitions per model; 5 are preferred for final head-to-heads.
+- Official `r3-accept`: 5 repetitions per finalist by default.
+- `temperature=0`, deterministic seeds starting at 101.
+- FAST/BASELINE: `num_predict=256`, `think=false`.
+- CORE/CODER: `num_predict=1024`, capability-aware thinking; GPT-OSS uses `think="medium"`.
+- Each repeat unloads the model, then performs an **unscored preload** before scored tasks.
+- Task timeout: 120 s. Dedicated preload timeout: 240 s.
+- Cold-load is recorded separately through `avg_cold_load_s`, `avg_preload_elapsed_s`, `preload_failures`, `preload_timeouts`.
+- `done_reason` and generation-budget exhaustion are preserved.
+- Strict validators require exact `KODEPOIA_OK`, Godot 4 `CharacterBody3D`, typed GDScript `var count: int = 0`, Git `worktree`, structurally valid JSON and true Ollama tool calls.
 
-Generation controls are deterministic: `temperature=0` and seed series starting at 101.
+## FAST v2 — COMPLETE
 
-Generation budget is role-aware:
-- BASELINE / FAST: `num_predict=256`;
-- CORE / CODER: `num_predict=1024` because thinking tokens are emitted before final content and share the generation budget;
-- official R3 acceptance uses the full-capability thinking-aware profile and the 1024-token budget.
+Evidence: `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
 
-### Cold-load separation hardening
+- `granite4.1:3b`: 28/32, score 0.875 x4, 129.512 tok/s.
+- `qwen3.5:4b`: 28/32, score 0.875 x4, 80.690 tok/s.
+- Both pass exact/Python/Godot/GDScript/debug/JSON/tools 4/4 and fail Git worktree 4/4.
 
-The CODER v1 run exposed a second measurement bias: the benchmark unloaded a model after each repetition, then used the **first scored task itself** to reload it. On heavy models, a >120 s cold-load therefore became a false task failure even when every subsequent warm task passed.
+**Provisional KodeFast winner: `granite4.1:3b`.**
 
-This is now corrected before final acceptance:
-- each repetition begins with an **unscored Ollama preload request**;
-- the preload has a dedicated 240 s timeout;
-- only after preload does Kodepoia execute scored tasks;
-- model load remains part of the end-to-end performance measurement;
-- report summary separately records `avg_cold_load_s`, `avg_preload_elapsed_s`, `preload_failures` and `preload_timeouts`;
-- a preload problem is therefore a **hardware/practicality signal**, not automatically a knowledge/capability failure.
+`qwen3.5:4b` remains a compact multimodal fallback candidate.
 
-Ollama documents empty `/api/chat` or `/api/generate` requests as the supported way to preload a model, and `keep_alive` as the mechanism for retaining/unloading it.
+## CORE v2 — COMPLETE
 
-The report schema v2 also records aggregate score, repeat scores, score standard deviation, minimum repeat score, average repeat elapsed time, timing deviation, average tokens/s, tokens/s deviation, per-task pass rates, errors, budget-exhaustion count and thinking mode. Ollama `done_reason` is preserved in metrics.
-
-Scoring is strict:
-- exact-instruction requires exactly `KODEPOIA_OK`;
-- Godot requires `CharacterBody3D` and rejects legacy/wrong `KinematicBody3D` / `KinematicCharacter3D` answers;
-- typed GDScript requires `var count: int = 0` syntax;
-- Git worktree requires a real `worktree` answer;
-- structured JSON and tool calls use structural validation.
-
-## Candidate set — 21 August 2026
-
-### FAST
-- `granite4.1:3b`
-- `qwen3.5:4b`
-
-FAST forces `think=false` to measure low-latency everyday behavior.
-
-### CORE
-- `qwen3.5:9b`
-- `gpt-oss:20b`
-- `qwen3.6:27b`
-
-CORE inspects local Ollama `/api/show` capabilities. Thinking-capable models use thinking automatically; GPT-OSS uses `think="medium"`.
-
-### CODER v1
-- `qwen2.5-coder:7b-instruct`
-- `devstral-small-2:24b`
-- `north-mini-code-1.0:Q4_K_M`
-
-CODER enables supported thinking automatically. Models that do not advertise the capability are called without a `think` field.
-
-## FAST v2 result — completed on target workstation
-
-Evidence file: `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
-
-Both candidates produced identical correctness and perfect repeatability across four controlled runs:
-- `granite4.1:3b`: 28/32, score 0.875 x4, score stddev 0.0;
-- `qwen3.5:4b`: 28/32, score 0.875 x4, score stddev 0.0.
-
-Both passed 4/4 on exact instruction, Python reasoning, Godot `CharacterBody3D`, typed GDScript, debugging, structured JSON and real tool calling. Both failed 4/4 on Git worktree.
-
-Efficiency strongly favors Granite:
-- Granite: 129.512 tok/s, 22.212 s average repeat, 0.179 s timing stddev, 15.484 s average cold load;
-- Qwen 4B: 80.690 tok/s, 24.068 s average repeat, 8.244 s timing stddev, 13.797 s average cold load.
-
-**FAST preselection decision: `granite4.1:3b` is the provisional KodeFast winner.**
-
-`qwen3.5:4b` remains a compact fallback/secondary model and keeps its multimodal value.
-
-## CORE v1 diagnostic — completed
-
-Evidence file: `.kodepoia/benchmarks/r3-preselect-core.json`.
-
-The target workstation ran five repetitions with the old `num_predict=256`. The report exposed thinking-budget exhaustion for Qwen 9B and triggered the 1024-token hardening plus `done_reason` / `generation_budget_exhausted` instrumentation.
-
-`qwen3.6:27b` was independently impractical as a daily CORE on this hardware at about 3.131 tok/s, 673.694 s average repeat and nine 120-second timeouts.
-
-## CORE v2 result — completed on target workstation
-
-Evidence file: `.kodepoia/benchmarks/r3-preselect-core-v2.json`.
-
-The workstation ran five repetitions per candidate with `num_predict=1024`, `temperature=0`, deterministic seeds and capability-aware thinking.
+Evidence: `.kodepoia/benchmarks/r3-preselect-core-v2.json`.
 
 ### `qwen3.5:9b`
-- 25/40, score **0.625** x5, score stddev 0.0;
-- 54.609 tok/s;
-- exact instruction, Godot, typed GDScript, debugging and tool calling: 5/5 each;
-- Python reasoning, structured output and software engineering: 0/5 each;
-- 15 deterministic `generation_budget_exhausted` cases with `done_reason="length"`, `eval_count=1024`, thinking non-empty and final content empty.
-
-The model remains useful as a smaller multimodal/vision or non-thinking fallback candidate, but not as the default reasoning CORE under the bounded-latency policy.
+- 25/40, score 0.625 x5.
+- 54.609 tok/s.
+- 15 deterministic `generation_budget_exhausted` failures under the bounded 1024-token thinking policy.
 
 ### `gpt-oss:20b`
-- 40/40, score **1.000** x5, score stddev 0.0;
-- 15.399 tok/s;
-- all eight categories 5/5;
-- 0 errors and 0 budget exhaustions;
-- cold-load about 90.985 s;
-- thinking `medium`.
+- 40/40, score 1.000 x5.
+- 15.399 tok/s.
+- All eight categories 5/5.
+- 0 errors, 0 budget exhaustions.
+- Cold-load about 90.985 s.
 
-**CORE preselection decision: `gpt-oss:20b` is the provisional KodeCore winner.**
+**Provisional KodeCore winner: `gpt-oss:20b`.**
 
-KodeVRAM / keep-alive policy should avoid unnecessary unload/reload churn during active CORE work.
+`qwen3.5:9b` remains available as a smaller multimodal/non-thinking fallback candidate.
 
-## CODER v1 result — diagnostic completed on target workstation
+## CODER v1 — DIAGNOSTIC COMPLETE
 
-Evidence file: `.kodepoia/benchmarks/r3-preselect-coder.json`.
+Evidence: `.kodepoia/benchmarks/r3-preselect-coder.json`.
 
-The workstation ran **5 repetitions** for all three candidates with `benchmark_role=coder`, `temperature=0` and `num_predict=1024`.
+- `qwen2.5-coder:7b-instruct`: 30/40, 82.296 tok/s, but native tool calling 0/5 and worktree 0/5 (`Git Subtree`). Retain only as possible compact code helper.
+- `devstral-small-2:24b`: raw 30/40, about 3.968 tok/s, unstable loading and worktree 0/5. Removed from default-coder contest on this workstation.
+- `north-mini-code-1.0:Q4_K_M`: raw 35/40; its only five misses were first-task 120 s cold-load timeouts. Python/Godot/GDScript/debug/JSON/native-tools/worktree were 5/5. This exposed the cold-load scoring bias and triggered the unscored preload hardening.
 
-### `qwen2.5-coder:7b-instruct`
-- 30/40, score 0.750 x5, score stddev 0.0;
-- 82.296 tok/s;
-- 49.528 s average repeat in the v1 harness;
-- exact/Python/Godot/GDScript/debugging/structured-output: 5/5 each;
-- **tool calling: 0/5** — it prints a JSON-shaped tool request in normal content instead of returning a real Ollama `tool_calls` object;
-- **software engineering: 0/5** — it answers `Git Subtree` instead of `git worktree`;
-- no transport errors and no budget exhaustion.
+## Cold-load hardening — VALIDATED
 
-Interpretation: excellent compact/warm code helper, but not reliable enough as Kodepoia's default **agentic** coder because native tool calling and repository workflow knowledge are essential.
+The harness now preloads each model with a non-scored empty Ollama chat request before scored tasks. Preload uses a dedicated 240 s timeout. Cold-load remains a practicality metric but is no longer misclassified as a knowledge failure.
 
-### `devstral-small-2:24b`
-- raw 30/40, apparent score 0.750;
-- repeat scores 0.25 / 0.875 / 0.875 / 0.875 / 0.875;
-- 3.968 tok/s;
-- 291.038 s average repeat;
-- raw average cold load 96.426 s;
-- true tool calling and structured output work;
-- **software engineering / worktree: 0/5**, repeatedly answering sparse checkout;
-- first repetition suffers five consecutive 120 s timeouts before later tasks begin succeeding.
+Validated functional/documentary head before CODER v2: `e07278744870f979ff9a128ee0b93de44717cdcc`.
 
-Interpretation: its dedicated software-engineering positioning is not enough to overcome ~4 tok/s, unstable initial loading and 0/5 on the repository-workflow test on this target PC. It is removed from the default KodeCoder contest.
+## CODER v2 — COMPLETE / PROVISIONAL WINNER SELECTED
+
+Evidence: `.kodepoia/benchmarks/r3-preselect-coder-v2.json`.
+
+Target workstation: Windows 11, Python 3.12.4, Ollama 0.32.14. Five repetitions per candidate, `benchmark_role=coder`, `temperature=0`, `num_predict=1024`.
+
+### `gpt-oss:20b`
+- 40/40, score **1.000** x5, score stddev 0.0.
+- 15.611 tok/s.
+- 162.613 s average scored repeat.
+- 98.403 s average cold-load/preload.
+- All eight categories 5/5.
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions.
 
 ### `north-mini-code-1.0:Q4_K_M`
-- raw 35/40, apparent score 0.875 x5, score stddev 0.0;
-- 12.838 tok/s;
-- about 10.03 GB reported resident in VRAM while running;
-- Python/Godot/GDScript/debugging/structured-output/**real tool calling**/**software engineering worktree**: **5/5 each**;
-- raw exact-instruction: 0/5, but **all five are 120 s transport timeouts on the first task immediately after unload**, not wrong responses;
-- after each timeout, the following seven tasks run successfully with the model already loaded.
+- 40/40, score **1.000** x5, score stddev 0.0.
+- 18.330 tok/s.
+- 201.761 s average scored repeat.
+- 114.093 s average cold-load/preload.
+- All eight categories 5/5, including true tool calling and Git worktree.
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions.
+- About 10.03 GB reported resident in VRAM while running.
 
-This is the strongest substantive CODER evidence in v1, but the old harness contaminated its capability score with cold-load latency. North therefore becomes the **provisional deep/agentic coding leader**, not yet the final KodeCoder winner.
+The corrected preload proves that North's old 35/40 score was a harness artifact: it now passes exact instruction 5/5.
 
-North Mini Code's upstream Ollama description is consistent with the measured behavior: it is a 30B-total / 3B-active MoE built for agentic software engineering, native tool use and interleaved thinking, and is intended to run with thinking enabled.
+### `ornith:9b`
+- 40/40, score **1.000** x5, score stddev 0.0.
+- **64.430 tok/s**.
+- **53.863 s average scored repeat**.
+- **36.418 s average cold-load/preload**.
+- All eight categories 5/5, including structured output, true tool calling and Git worktree.
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions.
+- Ollama reports about **6.31 GB model size and 6.31 GB resident VRAM**, so it fits fully in the target 12 GB VRAM.
 
-## CODER v2 — required after cold-load hardening
+### `laguna-xs-2.1:Q4_K_M`
+- 25/40, score **0.625** x5, score stddev 0.0.
+- 19.950 tok/s.
+- 263.606 s average scored repeat.
+- 116.359 s average cold-load/preload.
+- Passes exact/Python/Godot/GDScript/debug 5/5.
+- **Structured output 0/5, native tool calling 0/5, software-engineering/worktree 0/5.**
+- Failures are deterministic empty final responses under the current Ollama `/api/chat` + format/tools integration, with no preload timeout and no generation-budget exhaustion.
 
-Do not rerun all three models. Devstral and Qwen2.5-Coder already supplied enough evidence to rule them out as the default agentic coder for different reasons.
+Because Ollama upstream advertises Laguna XS 2.1 as tools/thinking capable, this is treated as an **operational incompatibility with Kodepoia's current Ollama chat/tool path on the target setup**, not proof that the underlying model is intrinsically incapable. It is removed from R3 final selection.
 
-The final CODER head-to-head is:
-- `gpt-oss:20b` — already perfect on CORE including tool calling + worktree, and a strong warm fallback candidate;
-- `north-mini-code-1.0:Q4_K_M` — best substantive CODER v1 result, specialized for agentic coding, but with a very expensive cold load.
+## CODER decision
 
-After the cold-load-preload hardening CI is green, run:
+**Provisional KodeCoder winner: `ornith:9b`.**
 
-```powershell
-python -m kodepoia.cli bench-models `
-  --role coder `
-  --repeats 5 `
-  --model "gpt-oss:20b" `
-  --model "north-mini-code-1.0:Q4_K_M" `
-  --output ".kodepoia/benchmarks/r3-preselect-coder-v2.json"
-```
+Rationale: it ties GPT-OSS and North at perfect, perfectly repeatable correctness, but is approximately 3.5x faster than North and 4.1x faster than GPT-OSS in generation throughput, has by far the shortest scored-repeat time, the lowest cold-load among the three perfect models, and fits fully in 12 GB VRAM.
 
-The report must show preload metrics separately from scored task correctness. No official `r3-accept` before CODER v2 is reviewed.
+`north-mini-code-1.0:Q4_K_M` remains a strong future `KodeDeepCoder` / long-horizon repository candidate because it is explicitly trained for agentic software engineering and also achieved 40/40 once cold-load was separated. It is not selected as the default daily coder because its hardware cost is much higher without measurable quality gain in this R3 suite.
 
-## Selection rule
+`gpt-oss:20b` remains KodeCore and is also a valid coding fallback/reviewer.
 
-Do not select winners from aggregate pass count alone.
+## R3 final hardware acceptance candidates
 
-FAST: prioritize repeatable correctness, structured/tool reliability, minimum repeat score, then tokens/s, cold-load time and memory cost.
+The natural three role finalists are now:
 
-CORE: prioritize valid repeatable correctness, reasoning/general engineering quality, tool/structured reliability, then latency and memory cost. A result caused by output-budget exhaustion is a runtime-fit diagnostic, not proof that the model is intrinsically incapable.
+- KodeFast candidate: `granite4.1:3b`
+- KodeCore candidate: `gpt-oss:20b`
+- KodeCoder candidate: `ornith:9b`
 
-CODER: prioritize repeatable software-engineering/Godot/GDScript/debugging/native-tool reliability. Cold-load is a separate practicality constraint and must not masquerade as a wrong answer. Slower models may win if materially more capable, but models that are impractical on the target workstation should not become the default daily coder.
+Run official `r3-accept` only with these three unless new evidence appears. Default acceptance uses five repeats and the full-capability thinking-aware profile.
 
-After CODER v2 is reviewed, select up to three finalists and run official `r3-accept` with the default five repetitions. R3 remains `PENDING ACCEPTANCE` until the official hardware-local report is reviewed.
+R3 remains `PENDING ACCEPTANCE` until `.kodepoia/benchmarks/r3-local-acceptance.json` is generated, structurally validated, technically reviewed, roles are recorded, final CI is green, and PR #8 is safe to merge.

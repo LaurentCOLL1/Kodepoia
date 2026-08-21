@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 
 from kodepoia.kodecode.files import FileTool
 from kodepoia.kodecode.git_worktree import GitWorktreeTool
+from kodepoia.kodecode.lsp import LanguageServerSpec, LspTool
 from kodepoia.kodecode.parser_tool import ParserTool
 from kodepoia.kodecode.patch import PatchTool
 from kodepoia.kodecode.search import SearchTool
@@ -13,20 +14,21 @@ from kodepoia.kodecode.workspace import WorkspaceBoundary
 
 
 class KodeCodeToolAPI:
-    """Explicit structured tool boundary for code/repository access.
+    """Explicit structured tool boundary for code/repository access."""
 
-    Agents invoke named operations with dictionaries. The catalog is intentionally
-    small and explicit: no arbitrary filesystem path access and no arbitrary
-    command execution are exposed here.
-    """
-
-    def __init__(self, root: Path) -> None:
+    def __init__(
+        self,
+        root: Path,
+        *,
+        language_servers: Iterable[LanguageServerSpec] = (),
+    ) -> None:
         self.boundary = WorkspaceBoundary(root)
         self.files = FileTool(self.boundary)
         self.search_tool = SearchTool(self.boundary)
         self.patch = PatchTool(self.boundary)
         self.worktrees = GitWorktreeTool(self.boundary)
         self.parser = ParserTool(self.boundary)
+        self.lsp = LspTool(self.boundary, language_servers)
         self._dispatch: dict[str, Callable[[dict[str, Any]], Any]] = {
             "kodecode_files_list": self._files_list,
             "kodecode_files_read": self._files_read,
@@ -37,6 +39,13 @@ class KodeCodeToolAPI:
             "kodecode_git_worktree_remove": self._worktree_remove,
             "kodecode_parser_capabilities": self._parser_capabilities,
             "kodecode_parser_parse": self._parser_parse,
+            "kodecode_lsp_capabilities": self._lsp_capabilities,
+            "kodecode_lsp_start": self._lsp_start,
+            "kodecode_lsp_stop": self._lsp_stop,
+            "kodecode_lsp_symbols": self._lsp_symbols,
+            "kodecode_lsp_definition": self._lsp_definition,
+            "kodecode_lsp_references": self._lsp_references,
+            "kodecode_lsp_diagnostics": self._lsp_diagnostics,
         }
 
     def invoke(self, tool_name: str, arguments: dict[str, Any] | None = None) -> Any:
@@ -46,16 +55,11 @@ class KodeCodeToolAPI:
         return handler(dict(arguments or {}))
 
     def catalog(self) -> list[dict[str, Any]]:
-        """Return function schemas for the current KodeCode tool surface."""
-
         return [
             self._schema(
                 "kodecode_files_list",
                 "List workspace files",
-                {
-                    "path": {"type": "string"},
-                    "recursive": {"type": "boolean"},
-                },
+                {"path": {"type": "string"}, "recursive": {"type": "boolean"}},
             ),
             self._schema(
                 "kodecode_files_read",
@@ -86,11 +90,7 @@ class KodeCodeToolAPI:
                 },
                 ["path", "old_text", "new_text"],
             ),
-            self._schema(
-                "kodecode_git_worktree_list",
-                "List Git worktrees using porcelain output",
-                {},
-            ),
+            self._schema("kodecode_git_worktree_list", "List Git worktrees", {}),
             self._schema(
                 "kodecode_git_worktree_add",
                 "Create a managed linked Git worktree",
@@ -115,13 +115,44 @@ class KodeCodeToolAPI:
             ),
             self._schema(
                 "kodecode_parser_parse",
-                "Parse a workspace source file with Tree-sitter and return a tolerant syntax summary",
+                "Parse a workspace source file with Tree-sitter",
                 {
                     "path": {"type": "string"},
                     "language": {"type": ["string", "null"]},
                     "max_nodes": {"type": "integer", "minimum": 1, "maximum": 2000},
                 },
                 ["path"],
+            ),
+            self._schema("kodecode_lsp_capabilities", "List configured/running LSP servers", {}),
+            self._schema(
+                "kodecode_lsp_start",
+                "Start one explicitly registered language server",
+                {"server_id": {"type": "string"}},
+                ["server_id"],
+            ),
+            self._schema(
+                "kodecode_lsp_stop",
+                "Gracefully stop one running language server",
+                {"server_id": {"type": "string"}},
+                ["server_id"],
+            ),
+            self._schema(
+                "kodecode_lsp_symbols",
+                "Request document symbols from a running language server",
+                {"server_id": {"type": "string"}, "path": {"type": "string"}},
+                ["server_id", "path"],
+            ),
+            self._lsp_position_schema("kodecode_lsp_definition", "Request go-to-definition"),
+            self._lsp_position_schema(
+                "kodecode_lsp_references",
+                "Request references",
+                extra={"include_declaration": {"type": "boolean"}},
+            ),
+            self._schema(
+                "kodecode_lsp_diagnostics",
+                "Return publishDiagnostics captured for an opened workspace document",
+                {"server_id": {"type": "string"}, "path": {"type": "string"}},
+                ["server_id", "path"],
             ),
         ]
 
@@ -146,11 +177,25 @@ class KodeCodeToolAPI:
             },
         }
 
+    @classmethod
+    def _lsp_position_schema(
+        cls,
+        name: str,
+        description: str,
+        *,
+        extra: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        properties: dict[str, Any] = {
+            "server_id": {"type": "string"},
+            "path": {"type": "string"},
+            "line": {"type": "integer", "minimum": 0},
+            "character": {"type": "integer", "minimum": 0},
+        }
+        properties.update(extra or {})
+        return cls._schema(name, description, properties, ["server_id", "path", "line", "character"])
+
     def _files_list(self, args: dict[str, Any]) -> list[dict[str, Any]]:
-        entries = self.files.list_entries(
-            str(args.get("path", ".")),
-            recursive=bool(args.get("recursive", False)),
-        )
+        entries = self.files.list_entries(str(args.get("path", ".")), recursive=bool(args.get("recursive", False)))
         return [asdict(item) for item in entries]
 
     def _files_read(self, args: dict[str, Any]) -> dict[str, str]:
@@ -169,26 +214,28 @@ class KodeCodeToolAPI:
 
     def _patch_replace_once(self, args: dict[str, Any]) -> dict[str, Any]:
         expected = args.get("expected_sha256")
-        result = self.patch.replace_once(
-            str(args["path"]),
-            old_text=str(args["old_text"]),
-            new_text=str(args["new_text"]),
-            expected_sha256=str(expected) if expected is not None else None,
+        return asdict(
+            self.patch.replace_once(
+                str(args["path"]),
+                old_text=str(args["old_text"]),
+                new_text=str(args["new_text"]),
+                expected_sha256=str(expected) if expected is not None else None,
+            )
         )
-        return asdict(result)
 
     def _worktree_list(self, _args: dict[str, Any]) -> list[dict[str, Any]]:
         return [asdict(item) for item in self.worktrees.list()]
 
     def _worktree_add(self, args: dict[str, Any]) -> dict[str, Any]:
         branch = args.get("branch")
-        result = self.worktrees.add(
-            str(args["name"]),
-            branch=str(branch) if branch is not None else None,
-            start_point=str(args.get("start_point", "HEAD")),
-            detach=bool(args.get("detach", False)),
+        return asdict(
+            self.worktrees.add(
+                str(args["name"]),
+                branch=str(branch) if branch is not None else None,
+                start_point=str(args.get("start_point", "HEAD")),
+                detach=bool(args.get("detach", False)),
+            )
         )
-        return asdict(result)
 
     def _worktree_remove(self, args: dict[str, Any]) -> dict[str, bool]:
         self.worktrees.remove(str(args["name"]))
@@ -204,3 +251,35 @@ class KodeCodeToolAPI:
             language=str(language) if language is not None else None,
             max_nodes=int(args.get("max_nodes", 200)),
         )
+
+    def _lsp_capabilities(self, _args: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.lsp.capabilities()
+
+    def _lsp_start(self, args: dict[str, Any]) -> dict[str, Any]:
+        return self.lsp.start(str(args["server_id"]))
+
+    def _lsp_stop(self, args: dict[str, Any]) -> dict[str, bool]:
+        return self.lsp.stop(str(args["server_id"]))
+
+    def _lsp_symbols(self, args: dict[str, Any]) -> Any:
+        return self.lsp.symbols(str(args["server_id"]), str(args["path"]))
+
+    def _lsp_definition(self, args: dict[str, Any]) -> Any:
+        return self.lsp.definition(
+            str(args["server_id"]),
+            str(args["path"]),
+            int(args["line"]),
+            int(args["character"]),
+        )
+
+    def _lsp_references(self, args: dict[str, Any]) -> Any:
+        return self.lsp.references(
+            str(args["server_id"]),
+            str(args["path"]),
+            int(args["line"]),
+            int(args["character"]),
+            include_declaration=bool(args.get("include_declaration", True)),
+        )
+
+    def _lsp_diagnostics(self, args: dict[str, Any]) -> list[dict[str, Any]]:
+        return self.lsp.diagnostics(str(args["server_id"]), str(args["path"]))

@@ -11,11 +11,18 @@ from kodepoia.kodegodot.document import (
     GodotTextDocument,
     GodotTextDocumentParser,
 )
+from kodepoia.kodegodot.gdscript import GDScriptFunction, GDScriptInfo, GDScriptInspector, GDScriptVariable
 from kodepoia.kodegodot.project import GodotProjectInfo, GodotProjectInspector
 from kodepoia.kodegodot.runtime import GodotInvocationResult, GodotRuntime, GodotVersionInfo
+from kodepoia.kodegodot.services import GodotEditorServices, GodotServicePorts
 
 __all__ = [
+    "GDScriptFunction",
+    "GDScriptInfo",
+    "GDScriptInspector",
+    "GDScriptVariable",
     "GodotConnection",
+    "GodotEditorServices",
     "GodotExternalResource",
     "GodotInvocationResult",
     "GodotNode",
@@ -24,6 +31,7 @@ __all__ = [
     "GodotProperty",
     "GodotRuntime",
     "GodotSection",
+    "GodotServicePorts",
     "GodotSubResource",
     "GodotTextDocument",
     "GodotTextDocumentParser",

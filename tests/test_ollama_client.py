@@ -9,6 +9,7 @@ from kodepoia.brain.ollama import OllamaClient
 class FakeResponse(io.BytesIO):
     def __enter__(self):
         return self
+
     def __exit__(self, *args):
         self.close()
         return False
@@ -19,6 +20,15 @@ def fake_urlopen(request, timeout=0):
         return FakeResponse(json.dumps({"version": "test"}).encode())
     if request.full_url.endswith("/api/tags"):
         return FakeResponse(json.dumps({"models": [{"name": "core"}]}).encode())
+    if request.full_url.endswith("/api/show"):
+        return FakeResponse(
+            json.dumps(
+                {
+                    "capabilities": ["completion", "tools", "thinking"],
+                    "details": {"family": "qwen35", "parameter_size": "9B"},
+                }
+            ).encode()
+        )
     if request.full_url.endswith("/api/embed"):
         return FakeResponse(json.dumps({"embeddings": [[0.1, 0.2]]}).encode())
     return FakeResponse(json.dumps({"model": "core", "message": {"content": "OK"}, "done": True}).encode())
@@ -31,3 +41,5 @@ def test_ollama_api(mock_open) -> None:
     assert client.list_models() == ["core"]
     assert client.chat("core", [BrainMessage("user", "Hi")]).content == "OK"
     assert client.embed("embed", "hello") == [[0.1, 0.2]]
+    assert client.model_capabilities("core") == {"completion", "tools", "thinking"}
+    assert client.show_model("core")["details"]["family"] == "qwen35"

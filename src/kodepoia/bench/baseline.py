@@ -117,6 +117,9 @@ DEFAULT_TASKS = (
 
 
 class BaselineBench:
+    FAST_NUM_PREDICT = 256
+    THINKING_NUM_PREDICT = 1024
+
     def __init__(self, client: OllamaClient, tasks: tuple[BenchTask, ...] = DEFAULT_TASKS) -> None:
         self.client = client
         self.tasks = tasks
@@ -159,6 +162,13 @@ class BaselineBench:
             return False
         return True
 
+    @classmethod
+    def num_predict_for_role(cls, role: BenchmarkRole | str) -> int:
+        role = BenchmarkRole(role)
+        if role in {BenchmarkRole.CORE, BenchmarkRole.CODER}:
+            return cls.THINKING_NUM_PREDICT
+        return cls.FAST_NUM_PREDICT
+
     @staticmethod
     def _tokens_per_second(metrics: dict[str, object]) -> float | None:
         count = metrics.get("eval_count")
@@ -168,6 +178,24 @@ class BaselineBench:
         if duration <= 0:
             return None
         return float(count) / (float(duration) / 1_000_000_000.0)
+
+    @staticmethod
+    def _generation_budget_exhausted(
+        *,
+        content: str,
+        thinking: str | None,
+        tool_called: bool | None,
+        metrics: dict[str, object],
+        num_predict: int,
+    ) -> bool:
+        eval_count = metrics.get("eval_count")
+        return bool(
+            thinking
+            and not content.strip()
+            and not tool_called
+            and isinstance(eval_count, (int, float))
+            and eval_count >= num_predict
+        )
 
     def _runtime_metrics(self, model: str) -> dict[str, object]:
         running_models = getattr(self.client, "running_models", None)
@@ -220,13 +248,14 @@ class BaselineBench:
         repeats: int = 1,
         seed_base: int = 101,
         temperature: float = 0.0,
-        num_predict: int = 256,
+        num_predict: int | None = None,
     ) -> list[BenchResult]:
         if len(models) < 2:
             raise ValueError("Baseline comparison requires at least two models")
         if not 1 <= repeats <= 8:
             raise ValueError("Benchmark repeats must be between 1 and 8")
         role = BenchmarkRole(role)
+        resolved_num_predict = num_predict or self.num_predict_for_role(role)
         results: list[BenchResult] = []
         for model in models:
             think = self._thinking_mode(model, role)
@@ -235,7 +264,7 @@ class BaselineBench:
                 options = {
                     "seed": seed,
                     "temperature": temperature,
-                    "num_predict": num_predict,
+                    "num_predict": resolved_num_predict,
                 }
                 for task in self.tasks:
                     start = time.perf_counter()
@@ -285,6 +314,15 @@ class BaselineBench:
                     metrics.update(self._runtime_metrics(model))
                     if response.thinking:
                         metrics["thinking_chars"] = len(response.thinking)
+                    budget_exhausted = self._generation_budget_exhausted(
+                        content=response.content,
+                        thinking=response.thinking,
+                        tool_called=tool_called,
+                        metrics=metrics,
+                        num_predict=resolved_num_predict,
+                    )
+                    if budget_exhausted:
+                        metrics["generation_budget_exhausted"] = True
                     results.append(
                         BenchResult(
                             model=model,
@@ -299,6 +337,11 @@ class BaselineBench:
                             structured_valid=structured_valid,
                             tool_called=tool_called,
                             thinking_mode=think,
+                            error=(
+                                "generation budget exhausted before final answer"
+                                if budget_exhausted
+                                else None
+                            ),
                         )
                     )
                 unload = getattr(self.client, "unload", None)
@@ -351,6 +394,9 @@ class BaselineBench:
                 "avg_cold_load_s": round(statistics.mean(cold_load_seconds), 3) if cold_load_seconds else None,
                 "task_pass_rates": task_pass_rates,
                 "errors": sum(item.error is not None for item in rows),
+                "budget_exhaustions": sum(
+                    item.metrics.get("generation_budget_exhausted") is True for item in rows
+                ),
                 "thinking_mode": rows[0].thinking_mode if rows else None,
             }
         return summary

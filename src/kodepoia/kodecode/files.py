@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 
-from kodepoia.kodecode.workspace import WorkspaceBoundary
+from kodepoia.kodecode.workspace import WorkspaceBoundary, WorkspaceViolation
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,12 +42,16 @@ class FileTool:
         iterator = root.rglob("*") if recursive else root.iterdir()
         entries: list[FileEntry] = []
         for candidate in sorted(iterator, key=lambda item: item.as_posix().lower()):
+            try:
+                relative = self.boundary.relative(candidate)
+            except WorkspaceViolation:
+                continue
             if len(entries) >= max_entries:
                 raise ValueError(f"Entry limit exceeded ({max_entries})")
             is_dir = candidate.is_dir()
             entries.append(
                 FileEntry(
-                    path=self.boundary.relative(candidate),
+                    path=relative,
                     is_dir=is_dir,
                     size=None if is_dir else candidate.stat().st_size,
                 )

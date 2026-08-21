@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TypeVar
+
+
+EnumT = TypeVar("EnumT")
 
 
 def create_project_dialog(parent=None):
@@ -90,6 +94,30 @@ def create_project_dialog(parent=None):
                 check.stateChanged.connect(self._refresh_adaptive)
             self._refresh_adaptive()
 
+        @staticmethod
+        def _enum_value(combo: QComboBox, enum_type):
+            """Normalize Qt item data into a domain Enum.
+
+            PySide6 may return StrEnum itemData as its string value depending on
+            binding/platform details. KodeStudio therefore stores primitive values
+            in Qt widgets and explicitly rebuilds the domain enum at the boundary.
+            """
+            raw = combo.currentData()
+            if isinstance(raw, enum_type):
+                return raw
+            return enum_type(str(raw))
+
+        @staticmethod
+        def _add_enum_items(combo: QComboBox, enum_type) -> None:
+            for item in enum_type:
+                combo.addItem(item.value, item.value)
+
+        @staticmethod
+        def _set_enum(combo: QComboBox, value) -> None:
+            index = combo.findData(value.value)
+            if index >= 0:
+                combo.setCurrentIndex(index)
+
         def _build_general_tab(self) -> None:
             tab = QWidget()
             form = QFormLayout(tab)
@@ -108,8 +136,8 @@ def create_project_dialog(parent=None):
 
             self.project_type = QComboBox()
             self.project_type.setObjectName("projectType")
-            for item in ProjectType:
-                self.project_type.addItem(item.value, item)
+            self._add_enum_items(self.project_type, ProjectType)
+            self._set_enum(self.project_type, ProjectType.GAME)
 
             self.engine = QLineEdit("Godot")
             self.engine.setObjectName("engine")
@@ -117,8 +145,8 @@ def create_project_dialog(parent=None):
             self.engine_version.setObjectName("engineVersion")
             self.dimension = QComboBox()
             self.dimension.setObjectName("dimension")
-            for item in Dimension:
-                self.dimension.addItem(item.value, item)
+            self._add_enum_items(self.dimension, Dimension)
+            self._set_enum(self.dimension, Dimension.D3)
 
             self.genres = QLineEdit()
             self.genres.setPlaceholderText("RPG; simulation; strategy")
@@ -156,7 +184,9 @@ def create_project_dialog(parent=None):
         def _build_platform_tab(self) -> None:
             tab = QWidget()
             layout = QVBoxLayout(tab)
-            layout.addWidget(QLabel("Target platforms are mandatory. Budgets are stored per selected target."))
+            layout.addWidget(
+                QLabel("Target platforms are mandatory. Budgets are stored per selected target.")
+            )
 
             platform_box = QGroupBox("Target platforms")
             platform_layout = QHBoxLayout(platform_box)
@@ -174,7 +204,9 @@ def create_project_dialog(parent=None):
             self.budget_table.setHorizontalHeaderLabels(
                 ["Platform", "Target FPS", "Min FPS", "VRAM MB", "RAM MB", "Build MB"]
             )
-            self.budget_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.budget_table.horizontalHeader().setSectionResizeMode(
+                QHeaderView.ResizeMode.Stretch
+            )
             layout.addWidget(self.budget_table)
             self.tabs.addTab(tab, "Platforms & budgets")
 
@@ -232,9 +264,8 @@ def create_project_dialog(parent=None):
 
             self.document_type = QComboBox()
             self.document_type.setObjectName("productDocumentType")
-            for item in ProductDocumentType:
-                self.document_type.addItem(item.value, item)
-            self.document_type.setCurrentIndex(self.document_type.findData(ProductDocumentType.GDD))
+            self._add_enum_items(self.document_type, ProductDocumentType)
+            self._set_enum(self.document_type, ProductDocumentType.GDD)
 
             self.vision = QPlainTextEdit()
             self.vision.setObjectName("productVision")
@@ -266,7 +297,9 @@ def create_project_dialog(parent=None):
             self.requirements.setHorizontalHeaderLabels(
                 ["ID", "Priority", "Title", "Description", "Acceptance criteria (; separated)"]
             )
-            self.requirements.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            self.requirements.horizontalHeader().setSectionResizeMode(
+                QHeaderView.ResizeMode.Stretch
+            )
             layout.addWidget(self.requirements)
 
             row_buttons = QHBoxLayout()
@@ -284,22 +317,20 @@ def create_project_dialog(parent=None):
         def _split_list(text: str) -> list[str]:
             return [item.strip() for item in text.split(";") if item.strip()]
 
-        @staticmethod
-        def _decision_combo(object_name: str):
+        @classmethod
+        def _decision_combo(cls, object_name: str):
             combo = QComboBox()
             combo.setObjectName(object_name)
-            for item in DecisionState:
-                combo.addItem(item.value, item)
-            combo.setCurrentIndex(combo.findData(DecisionState.NO))
+            cls._add_enum_items(combo, DecisionState)
+            cls._set_enum(combo, DecisionState.NO)
             return combo
 
-        @staticmethod
-        def _policy_combo(object_name: str):
+        @classmethod
+        def _policy_combo(cls, object_name: str):
             combo = QComboBox()
             combo.setObjectName(object_name)
-            for item in ApprovalPolicy:
-                combo.addItem(item.value, item)
-            combo.setCurrentIndex(combo.findData(ApprovalPolicy.ASK))
+            cls._add_enum_items(combo, ApprovalPolicy)
+            cls._set_enum(combo, ApprovalPolicy.ASK)
             return combo
 
         def _browse(self) -> None:
@@ -308,7 +339,11 @@ def create_project_dialog(parent=None):
                 self.directory.setText(selected)
 
         def _selected_platforms(self) -> list[Platform]:
-            return [platform for platform, check in self.platform_checks.items() if check.isChecked()]
+            return [
+                platform
+                for platform, check in self.platform_checks.items()
+                if check.isChecked()
+            ]
 
         def _current_budget_values(self) -> dict[str, PerformanceBudget]:
             values: dict[str, PerformanceBudget] = {}
@@ -316,7 +351,10 @@ def create_project_dialog(parent=None):
                 platform_item = self.budget_table.item(row, 0)
                 if platform_item is None:
                     continue
-                widgets = [self.budget_table.cellWidget(row, column) for column in range(1, 6)]
+                widgets = [
+                    self.budget_table.cellWidget(row, column)
+                    for column in range(1, 6)
+                ]
                 if any(widget is None for widget in widgets):
                     continue
                 numbers = [widget.value() for widget in widgets]
@@ -352,7 +390,8 @@ def create_project_dialog(parent=None):
                     self.budget_table.setCellWidget(row, column, spin)
 
         def _refresh_adaptive(self, *_args: object) -> None:
-            is_game = self.project_type.currentData() is ProjectType.GAME
+            project_type = self._enum_value(self.project_type, ProjectType)
+            is_game = project_type is ProjectType.GAME
             for widget in (
                 self.engine,
                 self.engine_version,
@@ -378,7 +417,7 @@ def create_project_dialog(parent=None):
                 self.input_checks["motion_controllers"].setChecked(False)
 
             default_doc = ProductDocumentType.GDD if is_game else ProductDocumentType.PRD
-            self.document_type.setCurrentIndex(self.document_type.findData(default_doc))
+            self._set_enum(self.document_type, default_doc)
             self._refresh_budget_rows()
 
         def _add_requirement(self) -> None:
@@ -395,7 +434,10 @@ def create_project_dialog(parent=None):
             self.requirements.setItem(row, 4, QTableWidgetItem(""))
 
         def _remove_requirement(self) -> None:
-            rows = sorted({index.row() for index in self.requirements.selectedIndexes()}, reverse=True)
+            rows = sorted(
+                {index.row() for index in self.requirements.selectedIndexes()},
+                reverse=True,
+            )
             for row in rows:
                 self.requirements.removeRow(row)
 
@@ -413,7 +455,9 @@ def create_project_dialog(parent=None):
                 priority_widget = self.requirements.cellWidget(row, 1)
                 priority = priority_widget.currentText() if priority_widget else "P1"
                 if not req_id or not title:
-                    raise ValueError(f"Requirement row {row + 1} needs an ID and title")
+                    raise ValueError(
+                        f"Requirement row {row + 1} needs an ID and title"
+                    )
                 acceptance = [
                     AcceptanceCriterion(f"{req_id}-AC-{index + 1}", value)
                     for index, value in enumerate(acceptance_texts)
@@ -432,17 +476,37 @@ def create_project_dialog(parent=None):
         def _create(self) -> None:
             platforms = self._selected_platforms()
             if not platforms:
-                QMessageBox.warning(self, "Kodepoia", "Select at least one target platform.")
+                QMessageBox.warning(
+                    self, "Kodepoia", "Select at least one target platform."
+                )
                 return
             if not self.name.text().strip() or not self.directory.text().strip():
-                QMessageBox.warning(self, "Kodepoia", "Name and directory are required.")
+                QMessageBox.warning(
+                    self, "Kodepoia", "Name and directory are required."
+                )
                 return
             vision = self.vision.toPlainText().strip()
             if not vision:
                 QMessageBox.warning(self, "Kodepoia", "Product vision is required.")
                 return
 
-            is_game = self.project_type.currentData() is ProjectType.GAME
+            project_type = self._enum_value(self.project_type, ProjectType)
+            is_game = project_type is ProjectType.GAME
+            dimension = self._enum_value(self.dimension, Dimension) if is_game else None
+            online = self._enum_value(self.online, DecisionState) if is_game else DecisionState.NO
+            multiplayer = (
+                self._enum_value(self.multiplayer, DecisionState)
+                if is_game
+                else DecisionState.NO
+            )
+            download_policy = self._enum_value(self.download_policy, ApprovalPolicy)
+            install_policy = self._enum_value(self.install_policy, ApprovalPolicy)
+            document_type = self._enum_value(self.document_type, ProductDocumentType)
+            capabilities = {
+                name: self._enum_value(combo, DecisionState)
+                for name, combo in self.capability_combos.items()
+            }
+
             inputs = [
                 name
                 for name, check in self.input_checks.items()
@@ -457,27 +521,31 @@ def create_project_dialog(parent=None):
                 }.items()
                 if value
             }
-            capabilities = {
-                name: combo.currentData() for name, combo in self.capability_combos.items()
-            }
 
             try:
                 state = ProjectWizardState(
                     name=self.name.text().strip(),
-                    project_type=self.project_type.currentData(),
+                    project_type=project_type,
                     platforms=platforms,
-                    engine=self.engine.text().strip() or None if is_game else None,
-                    engine_version=self.engine_version.text().strip() or None if is_game else None,
-                    dimension=self.dimension.currentData() if is_game else None,
+                    engine=(self.engine.text().strip() or None) if is_game else None,
+                    engine_version=(
+                        self.engine_version.text().strip() or None
+                    ) if is_game else None,
+                    dimension=dimension,
                     genres=self._split_list(self.genres.text()) if is_game else [],
                     inputs=inputs,
-                    graphics_style=self.graphics_style.text().strip() or None if is_game else None,
-                    online=self.online.currentData() if is_game else DecisionState.NO,
-                    multiplayer=self.multiplayer.currentData() if is_game else DecisionState.NO,
+                    graphics_style=(
+                        self.graphics_style.text().strip() or None
+                    ) if is_game else None,
+                    online=online,
+                    multiplayer=multiplayer,
                     performance=self._current_budget_values(),
-                    tools={name: check.isChecked() for name, check in self.tool_checks.items()},
-                    download_policy=self.download_policy.currentData(),
-                    install_policy=self.install_policy.currentData(),
+                    tools={
+                        name: check.isChecked()
+                        for name, check in self.tool_checks.items()
+                    },
+                    download_policy=download_policy,
+                    install_policy=install_policy,
                     lineage=lineage,
                     capabilities=capabilities,
                 )
@@ -486,7 +554,7 @@ def create_project_dialog(parent=None):
                     schema_version=1,
                     product_name=dna.name,
                     vision=vision,
-                    document_type=self.document_type.currentData(),
+                    document_type=document_type,
                     summary=self.summary.text().strip(),
                     goals=self._split_list(self.goals.text()),
                     success_metrics=self._split_list(self.metrics.text()),

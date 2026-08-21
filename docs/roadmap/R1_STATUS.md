@@ -14,7 +14,7 @@
 - [x] R1.6 — KodeSecrets broker + Windows Credential Manager backend + redaction
 - [x] R1.7 — KodeSchema versioned validation + deterministic migration chain
 - [x] R1.8 — KodeDataGovernance classification and movement policy
-- [ ] R1.9 — KodeBackup
+- [x] R1.9 — KodeBackup local snapshots + SHA-256 integrity + guarded restore
 - [ ] R1.10 — KodeRecovery
 - [ ] R1.11 — KodeResearchGuard
 - [ ] R1.12 — KodeStudio minimal

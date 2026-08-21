@@ -11,6 +11,8 @@ from kodepoia.kodegodot.document import (
     GodotTextDocument,
     GodotTextDocumentParser,
 )
+from kodepoia.kodegodot.domain import GodotDomainIssue, GodotSceneDomainAnalyzer, GodotSceneDomainReport
+from kodepoia.kodegodot.edit import GodotSceneEditResult, GodotSceneEditor
 from kodepoia.kodegodot.gdscript import GDScriptFunction, GDScriptInfo, GDScriptInspector, GDScriptVariable
 from kodepoia.kodegodot.project import GodotProjectInfo, GodotProjectInspector
 from kodepoia.kodegodot.runtime import GodotInvocationResult, GodotRuntime, GodotVersionInfo
@@ -22,6 +24,7 @@ __all__ = [
     "GDScriptInspector",
     "GDScriptVariable",
     "GodotConnection",
+    "GodotDomainIssue",
     "GodotEditorServices",
     "GodotExternalResource",
     "GodotInvocationResult",
@@ -30,6 +33,10 @@ __all__ = [
     "GodotProjectInspector",
     "GodotProperty",
     "GodotRuntime",
+    "GodotSceneDomainAnalyzer",
+    "GodotSceneDomainReport",
+    "GodotSceneEditResult",
+    "GodotSceneEditor",
     "GodotSection",
     "GodotServicePorts",
     "GodotSubResource",

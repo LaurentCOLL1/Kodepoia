@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from kodepoia.kodegodot.document import GodotTextDocumentParser
+from kodepoia.kodegodot.domain import GodotSceneDomainAnalyzer
+from kodepoia.kodegodot.edit import GodotSceneEditor
 from kodepoia.kodegodot.gdscript import GDScriptInspector
 from kodepoia.kodegodot.project import GodotProjectInspector
 from kodepoia.kodegodot.runtime import GodotRuntime
@@ -24,6 +26,8 @@ class GodotToolAPI:
         self.root = root.resolve(strict=False)
         self.project = GodotProjectInspector(self.root)
         self.documents = GodotTextDocumentParser(self.root)
+        self.domain = GodotSceneDomainAnalyzer(self.root)
+        self.scene_editor = GodotSceneEditor(self.root)
         self.gdscript = GDScriptInspector(self.root)
         self.runtime = runtime or GodotRuntime(self.root)
         self.services = services or GodotEditorServices(self.root, executable=self.runtime.executable)
@@ -31,6 +35,8 @@ class GodotToolAPI:
             "kodegodot_project_inspect": self._project_inspect,
             "kodegodot_document_parse": self._document_parse,
             "kodegodot_document_dependencies": self._document_dependencies,
+            "kodegodot_scene_analyze": self._scene_analyze,
+            "kodegodot_scene_set_existing_property": self._scene_set_existing_property,
             "kodegodot_gdscript_inspect": self._gdscript_inspect,
             "kodegodot_engine_version": self._engine_version,
             "kodegodot_check_script": self._check_script,
@@ -57,6 +63,20 @@ class GodotToolAPI:
             self._schema("kodegodot_project_inspect", "Inspect project.godot and Godot asset counts", {}),
             self._schema("kodegodot_document_parse", "Parse one Godot 4 text scene/resource", path, ["path"]),
             self._schema("kodegodot_document_dependencies", "List declared external resource paths", path, ["path"]),
+            self._schema("kodegodot_scene_analyze", "Analyze Godot scene 2D/3D domain composition and conservative risks", path, ["path"]),
+            self._schema(
+                "kodegodot_scene_set_existing_property",
+                "Change one existing non-protected property on one uniquely selected TSCN node with SHA precondition",
+                {
+                    "path": {"type": "string"},
+                    "node": {"type": "string"},
+                    "parent": {"type": ["string", "null"]},
+                    "property": {"type": "string"},
+                    "raw_value": {"type": "string", "minLength": 1, "maxLength": 4096},
+                    "expected_sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+                },
+                ["path", "node", "property", "raw_value", "expected_sha256"],
+            ),
             self._schema("kodegodot_gdscript_inspect", "Inspect GDScript structure and typing coverage", path, ["path"]),
             self._schema("kodegodot_engine_version", "Report configured Godot engine version", {}),
             self._schema("kodegodot_check_script", "Parse one workspace GDScript with Godot --check-only", path, ["path"]),
@@ -123,6 +143,20 @@ class GodotToolAPI:
     def _document_dependencies(self, args: dict[str, Any]) -> dict[str, Any]:
         document = self.documents.parse(str(args["path"]))
         return {"path": document.path, "dependencies": list(document.dependencies)}
+
+    def _scene_analyze(self, args: dict[str, Any]) -> dict[str, Any]:
+        return self.domain.analyze(str(args["path"])).to_dict()
+
+    def _scene_set_existing_property(self, args: dict[str, Any]) -> dict[str, Any]:
+        result = self.scene_editor.set_existing_property(
+            str(args["path"]),
+            node=str(args["node"]),
+            parent=str(args["parent"]) if args.get("parent") is not None else None,
+            property_name=str(args["property"]),
+            raw_value=str(args["raw_value"]),
+            expected_sha256=str(args["expected_sha256"]),
+        )
+        return asdict(result)
 
     def _gdscript_inspect(self, args: dict[str, Any]) -> dict[str, Any]:
         return self.gdscript.inspect(str(args["path"])).to_dict()

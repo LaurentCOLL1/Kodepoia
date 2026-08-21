@@ -2,15 +2,6 @@
 
 R3 cannot be marked `COMPLETE` from GitHub Actions alone because model quality, throughput and VRAM usage depend on the target workstation and locally installed Ollama models.
 
-## Preconditions
-
-- Windows target workstation.
-- Python 3.12+ available as `python`.
-- Ollama running locally on loopback only (`127.0.0.1`, `localhost` or `::1`).
-- Kodepoia checked out on `agent/r1-r3-acceptance-hardening` or a later branch containing the same acceptance code.
-- FAST/CORE/CODER preselection reviewed.
-- Cold-load separation hardening validated by CI.
-
 ## Finalists selected from local preselection
 
 Measured role candidates on the target workstation:
@@ -19,77 +10,90 @@ Measured role candidates on the target workstation:
 - KodeCore: `gpt-oss:20b`
 - KodeCoder: `ornith:9b`
 
-`north-mini-code-1.0:Q4_K_M` remains a future optional `KodeDeepCoder` candidate but is not needed for R3 final acceptance because Ornith tied its 40/40 correctness while being much faster and lighter on the target hardware.
+`north-mini-code-1.0:Q4_K_M` remains a future optional `KodeDeepCoder` candidate but is not required for the accepted R3 default stack.
 
-## 1. Inspect the local environment
-
-From the repository root:
-
-```powershell
-.\scripts\r3_accept_local.ps1 -ListOnly
-```
-
-The script verifies Python, calls Kodepoia `ollama-status`, and prints locally installed/running Ollama models.
-
-## 2. Run the official R3 hardware-local acceptance
-
-Use exactly the three selected role finalists unless new evidence is produced:
+## Official acceptance command
 
 ```powershell
 .\scripts\r3_accept_local.ps1 -Model "granite4.1:3b","gpt-oss:20b","ornith:9b"
 ```
 
-The wrapper invokes `python -m kodepoia.cli r3-accept` and writes:
+Output:
 
 ```text
 .kodepoia/benchmarks/r3-local-acceptance.json
 ```
 
-Default final acceptance uses five repetitions per finalist, full-capability thinking-aware evaluation and `num_predict=1024`. GPT-OSS uses its supported reasoning level.
+## Acceptance result — PASSED on 21 August 2026
 
-Each repetition performs an **unscored preload before scored tasks**. Preload uses a dedicated longer timeout. Its cost remains hardware-fit evidence but does not turn slow loading into a false task failure. The report separates correctness from `avg_cold_load_s`, `avg_preload_elapsed_s`, `preload_failures` and `preload_timeouts`.
+The target workstation generated and structurally validated the official report.
 
-## 3. Structural evidence automatically checked
+Environment/metadata:
+- Windows 11;
+- Python 3.12.4;
+- Ollama 0.32.14;
+- 5 repetitions per finalist;
+- `temperature=0`;
+- `num_predict=1024`;
+- `acceptance_profile=full-capability-thinking-aware`;
+- `phase=R3-local-acceptance`;
+- `acceptance_completed=true`;
+- `candidate_count=3`;
+- `ollama_url=http://127.0.0.1:11434`;
+- `loopback_verified=true`.
 
-The PowerShell wrapper refuses to report success unless the JSON contains:
+### `granite4.1:3b` — accepted KodeFast
 
-- `metadata.phase == "R3-local-acceptance"`;
-- `metadata.acceptance_completed == true`;
-- `metadata.loopback_verified == true`;
-- `candidate_count == 3`;
-- all three requested candidates in the benchmark summary.
+- 35/40, score 0.875 x5, stddev 0.0;
+- 131.366 tok/s;
+- 24.089 s average scored repeat;
+- 16.294 s average preload/cold-load;
+- exact instruction, Python, Godot, typed GDScript, debugging, structured JSON and native tool calling: 5/5 each;
+- software-engineering/worktree: 0/5;
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions.
 
-## 4. Engineering review still required
+Engineering decision: accept for FAST/lightweight routing. Do not route non-trivial Git/repository-management decisions to Granite; route them to KodeCore/KodeCoder.
 
-Before changing R3 to `COMPLETE`, review at minimum:
+### `gpt-oss:20b` — accepted KodeCore
 
-- pass/total and repeatability for all three finalists;
-- minimum repeat score;
-- structured-output success;
-- real tool-call success;
-- Godot/GDScript correctness;
-- software-engineering/debugging correctness;
-- tokens/s;
-- scored task time;
-- separate preload/cold-load behavior;
-- VRAM/model metadata;
-- `done_reason`;
-- generation-budget exhaustion;
-- task errors/timeouts;
-- `preload_failures` / `preload_timeouts`.
+- 40/40, score 1.0 x5, stddev 0.0;
+- 15.909 tok/s;
+- 152.993 s average scored repeat;
+- 90.435 s average preload/cold-load;
+- all eight categories 5/5;
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions;
+- thinking `medium`.
 
-The purpose is not merely to produce a JSON file. The report must prove that the selected routing candidates are usable on the real target workstation.
+Engineering decision: accept for CORE/reasoning/general engineering. Keep-alive/KodeVRAM should minimize reload churn because cold-load is expensive.
 
-## 5. Completion rule
+### `ornith:9b` — accepted KodeCoder
 
-R3 may be marked `COMPLETE` only when all of the following are true:
+- 40/40, score 1.0 x5, stddev 0.0;
+- 64.512 tok/s;
+- 53.149 s average scored repeat;
+- 36.116 s average preload/cold-load;
+- all eight categories 5/5, including structured JSON, native tool calling and Git worktree;
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions;
+- about 6.31 GB model and 6.31 GB resident VRAM reported by Ollama;
+- thinking enabled.
 
-1. R1/R2 hardening CI is green.
-2. FAST/CORE/CODER preselection is reviewed and the three finalists above are recorded.
-3. `.kodepoia/benchmarks/r3-local-acceptance.json` exists and passes structural validation.
-4. The final benchmark results are reviewed for correctness, repeatability and practical hardware fit.
-5. The selected roles are recorded as accepted in status/continuity documentation.
-6. Final CI is green.
-7. PR #8 is safe to merge.
+Engineering decision: accept for CODER because it combines perfect repeatable capability evidence with substantially better latency and VRAM fit than the heavier coding finalists.
 
-Do not merge PR #8 and do not begin R4 before these conditions are satisfied.
+## Accepted routing defaults
+
+- `KodeFast` → `granite4.1:3b`
+- `KodeCore` → `gpt-oss:20b`
+- `KodeCoder` → `ornith:9b`
+
+These defaults are hardware-specific accepted choices, not architectural lock-in. Future models may replace them after the same benchmark/acceptance process.
+
+## Completion status
+
+The hardware-local acceptance requirements are satisfied. R3 can be marked `COMPLETE` on the hardening branch.
+
+Remaining repository integration steps before R4:
+1. final acceptance-documentation CI must be green;
+2. PR #8 must be merged;
+3. `main` must be verified after merge;
+4. continuity must reflect the merged state;
+5. only then may R4 begin.

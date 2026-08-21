@@ -10,9 +10,9 @@
 
 - Dépôt : `LaurentCOLL1/Kodepoia`.
 - Visibilité GitHub : **PUBLIC volontairement** ; ne pas traiter ce choix comme une anomalie.
-- Source de vérité active après la clôture R4 : `main`.
-- R4.6 PR #19 — **MERGED**.
-- R4.6 merge commit : `80931d3f4302456783a884f117976ad0f4fed340`.
+- Source de vérité active : **`main`**.
+- PR #19 — R4.6 governed KodeCode orchestration — **MERGED** ; merge `80931d3f4302456783a884f117976ad0f4fed340`.
+- PR #20 — R4 completion post-merge normalization — **MERGED** ; merge `1ded514c9ddb619c408985799223d20ec74aa419`.
 - Architecture : v1.0 gelée.
 - R1 : COMPLETE.
 - R2 : COMPLETE.
@@ -41,7 +41,7 @@ Tree-sitter provider registry, ABI checks, Python/JavaScript/TypeScript/TSX, opt
 
 PR #15, merge `1074533e9930549b71af281003b74c6ed049ba9b`.
 
-LSP: bounded Content-Length JSON framing, timeout channel, persistent sandboxed stdio processes, explicit server registry, initialize/initialized/shutdown/exit, symbols/definitions/references/diagnostics and structured LSP tools.
+LSP: bounded Content-Length JSON framing, timeout channel, persistent sandboxed stdio processes, explicit server registry, initialize/initialized/shutdown/exit, symbols/definitions/references/diagnostics et structured LSP tools.
 
 Final accepted head `36c53f3d5af53ec63977dd71260055df0b1c3181`:
 - Repository Guard `32513904670` SUCCESS;
@@ -109,9 +109,9 @@ Therefore **R4 = COMPLETE**.
 
 ## Next sequence
 
-1. Merge the R4 post-merge completion normalization PR into `main` after all required checks are green.
-2. After that merge, `main` is the sole source of truth and **R5 KodeGodot 4.7.x is AUTHORIZED / NOT STARTED**.
-3. Start R5 only on a new branch from that normalized `main`.
+1. **R5 — KodeGodot 4.7.x is AUTHORIZED / NOT STARTED.**
+2. Start R5 only on a new branch created from the current normalized `main`.
+3. Preserve the R4 Tool API/governance boundary when adding Godot-specific tooling.
 
 ## Permanent rules
 

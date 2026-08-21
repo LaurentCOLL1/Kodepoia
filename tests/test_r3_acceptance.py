@@ -5,8 +5,11 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from kodepoia.brain.base import BrainMessage, BrainResponse
 from kodepoia.brain.ollama import OllamaClient
+from kodepoia.cli import _require_loopback_url
 from kodepoia.core.audit import AuditLog
 from kodepoia.intelligence.context import ContextBuilder
 from kodepoia.intelligence.memory import MemoryStore
@@ -174,3 +177,11 @@ def test_router_requires_declared_tool_and_structured_capabilities() -> None:
     router = KodeModelRouter(registry)
     selected = router.route(TaskProfile(needs_tools=True, needs_structured=True))
     assert selected.name == "capable"
+
+
+def test_r3_acceptance_requires_loopback_ollama() -> None:
+    _require_loopback_url("http://127.0.0.1:11434")
+    _require_loopback_url("http://localhost:11434")
+    _require_loopback_url("http://[::1]:11434")
+    with pytest.raises(SystemExit):
+        _require_loopback_url("https://example.com:11434")

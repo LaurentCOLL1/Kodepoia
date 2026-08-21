@@ -3,28 +3,20 @@ from __future__ import annotations
 import os
 import subprocess
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import BinaryIO, Mapping, Sequence
 
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 
 
+@dataclass(frozen=True, slots=True)
 class SandboxResult:
-    __slots__ = ("returncode", "stdout", "stderr", "timed_out", "cancelled")
-
-    def __init__(
-        self,
-        returncode: int,
-        stdout: str,
-        stderr: str,
-        timed_out: bool = False,
-        cancelled: bool = False,
-    ) -> None:
-        self.returncode = returncode
-        self.stdout = stdout
-        self.stderr = stderr
-        self.timed_out = timed_out
-        self.cancelled = cancelled
+    returncode: int
+    stdout: str
+    stderr: str
+    timed_out: bool = False
+    cancelled: bool = False
 
 
 class ManagedProcess:

@@ -1,7 +1,7 @@
 # R5 — KodeGodot 4.7.x — Status
 
 **Phase:** R5  
-**Status:** IN PROGRESS — R5.1–R5.5 ACCEPTED AND MERGED; R5.6 IMPLEMENTED / CI ACCEPTED BEFORE HARDWARE PROBE / HARDWARE PROBE DEFECT FIX PENDING RE-RUN  
+**Status:** IN PROGRESS — R5.1–R5.5 ACCEPTED AND MERGED; R5.6 IMPLEMENTED / STARTUP-LATENCY FIX CI ACCEPTED / HARDWARE PROBE RE-RUN PENDING  
 **Started:** 2026-08-21
 
 R4 remains COMPLETE and is not reopened. R6 is NOT STARTED and must not begin before R5 hardware-local acceptance is reviewed and R5.6 is merged.
@@ -13,7 +13,7 @@ R4 remains COMPLETE and is not reopened. R6 is NOT STARTED and must not begin be
 3. **R5.3 — GDScript + Godot LSP/DAP specialization** — ACCEPTED AND MERGED.
 4. **R5.4 — 2D/3D domain intelligence and safe edits** — ACCEPTED AND MERGED.
 5. **R5.5 — Headless automation/import/export/capture/benchmarks** — ACCEPTED AND MERGED.
-6. **R5.6 — Governed orchestration + real Godot acceptance** — IMPLEMENTED; FIRST TARGET-WORKSTATION PROBE EXPOSED A STARTUP-TIMEOUT DEFECT; FIX PENDING CI + RE-RUN.
+6. **R5.6 — Governed orchestration + real Godot acceptance** — IMPLEMENTED; FIRST TARGET-WORKSTATION PROBE EXPOSED A STARTUP-TIMEOUT DEFECT; FIX CI ACCEPTED; PROBE RE-RUN PENDING.
 
 ## R5.1 — Engine/project foundation
 
@@ -131,16 +131,25 @@ Result: **4/5 probe steps passed**. Project inspection, scene parsing, GDScript 
 
 This strongly matches upstream Godot issue `godotengine/godot#120649`: Godot 4.7 on Windows 11 build 26200-class systems can spend many seconds probing drives, especially disconnected/network drives. Upstream fix `godotengine/godot#121192` was merged to `master` and labeled for possible future 4.7 cherry-pick; Kodepoia therefore must tolerate the affected 4.7.x runtime rather than weakening the version check.
 
-Hardening now implemented on PR #28:
+Hardening implemented on PR #28:
 - Godot version timeout increased from 15 s to 90 s while remaining kill-switch controlled;
-- timeout/cancellation state is included in version errors;
+- timeout/cancellation state included in version errors;
 - default GDScript check timeout increased to 120 s;
 - local acceptance smoke/benchmark/capture/service startup windows enlarged where appropriate;
-- `ProcessSandbox` still sanitizes environment variables, but now preserves only the bounded non-secret desktop path variables Godot needs (`APPDATA`, `LOCALAPPDATA`, `USERPROFILE`, home/XDG paths) rather than inheriting the whole parent environment;
+- `ProcessSandbox` still sanitizes environment variables, but preserves only the bounded non-secret desktop path variables Godot needs (`APPDATA`, `LOCALAPPDATA`, `USERPROFILE`, home/XDG paths) rather than inheriting the whole parent environment;
 - regression test proves arbitrary secret-like environment variables remain absent from subprocesses;
-- PowerShell helper measures direct `Godot --version` startup duration and has explicit distinct-port validation.
+- PowerShell helper measures direct `Godot --version` startup duration and validates distinct ports unambiguously.
 
-The hardened branch must return to full green CI, then the target workstation must rerun **only the probe first**. R5.6 remains hardware-pending until that evidence is reviewed.
+### Startup-latency fix — CI accepted
+
+Hardened functional/documentation head `25ddef21718eb09d361830259e62fa0e703469f1`:
+- R0 Repository Guard `32536038483` — SUCCESS;
+- Python Core `32536038479` — SUCCESS Windows + Ubuntu;
+- R5 PowerShell acceptance-runner syntax — SUCCESS Windows;
+- embedded KodeStudio UI smoke — SUCCESS Windows;
+- standalone KodeStudio UI Smoke `32536038474` — SUCCESS Windows.
+
+Next gate: rerun **ProbeOnly only** on the target workstation. Do not run full acceptance until the new probe is reviewed and has zero failed steps.
 
 ## Godot 4.7 external contract used by R5.6
 

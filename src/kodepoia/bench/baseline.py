@@ -3,13 +3,14 @@ from __future__ import annotations
 import json
 import platform
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from kodepoia.brain.base import BrainMessage
 from kodepoia.brain.ollama import OllamaClient
+from kodepoia.exceptions import BrainUnavailable
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,6 +34,7 @@ class BenchResult:
     tokens_per_second: float | None = None
     structured_valid: bool | None = None
     tool_called: bool | None = None
+    error: str | None = None
 
 
 STRUCTURED_STATUS_SCHEMA = {
@@ -118,9 +120,8 @@ class BaselineBench:
                     return False
                 if definition.get("type") == "string" and not isinstance(payload[key], str):
                     return False
-            if schema.get("additionalProperties") is False:
-                if set(payload) - set(properties):
-                    return False
+            if schema.get("additionalProperties") is False and set(payload) - set(properties):
+                return False
         return True
 
     @staticmethod
@@ -140,14 +141,31 @@ class BaselineBench:
         for model in models:
             for task in self.tasks:
                 start = time.perf_counter()
-                response = self.client.chat(
-                    model,
-                    [BrainMessage("user", task.prompt)],
-                    tools=list(task.tools) or None,
-                    response_schema=task.response_schema,
-                    think=False,
-                    keep_alive="2m",
-                )
+                try:
+                    response = self.client.chat(
+                        model,
+                        [BrainMessage("user", task.prompt)],
+                        tools=list(task.tools) or None,
+                        response_schema=task.response_schema,
+                        think=False,
+                        keep_alive="2m",
+                    )
+                except BrainUnavailable as exc:
+                    results.append(
+                        BenchResult(
+                            model=model,
+                            task_id=task.id,
+                            elapsed_s=time.perf_counter() - start,
+                            passed=False,
+                            response="",
+                            metrics={},
+                            structured_valid=False if task.response_schema is not None else None,
+                            tool_called=False if task.expect_tool_call else None,
+                            error=str(exc),
+                        )
+                    )
+                    continue
+
                 elapsed = time.perf_counter() - start
                 lowered = response.content.lower()
                 contains_ok = all(
@@ -180,7 +198,10 @@ class BaselineBench:
                 )
             unload = getattr(self.client, "unload", None)
             if callable(unload):
-                unload(model)
+                try:
+                    unload(model)
+                except BrainUnavailable:
+                    pass
         return results
 
     @staticmethod
@@ -196,6 +217,7 @@ class BaselineBench:
                 "score": round(sum(item.passed for item in rows) / len(rows), 4) if rows else 0.0,
                 "elapsed_s": round(sum(item.elapsed_s for item in rows), 3),
                 "avg_tokens_per_second": round(sum(speeds) / len(speeds), 3) if speeds else None,
+                "errors": sum(item.error is not None for item in rows),
             }
         return summary
 

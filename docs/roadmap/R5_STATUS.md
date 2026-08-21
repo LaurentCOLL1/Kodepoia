@@ -110,6 +110,13 @@ Interpretation:
 
 ## Next gate
 
+The **only** authorized local action is the dedicated process diagnostic:
+
+```powershell
+.\scripts\r5_diagnose_godot_process.ps1 `
+  -GodotPath "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
+```
+
 Do **not** rerun the normal R5 probe yet. Do **not** run full acceptance.
 
 Next required hardware evidence:
@@ -117,8 +124,6 @@ Next required hardware evidence:
 ```text
 .kodepoia/benchmarks/r5-godot-process-diagnostic.json
 ```
-
-Run only the dedicated helper documented in `R5_LOCAL_ACCEPTANCE.md` and continuity, then return the JSON for review.
 
 ## Completion rule
 

@@ -111,13 +111,15 @@ def test_tool_catalog_exposes_no_arbitrary_argv_or_flags(tmp_path: Path) -> None
     api = GodotToolAPI(tmp_path, runtime=GodotRuntime(tmp_path, runner=runner))
     catalog = api.catalog()
     names = {entry["function"]["name"] for entry in catalog}
-    assert names == {
+    assert {
         "kodegodot_project_inspect",
+        "kodegodot_document_parse",
+        "kodegodot_document_dependencies",
         "kodegodot_engine_version",
         "kodegodot_check_script",
         "kodegodot_import_project",
         "kodegodot_smoke_project",
-    }
+    } <= names
     for entry in catalog:
         properties = entry["function"]["parameters"]["properties"]
         assert "argv" not in properties

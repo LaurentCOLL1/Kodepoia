@@ -4,19 +4,23 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Callable
 
+from kodepoia.kodegodot.document import GodotTextDocumentParser
 from kodepoia.kodegodot.project import GodotProjectInspector
 from kodepoia.kodegodot.runtime import GodotRuntime
 
 
 class GodotToolAPI:
-    """Structured KodeGodot R5.1 tool surface with no arbitrary Godot argv."""
+    """Structured KodeGodot tool surface with no arbitrary Godot argv."""
 
     def __init__(self, root: Path, *, runtime: GodotRuntime | None = None) -> None:
         self.root = root.resolve(strict=False)
         self.project = GodotProjectInspector(self.root)
+        self.documents = GodotTextDocumentParser(self.root)
         self.runtime = runtime or GodotRuntime(self.root)
         self._dispatch: dict[str, Callable[[dict[str, Any]], Any]] = {
             "kodegodot_project_inspect": self._project_inspect,
+            "kodegodot_document_parse": self._document_parse,
+            "kodegodot_document_dependencies": self._document_dependencies,
             "kodegodot_engine_version": self._engine_version,
             "kodegodot_check_script": self._check_script,
             "kodegodot_import_project": self._import_project,
@@ -32,6 +36,18 @@ class GodotToolAPI:
     def catalog(self) -> list[dict[str, Any]]:
         return [
             self._schema("kodegodot_project_inspect", "Inspect project.godot and Godot asset counts", {}),
+            self._schema(
+                "kodegodot_document_parse",
+                "Parse one Godot 4 text scene/resource without evaluating Variant values",
+                {"path": {"type": "string"}},
+                ["path"],
+            ),
+            self._schema(
+                "kodegodot_document_dependencies",
+                "List external resource paths declared by one Godot text scene/resource",
+                {"path": {"type": "string"}},
+                ["path"],
+            ),
             self._schema("kodegodot_engine_version", "Report configured Godot engine version", {}),
             self._schema(
                 "kodegodot_check_script",
@@ -85,6 +101,13 @@ class GodotToolAPI:
 
     def _project_inspect(self, _args: dict[str, Any]) -> dict[str, Any]:
         return asdict(self.project.inspect())
+
+    def _document_parse(self, args: dict[str, Any]) -> dict[str, Any]:
+        return self.documents.parse(str(args["path"])).to_dict()
+
+    def _document_dependencies(self, args: dict[str, Any]) -> dict[str, Any]:
+        document = self.documents.parse(str(args["path"]))
+        return {"path": document.path, "dependencies": list(document.dependencies)}
 
     def _engine_version(self, _args: dict[str, Any]) -> dict[str, Any]:
         return asdict(self.runtime.version())

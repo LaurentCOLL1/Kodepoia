@@ -1,0 +1,45 @@
+name: R1 Protected Core
+
+on:
+  push:
+    branches:
+      - "agent/r1-*"
+      - develop
+      - main
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r1-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core:
+    name: protected-core-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install repository checker dependencies
+        run: python -m pip install -r scripts/requirements-r0.txt
+      - name: Validate repository policy
+        run: python scripts/check_repo.py
+      - name: Install Kodepoia core
+        run: python -m pip install -e .
+      - name: Compile Python sources
+        run: python -m compileall -q src
+      - name: Run R1 unit tests
+        run: python -m unittest discover -s tests -v

@@ -89,7 +89,7 @@ These defaults are hardware-specific accepted choices, not architectural lock-in
 
 ## Completion status
 
-The hardware-local acceptance requirements are satisfied. R3 can be marked `COMPLETE` on the hardening branch.
+The hardware-local acceptance requirements are satisfied. R3 is `COMPLETE` on the hardening branch.
 
 Remaining repository integration steps before R4:
 1. final acceptance-documentation CI must be green;

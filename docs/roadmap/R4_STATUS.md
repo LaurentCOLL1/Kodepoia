@@ -17,7 +17,11 @@ Per roadmap v1.0, R4 delivers:
 
 ## R4.1 — Safe workspace + files/search/patch + Git worktrees
 
-**Status: ACCEPTED on `agent/r4-kodecode`.**
+**Status: ACCEPTED AND MERGED TO `main`.**
+
+Integration evidence:
+- PR #11 — `R4.1 KodeCode safe tool foundation` — MERGED.
+- Merge commit: `91f3d77cc375021efcb24172b2859a27748843b8`.
 
 Implementation and acceptance:
 - [x] `WorkspaceBoundary` rejects absolute paths and workspace escapes after resolution.
@@ -32,13 +36,13 @@ Implementation and acceptance:
 - [x] Git worktree listing uses the stable porcelain format.
 - [x] `KodeCodeToolAPI` exposes only explicit structured operations and function schemas.
 - [x] Unit tests cover boundary escape, search, patch guards/newline preservation, structured API and worktree dispatch/parser.
-- [x] R0 Repository Guard run `32508687109` — SUCCESS.
-- [x] Python Core run `32508687100` — SUCCESS on Ubuntu and Windows.
-- [x] KodeStudio UI Smoke run `32508687261` — SUCCESS on Windows.
+- [x] R0 Repository Guard run `32508868032` — SUCCESS on final documentation head.
+- [x] Python Core run `32508868396` — SUCCESS on Ubuntu and Windows.
+- [x] KodeStudio UI Smoke run `32508868371` — SUCCESS on Windows.
 
 ## Remaining R4 work
 
-### R4.2 — Tree-sitter parser layer
+### R4.2 — Tree-sitter parser layer — NEXT / NOT STARTED
 - [ ] Add official Python Tree-sitter runtime dependency behind an optional/code extra.
 - [ ] Language registry and parser capability discovery.
 - [ ] Incremental parse/update support.
@@ -71,7 +75,7 @@ Implementation and acceptance:
 
 ## Current acceptance decision
 
-R4 remains **IN PROGRESS**, not COMPLETE. R4.1 is accepted with portable CI evidence. Tree-sitter/LSP/DAP/graphs/orchestration remain pending and must not be represented as implemented yet.
+R4 remains **IN PROGRESS**, not COMPLETE. R4.1 is accepted and merged on `main`. R4.2 Tree-sitter is the next authorized sub-phase. LSP/DAP/graphs/orchestration remain pending and must not be represented as implemented yet.
 
 ## Reference research used for implementation
 

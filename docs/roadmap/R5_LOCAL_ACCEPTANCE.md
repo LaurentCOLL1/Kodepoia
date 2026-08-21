@@ -1,28 +1,53 @@
 # R5 — Hardware-local Godot acceptance
 
-R5.6 is not complete until this procedure has been executed on the target Windows workstation and the resulting JSON evidence has been reviewed.
+R5.6 is not complete until the target Windows workstation passes the governed Godot acceptance and the resulting JSON evidence has been reviewed.
+
+## Current state — diagnostic gate
+
+Two non-destructive R5 probes have been run on the target workstation.
+
+Environment:
+- Python 3.12.4;
+- Windows 11 build 26220;
+- Godot `4.7.2.stable.steam.ed1daf0bf`;
+- executable `D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe`;
+- default ports LSP 6005 / DAP 6006 / debug 6007.
+
+Both probes returned **4/5**: `project_inspect`, `scene_parse`, `gdscript_inspect` and `export_presets` pass; `engine_version` fails.
+
+The second probe is decisive:
+- direct PowerShell `Godot --version`: about **0.44 s**;
+- Python/ProcessSandbox version call: about **90.03 s**, then `timed_out=True`, `cancelled=False`, empty stderr.
+
+Therefore **do not increase the timeout again** and **do not run another identical R5 probe yet**. The remaining blocker is Windows process-launch context: cwd/project detection, sanitized environment, redirected stdio, or ProcessSandbox-specific polling/kill-switch behavior.
+
+A bounded diagnostic now isolates those variables.
 
 ## Why local acceptance is mandatory
 
-GitHub CI validates Kodepoia's Python code, PowerShell syntax, safety boundaries and deterministic command construction, but it does not prove the target workstation can actually run the selected Godot 4.7.x binary, import a real project, start the native GDScript LSP/DAP services, capture frames, run a debug session or export a Windows build with the locally installed export templates.
+GitHub CI validates Kodepoia's Python code, PowerShell syntax, safety boundaries and deterministic command construction, but it cannot prove the target workstation can run its real Godot build, native LSP/DAP services, capture, debug and export workflow.
 
-The acceptance runner therefore creates a disposable Godot project under:
+The normal acceptance fixture is disposable:
 
 ```text
 .kodepoia/r5-acceptance/project
 ```
 
-It does not modify a user game project. Local evidence is written to:
+Normal acceptance evidence is:
 
 ```text
 .kodepoia/benchmarks/r5-local-acceptance.json
 ```
 
-Both locations are local runtime state and are ignored by Git.
+The new process diagnostic evidence is:
+
+```text
+.kodepoia/benchmarks/r5-godot-process-diagnostic.json
+```
+
+All are local runtime state ignored by Git.
 
 ## Required source state
-
-Do not run R5 acceptance from `main` or from an older R5 branch.
 
 Required branch:
 
@@ -30,43 +55,18 @@ Required branch:
 agent/r5-6-governed-acceptance
 ```
 
-PR #28 must remain open until the report has been reviewed.
+PR #28 remains open and must not be merged until final hardware acceptance succeeds.
 
-The startup-latency hardening that followed the first hardware probe is CI-accepted. Functional/documentation evidence before this instruction refresh:
-- Repository Guard `32536038483` SUCCESS;
-- Python Core `32536038479` SUCCESS Windows + Ubuntu;
-- R5 PowerShell syntax SUCCESS Windows;
-- standalone UI Smoke `32536038474` SUCCESS Windows.
+The process diagnostic functional checkpoint `4023a7217d647a1be14358496fc74e9c37a6b9b4` is CI accepted:
+- Repository Guard `32537407769` SUCCESS;
+- Python Core `32537407754` SUCCESS Windows + Ubuntu, including diagnostic tests and PowerShell syntax;
+- KodeStudio UI Smoke `32537407790` SUCCESS Windows.
 
-## Prerequisites
+Later documentation/continuity commits may advance the branch head; always `git pull` current remote branch rather than resetting backward to a checkpoint.
 
-- Windows target workstation.
-- Python 3.12 or newer.
-- Current Kodepoia checkout and development dependencies.
-- Godot **4.7.x** standard/editor build. Another Godot family is rejected by the helper.
-- For the complete acceptance only: matching Godot 4.7.x export templates capable of the `Windows Desktop` export preset.
-- TCP loopback ports 6005, 6006 and 6007 available, unless alternate distinct ports in the documented 1024–49151 range are supplied.
+## 1. Synchronize the branch
 
-The helper never accepts a remote host for LSP/DAP/debugging. The services are constructed against `127.0.0.1` only.
-
-## Known Godot 4.7 Windows startup latency
-
-The first real R5 probe on Windows 11 build 26220 with Godot `4.7.2.stable.steam.ed1daf0bf` showed that direct PowerShell version detection succeeded, while the sandboxed `--version` process was killed at the old 15-second timeout. The other four probe steps passed.
-
-This strongly matches upstream Godot issue `#120649`, where Godot 4.7 on Windows 11 build 26200-class systems can spend many seconds probing drives, especially disconnected/network drives. Upstream PR `#121192` avoids the problematic network-drive `GetVolumeInformationW` query and was merged to `master` with a `cherrypick:4.7` label.
-
-Kodepoia therefore does **not** bypass the version check. Instead, R5.6 now:
-- allows up to 90 seconds for the Godot version command;
-- keeps the global kill switch active;
-- reports timeout/cancellation state explicitly;
-- preserves only bounded non-secret desktop path environment variables needed by Godot (`APPDATA`, `LOCALAPPDATA`, `USERPROFILE`, home/XDG paths), while arbitrary parent secrets remain excluded;
-- prints direct PowerShell `Godot --version` startup duration.
-
-Do not run Godot as Administrator merely to make the probe pass. Do not disconnect drives, remove VPN/network mappings, or weaken Kodepoia security controls unless a later diagnosis explicitly asks for a safe test.
-
-## 1. Synchronize the acceptance branch
-
-From PowerShell:
+PowerShell:
 
 ```powershell
 cd M:\Kodepoia
@@ -89,9 +89,9 @@ Expected branch:
 agent/r5-6-governed-acceptance
 ```
 
-Do not continue from a different branch.
+Do not continue from another branch.
 
-## 2. Activate the Python environment when needed
+## 2. Activate Python environment if needed
 
 If `.venv` already exists:
 
@@ -99,16 +99,16 @@ If `.venv` already exists:
 .\.venv\Scripts\Activate.ps1
 ```
 
-If PowerShell blocks activation for the current process only:
+If PowerShell blocks activation only for the current process:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
 .\.venv\Scripts\Activate.ps1
 ```
 
-Do not weaken the machine-wide PowerShell execution policy.
+Do not weaken machine-wide execution policy.
 
-If the environment does not yet exist:
+If `.venv` does not exist:
 
 ```powershell
 python -m venv .venv
@@ -117,149 +117,120 @@ python -m pip install --upgrade pip
 python -m pip install -e ".[dev,code]"
 ```
 
-## 3. Run the non-destructive preflight
+## 3. Current required action — process-launch diagnostic
 
-For the current target workstation, the Godot executable is already known, so after synchronizing the branch run:
+Run **only**:
+
+```powershell
+.\scripts\r5_diagnose_godot_process.ps1 `
+  -GodotPath "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
+```
+
+The helper runs only fixed `Godot --version` commands. It does not accept arbitrary Godot arguments and does not modify a user project.
+
+Each case is capped at 8 seconds by default. The diagnostic compares:
+
+1. `inherited_repo_pipe` — full inherited environment, repository cwd, captured pipes;
+2. `inherited_project_pipe` — full inherited environment, acceptance-project cwd, captured pipes;
+3. `sanitized_empty_pipe` — sanitized environment, empty cwd, captured pipes;
+4. `sanitized_project_pipe` — sanitized environment, project cwd, captured pipes;
+5. `sanitized_project_file` — sanitized environment, project cwd, stdout/stderr redirected to temporary files instead of pipes;
+6. `process_sandbox_project` — actual ProcessSandbox behavior.
+
+The report deliberately does **not** store environment keys or values.
+
+Expected evidence path:
+
+```text
+M:\Kodepoia\.kodepoia\benchmarks\r5-godot-process-diagnostic.json
+```
+
+Send that JSON back for review, preferably together with the compact PowerShell summary.
+
+### How the result will be interpreted
+
+- `inherited_repo_pipe` PASS but `inherited_project_pipe` FAIL → cwd / automatic project detection is implicated.
+- inherited cases PASS but sanitized cases FAIL → environment allowlist is implicated.
+- `sanitized_project_pipe` FAIL but `sanitized_project_file` PASS → Windows redirected-pipe/console interaction is implicated.
+- Python inherited cases FAIL while direct PowerShell succeeds → Python child-process / Windows console-subsystem behavior is implicated.
+- `process_sandbox_project` differs from equivalent sanitized project pipe → ProcessSandbox polling/kill-switch layer is implicated.
+
+Do not try to correct the environment manually before this matrix is reviewed; its purpose is to isolate the minimal safe fix.
+
+## 4. R5 probe — blocked until diagnostic review
+
+Do **not** rerun this yet:
 
 ```powershell
 .\scripts\r5_accept_local.ps1 -ProbeOnly -GodotPath "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
 ```
 
-For another workstation or installation, first try:
+After the process-launch defect is fixed and CI accepted, this probe will be run again. It must reach 5/5 before full acceptance is authorized.
 
-```powershell
-.\scripts\r5_accept_local.ps1 -ProbeOnly
-```
-
-If Godot is not on `PATH`, provide its executable explicitly:
-
-```powershell
-.\scripts\r5_accept_local.ps1 -ProbeOnly -GodotPath "C:\path\to\Godot_v4.7.x-stable_win64.exe"
-```
-
-The PowerShell helper verifies Python 3.12+, the exact R5.6 branch, Godot 4.7.x and the three loopback port bounds before invoking the Python probe. It also prints the direct `Godot --version` startup duration.
-
-The probe creates only the disposable acceptance fixture and JSON report. It inspects the engine/project/GDScript/scene/export-preset metadata but does not run the complete import/capture/debug/export sequence.
-
-Expected evidence path:
-
-```text
-M:\Kodepoia\.kodepoia\benchmarks\r5-local-acceptance.json
-```
-
-A probe report intentionally contains:
+A probe report intentionally has:
 
 ```json
-"acceptance_completed": false,
-"probe_only": true
+"probe_only": true,
+"acceptance_completed": false
 ```
 
-This does not mean the probe failed. A successful probe also requires:
+but must also have:
 
 ```json
-"failed": 0
+"summary": {
+  "failed": 0
+}
 ```
 
-in the report summary.
+## 5. Full hardware acceptance — not authorized yet
 
-If `engine_version` still fails, send the full PowerShell output and JSON. The hardened error now includes whether the process actually timed out or was cancelled and the configured timeout value. Do not proceed to full acceptance until the probe has been reviewed.
+Only after a reviewed 5/5 probe will the complete acceptance be authorized.
 
-## 4. Run the complete hardware acceptance
+It eventually exercises:
+1. Godot 4.7.x version verification;
+2. project inspection;
+3. `.tscn` parsing and domain analysis;
+4. GDScript inspection;
+5. real `--check-only --script`;
+6. real headless `--import`;
+7. bounded scene smoke;
+8. bounded benchmark;
+9. real AVI capture;
+10. governed scene mutation with SHA-256 precondition, Guardian, SafeChange snapshot and Audit;
+11. loopback LSP/DAP/debug services;
+12. real LSP symbols and diagnostics;
+13. real DAP initialize/project launch/threads;
+14. Windows Desktop release export;
+15. audit hash-chain verification.
 
-Only after a successful probe has been reviewed:
+A real Windows export requires export templates matching the exact Godot 4.7.x build. Do not install or change templates specifically until the earlier acceptance gates pass unless later instructed.
 
-```powershell
-.\scripts\r5_accept_local.ps1
-```
+## Acceptance completion rule
 
-Or, when Godot is not on `PATH`:
-
-```powershell
-.\scripts\r5_accept_local.ps1 -GodotPath "C:\path\to\Godot_v4.7.x-stable_win64.exe"
-```
-
-On the current target workstation the explicit command is:
-
-```powershell
-.\scripts\r5_accept_local.ps1 -GodotPath "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
-```
-
-The full acceptance exercises:
-
-1. Godot 4.7.x version verification.
-2. Project inspection.
-3. `.tscn` parsing and 2D/3D domain analysis.
-4. GDScript structural inspection.
-5. Real Godot `--check-only --script`.
-6. Real headless `--import`.
-7. Bounded scene smoke execution.
-8. Bounded scene benchmark.
-9. Real `--write-movie` AVI capture and artifact verification.
-10. Governed scene mutation with SHA-256 precondition, Guardian permission check, SafeChange snapshot and audit entry.
-11. Managed Godot editor services using loopback LSP/DAP/debug ports.
-12. Real LSP initialize, symbols and diagnostics.
-13. Real DAP initialize, pre-registered project launch and thread query.
-14. Real Windows Desktop release export and non-empty `.exe` verification.
-15. Audit hash-chain verification.
-
-The acceptance fixture is regenerated on each run, so an earlier scene mutation cannot contaminate a later run.
-
-## 5. Export templates
-
-A real Godot CLI export requires matching export templates. If the full run fails on `export_release` with a missing-template error, install the templates for the exact Godot 4.7.x version using Godot's **Editor → Manage Export Templates…** workflow, then rerun the complete acceptance.
-
-Do not install unrelated templates, change Kodepoia source code or weaken export/security checks just to make the test pass.
-
-## 6. Port conflicts
-
-Defaults:
-
-```text
-LSP   6005
-DAP   6006
-DEBUG 6007
-```
-
-If another local process owns one of them, choose three distinct ports in 1024–49151, for example:
-
-```powershell
-.\scripts\r5_accept_local.ps1 -LspPort 6105 -DapPort 6106 -DebugPort 6107
-```
-
-The host remains fixed to loopback; there is no remote-host option.
-
-## 7. Acceptance evidence rule
-
-A report is structurally eligible for R5 completion only when all of the following are true:
-
-- `metadata.phase == "R5-local-acceptance"`
-- `metadata.probe_only == false`
-- `metadata.acceptance_completed == true`
-- `summary.failed == 0`
-- every recorded step passed
-- real capture and Windows export artifacts were produced
-- LSP and DAP initialization succeeded
-- governed write produced a snapshot
-- audit hash chain verified
-
-Even then, do not edit `R5_STATUS.md` or merge PR #28 manually. The report must first be reviewed against the acceptance criteria.
-
-## What to send back
-
-After the probe or complete run, provide either:
-
-- `.kodepoia/benchmarks/r5-local-acceptance.json`, preferably as a file; or
-- the complete PowerShell output if the helper stopped before a usable report was produced.
-
-For a failure, include both when available.
+R5 is structurally eligible for COMPLETE only when:
+- process-launch diagnostic is resolved with a minimal safe fix;
+- a new probe passes 5/5;
+- final full report has `metadata.phase == "R5-local-acceptance"`;
+- `metadata.probe_only == false`;
+- `metadata.acceptance_completed == true`;
+- `summary.failed == 0`;
+- every real acceptance step passes;
+- capture and export artifacts are non-empty;
+- LSP/DAP succeed;
+- governed write creates a snapshot;
+- audit hash chain verifies;
+- final PR #28 CI is green;
+- PR #28 is merged and `main` is verified.
 
 ## Do not do yet
 
-Until target-workstation evidence has been reviewed:
-
+- do not rerun the R5 probe until diagnostic review;
+- do not run full R5 acceptance;
+- do not increase Godot timeouts again;
+- do not copy the entire parent environment into ProcessSandbox;
+- do not run Godot as Administrator just to force a pass;
+- do not disconnect drives/network mappings as a workaround;
+- do not weaken Guardian, PermissionSet, SafeChange, ProcessSandbox or Audit;
 - do not merge PR #28;
 - do not mark R5 COMPLETE;
-- do not edit `R5_STATUS.md` manually;
-- do not start R6;
-- do not expose LSP/DAP/debug services to a non-loopback address;
-- do not weaken Guardian, PermissionSet, SafeChange, ProcessSandbox or Audit controls to make acceptance pass.
+- do not start R6.

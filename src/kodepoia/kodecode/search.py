@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from kodepoia.kodecode.workspace import WorkspaceBoundary
+from kodepoia.kodecode.workspace import WorkspaceBoundary, WorkspaceViolation
 
 
 @dataclass(frozen=True, slots=True)
@@ -54,15 +54,16 @@ class SearchTool:
                 if not candidate.is_file() or self._excluded(candidate):
                     continue
                 try:
+                    relative = self.boundary.relative(candidate)
                     content = candidate.read_text(encoding="utf-8")
-                except (UnicodeDecodeError, OSError):
+                except (UnicodeDecodeError, OSError, WorkspaceViolation):
                     continue
 
                 for line_number, line in enumerate(content.splitlines(), start=1):
                     for found in pattern.finditer(line):
                         matches.append(
                             SearchMatch(
-                                path=self.boundary.relative(candidate),
+                                path=relative,
                                 line=line_number,
                                 column=found.start() + 1,
                                 text=line,
@@ -73,7 +74,10 @@ class SearchTool:
         return matches
 
     def _excluded(self, candidate: Path) -> bool:
-        relative = candidate.resolve(strict=False).relative_to(self.boundary.root)
+        try:
+            relative = candidate.resolve(strict=False).relative_to(self.boundary.root)
+        except ValueError:
+            return True
         parts = set(relative.parts)
         if parts & self.DEFAULT_EXCLUDED_PARTS:
             return True

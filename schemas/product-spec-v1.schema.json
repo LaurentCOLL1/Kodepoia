@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/product-spec-v1.schema.json",
+  "title": "Kodepoia Product Spec v1",
+  "type": "object",
+  "required": ["schema_version", "product_name", "vision", "requirements"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "product_name": {"type": "string", "minLength": 1},
+    "vision": {"type": "string"},
+    "mvp": {"type": "array", "items": {"type": "string"}},
+    "requirements": {"type": "array", "items": {"type": "object", "required": ["id", "title", "description", "acceptance"], "properties": {"id": {"type": "string"}, "title": {"type": "string"}, "description": {"type": "string"}, "priority": {"type": "string"}, "acceptance": {"type": "array"}, "code_refs": {"type": "array"}, "test_refs": {"type": "array"}}}}
+  },
+  "additionalProperties": false
+}

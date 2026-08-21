@@ -74,3 +74,9 @@ class KillSwitch:
                 process.kill()
             except OSError:
                 pass
+
+
+# Default shared emergency stop for all protected execution services in the
+# Kodepoia process. Tests and isolated services can still inject a dedicated
+# KillSwitch explicitly when isolation is required.
+GLOBAL_KILL_SWITCH = KillSwitch()

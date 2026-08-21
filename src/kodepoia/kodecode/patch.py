@@ -9,8 +9,8 @@ from pathlib import Path
 from kodepoia.kodecode.workspace import WorkspaceBoundary
 
 
-def _sha256_text(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+def _sha256_bytes(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,8 +46,9 @@ class PatchTool:
         if not target.is_file():
             raise IsADirectoryError(path)
 
-        original = target.read_text(encoding="utf-8")
-        before_hash = _sha256_text(original)
+        original_bytes = target.read_bytes()
+        original = original_bytes.decode("utf-8")
+        before_hash = _sha256_bytes(original_bytes)
         if expected_sha256 is not None and expected_sha256.lower() != before_hash:
             raise ValueError("Patch precondition failed: file SHA-256 does not match expected_sha256")
 
@@ -56,8 +57,9 @@ class PatchTool:
             raise ValueError(f"Patch requires exactly one old_text occurrence, found {occurrences}")
 
         updated = original.replace(old_text, new_text, 1)
-        after_hash = _sha256_text(updated)
-        self._atomic_write(target, updated)
+        updated_bytes = updated.encode("utf-8")
+        after_hash = _sha256_bytes(updated_bytes)
+        self._atomic_write(target, updated_bytes)
         return PatchResult(
             path=self.boundary.relative(target),
             before_sha256=before_hash,
@@ -66,13 +68,12 @@ class PatchTool:
         )
 
     @staticmethod
-    def _atomic_write(target: Path, content: str) -> None:
+    def _atomic_write(target: Path, content: bytes) -> None:
         temp_path: Path | None = None
+        original_mode = target.stat().st_mode
         try:
             with tempfile.NamedTemporaryFile(
-                mode="w",
-                encoding="utf-8",
-                newline="",
+                mode="wb",
                 dir=target.parent,
                 prefix=".kodepoia-patch-",
                 suffix=".tmp",
@@ -82,6 +83,7 @@ class PatchTool:
                 handle.flush()
                 os.fsync(handle.fileno())
                 temp_path = Path(handle.name)
+            os.chmod(temp_path, original_mode)
             os.replace(temp_path, target)
         finally:
             if temp_path is not None and temp_path.exists():

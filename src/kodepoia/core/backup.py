@@ -3,11 +3,10 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
-import tempfile
 import zipfile
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,6 +38,11 @@ class BackupManager:
             for chunk in iter(lambda: handle.read(1024 * 1024), b""):
                 digest.update(chunk)
         return digest.hexdigest()
+
+    @staticmethod
+    def _safe_archive_path(value: str) -> bool:
+        path = PurePosixPath(value)
+        return not path.is_absolute() and ".." not in path.parts and value not in {"", "."}
 
     def _manifest_for(self, project_root: Path) -> BackupManifest:
         project_root = project_root.resolve(strict=True)
@@ -84,17 +88,26 @@ class BackupManager:
         archive = archive.resolve(strict=True)
         try:
             manifest = self.read_manifest(archive)
-            with tempfile.TemporaryDirectory(prefix="kodepoia-backup-verify-") as tmp:
-                root = Path(tmp)
-                with zipfile.ZipFile(archive, "r") as zf:
-                    zf.extractall(root)
+            if manifest.schema_version != 1:
+                return False
+            expected_names = {self.MANIFEST_NAME}
+            expected_names.update(entry.path for entry in manifest.files)
+            if any(not self._safe_archive_path(entry.path) for entry in manifest.files):
+                return False
+
+            with zipfile.ZipFile(archive, "r") as zf:
+                names = set(zf.namelist())
+                if names != expected_names:
+                    return False
                 for entry in manifest.files:
-                    path = root / entry.path
-                    if not path.is_file():
+                    info = zf.getinfo(entry.path)
+                    if info.is_dir() or info.file_size != entry.size:
                         return False
-                    if path.stat().st_size != entry.size:
-                        return False
-                    if self._sha256(path) != entry.sha256:
+                    digest = hashlib.sha256()
+                    with zf.open(info, "r") as handle:
+                        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                            digest.update(chunk)
+                    if digest.hexdigest() != entry.sha256:
                         return False
             return True
         except (KeyError, OSError, ValueError, zipfile.BadZipFile, json.JSONDecodeError):

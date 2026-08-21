@@ -72,46 +72,72 @@ The workstation ran **5 repetitions** for each candidate. The report exposed an 
 
 Raw report: 20/40, apparent score 0.50, 55.121 tok/s, 70.479 s average repeat, 33.816 s average cold load.
 
-This **must not be interpreted as a real 50% capability score**. Every failure in Python reasoning, Godot, structured output and software engineering has the same signature:
-- empty final `response`;
-- non-empty `thinking`;
-- `eval_count=256` exactly;
-- no Ollama transport error.
-
-That is generation-budget exhaustion before final content. Qwen 9B therefore requires a fair rerun with the new 1024-token CORE budget.
+This **must not be interpreted as a real 50% capability score**. Every failure had the same signature: empty final response, non-empty thinking, and `eval_count=256` exactly. The harness was fixed and CORE rerun with 1024 tokens.
 
 ### `gpt-oss:20b`
 
-Raw report: 39/40, score 0.975, repeat scores 1.0 / 1.0 / 0.875 / 1.0 / 1.0, 15.676 tok/s, 180.232 s average repeat, 94.285 s average cold load.
-
-It passed Python, Godot, typed GDScript, debugging, structured output, tool calling and Git worktree 5/5. Its only failure was an HTTP/Ollama timeout on the exact-instruction task in repeat 3, not a wrong answer.
-
-**Provisional CORE leader: `gpt-oss:20b`.** It has the strongest valid correctness evidence so far, but its latency/cold-load cost is much higher than Qwen 9B, so the fair CORE v2 rerun remains necessary before choosing the default.
+Raw report: 39/40, score 0.975, 15.676 tok/s, 180.232 s average repeat, 94.285 s average cold load. Its only miss was one 120-second transport/runtime timeout, not a wrong answer.
 
 ### `qwen3.6:27b`
 
-Raw report: 10/40, score 0.25, 3.131 tok/s, 673.694 s average repeat, nine 120-second timeouts.
+Raw report: 10/40, 3.131 tok/s, 673.694 s average repeat, nine 120-second timeouts. The old content score was partially budget-biased, but the hardware result independently made this 27B variant impractical as the default daily CORE on the target workstation. It was removed from CORE v2.
 
-Its content score is also partially contaminated by the old 256-token thinking budget, but the hardware result is independently decisive: ~3 tok/s and repeated 120-second timeouts make this model impractical as the **default daily CORE** on the target workstation. It is therefore removed from the CORE v2 rerun. This does not claim the model is intrinsically weak; Ollama positions Qwen3.6 for agentic coding and thinking, but this local hardware cannot run the 27B variant at acceptable daily latency.
+## CORE v2 result — completed on target workstation
 
-## CORE v2 — next hardware step
+Evidence file: `.kodepoia/benchmarks/r3-preselect-core-v2.json`.
 
-After pulling the latest branch, rerun only the two viable CORE candidates with the corrected 1024-token budget:
+The workstation again ran **5 repetitions per candidate**, now with the corrected CORE policy `num_predict=1024`, `temperature=0`, deterministic seeds, capability-aware thinking, and explicit budget-exhaustion detection.
 
-```powershell
-python -m kodepoia.cli bench-models `
-  --role core `
-  --repeats 4 `
-  --model "qwen3.5:9b" `
-  --model "gpt-oss:20b" `
-  --output ".kodepoia/benchmarks/r3-preselect-core-v2.json"
-```
+### `qwen3.5:9b`
 
-The CLI now selects `num_predict=1024` automatically for CORE. Do not pass a manual generation budget.
+- 25/40, score **0.625**;
+- repeat scores: 0.625 x5; score stddev 0.0;
+- 54.609 tok/s average;
+- 110.930 s average repeat;
+- 29.020 s average cold load (strong first-load outlier; later reloads around 9–10 s);
+- exact instruction 5/5;
+- Godot 5/5;
+- typed GDScript 5/5;
+- debugging 5/5;
+- tool calling 5/5;
+- Python reasoning 0/5;
+- structured output 0/5;
+- software engineering / Git worktree 0/5;
+- **15 generation-budget exhaustions out of 40 tasks**.
 
-Do **not** run CODER until CORE v2 is reviewed.
+All 15 failures are deterministic and have the same explicit signature: `done_reason="length"`, `eval_count=1024`, non-empty thinking, empty final response, and `generation_budget_exhausted=true`. Increasing the CORE budget from 256 to 1024 therefore did not make Qwen 9B reliable under Kodepoia's bounded-latency thinking profile.
 
-## CODER preselection — pending CORE v2 review
+Qwen 9B remains valuable as a smaller multimodal/vision-capable model and can be evaluated later for non-thinking or vision-specific routing, but it is **not selected as the default reasoning CORE** from this evidence.
+
+### `gpt-oss:20b`
+
+- 40/40, score **1.000**;
+- repeat scores: 1.0 x5; score stddev 0.0;
+- minimum repeat score 1.0;
+- 15.399 tok/s average;
+- 154.905 s average repeat;
+- 90.985 s average cold load;
+- all eight task categories 5/5;
+- 0 errors;
+- 0 budget exhaustions;
+- `thinking_mode="medium"`.
+
+The model file is about 14.1 GB while Ollama reports about 10.1 GB resident in VRAM on this workstation during the run. Cold-load is therefore the main operational weakness. Once loaded, however, the useful-task latency is competitive because the model does not spend the full 1024-token budget on failed reasoning loops.
+
+**CORE preselection decision: `gpt-oss:20b` is the provisional KodeCore winner.**
+
+Rationale: perfect and perfectly repeatable correctness across all Kodepoia CORE categories, reliable structured output and tool calling, no budget exhaustion, and practical warm-task behavior. KodeVRAM / keep-alive policy should mitigate the approximately 91-second cold-load cost by avoiding unnecessary unload/reload churn during active CORE work.
+
+`qwen3.5:9b` is retained in the registry as a smaller multimodal candidate/fallback, not deleted.
+
+## CODER preselection — next hardware step
+
+Current candidates remain justified for complementary reasons:
+- `qwen2.5-coder:7b-instruct`: compact 7.6B / Q4_K_M coding specialist, expected to fit comfortably in 12 GB VRAM;
+- `devstral-small-2:24b`: dedicated agentic software-engineering model with tool/codebase focus, but its ~15 GB Q4_K_M footprint means hardware latency/offload must be measured;
+- `north-mini-code-1.0:Q4_K_M`: 30B-total / 3B-active MoE coding model aimed at code generation, agentic software engineering and terminal tasks; local efficiency must be measured rather than inferred from total parameter count.
+
+Run:
 
 ```powershell
 python -m kodepoia.cli bench-models `
@@ -123,14 +149,18 @@ python -m kodepoia.cli bench-models `
   --output ".kodepoia/benchmarks/r3-preselect-coder.json"
 ```
 
+The CLI selects `num_predict=1024` automatically for CODER. Do not pass a manual generation budget.
+
+Do **not** run official `r3-accept` until the CODER report has been reviewed and the final 2–3 model set has been chosen.
+
 ## Selection rule
 
 Do not select winners from aggregate pass count alone.
 
 FAST: prioritize repeatable correctness, structured/tool reliability, minimum repeat score, then tokens/s, cold-load time and memory cost.
 
-CORE: prioritize valid repeatable correctness, reasoning/general engineering quality, tool/structured reliability, then latency and memory cost. A result caused by output-budget exhaustion is a harness diagnostic, not evidence of model incapability.
+CORE: prioritize valid repeatable correctness, reasoning/general engineering quality, tool/structured reliability, then latency and memory cost. A result caused by output-budget exhaustion is a runtime-fit diagnostic, not proof that the model is intrinsically incapable.
 
 CODER: prioritize repeatable software-engineering/Godot/GDScript/debugging/tool reliability. Slower models may win if materially more capable, but models that are impractical on the target workstation should not become the default daily coder.
 
-After the three groups are reviewed, select up to three finalists and run official `r3-accept` with the default 5 repetitions. R3 remains `PENDING ACCEPTANCE` until the official hardware-local report is reviewed.
+After CODER is reviewed, select up to three finalists and run official `r3-accept` with the default 5 repetitions. R3 remains `PENDING ACCEPTANCE` until the official hardware-local report is reviewed.

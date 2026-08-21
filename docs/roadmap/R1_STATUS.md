@@ -15,7 +15,7 @@
 - [x] R1.7 — KodeSchema versioned validation + deterministic migration chain
 - [x] R1.8 — KodeDataGovernance classification and movement policy
 - [x] R1.9 — KodeBackup local snapshots + SHA-256 integrity + guarded restore
-- [ ] R1.10 — KodeRecovery
+- [x] R1.10 — KodeRecovery atomic task checkpoints + pending-task discovery
 - [ ] R1.11 — KodeResearchGuard
 - [ ] R1.12 — KodeStudio minimal
 

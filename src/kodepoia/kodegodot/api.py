@@ -59,6 +59,7 @@ class GodotToolAPI:
 
     def catalog(self) -> list[dict[str, Any]]:
         path = {"path": {"type": "string"}}
+        port = {"type": "integer", "minimum": 1024, "maximum": 49151}
         return [
             self._schema("kodegodot_project_inspect", "Inspect project.godot and Godot asset counts", {}),
             self._schema("kodegodot_document_parse", "Parse one Godot 4 text scene/resource", path, ["path"]),
@@ -93,14 +94,14 @@ class GodotToolAPI:
                 "scene": {"type": ["string", "null"]}, "frames": {"type": "integer", "minimum": 1, "maximum": 3600},
                 "timeout": {"type": "number", "minimum": 1, "maximum": 900},
             }),
-            self._schema("kodegodot_services_start", "Start Godot editor LSP/DAP services on local loopback ports", {
-                "lsp_port": {"type": "integer", "minimum": 1024, "maximum": 65535}, "dap_port": {"type": "integer", "minimum": 1024, "maximum": 65535},
+            self._schema("kodegodot_services_start", "Start and initialize Godot LSP/DAP services on fixed loopback host", {
+                "lsp_port": port, "dap_port": port, "debug_port": port,
                 "timeout": {"type": "number", "minimum": 1, "maximum": 120},
             }),
             self._schema("kodegodot_services_stop", "Stop the managed Godot LSP/DAP service process", {}),
             self._schema("kodegodot_lsp_symbols", "Read GDScript document symbols through Godot LSP", path, ["path"]),
             self._schema("kodegodot_lsp_diagnostics", "Read current GDScript diagnostics through Godot LSP", path, ["path"]),
-            self._schema("kodegodot_dap_initialize", "Connect to and initialize Godot DAP on loopback", {}),
+            self._schema("kodegodot_dap_initialize", "Read initialized Godot DAP capability state on loopback", {}),
             self._schema("kodegodot_dap_launch_project", "Launch the pre-registered Godot project debug configuration", {}),
             self._schema("kodegodot_dap_threads", "Read debug threads from the connected Godot DAP session", {}),
         ]
@@ -134,24 +135,22 @@ class GodotToolAPI:
     def _export_project(self, args: dict[str, Any]) -> dict[str, Any]: return asdict(self.runtime.export_project(preset=str(args["preset"]), output_name=str(args["output_name"]), mode=str(args.get("mode", "release")), timeout=self._bounded_timeout(args, 900.0)))
     def _capture_movie(self, args: dict[str, Any]) -> dict[str, Any]: return asdict(self.runtime.capture_movie(scene=str(args["scene"]), output_name=str(args["output_name"]), frames=int(args.get("frames", 60)), fps=int(args.get("fps", 30)), timeout=self._bounded_timeout(args, 900.0)))
     def _benchmark_scene(self, args: dict[str, Any]) -> dict[str, Any]: return asdict(self.runtime.benchmark_scene(scene=str(args["scene"]) if args.get("scene") is not None else None, frames=int(args.get("frames", 120)), timeout=self._bounded_timeout(args, 300.0)))
-    def _services_start(self, args: dict[str, Any]) -> dict[str, Any]: return self.services.start(GodotServicePorts(int(args.get("lsp_port", 6005)), int(args.get("dap_port", 6006))), timeout=float(args.get("timeout", 30.0)))
+    def _services_start(self, args: dict[str, Any]) -> dict[str, Any]:
+        ports = GodotServicePorts(int(args.get("lsp_port", 6005)), int(args.get("dap_port", 6006)), int(args.get("debug_port", 6007)))
+        return self.services.start(ports, timeout=float(args.get("timeout", 30.0)))
     def _services_stop(self, _args: dict[str, Any]) -> dict[str, Any]: self.services.close(); return {"stopped": True}
     def _lsp_symbols(self, args: dict[str, Any]) -> Any:
-        if self.services.lsp is None: self.services.connect_lsp()
-        assert self.services.lsp is not None
-        return self.services.lsp.document_symbols(self.documents.boundary.resolve(str(args["path"]), must_exist=True))
+        session = self.services.connect_lsp() if self.services.lsp is None else self.services.lsp
+        return session.document_symbols(self.documents.boundary.resolve(str(args["path"]), must_exist=True))
     def _lsp_diagnostics(self, args: dict[str, Any]) -> Any:
-        if self.services.lsp is None: self.services.connect_lsp()
-        assert self.services.lsp is not None
-        return self.services.lsp.diagnostics(self.documents.boundary.resolve(str(args["path"]), must_exist=True))
+        session = self.services.connect_lsp() if self.services.lsp is None else self.services.lsp
+        return session.diagnostics(self.documents.boundary.resolve(str(args["path"]), must_exist=True))
     def _dap_initialize(self, _args: dict[str, Any]) -> dict[str, Any]:
         session = self.services.connect_dap() if self.services.dap is None else self.services.dap
         return {"initialized": session.initialized, "capabilities": dict(session.capabilities)}
     def _dap_launch_project(self, _args: dict[str, Any]) -> dict[str, Any]:
-        if self.services.dap is None: self.services.connect_dap()
-        assert self.services.dap is not None
-        config = self.services.dap.spec.configurations[0]; body = self.services.dap.start_configuration(config); self.services.dap.configuration_done(); return {"launched": True, "body": body}
+        session = self.services.connect_dap() if self.services.dap is None else self.services.dap
+        config = session.spec.configurations[0]; body = session.start_configuration(config); session.configuration_done(); return {"launched": True, "body": body}
     def _dap_threads(self, _args: dict[str, Any]) -> list[dict[str, Any]]:
-        if self.services.dap is None: self.services.connect_dap()
-        assert self.services.dap is not None
-        return self.services.dap.threads()
+        session = self.services.connect_dap() if self.services.dap is None else self.services.dap
+        return session.threads()

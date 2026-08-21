@@ -44,6 +44,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install R0 checker dependencies
+        run: python -m pip install -r scripts/requirements-r0.txt
+
       - name: Verify Git LFS availability
         run: git lfs version
 

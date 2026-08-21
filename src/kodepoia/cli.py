@@ -5,6 +5,7 @@ import json
 import os
 import platform
 from pathlib import Path
+from urllib.parse import urlparse
 
 from kodepoia.bench.baseline import BaselineBench
 from kodepoia.brain.ollama import OllamaClient
@@ -68,6 +69,16 @@ def _validate_installed_candidates(client: OllamaClient, candidates: list[str]) 
         raise SystemExit(f"Requested Ollama model(s) are not installed: {', '.join(missing)}")
 
 
+def _require_loopback_url(url: str) -> None:
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    if parsed.scheme not in {"http", "https"} or host not in {"127.0.0.1", "localhost", "::1"}:
+        raise SystemExit(
+            "R3 hardware-local acceptance only accepts a loopback Ollama URL "
+            "(127.0.0.1, localhost or ::1)"
+        )
+
+
 def _bench_models(args: argparse.Namespace) -> int:
     client = OllamaClient(args.url)
     _validate_installed_candidates(client, args.model)
@@ -89,6 +100,7 @@ def _bench_models(args: argparse.Namespace) -> int:
 
 
 def _r3_accept(args: argparse.Namespace) -> int:
+    _require_loopback_url(args.url)
     candidates = list(dict.fromkeys(args.model))
     if not 2 <= len(candidates) <= 3:
         raise SystemExit("R3 local acceptance requires exactly two or three distinct models")
@@ -99,6 +111,8 @@ def _r3_accept(args: argparse.Namespace) -> int:
     metadata = _benchmark_metadata(client, candidates, "R3-local-acceptance")
     metadata["acceptance_completed"] = True
     metadata["candidate_count"] = len(candidates)
+    metadata["ollama_url"] = args.url
+    metadata["loopback_verified"] = True
     BaselineBench.save(results, output, metadata=metadata)
     payload = {
         "R3_local_acceptance": "COMPLETED",

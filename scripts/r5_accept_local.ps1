@@ -41,6 +41,23 @@ if ([int]$VersionParts[0] -lt 3 -or ([int]$VersionParts[0] -eq 3 -and [int]$Vers
     throw "Python 3.12+ is required. Found $VersionText"
 }
 
+$GodotVersion = (& $Godot --version | Select-Object -First 1).Trim()
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($GodotVersion)) {
+    throw "Unable to query Godot version from: $Godot"
+}
+if ($GodotVersion -notmatch '^4\.7(?:\.|$)') {
+    throw "Kodepoia R5 requires Godot 4.7.x. Found '$GodotVersion'. Do not continue with another Godot family."
+}
+
+foreach ($port in @($LspPort, $DapPort, $DebugPort)) {
+    if ($port -lt 1024 -or $port -gt 49151) {
+        throw "R5 LSP/DAP/debug ports must be between 1024 and 49151. Found $port."
+    }
+}
+if (@($LspPort, $DapPort, $DebugPort | Select-Object -Unique).Count -ne 3) {
+    throw "R5 LSP, DAP and debug ports must be distinct."
+}
+
 $Branch = (& git branch --show-current).Trim()
 if ($Branch -ne "agent/r5-6-governed-acceptance") {
     throw "Expected branch agent/r5-6-governed-acceptance, found '$Branch'. Do not run R5 acceptance from another branch."
@@ -65,6 +82,7 @@ Write-Host "Repository : $RepoRoot"
 Write-Host "Branch     : $Branch"
 Write-Host "Python     : $VersionText"
 Write-Host "Godot      : $Godot"
+Write-Host "Godot ver. : $GodotVersion"
 Write-Host "Ports      : LSP=$LspPort DAP=$DapPort DEBUG=$DebugPort"
 
 & $Python @Args

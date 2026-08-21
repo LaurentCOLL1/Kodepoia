@@ -66,26 +66,49 @@ Le bug Qt `StrEnum` est corrigé : les QComboBox stockent des valeurs primitives
 
 Le hardening R3 comprend `stream_chat`, images, tools, structured output, thinking, keep-alive, unload, semantic RAG orchestré, routing par capacités, benchmark étendu, `r3-accept` local-only et runner Windows `scripts/r3_accept_local.ps1`.
 
-## R3 Model Benchmark Hardening — COMPLETE sur la branche
+## R3 Model Benchmark Hardening — ÉTAT COURANT
 
-Ce hardening a été ajouté avant la présélection des modèles afin d'éviter un benchmark biaisé :
-
-- `OllamaClient.show_model()` utilise `/api/show` pour lire les capacités locales du modèle ;
-- `model_capabilities()` expose les capacités sans table codée en dur ;
+Le benchmark R3 a d'abord été durci pour éviter de désavantager les modèles de raisonnement :
+- `OllamaClient.show_model()` utilise `/api/show` pour lire les capacités locales ;
 - `BenchmarkRole` distingue `baseline`, `fast`, `core`, `coder` ;
-- profil FAST : `think=false` pour mesurer la latence et l'efficacité quotidienne ;
-- profils CORE/CODER : thinking activé uniquement si `/api/show` annonce la capacité `thinking` ;
-- GPT-OSS utilise `think="medium"`, conformément aux exigences Ollama ;
-- le `thinking_mode` est enregistré dans les résultats et résumés du benchmark ;
-- tests ajoutés pour `/api/show`, capabilities, FAST sans thinking, CORE avec thinking et GPT-OSS medium ;
-- documentation : `docs/roadmap/R3_MODEL_PRESELECTION.md`.
+- FAST force `think=false` ;
+- CORE/CODER activent thinking seulement si Ollama annonce la capacité ;
+- GPT-OSS utilise `think="medium"` ;
+- le mode de thinking est enregistré dans les résultats.
 
-Head validé avant mise à jour de cette continuité : `2de6a29ca8d485d443bb117a030d5f7a856d450a`.
+Les CI du head `ce81c5a02e125eceb11356a5392ba65083e68104` étaient SUCCESS pour Repository Guard, Python Core et KodeStudio UI Smoke avant le second hardening décrit ci-dessous.
 
-CI sur ce head :
-- R0 Repository Guard `32462102605` : SUCCESS ;
-- Python Core `32462102604` : SUCCESS ;
-- KodeStudio UI Smoke `32462102645` : SUCCESS.
+### Second hardening déclenché par 4 runs FAST réels
+
+Le PC cible a exécuté manuellement quatre fois l'ancien benchmark FAST sur `granite4.1:3b` et `qwen3.5:4b`.
+
+Résultats bruts observés avant correction du harness :
+- Granite : 0.75 / 0.875 / 0.875 / 0.75 ; moyenne 0.8125 ; moyenne ~122.4 tok/s ; temps moyen ~22.5 s.
+- Qwen 3.5 4B : 0.75 / 0.75 / 0.875 / 0.75 ; moyenne 0.78125 ; moyenne ~72.4 tok/s ; temps moyen ~27.1 s.
+
+Ces quatre runs ont révélé que les scores simples n'étaient pas suffisamment fiables :
+- Granite répondait systématiquement `KinematicBody3D` au test Godot 4 ;
+- Qwen a été crédité une fois alors que sa réponse finale restait `KinematicBody3D` et ne mentionnait `CharacterBody3D` qu'incidemment ;
+- le test GDScript pouvait accepter `int count = 0;` ou `count: int = 0` car il ne vérifiait que les sous-chaînes `int` et `count` ;
+- les résultats software-engineering variaient entre `worktree`, `branching`, `submodules`, etc.
+
+Conclusion : ces quatre fichiers sont utiles comme **preuve diagnostique**, mais ne constituent pas la présélection finale.
+
+Le second hardening est maintenant codé sur la branche :
+- `OllamaClient.chat/stream_chat` acceptent les `options` Ollama ;
+- contrôle fixe du benchmark : `temperature=0`, seed series à partir de 101, `num_predict=256` ;
+- `bench-models` effectue **4 répétitions par défaut**, configurable 1–8 ;
+- `r3-accept` effectue **5 répétitions par défaut** et exige 4–8 ;
+- chaque répétition recharge le modèle afin de mesurer répétabilité + cold-load réel ;
+- schéma de rapport benchmark v2 ;
+- chaque résultat enregistre repeat + seed ;
+- résumé par modèle : score agrégé, scores de répétition, écart-type, minimum, temps moyen/dispersion, tok/s moyen/dispersion, cold-load moyen, taux de réussite par tâche, erreurs et thinking mode ;
+- validateurs stricts : exact `KODEPOIA_OK`, `CharacterBody3D` sans legacy names, vraie syntaxe `var count: int = 0`, vrai `worktree`, JSON structuré et tool call structurels ;
+- tests automatisés ajoutés pour répétitions, seeds/options et faux positifs.
+
+Documentation autoritative : `docs/roadmap/R3_MODEL_PRESELECTION.md`.
+
+**Avant toute nouvelle présélection matérielle, attendre que les CI du head contenant ce second hardening soient SUCCESS, puis faire `git pull`.**
 
 ## Modèles actuellement retenus pour la présélection locale
 
@@ -126,7 +149,7 @@ Puis exécuter les trois présélections décrites dans `docs/roadmap/R3_MODEL_P
 .kodepoia/benchmarks/r3-preselect-coder.json
 ```
 
-Après analyse, choisir au maximum trois finalistes et seulement ensuite lancer :
+La présélection officielle utilise 4 répétitions par modèle. Après analyse, choisir au maximum trois finalistes et seulement ensuite lancer l'acceptation locale, qui utilise 5 répétitions par défaut :
 
 ```powershell
 .\scripts\r3_accept_local.ps1 -Model finalistA,finalistB,finalistC
@@ -138,22 +161,25 @@ Preuve finale :
 .kodepoia/benchmarks/r3-local-acceptance.json
 ```
 
-R3 ne devient COMPLETE qu'après revue des scores, structured output, tool calls, Godot/GDScript, software engineering/debug, temps, tokens/s, VRAM et erreurs.
+R3 ne devient COMPLETE qu'après revue des scores, dispersion/répétabilité, minimum par run, taux de réussite par tâche, structured output, tool calls, Godot/GDScript, software engineering/debug, temps, tokens/s, cold-load, VRAM et erreurs.
 
 ## Séquence obligatoire restante avant R4
 
 1. Garder PR #8 ouverte.
-2. Mettre à jour la copie locale de `agent/r1-r3-acceptance-hardening`.
-3. Exécuter les présélections FAST, CORE et CODER.
-4. Analyser les trois rapports.
-5. Choisir 2–3 finalistes.
-6. Exécuter `scripts/r3_accept_local.ps1 -Model ...`.
-7. Vérifier `.kodepoia/benchmarks/r3-local-acceptance.json`.
-8. Enregistrer les modèles/rôles retenus dans ce fichier et `R3_STATUS.md`.
-9. Marquer R3 COMPLETE seulement si les résultats sont acceptables.
-10. Revalider la CI si un commit de statut est ajouté.
-11. Fusionner PR #8.
-12. Seulement ensuite commencer R4.
+2. Attendre CI verte sur le second hardening benchmark.
+3. Mettre à jour la copie locale de `agent/r1-r3-acceptance-hardening`.
+4. Réexécuter FAST avec le harness v2 et 4 répétitions automatiques.
+5. Analyser le rapport FAST v2.
+6. Exécuter CORE puis CODER avec 4 répétitions chacun.
+7. Analyser les trois rapports.
+8. Choisir 2–3 finalistes.
+9. Exécuter `scripts/r3_accept_local.ps1 -Model ...` (5 répétitions par défaut).
+10. Vérifier `.kodepoia/benchmarks/r3-local-acceptance.json`.
+11. Enregistrer les modèles/rôles retenus dans ce fichier et `R3_STATUS.md`.
+12. Marquer R3 COMPLETE seulement si les résultats sont acceptables.
+13. Revalider la CI si un commit de statut est ajouté.
+14. Fusionner PR #8.
+15. Seulement ensuite commencer R4.
 
 ## Politique de mise à jour de la continuité
 

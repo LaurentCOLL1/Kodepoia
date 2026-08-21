@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. R5.1 à R5.5 sont **ACCEPTED AND MERGED**. **R5.6 est IN PROGRESS sur PR #28, branche `agent/r5-6-governed-acceptance`. Deux probes matériels ont donné 4/5 : seul `engine_version` échoue. Le second probe est décisif : le Godot Steam 4.7.2 répond en 0,44 s lorsqu’il est lancé directement par PowerShell, mais l’appel Python/ProcessSandbox reste bloqué jusqu’au timeout 90 s (`timed_out=True`). Ne plus augmenter le timeout. Le blocker est le contexte de lancement Windows. Un diagnostic borné à six variantes de `Godot --version` est prêt et son checkpoint fonctionnel `4023a7217d647a1be14358496fc74e9c37a6b9b4` est CI-accepté. Les commits ultérieurs peuvent être documentation/continuité seulement : toujours `git pull` le head courant, ne jamais reset vers le checkpoint. Prochaine action : exécuter `scripts/r5_diagnose_godot_process.ps1`, puis fournir `.kodepoia/benchmarks/r5-godot-process-diagnostic.json`.** Ne pas relancer le probe R5, ne pas lancer l’acceptation complète, ne pas fusionner PR #28 et ne pas commencer R6 avant analyse de ce diagnostic.
+> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. R5.1 à R5.5 sont **ACCEPTED AND MERGED**. **R5.6 est IN PROGRESS sur PR #28, branche `agent/r5-6-governed-acceptance`. Deux probes matériels ont donné 4/5 : seul `engine_version` échoue. Le second probe est décisif : le Godot Steam 4.7.2 répond en 0,44 s en PowerShell direct, mais l’appel Python/ProcessSandbox reste bloqué jusqu’au timeout 90 s (`timed_out=True`, `cancelled=False`, stderr vide). Ne plus augmenter le timeout. Le blocker est le contexte de lancement Windows. Un diagnostic borné à six variantes de `Godot --version` est prêt ; checkpoint fonctionnel CI-accepté `4023a7217d647a1be14358496fc74e9c37a6b9b4`. Toujours `git pull` le head courant, ne jamais reset vers ce checkpoint. Prochaine et seule action locale autorisée : `scripts/r5_diagnose_godot_process.ps1`, puis fournir `.kodepoia/benchmarks/r5-godot-process-diagnostic.json`.** Ne pas relancer le probe R5, ne pas lancer l’acceptation complète, ne pas fusionner PR #28 et ne pas commencer R6 avant analyse de ce diagnostic.
 
 ## Source de vérité
 
@@ -50,12 +50,7 @@ R5.6 uses `KodeGodotExecutor`, Guardian/PermissionSet, SafeChange snapshots and 
 
 ## Probe #1
 
-4/5 PASS:
-- project inspect PASS;
-- scene parse PASS;
-- GDScript inspect PASS;
-- export presets PASS;
-- engine version FAIL at ~15.03 s.
+4/5 PASS. `project_inspect`, `scene_parse`, `gdscript_inspect`, `export_presets` pass. `engine_version` fails at ~15.03 s.
 
 Hardening applied:
 - version timeout 90 s;
@@ -63,10 +58,10 @@ Hardening applied:
 - GDScript check 120 s;
 - bounded larger smoke/benchmark/capture/service windows;
 - bounded non-secret Windows/user-data environment inheritance;
-- regression test against arbitrary secret env leakage;
+- regression against arbitrary secret env leakage;
 - direct PowerShell version timing.
 
-Hardening checkpoint `45dc35243a51a5c67830a01f70517a1233a9dac7` was fully green: Guard `32536200325`, Python Core `32536200334` Windows+Ubuntu, UI `32536200352`.
+Hardening checkpoint `45dc35243a51a5c67830a01f70517a1233a9dac7` fully green: Guard `32536200325`, Python Core `32536200334` Windows+Ubuntu, UI `32536200352`.
 
 ## Probe #2 — decisive
 
@@ -80,22 +75,22 @@ Sandboxed version:
 - ~90.031 s;
 - `timed_out=True`;
 - `cancelled=False`;
-- empty stderr;
+- stderr empty;
 - overall 4/5 again.
 
-Therefore Godot is not merely slow. **Do not raise the timeout again.** The blocker is Python/Windows launch context.
+Therefore Godot is not merely slow. **Do not raise timeout again.** The blocker is Python/Windows launch context.
 
-Hypotheses to isolate:
-1. cwd / automatic project detection;
+Hypotheses:
+1. cwd / project detection;
 2. sanitized environment;
-3. Python redirected stdout/stderr vs Steam Windows Godot GUI-subsystem behavior;
-4. ProcessSandbox-specific polling/kill-switch behavior if equivalent direct Python case passes.
+3. Python redirected stdout/stderr vs Windows Godot executable;
+4. ProcessSandbox polling/kill-switch if equivalent Python launch passes.
 
-Web/upstream facts used:
+Current external facts:
 - Godot CLI defines `--version` as displaying the version string;
 - project path behavior depends on cwd/`--path`;
-- Godot Windows code includes special parent-console/stdout/stderr redirection handling;
-- Godot Windows issues document differences when processes are launched programmatically with redirected output.
+- Godot Windows code has special parent-console/stdout/stderr redirection handling;
+- Windows Godot issues document differences when launched programmatically with redirected output.
 
 ## Process-launch diagnostic — current gate
 
@@ -115,7 +110,7 @@ Safety:
 - no arbitrary args;
 - six cases;
 - 8-second default timeout per case, bounded 2–30 s;
-- no environment keys or values stored;
+- no environment keys/values stored;
 - no user project mutation.
 
 Cases:
@@ -132,11 +127,11 @@ Functional checkpoint `4023a7217d647a1be14358496fc74e9c37a6b9b4` CI:
 - UI Smoke `32537407790` SUCCESS Windows.
 
 Interpretation:
-- repo inherited PASS + project inherited FAIL → cwd/project detection;
+- inherited repo PASS + inherited project FAIL → cwd/project detection;
 - inherited PASS + sanitized FAIL → env allowlist;
-- sanitized project pipe FAIL + sanitized project file PASS → redirected-pipe/console interaction;
+- sanitized project pipe FAIL + sanitized project file PASS → pipe/console interaction;
 - inherited Python cases FAIL while direct PowerShell succeeds → Python/Windows console-subsystem interaction;
-- actual sandbox differs from equivalent sanitized pipe → sandbox loop/kill-switch.
+- actual sandbox differs from equivalent sanitized project pipe → sandbox loop/kill-switch.
 
 ## Next manual operation
 
@@ -171,13 +166,13 @@ Send:
 M:\Kodepoia\.kodepoia\benchmarks\r5-godot-process-diagnostic.json
 ```
 
-Preferably also paste the compact summary.
+Preferably also paste compact summary. If no JSON is produced, send complete PowerShell output.
 
-Do NOT rerun normal R5 probe yet, do NOT run full acceptance, do NOT increase timeouts, do NOT copy whole environment, do NOT run as Administrator, do NOT disconnect drives as a workaround, do NOT weaken security layers, do NOT merge PR #28, do NOT start R6.
+Do NOT rerun normal R5 probe yet, do NOT run full acceptance, do NOT increase timeouts, do NOT copy whole environment, do NOT run as Administrator, do NOT disconnect drives as workaround, do NOT weaken security layers, do NOT merge PR #28, do NOT start R6.
 
 ## R5 completion rule
 
-R5 can become COMPLETE only after the launch blocker is safely fixed, a new probe passes 5/5, full acceptance reports `probe_only=false`, `acceptance_completed=true`, `summary.failed=0`, all real Godot/LSP/DAP/export/audit steps pass, final PR #28 CI is green, PR #28 is merged and `main` is verified.
+R5 can become COMPLETE only after launch blocker is safely fixed, a new probe passes 5/5, full acceptance reports `probe_only=false`, `acceptance_completed=true`, `summary.failed=0`, all real Godot/LSP/DAP/export/audit steps pass, final PR #28 CI is green, PR #28 is merged and `main` is verified.
 
 ## User operational preference — permanent
 

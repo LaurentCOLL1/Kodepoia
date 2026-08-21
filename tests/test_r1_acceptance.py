@@ -8,9 +8,13 @@ from pathlib import Path
 import pytest
 
 from kodepoia.core.backup import BackupManager
-from kodepoia.core.kill_switch import KillSwitch
+from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 from kodepoia.core.recovery import RecoveryJournal
 from kodepoia.core.sandbox import ProcessSandbox
+
+
+def test_default_sandbox_uses_process_global_kill_switch(tmp_path: Path) -> None:
+    assert ProcessSandbox(tmp_path).kill_switch is GLOBAL_KILL_SWITCH
 
 
 def test_kill_switch_terminates_active_sandbox_process(tmp_path: Path) -> None:

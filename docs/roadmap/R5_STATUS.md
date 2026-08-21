@@ -1,7 +1,7 @@
 # R5 — KodeGodot 4.7.x — Status
 
 **Phase:** R5  
-**Status:** IN PROGRESS — R5.1–R5.5 ACCEPTED AND MERGED; R5.6 IMPLEMENTED / CI ACCEPTED / HARDWARE-LOCAL ACCEPTANCE PENDING  
+**Status:** IN PROGRESS — R5.1–R5.5 ACCEPTED AND MERGED; R5.6 IMPLEMENTED / CI ACCEPTED BEFORE HARDWARE PROBE / HARDWARE PROBE DEFECT FIX PENDING RE-RUN  
 **Started:** 2026-08-21
 
 R4 remains COMPLETE and is not reopened. R6 is NOT STARTED and must not begin before R5 hardware-local acceptance is reviewed and R5.6 is merged.
@@ -13,7 +13,7 @@ R4 remains COMPLETE and is not reopened. R6 is NOT STARTED and must not begin be
 3. **R5.3 — GDScript + Godot LSP/DAP specialization** — ACCEPTED AND MERGED.
 4. **R5.4 — 2D/3D domain intelligence and safe edits** — ACCEPTED AND MERGED.
 5. **R5.5 — Headless automation/import/export/capture/benchmarks** — ACCEPTED AND MERGED.
-6. **R5.6 — Governed orchestration + real Godot acceptance** — IMPLEMENTED; CI ACCEPTED; TARGET-WORKSTATION ACCEPTANCE PENDING.
+6. **R5.6 — Governed orchestration + real Godot acceptance** — IMPLEMENTED; FIRST TARGET-WORKSTATION PROBE EXPOSED A STARTUP-TIMEOUT DEFECT; FIX PENDING CI + RE-RUN.
 
 ## R5.1 — Engine/project foundation
 
@@ -112,13 +112,35 @@ Implemented:
 
 A first R5.6 CI run exposed an obsolete R5.3 regression test which monkeypatched the removed private `_wait_loopback` implementation detail. The test was migrated to the protocol-ready service contract rather than restoring the weaker dummy-TCP design.
 
-Accepted functional head `c8bd7c090bc9618970fb355eee2ed1a5523e5e79`:
-- R0 Repository Guard `32533673288` — SUCCESS;
-- Python Core `32533673215` — SUCCESS Windows + Ubuntu, including R5 PowerShell syntax validation;
-- KodeStudio UI Smoke `32533673205` — SUCCESS Windows;
-- embedded KodeStudio UI job inside Python Core — SUCCESS Windows.
+Pre-hardware-probe final head `532bb7fedc9519d89778a971c0c457ec8f6c1c2b` was fully green:
+- R0 Repository Guard `32533944821` — SUCCESS;
+- Python Core `32533944780` — SUCCESS Windows + Ubuntu;
+- R5 PowerShell acceptance-runner syntax — SUCCESS Windows;
+- embedded KodeStudio UI smoke — SUCCESS Windows;
+- standalone KodeStudio UI Smoke `32533944764` — SUCCESS Windows.
 
-The Windows helper was then hardened further to query the selected Godot executable itself and refuse any non-4.7.x family before running the local probe. Final documentation/helper head must remain CI-green before user execution.
+### First target-workstation probe — defect exposed
+
+The first real probe was executed on 22 August 2026 with:
+- Python 3.12.4;
+- Windows 11 build 26220;
+- Godot `4.7.2.stable.steam.ed1daf0bf`;
+- LSP/DAP/debug ports 6005/6006/6007.
+
+Result: **4/5 probe steps passed**. Project inspection, scene parsing, GDScript inspection and export-preset inspection all succeeded. `engine_version` alone failed after approximately `15.03 s` because the sandboxed `--version` invocation hit the old fixed 15-second timeout and was terminated with no stderr.
+
+This strongly matches upstream Godot issue `godotengine/godot#120649`: Godot 4.7 on Windows 11 build 26200-class systems can spend many seconds probing drives, especially disconnected/network drives. Upstream fix `godotengine/godot#121192` was merged to `master` and labeled for possible future 4.7 cherry-pick; Kodepoia therefore must tolerate the affected 4.7.x runtime rather than weakening the version check.
+
+Hardening now implemented on PR #28:
+- Godot version timeout increased from 15 s to 90 s while remaining kill-switch controlled;
+- timeout/cancellation state is included in version errors;
+- default GDScript check timeout increased to 120 s;
+- local acceptance smoke/benchmark/capture/service startup windows enlarged where appropriate;
+- `ProcessSandbox` still sanitizes environment variables, but now preserves only the bounded non-secret desktop path variables Godot needs (`APPDATA`, `LOCALAPPDATA`, `USERPROFILE`, home/XDG paths) rather than inheriting the whole parent environment;
+- regression test proves arbitrary secret-like environment variables remain absent from subprocesses;
+- PowerShell helper measures direct `Godot --version` startup duration and has explicit distinct-port validation.
+
+The hardened branch must return to full green CI, then the target workstation must rerun **only the probe first**. R5.6 remains hardware-pending until that evidence is reviewed.
 
 ## Godot 4.7 external contract used by R5.6
 
@@ -127,7 +149,8 @@ Current official Godot documentation confirms:
 - `--debug-server <uri>`, including a loopback TCP URI such as `tcp://127.0.0.1:6007`;
 - a running Godot project/editor instance is required for native LSP/DAP workflows;
 - common defaults are LSP 6005, DAP 6006 and project debug port 6007;
-- CLI export uses named presets from `export_presets.cfg` and actual release export requires matching export templates.
+- CLI export uses named presets from `export_presets.cfg` and actual release export requires matching export templates;
+- Windows editor/user data is stored under Godot's normal user data/settings locations, including `%APPDATA%\Godot`.
 
 Kodepoia keeps the host fixed to loopback and never relays arbitrary model-provided engine flags.
 

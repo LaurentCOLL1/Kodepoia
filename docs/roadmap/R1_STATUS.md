@@ -12,7 +12,7 @@
 - [x] R1.4 — KodeSafeChange atomic changes + pre-image snapshots
 - [x] R1.5 — KodeSandbox allowlist/cwd/env/timeout boundary behind Guardian
 - [x] R1.6 — KodeSecrets broker + Windows Credential Manager backend + redaction
-- [ ] R1.7 — KodeSchema
+- [x] R1.7 — KodeSchema versioned validation + deterministic migration chain
 - [ ] R1.8 — KodeDataGovernance
 - [ ] R1.9 — KodeBackup
 - [ ] R1.10 — KodeRecovery

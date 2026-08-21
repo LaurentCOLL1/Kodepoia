@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. **R5 — KodeGodot 4.7.x est IN PROGRESS. R5.1 Engine/project foundation est IMPLEMENTED / CI ACCEPTANCE PENDING sur `agent/r5-1-godot-foundation`.** R5.2–R5.6 ne sont pas commencées. Lire architecture, ADR, roadmap, `R4_STATUS.md`, `R5_STATUS.md`, puis ce fichier avant de reprendre. Ne pas rouvrir R4 sans nouvelle preuve ou ADR.
+> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. **R5 — KodeGodot 4.7.x est IN PROGRESS. R5.1 Engine/project foundation est ACCEPTED ON BRANCH / PR #22 MERGE PENDING sur `agent/r5-1-godot-foundation`.** R5.2 est NEXT / NOT STARTED. R5.3–R5.6 ne sont pas commencées. Lire architecture, ADR, roadmap, `R4_STATUS.md`, `R5_STATUS.md`, puis ce fichier avant de reprendre. Ne pas rouvrir R4 sans nouvelle preuve ou ADR.
 
 ## Source de vérité et contraintes
 
@@ -12,14 +12,16 @@
 - Visibilité GitHub : **PUBLIC volontairement** ; ne pas traiter ce choix comme une anomalie.
 - `main` de départ R5 : `0b03de919721d3a292a00b4a1544100779416a53`.
 - Branche active : `agent/r5-1-godot-foundation`.
+- PR active : #22 — R5.1 protected Godot 4.7 engine/project foundation.
 - Architecture : v1.0 gelée.
 - R1 : COMPLETE.
 - R2 : COMPLETE.
 - R3 : COMPLETE — hardware-local acceptance passed.
 - R4 : COMPLETE — final governed orchestration acceptance passed.
 - R5 : **IN PROGRESS**.
-- R5.1 : **IMPLEMENTED / CI ACCEPTANCE PENDING**.
-- R5.2–R5.6 : NOT STARTED.
+- R5.1 : **ACCEPTED ON BRANCH / MERGE PENDING**.
+- R5.2 : NEXT / NOT STARTED.
+- R5.3–R5.6 : NOT STARTED.
 - Modèles acceptés : KodeFast=`granite4.1:3b`, KodeCore=`gpt-oss:20b`, KodeCoder=`ornith:9b`.
 - `north-mini-code-1.0:Q4_K_M` reste candidat futur KodeDeepCoder.
 - Git/repository/software-engineering non trivial ne doit pas être routé vers Granite.
@@ -40,14 +42,14 @@ Do not bypass the R4 executor/security boundary when adding Godot-specific opera
 
 ## R5 subdivision
 
-1. R5.1 Engine/project foundation — ACTIVE.
-2. R5.2 Scene/resource intelligence — NOT STARTED.
+1. R5.1 Engine/project foundation — ACCEPTED ON BRANCH / MERGE PENDING.
+2. R5.2 Scene/resource intelligence — NEXT / NOT STARTED.
 3. R5.3 GDScript + Godot LSP/DAP specialization — NOT STARTED.
 4. R5.4 2D/3D domain intelligence and safe edits — NOT STARTED.
 5. R5.5 Headless automation/import/export/capture/benchmarks — NOT STARTED.
 6. R5.6 Governed orchestration + real Godot acceptance — NOT STARTED.
 
-## R5.1 — IMPLEMENTED / CI ACCEPTANCE PENDING
+## R5.1 — ACCEPTED ON BRANCH / PR #22 MERGE PENDING
 
 Implemented on `agent/r5-1-godot-foundation`:
 - new `src/kodepoia/kodegodot/` package;
@@ -61,6 +63,13 @@ Implemented on `agent/r5-1-godot-foundation`:
 - runtime timeout and smoke frame count are bounded in implementation, not only JSON schema;
 - tests cover metadata, 4.7 compatibility, exact CLI construction, workspace escape, bounds and Tool API secrecy.
 
+Accepted functional head `041728735d761d1f17abeb38cce86f9b951db36a`:
+- Repository Guard `32525599593` SUCCESS;
+- Python Core `32525599591` SUCCESS Ubuntu+Windows;
+- UI Smoke `32525599578` SUCCESS Windows.
+
+The final documentation head after recording this evidence must also pass the same required checks before PR #22 is merged.
+
 R5.1 intentionally does not yet expose general export, movie, LSP/DAP ports, scene mutation or arbitrary command execution. Those belong to later accepted sub-phases.
 
 ## Godot 4.7 external contract used by R5
@@ -71,10 +80,10 @@ Godot 4 text scenes/resources use format 3 and string UIDs; R5.2 should model de
 
 ## Next sequence
 
-1. Open R5.1 PR and run Repository Guard, Python Core Ubuntu+Windows and KodeStudio UI Smoke on the exact head.
-2. Fix any defect and repeat until all are green.
-3. Merge R5.1 and normalize continuity/status.
-4. Start R5.2 from the normalized `main` only.
+1. Wait for required CI on the exact final PR #22 documentation head.
+2. If all checks are green and PR #22 remains mergeable, merge it.
+3. Normalize R5 status/continuity on `main`: R5.1 ACCEPTED AND MERGED; R5.2 NEXT / NOT STARTED.
+4. Start R5.2 from normalized `main` only.
 5. Do not mark R5 COMPLETE before R5.1–R5.6 including real Godot acceptance are all accepted and merged.
 6. R6 must not start before R5 completion.
 

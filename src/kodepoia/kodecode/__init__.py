@@ -1,6 +1,14 @@
 """KodeCode: safe, structured source-code tooling for Kodepoia."""
 
 from kodepoia.kodecode.api import KodeCodeToolAPI
+from kodepoia.kodecode.dap import (
+    DapError,
+    DapSession,
+    DapTool,
+    DebugAdapterRegistry,
+    DebugAdapterSpec,
+    DebugConfigurationSpec,
+)
 from kodepoia.kodecode.files import FileTool
 from kodepoia.kodecode.git_worktree import GitWorktreeTool, WorktreeInfo
 from kodepoia.kodecode.lsp import (
@@ -39,6 +47,12 @@ from kodepoia.kodecode.workspace import WorkspaceBoundary, WorkspaceViolation
 __all__ = [
     "ChangedRangeSnapshot",
     "ContentLengthJsonStream",
+    "DapError",
+    "DapSession",
+    "DapTool",
+    "DebugAdapterRegistry",
+    "DebugAdapterSpec",
+    "DebugConfigurationSpec",
     "FileTool",
     "FramedMessageChannel",
     "FramingLimits",

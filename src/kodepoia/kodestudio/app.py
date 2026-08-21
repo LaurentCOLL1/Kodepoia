@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 
-from kodepoia.core.kill_switch import KillSwitch
+from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 
 
 def build_window(kill_switch: KillSwitch | None = None):
@@ -18,7 +18,7 @@ def build_window(kill_switch: KillSwitch | None = None):
         QWidget,
     )
 
-    switch = kill_switch or KillSwitch()
+    switch = kill_switch or GLOBAL_KILL_SWITCH
     window = QMainWindow()
     window.setObjectName("kodepoiaMainWindow")
     window.setWindowTitle("Kodepoia — KodeStudio")

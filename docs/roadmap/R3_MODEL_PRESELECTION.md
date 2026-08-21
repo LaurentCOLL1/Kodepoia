@@ -15,13 +15,9 @@ Scoring is strict rather than substring-only:
 - Godot requires `CharacterBody3D` and rejects legacy/wrong `KinematicBody3D` / `KinematicCharacter3D` answers;
 - typed GDScript requires `var count: int = 0` syntax;
 - Git worktree requires a real `worktree` answer;
-- structured JSON and tool calls continue to use structural validation.
+- structured JSON and tool calls use structural validation.
 
-The four manual FAST runs performed before this hardening were useful diagnostics but are **not final selection evidence** because they revealed score instability and false-positive validators. Their observed summaries were:
-- Granite: scores 0.75 / 0.875 / 0.875 / 0.75; average 0.8125; ~122.4 tokens/s average.
-- Qwen 3.5 4B: scores 0.75 / 0.75 / 0.875 / 0.75; average 0.78125; ~72.4 tokens/s average.
-
-Those runs showed Granite consistently faster, but the stricter repeated harness must be rerun before selecting FAST.
+The four manual FAST runs performed before this hardening were diagnostic only and are not final selection evidence.
 
 ## Candidate set — 21 August 2026
 
@@ -45,6 +41,28 @@ CORE inspects local Ollama `/api/show` capabilities. Thinking-capable models use
 
 CODER also enables supported thinking automatically. Models that do not advertise the capability are called without a `think` field.
 
+## FAST v2 result — completed on target workstation
+
+Evidence file: `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
+
+Both candidates produced identical correctness and perfect repeatability across the four controlled runs:
+- `granite4.1:3b`: 28/32, score 0.875, repeat scores 0.875 / 0.875 / 0.875 / 0.875, score stddev 0.0;
+- `qwen3.5:4b`: 28/32, score 0.875, repeat scores 0.875 / 0.875 / 0.875 / 0.875, score stddev 0.0.
+
+Both passed 4/4 on exact instruction, Python reasoning, Godot `CharacterBody3D`, typed GDScript, debugging, structured JSON and real tool calling. Both failed 4/4 on the Git worktree question: Granite answered `branching`; Qwen answered `Submodules`.
+
+Efficiency strongly favors Granite on this machine:
+- Granite: 129.512 tok/s average, 4.055 stddev; 22.212 s average repeat time, 0.179 s stddev; 15.484 s average cold load.
+- Qwen 4B: 80.690 tok/s average, 7.493 stddev; 24.068 s average repeat time, 8.244 s stddev; 13.797 s average cold load.
+
+Qwen's average cold-load number is influenced by a very slow first repeat (~28.3 s load) followed by roughly 8.5–9.9 s loads, while Granite stayed around 15.35–15.86 s on all four repeats. Granite therefore has much more predictable end-to-end timing and about 60% higher generation throughput.
+
+**FAST preselection decision: `granite4.1:3b` is the provisional KodeFast winner.**
+
+Rationale: identical correctness, identical repeatability, same structured/tool reliability, materially higher throughput and much lower run-time variance. The Git/worktree miss remains a routing constraint: repository-mechanics questions should go to CORE/CODER rather than be trusted to FAST.
+
+`qwen3.5:4b` remains a useful fallback/secondary compact model and is not removed from the registry. It also has multimodal capability in Ollama, whereas Granite 4.1 3B is text-only; vision routing will be evaluated separately and does not overturn the text FAST decision.
+
 ## Prerequisites
 
 From the repository root on the target workstation:
@@ -60,7 +78,7 @@ ollama list
 
 Python must be 3.12+. Ollama must be local.
 
-## Run FAST preselection
+## FAST preselection command — already completed
 
 ```powershell
 python -m kodepoia.cli bench-models `
@@ -68,10 +86,10 @@ python -m kodepoia.cli bench-models `
   --repeats 4 `
   --model "granite4.1:3b" `
   --model "qwen3.5:4b" `
-  --output ".kodepoia/benchmarks/r3-preselect-fast.json"
+  --output ".kodepoia/benchmarks/r3-preselect-fast-v2.json"
 ```
 
-## Run CORE preselection
+## Next step — CORE preselection
 
 ```powershell
 python -m kodepoia.cli bench-models `
@@ -83,7 +101,7 @@ python -m kodepoia.cli bench-models `
   --output ".kodepoia/benchmarks/r3-preselect-core.json"
 ```
 
-## Run CODER preselection
+## CODER preselection — do not run until CORE report is reviewed
 
 ```powershell
 python -m kodepoia.cli bench-models `
@@ -94,12 +112,6 @@ python -m kodepoia.cli bench-models `
   --model "north-mini-code-1.0:Q4_K_M" `
   --output ".kodepoia/benchmarks/r3-preselect-coder.json"
 ```
-
-## Outputs
-
-- `.kodepoia/benchmarks/r3-preselect-fast.json`
-- `.kodepoia/benchmarks/r3-preselect-core.json`
-- `.kodepoia/benchmarks/r3-preselect-coder.json`
 
 ## Selection rule
 

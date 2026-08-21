@@ -10,40 +10,32 @@ PR #11, merge `91f3d77cc375021efcb24172b2859a27748843b8`.
 ## R4.2 — ACCEPTED AND MERGED
 PR #13, merge `ae1cfaa914962dec75950ec11d609c6b6fb929fb`.
 
-## R4.3 — LSP
+## R4.3 — LSP — ACCEPTED AND MERGED
 
-**Status: ACCEPTED ON `agent/r4-3-lsp` / MERGE PENDING.**
+PR #15 — `R4.3 LSP protected client layer` — MERGED.  
+Merge commit: `1074533e9930549b71af281003b74c6ed049ba9b`.
 
-Implemented and accepted:
-- [x] Content-Length framed UTF-8 JSON transport with header/body limits.
-- [x] Timeout-capable threaded message channel.
-- [x] `ProcessSandbox.spawn_piped()` + `ManagedProcess` for persistent stdio processes under allowlist/cwd confinement/global kill switch.
-- [x] Explicit `LanguageServerSpec`/registry; no arbitrary argv exposed through model tools.
-- [x] LSP lifecycle `initialize` → `initialized` → requests → `shutdown` → `exit`.
-- [x] document symbols, definitions, references and `publishDiagnostics` capture.
-- [x] baseline server→client requests for workspace configuration and dynamic registration.
-- [x] workspace-confined `didOpen` and `file://` URIs.
-- [x] structured LSP capabilities/start/stop/symbols/definition/references/diagnostics tools.
-- [x] deterministic protocol/lifecycle tests and real sandboxed persistent stdio process test.
+Accepted implementation:
+- Content-Length framed UTF-8 JSON with bounds and timeout-capable channel;
+- persistent `ProcessSandbox.spawn_piped()`/`ManagedProcess` under allowlist, cwd confinement and global kill switch;
+- explicit language-server registry, no arbitrary model-supplied argv;
+- initialize/initialized/shutdown/exit lifecycle;
+- document symbols, definitions, references, publishDiagnostics;
+- baseline server→client requests;
+- workspace-confined didOpen/file URIs;
+- structured LSP Tool API.
 
-Acceptance head: `618842926b5c81552eb1cb5345422d77f9f5eeb1`.
-- R0 Repository Guard `32513727806` — **SUCCESS** Ubuntu + Windows.
-- Python Core `32513727725` — **SUCCESS** Ubuntu + Windows.
-- KodeStudio UI Smoke `32513727609` — **SUCCESS** Windows.
-
-Security policy:
-- only pre-registered language servers can start;
-- no arbitrary argv through Tool API;
-- no network LSP transport in R4.3;
-- persistent processes inherit KodeSandbox/global kill switch;
-- protocol sizes and waits are bounded.
+Final branch-head evidence `36c53f3d5af53ec63977dd71260055df0b1c3181`:
+- R0 Repository Guard `32513904670` — SUCCESS;
+- Python Core `32513904676` — SUCCESS Ubuntu + Windows;
+- KodeStudio UI Smoke `32513904762` — SUCCESS Windows.
 
 ## Remaining R4 work
 
-### R4.4 — DAP — NEXT AFTER R4.3 MERGE
-- [ ] DAP request/response/event session abstraction over shared framing.
+### R4.4 — DAP — NEXT / NOT STARTED
+- [ ] DAP request/response/event abstraction over shared framing.
 - [ ] initialize + launch/attach capability representation.
-- [ ] breakpoints, threads, stack, scopes and variables baseline.
+- [ ] breakpoints, threads, stack, scopes, variables baseline.
 - [ ] protected adapter launch through KodeSandbox.
 
 ### R4.5 — Code intelligence graphs — PENDING
@@ -60,4 +52,4 @@ Security policy:
 
 ## Current decision
 
-R4 remains **IN PROGRESS**, not COMPLETE. R4.1/R4.2 are merged. R4.3 has passed implementation and CI acceptance but is not part of `main` until PR #15 merges.
+R4 remains **IN PROGRESS**, not COMPLETE. R4.1, R4.2 and R4.3 are accepted and merged on `main`. R4.4 DAP is the next authorized sub-phase and is not started yet.

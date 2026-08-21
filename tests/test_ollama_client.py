@@ -15,6 +15,9 @@ class FakeResponse(io.BytesIO):
         return False
 
 
+REQUEST_PAYLOADS: list[dict] = []
+
+
 def fake_urlopen(request, timeout=0):
     if request.full_url.endswith("/api/version"):
         return FakeResponse(json.dumps({"version": "test"}).encode())
@@ -31,15 +34,27 @@ def fake_urlopen(request, timeout=0):
         )
     if request.full_url.endswith("/api/embed"):
         return FakeResponse(json.dumps({"embeddings": [[0.1, 0.2]]}).encode())
+    if request.full_url.endswith("/api/chat"):
+        REQUEST_PAYLOADS.append(json.loads(request.data.decode("utf-8")))
     return FakeResponse(json.dumps({"model": "core", "message": {"content": "OK"}, "done": True}).encode())
 
 
 @patch("urllib.request.urlopen", side_effect=fake_urlopen)
 def test_ollama_api(mock_open) -> None:
+    REQUEST_PAYLOADS.clear()
     client = OllamaClient()
     assert client.version() == "test"
     assert client.list_models() == ["core"]
-    assert client.chat("core", [BrainMessage("user", "Hi")]).content == "OK"
+    assert client.chat(
+        "core",
+        [BrainMessage("user", "Hi")],
+        options={"seed": 101, "temperature": 0.0, "num_predict": 256},
+    ).content == "OK"
+    assert REQUEST_PAYLOADS[-1]["options"] == {
+        "seed": 101,
+        "temperature": 0.0,
+        "num_predict": 256,
+    }
     assert client.embed("embed", "hello") == [[0.1, 0.2]]
     assert client.model_capabilities("core") == {"completion", "tools", "thinking"}
     assert client.show_model("core")["details"]["family"] == "qwen35"

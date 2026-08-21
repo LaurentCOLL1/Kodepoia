@@ -11,6 +11,17 @@ from kodepoia.kodecode.dap import (
 )
 from kodepoia.kodecode.files import FileTool
 from kodepoia.kodecode.git_worktree import GitWorktreeTool, WorktreeInfo
+from kodepoia.kodecode.graph_api import GraphToolAPI
+from kodepoia.kodecode.graphs import (
+    CallEdge,
+    CodeGraphIndex,
+    DependencyEdge,
+    FileGraph,
+    GraphRefreshResult,
+    GraphSnapshot,
+    GraphTool,
+    SymbolNode,
+)
 from kodepoia.kodecode.lsp import (
     LanguageServerCapability,
     LanguageServerRegistry,
@@ -45,7 +56,9 @@ from kodepoia.kodecode.search import SearchMatch, SearchTool
 from kodepoia.kodecode.workspace import WorkspaceBoundary, WorkspaceViolation
 
 __all__ = [
+    "CallEdge",
     "ChangedRangeSnapshot",
+    "CodeGraphIndex",
     "ContentLengthJsonStream",
     "DapError",
     "DapSession",
@@ -53,10 +66,16 @@ __all__ = [
     "DebugAdapterRegistry",
     "DebugAdapterSpec",
     "DebugConfigurationSpec",
+    "DependencyEdge",
+    "FileGraph",
     "FileTool",
     "FramedMessageChannel",
     "FramingLimits",
     "GitWorktreeTool",
+    "GraphRefreshResult",
+    "GraphSnapshot",
+    "GraphTool",
+    "GraphToolAPI",
     "IncrementalParseResult",
     "IncrementalParseSession",
     "KodeCodeToolAPI",
@@ -77,6 +96,7 @@ __all__ = [
     "ProtocolError",
     "SearchMatch",
     "SearchTool",
+    "SymbolNode",
     "SyntaxNodeSnapshot",
     "TreeSitterLanguageRegistry",
     "TreeSitterParserService",

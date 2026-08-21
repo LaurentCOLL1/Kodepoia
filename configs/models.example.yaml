@@ -1,0 +1,26 @@
+ollama:
+  base_url: http://127.0.0.1:11434
+  timeout_seconds: 120
+
+roles:
+  fast:
+    model: ""
+    estimated_vram_mb: null
+  core:
+    model: ""
+    estimated_vram_mb: null
+    supports_vision: true
+    supports_tools: true
+    supports_structured: true
+  coder:
+    model: ""
+    estimated_vram_mb: null
+    supports_tools: true
+    supports_structured: true
+  embed:
+    model: ""
+    estimated_vram_mb: null
+
+routing:
+  max_vram_mb: 12000
+  sequential_heavy_models: true

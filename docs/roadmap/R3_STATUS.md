@@ -12,34 +12,23 @@ Original implementation:
 
 Acceptance hardening:
 - PR #8 — `R1-R3 Acceptance Hardening`.
-- Cold-load separation hardening validated at head `e07278744870f979ff9a128ee0b93de44717cdcc`.
-- R0 Repository Guard run `32491013632`: SUCCESS.
-- Python Core run `32491013932`: SUCCESS on Ubuntu and Windows, including PowerShell syntax and KodeStudio job.
-- KodeStudio UI Smoke run `32491013743`: SUCCESS on Windows.
+- Cold-load separation hardening validated before CODER v2.
+- R0 Repository Guard, Python Core Ubuntu/Windows and KodeStudio UI Smoke were green on the validated hardening head.
 
 ## Implemented
 
 - [x] Model-agnostic Brain protocol.
-- [x] Local Ollama adapter using `/api/version`, `/api/tags`, `/api/chat` and `/api/embed`.
-- [x] Non-streaming and streaming chat.
-- [x] Tool-call payload/result support.
-- [x] JSON-schema / structured-output support.
-- [x] Thinking and keep-alive parameters.
-- [x] Image payload support for multimodal messages.
-- [x] Explicit model unload support.
-- [x] Explicit unscored Ollama preload support before benchmark tasks.
+- [x] Local Ollama adapter with non-streaming + streaming chat.
+- [x] Tools, structured output, thinking, images, keep-alive, unload and preload.
 - [x] KodeModelRegistry with FAST / CORE / CODER / EMBED / VISION roles.
 - [x] Capability-aware KodeModelRouter.
-- [x] Persistent SQLite KodeMemory + semantic retrieval wired into the Orchestrator.
-- [x] KodeContext token budget and streaming Orchestrator path.
-- [x] `kodepoia ollama-status` local diagnostic.
-- [x] Role-aware repeated benchmark and JSON report.
-- [x] FAST 256 tokens/no thinking; CORE/CODER 1024 tokens/capability-aware thinking.
-- [x] Ollama `done_reason` retention and explicit `generation_budget_exhausted` detection.
-- [x] Cold-load separation: preload measured separately from scored task correctness.
-- [x] Preload diagnostics: `avg_cold_load_s`, `avg_preload_elapsed_s`, `preload_failures`, `preload_timeouts`.
-- [x] `kodepoia r3-accept` local-only acceptance requiring two or three installed candidates and full-capability thinking-aware evaluation.
-- [x] Mocked Ollama API/benchmark tests.
+- [x] Persistent SQLite KodeMemory + semantic retrieval wired into Orchestrator.
+- [x] KodeContext token budget and streamed orchestration.
+- [x] Repeated role-aware local benchmark with deterministic seeds/temperature.
+- [x] Strict validators for exact instruction, Godot 4, typed GDScript, Git worktree, structured JSON and true Ollama tool calls.
+- [x] `done_reason` + generation-budget diagnostics.
+- [x] Cold-load separated from scored correctness with unscored preload and dedicated timeout.
+- [x] `kodepoia r3-accept` local-only acceptance path and Windows runner.
 
 ## Local preselection evidence
 
@@ -47,81 +36,97 @@ Acceptance hardening:
 
 Evidence: `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
 
-- `granite4.1:3b`: 28/32, score 0.875 x4, 129.512 tok/s.
-- `qwen3.5:4b`: 28/32, score 0.875 x4, 80.690 tok/s.
+- `granite4.1:3b`: 28/32, 0.875 x4, 129.512 tok/s.
+- `qwen3.5:4b`: 28/32, 0.875 x4, 80.690 tok/s.
 
 **Provisional KodeFast winner: `granite4.1:3b`.**
 
 ### CORE — completed
 
-CORE v2 evidence: `.kodepoia/benchmarks/r3-preselect-core-v2.json`, target workstation, five repeats, `num_predict=1024`.
+Evidence: `.kodepoia/benchmarks/r3-preselect-core-v2.json`.
 
-- `qwen3.5:9b`: 25/40, 0.625 x5, 54.609 tok/s, 15 deterministic generation-budget exhaustions.
-- `gpt-oss:20b`: 40/40, 1.0 x5, 15.399 tok/s, all eight categories 5/5, 0 errors, 0 budget exhaustions, cold-load ~90.985 s.
+- `qwen3.5:9b`: 25/40, 0.625 x5, 54.609 tok/s, 15 bounded-thinking generation-budget exhaustions.
+- `gpt-oss:20b`: 40/40, 1.0 x5, 15.399 tok/s, all eight categories 5/5, 0 errors/budget exhaustions, cold-load ~90.985 s.
 
 **Provisional KodeCore winner: `gpt-oss:20b`.**
 
 ### CODER v1 — diagnostic completed
 
-Evidence: `.kodepoia/benchmarks/r3-preselect-coder.json`, five repeats, `num_predict=1024`.
+Evidence: `.kodepoia/benchmarks/r3-preselect-coder.json`.
 
-`qwen2.5-coder:7b-instruct`:
-- 30/40, 0.750 x5, 82.296 tok/s;
-- coding/Godot/GDScript/debug/JSON tasks pass 5/5;
-- native tool calling 0/5;
-- software-engineering worktree 0/5 (`Git Subtree`).
+- Qwen2.5-Coder: fast but native tools 0/5 and worktree 0/5.
+- Devstral 24B: ~3.968 tok/s and worktree 0/5; impractical default on target hardware.
+- North Mini Code: substantive leader, but old raw score was contaminated by first-task cold-load timeouts.
 
-`devstral-small-2:24b`:
-- raw 30/40, 3.968 tok/s;
-- first repetition contains five consecutive 120 s timeouts;
-- software-engineering worktree 0/5 (`sparse checkout`).
+This triggered the preload/cold-load hardening.
+
+### CODER v2 — completed / decision made
+
+Evidence: `.kodepoia/benchmarks/r3-preselect-coder-v2.json`.
+
+Target workstation: Windows 11, Python 3.12.4, Ollama 0.32.14, five repeats, `benchmark_role=coder`, `temperature=0`, `num_predict=1024`.
+
+`gpt-oss:20b`:
+- 40/40, 1.0 x5;
+- 15.611 tok/s;
+- 162.613 s average scored repeat;
+- 98.403 s average preload;
+- all eight categories 5/5;
+- 0 errors/preload failures/timeouts/budget exhaustions.
 
 `north-mini-code-1.0:Q4_K_M`:
-- raw 35/40, apparent 0.875 x5, 12.838 tok/s;
-- Python/Godot/GDScript/debug/structured/native-tools/worktree all 5/5;
-- raw exact-instruction 0/5 consists entirely of 120 s timeouts on the first task after unload, followed by successful warm tasks;
-- about 10.03 GB resident VRAM observed while running.
+- 40/40, 1.0 x5;
+- 18.330 tok/s;
+- 201.761 s average scored repeat;
+- 114.093 s average preload;
+- all eight categories 5/5;
+- 0 errors/preload failures/timeouts/budget exhaustions;
+- ~10.03 GB resident VRAM.
 
-CODER v1 exposed a cold-load scoring bias. North is the substantive coding leader but cannot be declared final from the raw 0.875 score.
+`ornith:9b`:
+- **40/40, 1.0 x5**;
+- **64.430 tok/s**;
+- **53.863 s average scored repeat**;
+- **36.418 s average preload**;
+- all eight categories 5/5, including structured output, true tool calling and worktree;
+- 0 errors/preload failures/timeouts/budget exhaustions;
+- ~6.31 GB model and ~6.31 GB resident VRAM.
 
-### Cold-load benchmark hardening — VALIDATED
+`laguna-xs-2.1:Q4_K_M`:
+- 25/40, 0.625 x5;
+- 19.950 tok/s;
+- structured output 0/5, native tools 0/5, worktree 0/5 under current Ollama chat integration;
+- removed from R3 final selection.
 
-The benchmark now preloads each model using an unscored empty Ollama chat request before any scored task. Preload uses a dedicated 240 s timeout. Its cost remains in end-to-end timing/cold-load metrics but no longer automatically becomes a knowledge failure. Tests explicitly verify that preload failure and task correctness are separate dimensions.
+**Provisional KodeCoder winner: `ornith:9b`.**
 
-## Next hardware step — CODER v2 AUTHORIZED
+North remains a future `KodeDeepCoder`/long-horizon repository candidate; GPT-OSS remains a valid coding fallback/reviewer.
 
-Compare the two realistic agentic finalists under the corrected cold-load policy:
+## Final R3 acceptance candidates
 
-```powershell
-python -m kodepoia.cli bench-models --role coder --repeats 5 --model "gpt-oss:20b" --model "north-mini-code-1.0:Q4_K_M" --output ".kodepoia/benchmarks/r3-preselect-coder-v2.json"
-```
+The measured role finalists are now:
 
-Do not run official `r3-accept` until CODER v2 is reviewed.
+- `granite4.1:3b` — KodeFast
+- `gpt-oss:20b` — KodeCore
+- `ornith:9b` — KodeCoder
 
 ## Remaining hardware-local acceptance
 
 R3 remains intentionally incomplete until:
-1. CODER v2 is reviewed;
-2. 2–3 final candidates are selected;
-3. official target-PC `r3-accept` is generated and reviewed;
-4. final selected roles are documented and CI is green.
+1. the official target-PC acceptance is run with the three finalists above;
+2. `.kodepoia/benchmarks/r3-local-acceptance.json` is structurally validated and technically reviewed;
+3. selected roles are recorded as accepted;
+4. final CI is green;
+5. PR #8 is safe to merge.
 
-Prepared runner:
-
-```powershell
-.\scripts\r3_accept_local.ps1 -ListOnly
-```
-
-Then, after finalist selection only:
+Prepared command from repository root after pulling the latest hardening branch:
 
 ```powershell
-.\scripts\r3_accept_local.ps1 -Model modelA,modelB
-# or
-.\scripts\r3_accept_local.ps1 -Model modelA,modelB,modelC
+.\scripts\r3_accept_local.ps1 -Model "granite4.1:3b","gpt-oss:20b","ornith:9b"
 ```
 
-Final evidence: `.kodepoia/benchmarks/r3-local-acceptance.json`.
+Default acceptance performs five repetitions with the full-capability thinking-aware profile and `num_predict=1024`.
 
 ## Completion rule
 
-R3 becomes `COMPLETE` only after the target workstation's official local acceptance report is structurally valid, technically reviewed, selected roles are recorded, final CI is green, and PR #8 is safe to merge. R4 must not begin before R3 is accepted.
+R3 becomes `COMPLETE` only after the final local acceptance report is reviewed and acceptable, final documentation/CI are green, and PR #8 is safe to merge. R4 must not begin before R3 is accepted.

@@ -17,13 +17,15 @@ from kodepoia.kodecode.workspace import WorkspaceBoundary
 class GodotServicePorts:
     lsp: int = 6005
     dap: int = 6006
+    debug: int = 6007
 
     def __post_init__(self) -> None:
-        for name, value in (("lsp", self.lsp), ("dap", self.dap)):
+        values = (("lsp", self.lsp), ("dap", self.dap), ("debug", self.debug))
+        for name, value in values:
             if not 1024 <= value <= 65535:
                 raise ValueError(f"{name} port must be between 1024 and 65535")
-        if self.lsp == self.dap:
-            raise ValueError("LSP and DAP ports must differ")
+        if len({self.lsp, self.dap, self.debug}) != 3:
+            raise ValueError("LSP, DAP and debug ports must differ")
 
 
 class _SocketChannelOwner:
@@ -49,19 +51,10 @@ class _SocketChannelOwner:
 class GodotEditorServices:
     """Start Godot 4.7 editor services and connect LSP/DAP only over loopback."""
 
-    def __init__(
-        self,
-        root: Path,
-        *,
-        executable: str = "godot",
-        sandbox: ProcessSandbox | None = None,
-    ) -> None:
+    def __init__(self, root: Path, *, executable: str = "godot", sandbox: ProcessSandbox | None = None) -> None:
         self.boundary = WorkspaceBoundary(root)
         self.executable = str(executable)
-        self.sandbox = sandbox or ProcessSandbox(
-            self.boundary.root,
-            allowed_executables={Path(self.executable).name.lower()},
-        )
+        self.sandbox = sandbox or ProcessSandbox(self.boundary.root, allowed_executables={Path(self.executable).name.lower()})
         self.process: ManagedProcess | None = None
         self.ports: GodotServicePorts | None = None
         self._lsp_owner: _SocketChannelOwner | None = None
@@ -79,15 +72,10 @@ class GodotEditorServices:
             raise FileNotFoundError("project.godot is not a file")
         selected = ports or GodotServicePorts()
         argv = [
-            self.executable,
-            "--headless",
-            "--editor",
-            "--path",
-            ".",
-            "--lsp-port",
-            str(selected.lsp),
-            "--dap-port",
-            str(selected.dap),
+            self.executable, "--headless", "--editor", "--path", ".",
+            "--lsp-port", str(selected.lsp),
+            "--dap-port", str(selected.dap),
+            "--debug-server", f"tcp://127.0.0.1:{selected.debug}",
         ]
         self.process = self.sandbox.spawn_piped(argv, cwd=self.boundary.root)
         self.ports = selected
@@ -115,12 +103,12 @@ class GodotEditorServices:
         return session
 
     def connect_dap(self, *, timeout: float = 10.0) -> DapSession:
-        port = self._require_ports().dap
-        owner = self._connect(port, timeout)
+        ports = self._require_ports()
+        owner = self._connect(ports.dap, timeout)
         config = DebugConfigurationSpec(
             "project",
             "launch",
-            {"project": str(self.boundary.root), "port": port + 1},
+            {"project": str(self.boundary.root), "address": "127.0.0.1", "port": ports.debug},
         )
         spec = DebugAdapterSpec("godot", ("godot-loopback",), configurations=(config,))
         session = DapSession(spec, self.boundary.root, owner.channel, request_timeout=timeout)
@@ -163,7 +151,7 @@ class GodotEditorServices:
         return self.ports
 
     def _ports_dict(self) -> dict[str, int] | None:
-        return None if self.ports is None else {"lsp": self.ports.lsp, "dap": self.ports.dap}
+        return None if self.ports is None else {"lsp": self.ports.lsp, "dap": self.ports.dap, "debug": self.ports.debug}
 
     @staticmethod
     def _connect(port: int, timeout: float) -> _SocketChannelOwner:

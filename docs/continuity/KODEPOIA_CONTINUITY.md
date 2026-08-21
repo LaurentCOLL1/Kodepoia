@@ -120,8 +120,8 @@ Ces modèles sont des defaults acceptés pour le matériel cible actuel, pas des
 1. R1 COMPLETE — fait.
 2. R2 COMPLETE — fait.
 3. R3 hardware-local acceptance — **passée**.
-4. Mettre `R3_STATUS.md`, `R3_MODEL_PRESELECTION.md`, `R3_LOCAL_ACCEPTANCE.md` et cette continuité à jour — fait dans le cycle d'acceptation.
-5. Lancer/vérifier la CI finale du head d'acceptation.
+4. Documentation/status/continuité de l'acceptation — mise à jour.
+5. Vérifier la CI finale du head d'acceptation.
 6. Si CI verte, fusionner PR #8.
 7. Vérifier `main` après merge.
 8. Mettre la continuité à jour après merge si le statut PR/main change.

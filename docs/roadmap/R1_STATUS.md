@@ -13,7 +13,7 @@
 - [x] R1.5 — KodeSandbox allowlist/cwd/env/timeout boundary behind Guardian
 - [x] R1.6 — KodeSecrets broker + Windows Credential Manager backend + redaction
 - [x] R1.7 — KodeSchema versioned validation + deterministic migration chain
-- [ ] R1.8 — KodeDataGovernance
+- [x] R1.8 — KodeDataGovernance classification and movement policy
 - [ ] R1.9 — KodeBackup
 - [ ] R1.10 — KodeRecovery
 - [ ] R1.11 — KodeResearchGuard

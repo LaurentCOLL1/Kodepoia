@@ -112,6 +112,9 @@ def test_parser_tool_is_workspace_scoped_and_auto_detects_language(tmp_path: Pat
     assert result["root_type"] == "module"
     assert result["has_error"] is False
 
+    with pytest.raises(ValueError, match="max_nodes"):
+        tool.parse_file("sample.py", max_nodes=2001)
+
 
 def test_structured_api_exposes_parser_capabilities_and_parse(tmp_path: Path) -> None:
     source = tmp_path / "sample.py"

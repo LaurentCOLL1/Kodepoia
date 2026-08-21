@@ -36,7 +36,16 @@ def fake_urlopen(request, timeout=0):
         return FakeResponse(json.dumps({"embeddings": [[0.1, 0.2]]}).encode())
     if request.full_url.endswith("/api/chat"):
         REQUEST_PAYLOADS.append(json.loads(request.data.decode("utf-8")))
-    return FakeResponse(json.dumps({"model": "core", "message": {"content": "OK"}, "done": True}).encode())
+    return FakeResponse(
+        json.dumps(
+            {
+                "model": "core",
+                "message": {"content": "OK"},
+                "done": True,
+                "done_reason": "stop",
+            }
+        ).encode()
+    )
 
 
 @patch("urllib.request.urlopen", side_effect=fake_urlopen)
@@ -45,11 +54,13 @@ def test_ollama_api(mock_open) -> None:
     client = OllamaClient()
     assert client.version() == "test"
     assert client.list_models() == ["core"]
-    assert client.chat(
+    response = client.chat(
         "core",
         [BrainMessage("user", "Hi")],
         options={"seed": 101, "temperature": 0.0, "num_predict": 256},
-    ).content == "OK"
+    )
+    assert response.content == "OK"
+    assert response.metrics["done_reason"] == "stop"
     assert REQUEST_PAYLOADS[-1]["options"] == {
         "seed": 101,
         "temperature": 0.0,

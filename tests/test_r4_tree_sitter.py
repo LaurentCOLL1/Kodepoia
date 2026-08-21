@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 import tree_sitter
 
 from kodepoia.kodecode.api import KodeCodeToolAPI
@@ -36,6 +37,26 @@ def test_packaged_grammars_are_available_and_abi_compatible() -> None:
         assert tree_sitter.MIN_COMPATIBLE_LANGUAGE_VERSION <= capability.grammar_abi
         assert capability.grammar_abi <= tree_sitter.LANGUAGE_VERSION
         assert capability.error is None
+
+
+@pytest.mark.parametrize(
+    ("language_id", "source", "root_type"),
+    [
+        ("python", b"def answer():\n    return 42\n", "module"),
+        ("javascript", b"function answer() { return 42; }\n", "program"),
+        ("typescript", b"function answer(): number { return 42; }\n", "program"),
+        ("tsx", b"const view = <div>42</div>;\n", "program"),
+    ],
+)
+def test_packaged_grammars_parse_real_source(
+    language_id: str,
+    source: bytes,
+    root_type: str,
+) -> None:
+    document = TreeSitterParserService().parse(source, language_id)
+
+    assert document.tree.root_node.type == root_type
+    assert document.tree.root_node.has_error is False
 
 
 def test_gdscript_capability_is_discoverable_without_being_mandatory() -> None:

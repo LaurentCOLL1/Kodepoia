@@ -17,19 +17,24 @@ Per roadmap v1.0, R4 delivers:
 
 ## R4.1 — Safe workspace + files/search/patch + Git worktrees
 
-Implementation status:
+**Status: ACCEPTED on `agent/r4-kodecode`.**
+
+Implementation and acceptance:
 - [x] `WorkspaceBoundary` rejects absolute paths and workspace escapes after resolution.
 - [x] File listing and UTF-8 reads are workspace-scoped and size-bounded.
+- [x] Recursive listing/search skip symlinks resolving outside the workspace.
 - [x] Deterministic text/regex search with generated/cache exclusions.
 - [x] Exact single-occurrence patch with optional SHA-256 stale-content precondition.
-- [x] Patch writes use same-directory atomic replacement.
+- [x] Patch writes use same-directory atomic replacement, preserve exact UTF-8 bytes/newlines and file mode.
 - [x] Git worktree operations go through `ProcessSandbox`; no shell execution is exposed.
 - [x] Managed worktrees are confined under `.kodepoia/worktrees/`.
 - [x] Git refs/names reject option-injection shapes.
 - [x] Git worktree listing uses the stable porcelain format.
-- [x] `KodeCodeToolAPI` exposes only explicit structured operations and schemas.
-- [x] Unit tests cover boundary escape, search, patch guards and worktree dispatch/parser.
-- [ ] CI evidence on the R4 branch.
+- [x] `KodeCodeToolAPI` exposes only explicit structured operations and function schemas.
+- [x] Unit tests cover boundary escape, search, patch guards/newline preservation, structured API and worktree dispatch/parser.
+- [x] R0 Repository Guard run `32508687109` — SUCCESS.
+- [x] Python Core run `32508687100` — SUCCESS on Ubuntu and Windows.
+- [x] KodeStudio UI Smoke run `32508687261` — SUCCESS on Windows.
 
 ## Remaining R4 work
 
@@ -66,7 +71,7 @@ Implementation status:
 
 ## Current acceptance decision
 
-R4 is **IN PROGRESS**, not COMPLETE. R4.1 is implemented on `agent/r4-kodecode`; it becomes accepted only after its CI is green. Tree-sitter/LSP/DAP/graphs remain pending and must not be represented as implemented yet.
+R4 remains **IN PROGRESS**, not COMPLETE. R4.1 is accepted with portable CI evidence. Tree-sitter/LSP/DAP/graphs/orchestration remain pending and must not be represented as implemented yet.
 
 ## Reference research used for implementation
 

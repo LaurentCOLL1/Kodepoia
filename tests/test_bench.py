@@ -2,12 +2,22 @@ from pathlib import Path
 
 from kodepoia.bench.baseline import BaselineBench, BenchmarkRole, BenchTask
 from kodepoia.brain.base import BrainResponse
+from kodepoia.exceptions import BrainUnavailable
 
 
 class FakeBrain:
     def __init__(self):
         self.calls = []
+        self.preloaded = []
         self.unloaded = []
+
+    def preload(self, model, **kwargs):
+        self.preloaded.append((model, kwargs))
+        return {
+            "done_reason": "load",
+            "total_duration": 2_100_000_000,
+            "load_duration": 2_000_000_000,
+        }
 
     def chat(self, model, messages, **kwargs):
         self.calls.append((model, messages[0].content, kwargs))
@@ -44,7 +54,7 @@ class FakeBrain:
             metrics={
                 "eval_count": 3,
                 "eval_duration": 1_000_000_000,
-                "load_duration": 2_000_000_000,
+                "load_duration": 100_000_000,
                 "done_reason": "stop",
             },
         )
@@ -69,6 +79,12 @@ class FakeBrain:
         self.unloaded.append(model)
 
 
+class FailedPreloadBrain(FakeBrain):
+    def preload(self, model, **kwargs):
+        self.preloaded.append((model, kwargs))
+        raise BrainUnavailable("Ollama unavailable at local: timed out")
+
+
 class ExhaustedThinkingBrain(FakeBrain):
     def chat(self, model, messages, **kwargs):
         self.calls.append((model, messages[0].content, kwargs))
@@ -80,7 +96,7 @@ class ExhaustedThinkingBrain(FakeBrain):
             metrics={
                 "eval_count": budget,
                 "eval_duration": 1_000_000_000,
-                "load_duration": 2_000_000_000,
+                "load_duration": 100_000_000,
                 "done_reason": "length",
             },
         )
@@ -115,19 +131,36 @@ def test_baseline_runs_repeated_and_saves(tmp_path: Path) -> None:
     assert all(item.passed for item in results)
     assert {item.repeat for item in results} == {1, 2, 3, 4}
     assert {item.seed for item in results} == {101, 102, 103, 104}
+    assert len(brain.preloaded) == 8
     assert len(brain.unloaded) == 8
     assert all(call[2]["options"]["temperature"] == 0.0 for call in brain.calls)
     assert all(call[2]["options"]["num_predict"] == 256 for call in brain.calls)
+    assert all(item[1]["timeout"] == 240.0 for item in brain.preloaded)
     summary = BaselineBench.summarize(results)
     assert summary["one"]["repeats"] == 4
     assert summary["one"]["min_repeat_score"] == 1.0
     assert summary["one"]["score_stddev"] == 0.0
     assert summary["one"]["task_pass_rates"]["x"] == 1.0
     assert summary["one"]["budget_exhaustions"] == 0
+    assert summary["one"]["avg_cold_load_s"] == 2.0
+    assert summary["one"]["preload_failures"] == 0
+    assert summary["one"]["preload_timeouts"] == 0
     path = tmp_path / "bench.json"
     bench.save(results, path)
     assert path.exists()
     assert '"schema_version": 2' in path.read_text(encoding="utf-8")
+
+
+def test_preload_failure_is_reported_separately_from_task_correctness() -> None:
+    brain = FailedPreloadBrain()
+    bench = BaselineBench(brain, (BenchTask("x", "x", exact_response="KODEPOIA_OK"),))
+    results = bench.run(["one", "two"], repeats=1)
+    assert all(item.passed for item in results)
+    assert all(item.error is None for item in results)
+    summary = BaselineBench.summarize(results)
+    assert summary["one"]["score"] == 1.0
+    assert summary["one"]["preload_failures"] == 1
+    assert summary["one"]["preload_timeouts"] == 1
 
 
 def test_strict_content_validators_reject_false_positives() -> None:

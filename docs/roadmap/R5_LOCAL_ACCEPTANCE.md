@@ -32,6 +32,12 @@ agent/r5-6-governed-acceptance
 
 PR #28 must remain open until the report has been reviewed.
 
+The startup-latency hardening that followed the first hardware probe is CI-accepted. Functional/documentation evidence before this instruction refresh:
+- Repository Guard `32536038483` SUCCESS;
+- Python Core `32536038479` SUCCESS Windows + Ubuntu;
+- R5 PowerShell syntax SUCCESS Windows;
+- standalone UI Smoke `32536038474` SUCCESS Windows.
+
 ## Prerequisites
 
 - Windows target workstation.

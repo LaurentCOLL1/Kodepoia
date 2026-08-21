@@ -11,16 +11,6 @@ A roadmap phase may be marked `COMPLETE` only when each frozen requirement has a
 3. CI evidence for repository-portable behavior;
 4. hardware-local evidence when the requirement depends on the target workstation.
 
-## Latest CI evidence
-
-Validated commit: `e2cc5cb624e14c459b92fd9128343c8e2b4a1d1f`
-
-- `R0 Repository Guard` run `32456258458`: **SUCCESS** on Windows and Ubuntu.
-- `Python Core` run `32456258437`: **SUCCESS** on Windows and Ubuntu, including its Windows KodeStudio smoke job.
-- `KodeStudio UI Smoke` run `32456258443`: **SUCCESS** on Windows.
-
-The R2 Qt/`StrEnum` regression is covered by the UI smoke suite. Qt combo boxes now store primitive string values and every Qt → domain boundary explicitly reconstructs the expected `StrEnum` (`ProjectType`, `Dimension`, `DecisionState`, `ApprovalPolicy`, `ProductDocumentType`, and capability states).
-
 ## R1 acceptance matrix
 
 - [x] Guardian deterministic allow / confirm / deny decisions.
@@ -39,7 +29,7 @@ The R2 Qt/`StrEnum` regression is covered by the UI smoke suite. Qt combo boxes 
 - [x] KodeStudio offscreen UI smoke test exists.
 - [x] CI confirmation for this hardening PR.
 
-**R1 acceptance status on the hardening branch: COMPLETE.**
+**R1 acceptance status: COMPLETE.**
 
 ## R2 acceptance matrix
 
@@ -62,7 +52,7 @@ The R2 Qt/`StrEnum` regression is covered by the UI smoke suite. Qt combo boxes 
 - [x] Qt `StrEnum` boundaries normalized and regression-tested.
 - [x] CI confirmation for this hardening PR.
 
-**R2 acceptance status on the hardening branch: COMPLETE.**
+**R2 acceptance status: COMPLETE.**
 
 ## R3 acceptance matrix
 
@@ -74,7 +64,7 @@ The R2 Qt/`StrEnum` regression is covered by the UI smoke suite. Qt combo boxes 
 - [x] Structured-output payload support.
 - [x] Thinking and keep-alive support.
 - [x] Image payload support for multimodal Ollama messages.
-- [x] Model unload support.
+- [x] Model unload and unscored preload support.
 - [x] FAST / CORE / CODER / EMBED / VISION registry and routing.
 - [x] Capability-aware routing for tools and structured output.
 - [x] Persistent SQLite/WAL memory.
@@ -82,41 +72,49 @@ The R2 Qt/`StrEnum` regression is covered by the UI smoke suite. Qt combo boxes 
 - [x] Semantic retrieval wired into the Orchestrator context path.
 - [x] Token-budgeted Context Builder.
 - [x] Streaming Orchestrator path.
-- [x] Expanded multi-model R3 baseline benchmark.
-- [x] `kodepoia r3-accept` enforces two or three distinct installed local models and writes a hardware-local evidence report.
-- [x] CI confirmation for this hardening PR.
-- [ ] Hardware-local R3 acceptance report generated on the target workstation.
+- [x] Expanded repeated multi-model benchmark.
+- [x] Strict validators for exact instruction, Godot 4, typed GDScript, Git worktree, structured JSON and real Ollama tool calls.
+- [x] Thinking-budget / `done_reason` diagnostics.
+- [x] Cold-load separated from scored correctness.
+- [x] `kodepoia r3-accept` enforces two or three distinct installed local models and writes hardware-local evidence.
+- [x] CI coverage for benchmark/acceptance hardening.
+- [x] Hardware-local R3 acceptance report generated and technically reviewed on the target workstation.
 
-**R3 status: IMPLEMENTATION COMPLETE — HARDWARE-LOCAL ACCEPTANCE PENDING.**
+## R3 hardware-local evidence
 
-## Hardware-local acceptance preparation
+Official evidence: `.kodepoia/benchmarks/r3-local-acceptance.json` generated on 2026-08-21.
 
-Windows helper:
+Environment:
+- Windows 11;
+- Python 3.12.4;
+- Ollama 0.32.14;
+- loopback URL `http://127.0.0.1:11434` verified;
+- 5 repetitions per finalist;
+- `temperature=0`;
+- `num_predict=1024`;
+- profile `full-capability-thinking-aware`;
+- `acceptance_completed=true`.
 
-```powershell
-.\scripts\r3_accept_local.ps1 -ListOnly
-.\scripts\r3_accept_local.ps1 -Model modelA,modelB
-# or
-.\scripts\r3_accept_local.ps1 -Model modelA,modelB,modelC
-```
+Accepted defaults:
+- `KodeFast` → `granite4.1:3b`;
+- `KodeCore` → `gpt-oss:20b`;
+- `KodeCoder` → `ornith:9b`.
 
-Detailed procedure: `docs/roadmap/R3_LOCAL_ACCEPTANCE.md`.
+Final results:
+- Granite: 35/40, 0.875 x5, 131.366 tok/s, zero errors/preload failures/timeouts/budget exhaustions; its only systematic weakness is Git worktree 0/5, so non-trivial repository decisions are routed to CORE/CODER.
+- GPT-OSS: 40/40, 1.0 x5, all eight categories 5/5, 15.909 tok/s, zero errors/preload failures/timeouts/budget exhaustions.
+- Ornith: 40/40, 1.0 x5, all eight categories 5/5, 64.512 tok/s, zero errors/preload failures/timeouts/budget exhaustions, ~6.31 GB resident VRAM.
 
-The helper verifies Python 3.12+, loopback-only Ollama, runs `ollama-status`, invokes `r3-accept`, and structurally verifies the generated evidence report.
+**R3 acceptance status: COMPLETE.**
 
-The generated `.kodepoia/benchmarks/r3-local-acceptance.json` remains the hardware-local acceptance evidence.
+## Completion policy result
 
-## Completion policy
+R1, R2 and R3 now satisfy the hardening acceptance policy on this branch.
 
-R1 and R2 are technically accepted on the hardening branch after the green CI evidence above.
+The remaining integration gate before R4 is repository-level:
 
-R3 must remain incomplete until the target workstation runs, with two or three real installed Ollama candidates:
-
-```powershell
-.\scripts\r3_accept_local.ps1 -ListOnly
-.\scripts\r3_accept_local.ps1 -Model <candidate1>,<candidate2>[,<candidate3>]
-```
-
-Then review `.kodepoia/benchmarks/r3-local-acceptance.json` for model quality, errors, throughput and VRAM information.
-
-PR #8 must remain unmerged while R3 hardware acceptance is pending. R4 must not begin before the R3 evidence has been generated and reviewed.
+1. final CI on the acceptance-documentation head must be green;
+2. PR #8 must be merged into `main`;
+3. `main` must be verified after merge;
+4. continuity must reflect the merged state;
+5. only then may R4 begin.

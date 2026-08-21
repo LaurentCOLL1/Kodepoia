@@ -11,7 +11,7 @@
 - [x] R1.3 — KodeAudit append-only JSONL journal
 - [x] R1.4 — KodeSafeChange atomic changes + pre-image snapshots
 - [x] R1.5 — KodeSandbox allowlist/cwd/env/timeout boundary behind Guardian
-- [ ] R1.6 — KodeSecrets
+- [x] R1.6 — KodeSecrets broker + Windows Credential Manager backend + redaction
 - [ ] R1.7 — KodeSchema
 - [ ] R1.8 — KodeDataGovernance
 - [ ] R1.9 — KodeBackup

@@ -23,7 +23,8 @@ try {
 
     $uri = [Uri]$OllamaUrl
     $allowedHosts = @("127.0.0.1", "localhost", "::1")
-    if ($uri.Scheme -notin @("http", "https") -or $uri.Host.ToLowerInvariant() -notin $allowedHosts) {
+    $normalizedHost = $uri.Host.Trim('[', ']').ToLowerInvariant()
+    if ($uri.Scheme -notin @("http", "https") -or $normalizedHost -notin $allowedHosts) {
         throw "R3 acceptance requires a loopback Ollama URL (127.0.0.1, localhost or ::1)."
     }
 

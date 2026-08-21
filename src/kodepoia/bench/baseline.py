@@ -5,12 +5,20 @@ import platform
 import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
 from kodepoia.brain.base import BrainMessage
 from kodepoia.brain.ollama import OllamaClient
 from kodepoia.exceptions import BrainUnavailable
+
+
+class BenchmarkRole(StrEnum):
+    BASELINE = "baseline"
+    FAST = "fast"
+    CORE = "core"
+    CODER = "coder"
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,6 +42,7 @@ class BenchResult:
     tokens_per_second: float | None = None
     structured_valid: bool | None = None
     tool_called: bool | None = None
+    thinking_mode: bool | str | None = None
     error: str | None = None
 
 
@@ -157,11 +166,38 @@ class BaselineBench:
             return metrics
         return {}
 
-    def run(self, models: list[str]) -> list[BenchResult]:
+    def _thinking_mode(self, model: str, role: BenchmarkRole) -> bool | str | None:
+        if role in {BenchmarkRole.BASELINE, BenchmarkRole.FAST}:
+            return False
+        show_model = getattr(self.client, "show_model", None)
+        if not callable(show_model):
+            return None
+        try:
+            details = show_model(model)
+        except BrainUnavailable:
+            return None
+        capabilities = {str(value).lower() for value in details.get("capabilities", [])}
+        if "thinking" not in capabilities:
+            return None
+        model_details = details.get("details", {})
+        family = str(model_details.get("family", "")).lower() if isinstance(model_details, dict) else ""
+        normalized = model.lower()
+        if family == "gptoss" or normalized.startswith("gpt-oss"):
+            return "medium"
+        return True
+
+    def run(
+        self,
+        models: list[str],
+        *,
+        role: BenchmarkRole | str = BenchmarkRole.BASELINE,
+    ) -> list[BenchResult]:
         if len(models) < 2:
             raise ValueError("Baseline comparison requires at least two models")
+        role = BenchmarkRole(role)
         results: list[BenchResult] = []
         for model in models:
+            think = self._thinking_mode(model, role)
             for task in self.tasks:
                 start = time.perf_counter()
                 try:
@@ -170,7 +206,7 @@ class BaselineBench:
                         [BrainMessage("user", task.prompt)],
                         tools=list(task.tools) or None,
                         response_schema=task.response_schema,
-                        think=False,
+                        think=think,
                         keep_alive="2m",
                     )
                 except BrainUnavailable as exc:
@@ -184,6 +220,7 @@ class BaselineBench:
                             metrics={},
                             structured_valid=False if task.response_schema is not None else None,
                             tool_called=False if task.expect_tool_call else None,
+                            thinking_mode=think,
                             error=str(exc),
                         )
                     )
@@ -207,6 +244,8 @@ class BaselineBench:
                     passed = passed and tool_called
                 metrics = dict(response.metrics or {})
                 metrics.update(self._runtime_metrics(model))
+                if response.thinking:
+                    metrics["thinking_chars"] = len(response.thinking)
                 results.append(
                     BenchResult(
                         model=model,
@@ -218,6 +257,7 @@ class BaselineBench:
                         tokens_per_second=self._tokens_per_second(metrics),
                         structured_valid=structured_valid,
                         tool_called=tool_called,
+                        thinking_mode=think,
                     )
                 )
             unload = getattr(self.client, "unload", None)
@@ -242,6 +282,7 @@ class BaselineBench:
                 "elapsed_s": round(sum(item.elapsed_s for item in rows), 3),
                 "avg_tokens_per_second": round(sum(speeds) / len(speeds), 3) if speeds else None,
                 "errors": sum(item.error is not None for item in rows),
+                "thinking_mode": rows[0].thinking_mode if rows else None,
             }
         return summary
 

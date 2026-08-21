@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. **R5 — KodeGodot 4.7.x est IN PROGRESS. R5.1 à R5.5 sont ACCEPTED AND MERGED. R5.6 est sur PR #28, branche `agent/r5-6-governed-acceptance`. Le premier probe matériel réel a trouvé un unique défaut : `engine_version` a été tué au timeout fixe de 15 s sur Godot 4.7.2 Steam / Windows 11 build 26220, alors que les 4 autres étapes du probe passaient. Le correctif R5.6 augmente le timeout version à 90 s, préserve seulement les chemins desktop nécessaires dans le sandbox et conserve les secrets hors environnement enfant. Le correctif et la documentation sont maintenant CI ACCEPTED sur le head final `45dc35243a51a5c67830a01f70517a1233a9dac7`.** Prochaine action : synchroniser la branche et rerun `-ProbeOnly` uniquement avec le Godot Steam déjà identifié. Ne pas fusionner PR #28, ne pas marquer R5 COMPLETE et ne pas commencer R6 avant revue du rapport `.kodepoia/benchmarks/r5-local-acceptance.json`.
+> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. **R5 — KodeGodot 4.7.x est IN PROGRESS. R5.1 à R5.5 sont ACCEPTED AND MERGED. R5.6 est sur PR #28, branche `agent/r5-6-governed-acceptance`. Le premier probe matériel réel a trouvé un unique défaut : `engine_version` a été tué au timeout fixe de 15 s sur Godot 4.7.2 Steam / Windows 11 build 26220, alors que les 4 autres étapes du probe passaient. Le correctif R5.6 augmente le timeout version à 90 s, préserve seulement les chemins desktop nécessaires dans le sandbox et conserve les secrets hors environnement enfant. Le correctif et la documentation ont un checkpoint CI ACCEPTED `45dc35243a51a5c67830a01f70517a1233a9dac7`; des commits ultérieurs peuvent être exclusivement de continuité/documentation.** Prochaine action : synchroniser la branche et rerun `-ProbeOnly` uniquement avec le Godot Steam déjà identifié. Ne pas fusionner PR #28, ne pas marquer R5 COMPLETE et ne pas commencer R6 avant revue du rapport `.kodepoia/benchmarks/r5-local-acceptance.json`.
 
 ## Source de vérité et contraintes
 
@@ -26,8 +26,9 @@
 - Active R5.6 PR: **#28**, OPEN, MERGEABLE, DO NOT MERGE YET.
 - Pre-probe fully green head: `532bb7fedc9519d89778a971c0c457ec8f6c1c2b`.
 - Startup-latency hardened functional head: `25ddef21718eb09d361830259e62fa0e703469f1`.
-- Final probe-rerun head: `45dc35243a51a5c67830a01f70517a1233a9dac7`.
-- Final head CI: Repository Guard `32536200325` SUCCESS; Python Core `32536200334` SUCCESS Windows+Ubuntu incl. PowerShell + embedded UI; standalone UI Smoke `32536200352` SUCCESS Windows.
+- Probe-rerun CI checkpoint: `45dc35243a51a5c67830a01f70517a1233a9dac7`.
+- Checkpoint CI: Repository Guard `32536200325` SUCCESS; Python Core `32536200334` SUCCESS Windows+Ubuntu incl. PowerShell + embedded UI; standalone UI Smoke `32536200352` SUCCESS Windows.
+- Later branch commits may update continuity only; always use the current remote branch head after `git pull` rather than requiring equality with the checkpoint SHA.
 - R6 : **NOT STARTED**.
 - Modèles acceptés : KodeFast=`granite4.1:3b`, KodeCore=`gpt-oss:20b`, KodeCoder=`ornith:9b`.
 - `north-mini-code-1.0:Q4_K_M` reste candidat futur KodeDeepCoder.
@@ -188,7 +189,7 @@ Implemented on the same PR #28 branch:
 
 ### Final hardened CI accepted
 
-Exact branch head authorized for probe rerun:
+Probe-rerun functional/documentation checkpoint:
 `45dc35243a51a5c67830a01f70517a1233a9dac7`
 
 - Repository Guard `32536200325` SUCCESS;
@@ -197,7 +198,7 @@ Exact branch head authorized for probe rerun:
 - embedded UI smoke SUCCESS Windows;
 - standalone KodeStudio UI Smoke `32536200352` SUCCESS Windows.
 
-Next action is now authorized: rerun **ProbeOnly only**. Do not jump directly to full acceptance.
+Later continuity-only commits do not change the runtime contract. The user should always `git pull` the current remote branch before probing. Next action is authorized: rerun **ProbeOnly only**. Do not jump directly to full acceptance.
 
 ## Godot 4.7 external contract confirmed on 22 August 2026
 
@@ -236,11 +237,7 @@ Expected branch:
 agent/r5-6-governed-acceptance
 ```
 
-Expected exact head for this rerun:
-
-```text
-45dc35243a51a5c67830a01f70517a1233a9dac7
-```
+The current remote head may be later than the CI checkpoint due to continuity-only commits. Do not reset backward to the checkpoint; use the current branch after `git pull`.
 
 Rerun the probe using the already-known Steam Godot path:
 

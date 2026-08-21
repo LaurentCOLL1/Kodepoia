@@ -9,7 +9,7 @@ import pytest
 
 from kodepoia.brain.base import BrainMessage, BrainResponse
 from kodepoia.brain.ollama import OllamaClient
-from kodepoia.cli import _require_loopback_url
+from kodepoia.cli import _require_loopback_url, _validate_repeats
 from kodepoia.core.audit import AuditLog
 from kodepoia.intelligence.context import ContextBuilder
 from kodepoia.intelligence.memory import MemoryStore
@@ -99,6 +99,7 @@ def test_ollama_capability_payloads_streaming_images_and_unload() -> None:
             response_schema=schema,
             think=True,
             keep_alive="1m",
+            options={"seed": 101, "temperature": 0.0},
         )
         assert response.tool_calls
         payload = fixture.payloads[-1]
@@ -107,6 +108,7 @@ def test_ollama_capability_payloads_streaming_images_and_unload() -> None:
         assert payload["format"] == schema
         assert payload["think"] is True
         assert payload["keep_alive"] == "1m"
+        assert payload["options"] == {"seed": 101, "temperature": 0.0}
         assert payload["messages"][0]["images"] == ["BASE64_IMAGE"]
 
         chunks = list(client.stream_chat("core", [BrainMessage("user", "stream")]))
@@ -185,3 +187,11 @@ def test_r3_acceptance_requires_loopback_ollama() -> None:
     _require_loopback_url("http://[::1]:11434")
     with pytest.raises(SystemExit):
         _require_loopback_url("https://example.com:11434")
+
+
+def test_r3_acceptance_requires_four_to_eight_repetitions() -> None:
+    for repeats in (4, 5, 8):
+        _validate_repeats(repeats, acceptance=True)
+    for repeats in (3, 9):
+        with pytest.raises(SystemExit):
+            _validate_repeats(repeats, acceptance=True)

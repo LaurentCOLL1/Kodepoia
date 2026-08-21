@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from kodepoia.core.sandbox import SandboxResult
+from kodepoia.kodecode.api import KodeCodeToolAPI
 from kodepoia.kodecode.files import FileTool
 from kodepoia.kodecode.git_worktree import GitWorktreeTool
 from kodepoia.kodecode.patch import PatchTool
@@ -62,9 +63,9 @@ def test_files_and_search_are_workspace_scoped(tmp_path: Path) -> None:
 
 def test_patch_is_atomic_guarded_and_unambiguous(tmp_path: Path) -> None:
     target = tmp_path / "app.py"
-    target.write_text("value = 1\n", encoding="utf-8")
+    target.write_bytes(b"value = 1\r\nnext = 2\r\n")
     patch = PatchTool(WorkspaceBoundary(tmp_path))
-    expected = hashlib.sha256(b"value = 1\n").hexdigest()
+    expected = hashlib.sha256(target.read_bytes()).hexdigest()
 
     result = patch.replace_once(
         "app.py",
@@ -72,7 +73,7 @@ def test_patch_is_atomic_guarded_and_unambiguous(tmp_path: Path) -> None:
         new_text="value = 2",
         expected_sha256=expected,
     )
-    assert target.read_text(encoding="utf-8") == "value = 2\n"
+    assert target.read_bytes() == b"value = 2\r\nnext = 2\r\n"
     assert result.before_sha256 == expected
     assert result.replacements == 1
 
@@ -87,6 +88,21 @@ def test_patch_is_atomic_guarded_and_unambiguous(tmp_path: Path) -> None:
     target.write_text("x\nx\n", encoding="utf-8")
     with pytest.raises(ValueError, match="exactly one"):
         patch.replace_once("app.py", old_text="x", new_text="y")
+
+
+def test_structured_tool_api_catalog_and_read(tmp_path: Path) -> None:
+    (tmp_path / "hello.txt").write_text("hello", encoding="utf-8")
+    api = KodeCodeToolAPI(tmp_path)
+
+    names = {item["function"]["name"] for item in api.catalog()}
+    assert "kodecode_files_read" in names
+    assert "kodecode_patch_replace_once" in names
+    assert api.invoke("kodecode_files_read", {"path": "hello.txt"}) == {
+        "path": "hello.txt",
+        "content": "hello",
+    }
+    with pytest.raises(KeyError):
+        api.invoke("shell")
 
 
 def test_worktree_porcelain_parser_and_sandbox_dispatch(tmp_path: Path) -> None:

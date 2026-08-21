@@ -89,6 +89,7 @@ class OllamaClient:
         metrics = {
             key: data.get(key)
             for key in (
+                "done_reason",
                 "total_duration",
                 "load_duration",
                 "prompt_eval_count",

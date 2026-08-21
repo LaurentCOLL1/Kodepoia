@@ -42,22 +42,26 @@ Implementation and acceptance:
 
 ## R4.2 — Tree-sitter parser layer
 
-**Status: IMPLEMENTED ON `agent/r4-2-tree-sitter` / CI ACCEPTANCE PENDING.**
+**Status: ACCEPTED ON `agent/r4-2-tree-sitter` / MERGE PENDING.**
 
 Implementation:
 - [x] Optional `code` extra uses official `tree-sitter>=0.26,<0.27` Python runtime.
 - [x] Packaged grammar providers: Python 0.25.x, JavaScript 0.25.x, TypeScript/TSX 0.23.2.x.
-- [x] Provider-based `TreeSitterLanguageRegistry` with aliases and extension detection.
+- [x] Provider-based `TreeSitterLanguageRegistry` with aliases, extension detection and collision-safe dynamic registration.
 - [x] Capability discovery reports runtime version, supported ABI range, grammar ABI/semantic version and compatibility errors.
 - [x] ABI compatibility is enforced before a grammar is used.
 - [x] GDScript (`.gd`) is registered as an optional discoverable provider without an implicit source/Git dependency.
 - [x] `TreeSitterParserService` performs tolerant parsing and named-node extraction even when syntax contains errors.
 - [x] `IncrementalParseSession` uses `Tree.edit()` + `Parser.parse(old_tree=...)` and reports `changed_ranges`.
-- [x] `ParserTool` confines file parsing to `WorkspaceBoundary` and applies a maximum source-size limit.
+- [x] `ParserTool` confines file parsing to `WorkspaceBoundary` and applies source-size/node-count limits.
 - [x] Structured tools `kodecode_parser_capabilities` and `kodecode_parser_parse` are exposed through `KodeCodeToolAPI`.
 - [x] Tests parse Python, JavaScript, TypeScript and TSX with their real installed grammars.
-- [x] Tests cover malformed-source tolerance, incremental edits, changed ranges, provider discovery and structured invocation.
-- [ ] Final Repository Guard / Python Core Windows+Ubuntu / UI Smoke evidence on the R4.2 head.
+- [x] Tests cover malformed-source tolerance, incremental edits, changed ranges, provider discovery/extensibility and structured invocation.
+- [x] R0 Repository Guard run `32511222866` — SUCCESS on Ubuntu and Windows.
+- [x] Python Core run `32511222875` — SUCCESS on Ubuntu and Windows with `.[dev,code]`.
+- [x] KodeStudio UI Smoke run `32511222895` — SUCCESS on Windows.
+
+Acceptance head: `560cddc894a6a1a73ec725c2bb2419314b6cb7d5`.
 
 ### R4.2 dependency/ABI policy
 
@@ -69,7 +73,7 @@ Implementation:
 
 ## Remaining R4 work
 
-### R4.3 — LSP — PENDING
+### R4.3 — LSP — NEXT AFTER R4.2 MERGE
 - [ ] JSON-RPC transport abstraction.
 - [ ] Server lifecycle/capabilities.
 - [ ] document symbols / definitions / references / diagnostics baseline.
@@ -95,7 +99,7 @@ Implementation:
 
 ## Current acceptance decision
 
-R4 remains **IN PROGRESS**, not COMPLETE. R4.1 is accepted and merged on `main`. R4.2 is implemented but must remain **PENDING ACCEPTANCE** until the exact R4.2 head has green Repository Guard, Python Core on Windows+Ubuntu and KodeStudio UI Smoke. LSP/DAP/graphs/orchestration are still pending.
+R4 remains **IN PROGRESS**, not COMPLETE. R4.1 is accepted and merged on `main`. R4.2 has satisfied implementation, tests and cross-platform CI acceptance on its branch; PR #13 must still be merged before R4.2 becomes part of the `main` source of truth. LSP/DAP/graphs/orchestration remain pending.
 
 ## Reference research used for implementation
 

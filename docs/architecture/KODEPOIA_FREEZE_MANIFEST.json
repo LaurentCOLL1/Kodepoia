@@ -1,0 +1,29 @@
+{
+  "project": "Kodepoia",
+  "former_name": "FORGEGAMEDEV",
+  "architecture_version": "1.0",
+  "status": "FROZEN",
+  "freeze_date": "2026-08-21",
+  "documents": [
+    "docs/architecture/KODEPOIA_ARCHITECTURE_V1_0.md",
+    "docs/architecture/KODEPOIA_ARCHITECTURE_DECISIONS.md",
+    "docs/roadmap/KODEPOIA_ROADMAP_V1_0.md",
+    "docs/continuity/KODEPOIA_CONTINUITY.md"
+  ],
+  "foundation_priorities": [
+    "KodeGuardian",
+    "KodeSandbox",
+    "KodeSecrets",
+    "KodeHealth",
+    "KodeBudget"
+  ],
+  "principles": [
+    "local-first",
+    "platform-aware",
+    "safe-by-design",
+    "test-before-trust",
+    "persistent-memory",
+    "verified-learning",
+    "model-agnostic-core"
+  ]
+}

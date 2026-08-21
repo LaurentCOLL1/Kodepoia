@@ -42,7 +42,11 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          foreach ($script in @("scripts/r3_accept_local.ps1", "scripts/r5_accept_local.ps1")) {
+          foreach ($script in @(
+            "scripts/r3_accept_local.ps1",
+            "scripts/r5_accept_local.ps1",
+            "scripts/r5_diagnose_godot_process.ps1"
+          )) {
             $tokens = $null
             $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile(

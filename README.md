@@ -9,10 +9,15 @@ Kodepoia est un environnement local-first de conception et de développement ass
 - Architecture : **v1.0 — GELÉE**
 - Date de gel : **2026-08-21**
 - R0 — Repository & Governance : **COMPLETE**
-- Phase d'implémentation active : **R1 — KodeStudio minimal + Protected Core**
+- R1 — KodeStudio minimal + Protected Core : **COMPLETE**
+- R2 — Project Wizard + Project DNA + KodeProduct : **COMPLETE**
+- R3 — KodeBrain + Ollama + KodeMemory + KodeContext : **IMPLEMENTATION COMPLETE**
+- Phase suivante de la roadmap : **R4 — KodeCode / Code Graph + outils développeur**
 - Ancien nom de travail : `FORGEGAMEDEV`
 
-L'architecture est volontairement **model-agnostic** : KodeBrain est remplaçable et les modèles locaux concrets seront sélectionnés par KodeBench plutôt que figés dans la plateforme.
+> R3 est validé en CI Windows/Ubuntu. La sélection concrète des modèles Ollama reste volontairement non gelée jusqu'au benchmark local KodeBench sur la machine cible.
+
+L'architecture est volontairement **model-agnostic** : KodeBrain est remplaçable et les modèles locaux concrets sont sélectionnés par KodeBench plutôt que figés dans la plateforme.
 
 ## Principes non négociables
 
@@ -30,7 +35,7 @@ L'architecture est volontairement **model-agnostic** : KodeBrain est remplaçabl
 ## Priorités du cœur
 
 - **KodeGuardian** — policy/risk gate
-- **KodeSandbox** — exécution isolée
+- **KodeSandbox** — exécution contrôlée
 - **KodeSecrets** — secret broker et redaction
 - **KodeHealth** — score de santé du projet
 - **KodeBudget** — budgets techniques par plateforme
@@ -59,10 +64,13 @@ Documents de référence :
 - `docs/roadmap/KODEPOIA_ROADMAP_V1_0.md`
 - `docs/continuity/KODEPOIA_CONTINUITY.md`
 - `docs/roadmap/R0_STATUS.md`
+- `docs/roadmap/R1_STATUS.md`
+- `docs/roadmap/R2_STATUS.md`
+- `docs/roadmap/R3_STATUS.md`
 
 ## Workflow Git
 
-Les changements normaux passent par branches/worktrees et validation avant merge. `main` doit rester releasable et être protégé par règles/status checks lorsque les paramètres GitHub du dépôt le permettent.
+Les changements normaux passent par branches/worktrees et validation avant merge. `main` doit rester releasable.
 
 Branches :
 
@@ -77,14 +85,21 @@ Branches :
 
 Les binaires lourds sont destinés à Git LFS. Les poids de modèles IA (`*.gguf`, `*.safetensors`, checkpoints, etc.) sont exclus du dépôt Git et seront gérés par KodeModelRegistry.
 
-## Validation R0
+## Validation locale du repository
 
 ```powershell
 python -m pip install -r scripts/requirements-r0.txt
 ./scripts/check_repo.ps1
 ```
 
-Le bootstrap est également exécuté par GitHub Actions sur Windows et Ubuntu.
+Le bootstrap et la suite Python Core sont également exécutés par GitHub Actions sur Windows et Ubuntu.
+
+## R3 — diagnostic/benchmark Ollama local
+
+```powershell
+kodepoia ollama-status
+kodepoia bench-models --model <candidate1> --model <candidate2> --model <candidate3>
+```
 
 ## Sécurité
 

@@ -1,8 +1,15 @@
 # R1 — KodeStudio minimal + Protected Core — Status
 
 **Phase:** R1  
-**Status:** IMPLEMENTED — awaiting PR validation/merge  
-**Date:** 2026-08-21
+**Status:** COMPLETE  
+**Completed:** 2026-08-21
+
+## Validation evidence
+
+- PR #3 — `R1: implement Protected Core and minimal KodeStudio`.
+- Merge commit: `df324b1ad2a9b08fdc116eec0ff761c791e0c546`.
+- `Python Core`: SUCCESS on Windows and Ubuntu.
+- `R0 Repository Guard`: SUCCESS on Windows and Ubuntu.
 
 ## Implemented
 
@@ -22,8 +29,4 @@
 
 ## Security boundary note
 
-The R1 `ProcessSandbox` is intentionally documented as a restricted subprocess launcher, not as a claim of full OS/container isolation. It already enforces the application-layer controls required by R1. Stronger OS isolation remains an adapter behind KodeSandbox and can be hardened without changing the frozen architecture.
-
-## Acceptance
-
-The phase is complete when the R1 PR passes `Python Core` and the existing `R0 Repository Guard` on both Windows and Ubuntu, then merges into `main`.
+The R1 `ProcessSandbox` is intentionally a restricted subprocess launcher, not a claim of full OS/container isolation. Stronger OS isolation remains an adapter behind the KodeSandbox boundary and can be hardened without changing the frozen architecture.

@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Kodepoia R0 repository bootstrap validator.
-
-Runs locally and in CI without depending on Kodepoia runtime code.
-"""
+"""Kodepoia R0 repository bootstrap validator."""
 from __future__ import annotations
 
 import json
@@ -10,17 +7,18 @@ import re
 import sys
 from pathlib import Path
 
+try:
+    import yaml
+except ImportError as exc:
+    print("PyYAML is required for the R0 repository check.", file=sys.stderr)
+    print("Install with: python -m pip install -r scripts/requirements-r0.txt", file=sys.stderr)
+    raise SystemExit(2) from exc
+
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED = [
-    "README.md",
-    "CHANGELOG.md",
-    "LICENSE",
-    "SECURITY.md",
-    "CONTRIBUTING.md",
-    "CODE_OF_CONDUCT.md",
-    ".gitignore",
-    ".gitattributes",
+    "README.md", "CHANGELOG.md", "LICENSE", "SECURITY.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md",
+    ".gitignore", ".gitattributes", ".github/workflows/r0-bootstrap.yml", ".github/CODEOWNERS",
     "docs/architecture/KODEPOIA_ARCHITECTURE_V1_0.md",
     "docs/architecture/KODEPOIA_ARCHITECTURE_DECISIONS.md",
     "docs/architecture/KODEPOIA_FREEZE_MANIFEST.json",
@@ -29,21 +27,13 @@ REQUIRED = [
     "docs/roadmap/KODEPOIA_ROADMAP_V1_0.md",
     "docs/governance/BRANCHING_POLICY.md",
     "schemas/architecture-freeze.schema.json",
-    "src/kodestudio/.gitkeep",
-    "src/orchestrator/.gitkeep",
-    "src/brain/.gitkeep",
-    "src/core/guardian/.gitkeep",
-    "src/core/sandbox/.gitkeep",
-    "src/core/secrets/.gitkeep",
-    "src/quality/health/.gitkeep",
-    "src/quality/budget/.gitkeep",
-    "src/models/router/.gitkeep",
+    "src/kodestudio/.gitkeep", "src/orchestrator/.gitkeep", "src/brain/.gitkeep",
+    "src/core/guardian/.gitkeep", "src/core/sandbox/.gitkeep", "src/core/secrets/.gitkeep",
+    "src/quality/health/.gitkeep", "src/quality/budget/.gitkeep", "src/models/router/.gitkeep",
     "tests/.gitkeep",
 ]
 
-FORBIDDEN_NAMES = {
-    ".env", "id_rsa", "id_ed25519", "credentials.json", "secrets.json"
-}
+FORBIDDEN_NAMES = {".env", "id_rsa", "id_ed25519", "credentials.json", "secrets.json"}
 FORBIDDEN_SUFFIXES = {".pem", ".key", ".p12", ".pfx", ".keystore", ".gguf", ".safetensors", ".ckpt", ".pth", ".onnx"}
 LFS_SUFFIXES = {".blend", ".fbx", ".glb", ".psd", ".kra", ".exr", ".hdr", ".tif", ".tiff", ".wav", ".flac", ".mp4", ".mov", ".mkv", ".zip", ".7z"}
 TEXT_SUFFIXES = {".md", ".txt", ".py", ".ps1", ".json", ".yml", ".yaml", ".toml", ".ini", ".cfg", ".gd", ".cs", ".cpp", ".h", ".hpp", ".ts", ".tsx", ".js"}
@@ -53,7 +43,6 @@ SECRET_PATTERNS = [
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
 ]
 MAX_NON_LFS_BYTES = 10 * 1024 * 1024
-
 SKIP_SCAN = {"scripts/check_repo.py"}
 
 
@@ -72,16 +61,23 @@ def main() -> int:
         if not (ROOT / item).exists():
             fail(errors, f"missing required path: {item}")
 
-    # Validate JSON documents.
     for path in ROOT.rglob("*.json"):
         if ".git" in path.parts:
             continue
         try:
             json.loads(path.read_text(encoding="utf-8"))
-        except Exception as exc:  # noqa: BLE001 - bootstrap checker reports exact failure
+        except Exception as exc:
             fail(errors, f"invalid JSON {relative(path)}: {exc}")
 
-    # Validate freeze manifest invariants without an external jsonschema dependency.
+    for pattern in ("*.yml", "*.yaml"):
+        for path in ROOT.rglob(pattern):
+            if ".git" in path.parts:
+                continue
+            try:
+                yaml.safe_load(path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                fail(errors, f"invalid YAML {relative(path)}: {exc}")
+
     manifest_path = ROOT / "docs/architecture/KODEPOIA_FREEZE_MANIFEST.json"
     if manifest_path.exists():
         try:
@@ -91,14 +87,14 @@ def main() -> int:
             if manifest.get("status") != "FROZEN":
                 fail(errors, "freeze manifest status must be FROZEN")
             priorities = set(manifest.get("foundation_priorities", []))
-            required_priorities = {"KodeGuardian", "KodeSandbox", "KodeSecrets", "KodeHealth", "KodeBudget"}
-            missing = required_priorities - priorities
-            if missing:
+            expected = {"KodeGuardian", "KodeSandbox", "KodeSecrets", "KodeHealth", "KodeBudget"}
+            if missing := expected - priorities:
                 fail(errors, f"freeze manifest missing foundation priorities: {sorted(missing)}")
-        except Exception as exc:  # already reported above; keep standalone execution readable
+        except Exception as exc:
             fail(errors, f"cannot validate freeze manifest: {exc}")
 
-    attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8") if (ROOT / ".gitattributes").exists() else ""
+    attrs_path = ROOT / ".gitattributes"
+    attributes = attrs_path.read_text(encoding="utf-8") if attrs_path.exists() else ""
 
     for path in ROOT.rglob("*"):
         if not path.is_file() or ".git" in path.parts:

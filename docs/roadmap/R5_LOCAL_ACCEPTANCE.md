@@ -37,11 +37,26 @@ PR #28 must remain open until the report has been reviewed.
 - Windows target workstation.
 - Python 3.12 or newer.
 - Current Kodepoia checkout and development dependencies.
-- Godot **4.7.x** standard build. Another Godot family is rejected by the helper.
+- Godot **4.7.x** standard/editor build. Another Godot family is rejected by the helper.
 - For the complete acceptance only: matching Godot 4.7.x export templates capable of the `Windows Desktop` export preset.
 - TCP loopback ports 6005, 6006 and 6007 available, unless alternate distinct ports in the documented 1024–49151 range are supplied.
 
 The helper never accepts a remote host for LSP/DAP/debugging. The services are constructed against `127.0.0.1` only.
+
+## Known Godot 4.7 Windows startup latency
+
+The first real R5 probe on Windows 11 build 26220 with Godot `4.7.2.stable.steam.ed1daf0bf` showed that direct PowerShell version detection succeeded, while the sandboxed `--version` process was killed at the old 15-second timeout. The other four probe steps passed.
+
+This strongly matches upstream Godot issue `#120649`, where Godot 4.7 on Windows 11 build 26200-class systems can spend many seconds probing drives, especially disconnected/network drives. Upstream PR `#121192` avoids the problematic network-drive `GetVolumeInformationW` query and was merged to `master` with a `cherrypick:4.7` label.
+
+Kodepoia therefore does **not** bypass the version check. Instead, R5.6 now:
+- allows up to 90 seconds for the Godot version command;
+- keeps the global kill switch active;
+- reports timeout/cancellation state explicitly;
+- preserves only bounded non-secret desktop path environment variables needed by Godot (`APPDATA`, `LOCALAPPDATA`, `USERPROFILE`, home/XDG paths), while arbitrary parent secrets remain excluded;
+- prints direct PowerShell `Godot --version` startup duration.
+
+Do not run Godot as Administrator merely to make the probe pass. Do not disconnect drives, remove VPN/network mappings, or weaken Kodepoia security controls unless a later diagnosis explicitly asks for a safe test.
 
 ## 1. Synchronize the acceptance branch
 
@@ -98,7 +113,13 @@ python -m pip install -e ".[dev,code]"
 
 ## 3. Run the non-destructive preflight
 
-First try:
+For the current target workstation, the Godot executable is already known, so after synchronizing the branch run:
+
+```powershell
+.\scripts\r5_accept_local.ps1 -ProbeOnly -GodotPath "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
+```
+
+For another workstation or installation, first try:
 
 ```powershell
 .\scripts\r5_accept_local.ps1 -ProbeOnly
@@ -110,7 +131,7 @@ If Godot is not on `PATH`, provide its executable explicitly:
 .\scripts\r5_accept_local.ps1 -ProbeOnly -GodotPath "C:\path\to\Godot_v4.7.x-stable_win64.exe"
 ```
 
-The PowerShell helper verifies Python 3.12+, the exact R5.6 branch, Godot 4.7.x and the three loopback port bounds before invoking the Python probe.
+The PowerShell helper verifies Python 3.12+, the exact R5.6 branch, Godot 4.7.x and the three loopback port bounds before invoking the Python probe. It also prints the direct `Godot --version` startup duration.
 
 The probe creates only the disposable acceptance fixture and JSON report. It inspects the engine/project/GDScript/scene/export-preset metadata but does not run the complete import/capture/debug/export sequence.
 
@@ -127,11 +148,19 @@ A probe report intentionally contains:
 "probe_only": true
 ```
 
-This does not mean the probe failed. It means hardware acceptance has not yet been executed.
+This does not mean the probe failed. A successful probe also requires:
+
+```json
+"failed": 0
+```
+
+in the report summary.
+
+If `engine_version` still fails, send the full PowerShell output and JSON. The hardened error now includes whether the process actually timed out or was cancelled and the configured timeout value. Do not proceed to full acceptance until the probe has been reviewed.
 
 ## 4. Run the complete hardware acceptance
 
-After a successful probe:
+Only after a successful probe has been reviewed:
 
 ```powershell
 .\scripts\r5_accept_local.ps1
@@ -141,6 +170,12 @@ Or, when Godot is not on `PATH`:
 
 ```powershell
 .\scripts\r5_accept_local.ps1 -GodotPath "C:\path\to\Godot_v4.7.x-stable_win64.exe"
+```
+
+On the current target workstation the explicit command is:
+
+```powershell
+.\scripts\r5_accept_local.ps1 -GodotPath "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
 ```
 
 The full acceptance exercises:

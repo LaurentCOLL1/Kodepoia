@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import queue
+import threading
 from dataclasses import dataclass
 from typing import Any, BinaryIO
 
@@ -16,12 +18,7 @@ class FramingLimits:
 
 
 class ContentLengthJsonStream:
-    """LSP/DAP compatible Content-Length framed JSON stream.
-
-    LSP and DAP both use an ASCII header followed by a UTF-8 JSON body. This
-    codec is deliberately transport-only; protocol-specific request semantics
-    live in their respective clients.
-    """
+    """LSP/DAP compatible Content-Length framed JSON stream."""
 
     def __init__(
         self,
@@ -74,7 +71,10 @@ class ContentLengthJsonStream:
             if len(buffer) > self.limits.max_header_bytes:
                 raise ProtocolError("Protocol headers exceed limit")
 
-        header_text = bytes(buffer[:-4]).decode("ascii", errors="strict")
+        try:
+            header_text = bytes(buffer[:-4]).decode("ascii", errors="strict")
+        except UnicodeDecodeError as exc:
+            raise ProtocolError("Protocol headers must be ASCII") from exc
         headers: dict[str, str] = {}
         for line in header_text.split("\r\n"):
             if not line:
@@ -95,3 +95,49 @@ class ContentLengthJsonStream:
             chunks.append(chunk)
             remaining -= len(chunk)
         return b"".join(chunks)
+
+
+class FramedMessageChannel:
+    """Threaded reader around a framed stream with bounded receive timeouts."""
+
+    _CLOSED = object()
+
+    def __init__(self, stream: ContentLengthJsonStream) -> None:
+        self.stream = stream
+        self._incoming: queue.Queue[object] = queue.Queue()
+        self._write_lock = threading.Lock()
+        self._closed = threading.Event()
+        self._reader = threading.Thread(target=self._reader_loop, daemon=True, name="kodepoia-protocol-reader")
+        self._reader.start()
+
+    def send(self, message: dict[str, Any]) -> None:
+        if self._closed.is_set():
+            raise EOFError("Protocol channel is closed")
+        with self._write_lock:
+            self.stream.write(message)
+
+    def receive(self, timeout: float = 30.0) -> dict[str, Any]:
+        try:
+            item = self._incoming.get(timeout=timeout)
+        except queue.Empty as exc:
+            raise TimeoutError("Timed out waiting for protocol message") from exc
+        if item is self._CLOSED:
+            raise EOFError("Protocol channel closed")
+        if isinstance(item, BaseException):
+            raise item
+        if not isinstance(item, dict):
+            raise ProtocolError("Invalid queued protocol message")
+        return item
+
+    def close(self) -> None:
+        self._closed.set()
+
+    def _reader_loop(self) -> None:
+        try:
+            while not self._closed.is_set():
+                self._incoming.put(self.stream.read())
+        except (EOFError, OSError, ProtocolError) as exc:
+            if not self._closed.is_set():
+                self._incoming.put(exc)
+        finally:
+            self._incoming.put(self._CLOSED)

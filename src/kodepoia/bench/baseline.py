@@ -134,6 +134,29 @@ class BaselineBench:
             return None
         return float(count) / (float(duration) / 1_000_000_000.0)
 
+    def _runtime_metrics(self, model: str) -> dict[str, object]:
+        running_models = getattr(self.client, "running_models", None)
+        if not callable(running_models):
+            return {}
+        try:
+            running = running_models()
+        except BrainUnavailable:
+            return {}
+        for item in running:
+            if str(item.get("name")) != model:
+                continue
+            metrics: dict[str, object] = {}
+            for key in ("size", "size_vram", "expires_at"):
+                if key in item:
+                    metrics[f"ollama_{key}"] = item[key]
+            details = item.get("details")
+            if isinstance(details, dict):
+                for key in ("family", "parameter_size", "quantization_level"):
+                    if key in details:
+                        metrics[f"ollama_{key}"] = details[key]
+            return metrics
+        return {}
+
     def run(self, models: list[str]) -> list[BenchResult]:
         if len(models) < 2:
             raise ValueError("Baseline comparison requires at least two models")
@@ -183,6 +206,7 @@ class BaselineBench:
                 if tool_called is not None:
                     passed = passed and tool_called
                 metrics = dict(response.metrics or {})
+                metrics.update(self._runtime_metrics(model))
                 results.append(
                     BenchResult(
                         model=model,

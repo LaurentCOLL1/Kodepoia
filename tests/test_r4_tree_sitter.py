@@ -7,7 +7,11 @@ import tree_sitter
 
 from kodepoia.kodecode.api import KodeCodeToolAPI
 from kodepoia.kodecode.parser_tool import ParserTool
-from kodepoia.kodecode.parsing import TreeSitterLanguageRegistry, TreeSitterParserService
+from kodepoia.kodecode.parsing import (
+    LanguageProviderSpec,
+    TreeSitterLanguageRegistry,
+    TreeSitterParserService,
+)
 from kodepoia.kodecode.workspace import WorkspaceBoundary
 
 
@@ -21,6 +25,34 @@ def test_registry_detects_packaged_and_godot_languages() -> None:
     assert registry.detect_path("player.gd") == "gdscript"
     assert registry.resolve_id("py") == "python"
     assert registry.resolve_id("GD") == "gdscript"
+
+
+def test_registry_can_add_provider_and_rejects_collisions() -> None:
+    registry = TreeSitterLanguageRegistry([])
+    registry.register(
+        LanguageProviderSpec(
+            language_id="demo",
+            module_name="tree_sitter_demo",
+            factory_name="language",
+            extensions=("demo",),
+            aliases=("dm",),
+        )
+    )
+
+    assert registry.detect_path("sample.demo") == "demo"
+    assert registry.resolve_id("DM") == "demo"
+    assert registry.specs()[0].extensions == (".demo",)
+
+    with pytest.raises(ValueError, match="alias collision"):
+        registry.register(
+            LanguageProviderSpec(
+                language_id="other",
+                module_name="tree_sitter_other",
+                factory_name="language",
+                extensions=(".other",),
+                aliases=("dm",),
+            )
+        )
 
 
 def test_packaged_grammars_are_available_and_abi_compatible() -> None:

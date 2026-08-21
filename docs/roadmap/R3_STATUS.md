@@ -12,7 +12,10 @@ Original implementation:
 
 Acceptance hardening:
 - PR #8 — `R1-R3 Acceptance Hardening`.
-- Hardening is validated iteratively on Windows/Ubuntu with Repository Guard, Python Core and KodeStudio UI smoke.
+- Cold-load separation hardening validated at head `e07278744870f979ff9a128ee0b93de44717cdcc`.
+- R0 Repository Guard run `32491013632`: SUCCESS.
+- Python Core run `32491013932`: SUCCESS on Ubuntu and Windows, including PowerShell syntax and KodeStudio job.
+- KodeStudio UI Smoke run `32491013743`: SUCCESS on Windows.
 
 ## Implemented
 
@@ -33,7 +36,7 @@ Acceptance hardening:
 - [x] Role-aware repeated benchmark and JSON report.
 - [x] FAST 256 tokens/no thinking; CORE/CODER 1024 tokens/capability-aware thinking.
 - [x] Ollama `done_reason` retention and explicit `generation_budget_exhausted` detection.
-- [x] Cold-load separation: preload is measured separately from scored task correctness.
+- [x] Cold-load separation: preload measured separately from scored task correctness.
 - [x] Preload diagnostics: `avg_cold_load_s`, `avg_preload_elapsed_s`, `preload_failures`, `preload_timeouts`.
 - [x] `kodepoia r3-accept` local-only acceptance requiring two or three installed candidates and full-capability thinking-aware evaluation.
 - [x] Mocked Ollama API/benchmark tests.
@@ -53,17 +56,8 @@ Evidence: `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
 
 CORE v2 evidence: `.kodepoia/benchmarks/r3-preselect-core-v2.json`, target workstation, five repeats, `num_predict=1024`.
 
-`qwen3.5:9b`:
-- 25/40, score 0.625 x5;
-- 54.609 tok/s;
-- 15 deterministic `generation_budget_exhausted` cases.
-
-`gpt-oss:20b`:
-- 40/40, score 1.0 x5;
-- 15.399 tok/s;
-- all eight categories 5/5;
-- 0 errors, 0 budget exhaustions;
-- cold-load about 90.985 s.
+- `qwen3.5:9b`: 25/40, 0.625 x5, 54.609 tok/s, 15 deterministic generation-budget exhaustions.
+- `gpt-oss:20b`: 40/40, 1.0 x5, 15.399 tok/s, all eight categories 5/5, 0 errors, 0 budget exhaustions, cold-load ~90.985 s.
 
 **Provisional KodeCore winner: `gpt-oss:20b`.**
 
@@ -73,31 +67,30 @@ Evidence: `.kodepoia/benchmarks/r3-preselect-coder.json`, five repeats, `num_pre
 
 `qwen2.5-coder:7b-instruct`:
 - 30/40, 0.750 x5, 82.296 tok/s;
-- core coding/Godot/GDScript/debug/JSON tasks pass 5/5;
+- coding/Godot/GDScript/debug/JSON tasks pass 5/5;
 - native tool calling 0/5;
 - software-engineering worktree 0/5 (`Git Subtree`).
 
 `devstral-small-2:24b`:
-- raw 30/40;
-- 3.968 tok/s;
+- raw 30/40, 3.968 tok/s;
 - first repetition contains five consecutive 120 s timeouts;
 - software-engineering worktree 0/5 (`sparse checkout`).
 
 `north-mini-code-1.0:Q4_K_M`:
 - raw 35/40, apparent 0.875 x5, 12.838 tok/s;
 - Python/Godot/GDScript/debug/structured/native-tools/worktree all 5/5;
-- raw exact-instruction 0/5 consists entirely of 120 s timeouts on the **first task after unload**, followed by successful warm tasks;
+- raw exact-instruction 0/5 consists entirely of 120 s timeouts on the first task after unload, followed by successful warm tasks;
 - about 10.03 GB resident VRAM observed while running.
 
-CODER v1 therefore exposed a **cold-load scoring bias**. North is the substantive coding leader but cannot be declared final from the raw 0.875 score.
+CODER v1 exposed a cold-load scoring bias. North is the substantive coding leader but cannot be declared final from the raw 0.875 score.
 
-### Cold-load benchmark hardening — implementation complete, CI validation required
+### Cold-load benchmark hardening — VALIDATED
 
-The benchmark now preloads each model using an unscored empty Ollama chat request before any scored task. Preload uses a dedicated 240 s timeout. Its cost remains in end-to-end timing and cold-load metrics, but does not automatically become a knowledge failure. Tests explicitly verify that preload failure and task correctness are separate dimensions.
+The benchmark now preloads each model using an unscored empty Ollama chat request before any scored task. Preload uses a dedicated 240 s timeout. Its cost remains in end-to-end timing/cold-load metrics but no longer automatically becomes a knowledge failure. Tests explicitly verify that preload failure and task correctness are separate dimensions.
 
-## Next hardware step — CODER v2 after CI green
+## Next hardware step — CODER v2 AUTHORIZED
 
-Do not rerun Devstral/Qwen2.5-Coder as default contenders. Compare the two realistic agentic finalists under the corrected cold-load policy:
+Compare the two realistic agentic finalists under the corrected cold-load policy:
 
 ```powershell
 python -m kodepoia.cli bench-models --role coder --repeats 5 --model "gpt-oss:20b" --model "north-mini-code-1.0:Q4_K_M" --output ".kodepoia/benchmarks/r3-preselect-coder-v2.json"
@@ -108,10 +101,10 @@ Do not run official `r3-accept` until CODER v2 is reviewed.
 ## Remaining hardware-local acceptance
 
 R3 remains intentionally incomplete until:
-1. cold-load hardening CI is green;
-2. CODER v2 is reviewed;
-3. 2–3 final candidates are selected;
-4. official target-PC `r3-accept` is generated and reviewed.
+1. CODER v2 is reviewed;
+2. 2–3 final candidates are selected;
+3. official target-PC `r3-accept` is generated and reviewed;
+4. final selected roles are documented and CI is green.
 
 Prepared runner:
 

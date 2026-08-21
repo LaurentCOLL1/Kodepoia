@@ -61,6 +61,7 @@ def _benchmark_metadata(
     *,
     role: BenchmarkRole | None = None,
     repeats: int = 1,
+    num_predict: int = BaselineBench.FAST_NUM_PREDICT,
 ) -> dict[str, object]:
     metadata: dict[str, object] = {
         "phase": phase,
@@ -74,7 +75,7 @@ def _benchmark_metadata(
         "generation_controls": {
             "seed_base": 101,
             "temperature": 0.0,
-            "num_predict": 256,
+            "num_predict": num_predict,
         },
     }
     if role is not None:
@@ -113,7 +114,13 @@ def _bench_models(args: argparse.Namespace) -> int:
     candidates = list(dict.fromkeys(args.model))
     _validate_installed_candidates(client, candidates)
     role = BenchmarkRole(args.role)
-    results = BaselineBench(client).run(candidates, role=role, repeats=args.repeats)
+    num_predict = BaselineBench.num_predict_for_role(role)
+    results = BaselineBench(client).run(
+        candidates,
+        role=role,
+        repeats=args.repeats,
+        num_predict=num_predict,
+    )
     output = Path(args.output)
     BaselineBench.save(
         results,
@@ -124,6 +131,7 @@ def _bench_models(args: argparse.Namespace) -> int:
             "baseline",
             role=role,
             repeats=args.repeats,
+            num_predict=num_predict,
         ),
     )
     print(
@@ -132,6 +140,7 @@ def _bench_models(args: argparse.Namespace) -> int:
                 "output": str(output),
                 "role": role.value,
                 "repeats": args.repeats,
+                "num_predict": num_predict,
                 "summary": BaselineBench.summarize(results),
             },
             ensure_ascii=False,
@@ -149,24 +158,35 @@ def _r3_accept(args: argparse.Namespace) -> int:
         raise SystemExit("R3 local acceptance requires exactly two or three distinct models")
     client = OllamaClient(args.url)
     _validate_installed_candidates(client, candidates)
-    results = BaselineBench(client).run(candidates, repeats=args.repeats)
+    acceptance_role = BenchmarkRole.CORE
+    num_predict = BaselineBench.num_predict_for_role(acceptance_role)
+    results = BaselineBench(client).run(
+        candidates,
+        role=acceptance_role,
+        repeats=args.repeats,
+        num_predict=num_predict,
+    )
     output = Path(args.output)
     metadata = _benchmark_metadata(
         client,
         candidates,
         "R3-local-acceptance",
+        role=acceptance_role,
         repeats=args.repeats,
+        num_predict=num_predict,
     )
     metadata["acceptance_completed"] = True
     metadata["candidate_count"] = len(candidates)
     metadata["ollama_url"] = args.url
     metadata["loopback_verified"] = True
+    metadata["acceptance_profile"] = "full-capability-thinking-aware"
     BaselineBench.save(results, output, metadata=metadata)
     payload = {
         "R3_local_acceptance": "COMPLETED",
         "output": str(output),
         "candidates": candidates,
         "repeats": args.repeats,
+        "num_predict": num_predict,
         "summary": BaselineBench.summarize(results),
     }
     print(json.dumps(payload, ensure_ascii=False, indent=2))
@@ -211,7 +231,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--role",
         choices=[item.value for item in BenchmarkRole],
         default=BenchmarkRole.BASELINE.value,
-        help="FAST disables thinking for latency; CORE/CODER auto-enable supported thinking",
+        help="FAST disables thinking; CORE/CODER enable supported thinking with a larger output budget",
     )
     bench.add_argument(
         "--repeats",

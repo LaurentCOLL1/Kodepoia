@@ -1,8 +1,15 @@
 # R3 — KodeBrain + Ollama + KodeMemory + KodeContext — Status
 
 **Phase:** R3  
-**Status:** IMPLEMENTED — cross-platform CI plus local-Ollama acceptance required  
-**Date:** 2026-08-21
+**Status:** IMPLEMENTATION COMPLETE — LOCAL MODEL BENCHMARK PENDING  
+**Completed in CI:** 2026-08-21
+
+## Validation evidence
+
+- PR #5 — `R3: implement KodeBrain, Memory, Context and ModelRouter`.
+- Merge commit: `b5e61dea1d50ccfc8ffff6f1e525f95a39b8096f`.
+- GitHub Actions Python Core run `32436947731`: SUCCESS on Windows and Ubuntu.
+- GitHub Actions R0 Repository Guard run `32436947869`: SUCCESS on Windows and Ubuntu.
 
 ## Implemented
 
@@ -17,16 +24,16 @@
 - [x] KodeOrchestrator chat path joining routing, context, memory, Ollama and audit.
 - [x] `kodepoia ollama-status` local diagnostic.
 - [x] `kodepoia bench-models` baseline comparison runner and JSON output.
-- [x] Model-role example configuration with 12 GB sequential-heavy-model policy.
-- [x] Mocked API tests ensure CI does not require an Ollama daemon or downloaded model.
+- [x] Sequential-heavy-model routing policy example.
+- [x] Mocked Ollama API tests so CI does not require an Ollama daemon or downloaded model.
 
-## Hardware-local acceptance
+## Remaining hardware-local acceptance
 
-GitHub Actions cannot benchmark the models installed on the user's Windows/Radeon workstation. Therefore R3 code can be merged after CI, but the **model selection is intentionally not frozen** until the following is run locally with at least two (preferably three) installed Ollama candidates:
+GitHub Actions cannot benchmark the actual Ollama models installed on the target workstation. Concrete model assignment therefore remains intentionally unfrozen until at least two, preferably three, candidates are benchmarked locally:
 
 ```powershell
 kodepoia ollama-status
 kodepoia bench-models --model <candidate1> --model <candidate2> --model <candidate3>
 ```
 
-This is consistent with the frozen decision that KodeBrain remains model-agnostic and KodeBench selects concrete models from measured results rather than assumptions.
+This does **not** invalidate the R3 implementation: the model-agnostic runtime, router, memory, context and benchmark harness are complete and cross-platform validated. It preserves the frozen rule that concrete models are selected from measured local results rather than assumptions.

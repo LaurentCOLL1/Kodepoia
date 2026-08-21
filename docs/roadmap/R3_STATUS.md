@@ -1,7 +1,7 @@
 # R3 — KodeBrain + Ollama + KodeMemory + KodeContext — Status
 
 **Phase:** R3  
-**Status:** IMPLEMENTATION COMPLETE — HARDWARE-LOCAL ACCEPTANCE PENDING  
+**Status:** COMPLETE — HARDWARE-LOCAL ACCEPTANCE PASSED  
 **Updated:** 2026-08-21
 
 ## Validation evidence
@@ -12,8 +12,8 @@ Original implementation:
 
 Acceptance hardening:
 - PR #8 — `R1-R3 Acceptance Hardening`.
-- Cold-load separation hardening validated before CODER v2.
-- R0 Repository Guard, Python Core Ubuntu/Windows and KodeStudio UI Smoke were green on the validated hardening head.
+- Role-aware repeated benchmark, strict validators, thinking-budget diagnostics and cold-load/preload separation are implemented and CI-covered.
+- Final target-workstation evidence: `.kodepoia/benchmarks/r3-local-acceptance.json` generated on 2026-08-21.
 
 ## Implemented
 
@@ -30,103 +30,87 @@ Acceptance hardening:
 - [x] Cold-load separated from scored correctness with unscored preload and dedicated timeout.
 - [x] `kodepoia r3-accept` local-only acceptance path and Windows runner.
 
-## Local preselection evidence
+## Preselection decisions
 
-### FAST — completed
+- KodeFast candidate: `granite4.1:3b`.
+- KodeCore candidate: `gpt-oss:20b`.
+- KodeCoder candidate: `ornith:9b`.
+- Future optional `KodeDeepCoder` candidate: `north-mini-code-1.0:Q4_K_M` for later repository-scale/long-horizon evaluation.
 
-Evidence: `.kodepoia/benchmarks/r3-preselect-fast-v2.json`.
+## Official R3 hardware-local acceptance — PASSED
 
-- `granite4.1:3b`: 28/32, 0.875 x4, 129.512 tok/s.
-- `qwen3.5:4b`: 28/32, 0.875 x4, 80.690 tok/s.
+Evidence: `.kodepoia/benchmarks/r3-local-acceptance.json`.
 
-**Provisional KodeFast winner: `granite4.1:3b`.**
+Environment:
+- Windows 11 target workstation;
+- Python 3.12.4;
+- Ollama 0.32.14;
+- local loopback endpoint `http://127.0.0.1:11434` verified;
+- 5 repetitions per finalist;
+- `temperature=0`;
+- `num_predict=1024`;
+- acceptance profile `full-capability-thinking-aware`.
 
-### CORE — completed
+Structural acceptance metadata passed:
+- `phase == R3-local-acceptance`;
+- `acceptance_completed == true`;
+- `candidate_count == 3`;
+- `loopback_verified == true`;
+- all selected finalists present in the benchmark summary.
 
-Evidence: `.kodepoia/benchmarks/r3-preselect-core-v2.json`.
+### Accepted KodeFast — `granite4.1:3b`
 
-- `qwen3.5:9b`: 25/40, 0.625 x5, 54.609 tok/s, 15 bounded-thinking generation-budget exhaustions.
-- `gpt-oss:20b`: 40/40, 1.0 x5, 15.399 tok/s, all eight categories 5/5, 0 errors/budget exhaustions, cold-load ~90.985 s.
+- 35/40, score **0.875 x5**, score stddev 0.0;
+- 131.366 tok/s;
+- 24.089 s average scored repeat;
+- 16.294 s average preload/cold-load;
+- exact/Python/Godot/GDScript/debug/structured-output/native-tools: 5/5 each;
+- software-engineering/worktree: 0/5;
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions.
 
-**Provisional KodeCore winner: `gpt-oss:20b`.**
+Acceptance rationale: the role is intentionally FAST/routing/lightweight. It is not trusted for repository-workflow decisions such as Git worktree; those tasks must route to CORE/CODER. Its measured latency/throughput and seven reliable categories make it suitable for the intended role.
 
-### CODER v1 — diagnostic completed
+### Accepted KodeCore — `gpt-oss:20b`
 
-Evidence: `.kodepoia/benchmarks/r3-preselect-coder.json`.
+- **40/40, score 1.000 x5**, score stddev 0.0;
+- 15.909 tok/s;
+- 152.993 s average scored repeat;
+- 90.435 s average preload/cold-load;
+- all eight categories 5/5 including structured output, real tool calling and software-engineering/worktree;
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions;
+- thinking mode `medium`.
 
-- Qwen2.5-Coder: fast but native tools 0/5 and worktree 0/5.
-- Devstral 24B: ~3.968 tok/s and worktree 0/5; impractical default on target hardware.
-- North Mini Code: substantive leader, but old raw score was contaminated by first-task cold-load timeouts.
+Acceptance rationale: perfect repeatable capability evidence for reasoning/general engineering. KodeVRAM/keep-alive should avoid unnecessary reload churn because cold-load is expensive.
 
-This triggered the preload/cold-load hardening.
+### Accepted KodeCoder — `ornith:9b`
 
-### CODER v2 — completed / decision made
+- **40/40, score 1.000 x5**, score stddev 0.0;
+- **64.512 tok/s**;
+- **53.149 s average scored repeat**;
+- **36.116 s average preload/cold-load**;
+- all eight categories 5/5 including structured output, real tool calling and software-engineering/worktree;
+- 0 errors, 0 preload failures/timeouts, 0 budget exhaustions;
+- Ollama reports about 6.31 GB model and 6.31 GB resident VRAM, so it fits fully in the target 12 GB VRAM;
+- thinking enabled.
 
-Evidence: `.kodepoia/benchmarks/r3-preselect-coder-v2.json`.
+Acceptance rationale: perfect repeatable capability evidence with substantially better latency and memory fit than the heavier coding finalists.
 
-Target workstation: Windows 11, Python 3.12.4, Ollama 0.32.14, five repeats, `benchmark_role=coder`, `temperature=0`, `num_predict=1024`.
+## Accepted R3 model roles
 
-`gpt-oss:20b`:
-- 40/40, 1.0 x5;
-- 15.611 tok/s;
-- 162.613 s average scored repeat;
-- 98.403 s average preload;
-- all eight categories 5/5;
-- 0 errors/preload failures/timeouts/budget exhaustions.
+- `KodeFast` → `granite4.1:3b`
+- `KodeCore` → `gpt-oss:20b`
+- `KodeCoder` → `ornith:9b`
 
-`north-mini-code-1.0:Q4_K_M`:
-- 40/40, 1.0 x5;
-- 18.330 tok/s;
-- 201.761 s average scored repeat;
-- 114.093 s average preload;
-- all eight categories 5/5;
-- 0 errors/preload failures/timeouts/budget exhaustions;
-- ~10.03 GB resident VRAM.
+Routing constraint: Git/repository-management and other non-trivial software-engineering decisions must not be delegated to Granite because the final acceptance reproduced its 0/5 worktree weakness. Route those tasks to Ornith or GPT-OSS.
 
-`ornith:9b`:
-- **40/40, 1.0 x5**;
-- **64.430 tok/s**;
-- **53.863 s average scored repeat**;
-- **36.418 s average preload**;
-- all eight categories 5/5, including structured output, true tool calling and worktree;
-- 0 errors/preload failures/timeouts/budget exhaustions;
-- ~6.31 GB model and ~6.31 GB resident VRAM.
+The architecture remains model-agnostic: these are the accepted local defaults for the current target workstation, not permanent architectural dependencies.
 
-`laguna-xs-2.1:Q4_K_M`:
-- 25/40, 0.625 x5;
-- 19.950 tok/s;
-- structured output 0/5, native tools 0/5, worktree 0/5 under current Ollama chat integration;
-- removed from R3 final selection.
+## Completion rule result
 
-**Provisional KodeCoder winner: `ornith:9b`.**
+All R3 functional and hardware-local acceptance criteria are satisfied. R3 is therefore **COMPLETE** on the hardening branch.
 
-North remains a future `KodeDeepCoder`/long-horizon repository candidate; GPT-OSS remains a valid coding fallback/reviewer.
-
-## Final R3 acceptance candidates
-
-The measured role finalists are now:
-
-- `granite4.1:3b` — KodeFast
-- `gpt-oss:20b` — KodeCore
-- `ornith:9b` — KodeCoder
-
-## Remaining hardware-local acceptance
-
-R3 remains intentionally incomplete until:
-1. the official target-PC acceptance is run with the three finalists above;
-2. `.kodepoia/benchmarks/r3-local-acceptance.json` is structurally validated and technically reviewed;
-3. selected roles are recorded as accepted;
-4. final CI is green;
-5. PR #8 is safe to merge.
-
-Prepared command from repository root after pulling the latest hardening branch:
-
-```powershell
-.\scripts\r3_accept_local.ps1 -Model "granite4.1:3b","gpt-oss:20b","ornith:9b"
-```
-
-Default acceptance performs five repetitions with the full-capability thinking-aware profile and `num_predict=1024`.
-
-## Completion rule
-
-R3 becomes `COMPLETE` only after the final local acceptance report is reviewed and acceptable, final documentation/CI are green, and PR #8 is safe to merge. R4 must not begin before R3 is accepted.
+Final sequence before R4:
+1. run final CI for the acceptance-documentation head;
+2. merge PR #8 only if final CI is green;
+3. verify `main` after merge;
+4. only then begin R4.

@@ -343,7 +343,7 @@ class LocalDocumentAdapter:
             except yaml.YAMLError:
                 return self._unavailable("invalid_yaml")
 
-        relative = self._boundary.relative(target).as_posix()
+        relative = self._boundary.relative(target)
         locator = canonical_locator or f"project:///{quote(relative, safe='/')}"
         freshness = self._freshness(
             source_kind=source_kind,
@@ -493,7 +493,7 @@ class OfficialDocsAdapter:
                 reason="not_found",
             )
         project_relative = self._project_boundary.relative(target)
-        official_relative = snapshot_boundary.relative(target).as_posix()
+        official_relative = snapshot_boundary.relative(target)
         locator = f"{entry.canonical_base_url}/{quote(official_relative, safe='/')}"
         return self._local.research(
             project_relative,

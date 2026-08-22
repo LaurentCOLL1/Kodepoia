@@ -65,6 +65,10 @@ class ResearchStore:
         self._require_initialized_project()
         return ResearchRequest.from_dict(self._read_object(self._typed_path("requests", request_id)))
 
+    def has_artifact(self, artifact_id: str) -> bool:
+        self._require_initialized_project()
+        return self._typed_path("artifacts", artifact_id).is_file()
+
     def save_artifact(self, artifact: ResearchArtifact) -> Path:
         self._require_initialized_project()
         path = self._typed_path("artifacts", artifact.artifact_id)

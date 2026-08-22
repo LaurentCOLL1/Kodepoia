@@ -1,4 +1,4 @@
-"""Quality, health, budget, test, regression, visual QA and accessibility primitives."""
+"""Quality, health, budget, test, regression, visual QA, accessibility and localization primitives."""
 
 from kodepoia.quality.accessibility import (
     AccessibilityReport,
@@ -29,6 +29,18 @@ from kodepoia.quality.health import (
     HealthStatus,
     HealthStore,
     KodeHealth,
+)
+from kodepoia.quality.localization import (
+    KodeLocalization,
+    LocaleCatalog,
+    LocalizationReport,
+    LocalizationResult,
+    LocalizationSeverity,
+    LocalizationStatus,
+    LocalizationStore,
+    LocalizedMessage,
+    pseudo_catalog,
+    pseudo_localize_text,
 )
 from kodepoia.quality.regression import (
     KodeRegression,
@@ -82,9 +94,17 @@ __all__ = [
     "KodeAccessibility",
     "KodeBudget",
     "KodeHealth",
+    "KodeLocalization",
     "KodeRegression",
     "KodeTests",
     "KodeVisualQA",
+    "LocaleCatalog",
+    "LocalizationReport",
+    "LocalizationResult",
+    "LocalizationSeverity",
+    "LocalizationStatus",
+    "LocalizationStore",
+    "LocalizedMessage",
     "PlatformBudgetSpec",
     "RegressionChange",
     "RegressionEntry",
@@ -104,4 +124,6 @@ __all__ = [
     "VisualReport",
     "VisualStatus",
     "VisualStore",
+    "pseudo_catalog",
+    "pseudo_localize_text",
 ]

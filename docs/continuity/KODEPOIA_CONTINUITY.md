@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R5 sont COMPLETE. R6 est IN PROGRESS. R6.1–R6.11 sont COMPLETE. R6.12 — Major-patch validation + rollback gate and R6 integration acceptance est NEXT / NOT STARTED après fusion de la normalisation post-R6.11.** R6.11 a démarré depuis le main normalisé `36524978a963d8c759d36902bc1ab00989da0549`, a été accepté sur le head net `d0590ed3eda663ad713fc36d962c8dac1df109eb`, avec R0 #885 `32578903951`, Python Core #859 `32578903981` cinq jobs et UI Smoke #826 `32578903942` SUCCESS, puis PR #54 fusionnée avec verrou exact-head en `248b1331fe2b26229b932c36aefb83c70065c52a`. R6.11 fournit BOM/licences/provenance/hashes, resolved/unresolved/N/A, declared/concluded licence, `SPDX_EXPRESSION/NOASSERTION/NONE`, `LicenseRef-*`, politique allow/warn/deny/unknown, Health dependencies/licenses, cas R6.3 et stores WorkspaceBoundary. Les plages restent unresolved, N/A reste neutral/UNKNOWN/SKIP, recorded hash ≠ verified, aucune licence ou compatibilité juridique n'est inventée. Manual R6.11 = CONDITIONAL NOT TRIGGERED. Lire `R6_PLAN.md`, `R6_STATUS.md`, `R6_11_DESIGN.md`, `R6_11_ACCEPTANCE.md`, l'architecture gelée et ce fichier. R6.12 doit réutiliser SafeChange/Backup/Recovery/Audit/Guardian et toutes les preuves R6 existantes, pas créer un second système de rollback. R7 est interdit avant R6 COMPLETE; au démarrage de R7, créer/fusionner `R7_PLAN.md` exhaustif avant R7.1.
+> Kodepoia, architecture v1.0 gelée. **R1–R5 sont COMPLETE. R6 est IN PROGRESS. R6.1–R6.11 sont COMPLETE. R6.12 — Major-patch validation + rollback gate and R6 integration acceptance est IN PROGRESS sur `feature/r6-12-major-patch-gate` depuis le main normalisé `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`.** R6.11 a été accepté sur le head net `d0590ed3eda663ad713fc36d962c8dac1df109eb`, avec R0 #885 `32578903951`, Python Core #859 `32578903981` cinq jobs et UI Smoke #826 `32578903942` SUCCESS, PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; normalisation #55 head `f4c2926e2e656940ab987a2af8c8af953e671e4c`, R0 #892, Python Core #866 cinq jobs et UI #833 SUCCESS, merge `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`. R6.12 implémente classification major/minor déterministe, matrice de gates R6, exact base/head SHA, rollback obligatoire, rehearsal fixture-only réutilisant SafeChange/Backup/Recovery/Audit, report anti-tamper, Health/R6.3, et rapport intégré R6.1–R6.12. Les tests stricts exigent que toute preuve mesurée d'un gate requis soit liée au head exact + digest et qu'une subdivision PASS porte son accepted head; R6.12 doit égaler le source SHA intégré. Manual R6.12 = CONDITIONAL NOT TRIGGERED tant que hosted CI + fixture temporaire prouvent les propriétés. Lire `R6_PLAN.md`, `R6_STATUS.md`, `R6_12_DESIGN.md`, `R6_12_ACCEPTANCE.md`, l'architecture gelée et ce fichier. Ne pas commencer R7 avant R6 COMPLETE; au démarrage de R7, créer/fusionner `R7_PLAN.md` exhaustif avant R7.1.
 
 ## Source de vérité et état
 
@@ -23,8 +23,8 @@
 - R6.8 : COMPLETE — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`; wording #49 `616899291fc3b4dc40695415a5008d6fdd599230`; manual CONDITIONAL NOT TRIGGERED.
 - R6.9 : COMPLETE — head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 `4df229e431d2d54e4268607f38bac4045ac590d1`; manual NONE.
 - R6.10 : COMPLETE — head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; normalization #53 `36524978a963d8c759d36902bc1ab00989da0549`; manual NONE.
-- R6.11 : COMPLETE — accepted head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; R0 #885, Python #859 5/5, UI #826 SUCCESS; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; manual CONDITIONAL NOT TRIGGERED; post-merge normalization active on `feature/r6-11-post-merge-normalization`.
-- R6.12 : NEXT / NOT STARTED after normalization merge — manual CONDITIONAL.
+- R6.11 : COMPLETE — accepted head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; R0 #885, Python #859 5/5, UI #826 SUCCESS; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; normalization #55 merge `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`; manual CONDITIONAL NOT TRIGGERED.
+- R6.12 : IN PROGRESS — branch `feature/r6-12-major-patch-gate`; starting normalized main `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`; manual CONDITIONAL NOT TRIGGERED.
 - R7–R16 : PENDING.
 
 ## Accepted model roles
@@ -61,22 +61,41 @@ Préserver `WorkspaceBoundary`, `ProcessSandbox` + KillSwitch, Guardian + `Permi
 - Current Kodepoia manifest legitimately produces WARN dependency resolution/integrity until exact artifacts are available.
 - SPDX 3.0 family is frozen R6 baseline; 3.0.1 is current patch-level interoperability reference; CycloneDX 1.7 is optional context only. No legal or official-conformance claim.
 
-## R6.12 frozen execution contract
+## R6.12 current execution contract
 
-R6.12 must make “tout patch majeur a validation + rollback” enforceable and then close R6. Required design constraints:
+1. deterministic major/minor classification from changed path/domain/operation/risk/platform, never free model opinion;
+2. patch report tied to exact base/head SHAs;
+3. required validation matrix selected from changed domains and target platforms using existing R6 gates;
+4. major classification always adds rollback, regression and technical-debt validation;
+5. required fail/missing/skip/cancelled/N/A evidence fails closed; WARN remains WARN;
+6. strict hardening tests require measured required evidence to provide exact `source_sha=head_sha` plus `evidence_sha256`;
+7. major patch cannot PASS without explicit rollback strategy and PASS rehearsal;
+8. rehearsal requires `.kodepoia-r6-rollback-fixture`, rejects escaped targets/support tree overlap and operates only on disposable fixture;
+9. reuse existing `SafeChangeManager`, `BackupManager`, `RecoveryJournal`, `AuditLog`, `WorkspaceBoundary`; no parallel rollback engine;
+10. full fixture file set and SHA-256 hashes before/after must match; backup verifies; checkpoint clears; audit chain verifies;
+11. patch report and integrated R6 report have schemas and canonical SHA-256 anti-tamper binding;
+12. integrated R6 PASS requires R6.1–R6.12 evidence, manual satisfaction, accepted heads, and R6.12 accepted head matching integration `source_sha`;
+13. Health and stable R6.3 adapters expose patch-gate evidence without fake PASS;
+14. no arbitrary shell/argv/cwd/host/network field and no real-project destructive rehearsal.
 
-1. deterministic major/minor classification from changed scope/risk, never free model opinion;
-2. patch manifest tied to exact base/head SHAs;
-3. validation matrix selected by changed domains and target platforms: tests, regression, visual, accessibility, localization, technical debt, build/CI, security, privacy, license/BOM, Health/Budget as applicable;
-4. major patch cannot PASS without explicit rollback strategy;
-5. missing, failed, skipped or cancelled required evidence blocks acceptance;
-6. sensitive mutable changes use existing SafeChange snapshots; rollback/recovery should reuse existing `SafeChangeManager`, `BackupManager`, `RecoveryJournal` and `AuditLog` rather than introduce parallel mechanisms;
-7. controlled rollback rehearsal restores expected files/state/hashes in a safe fixture;
-8. no destructive production rollback rehearsal and no Guardian bypass;
-9. integrated R6 report enumerates evidence from R6.1–R6.12 and rejects stale/wrong-SHA evidence;
-10. all R6 regression suites and final R0/Python Core/UI gates must be green before R6 COMPLETE.
+The first strict diagnostic is allowed to fail if these hardening tests reveal a false-green path; fix the proven defect rather than weakening tests or acceptance semantics.
 
-Manual R6.12 remains **CONDITIONAL**. Prefer hosted/temp-fixture proof. Trigger user intervention only if an acceptance-critical property truly depends on local hardware or an explicit Guardian/user approval that hosted CI cannot prove.
+## External reference context for R6.12
+
+- SLSA v1.2 remains the current approved SLSA specification. Its provenance model is reference context for source/revision traceability only; Kodepoia does not claim a SLSA level from R6.12.
+- CycloneDX 1.7 remains stable BOM interoperability context and does not replace the frozen SPDX/BOM decisions already accepted in R6.11.
+
+## Manual forecast
+
+- R6.4 REQUIRED SATISFIED.
+- R6.5 REQUIRED SATISFIED.
+- R6.6 NONE COMPLETE.
+- R6.7 NONE COMPLETE.
+- R6.8 CONDITIONAL NOT TRIGGERED.
+- R6.9 NONE COMPLETE.
+- R6.10 NONE COMPLETE.
+- R6.11 CONDITIONAL NOT TRIGGERED.
+- R6.12 CONDITIONAL NOT TRIGGERED — trigger only if an acceptance-critical final selected gate truly needs unavailable local hardware/capability or explicit Guardian/user approval.
 
 ## Permanent phase-start planning rule
 
@@ -84,4 +103,4 @@ PR #36 merge `56f12eb3eba1adc40a1cf4c58970ed40156360b9` requires every new major
 
 ## Next action
 
-Finish `feature/r6-11-post-merge-normalization`: synchronize `R6_11_ACCEPTANCE.md`, `R6_STATUS.md`, `R6_PLAN.md` and this file, open a documentation-only PR, require exact-head R0 + Python Core five jobs + UI Smoke, merge with expected head SHA. Only then create the R6.12 branch from normalized main. R7 remains forbidden until R6.12 and final R6 normalization are COMPLETE.
+Open/use the R6.12 draft PR as diagnostic. Run the strict test suite on Ubuntu and Windows; harden exact-head evidence, accepted-head integration and path handling if tests expose false-green behavior. Then document findings, freeze one exact final head, require R0 + Python Core five jobs + UI Smoke, build the integrated R6.1–R6.12 evidence on that head, merge implementation with `expected_head_sha`, and perform final R6 normalization. Only after that may R6 become COMPLETE and R7 planning begin.

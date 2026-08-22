@@ -3,7 +3,7 @@
 **Phase:** R7 — Research sécurisé  
 **Overall status:** IN PROGRESS  
 **Planning:** ACCEPTED  
-**Current subdivision:** R7.2 NOT STARTED  
+**Current subdivision:** R7.3 NOT STARTED  
 **Manual blocker:** NONE
 
 ## Subdivision status
@@ -11,7 +11,7 @@
 | ID | Title | Status | Accepted head | Manual |
 | --- | --- | --- | --- | --- |
 | R7.1 | KodeResearch contracts + ResearchGuard hardening | COMPLETE | `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca` | NONE |
-| R7.2 | Local + official documentation research | NOT STARTED | — | NONE |
+| R7.2 | Local + official documentation research | COMPLETE | `9101e686a32b24bb33a23d7ac578bf25570e115e` | NONE |
 | R7.3 | Governed Web fetch + extraction | NOT STARTED | — | NONE |
 | R7.4 | GitHub research adapter | NOT STARTED | — | CONDITIONAL |
 | R7.5 | Community/forums research normalization | NOT STARTED | — | NONE |
@@ -39,6 +39,17 @@
 - manual NONE;
 - acceptance source: `docs/roadmap/R7_1_ACCEPTANCE.md`.
 
+## R7.2 acceptance
+
+- implementation head `9101e686a32b24bb33a23d7ac578bf25570e115e`;
+- implementation PR #62 merge `25741ab9c39300483b62eb2cc07b9d2c9fcfb20c`;
+- R0 #964 / `32585721455` SUCCESS;
+- Python Core #938 / `32585721645` SUCCESS, 5/5 jobs;
+- KodeStudio UI Smoke #905 / `32585721536` SUCCESS;
+- manual NONE;
+- preceding head `61eb6fbaf73066274249b3e490695bb0d4ff122c` was rejected after Python Core #937 exposed one Windows-only POSIX-root path-validation regression; final head fixes it with native + POSIX + Windows path semantics;
+- acceptance source: `docs/roadmap/R7_2_ACCEPTANCE.md`.
+
 ## Next authorized action
 
-Start **R7.2 — Local + official documentation research** only after this R7.1 normalization PR is accepted and merged. R7.2 remains offline/local/official-document oriented; general governed Web transport starts at R7.3.
+Start **R7.3 — Governed Web fetch + extraction** only after this R7.2 normalization PR is accepted and merged. R7.3 may add a bounded read-only HTTP(S) research transport, but must preserve the frozen trust boundary: typed requests only, redirect/SSRF/size/MIME/time/rate limits, deterministic fake transport for CI, and all extracted external text routed through the existing `ResearchGuard`.

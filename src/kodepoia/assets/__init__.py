@@ -11,6 +11,11 @@ from kodepoia.assets.governance import (
     AssetExportPlan, AssetExportReport, AssetGovernanceDecision, AssetGovernanceOutcome,
     AssetGovernanceService, AssetLicenseEvidence,
 )
+from kodepoia.assets.lfs import (
+    GitLfsService, LfsCapability, LfsCapabilityState, LfsFileDiagnostic, LfsObjectState, LfsPointer,
+    LfsPointerError, LfsPointerExtension, LfsPointerState, LfsTrackingRule, LfsWorkingState,
+    REQUIRED_HEAVY_PATTERNS, parse_lfs_pointer,
+)
 from kodepoia.assets.search import (
     AssetSearchIndex, EmbeddingIdentity, EmbeddingProvider, EmbeddingState, HybridRankingPolicy,
     OllamaEmbeddingProvider, ReindexReport, SearchDocument, SearchDocumentBuilder, SearchFilters,

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/technical-debt-report-v1.schema.json",
+  "title": "Kodepoia Technical Debt Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "project_name", "status", "counts", "blockers", "ranked_active_ids", "debt_penalty", "items", "evidence_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "project_name": {"type": "string"},
+    "status": {"enum": ["pass", "warn", "fail"]},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "debt_penalty": {"type": "number", "minimum": 0, "maximum": 100},
+    "blockers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "ranked_active_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "open", "accepted", "resolved", "blocking"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "open": {"type": "integer", "minimum": 0},
+        "accepted": {"type": "integer", "minimum": 0},
+        "resolved": {"type": "integer", "minimum": 0},
+        "blocking": {"type": "integer", "minimum": 0}
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "category", "severity", "summary", "scope", "source", "provenance", "owner", "impact", "probability", "effort", "priority_score", "fingerprint", "first_seen", "last_seen", "state", "blocking", "accepted_rationale", "review_at", "expires_at", "resolved_at", "references", "details"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "category": {"enum": ["architecture", "code_quality", "tests", "build", "dependencies", "performance", "accessibility", "localization", "security", "documentation", "other"]},
+          "severity": {"enum": ["low", "medium", "high", "critical"]},
+          "summary": {"type": "string", "minLength": 1},
+          "scope": {"type": "string", "minLength": 1},
+          "source": {"type": "string", "minLength": 1},
+          "provenance": {"type": "string", "minLength": 1},
+          "owner": {"type": "string"},
+          "impact": {"type": "integer", "minimum": 1, "maximum": 5},
+          "probability": {"type": "integer", "minimum": 1, "maximum": 5},
+          "effort": {"type": "integer", "minimum": 1, "maximum": 5},
+          "priority_score": {"type": "number", "minimum": 0, "maximum": 100},
+          "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "first_seen": {"type": "string", "format": "date-time"},
+          "last_seen": {"type": "string", "format": "date-time"},
+          "state": {"enum": ["open", "accepted", "resolved"]},
+          "blocking": {"type": "boolean"},
+          "accepted_rationale": {"type": "string"},
+          "review_at": {"type": ["string", "null"], "format": "date-time"},
+          "expires_at": {"type": ["string", "null"], "format": "date-time"},
+          "resolved_at": {"type": ["string", "null"], "format": "date-time"},
+          "references": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "value"],
+              "properties": {
+                "kind": {"enum": ["file", "symbol", "test", "requirement", "issue", "other"]},
+                "value": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "details": {"type": "object"}
+        }
+      }
+    }
+  }
+}

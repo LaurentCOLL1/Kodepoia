@@ -38,6 +38,9 @@ jobs:
         run: python -m pip install -e ".[dev,code]"
       - name: Compile
         run: python -m compileall -q src tests
+      - name: Validate or emit R7 integrated acceptance
+        if: runner.os == 'Linux'
+        run: python scripts/r7_integrated_acceptance.py --check-or-print docs/roadmap/R7_INTEGRATED_ACCEPTANCE.json
       - name: Validate PowerShell acceptance runner syntax
         if: runner.os == 'Windows'
         shell: pwsh

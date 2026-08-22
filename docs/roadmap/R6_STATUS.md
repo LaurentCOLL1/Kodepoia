@@ -26,11 +26,17 @@ Delivered:
 - `docs/roadmap/R6_1_DESIGN.md`;
 - `docs/roadmap/R6_1_ACCEPTANCE.md`.
 
+Security hardening performed during PR review:
+
+- `HealthStore` now routes `.kodepoia` and `.kodepoia/health` through the existing `WorkspaceBoundary`;
+- a `.kodepoia` symlink escaping the project is rejected;
+- serialized `blockers` and `unknown_dimensions` are checked against the underlying metric evidence during load.
+
 ## R6.1 acceptance state
 
-Local isolated unit evidence: **7 passed**.
+Local isolated unit evidence after hardening: **9 passed**.
 
-PR #30 has been opened so the repository `pull_request` gates can provide authoritative CI evidence. R6.1 remains ACCEPTANCE PENDING until those results are green.
+PR #30 is open so the repository `pull_request` gates can provide authoritative CI evidence. R6.1 remains ACCEPTANCE PENDING until the final stabilized head is green.
 
 Still required before R6.1 can be marked COMPLETE:
 

@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/health-report-v1.schema.json",
+  "title": "Kodepoia Health Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "project_name",
+    "overall_score",
+    "coverage",
+    "status",
+    "blockers",
+    "unknown_dimensions",
+    "metrics"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "project_name": {"type": "string"},
+    "overall_score": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "coverage": {"type": "number", "minimum": 0, "maximum": 1},
+    "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/dimension"}
+    },
+    "unknown_dimensions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/dimension"}
+    },
+    "metrics": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "items": {"$ref": "#/$defs/metric"}
+    }
+  },
+  "$defs": {
+    "dimension": {
+      "enum": [
+        "build",
+        "tests",
+        "warnings",
+        "security",
+        "dependencies",
+        "performance",
+        "memory",
+        "assets",
+        "audio",
+        "accessibility",
+        "localization",
+        "technical_debt",
+        "licenses",
+        "privacy"
+      ]
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dimension",
+        "status",
+        "score",
+        "summary",
+        "source",
+        "blocking",
+        "details"
+      ],
+      "properties": {
+        "dimension": {"$ref": "#/$defs/dimension"},
+        "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+        "score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "summary": {"type": "string"},
+        "source": {"type": "string"},
+        "blocking": {"type": "boolean"},
+        "details": {"type": "object"}
+      }
+    }
+  }
+}

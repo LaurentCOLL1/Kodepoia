@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/transform-cache-record-v1.schema.json",
+  "type": "object",
+  "required": ["schema_version", "cache_key", "inputs", "recipe", "tool", "environment", "outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "cache_key": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "inputs": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"}},
+    "recipe": {"type": "object"},
+    "tool": {"type": "object"},
+    "environment": {"type": "object", "additionalProperties": {"type": "string"}},
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["revision_id", "content_sha256", "content_length"],
+        "properties": {
+          "revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"},
+          "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "content_length": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  }
+}

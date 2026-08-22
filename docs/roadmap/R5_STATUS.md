@@ -1,7 +1,7 @@
 # R5 — KodeGodot 4.7.x — Status
 
 **Phase:** R5  
-**Status:** IN PROGRESS — R5.1–R5.5 ACCEPTED AND MERGED; R5.6 IMPLEMENTED / PROCESS-LAUNCH DIAGNOSTIC PENDING  
+**Status:** IN PROGRESS — R5.1–R5.5 ACCEPTED AND MERGED; R5.6 IMPLEMENTED / PROCESS-SANDBOX FIX CI ACCEPTED / PROBE RERUN PENDING  
 **Started:** 2026-08-21
 
 R4 remains COMPLETE and is not reopened. R6 is NOT STARTED and must not begin before R5 hardware-local acceptance is reviewed and R5.6 is merged.
@@ -13,7 +13,7 @@ R4 remains COMPLETE and is not reopened. R6 is NOT STARTED and must not begin be
 3. **R5.3 — GDScript + Godot LSP/DAP specialization** — ACCEPTED AND MERGED (PR #25, merge `d2641862b98a969b9adfc905f818e01b3d7e4730`).
 4. **R5.4 — 2D/3D domain intelligence and safe edits** — ACCEPTED AND MERGED (PR #26, merge `b81cf430249e341219dcb759cb49f67697c27782`).
 5. **R5.5 — Headless automation/import/export/capture/benchmarks** — ACCEPTED AND MERGED (PR #27, merge `c4409c78eacfa1777d22d7e0995d4db7dbdaa5a2`).
-6. **R5.6 — Governed orchestration + real Godot acceptance** — IMPLEMENTED; hardware acceptance BLOCKED on Windows process-launch behavior; bounded diagnostic ready.
+6. **R5.6 — Governed orchestration + real Godot acceptance** — IMPLEMENTED; CI accepted; hardware acceptance pending a new 5/5 probe after the ProcessSandbox fix.
 
 ## R5.6 scope
 
@@ -31,105 +31,81 @@ Implemented:
 - disposable local fixture `.kodepoia/r5-acceptance/project`;
 - local acceptance CLI and `scripts/r5_accept_local.ps1`;
 - local evidence `.kodepoia/benchmarks/r5-local-acceptance.json`;
-- CI syntax validation and regression coverage for permissions, snapshots, audit, schemas, loopback command construction, orchestration and fixture generation.
+- bounded process-launch diagnostic `scripts/r5_diagnose_godot_process.ps1`;
+- CI syntax validation and regression coverage for permissions, snapshots, audit, schemas, loopback command construction, orchestration, fixture generation and ProcessSandbox pipe draining.
 
-## Hardware probes
+## Target workstation
 
-Target workstation:
 - Python 3.12.4;
 - Windows 11 build 26220;
 - Godot `4.7.2.stable.steam.ed1daf0bf`;
 - executable `D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe`;
 - ports 6005/6006/6007.
 
+## Hardware evidence so far
+
 Probe #1: **4/5 PASS**. Four structural checks passed; `engine_version` failed at ~15.03 s.
 
-Hardening after probe #1:
-- version timeout 15 → 90 s, kill-switch controlled;
-- explicit timeout/cancellation diagnostics;
-- GDScript check timeout 120 s;
-- bounded larger acceptance windows for smoke/benchmark/capture/services;
-- ProcessSandbox retains a bounded set of non-secret desktop path variables while arbitrary parent variables remain excluded;
-- regression coverage proves arbitrary secret-like environment variables do not leak;
-- PowerShell helper measures direct `Godot --version` startup duration.
+Probe #2: **4/5 PASS** again. Direct PowerShell `Godot --version` took ~0.44 s, while the ProcessSandbox call timed out at ~90 s. Increasing the timeout again was therefore rejected.
 
-Probe #2: **4/5 PASS again**, but decisive:
+Bounded process diagnostic: **5/6 PASS**, with a decisive isolation result:
 
 ```text
-Direct PowerShell Godot --version : ~0.44 s
-Python/ProcessSandbox version     : ~90.03 s -> timed_out=True
-cancelled=False, stderr empty
+inherited_repo_pipe          PASS ~0.44 s
+inherited_project_pipe       PASS ~0.06 s
+sanitized_empty_pipe         PASS ~0.09 s
+sanitized_project_pipe       PASS ~0.06 s
+sanitized_project_file       PASS ~0.09 s
+process_sandbox_project      FAIL 8.02 s, timed_out=True
 ```
 
-Conclusion: “Godot itself is simply slow” is rejected as sufficient explanation. Increasing the timeout again is prohibited because it would mask the defect. The blocker is Windows process-launch context.
+The failing sandbox case had already captured the correct stdout `4.7.2.stable.steam.ed1daf0bf` before timeout. Therefore cwd, sanitized environment and stdout/stderr redirection are exonerated. The defect was inside `ProcessSandbox.run()`.
 
-Remaining suspects:
-1. cwd / automatic project detection;
-2. sanitized environment;
-3. Python Windows stdout/stderr capture / GUI-subsystem interaction;
-4. only if equivalent direct Python cases work, ProcessSandbox polling/kill-switch behavior.
+## Root cause and fix
 
-Godot's CLI documentation defines `--version` as a direct version-string command and documents cwd/`--path` project behavior. Upstream Windows code has special console/stdio attachment logic, and Godot Windows issues document different output behavior when launched programmatically with redirected streams.
+Old `ProcessSandbox.run()` waited on `process.poll()` before calling `process.communicate()`. With `stdout=PIPE` and `stderr=PIPE`, this can deadlock when the child is blocked on pipe backpressure. Python's subprocess contract recommends `communicate()` to drain stdout/stderr while waiting.
 
-## Bounded process-launch diagnostic
+Fix:
+- replace the manual `poll()` loop with `process.communicate(timeout=...)`;
+- on `TimeoutExpired`, stop through the existing kill switch and call `communicate()` again to drain remaining output;
+- retain global kill-switch registration for the whole operation, so an asynchronous kill-switch trigger still terminates the active process;
+- preserve `timeout < 0` as an unbounded wait;
+- remove the now-unused polling sleep dependency.
 
-Files:
-- `src/kodepoia/kodegodot/process_diagnostic.py`;
-- `tests/test_r5_process_diagnostic.py`;
-- `scripts/r5_diagnose_godot_process.ps1`;
-- evidence `.kodepoia/benchmarks/r5-godot-process-diagnostic.json`.
+Regression test:
+- a child writes 512 KiB to stdout and 512 KiB to stderr;
+- sandbox must finish with rc=0, no timeout/cancel, and both complete payloads;
+- this test reproduces the class of pipe-backpressure deadlock independently of Godot.
 
-Safety:
-- fixed `Godot --version` only;
-- no arbitrary Godot args;
-- no environment keys/values persisted;
-- default 8-second timeout per case, bounded 2–30 s;
-- no user project mutation.
+Functional fix checkpoint `c6ec8f25b8447c68f644ddf7d05aef9995e41861`:
+- Repository Guard `32539678111` — SUCCESS;
+- Python Core `32539678095` — SUCCESS Windows + Ubuntu, including the new pipe-backpressure test and PowerShell syntax validation;
+- KodeStudio UI Smoke `32539678096` — SUCCESS Windows.
 
-Cases:
-1. `inherited_repo_pipe`;
-2. `inherited_project_pipe`;
-3. `sanitized_empty_pipe`;
-4. `sanitized_project_pipe`;
-5. `sanitized_project_file`;
-6. `process_sandbox_project`.
-
-Diagnostic functional checkpoint `4023a7217d647a1be14358496fc74e9c37a6b9b4`:
-- Repository Guard `32537407769` — SUCCESS;
-- Python Core `32537407754` — SUCCESS Windows + Ubuntu, including diagnostic tests and helper syntax;
-- KodeStudio UI Smoke `32537407790` — SUCCESS Windows.
-
-Current documentation/continuity commits may be newer than this functional checkpoint; use the current remote branch head after `git pull`, never reset backward to the checkpoint.
-
-Interpretation:
-- repo PASS + project FAIL ⇒ cwd/project detection;
-- inherited PASS + sanitized FAIL ⇒ environment allowlist;
-- sanitized project pipe FAIL + sanitized project file PASS ⇒ redirected pipe/Windows console interaction;
-- inherited Python cases FAIL while direct PowerShell succeeds ⇒ Python child-process/Windows console interaction;
-- sandbox differs from equivalent sanitized pipe case ⇒ ProcessSandbox loop/kill-switch behavior.
+Current documentation/continuity commits may be newer than this functional checkpoint; always `git pull` the current branch head and never reset backward to a checkpoint.
 
 ## Next gate
 
-The **only** authorized local action is the dedicated process diagnostic:
+The process diagnostic has served its purpose. **Do not rerun it unless a later regression requires it.**
+
+The next and only authorized local action is a fresh normal probe:
 
 ```powershell
-.\scripts\r5_diagnose_godot_process.ps1 `
+.\scripts\r5_accept_local.ps1 -ProbeOnly `
   -GodotPath "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
 ```
 
-Do **not** rerun the normal R5 probe yet. Do **not** run full acceptance.
+Expected gate:
+- `engine_version` PASS;
+- overall `Passed: 5/5`, `Failed: 0`;
+- JSON still has `probe_only=true` and `acceptance_completed=false` because this is only the probe.
 
-Next required hardware evidence:
-
-```text
-.kodepoia/benchmarks/r5-godot-process-diagnostic.json
-```
+Do **not** run full acceptance until this new 5/5 probe has been reviewed.
 
 ## Completion rule
 
 R5 is **not COMPLETE** until:
-- process-launch blocker is resolved with a minimal safe fix;
-- a new probe passes 5/5;
+- the new probe passes 5/5;
 - full target report has `probe_only=false`, `acceptance_completed=true`, `summary.failed=0`;
 - all real Godot version/check/import/smoke/benchmark/capture steps pass;
 - governed edit creates SafeChange snapshot;

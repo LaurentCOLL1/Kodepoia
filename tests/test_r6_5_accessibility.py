@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from kodepoia.kodecode.workspace import WorkspaceViolation
 from kodepoia.quality.accessibility import (
     AccessibilityReport,
     AccessibilityReportStatus,
@@ -271,7 +272,7 @@ def test_store_rejects_accessibility_root_symlink_escape(tmp_path: Path) -> None
         [_result("name.required", "button", AccessibilityStatus.PASS)],
         surface="escape",
     )
-    with pytest.raises(ValueError, match="workspace"):
+    with pytest.raises(WorkspaceViolation, match="escapes workspace"):
         store.save(report)
 
 

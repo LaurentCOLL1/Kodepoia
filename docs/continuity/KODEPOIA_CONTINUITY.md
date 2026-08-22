@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R6 COMPLETE. Planning R7 ACCEPTED. R7.1–R7.9 COMPLETE ; R7.10 NOT STARTED.** R7.9 a été accepté sur le head exact `80390f95a11e5b3d4353b16eada26f10204bb4fa` avec R0 #1018 / `32596697106`, Python Core #992 / `32596697107` cinq jobs SUCCESS, suite Ubuntu `483 passed / 4 skipped / 46 warnings`, UI Smoke #959 / `32596697121` SUCCESS; PR #76 merge `5406887055117e7fea5cdd27579fb27b41051ed1`; manual R7.9 = NONE. **La prochaine implémentation autorisée est R7.10 — CLI + KodeStudio Research UX**, uniquement après fusion de la normalisation R7.9. R7.10 manual = NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R6 COMPLETE. Planning R7 ACCEPTED. R7.1–R7.10 COMPLETE ; R7.11 NOT STARTED.** R7.10 a été accepté sur le head exact `cfd0f7ba02af04b456993f686827f10810b3a61a` avec R0 #1025 / `32598029034`, Python Core #999 / `32598029045` cinq jobs SUCCESS, suite Ubuntu `494 passed / 5 skipped / 46 warnings`, UI Smoke #966 / `32598029037` SUCCESS; PR #78 merge `963799042ee30723fd2856f54dad9dedde6ed225`; manual R7.10 = NONE. **La prochaine et dernière subdivision R7 autorisée est R7.11 — Adversarial hardening + R7 integrated acceptance**, uniquement après fusion de la normalisation R7.10. R7.11 manual = CONDITIONAL.
 
 ## Source de vérité et état
 
@@ -20,9 +20,10 @@
 - R7.5 : COMPLETE — head `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5`; R0 #976, Python #950 5/5 (`400 passed / 3 skipped / 46 warnings` Ubuntu), UI #917; PR #68 merge `b02dfba4b6a6a4c0a6ec19d552e569b56845a4ea`; manual NONE.
 - R7.6 : COMPLETE — head `b623836b8f5bd39fce101eca7fe4653a996a9562`; R0 #980, Python #954 5/5 (`432 passed / 3 skipped / 46 warnings` Ubuntu), UI #921; PR #70 merge `15216b59e14d692ff1e850812d572632bad5a88b`; manual CONDITIONAL NOT TRIGGERED.
 - R7.7 : COMPLETE — head `04cef94c82fdacafe7313d27c8cf516e8e765295`; R0 #997, Python #971 5/5 (`443 passed / 4 skipped / 46 warnings` Ubuntu), UI #938; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual REQUIRED SATISFIED.
-- R7.8 : COMPLETE — head `deb5de415541004fb07bfbc6d955e9d76d717533`; R0 #1001 / `32595358745`; Python #975 / `32595358772` 5/5 (`460 passed / 4 skipped / 46 warnings` Ubuntu); UI #942 / `32595358734`; PR #74 merge `f0de53379d6a8eb1883137946db4f2731cb9830a`; manual NONE.
-- R7.9 : COMPLETE — head `80390f95a11e5b3d4353b16eada26f10204bb4fa`; R0 #1018 / `32596697106`; Python #992 / `32596697107` 5/5 (`483 passed / 4 skipped / 46 warnings` Ubuntu); UI #959 / `32596697121`; PR #76 merge `5406887055117e7fea5cdd27579fb27b41051ed1`; manual NONE.
-- R7.10–R7.11 : NOT STARTED; next = R7.10.
+- R7.8 : COMPLETE — head `deb5de415541004fb07bfbc6d955e9d76d717533`; R0 #1001, Python #975 5/5 (`460 passed / 4 skipped / 46 warnings` Ubuntu), UI #942; PR #74 merge `f0de53379d6a8eb1883137946db4f2731cb9830a`; manual NONE.
+- R7.9 : COMPLETE — head `80390f95a11e5b3d4353b16eada26f10204bb4fa`; R0 #1018, Python #992 5/5 (`483 passed / 4 skipped / 46 warnings` Ubuntu), UI #959; PR #76 merge `5406887055117e7fea5cdd27579fb27b41051ed1`; manual NONE.
+- R7.10 : COMPLETE — head `cfd0f7ba02af04b456993f686827f10810b3a61a`; R0 #1025 / `32598029034`; Python #999 / `32598029045` 5/5 (`494 passed / 5 skipped / 46 warnings` Ubuntu); UI #966 / `32598029037`; PR #78 merge `963799042ee30723fd2856f54dad9dedde6ed225`; manual NONE.
+- R7.11 : NOT STARTED; next = R7.11 after R7.10 normalization.
 - R8–R16 : PENDING / NOT STARTED.
 
 ## R7 frozen structure
@@ -43,7 +44,7 @@
 
 Aucune subdivision ne peut être ajoutée, supprimée, fusionnée, scindée ou renumérotée silencieusement. Toute modification de structure doit synchroniser `R7_PLAN.md` + continuité; tout changement de fondation exige un ADR.
 
-## Accepted R7 trust baseline
+## Accepted R7 trust/security baseline
 
 - Toute donnée externe reste une donnée, jamais une instruction agentique; `ResearchGuard` reste l'unique frontière de confiance contenu.
 - Status/freshness restent explicites; indisponible/non mesuré ne fabrique jamais PASS/CURRENT.
@@ -51,76 +52,52 @@ Aucune subdivision ne peut être ajoutée, supprimée, fusionnée, scindée ou r
 - R7.2 local/official docs est offline-first avec lignes/version/provenance explicites.
 - R7.3 Web est GET-only typé avec DNS/IP publics, IP épinglée, redirects revalidés, Guardian NETWORK et bornes MIME/octets/timeout/rate.
 - R7.4 GitHub est REST read-only typé sur origine fixe, refs mutables résolues vers SHA exact, pagination/rate-limit explicites, auth optionnelle via KodeSecrets.
-- R7.5 Community préserve auteur/thread/parent/timestamps/états/quotes; `authority_class=community`; popularité n'est jamais autorité.
-- R7.6 YouTube sépare metadata/transcript, respecte les restrictions OAuth captions, préserve timing/provenance et n'ajoute aucun téléchargement audiovisuel ou contournement.
-- R7.7 local-media réutilise WorkspaceBoundary/Guardian/ProcessSandbox/KillSwitch; FFmpeg/whisper.cpp/model sont hashés; STT/frames/cleanup ont passé le gate Windows exact-head; vision reste UNAVAILABLE sans provider réel.
-- R7.8 ajoute la version/provenance explicite sans inventer d'exact match ni de fraîcheur.
-- R7.9 cache et orchestre les preuves sans transformer cache hit, résumé ou Memory en nouvelle autorité.
+- R7.5 Community conserve auteur/thread/parent/timestamps/états/quotes et ne transforme jamais popularité en autorité.
+- R7.6 YouTube sépare metadata/transcript, préserve timing/provenance et n'ajoute aucun contournement d'auth/DRM.
+- R7.7 local-media réutilise WorkspaceBoundary/Guardian/ProcessSandbox/KillSwitch; FFmpeg/whisper.cpp/model sont hashés; REQUIRED Windows gate est satisfait; vision reste UNAVAILABLE sans provider réel.
+- R7.8 distingue exact/range/inferred/unknown, version relation/freshness, mutability et conflits sans supprimer les contradictions.
+- R7.9 cache et orchestre les preuves sans transformer cache hit, résumé ou Memory en nouvelle autorité; global/training promotion est désactivée.
+- R7.10 expose CLI + KodeStudio via un seul `ResearchService`; Web est BLOCKED sans opt-in NETWORK; Qt ne manipule ni secret/socket/process arbitraire; cancel précède persistence/READY; copy/export reste cité et redacted.
 
-## R7.7 accepted local-media baseline
+## R7.7 local-media accepted evidence
 
 - Accepted head `04cef94c82fdacafe7313d27c8cf516e8e765295`.
 - FFmpeg 4.2.3 SHA-256 `b6bd38a97c5f118f30c93a97b5739b5f33dd2616c735f841c2a56074a9f0a9f0`.
 - whisper.cpp 1.9.1 SHA-256 `58245314fb73b30fbd0cf0542c5c172e23f02b6eb7cad7b51e792439cf5e1755`.
 - STT model SHA-256 `a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002`.
 - Fixture SHA-256 `8b3ed015526fd4584309a3c661b9e267ac464315e2d1c9aeed5bea19f28bdcf7`, 12,112 bytes.
-- Transcript réel `1, 2, 3, 4.` avec timestamps; frames 500/1500/2500 ms, 320x180, trois hashes distincts; cleanup true.
-- Preuves locales retournées : doctor SHA-256 `463c0de4ad477baabc711a2b89fc1c7ad0b7735c6bdfc2ecfdde457a9f8f86e1`; acceptance SHA-256 `33e52eb43ed448dd02766b823c3b22bfb08301a9f4dc3f24f336269f1ab76283`.
+- Doctor SHA-256 `463c0de4ad477baabc711a2b89fc1c7ad0b7735c6bdfc2ecfdde457a9f8f86e1`; acceptance SHA-256 `33e52eb43ed448dd02766b823c3b22bfb08301a9f4dc3f24f336269f1ab76283`.
 
-## R7.8 accepted version/provenance baseline
+## R7.10 accepted UX baseline
 
-- `VersionEvidenceKind`: exact/range/inferred/unknown reste distinct en mémoire et après roundtrip.
-- L'inférence exige preuve + raison et ne devient jamais une version exacte; relation = `INFERRED_MATCH` si elle correspond au target.
-- Les contraintes target refusent l'inférence silencieuse.
-- `VersionScheme` est explicite (`OPAQUE`, `SEMVER`, `PEP440`); aucun schéma n'est deviné depuis le nom du produit ou la ponctuation.
-- SemVer : parsing strict, prerelease precedence, build metadata ignoré pour la précédence/ranges mais conservé dans l'identité exacte déclarée.
-- PEP 440 : comparaison conservatrice seulement pour releases numériques simples avec zero-padding (`1.0 == 1.0.0`); formes riches non implémentées -> UNKNOWN plutôt qu'une pseudo-compatibilité.
-- Opaque : égalité exacte seulement, pas d'ordre fabriqué.
-- Project DNA : `engine` / `engine_version` sont consommés sans mutation; version absente -> UNKNOWN; caller fournit le scheme.
-- Version relation et freshness sont indépendants.
-- Source mutable : CURRENT/STALE nécessite `validated_at`; relecture cache/retrieved_at ne rafraîchit pas silencieusement la source.
-- Missing/future freshness evidence -> UNKNOWN.
-- Source immutable : révision ou snapshot hash obligatoire.
-- `VersionedClaim` source_fact requiert citation; claim lie finding/version/source/citations/freshness/relation.
-- Conflict groups : 1 claim UNRESOLVED, mêmes valeurs AGREEMENT, valeurs différentes CONFLICT.
-- Supersession explicite exige preuve/raison mais ne supprime jamais l'ancienne contradiction.
-- Ranking conserve toutes les claims; inputs explicites = relation version, authority rank, freshness, mutability, tie-break ID; popularité/source count absent.
-- Report/schema : IDs/groupes/digest recalculés au load, tampering/missing refs fail closed.
-- Aucun nouveau network/process/secret/UI surface; rollback supprime seulement la couche dérivée.
+- Accepted head `cfd0f7ba02af04b456993f686827f10810b3a61a`.
+- Shared service: query/fetch/show/cache/status/media capability; same typed/redacted records for CLI and UI.
+- Web opt-in grants only NETWORK and still uses Guardian/R7.3 public-target, pinned-IP, redirect/MIME/size/timeout/rate protections.
+- Persisted GitHub/Community/YouTube evidence is queryable; absent live interactive provider setup remains explicit rather than fabricated.
+- Cancellation is checked before dispatch and before persistence/result promotion.
+- KodeStudio Research uses worker/QThreadPool, textual READY/BLOCKED/UNAVAILABLE/UNKNOWN/STALE/CANCELLED semantics, citations, version/freshness/trust, suspicious warning, copy/export.
+- Exports are WorkspaceBoundary-confined and redacted.
+- Accessibility/pseudo-locale accepts legitimate layout expansion while enforcing keyboard reachability and no navigation truncation.
+- Rejected candidate heads and their test-only contract defects remain documented in `R7_10_ACCEPTANCE.md`; no failed run is reused as acceptance.
 
-## R7.9 accepted cache/context/memory baseline
+## R7.11 execution contract
 
-- Accepted head `80390f95a11e5b3d4353b16eada26f10204bb4fa`.
-- Cache key : normalized query + scope hash + source selectors + target constraint + version evidence + cache policy; `request_id` est conservé comme provenance mais ne sépare pas deux requêtes équivalentes.
-- Query manifest ne persiste ni query brute ni nom de scope brut.
-- Cache TTL/freshness est un état de réutilisation dérivé, jamais une preuve que la source est `CURRENT`.
-- Mutable source = TTL court; STALE exige revalidation explicite avant de faire avancer l'âge du cache.
-- Revalidation échoue si source identity, version evidence ou content identity change.
-- L'empreinte version d'un artefact conserve la version source déclarée avec l'observation R7.8 normalisée afin qu'une collision d'ancien `artifact_id` ne fusionne pas silencieusement deux versions.
-- Dedupe = source identity + version evidence + content hash; provenance conservée.
-- Cache reload repasse par `ResearchStore` et les validations typed/hash/ResearchGuard; tampering fail closed.
-- Context summary = extractif, borné, citations + artifact IDs, fraîcheur/version/guard indicators, secret redaction et trust `external_guarded_untrusted`.
-- Une finding trop longue est tronquée de façon déterministe à la plus grande taille qui tient réellement dans le rendu; le budget ne dépend plus d'un overhead approximatif.
-- Suspicious ResearchGuard evidence survit au Context roundtrip.
-- Memory bridge = opt-in explicite, scope `project:*`, kind `research_summary_untrusted`, `allow_global_memory=false`, `allow_training_dataset=false`.
-- Aucun LLM summary/cache hit/memory index n'est promu automatiquement en Experience globale validée.
-- Le head rejeté `2a092335ca3dc7d7fb39fc9e1ef177f0c9d16251` et ses deux échecs Ubuntu restent documentés dans `R7_9_ACCEPTANCE.md`; aucun faux PASS n'a été fabriqué.
+R7.11 est la prochaine subdivision autorisée uniquement après fusion de la normalisation R7.10. Exigences gelées :
 
-## R7.10 execution contract
+- adversarial fixtures cross-source : local/official/Web/GitHub/Community/YouTube hostile text doit rester `ResearchGuard` data et ne jamais obtenir d'autorité/tool instruction;
+- SSRF : private/loopback/link-local/credential URLs, malicious redirects, mixed public/private DNS answers et DNS rebinding regression doivent rester bloqués avant action dangereuse;
+- paths : traversal/absolute/symlink escapes pour local docs, official snapshots, research cache/context/export et chemins media doivent fail closed via `WorkspaceBoundary`;
+- process/tool surface : aucun arbitrary command/argv/cwd/executable/host injecté depuis Research; seuls les adapters structurés acceptés R7.3–R7.7/R7.10 restent utilisables;
+- secrets : valeurs d'auth/token ne doivent jamais apparaître dans artifact/report/cache/context/view/copy/export/log-like evidence; delegated secrets seulement;
+- cancel : aucune opération annulée ne peut persister/promouvoir un résultat partiel comme READY;
+- version conflicts : contradictions et supersession restent visibles; popularité/source count ne devient jamais authority;
+- créer une preuve machine R7 intégrée versionnée contenant accepted heads/manual states, acceptance-doc path, SHA-256 et byte length, plus les preuves phase-closing pertinentes;
+- créer un validator repository qui recharge les documents, recalcule bytes/SHA-256/identités et fail closed sur missing/tamper/mismatch;
+- effectuer la revue finale R6 quality/security/BOM et les gates exact-head R0/Python/UI;
+- R7.7 REQUIRED manual est déjà SATISFIED et reste un prerequisite explicite;
+- manual R7.11 = CONDITIONAL : déclencher un live-provider gate seulement si le comportement requis ne peut pas être établi de façon déterministe. Sinon enregistrer `CONDITIONAL NOT TRIGGERED`.
 
-R7.10 est la prochaine subdivision autorisée après fusion de cette normalisation. Exigences gelées :
-
-- exposer des commandes CLI structurées pour query/fetch/show/cache/status/media capability en réutilisant les mêmes services Research acceptés, sans créer une seconde logique de confiance;
-- ajouter la surface KodeStudio Research avec filtres de sources, badges version/freshness, citations, avertissement contenu suspect, états blocked/unavailable/unknown/stale et action cancel;
-- UI et CLI doivent appeler les mêmes APIs de service; aucune commande terminal arbitraire, aucun navigateur général et aucun argv/host/cwd fourni directement par le modèle;
-- toute action network/media continue à passer par Guardian/PermissionSet et les primitives R7.3–R7.7; cancellation doit être effective et ne pas laisser de processus ou cache partiel présenté comme succès;
-- les résultats affichent source class, locator, retrieved/published/version/freshness/trust/provenance pertinents et distinguent explicitement UNKNOWN/BLOCKED/UNAVAILABLE/STALE de PASS/CURRENT;
-- copy/export conserve citations, source identity et provenance plutôt que du texte détaché de sa preuve;
-- aucun secret ou valeur d'authentification ne doit être affiché, copié ou persisté dans l'UX;
-- navigation clavier/focus, hooks accessibilité/localisation et pseudo-localisation doivent rester compatibles avec les gates R6;
-- le UI Smoke Windows doit exercer la surface sans dépendre d'Internet public ni de provider live;
-- aucun travail R7.11 d'acceptance intégrée/adversarial final ne doit être avancé silencieusement dans R7.10;
-- manual = NONE.
+R7 ne peut être marqué **COMPLETE** qu'après acceptation exacte de R7.11 et normalisation de l'acceptance intégrée.
 
 ## Permanent architecture/security boundaries
 
@@ -135,4 +112,4 @@ Preserve without reinterpretation: `WorkspaceBoundary`; ProcessSandbox + global 
 
 ## Next action
 
-**R7.1–R7.9 COMPLETE. R7.10 NOT STARTED.** Après fusion de la normalisation R7.9, commencer **R7.10 — CLI + KodeStudio Research UX**. Manual gate = NONE.
+**R7.1–R7.10 COMPLETE. R7.11 NOT STARTED.** Après fusion de la normalisation R7.10, commencer **R7.11 — Adversarial hardening + R7 integrated acceptance**. Manual gate = CONDITIONAL.

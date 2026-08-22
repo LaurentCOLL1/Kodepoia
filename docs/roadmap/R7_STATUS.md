@@ -3,8 +3,8 @@
 **Phase:** R7 — Research sécurisé  
 **Overall status:** IN PROGRESS  
 **Planning:** ACCEPTED  
-**Current subdivision:** R7.6 NOT STARTED  
-**Manual blocker:** NONE
+**Current subdivision:** R7.7 NOT STARTED  
+**Manual blocker:** R7.7 REQUIRED when started
 
 ## Subdivision status
 
@@ -15,7 +15,7 @@
 | R7.3 | Governed Web fetch + extraction | COMPLETE | `4efd2cb016e774fa3ef06590ffda377606d875e9` | NONE |
 | R7.4 | GitHub research adapter | COMPLETE | `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be` | CONDITIONAL NOT TRIGGERED |
 | R7.5 | Community/forums research normalization | COMPLETE | `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5` | NONE |
-| R7.6 | YouTube metadata + transcript ingestion | NOT STARTED | — | CONDITIONAL |
+| R7.6 | YouTube metadata + transcript ingestion | COMPLETE | `b623836b8f5bd39fce101eca7fe4653a996a9562` | CONDITIONAL NOT TRIGGERED |
 | R7.7 | Local STT + frame extraction/analysis hooks | NOT STARTED | — | REQUIRED |
 | R7.8 | Version-awareness + provenance/conflict model | NOT STARTED | — | NONE |
 | R7.9 | Research cache + Context/Memory orchestration | NOT STARTED | — | NONE |
@@ -29,22 +29,38 @@
 - R7.2: head `9101e686a32b24bb33a23d7ac578bf25570e115e`; R0 #964, Python #938 5/5, UI #905; PR #62 merge `25741ab9c39300483b62eb2cc07b9d2c9fcfb20c`; manual NONE.
 - R7.3: head `4efd2cb016e774fa3ef06590ffda377606d875e9`; R0 #968, Python #942 5/5 (`369 passed / 3 skipped / 46 warnings` Ubuntu), UI #909; PR #64 merge `cde4f7fd727c6940c6a434f85fabc2ced27f04c5`; manual NONE.
 - R7.4: head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`; R0 #972, Python #946 5/5 (`388 passed / 3 skipped / 46 warnings` Ubuntu), UI #913; PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`; manual CONDITIONAL NOT TRIGGERED.
-- R7.5: head `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5`; R0 #976 / `32590366852`; Python Core #950 / `32590366851` 5/5 (`400 passed / 3 skipped / 46 warnings` Ubuntu); UI Smoke #917 / `32590366853`; PR #68 merge `b02dfba4b6a6a4c0a6ec19d552e569b56845a4ea`; manual NONE.
+- R7.5: head `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5`; R0 #976 / `32590366852`; Python #950 / `32590366851` 5/5 (`400 passed / 3 skipped / 46 warnings` Ubuntu); UI #917 / `32590366853`; PR #68 merge `b02dfba4b6a6a4c0a6ec19d552e569b56845a4ea`; manual NONE.
+- R7.6: head `b623836b8f5bd39fce101eca7fe4653a996a9562`; R0 #980 / `32590863193`; Python Core #954 / `32590863199` 5/5 (`432 passed / 3 skipped / 46 warnings` Ubuntu); UI Smoke #921 / `32590863191`; PR #70 merge `15216b59e14d692ff1e850812d572632bad5a88b`; manual CONDITIONAL NOT TRIGGERED.
 
 Detailed evidence remains in the corresponding `R7_X_ACCEPTANCE.md` files.
 
-## R7.5 accepted invariants
+## R7.5 accepted community invariants
 
 - community/forum evidence remains `ResearchSourceKind.COMMUNITY` and `authority_class=community`;
-- score/reaction/popularity metadata is descriptive only and never authority;
-- vendor-staff/moderator is an author-role observation, not automatic official evidence;
-- post/thread/parent/timestamps/permalinks/states remain explicit;
+- score/reaction/popularity is descriptive only and never automatic authority;
+- vendor-staff/moderator is an author-role observation, not official-document promotion;
+- author/timestamp/parent/permalink/state provenance remains explicit;
 - quoted material is separated from current-author text; nested quotes preserve depth/source evidence;
 - deleted/removed placeholders do not become authored evidence;
 - hidden script/style/noscript/template text is excluded;
-- visible hostile instructions remain evidence but are guarded by the existing ResearchGuard;
+- hostile visible instructions remain guarded evidence;
 - no posting/voting/moderation/account automation or second network stack exists.
+
+## R7.6 accepted YouTube invariants
+
+- video IDs and known YouTube video URL shapes normalize to one canonical watch locator;
+- Data API metadata must return the exact requested video identity;
+- metadata and transcript availability are independent states;
+- official caption metadata/text is not treated as arbitrary public transcript access;
+- missing OAuth or provider 401/403 for official captions remains explicit BLOCKED evidence;
+- authorized caption tracks preserve language, human/automatic/forced/unknown kind, caption ID, timestamps and provider evidence;
+- WebVTT cue timing is preserved and transcript citations carry millisecond anchors;
+- description timestamps remain description-observed markers, not provider-certified chapters;
+- metadata/transcript content remains external and passes through ResearchGuard;
+- production API access uses fixed provider endpoints, KodeSecrets references, Guardian NETWORK and R7.3 public-address/pinned-TLS protections;
+- no audiovisual stream download/cache, offline playback, browser login automation, undocumented caption scraping, DRM bypass, yt-dlp, ffmpeg or subprocess helper is present;
+- STT/frame/media fallback is reserved for R7.7.
 
 ## Next authorized action
 
-Start **R7.6 — YouTube metadata + transcript ingestion** only after this R7.5 normalization PR is accepted and merged. R7.6 must validate video IDs/URLs, preserve video/track/language/timestamp provenance, route transcript text through ResearchGuard, represent unavailable/blocked transcript access explicitly, and expose no media download, playback, login automation, DRM bypass or arbitrary helper arguments. Official YouTube caption access must follow the provider's actual authorization contract rather than assuming arbitrary public caption download is available.
+After this R7.6 normalization PR is accepted and merged, the next authorized subdivision is **R7.7 — Local STT + frame extraction/analysis hooks**. R7.7 carries a **REQUIRED manual gate** and must not be marked COMPLETE from hosted/headless evidence alone. Its implementation must preserve bounded local-media handling, structured helper arguments, ProcessSandbox/KillSwitch governance, explicit media provenance, and real manual evidence where the frozen plan requires it.

@@ -3,8 +3,8 @@
 **Phase:** R7 — Research sécurisé  
 **Overall status:** IN PROGRESS  
 **Planning:** ACCEPTED  
-**Current subdivision:** R7.8 NOT STARTED  
-**Manual blocker:** NONE for R7.8
+**Current subdivision:** R7.9 NOT STARTED  
+**Manual blocker:** NONE for R7.9
 
 ## Subdivision status
 
@@ -17,7 +17,7 @@
 | R7.5 | Community/forums research normalization | COMPLETE | `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5` | NONE |
 | R7.6 | YouTube metadata + transcript ingestion | COMPLETE | `b623836b8f5bd39fce101eca7fe4653a996a9562` | CONDITIONAL NOT TRIGGERED |
 | R7.7 | Local STT + frame extraction/analysis hooks | COMPLETE | `04cef94c82fdacafe7313d27c8cf516e8e765295` | REQUIRED SATISFIED |
-| R7.8 | Version-awareness + provenance/conflict model | NOT STARTED | — | NONE |
+| R7.8 | Version-awareness + provenance/conflict model | COMPLETE | `deb5de415541004fb07bfbc6d955e9d76d717533` | NONE |
 | R7.9 | Research cache + Context/Memory orchestration | NOT STARTED | — | NONE |
 | R7.10 | CLI + KodeStudio Research UX | NOT STARTED | — | NONE |
 | R7.11 | Adversarial hardening + R7 integrated acceptance | NOT STARTED | — | CONDITIONAL |
@@ -31,51 +31,53 @@
 - R7.4: head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`; R0 #972, Python #946 5/5 (`388 passed / 3 skipped / 46 warnings` Ubuntu), UI #913; PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`; manual CONDITIONAL NOT TRIGGERED.
 - R7.5: head `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5`; R0 #976 / `32590366852`; Python #950 / `32590366851` 5/5 (`400 passed / 3 skipped / 46 warnings` Ubuntu); UI #917 / `32590366853`; PR #68 merge `b02dfba4b6a6a4c0a6ec19d552e569b56845a4ea`; manual NONE.
 - R7.6: head `b623836b8f5bd39fce101eca7fe4653a996a9562`; R0 #980 / `32590863193`; Python Core #954 / `32590863199` 5/5 (`432 passed / 3 skipped / 46 warnings` Ubuntu); UI Smoke #921 / `32590863191`; PR #70 merge `15216b59e14d692ff1e850812d572632bad5a88b`; manual CONDITIONAL NOT TRIGGERED.
-- R7.7: head `04cef94c82fdacafe7313d27c8cf516e8e765295`; R0 #997 / `32594549119`; Python Core #971 / `32594549136` 5/5 (`443 passed / 4 skipped / 46 warnings` Ubuntu); UI Smoke #938 / `32594549125`; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual REQUIRED SATISFIED by exact-head Windows doctor + local media acceptance + authoritative pytest.
+- R7.7: head `04cef94c82fdacafe7313d27c8cf516e8e765295`; R0 #997 / `32594549119`; Python Core #971 / `32594549136` 5/5 (`443 passed / 4 skipped / 46 warnings` Ubuntu); UI Smoke #938 / `32594549125`; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual REQUIRED SATISFIED.
+- R7.8: head `deb5de415541004fb07bfbc6d955e9d76d717533`; R0 #1001 / `32595358745`; Python Core #975 / `32595358772` 5/5 (`460 passed / 4 skipped / 46 warnings` Ubuntu); UI Smoke #942 / `32595358734`; PR #74 merge `f0de53379d6a8eb1883137946db4f2731cb9830a`; manual NONE.
 
 Detailed evidence remains in the corresponding `R7_X_ACCEPTANCE.md` files.
 
 ## R7.5 accepted community invariants
 
-- community/forum evidence remains `ResearchSourceKind.COMMUNITY` and `authority_class=community`;
-- score/reaction/popularity is descriptive only and never automatic authority;
-- vendor-staff/moderator is an author-role observation, not official-document promotion;
-- author/timestamp/parent/permalink/state provenance remains explicit;
-- quoted material is separated from current-author text; nested quotes preserve depth/source evidence;
+- community evidence remains community evidence; popularity is not authority;
+- author/timestamp/parent/permalink/state/quotes stay explicit;
 - deleted/removed placeholders do not become authored evidence;
-- hidden script/style/noscript/template text is excluded;
-- hostile visible instructions remain guarded evidence;
-- no posting/voting/moderation/account automation or second network stack exists.
+- hostile visible text remains guarded data;
+- no posting/voting/account automation exists.
 
 ## R7.6 accepted YouTube invariants
 
-- video IDs and known YouTube video URL shapes normalize to one canonical watch locator;
-- Data API metadata must return the exact requested video identity;
-- metadata and transcript availability are independent states;
-- official caption metadata/text is not treated as arbitrary public transcript access;
-- missing OAuth or provider 401/403 for official captions remains explicit BLOCKED evidence;
-- authorized caption tracks preserve language, human/automatic/forced/unknown kind, caption ID, timestamps and provider evidence;
-- WebVTT cue timing is preserved and transcript citations carry millisecond anchors;
-- description timestamps remain description-observed markers, not provider-certified chapters;
-- metadata/transcript content remains external and passes through ResearchGuard;
-- production API access uses fixed provider endpoints, KodeSecrets references, Guardian NETWORK and R7.3 public-address/pinned-TLS protections;
-- no audiovisual stream download/cache, offline playback, browser login automation, undocumented caption scraping, DRM bypass, yt-dlp, ffmpeg or subprocess helper is present;
-- STT/frame/media fallback is reserved for R7.7.
+- video identity is exact and canonicalized;
+- metadata and transcript availability remain independent;
+- official caption paths preserve actual OAuth/permission restrictions;
+- WebVTT timing and transcript provenance stay explicit;
+- no audiovisual download, browser login automation, undocumented caption scraping, DRM bypass, yt-dlp or subprocess helper exists in R7.6.
 
 ## R7.7 accepted local-media invariants
 
-- local helper discovery is deterministic and reports missing helpers/models as explicit UNAVAILABLE;
-- FFmpeg and whisper.cpp execute only through the governed process layer with fixed structured arguments;
-- acceptance STT uses CPU/no-GPU mode and does not require CUDA/Vulkan;
-- project-local STT model provenance includes SHA-256 and size; no model/binary/driver auto-install exists;
-- media fixture bytes are hash-bound and bounded before processing;
-- transcript timing is preserved; the acceptance checks the exact intended numeric sequence while tolerating equivalent word/digit rendering from the decoder;
-- frame extraction records timestamp, SHA-256 and dimensions and is compatible with the accepted FFmpeg 4.2.3 baseline;
-- no visual interpretation is claimed without an accepted vision provider; state remains explicit UNAVAILABLE;
-- temporary artifacts are size-bounded and cleaned on success/failure;
-- CPU/RAM remain UNKNOWN where not measured, never fabricated;
-- the REQUIRED local Windows gate passed on the exact accepted head and hosted evidence alone was not treated as sufficient.
+- FFmpeg/whisper.cpp/model capability is explicit and hash-bound;
+- fixed governed process arguments, WorkspaceBoundary/Guardian/ProcessSandbox/KillSwitch reused;
+- exact fixture hash, STT timestamp evidence, frame timestamp/hash/dimensions and cleanup are accepted;
+- equivalent word/digit rendering is normalized only for the bounded fixture semantic check;
+- no vision interpretation is fabricated without a real accepted provider;
+- REQUIRED local Windows acceptance passed on the exact accepted head.
+
+## R7.8 accepted version/provenance invariants
+
+- exact/range/inferred/unknown version evidence are distinct and survive round-trip;
+- inferred observations require evidence/reason and never become exact matches;
+- Project DNA target engine/version is consumed without mutation and version scheme is supplied explicitly;
+- SemVer exact identity is distinct from precedence; build metadata does not affect range ordering but remains part of an exact stated identifier;
+- PEP 440 support is deliberately conservative for simple numeric releases with zero-padding; unsupported rich shapes become UNKNOWN rather than guessed;
+- opaque versions support exact identity but gain no fabricated ordering;
+- version relation and freshness remain independent axes;
+- mutable sources require explicit revalidation timestamp evidence before CURRENT/STALE assessment;
+- immutable identities require revision or snapshot evidence;
+- contradictory claims remain visible even when explicit supersession evidence exists;
+- agreement/conflict/unresolved groups are deterministic and recalculated on load;
+- ranking is presentation ordering only and retains all claims; source count/popularity is not authority;
+- canonical IDs/report digest fail closed on tampering or missing references;
+- R7.8 adds no network/process/UI surface and does not mutate R7.1–R7.7 artifacts.
 
 ## Next authorized action
 
-After this R7.7 normalization PR is accepted and merged, the next authorized subdivision is **R7.8 — Version-awareness + provenance/conflict model**. Manual intervention is **NONE**. R7.8 must preserve exact/range/inferred/unknown version evidence, Project DNA target constraints, explicit freshness/staleness, mutable-vs-immutable source identity, conflict/supersession evidence and the rule that exact versions are never inferred without evidence.
+After this R7.8 normalization PR is accepted and merged, the next authorized subdivision is **R7.9 — Research cache + Context/Memory orchestration**. Manual intervention is **NONE**. R7.9 must add `.kodepoia/research` query/result manifests, TTL/revalidation, dedupe, bounded context/citation summaries and source/version/hash invalidation while preserving untrusted status through context/memory and never turning an LLM research summary into validated global experience.

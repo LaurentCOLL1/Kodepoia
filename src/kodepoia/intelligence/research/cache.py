@@ -87,6 +87,25 @@ def version_fingerprint(observation: VersionObservation | None) -> str:
     return _sha256_payload(_version_evidence_payload(observation))
 
 
+def _artifact_version_fingerprint(
+    artifact: ResearchArtifact,
+    observation: VersionObservation | None,
+) -> str:
+    """Fingerprint the strongest available version evidence for one artifact.
+
+    R7.8 observations take precedence. When no normalized observation exists yet,
+    a source-declared version remains identity-relevant evidence instead of being
+    collapsed into the generic unknown-version bucket.
+    """
+
+    if observation is not None:
+        return version_fingerprint(observation)
+    declared = artifact.source.version.strip()
+    if declared:
+        return _sha256_payload({"kind": "source_declared", "value": declared})
+    return version_fingerprint(None)
+
+
 class CacheDecision(StrEnum):
     FRESH = "fresh"
     STALE = "stale"
@@ -213,9 +232,15 @@ class ResearchQueryManifest:
         )
 
     def identity_payload(self) -> dict[str, Any]:
+        """Canonical cache-selection identity.
+
+        `request_id` is intentionally excluded: it identifies one invocation and
+        remains serialized for provenance, but equivalent normalized requests must
+        resolve to the same cache key.
+        """
+
         return {
             "schema_version": self.schema_version,
-            "request_id": self.request_id,
             "query_sha256": self.query_sha256,
             "project_scope_sha256": self.project_scope_sha256,
             "source_kinds": list(self.source_kinds),
@@ -227,6 +252,7 @@ class ResearchQueryManifest:
 
     def to_dict(self) -> dict[str, Any]:
         payload = self.identity_payload()
+        payload["request_id"] = self.request_id
         payload["cache_key"] = self.cache_key
         return payload
 
@@ -288,7 +314,7 @@ class CachedArtifactReference:
             source_id=artifact.source.source_id,
             content_sha256=artifact.content_sha256,
             source_identity_id="" if identity is None else identity.identity_id,
-            version_fingerprint=version_fingerprint(observation),
+            version_fingerprint=_artifact_version_fingerprint(artifact, observation),
             mutability=SourceMutability.UNKNOWN if identity is None else identity.mutability,
             original_retrieved_at=artifact.retrieved_at,
             original_freshness=artifact.freshness,
@@ -482,7 +508,7 @@ def assess_cached_result(
     current_artifact_refs: Iterable[CachedArtifactReference] | None = None,
 ) -> CacheAssessment:
     now = _require_timestamp(as_of, "as_of")
-    if manifest.cache_key != query_manifest.cache_key or manifest.request_id != query_manifest.request_id:
+    if manifest.cache_key != query_manifest.cache_key:
         return CacheAssessment(CacheDecision.INVALIDATED, "query_cache_key_changed", None, None)
     if manifest.policy_digest != policy.policy_digest or query_manifest.policy_digest != policy.policy_digest:
         return CacheAssessment(CacheDecision.INVALIDATED, "cache_policy_changed", None, None)
@@ -552,7 +578,7 @@ def deduplicate_artifacts(
         identity = None if identities is None else identities.get(artifact.artifact_id)
         observation = None if observations is None else observations.get(artifact.artifact_id)
         source_key = artifact.source.source_id if identity is None else identity.identity_id
-        version_key = version_fingerprint(observation)
+        version_key = _artifact_version_fingerprint(artifact, observation)
         key = (source_key, version_key, artifact.content_sha256)
         buckets.setdefault(key, []).append(artifact)
         source_values.setdefault(key, set()).add(artifact.source.source_id)

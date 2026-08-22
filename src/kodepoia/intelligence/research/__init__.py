@@ -22,6 +22,17 @@ from kodepoia.intelligence.research.documents import (
     OfficialDocsAdapter,
     OfficialDocsManifest,
 )
+from kodepoia.intelligence.research.github import (
+    GITHUB_API_HOST,
+    GITHUB_API_VERSION,
+    GitHubApiTransport,
+    GitHubCredentialRef,
+    GitHubRateLimit,
+    GitHubResearchClient,
+    GitHubResearchRequest,
+    GitHubResearchResult,
+    GitHubResourceKind,
+)
 from kodepoia.intelligence.research.store import ResearchStore
 from kodepoia.intelligence.research.web import (
     ExtractedWebDocument,
@@ -50,6 +61,15 @@ __all__ = [
     "DocumentResearchResult",
     "ExtractedWebDocument",
     "FixtureWebTransport",
+    "GITHUB_API_HOST",
+    "GITHUB_API_VERSION",
+    "GitHubApiTransport",
+    "GitHubCredentialRef",
+    "GitHubRateLimit",
+    "GitHubResearchClient",
+    "GitHubResearchRequest",
+    "GitHubResearchResult",
+    "GitHubResourceKind",
     "GuardedHttpTransport",
     "HostRateLimiter",
     "LocalDocumentAdapter",

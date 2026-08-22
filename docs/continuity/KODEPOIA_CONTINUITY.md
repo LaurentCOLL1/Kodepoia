@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE après fusion de la normalisation finale R7 #81.** R7.11 est accepté sur le head exact `52330ca576fe294956a8fb601bdfda1d72dc3f92` avec R0 #1030 / `32598775535`, Python Core #1004 / `32598775562` cinq jobs SUCCESS, suite Ubuntu `514 passed / 6 skipped / 46 warnings`, UI Smoke #971 / `32598775534` SUCCESS; PR #80 merge `1cdf5b90cc6c3e829c13e63f753f47fb067ef14e`; manual R7.11 = CONDITIONAL NOT TRIGGERED. La preuve phase-closing est `docs/roadmap/R7_INTEGRATED_ACCEPTANCE.json`, status `pass`, aucun blocker, digest `2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437`; R7.7 REQUIRED = SATISFIED. **Prochaine action autorisée après merge #81 : planifier R8 avec un `R8_PLAN.md` exhaustif et le faire accepter avant toute R8.1. Ne pas commencer R8.1 directement.**
+> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 NOT STARTED.** R7.11 est accepté sur le head exact `52330ca576fe294956a8fb601bdfda1d72dc3f92`; PR #80 merge `1cdf5b90cc6c3e829c13e63f753f47fb067ef14e`; manual R7.11 = CONDITIONAL NOT TRIGGERED. La normalisation finale R7 est acceptée sur le head exact `d2278b1ee31d7d4a7b8570836edc3082e9fe30c4` avec R0 #1035 / `32599397013`, Python Core #1009 / `32599397057` cinq jobs SUCCESS, suite Ubuntu `515 passed / 5 skipped / 46 warnings`, validation `R7 integrated acceptance: PASS`, UI Smoke #976 / `32599397003` SUCCESS; PR #81 merge `24dc403b329fd748a8aadac9d6760a2fb73a9730`. La preuve phase-closing `docs/roadmap/R7_INTEGRATED_ACCEPTANCE.json` est `pass`, sans blocker, digest `2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437`; R7.7 REQUIRED = SATISFIED. **Prochaine action autorisée : planifier R8 avec un `R8_PLAN.md` exhaustif et le faire accepter avant toute R8.1. Ne pas commencer R8.1 directement.**
 
 ## Source de vérité et état
 
@@ -12,6 +12,7 @@
 - Architecture v1.0 : gelée le 21 août 2026.
 - `main` : source de vérité après chaque fusion acceptée.
 - R1–R6 : COMPLETE.
+- R7 : **COMPLETE**.
 - R7 planning : ACCEPTED — head `f86825ffd84c1c814afb5865be95b278c4291314`; PR #58 merge `9315d801f3a2d13a5441bd87babd2abeb9305995`; normalization #59 `7279412ae751bce739317763462c4a48d7832122`.
 - R7.1 : COMPLETE — `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca`; manual NONE.
 - R7.2 : COMPLETE — `9101e686a32b24bb33a23d7ac578bf25570e115e`; manual NONE.
@@ -25,7 +26,7 @@
 - R7.10 : COMPLETE — `cfd0f7ba02af04b456993f686827f10810b3a61a`; manual NONE.
 - R7.11 : COMPLETE — `52330ca576fe294956a8fb601bdfda1d72dc3f92`; manual CONDITIONAL NOT TRIGGERED.
 - R7 integrated report : PASS, no blockers, digest `2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437`.
-- R7 final normalization : PR #81; R7 becomes authoritative COMPLETE on `main` only after exact-head R0/Python/UI SUCCESS and merge of #81.
+- R7 final normalization : COMPLETE — head `d2278b1ee31d7d4a7b8570836edc3082e9fe30c4`; R0 #1035 / `32599397013`; Python Core #1009 / `32599397057` 5/5 (`515 passed / 5 skipped / 46 warnings` Ubuntu, integrated check PASS); UI Smoke #976 / `32599397003`; PR #81 merge `24dc403b329fd748a8aadac9d6760a2fb73a9730`.
 - R8–R16 : PENDING / NOT STARTED.
 
 ## R7 frozen structure — completed
@@ -64,7 +65,7 @@ Le rapport :
 - `blockers=[]`;
 - `evidence_sha256=2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437`.
 
-`scripts/r7_integrated_acceptance.py` régénère cette preuve depuis `git show HEAD:path`. `validate_repository_evidence()` recalcule les tailles/SHA-256, vérifie les heads, les états manuels et l'identité R7.11; toute différence fail closed. Python Core exécute ce contrôle avant pytest.
+`scripts/r7_integrated_acceptance.py` régénère cette preuve depuis `git show HEAD:path`. `validate_repository_evidence()` recalcule les tailles/SHA-256, vérifie les heads, les états manuels et l'identité R7.11; toute différence fail closed. Python Core #1009 a exécuté ce contrôle avant pytest et a retourné `R7 integrated acceptance: PASS`.
 
 ## R7.11 accepted evidence
 
@@ -129,4 +130,4 @@ Pour toute phase R8+ :
 
 ## Next action
 
-**Après merge de la normalisation finale R7 #81 : R1–R7 COMPLETE. R8 NOT STARTED.** La prochaine action autorisée est uniquement **R8 planning** : produire le `R8_PLAN.md` exhaustif et le faire accepter. Ne pas commencer R8.1 avant ce merge de plan.
+**R1–R7 COMPLETE. R8 NOT STARTED.** La prochaine action autorisée est uniquement **R8 planning** : produire le `R8_PLAN.md` exhaustif et le faire accepter. Ne pas commencer R8.1 avant ce merge de plan.

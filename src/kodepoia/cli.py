@@ -16,6 +16,7 @@ from kodepoia.intelligence.research.media import (
     build_governed_media_runner,
     write_json_report,
 )
+from kodepoia.intelligence.research.media_fixture import run_fixture_acceptance
 from kodepoia.project.dna import ApprovalPolicy, Dimension, Platform, ProjectType
 from kodepoia.project.initializer import ProjectInitializer
 from kodepoia.project.wizard import ProjectWizardState
@@ -214,7 +215,8 @@ def _research_media_acceptance(args: argparse.Namespace) -> int:
     root = Path.cwd().resolve(strict=False)
     runner = build_governed_media_runner(root)
     doctor = MediaDoctor(root, runner)
-    report = LocalMediaAcceptance(root, runner, doctor).run(args.fixture)
+    acceptance = LocalMediaAcceptance(root, runner, doctor)
+    report = run_fixture_acceptance(acceptance, args.fixture)
     payload = report.to_dict()
     destination = write_json_report(root, args.output, payload)
     print(json.dumps({"output": str(destination), **payload}, ensure_ascii=False, indent=2))

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R6 sont COMPLETE. Le planning R7 est ACCEPTED. R7.1–R7.6 sont COMPLETE ; R7.7 est NOT STARTED.** R7.6 a été accepté sur le head exact `b623836b8f5bd39fce101eca7fe4653a996a9562` avec R0 #980 / `32590863193`, Python Core #954 / `32590863199` cinq jobs SUCCESS, suite Ubuntu `432 passed / 3 skipped / 46 warnings`, et UI Smoke #921 / `32590863191` SUCCESS; PR #70 merge `15216b59e14d692ff1e850812d572632bad5a88b`; manual R7.6 = CONDITIONAL NOT TRIGGERED. **La prochaine implémentation autorisée est R7.7 — Local STT + frame extraction/analysis hooks**, uniquement après fusion de la normalisation R7.6. R7.7 possède un gate manuel REQUIRED et ne peut pas être fermé avec de la preuve hosted/headless seule.
+> Kodepoia, architecture v1.0 gelée. **R1–R6 sont COMPLETE. Le planning R7 est ACCEPTED. R7.1–R7.7 sont COMPLETE ; R7.8 est NOT STARTED.** R7.7 a été accepté sur le head exact `04cef94c82fdacafe7313d27c8cf516e8e765295` avec R0 #997 / `32594549119`, Python Core #971 / `32594549136` cinq jobs SUCCESS, suite Ubuntu `443 passed / 4 skipped / 46 warnings`, et UI Smoke #938 / `32594549125` SUCCESS; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual R7.7 = REQUIRED SATISFIED sur Windows réel avec doctor READY, media acceptance PASS et pytest autoritaire PASS. **La prochaine implémentation autorisée est R7.8 — Version-awareness + provenance/conflict model**, uniquement après fusion de la normalisation R7.7. R7.8 manual = NONE.
 
 ## Source de vérité et état
 
@@ -19,7 +19,8 @@
 - R7.4 : COMPLETE — head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`; R0 #972, Python #946 5/5 (`388 passed / 3 skipped / 46 warnings` Ubuntu), UI #913; PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`; manual CONDITIONAL NOT TRIGGERED.
 - R7.5 : COMPLETE — head `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5`; R0 #976, Python #950 5/5 (`400 passed / 3 skipped / 46 warnings` Ubuntu), UI #917; PR #68 merge `b02dfba4b6a6a4c0a6ec19d552e569b56845a4ea`; manual NONE.
 - R7.6 : COMPLETE — head `b623836b8f5bd39fce101eca7fe4653a996a9562`; R0 #980 / `32590863193`; Python #954 / `32590863199` 5/5 (`432 passed / 3 skipped / 46 warnings` Ubuntu); UI #921 / `32590863191`; PR #70 merge `15216b59e14d692ff1e850812d572632bad5a88b`; manual CONDITIONAL NOT TRIGGERED.
-- R7.7–R7.11 : NOT STARTED; next = R7.7.
+- R7.7 : COMPLETE — head `04cef94c82fdacafe7313d27c8cf516e8e765295`; R0 #997 / `32594549119`; Python #971 / `32594549136` 5/5 (`443 passed / 4 skipped / 46 warnings` Ubuntu); UI #938 / `32594549125`; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual REQUIRED SATISFIED.
+- R7.8–R7.11 : NOT STARTED; next = R7.8.
 - R8–R16 : PENDING / NOT STARTED.
 
 ## R7 frozen structure
@@ -67,13 +68,38 @@ Aucune subdivision ne peut être ajoutée, supprimée, fusionnée, scindée ou r
 - R7.6 n'ajoute aucun stream audio/vidéo, cache audiovisuel, offline playback, browser/login automation, scraping d'endpoint caption non documenté, DRM bypass, yt-dlp, ffmpeg ou subprocess helper.
 - STT/frame/media local reste strictement R7.7.
 
-## YouTube official reference context used by R7.6
+## R7.7 accepted local-media baseline
 
-- `videos.list` : read-only metadata endpoint; selected `part` fields include `snippet`/`contentDetails`; current documented quota cost 1.
-- `captions.list` : track metadata only, not caption text; authorization required; current documented quota cost 50.
-- `captions.download` : caption text/file download; OAuth required and user must have permission to edit the video; current documented quota cost 200; WebVTT supported by `tfmt=vtt`.
-- Caption resources expose `videoId`, `language`, `trackKind`, `lastUpdated`, `status`, `isDraft`; `trackKind` includes ASR/forced/standard.
-- YouTube Developer Policies are treated as provider-policy context for keeping audiovisual stream download/storage outside R7.6; Kodepoia makes no legal conclusion or certification.
+- Accepted exact head: `04cef94c82fdacafe7313d27c8cf516e8e765295`.
+- Local doctor: READY on the exact head with FFmpeg 4.2.3, whisper.cpp 1.9.1 and project-local `ggml-base.en.bin`.
+- FFmpeg executable SHA-256: `b6bd38a97c5f118f30c93a97b5739b5f33dd2616c735f841c2a56074a9f0a9f0`.
+- whisper.cpp executable SHA-256: `58245314fb73b30fbd0cf0542c5c172e23f02b6eb7cad7b51e792439cf5e1755`.
+- STT model SHA-256: `a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002`.
+- Accepted fixture SHA-256: `8b3ed015526fd4584309a3c661b9e267ac464315e2d1c9aeed5bea19f28bdcf7`, 12,112 bytes.
+- Actual transcript was `1, 2, 3, 4.` with timestamps and passed bounded semantic normalization; no exact lexical rendering is assumed.
+- Frames at 500/1500/2500 ms were extracted as 320x180 with three distinct SHA-256 hashes.
+- Local acceptance `status=PASS`, cleanup true, temporary disk budget PASS; CPU/RAM remain explicit UNKNOWN because not measured.
+- `tests/test_r7_7_media_local_acceptance.py` passed locally and was not skipped.
+- Returned local evidence SHA-256: doctor `463c0de4ad477baabc711a2b89fc1c7ad0b7735c6bdfc2ecfdde457a9f8f86e1`; acceptance `33e52eb43ed448dd02766b823c3b22bfb08301a9f4dc3f24f336269f1ab76283`.
+- No visual interpretation is fabricated: default frame-analysis state is `UNAVAILABLE` until a real accepted provider exists.
+- No automatic binary/model/driver install; no model-provided arbitrary executable/argv/cwd/env; media processing reuses WorkspaceBoundary, Guardian, ProcessSandbox and KillSwitch.
+- Rejected candidates and their reasons remain recorded in `R7_7_ACCEPTANCE.md` and PR #72 rather than being rewritten as PASS.
+
+## R7.8 execution contract
+
+R7.8 is now the next authorized subdivision after normalization. Preserve these frozen requirements:
+
+- represent exact, range, inferred and unknown version relationships distinctly;
+- exact version must never be inferred without direct evidence;
+- consume Project DNA target-version constraints without silently rewriting them;
+- expose freshness/current/stale/unknown independently from version match;
+- distinguish mutable source identity from immutable identity (for example a Git ref vs exact commit SHA);
+- record conflict, agreement, supersession and unresolved evidence across sources;
+- keep source facts distinct from inference;
+- do not let source popularity or source count manufacture authority;
+- manual intervention = NONE.
+
+For Python-package style versions, PEP 440/version-specifier semantics are useful reference context; for SemVer sources, SemVer 2.0.0 precedence/range semantics are reference context. Kodepoia must record the version scheme/evidence used rather than assuming every ecosystem follows one universal scheme.
 
 ## Permanent architecture/security boundaries
 
@@ -88,4 +114,4 @@ Preserve without reinterpretation: `WorkspaceBoundary`; ProcessSandbox + global 
 
 ## Next action
 
-**R7.1–R7.6 are COMPLETE. R7.7 is NOT STARTED.** After the R7.6 normalization PR merges, start **R7.7 — Local STT + frame extraction/analysis hooks**. The manual gate is REQUIRED: hosted/headless fixtures may validate deterministic contracts but cannot by themselves close R7.7. Any media helper must use structured fixed arguments and existing ProcessSandbox/KillSwitch governance; paths remain WorkspaceBoundary-confined; provenance and resource bounds remain explicit; real manual evidence must be recorded before COMPLETE.
+**R7.1–R7.7 are COMPLETE. R7.8 is NOT STARTED.** After the R7.7 normalization PR merges, start **R7.8 — Version-awareness + provenance/conflict model**. Manual gate = NONE. Implement exact/range/inferred/unknown version evidence, Project DNA target constraints, freshness/staleness, mutable/immutable identity, conflict/agreement/supersession and deterministic provenance without fabricating exact version matches.

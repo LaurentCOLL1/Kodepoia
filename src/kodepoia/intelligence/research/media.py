@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import binascii
 import hashlib
 import json
 import os
@@ -24,7 +26,7 @@ from kodepoia.kodecode.workspace import WorkspaceBoundary
 
 MEDIA_SCHEMA_VERSION = 1
 DEFAULT_WHISPER_MODEL = ".kodepoia/models/stt/ggml-base.en.bin"
-EXPECTED_FIXTURE_SHA256 = "d3364ec595f3e93a71e1d2b93c719383d10624275be27fab1fdabb4000022f9e"
+EXPECTED_FIXTURE_SHA256 = "8b3ed015526fd4584309a3c661b9e267ac464315e2d1c9aeed5bea19f28bdcf7"
 EXPECTED_FIXTURE_TOKENS = ("one", "two", "three", "four")
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -42,6 +44,7 @@ class AcceptanceStatus(StrEnum):
 @dataclass(frozen=True, slots=True)
 class MediaExecutionPolicy:
     max_input_bytes: int = 32 * 1024 * 1024
+    max_temporary_bytes: int = 96 * 1024 * 1024
     ffmpeg_timeout_seconds: float = 60.0
     stt_timeout_seconds: float = 180.0
     frame_timestamps_ms: tuple[int, ...] = (500, 1500, 2500)
@@ -51,6 +54,8 @@ class MediaExecutionPolicy:
     def __post_init__(self) -> None:
         if not 1 <= self.max_input_bytes <= 512 * 1024 * 1024:
             raise ValueError("media input budget must be between 1 byte and 512 MiB")
+        if not self.max_input_bytes <= self.max_temporary_bytes <= 2 * 1024 * 1024 * 1024:
+            raise ValueError("media temporary-disk budget is invalid")
         if not 0.1 <= self.ffmpeg_timeout_seconds <= 600.0:
             raise ValueError("ffmpeg timeout must be between 0.1 and 600 seconds")
         if not 0.1 <= self.stt_timeout_seconds <= 1800.0:
@@ -94,6 +99,19 @@ class SttModelCapability:
             raise ValueError("STT model sha256 must be lowercase SHA-256")
         if self.size_bytes < 0:
             raise ValueError("STT model size cannot be negative")
+
+
+@dataclass(frozen=True, slots=True)
+class ResourceMeasurements:
+    elapsed_ms: int
+    input_bytes: int
+    temporary_peak_bytes: int
+    cpu_measurement_status: ResearchStatus = ResearchStatus.UNKNOWN
+    ram_measurement_status: ResearchStatus = ResearchStatus.UNKNOWN
+
+    def __post_init__(self) -> None:
+        if min(self.elapsed_ms, self.input_bytes, self.temporary_peak_bytes) < 0:
+            raise ValueError("resource measurements cannot be negative")
 
 
 @dataclass(frozen=True, slots=True)
@@ -193,7 +211,7 @@ class MediaAcceptanceReport:
     checks: tuple[AcceptanceCheck, ...]
     vision_status: ResearchStatus
     vision_reason: str
-    elapsed_ms: int
+    resources: ResourceMeasurements
     cleanup_passed: bool
 
     def to_dict(self) -> dict[str, object]:
@@ -201,13 +219,7 @@ class MediaAcceptanceReport:
 
 
 class MediaProcessRunner(Protocol):
-    def run(
-        self,
-        argv: Sequence[str],
-        *,
-        cwd: Path,
-        timeout: float,
-    ) -> SandboxResult: ...
+    def run(self, argv: Sequence[str], *, cwd: Path, timeout: float) -> SandboxResult: ...
 
 
 @dataclass(slots=True)
@@ -215,13 +227,7 @@ class GovernedMediaRunner:
     guardian: KodeGuardian
     sandbox: ProcessSandbox
 
-    def run(
-        self,
-        argv: Sequence[str],
-        *,
-        cwd: Path,
-        timeout: float,
-    ) -> SandboxResult:
+    def run(self, argv: Sequence[str], *, cwd: Path, timeout: float) -> SandboxResult:
         if not argv:
             raise ValueError("media argv cannot be empty")
         executable_name = Path(argv[0]).name.lower()
@@ -245,14 +251,12 @@ def build_governed_media_runner(project_root: Path) -> GovernedMediaRunner:
     allowed = {"ffmpeg", "ffmpeg.exe", "whisper-cli", "whisper-cli.exe"}
     permissions = PermissionSet()
     permissions.grant(
-        PermissionGrant(
-            capability=Capability.PROCESS_EXECUTE,
-            executables=tuple(sorted(allowed)),
-        )
+        PermissionGrant(capability=Capability.PROCESS_EXECUTE, executables=tuple(sorted(allowed)))
     )
-    guardian = KodeGuardian(permissions)
-    sandbox = ProcessSandbox(root, allowed_executables=allowed)
-    return GovernedMediaRunner(guardian, sandbox)
+    return GovernedMediaRunner(
+        KodeGuardian(permissions),
+        ProcessSandbox(root, allowed_executables=allowed),
+    )
 
 
 def _jsonable(value: object) -> object:
@@ -273,10 +277,7 @@ def _sha256_file(path: Path, *, max_bytes: int | None = None) -> str:
     digest = hashlib.sha256()
     total = 0
     with path.open("rb") as handle:
-        while True:
-            block = handle.read(1024 * 1024)
-            if not block:
-                break
+        while block := handle.read(1024 * 1024):
             total += len(block)
             if max_bytes is not None and total > max_bytes:
                 raise MediaProcessingError("file exceeds configured byte budget")
@@ -286,17 +287,15 @@ def _sha256_file(path: Path, *, max_bytes: int | None = None) -> str:
 
 def _first_line(text: str) -> str:
     for line in text.splitlines():
-        stripped = line.strip()
-        if stripped:
-            return stripped[:512]
+        if line.strip():
+            return line.strip()[:512]
     return ""
 
 
 def _read_git_head(project_root: Path) -> str:
     git_dir = project_root / ".git"
-    head = git_dir / "HEAD"
     try:
-        raw = head.read_text(encoding="utf-8").strip()
+        raw = (git_dir / "HEAD").read_text(encoding="utf-8").strip()
     except (OSError, UnicodeError):
         return "UNKNOWN"
     if _GIT_SHA_RE.fullmatch(raw):
@@ -306,33 +305,29 @@ def _read_git_head(project_root: Path) -> str:
     ref_name = raw[5:].strip()
     if ".." in ref_name or ref_name.startswith(("/", "\\")):
         return "UNKNOWN"
-    ref_path = git_dir / ref_name
     try:
-        value = ref_path.read_text(encoding="utf-8").strip()
+        value = (git_dir / ref_name).read_text(encoding="utf-8").strip()
     except (OSError, UnicodeError):
         value = ""
     if _GIT_SHA_RE.fullmatch(value):
         return value
-    packed = git_dir / "packed-refs"
     try:
-        lines = packed.read_text(encoding="utf-8").splitlines()
+        lines = (git_dir / "packed-refs").read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeError):
         return "UNKNOWN"
     suffix = f" {ref_name}"
     for line in lines:
-        if line.startswith(("#", "^")) or not line.endswith(suffix):
-            continue
-        candidate = line.split(" ", 1)[0]
-        if _GIT_SHA_RE.fullmatch(candidate):
-            return candidate
+        if not line.startswith(("#", "^")) and line.endswith(suffix):
+            candidate = line.split(" ", 1)[0]
+            if _GIT_SHA_RE.fullmatch(candidate):
+                return candidate
     return "UNKNOWN"
 
 
 def _resolve_model_path(boundary: WorkspaceBoundary, configured: str | None = None) -> tuple[Path, str]:
     model_value = configured or os.environ.get("KODEPOIA_WHISPER_MODEL", DEFAULT_WHISPER_MODEL)
     model_path = boundary.resolve(model_value, must_exist=False)
-    relative = boundary.relative(model_path)
-    return model_path, relative
+    return model_path, boundary.relative(model_path)
 
 
 def _find_executable(name: str) -> Path | None:
@@ -356,11 +351,7 @@ def _probe_tool(
     if executable is None or not executable.exists() or not executable.is_file():
         return ToolCapability(name=name, status=ResearchStatus.UNAVAILABLE, reason="executable_not_found")
     executable_hash = _sha256_file(executable)
-    version_result = runner.run(
-        (str(executable), *version_args),
-        cwd=project_root,
-        timeout=timeout,
-    )
+    version_result = runner.run((str(executable), *version_args), cwd=project_root, timeout=timeout)
     if version_result.timed_out or version_result.cancelled or version_result.returncode != 0:
         return ToolCapability(
             name=name,
@@ -372,11 +363,7 @@ def _probe_tool(
     version = _first_line(version_result.stdout or version_result.stderr)
     contract_text = f"{version_result.stdout}\n{version_result.stderr}"
     if contract_args is not None:
-        contract_result = runner.run(
-            (str(executable), *contract_args),
-            cwd=project_root,
-            timeout=timeout,
-        )
+        contract_result = runner.run((str(executable), *contract_args), cwd=project_root, timeout=timeout)
         if contract_result.timed_out or contract_result.cancelled or contract_result.returncode != 0:
             return ToolCapability(
                 name=name,
@@ -387,15 +374,15 @@ def _probe_tool(
                 reason="contract_probe_failed",
             )
         contract_text = f"{contract_result.stdout}\n{contract_result.stderr}"
-    contract_supported = all(marker in contract_text for marker in required_markers)
+    supported = all(marker in contract_text for marker in required_markers)
     return ToolCapability(
         name=name,
-        status=ResearchStatus.READY if contract_supported else ResearchStatus.UNAVAILABLE,
+        status=ResearchStatus.READY if supported else ResearchStatus.UNAVAILABLE,
         executable_name=executable.name,
         version=version,
         executable_sha256=executable_hash,
-        contract_supported=contract_supported,
-        reason="" if contract_supported else "required_cli_contract_missing",
+        contract_supported=supported,
+        reason="" if supported else "required_cli_contract_missing",
     )
 
 
@@ -411,10 +398,8 @@ class MediaDoctor:
     def __post_init__(self) -> None:
         self.project_root = Path(self.project_root).resolve(strict=False)
         self._boundary = WorkspaceBoundary(self.project_root)
-        if self.ffmpeg_executable is None:
-            self.ffmpeg_executable = _find_executable("ffmpeg")
-        if self.whisper_executable is None:
-            self.whisper_executable = _find_executable("whisper-cli")
+        self.ffmpeg_executable = self.ffmpeg_executable or _find_executable("ffmpeg")
+        self.whisper_executable = self.whisper_executable or _find_executable("whisper-cli")
 
     def run(self) -> MediaDoctorReport:
         ffmpeg = _probe_tool(
@@ -436,14 +421,7 @@ class MediaDoctor:
             required_markers=("--output-json", "--output-json-full", "--output-file", "--no-gpu"),
         )
         model_path, model_relative = _resolve_model_path(self._boundary, self.whisper_model)
-        if not model_path.exists() or not model_path.is_file():
-            model = SttModelCapability(
-                engine="whisper.cpp",
-                status=ResearchStatus.UNAVAILABLE,
-                relative_path=model_relative,
-                reason="model_not_found",
-            )
-        else:
+        if model_path.exists() and model_path.is_file():
             model = SttModelCapability(
                 engine="whisper.cpp",
                 status=ResearchStatus.READY,
@@ -451,11 +429,14 @@ class MediaDoctor:
                 sha256=_sha256_file(model_path),
                 size_bytes=model_path.stat().st_size,
             )
-        ready = (
-            ffmpeg.status is ResearchStatus.READY
-            and stt.status is ResearchStatus.READY
-            and model.status is ResearchStatus.READY
-        )
+        else:
+            model = SttModelCapability(
+                engine="whisper.cpp",
+                status=ResearchStatus.UNAVAILABLE,
+                relative_path=model_relative,
+                reason="model_not_found",
+            )
+        ready = all(item.status is ResearchStatus.READY for item in (ffmpeg, stt, model))
         return MediaDoctorReport(
             schema_version=MEDIA_SCHEMA_VERSION,
             generated_at=_utc_now(),
@@ -484,71 +465,99 @@ class WhisperCppAdapter:
         self.timeout_seconds = timeout_seconds
 
     def transcribe(self, audio_path: Path, output_base: Path) -> tuple[TranscriptSegment, ...]:
-        argv = (
-            str(self.executable),
-            "-m",
-            str(self.model_path),
-            "-f",
-            str(audio_path),
-            "-l",
-            "en",
-            "-ng",
-            "-np",
-            "-oj",
-            "-ojf",
-            "-of",
-            str(output_base),
+        result = self.runner.run(
+            (
+                str(self.executable),
+                "-m", str(self.model_path),
+                "-f", str(audio_path),
+                "-l", "en",
+                "-ng",
+                "-np",
+                "-oj",
+                "-ojf",
+                "-of", str(output_base),
+            ),
+            cwd=self.project_root,
+            timeout=self.timeout_seconds,
         )
-        result = self.runner.run(argv, cwd=self.project_root, timeout=self.timeout_seconds)
-        if result.timed_out:
-            raise MediaProcessingError("whisper.cpp transcription timed out")
-        if result.cancelled:
-            raise MediaProcessingError("whisper.cpp transcription was cancelled")
-        if result.returncode != 0:
-            raise MediaProcessingError("whisper.cpp transcription failed")
+        _require_process_success(result, "whisper.cpp transcription")
         json_path = output_base.with_suffix(".json")
-        if not json_path.exists():
-            raise MediaProcessingError("whisper.cpp did not produce expected JSON output")
         try:
             payload = json.loads(json_path.read_text(encoding="utf-8"))
         except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-            raise MediaProcessingError("whisper.cpp JSON output is invalid") from exc
-        segments = _parse_whisper_json(payload)
+            raise MediaProcessingError("whisper.cpp JSON output is missing or invalid") from exc
+        segments = parse_whisper_json(payload)
         if not segments:
             raise MediaProcessingError("whisper.cpp produced no transcript segments")
         return segments
 
 
-def _parse_whisper_json(payload: object) -> tuple[TranscriptSegment, ...]:
-    if not isinstance(payload, dict):
-        raise MediaProcessingError("whisper.cpp JSON root must be an object")
-    raw_segments = payload.get("transcription")
-    if not isinstance(raw_segments, list):
+def parse_whisper_json(payload: object) -> tuple[TranscriptSegment, ...]:
+    if not isinstance(payload, dict) or not isinstance(payload.get("transcription"), list):
         raise MediaProcessingError("whisper.cpp JSON is missing transcription array")
     segments: list[TranscriptSegment] = []
-    for raw in raw_segments:
-        if not isinstance(raw, dict):
+    for raw in payload["transcription"]:
+        if not isinstance(raw, dict) or not isinstance(raw.get("offsets"), dict):
             continue
         text = str(raw.get("text", "")).strip()
-        offsets = raw.get("offsets")
-        if not text or not isinstance(offsets, dict):
+        if not text:
             continue
+        offsets = raw["offsets"]
         try:
             start_ms = int(offsets["from"])
             end_ms = int(offsets["to"])
         except (KeyError, TypeError, ValueError):
             continue
         confidence: float | None = None
-        probability = raw.get("confidence")
-        if probability is not None:
+        if raw.get("confidence") is not None:
             try:
-                candidate = float(probability)
+                candidate = float(raw["confidence"])
             except (TypeError, ValueError):
                 candidate = -1.0
             if 0.0 <= candidate <= 1.0:
                 confidence = candidate
         segments.append(TranscriptSegment(start_ms, end_ms, text, confidence))
     return tuple(segments)
+
+
+def _materialize_fixture(
+    boundary: WorkspaceBoundary,
+    requested: str | Path,
+    *,
+    temp_dir: Path,
+    max_bytes: int,
+) -> tuple[Path, str]:
+    logical = boundary.resolve(requested, must_exist=False)
+    logical_relative = boundary.relative(logical)
+    if logical.exists():
+        if not logical.is_file():
+            raise MediaProcessingError("media fixture must be a file")
+        return logical, logical_relative
+    encoded = boundary.resolve(f"{logical_relative}.b64", must_exist=True)
+    if not encoded.is_file():
+        raise MediaProcessingError("encoded media fixture must be a file")
+    if encoded.stat().st_size > ((max_bytes * 4) // 3) + 4096:
+        raise MediaProcessingError("encoded media fixture exceeds configured byte budget")
+    try:
+        raw = base64.b64decode(encoded.read_text(encoding="ascii").strip(), validate=True)
+    except (OSError, UnicodeError, binascii.Error) as exc:
+        raise MediaProcessingError("encoded media fixture is invalid base64") from exc
+    if len(raw) > max_bytes:
+        raise MediaProcessingError("decoded media fixture exceeds configured byte budget")
+    materialized = temp_dir / logical.name
+    materialized.write_bytes(raw)
+    return materialized, logical_relative
+
+
+def _directory_bytes(path: Path) -> int:
+    total = 0
+    for item in path.rglob("*"):
+        if item.is_file():
+            try:
+                total += item.stat().st_size
+            except OSError:
+                continue
+    return total
 
 
 @dataclass(slots=True)
@@ -568,58 +577,58 @@ class LocalMediaAcceptance:
         started = time.monotonic()
         checks: list[AcceptanceCheck] = []
         doctor_report = self.doctor.run()
-        fixture_path = self._boundary.resolve(fixture, must_exist=True)
-        if not fixture_path.is_file():
-            raise MediaProcessingError("media fixture must be a file")
-        fixture_relative = self._boundary.relative(fixture_path)
-        fixture_size = fixture_path.stat().st_size
-        fixture_hash = _sha256_file(fixture_path, max_bytes=self.policy.max_input_bytes)
-        checks.append(AcceptanceCheck("source_sha_exact", bool(_GIT_SHA_RE.fullmatch(doctor_report.source_sha)), doctor_report.source_sha))
-        checks.append(AcceptanceCheck("fixture_budget", fixture_size <= self.policy.max_input_bytes, str(fixture_size)))
-        checks.append(AcceptanceCheck("fixture_hash", fixture_hash == EXPECTED_FIXTURE_SHA256, fixture_hash))
-        checks.append(AcceptanceCheck("ffmpeg_ready", doctor_report.ffmpeg.status is ResearchStatus.READY, doctor_report.ffmpeg.reason))
-        checks.append(AcceptanceCheck("stt_ready", doctor_report.stt.status is ResearchStatus.READY, doctor_report.stt.reason))
-        checks.append(AcceptanceCheck("stt_model_ready", doctor_report.stt_model.status is ResearchStatus.READY, doctor_report.stt_model.reason))
-
         transcripts: tuple[TranscriptSegment, ...] = ()
         frames: tuple[FrameEvidence, ...] = ()
         cleanup_passed = False
         vision_status = ResearchStatus.UNAVAILABLE
         vision_reason = "no_accepted_local_vision_provider_configured"
+        fixture_hash = "0" * 64
+        fixture_size = 0
+        fixture_relative = str(fixture).replace("\\", "/")
+        temporary_peak = 0
+
         temp_root = self._boundary.resolve(".kodepoia/research/tmp", must_exist=False)
         temp_root.mkdir(parents=True, exist_ok=True)
         temp_dir = Path(tempfile.mkdtemp(prefix="r7_7_", dir=temp_root))
         try:
-            if doctor_report.ready and all(item.passed for item in checks[:6]):
+            fixture_path, fixture_relative = _materialize_fixture(
+                self._boundary,
+                fixture,
+                temp_dir=temp_dir,
+                max_bytes=self.policy.max_input_bytes,
+            )
+            fixture_size = fixture_path.stat().st_size
+            fixture_hash = _sha256_file(fixture_path, max_bytes=self.policy.max_input_bytes)
+            checks.extend(
+                (
+                    AcceptanceCheck("source_sha_exact", bool(_GIT_SHA_RE.fullmatch(doctor_report.source_sha)), doctor_report.source_sha),
+                    AcceptanceCheck("fixture_budget", fixture_size <= self.policy.max_input_bytes, str(fixture_size)),
+                    AcceptanceCheck("fixture_hash", fixture_hash == EXPECTED_FIXTURE_SHA256, fixture_hash),
+                    AcceptanceCheck("ffmpeg_ready", doctor_report.ffmpeg.status is ResearchStatus.READY, doctor_report.ffmpeg.reason),
+                    AcceptanceCheck("stt_ready", doctor_report.stt.status is ResearchStatus.READY, doctor_report.stt.reason),
+                    AcceptanceCheck("stt_model_ready", doctor_report.stt_model.status is ResearchStatus.READY, doctor_report.stt_model.reason),
+                )
+            )
+            if all(item.passed for item in checks):
                 ffmpeg = self.doctor.ffmpeg_executable
                 whisper = self.doctor.whisper_executable
                 model_path, _ = _resolve_model_path(self._boundary, self.doctor.whisper_model)
-                assert ffmpeg is not None and whisper is not None
+                if ffmpeg is None or whisper is None:
+                    raise MediaProcessingError("doctor reported READY without executable paths")
+
                 audio_path = temp_dir / "audio.wav"
                 audio_result = self.runner.run(
                     (
-                        str(ffmpeg),
-                        "-hide_banner",
-                        "-loglevel",
-                        "error",
-                        "-nostdin",
-                        "-y",
-                        "-i",
-                        str(fixture_path),
-                        "-vn",
-                        "-ac",
-                        "1",
-                        "-ar",
-                        "16000",
-                        "-c:a",
-                        "pcm_s16le",
-                        str(audio_path),
+                        str(ffmpeg), "-hide_banner", "-loglevel", "error", "-nostdin", "-y",
+                        "-i", str(fixture_path), "-vn", "-ac", "1", "-ar", "16000",
+                        "-c:a", "pcm_s16le", str(audio_path),
                     ),
                     cwd=self.project_root,
                     timeout=self.policy.ffmpeg_timeout_seconds,
                 )
                 _require_process_success(audio_result, "ffmpeg audio extraction")
                 checks.append(AcceptanceCheck("audio_extracted", audio_path.exists() and audio_path.stat().st_size > 44))
+                temporary_peak = max(temporary_peak, _directory_bytes(temp_dir))
 
                 transcripts = WhisperCppAdapter(
                     runner=self.runner,
@@ -628,14 +637,10 @@ class LocalMediaAcceptance:
                     project_root=self.project_root,
                     timeout_seconds=self.policy.stt_timeout_seconds,
                 ).transcribe(audio_path, temp_dir / "transcript")
-                normalized_text = " ".join(item.text.lower() for item in transcripts)
-                token_ok = all(token in normalized_text for token in EXPECTED_FIXTURE_TOKENS)
-                timestamp_ok = all(
-                    segment.start_ms >= 0 and segment.end_ms >= segment.start_ms
-                    for segment in transcripts
-                )
-                checks.append(AcceptanceCheck("transcript_tokens", token_ok, normalized_text[:256]))
-                checks.append(AcceptanceCheck("transcript_timestamps", timestamp_ok, str(len(transcripts))))
+                normalized = " ".join(segment.text.lower() for segment in transcripts)
+                checks.append(AcceptanceCheck("transcript_tokens", all(token in normalized for token in EXPECTED_FIXTURE_TOKENS), normalized[:256]))
+                checks.append(AcceptanceCheck("transcript_timestamps", all(s.start_ms >= 0 and s.end_ms >= s.start_ms for s in transcripts), str(len(transcripts))))
+                temporary_peak = max(temporary_peak, _directory_bytes(temp_dir))
 
                 frame_items: list[FrameEvidence] = []
                 analyses: list[FrameAnalysisResult] = []
@@ -643,24 +648,10 @@ class LocalMediaAcceptance:
                     frame_path = temp_dir / f"frame_{index:02d}.png"
                     frame_result = self.runner.run(
                         (
-                            str(ffmpeg),
-                            "-hide_banner",
-                            "-loglevel",
-                            "error",
-                            "-nostdin",
-                            "-y",
-                            "-ss",
-                            f"{timestamp_ms / 1000:.3f}",
-                            "-i",
-                            str(fixture_path),
-                            "-an",
-                            "-frames:v",
-                            "1",
-                            "-vf",
-                            f"scale={self.policy.frame_width}:-2",
-                            "-fps_mode",
-                            "vfr",
-                            str(frame_path),
+                            str(ffmpeg), "-hide_banner", "-loglevel", "error", "-nostdin", "-y",
+                            "-ss", f"{timestamp_ms / 1000:.3f}", "-i", str(fixture_path),
+                            "-an", "-frames:v", "1", "-vf", f"scale={self.policy.frame_width}:-2",
+                            "-fps_mode", "vfr", str(frame_path),
                         ),
                         cwd=self.project_root,
                         timeout=self.policy.ffmpeg_timeout_seconds,
@@ -668,19 +659,21 @@ class LocalMediaAcceptance:
                     _require_process_success(frame_result, f"ffmpeg frame extraction at {timestamp_ms}ms")
                     frame_items.append(_validate_frame(frame_path, timestamp_ms, self.policy.max_frame_pixels))
                     analyses.append(self.frame_analysis.analyze(frame_path, timestamp_ms=timestamp_ms))
+                    temporary_peak = max(temporary_peak, _directory_bytes(temp_dir))
+                    if temporary_peak > self.policy.max_temporary_bytes:
+                        raise MediaProcessingError("temporary media exceeds configured disk budget")
                 frames = tuple(frame_items)
                 checks.append(AcceptanceCheck("frame_count", len(frames) == len(self.policy.frame_timestamps_ms), str(len(frames))))
                 checks.append(AcceptanceCheck("frame_hashes_unique", len({item.sha256 for item in frames}) == len(frames)))
-                if analyses:
-                    if any(item.status is ResearchStatus.READY for item in analyses):
-                        vision_status = ResearchStatus.READY
-                        vision_reason = ""
-                    else:
-                        vision_status = ResearchStatus.UNAVAILABLE
-                        vision_reason = analyses[0].reason
+                checks.append(AcceptanceCheck("temporary_disk_budget", temporary_peak <= self.policy.max_temporary_bytes, str(temporary_peak)))
+                if analyses and any(item.status is ResearchStatus.READY for item in analyses):
+                    vision_status = ResearchStatus.READY
+                    vision_reason = ""
+                elif analyses:
+                    vision_reason = analyses[0].reason
             else:
-                checks.append(AcceptanceCheck("processing_skipped", False, "doctor_or_prerequisite_not_ready"))
-        except MediaProcessingError as exc:
+                checks.append(AcceptanceCheck("processing_prerequisites", False, "doctor_or_fixture_prerequisite_failed"))
+        except (MediaProcessingError, OSError) as exc:
             checks.append(AcceptanceCheck("processing", False, str(exc)))
         finally:
             try:
@@ -690,9 +683,9 @@ class LocalMediaAcceptance:
                 cleanup_passed = False
             checks.append(AcceptanceCheck("temporary_cleanup", cleanup_passed))
 
-        required_pass = all(item.passed for item in checks if item.check_id != "processing_skipped")
-        status = AcceptanceStatus.PASS if required_pass and transcripts and frames else AcceptanceStatus.FAIL
         elapsed_ms = max(0, int((time.monotonic() - started) * 1000))
+        required_pass = all(check.passed for check in checks)
+        status = AcceptanceStatus.PASS if required_pass and transcripts and frames else AcceptanceStatus.FAIL
         return MediaAcceptanceReport(
             schema_version=MEDIA_SCHEMA_VERSION,
             generated_at=_utc_now(),
@@ -709,7 +702,11 @@ class LocalMediaAcceptance:
             checks=tuple(checks),
             vision_status=vision_status,
             vision_reason=vision_reason,
-            elapsed_ms=elapsed_ms,
+            resources=ResourceMeasurements(
+                elapsed_ms=elapsed_ms,
+                input_bytes=fixture_size,
+                temporary_peak_bytes=temporary_peak,
+            ),
             cleanup_passed=cleanup_passed,
         )
 
@@ -748,7 +745,9 @@ def write_json_report(project_root: Path, relative_path: str | Path, payload: di
     destination = boundary.resolve(relative_path, must_exist=False)
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_name(f".{destination.name}.tmp")
-    serialized = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
-    temporary.write_text(serialized, encoding="utf-8")
+    temporary.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     temporary.replace(destination)
     return destination

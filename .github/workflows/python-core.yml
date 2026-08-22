@@ -81,3 +81,39 @@ jobs:
         run: python -m compileall -q src tests
       - name: KodeStudio smoke
         run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py tests/test_r6_6_localization_ui.py
+
+  package-build:
+    name: package-build-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      KODEPOIA_BUILD_PLATFORM: ${{ matrix.os }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install build evidence dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Build wheel and sdist
+        run: python -m build --wheel --sdist --outdir dist
+      - name: Collect and validate build evidence
+        run: python scripts/r6_8_collect_build.py
+      - name: Upload package and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: kodepoia-build-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            dist/*
+            .kodepoia/releases/${{ matrix.os }}/latest.json
+            .kodepoia/workflows/r6-8-package-build/latest.json

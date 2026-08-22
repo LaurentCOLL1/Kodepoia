@@ -3,8 +3,8 @@
 **Updated:** 2026-08-23  
 **Phase status:** IN PROGRESS  
 **Planning:** ACCEPTED  
-**Completed subdivisions:** R8.1–R8.6  
-**Next authorized subdivision:** R8.7
+**Completed subdivisions:** R8.1–R8.7  
+**Next authorized subdivision:** R8.8
 
 ## Planning authority
 
@@ -20,21 +20,21 @@
 | R8.4 | COMPLETE | `4bf9cbd4892208084cd8ce6554edfd96a971bc04` | #88 | `a35502e0f5f09e07f3ddfd7f929f6d4d4bb490f7` | NONE |
 | R8.5 | COMPLETE | `08c90bd8d52a7dd2dfc8da6ce94f6731701469f6` | #89 | `9bb1f169d7f1534b0068ad43691accf1b6a5e14a` | CONDITIONAL NOT TRIGGERED |
 | R8.6 | COMPLETE | `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe` | #91 | `57c2aa010f438b95a3d753040f1565ae4b68e262` | NONE |
+| R8.7 | COMPLETE | `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3` | #93 | `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9` | NONE |
 
-## R8.6 acceptance evidence
+## R8.7 acceptance evidence
 
-- R0 Repository Guard #1057 / `32603562499`: SUCCESS.
-- Python Core #1031 / `32603562511`: SUCCESS 5/5.
-- Ubuntu authoritative suite: `547 passed / 5 skipped / 46 warnings`.
-- KodeStudio UI Smoke #998 / `32603562503`: SUCCESS.
-- Rejected precursor `85b6c0a550297934194a58122b735a9d0808c5c6`: fixture-only misuse of frozen contracts; production code was not weakened.
+- R0 Repository Guard #1061 / `32603884834`: SUCCESS.
+- Python Core #1035 / `32603884762`: SUCCESS 5/5.
+- Ubuntu authoritative suite: `552 passed / 5 skipped / 46 warnings`.
+- KodeStudio UI Smoke #1002 / `32603884719`: SUCCESS.
+- Structured local Git only: exact HEAD/branch/detached status, porcelain `-z`, binary-safe `--numstat`, SafeChange index snapshots, audit, Vault↔repository evidence; no arbitrary Git surface.
 
 ## Remaining frozen subdivisions
 
-- R8.7 — Asset-aware Git/VCS integration — PLANNED / NONE.
 - R8.8 — Git LFS tracking, pointer/object integrity + diagnostics — PLANNED / CONDITIONAL.
 - R8.9 — Godot 4.7 source/import bridge + rebuild verification — PLANNED / CONDITIONAL.
 - R8.10 — CLI + KodeStudio Vault/Asset/VCS UX — PLANNED / NONE.
 - R8.11 — Adversarial hardening + R8 integrated acceptance — PLANNED / CONDITIONAL.
 
-R8.7 may start only after this R8.6 normalization itself passes R0 Repository Guard, full Python Core and KodeStudio UI Smoke on one exact head and is merged to `main`.
+R8.8 may start only after this R8.7 normalization itself passes R0 Repository Guard, full Python Core and KodeStudio UI Smoke on one exact head and is merged to `main`.

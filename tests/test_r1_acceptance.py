@@ -68,6 +68,27 @@ def test_sandbox_drains_stdout_and_stderr_while_process_runs(tmp_path: Path) -> 
     assert len(result.stderr) == payload_size
 
 
+def test_background_process_discards_unused_output_without_backpressure(tmp_path: Path) -> None:
+    switch = KillSwitch()
+    sandbox = ProcessSandbox(tmp_path, {Path(sys.executable).name}, switch)
+    payload_size = 2 * 1024 * 1024
+    script = (
+        "import sys;"
+        f"sys.stdout.write('x'*{payload_size});sys.stdout.flush();"
+        f"sys.stderr.write('y'*{payload_size});sys.stderr.flush()"
+    )
+    process = sandbox.spawn_background([sys.executable, "-c", script])
+    deadline = time.monotonic() + 5
+    while process.returncode is None and time.monotonic() < deadline:
+        time.sleep(0.02)
+    try:
+        assert process.returncode == 0
+        assert switch.active_count == 1
+    finally:
+        process.close()
+    assert switch.active_count == 0
+
+
 def test_backup_verifies_and_restores(tmp_path: Path) -> None:
     project = tmp_path / "project"
     project.mkdir()

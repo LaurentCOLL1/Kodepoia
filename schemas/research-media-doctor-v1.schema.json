@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/research-media-doctor-v1.schema.json",
+  "title": "Kodepoia R7.7 media doctor report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "source_sha",
+    "ready",
+    "ffmpeg",
+    "stt",
+    "stt_model",
+    "vision_status",
+    "vision_reason"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "source_sha": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|UNKNOWN)$"},
+    "ready": {"type": "boolean"},
+    "ffmpeg": {"$ref": "#/$defs/tool"},
+    "stt": {"$ref": "#/$defs/tool"},
+    "stt_model": {"$ref": "#/$defs/model"},
+    "vision_status": {"$ref": "#/$defs/research_status"},
+    "vision_reason": {"type": "string"}
+  },
+  "$defs": {
+    "research_status": {
+      "type": "string",
+      "enum": ["unknown", "ready", "unavailable", "not_applicable", "blocked", "stale"]
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "status", "executable_name", "version", "executable_sha256", "contract_supported", "reason"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/research_status"},
+        "executable_name": {"type": "string"},
+        "version": {"type": "string"},
+        "executable_sha256": {"type": "string", "pattern": "^(?:[0-9a-f]{64})?$"},
+        "contract_supported": {"type": "boolean"},
+        "reason": {"type": "string"}
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "status", "relative_path", "sha256", "size_bytes", "reason"],
+      "properties": {
+        "engine": {"const": "whisper.cpp"},
+        "status": {"$ref": "#/$defs/research_status"},
+        "relative_path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^(?:[0-9a-f]{64})?$"},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "reason": {"type": "string"}
+      }
+    }
+  }
+}

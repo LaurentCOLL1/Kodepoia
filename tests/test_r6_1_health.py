@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from kodepoia.kodecode.workspace import WorkspaceViolation
 from kodepoia.quality.health import (
     HealthDimension,
     HealthMetric,
@@ -79,6 +80,20 @@ def test_metric_validation_rejects_inconsistent_unknown_and_blocking_values() ->
         HealthMetric(HealthDimension.BUILD, HealthStatus.PASS, 100.0, blocking=True)
 
 
+def test_serialized_derived_fields_must_match_metric_evidence() -> None:
+    report = KodeHealth().evaluate(_all_pass_metrics())
+    payload = report.to_dict()
+    payload["blockers"] = [HealthDimension.SECURITY.value]
+
+    with pytest.raises(ValueError, match="blockers do not match"):
+        HealthReport.from_dict(payload)
+
+    payload = report.to_dict()
+    payload["unknown_dimensions"] = [HealthDimension.PRIVACY.value]
+    with pytest.raises(ValueError, match="unknown dimensions do not match"):
+        HealthReport.from_dict(payload)
+
+
 def test_health_store_writes_latest_and_snapshot_and_round_trips(tmp_path: Path) -> None:
     project = tmp_path / "project"
     (project / ".kodepoia").mkdir(parents=True)
@@ -104,3 +119,17 @@ def test_health_store_requires_initialized_project(tmp_path: Path) -> None:
 
     with pytest.raises(FileNotFoundError, match="Kodepoia project metadata not found"):
         HealthStore(tmp_path / "missing").save(report)
+
+
+def test_health_store_rejects_metadata_symlink_escape(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    outside = tmp_path / "outside"
+    project.mkdir()
+    outside.mkdir()
+    try:
+        (project / ".kodepoia").symlink_to(outside, target_is_directory=True)
+    except OSError:
+        pytest.skip("Symlink creation is not available on this platform/runner")
+
+    with pytest.raises(WorkspaceViolation, match="escapes workspace"):
+        HealthStore(project).save(KodeHealth().evaluate(_all_pass_metrics()))

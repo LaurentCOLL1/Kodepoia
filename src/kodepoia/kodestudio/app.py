@@ -4,9 +4,10 @@ import sys
 
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 from kodepoia.kodestudio.accessibility import mark_accessible
+from kodepoia.kodestudio.localization import KodeStudioTranslator
 
 
-def build_window(kill_switch: KillSwitch | None = None):
+def build_window(kill_switch: KillSwitch | None = None, *, locale: str = "en"):
     from PySide6.QtWidgets import (
         QLabel,
         QListWidget,
@@ -20,13 +21,15 @@ def build_window(kill_switch: KillSwitch | None = None):
     )
 
     switch = kill_switch or GLOBAL_KILL_SWITCH
+    tr = KodeStudioTranslator(locale)
     window = QMainWindow()
     window.setObjectName("kodepoiaMainWindow")
     window.setAccessibleName("Kodepoia KodeStudio")
     window.setAccessibleDescription("Kodepoia local-first development workspace")
-    window.setWindowTitle("Kodepoia — KodeStudio")
+    window.setWindowTitle(tr.text("app.window.title"))
     window.resize(1100, 700)
     window._kodepoia_kill_switch = switch
+    window._kodepoia_locale = locale
 
     nav = QListWidget()
     mark_accessible(
@@ -46,33 +49,33 @@ def build_window(kill_switch: KillSwitch | None = None):
     def security_page() -> QWidget:
         page = QWidget()
         layout = QVBoxLayout(page)
-        layout.addWidget(QLabel("<h2>Protected Core</h2>"))
-        state = QLabel("Emergency stop: READY")
+        layout.addWidget(QLabel(f"<h2>{tr.text('app.security.title')}</h2>"))
+        state = QLabel(tr.text("app.security.ready"))
         state.setObjectName("killSwitchState")
-        state.setAccessibleName("Emergency stop: READY")
-        stop = QPushButton("STOP ALL PROTECTED PROCESSES")
+        state.setAccessibleName(tr.text("app.security.ready"))
+        stop = QPushButton(tr.text("app.security.stop"))
         mark_accessible(
             stop,
             object_name="killSwitchButton",
-            name="Stop all protected processes",
+            name=tr.text("app.security.stop"),
             description="Emergency stop that terminates protected processes and blocks protected execution.",
             description_required=True,
         )
-        reset = QPushButton("Reset emergency stop")
+        reset = QPushButton(tr.text("app.security.reset"))
         mark_accessible(
             reset,
             object_name="killSwitchResetButton",
-            name="Reset emergency stop",
+            name=tr.text("app.security.reset"),
             description="Reset the emergency stop after protected processes have terminated.",
             description_required=True,
         )
 
         def trigger() -> None:
             stopped = switch.trigger()
-            text = f"Emergency stop: ACTIVE — {stopped} process(es) stopped"
+            text = tr.text("app.security.active", count=stopped)
             state.setText(text)
             state.setAccessibleName(text)
-            status.showMessage("KILL SWITCH ACTIVE — protected execution is blocked")
+            status.showMessage(tr.text("app.status.blocked"))
 
         def reset_switch() -> None:
             try:
@@ -81,9 +84,10 @@ def build_window(kill_switch: KillSwitch | None = None):
                 state.setText(str(exc))
                 state.setAccessibleName(str(exc))
                 return
-            state.setText("Emergency stop: READY")
-            state.setAccessibleName("Emergency stop: READY")
-            status.showMessage("Guardian ● Sandbox ● Secrets ● Project DNA")
+            ready = tr.text("app.security.ready")
+            state.setText(ready)
+            state.setAccessibleName(ready)
+            status.showMessage(tr.text("app.status.ready"))
 
         stop.clicked.connect(trigger)
         reset.clicked.connect(reset_switch)
@@ -96,12 +100,12 @@ def build_window(kill_switch: KillSwitch | None = None):
     def projects_page() -> QWidget:
         page = QWidget()
         layout = QVBoxLayout(page)
-        layout.addWidget(QLabel("<h2>Projects</h2>"))
-        create = QPushButton("New project…")
+        layout.addWidget(QLabel(f"<h2>{tr.text('app.projects.title')}</h2>"))
+        create = QPushButton(tr.text("app.projects.new"))
         mark_accessible(
             create,
             object_name="newProjectButton",
-            name="New project",
+            name=tr.text("app.projects.new").rstrip("…"),
             description="Open the new Kodepoia project wizard.",
             description_required=True,
         )
@@ -116,15 +120,22 @@ def build_window(kill_switch: KillSwitch | None = None):
         layout.addStretch(1)
         return page
 
-    for title in ["Chat", "Projects", "Security", "Audit", "Settings"]:
+    sections = (
+        ("app.nav.chat", None),
+        ("app.nav.projects", projects_page),
+        ("app.nav.security", security_page),
+        ("app.nav.audit", None),
+        ("app.nav.settings", None),
+    )
+    for message_id, factory in sections:
+        title = tr.text(message_id)
         nav.addItem(title)
-        if title == "Projects":
-            pages.addWidget(projects_page())
-        elif title == "Security":
-            pages.addWidget(security_page())
+        if factory is not None:
+            pages.addWidget(factory())
         else:
-            pages.addWidget(QLabel(f"<h2>{title}</h2><p>KodeStudio foundation.</p>"))
+            pages.addWidget(QLabel(f"<h2>{title}</h2><p>{tr.text('app.page.foundation')}</p>"))
 
+    nav.setMinimumWidth(max(nav.sizeHintForColumn(0) + 24, 160))
     nav.currentRowChanged.connect(pages.setCurrentIndex)
     nav.setCurrentRow(0)
     splitter = QSplitter()
@@ -135,7 +146,7 @@ def build_window(kill_switch: KillSwitch | None = None):
     splitter.setStretchFactor(1, 1)
     window.setCentralWidget(splitter)
 
-    status.showMessage("Guardian ● Sandbox ● Secrets ● Project DNA")
+    status.showMessage(tr.text("app.status.ready"))
     window.setStatusBar(status)
     return window
 

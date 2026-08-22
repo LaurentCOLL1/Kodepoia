@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/research-artifact-v1.schema.json",
+  "title": "Kodepoia Research Artifact v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_id", "content_sha256", "source", "content", "retrieved_at", "freshness", "trust", "guard", "metadata"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "artifact_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "content": {"type": "string"},
+    "retrieved_at": {"type": "string", "format": "date-time"},
+    "freshness": {"enum": ["unknown", "current", "stale", "not_applicable"]},
+    "trust": {"const": "guarded"},
+    "metadata": {"type": "object"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "kind", "locator", "status", "title", "publisher", "author", "product", "version", "published_at", "updated_at"],
+      "properties": {
+        "source_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "kind": {"enum": ["local", "official_docs", "web", "github", "community", "youtube"]},
+        "locator": {"type": "string", "minLength": 1},
+        "status": {"enum": ["unknown", "ready", "unavailable", "not_applicable", "blocked", "stale"]},
+        "title": {"type": "string"},
+        "publisher": {"type": "string"},
+        "author": {"type": "string"},
+        "product": {"type": "string"},
+        "version": {"type": "string"},
+        "published_at": {"type": ["string", "null"], "format": "date-time"},
+        "updated_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "guard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "suspicious", "indicators", "instruction"],
+      "properties": {
+        "version": {"const": 1},
+        "suspicious": {"type": "boolean"},
+        "indicators": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "instruction": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

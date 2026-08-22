@@ -1,5 +1,15 @@
 """Secure, typed KodeResearch contracts and governed research adapters."""
 
+from kodepoia.intelligence.research.community import (
+    CommunityAuthorRole,
+    CommunityPost,
+    CommunityPostState,
+    CommunityQuote,
+    CommunityResearchClient,
+    CommunityResearchResult,
+    CommunityThread,
+    normalize_community_html,
+)
 from kodepoia.intelligence.research.contracts import (
     ResearchArtifact,
     ResearchCitation,
@@ -56,6 +66,13 @@ from kodepoia.intelligence.research.web import (
 )
 
 __all__ = [
+    "CommunityAuthorRole",
+    "CommunityPost",
+    "CommunityPostState",
+    "CommunityQuote",
+    "CommunityResearchClient",
+    "CommunityResearchResult",
+    "CommunityThread",
     "DocumentChunk",
     "DocumentFormat",
     "DocumentResearchResult",
@@ -100,6 +117,7 @@ __all__ = [
     "WebSection",
     "WebTransportError",
     "extract_web_document",
+    "normalize_community_html",
     "resolve_public_target",
     "validate_raw_web_response",
 ]

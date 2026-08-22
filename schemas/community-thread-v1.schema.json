@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.dev/schemas/community-thread-v1.schema.json",
+  "title": "Kodepoia R7.5 normalized community thread",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "thread_id",
+    "source_url",
+    "retrieved_at",
+    "title",
+    "platform",
+    "authority_class",
+    "posts"
+  ],
+  "properties": {
+    "thread_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_url": {"type": "string", "pattern": "^https?://"},
+    "retrieved_at": {"type": "string", "minLength": 1},
+    "title": {"type": "string"},
+    "platform": {"type": "string"},
+    "authority_class": {"const": "community"},
+    "posts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/post"}
+    }
+  },
+  "$defs": {
+    "quote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quote_id",
+        "text",
+        "cite",
+        "source_post_id",
+        "source_author",
+        "depth"
+      ],
+      "properties": {
+        "quote_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "text": {"type": "string", "minLength": 1},
+        "cite": {"type": "string"},
+        "source_post_id": {"type": "string"},
+        "source_author": {"type": "string"},
+        "depth": {"type": "integer", "minimum": 1}
+      }
+    },
+    "post": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "post_id",
+        "author",
+        "display_name",
+        "body",
+        "state",
+        "role",
+        "created_at",
+        "updated_at",
+        "parent_post_id",
+        "permalink",
+        "quotes",
+        "score",
+        "reaction_count"
+      ],
+      "properties": {
+        "evidence_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "post_id": {"type": "string", "minLength": 1},
+        "author": {"type": "string"},
+        "display_name": {"type": "string"},
+        "body": {"type": "string"},
+        "state": {
+          "enum": ["visible", "edited", "deleted", "removed", "unknown"]
+        },
+        "role": {
+          "enum": ["community", "moderator", "vendor_staff", "unknown"]
+        },
+        "created_at": {"type": "string"},
+        "updated_at": {"type": "string"},
+        "parent_post_id": {"type": "string"},
+        "permalink": {"type": "string"},
+        "quotes": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/quote"}
+        },
+        "score": {"type": ["integer", "null"]},
+        "reaction_count": {"type": ["integer", "null"], "minimum": 0}
+      }
+    }
+  }
+}

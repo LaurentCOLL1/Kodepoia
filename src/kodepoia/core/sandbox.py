@@ -159,6 +159,34 @@ class ProcessSandbox:
         self.kill_switch.register(process)
         return ManagedProcess(process, self.kill_switch)
 
+    def spawn_background(
+        self,
+        argv: Sequence[str],
+        *,
+        cwd: Path | None = None,
+        env: Mapping[str, str] | None = None,
+    ) -> ManagedProcess:
+        """Launch a persistent network/background process without unused stdio pipes.
+
+        This is intended for services such as Godot's loopback LSP/DAP servers,
+        where communication happens over sockets. Redirecting unused stdout/stderr
+        pipes can otherwise block a verbose child on pipe backpressure.
+        """
+
+        workdir, clean_env = self._validate_launch(argv, cwd, env)
+        process = subprocess.Popen(
+            list(argv),
+            cwd=workdir,
+            env=clean_env,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            text=False,
+            shell=False,
+        )
+        self.kill_switch.register(process)
+        return ManagedProcess(process, self.kill_switch)
+
     def run(
         self,
         argv: Sequence[str],

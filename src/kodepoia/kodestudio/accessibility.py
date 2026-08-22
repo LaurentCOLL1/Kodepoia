@@ -111,6 +111,11 @@ def _enum_name(value) -> str:
     return str(name if name is not None else value)
 
 
+def _enum_int(value) -> int:
+    raw = getattr(value, "value", None)
+    return int(raw) if raw is not None else int(value)
+
+
 def _find_widget(root, object_name: str):
     from PySide6.QtWidgets import QWidget
 
@@ -256,8 +261,8 @@ def _audit_widget(widget) -> list[AccessibilityResult]:
             )
         )
     else:
-        policy_value = getattr(widget.focusPolicy(), "value", int(widget.focusPolicy()))
-        tab_value = getattr(Qt.FocusPolicy.TabFocus, "value", int(Qt.FocusPolicy.TabFocus))
+        policy_value = _enum_int(widget.focusPolicy())
+        tab_value = _enum_int(Qt.FocusPolicy.TabFocus)
         tab_focus = bool(policy_value & tab_value)
         results.append(
             AccessibilityResult(

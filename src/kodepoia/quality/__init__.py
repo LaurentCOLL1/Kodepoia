@@ -1,4 +1,4 @@
-"""Quality, health, budget, test, regression, visual QA, accessibility, localization, debt, CI, build, security and privacy primitives."""
+"""Quality, health, budget, test, regression, visual QA, accessibility, localization, debt, CI, build, security, privacy, license and BOM primitives."""
 
 from kodepoia.quality.accessibility import (
     AccessibilityReport, AccessibilityReportStatus, AccessibilityResult, AccessibilitySeverity,
@@ -15,6 +15,13 @@ from kodepoia.quality.build import (
 from kodepoia.quality.ci import CICheck, CICheckStatus, CIReport, CIReportStatus, CIStore, KodeCI
 from kodepoia.quality.health import (
     HealthDimension, HealthMetric, HealthPolicy, HealthReport, HealthStatus, HealthStore, KodeHealth,
+)
+from kodepoia.quality.license_bom import (
+    SPDX_BASELINE, SPDX_JSONLD_CONTEXT, SPDX_SERIALIZATION_VERSION, BomComponent, BomReport, BomStatus,
+    BomStore, ComponentKind, ComponentResolution, DependencyRequirement, IntegrityEvidence,
+    IntegrityStatus, KodeBOM, KodeLicense, LicenseAssertion, LicenseAssertionState, LicenseDecision,
+    LicensePolicy, LicensePolicyAction, LicensePolicyRule, LicenseReport, LicenseReportStatus,
+    LicenseStore, canonical_python_name, normalize_spdx_expression,
 )
 from kodepoia.quality.localization import (
     KodeLocalization, LocaleCatalog, LocalizationReport, LocalizationResult, LocalizationSeverity,
@@ -50,30 +57,35 @@ from kodepoia.quality.visual import (
 
 __all__ = [
     "AccessibilityReport", "AccessibilityReportStatus", "AccessibilityResult", "AccessibilitySeverity",
-    "AccessibilityStatus", "AccessibilityStore", "BuildArtifact", "BuildArtifactKind", "BuildManifest",
-    "BuildStatus", "BuildStore", "BudgetConstraint", "BudgetDirection", "BudgetMetric",
-    "BudgetMetricResult", "BudgetObservation", "BudgetReport", "BudgetStatus", "BudgetStore",
-    "CICheck", "CICheckStatus", "CIReport", "CIReportStatus", "CIStore", "DebtCategory",
+    "AccessibilityStatus", "AccessibilityStore", "BomComponent", "BomReport", "BomStatus", "BomStore",
+    "BuildArtifact", "BuildArtifactKind", "BuildManifest", "BuildStatus", "BuildStore",
+    "BudgetConstraint", "BudgetDirection", "BudgetMetric", "BudgetMetricResult", "BudgetObservation",
+    "BudgetReport", "BudgetStatus", "BudgetStore", "CICheck", "CICheckStatus", "CIReport",
+    "CIReportStatus", "CIStore", "ComponentKind", "ComponentResolution", "DebtCategory",
     "DebtReference", "DebtReferenceKind", "DebtSeverity", "DebtState", "DeclarationValue",
-    "DependencySecurityStatus", "DependencyVulnerabilityEvidence", "HealthDimension", "HealthMetric",
-    "HealthPolicy", "HealthReport", "HealthStatus", "HealthStore", "KodeAccessibility",
-    "KodeAppSecurity", "KodeBuild", "KodeBudget", "KodeCI", "KodeHealth", "KodeLocalization",
+    "DependencyRequirement", "DependencySecurityStatus", "DependencyVulnerabilityEvidence",
+    "HealthDimension", "HealthMetric", "HealthPolicy", "HealthReport", "HealthStatus", "HealthStore",
+    "IntegrityEvidence", "IntegrityStatus", "KodeAccessibility", "KodeAppSecurity", "KodeBOM",
+    "KodeBuild", "KodeBudget", "KodeCI", "KodeHealth", "KodeLicense", "KodeLocalization",
     "KodePrivacy", "KodeRegression", "KodeTechnicalDebt", "KodeTests", "KodeVisualQA",
+    "LicenseAssertion", "LicenseAssertionState", "LicenseDecision", "LicensePolicy",
+    "LicensePolicyAction", "LicensePolicyRule", "LicenseReport", "LicenseReportStatus", "LicenseStore",
     "LocaleCatalog", "LocalizationReport", "LocalizationResult", "LocalizationSeverity",
     "LocalizationStatus", "LocalizationStore", "LocalizedMessage", "PlatformBudgetSpec",
     "PrivacyApplicability", "PrivacyBasisState", "PrivacyCheckStatus", "PrivacyDataItem",
-    "PrivacyDisposition", "PrivacyIssue", "PrivacyReport", "PrivacyReportStatus",
-    "PrivacySensitivity", "PrivacySeverity", "PrivacyStore", "RegressionChange", "RegressionEntry",
-    "RegressionReport", "RegressionStatus", "RegressionStore", "ResidualRisk", "SecurityApplicability",
-    "SecurityCategory", "SecurityCheckStatus", "SecurityEntryPoint", "SecurityReport",
-    "SecurityReportStatus", "SecurityRequirement", "SecuritySeverity", "SecurityStore", "StoreKind",
-    "StorePrivacyDeclaration", "TechnicalDebtItem", "TechnicalDebtReport", "TechnicalDebtStatus",
-    "TechnicalDebtStore", "TestCaseResult", "TestCaseStatus", "TestRunReport", "TestRunStatus",
-    "TestRunStore", "Threat", "ThreatAsset", "ThreatModel", "TrustBoundary",
-    "VisualBaselineApproval", "VisualImage", "VisualMask", "VisualMetrics", "VisualPolicy",
-    "VisualReport", "VisualStatus", "VisualStore", "applicable_requirement",
-    "collect_python_artifacts", "dependency_input_digests", "hash_source_inputs",
-    "kodepoia_threat_model", "not_applicable_requirement", "pseudo_catalog",
+    "PrivacyDisposition", "PrivacyIssue", "PrivacyReport", "PrivacyReportStatus", "PrivacySensitivity",
+    "PrivacySeverity", "PrivacyStore", "RegressionChange", "RegressionEntry", "RegressionReport",
+    "RegressionStatus", "RegressionStore", "ResidualRisk", "SPDX_BASELINE", "SPDX_JSONLD_CONTEXT",
+    "SPDX_SERIALIZATION_VERSION", "SecurityApplicability", "SecurityCategory", "SecurityCheckStatus",
+    "SecurityEntryPoint", "SecurityReport", "SecurityReportStatus", "SecurityRequirement",
+    "SecuritySeverity", "SecurityStore", "StoreKind", "StorePrivacyDeclaration", "TechnicalDebtItem",
+    "TechnicalDebtReport", "TechnicalDebtStatus", "TechnicalDebtStore", "TestCaseResult",
+    "TestCaseStatus", "TestRunReport", "TestRunStatus", "TestRunStore", "Threat", "ThreatAsset",
+    "ThreatModel", "TrustBoundary", "VisualBaselineApproval", "VisualImage", "VisualMask",
+    "VisualMetrics", "VisualPolicy", "VisualReport", "VisualStatus", "VisualStore",
+    "applicable_requirement", "canonical_python_name", "collect_python_artifacts",
+    "dependency_input_digests", "hash_source_inputs", "kodepoia_threat_model",
+    "normalize_spdx_expression", "not_applicable_requirement", "pseudo_catalog",
     "pseudo_localize_text", "redact_privacy_evidence", "redact_sensitive",
     "secure_storage_requirement",
 ]

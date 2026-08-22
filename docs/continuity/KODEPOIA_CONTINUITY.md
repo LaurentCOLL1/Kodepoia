@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS. R6.1 — KodeHealth, R6.2 — KodeBudget et R6.3 — KodeTests + KodeRegression sont COMPLETE.** R6.3 a été acceptée sur le head `7150237c263dd3ac96af4662d74909e05f3cf991` après CI finale verte, puis PR #34 a été fusionnée dans `main` en `6657b258f2396b3d6a3850153b1ffaae1951104d`. Après normalisation, reprendre uniquement le reste de R6 depuis le `main` courant. Ne pas rouvrir une phase complète sans régression démontrée ou changement d'architecture nécessitant un ADR, et ne pas passer à R7 avant achèvement de R6.
+> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS. R6.1 — KodeHealth, R6.2 — KodeBudget et R6.3 — KodeTests + KodeRegression sont COMPLETE.** R6.3 a été acceptée sur le head `7150237c263dd3ac96af4662d74909e05f3cf991` après CI finale verte, puis PR #34 a été fusionnée dans `main` en `6657b258f2396b3d6a3850153b1ffaae1951104d`. Après normalisation, reprendre uniquement le reste de R6 depuis le `main` courant. Ne pas rouvrir une phase complète sans régression démontrée ou changement d'architecture nécessitant un ADR, et ne pas passer à R7 avant achèvement de R6. **Règle permanente de démarrage de phase : avant toute implémentation de `RX.1` d'une nouvelle phase majeure `RX`, créer, détailler, faire valider par CI puis fusionner `docs/roadmap/RX_PLAN.md` à partir de `docs/roadmap/PHASE_PLAN_TEMPLATE.md`. Ce plan doit énumérer toutes les sous-parties `RX.N`, leurs critères d'acceptation et les interventions manuelles `NONE / REQUIRED / CONDITIONAL`.**
 
 ## Source de vérité et état des phases
 
@@ -158,6 +158,26 @@ Stop after R6.3 unless the user explicitly asks to continue. The remaining R6 sc
 
 Whenever the user must perform a manual operation, explain the reason, prerequisites, exact commands/actions, expected output, error recovery, what to send back, and what must not be done yet. Do not ask the user to repeat information already known.
 
+## Permanent phase-start planning rule — mandatory
+
+This rule applies to every **new major roadmap phase `RX` started from now on**, beginning with R7 when R6 is complete. R6 was already in progress before this rule was introduced; do not retroactively invent an initial R6 plan unless the user explicitly asks for one.
+
+1. **Planning is the first deliverable of the phase.** Before implementing any code or artifact belonging to `RX.1`, create a dedicated planning branch from normalized current `main` and create `docs/roadmap/RX_PLAN.md` from `docs/roadmap/PHASE_PLAN_TEMPLATE.md`.
+2. **The phase plan must be merged before `RX.1` implementation starts.** Open a planning PR, run the normal repository checks on its final head, and merge it to `main`. Implementation branches for `RX.1` and later subdivisions must then start from that normalized `main`.
+3. **Enumerate the complete subdivision structure up front.** `RX_PLAN.md` must list all intended `RX.1`, `RX.2`, `RX.3`, etc. subdivisions required to satisfy the frozen roadmap phase. Do not silently omit, add, merge, split or renumber subdivisions later.
+4. **Every subdivision must be described in high detail.** At minimum record: exact objective/rationale; in-scope and out-of-scope work; dependencies/prerequisites; detailed implementation approach; expected modules/files/APIs/schemas/persistence; architecture/security boundaries; deliverables; acceptance gates/Definition of Done; evidence to preserve; rollback/recovery; known risks/regression traps; and final completion record.
+5. **Every subdivision must have an explicit manual-intervention classification:**
+   - `NONE` — no user-side execution is required for authoritative acceptance;
+   - `REQUIRED` — user-side execution/access is mandatory;
+   - `CONDITIONAL` — normally automated, but a precise condition can require user-side execution.
+6. **For `REQUIRED` or `CONDITIONAL`, the plan must document before the manual gate:** reason; prerequisites; exact copy-paste commands or UI actions; expected output/success indicators; failure recovery; exact evidence the user must send back; what must not be done yet; and privacy/security redaction requirements. Never ask for passwords, tokens, private keys or unrelated personal data.
+7. **Surface manual work early.** At phase start, tell the user which `RX.N` are expected to require manual intervention. Repeat the detailed instructions when the relevant subdivision is reached, not after the evidence was needed.
+8. **No manual acceptance by inference.** Silence, partial logs, screenshots without required context, or CI evidence from a different environment cannot satisfy a required manual/hardware-local gate.
+9. **Keep the plan live.** Update `RX_PLAN.md` and this continuity file in the same work cycle whenever subdivision scope/status, prerequisites, manual requirements, acceptance gates, important recovered defects, or ordering changes.
+10. **Scope changes are governed.** Any added/removed/merged/split/renumbered `RX.N` must be explicitly recorded with rationale in `RX_PLAN.md` and continuity. If it changes frozen architecture, an ADR is required before implementation.
+11. **Major-phase completion is exhaustive.** `RX` can be marked COMPLETE only when every subdivision listed in `RX_PLAN.md` is COMPLETE with required evidence, or has been explicitly removed by a recorded roadmap/architecture decision (with ADR when required). No hidden or implied subdivision may be used to claim completion.
+12. **The plan file is a recovery artifact.** It must be detailed enough that another LLM can resume the phase without guessing the intended subdivision structure, acceptance discipline, manual gates, or dependencies.
+
 ## Permanent process rules
 
-Update this continuity file in the same work cycle whenever phase status, PR state, hardware acceptance, prerequisites or important recovered defects change. Never declare a phase COMPLETE from partial CI. Use exact acceptance evidence where required. Preserve the frozen architecture unless an ADR explicitly authorizes a change.
+Update this continuity file in the same work cycle whenever phase status, PR state, hardware acceptance, prerequisites, manual-intervention requirements or important recovered defects change. Never declare a phase COMPLETE from partial CI. Use exact acceptance evidence where required. Preserve the frozen architecture unless an ADR explicitly authorizes a change. Never begin implementation of `RX.1` for a newly started major phase until its `RX_PLAN.md` planning PR has passed the final-head checks and has been merged to normalized `main`.

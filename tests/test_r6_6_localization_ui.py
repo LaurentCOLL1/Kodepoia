@@ -22,16 +22,19 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         nav = window.findChild(QListWidget, "mainNavigation")
         assert nav is not None
         texts = [nav.item(index).text() for index in range(nav.count())]
-        assert len(texts) == 5
+        assert len(texts) == 6
         assert all(text.startswith("⟦") and text.endswith("⟧") for text in texts)
+        assert any("Research" in text for text in texts)
         assert nav.minimumWidth() >= nav.sizeHintForColumn(0) + 24
 
         new_project = window.findChild(QPushButton, "newProjectButton")
         stop = window.findChild(QPushButton, "killSwitchButton")
         reset = window.findChild(QPushButton, "killSwitchResetButton")
+        research = window.findChild(QPushButton, "researchSearchButton")
         assert new_project is not None and new_project.text().startswith("⟦")
         assert stop is not None and stop.text().startswith("⟦")
         assert reset is not None and reset.text().startswith("⟦")
+        assert research is not None and research.text().startswith("⟦")
 
         assert window.windowTitle().startswith("⟦")
         assert window.size().width() == 1100

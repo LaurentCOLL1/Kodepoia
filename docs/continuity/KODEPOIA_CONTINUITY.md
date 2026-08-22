@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. R5.1 à R5.5 sont **ACCEPTED AND MERGED**. **R5.6 est IN PROGRESS sur PR #28, branche `agent/r5-6-governed-acceptance`. Le défaut ProcessSandbox qui bloquait `engine_version` a été isolé puis corrigé (`communicate(timeout=...)`, kill-switch conservé, test de backpressure 512 KiB stdout + 512 KiB stderr vert Windows+Ubuntu). Le nouveau probe matériel post-correctif est maintenant 5/5 PASS : `engine_version` 4.7.2 PASS en ~0.094 s, project/scene/GDScript/export presets PASS, `failed=0`, report `probe_only=true`, `acceptance_completed=false`. Ce probe est ACCEPTED et ferme la gate ProcessSandbox/probe. La prochaine et seule action locale autorisée est désormais l'acceptation complète via `scripts/r5_accept_local.ps1` **sans** `-ProbeOnly`, avec le Godot Steam connu. Les export templates Godot 4.7.x doivent être installés car l'acceptation fait un vrai export Windows release. Après exécution, fournir `.kodepoia/benchmarks/r5-local-acceptance.json`.** Ne pas fusionner PR #28 et ne pas commencer R6 avant revue du rapport complet, CI final, merge et vérification de `main`.
+> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. R5.1 à R5.5 sont **ACCEPTED AND MERGED**. **R5.6 est IN PROGRESS sur PR #28, branche `agent/r5-6-governed-acceptance`. Le probe matériel post-fix est ACCEPTED 5/5. Le premier full hardware acceptance a donné 12/19, mais les 7 échecs se réduisent à deux causes indépendantes : (A) `capture_movie` utilisait `--headless` avec `--write-movie`, ce qui a crashé dans le RenderingServer dummy; correction : Movie Maker utilise maintenant un renderer réel. (B) `services_start` lançait le Godot editor persistant avec des stdout/stderr PIPE non drainés alors que LSP/DAP passent par sockets; correction : nouveau `ProcessSandbox.spawn_background()` avec DEVNULL, même sandbox/kill switch, plus `--log-file .kodepoia/logs/godot-services.log`. Les 5 échecs LSP/DAP suivants étaient des cascades du seul échec `services_start`. Le head fonctionnel `6b968d284a5f10195cbe465d5c94208f65c3a94e` est entièrement vert Windows+Ubuntu. Toujours `git pull` le head courant, ne jamais reset vers un checkpoint. Prochaine action locale, uniquement après CI verte du head documentaire courant : relancer le full acceptance sans `-ProbeOnly` avec le Godot Steam connu. Si `services_start` échoue encore, fournir aussi `.kodepoia/r5-acceptance/project/.kodepoia/logs/godot-services.log`.** Ne pas fusionner PR #28 et ne pas commencer R6 avant revue d'un full report 19/19, CI final, merge et vérification de `main`.
 
 ## Source de vérité
 
@@ -21,7 +21,7 @@
 - R5.3 : ACCEPTED AND MERGED, PR #25, merge `d2641862b98a969b9adfc905f818e01b3d7e4730`.
 - R5.4 : ACCEPTED AND MERGED, PR #26, merge `b81cf430249e341219dcb759cb49f67697c27782`.
 - R5.5 : ACCEPTED AND MERGED, PR #27, merge `c4409c78eacfa1777d22d7e0995d4db7dbdaa5a2`.
-- R5.6 : IMPLEMENTED / CI ACCEPTED / PROCESS-SANDBOX FIXED / HARDWARE PROBE 5/5 ACCEPTED / FULL ACCEPTANCE AUTHORIZED.
+- R5.6 : IMPLEMENTED / CI ACCEPTED / HARDWARE PROBE 5/5 ACCEPTED / FULL ACCEPTANCE ATTEMPT #1 = 12/19 / TWO ROOT CAUSES FIXED / FULL RETEST PENDING.
 - Active branch: `agent/r5-6-governed-acceptance`.
 - Active PR: #28, OPEN, DO NOT MERGE YET.
 - R6 : NOT STARTED.
@@ -48,52 +48,75 @@ R5.6 uses `KodeGodotExecutor`, Guardian/PermissionSet, SafeChange snapshots and 
 - executable `D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe`;
 - ports `6005/6006/6007`.
 
-## ProcessSandbox incident — closed
+## ProcessSandbox foreground incident — closed
 
-Probes #1/#2 were 4/5 because `engine_version` timed out only through ProcessSandbox. A six-case diagnostic proved all equivalent direct Python launch variants passed while only `process_sandbox_project` timed out after already capturing the correct version string.
+Initial probes failed only `engine_version`. A bounded diagnostic proved the sandbox foreground launcher was waiting on child exit before draining PIPEs. `ProcessSandbox.run()` now uses `communicate(timeout=...)`, stops through the global kill switch on timeout, drains again, and has a 512 KiB stdout + 512 KiB stderr regression test passing on Windows and Ubuntu.
 
-Root cause: `ProcessSandbox.run()` polled for process exit before draining `stdout=PIPE` / `stderr=PIPE`, allowing pipe-backpressure deadlock.
+Fresh hardware probe after this fix passed **5/5**, including Godot 4.7.2 version detection in ~0.094 s. That probe is ACCEPTED.
+
+## Full hardware acceptance attempt #1 — diagnostic evidence
+
+Generated `2026-08-22T01:01:59.706424+00:00`, `probe_only=false`, `acceptance_completed=false`.
+
+Summary: **12 PASS / 7 FAIL / 19**.
+
+Passed:
+- engine version;
+- project + scene + domain inspection;
+- GDScript inspection and real `--check-only`;
+- import;
+- smoke;
+- benchmark (~103.8 effective FPS on fixture);
+- governed scene edit with SafeChange snapshot;
+- real Windows release export;
+- audit verification.
+
+The release export produced `.kodepoia/exports/r5-acceptance.exe` with **109,127,680 bytes**, proving export templates are installed and functional.
+
+The 7 failed checks represent only two causes:
+
+### A. Movie capture renderer mismatch — fixed
+
+Observed crash:
+- Windows code `3221225477`;
+- `texture_2d_get` in Godot `dummy/storage/texture_storage.h`;
+- Godot signal 11 backtrace.
+
+Cause: Kodepoia combined `--headless` with `--write-movie`. Headless selects the dummy rendering path, while Movie Maker needs actual rendered frames.
+
+Fix: `GodotRuntime.capture_movie()` no longer passes `--headless`; it remains sandboxed, output-confined, frame/FPS/timeout bounded, and still writes only to `.kodepoia/captures/`.
+
+### B. Persistent Godot service stdio backpressure — fixed
+
+Observed:
+- `services_start` timed out after ~120.5 s waiting for port 6005;
+- `lsp_symbols`, `lsp_diagnostics`, `dap_initialize`, `dap_launch_project`, `dap_threads` then failed only because services were not running.
+
+Cause candidate confirmed architecturally: `GodotEditorServices` used `spawn_piped()` for a process whose protocol is socket-based and never drained stdout/stderr. A verbose editor could therefore block on pipe backpressure before opening LSP/DAP ports.
 
 Fix:
-1. launch and register process with global kill switch;
-2. call `communicate(timeout=...)` so stdout/stderr are drained while waiting;
-3. on `TimeoutExpired`, stop through kill switch and call `communicate()` again;
-4. unregister only after completion.
+1. add `ProcessSandbox.spawn_background()`;
+2. reuse `_validate_launch`, sanitized environment, allowlist and global kill-switch registration;
+3. set stdin/stdout/stderr to DEVNULL for background network services;
+4. keep `spawn_piped()` for real stdio protocols;
+5. Godot services use `spawn_background()`;
+6. add `--log-file .kodepoia/logs/godot-services.log` so startup remains diagnosable;
+7. startup failure includes a bounded tail of that log.
 
-Regression coverage writes 512 KiB to stdout and 512 KiB to stderr and passes on Windows + Ubuntu.
+Regression test launches a background child that writes 2 MiB to stdout and 2 MiB to stderr; it must terminate without backpressure and remain kill-switch managed.
 
-Functional fix checkpoint `c6ec8f25b8447c68f644ddf7d05aef9995e41861`:
-- Guard `32539678111` SUCCESS;
-- Python Core `32539678095` SUCCESS Windows + Ubuntu;
-- UI Smoke `32539678096` SUCCESS Windows.
+## Functional checkpoint after both fixes
 
-Always `git pull` current branch head; never reset backward to a checkpoint.
+`6b968d284a5f10195cbe465d5c94208f65c3a94e`:
+- Repository Guard `32543313597` SUCCESS;
+- Python Core `32543313587` SUCCESS Windows + Ubuntu, including PowerShell syntax and background-process regression;
+- KodeStudio UI Smoke `32543313595` SUCCESS Windows.
 
-## Hardware probe post-fix — ACCEPTED
+Documentation commits may make the current branch head newer. Always pull current head; never reset backward to this checkpoint.
 
-Evidence generated `2026-08-22T00:28:38.116174+00:00`:
+## Next manual operation — full acceptance retest
 
-```text
-engine_version      PASS  ~0.094 s  4.7.2.stable.steam.ed1daf0bf
-project_inspect     PASS
-scene_parse         PASS
-gdscript_inspect    PASS
-export_presets      PASS
-summary             5/5 PASS, failed=0
-```
-
-Metadata:
-- `probe_only=true`;
-- `acceptance_completed=false`;
-- Python 3.12.4;
-- Windows 11 build 26220;
-- LSP/DAP/debug 6005/6006/6007.
-
-This result closes the ProcessSandbox/probe gate and authorizes full R5 local acceptance. It does **not** make R5 COMPLETE by itself.
-
-## Next manual operation — full acceptance
-
-Synchronize first:
+Only after current documentation head is fully CI-green:
 
 ```powershell
 cd M:\Kodepoia
@@ -111,8 +134,6 @@ If needed:
 .\.venv\Scripts\Activate.ps1
 ```
 
-Prerequisite: install Godot 4.7.x export templates if they are not already installed. Full acceptance performs a real Windows release export.
-
 Run the complete acceptance **without `-ProbeOnly`**:
 
 ```powershell
@@ -120,37 +141,28 @@ Run the complete acceptance **without `-ProbeOnly`**:
   -GodotPath "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
 ```
 
-The runner exercises:
-- Godot version and project/document/domain inspection;
-- GDScript `--check-only`;
-- real import;
-- project smoke run;
-- benchmark;
-- movie capture;
-- governed scene mutation with SafeChange snapshot;
-- loopback services start;
-- LSP symbols + diagnostics;
-- DAP initialize + launch + threads;
-- real Windows release export to a non-empty executable;
-- audit hash-chain verification.
-
-Expected report:
+Expected final gate:
 
 ```text
 probe_only=false
 acceptance_completed=true
 summary.failed=0
+Passed 19/19
 ```
 
-Send:
+Pay special attention to:
+- `capture_movie` PASS and non-empty AVI;
+- `services_start` PASS;
+- LSP symbols/diagnostics PASS;
+- DAP initialize/launch/threads PASS.
+
+Send `.kodepoia/benchmarks/r5-local-acceptance.json` and the PowerShell summary. If `services_start` still fails, also send:
 
 ```text
-M:\Kodepoia\.kodepoia\benchmarks\r5-local-acceptance.json
+M:\Kodepoia\.kodepoia\r5-acceptance\project\.kodepoia\logs\godot-services.log
 ```
 
-Also send complete PowerShell output if any step fails. If the failure is `export_release` and reports missing export templates, install the exact Godot 4.7.x export templates and rerun the full acceptance; do not change the preset or bypass export validation.
-
-Do NOT rerun the process diagnostic unless specifically requested. Do NOT increase timeouts, copy the whole parent environment, run as Administrator, weaken Guardian/Sandbox/Permissions, merge PR #28, or start R6.
+Do NOT rerun the old process diagnostic unless specifically requested. Do NOT increase timeouts, run as Administrator, weaken Guardian/Sandbox/Permissions, merge PR #28, or start R6.
 
 ## R5 completion rule
 

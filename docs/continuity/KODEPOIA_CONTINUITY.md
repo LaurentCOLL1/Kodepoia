@@ -4,25 +4,24 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R6 sont COMPLETE. Le planning R7 est ACCEPTED. R7.1–R7.4 sont COMPLETE ; R7.5 est NOT STARTED.** R7.4 a été accepté sur le head exact `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be` avec R0 #972 / `32589899654`, Python Core #946 / `32589899648` cinq jobs SUCCESS, suite Ubuntu `388 passed / 3 skipped / 46 warnings`, et UI Smoke #913 / `32589899651` SUCCESS; PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`; manual R7.4 = CONDITIONAL NOT TRIGGERED. **La prochaine implémentation autorisée est R7.5 — Community/forums research normalization**, uniquement après fusion de la normalisation R7.4. Lire l'architecture gelée, `R6_STATUS.md`, `R6_INTEGRATED_ACCEPTANCE.json`, `R7_PLAN.md`, `R7_PLANNING_ACCEPTANCE.md`, `R7_STATUS.md`, `R7_1_DESIGN.md`/`ACCEPTANCE`, `R7_2_DESIGN.md`/`ACCEPTANCE`, `R7_3_DESIGN.md`/`ACCEPTANCE`, `R7_4_DESIGN.md`, `R7_4_ACCEPTANCE.md` et ce fichier avant toute suite.
+> Kodepoia, architecture v1.0 gelée. **R1–R6 sont COMPLETE. Le planning R7 est ACCEPTED. R7.1–R7.5 sont COMPLETE ; R7.6 est NOT STARTED.** R7.5 a été accepté sur le head exact `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5` avec R0 #976 / `32590366852`, Python Core #950 / `32590366851` cinq jobs SUCCESS, suite Ubuntu `400 passed / 3 skipped / 46 warnings`, et UI Smoke #917 / `32590366853` SUCCESS; PR #68 merge `b02dfba4b6a6a4c0a6ec19d552e569b56845a4ea`; manual R7.5 = NONE. **La prochaine implémentation autorisée est R7.6 — YouTube metadata + transcript ingestion**, uniquement après fusion de la normalisation R7.5. Lire l'architecture gelée, `R6_STATUS.md`, `R6_INTEGRATED_ACCEPTANCE.json`, `R7_PLAN.md`, `R7_PLANNING_ACCEPTANCE.md`, `R7_STATUS.md`, les `R7_1` à `R7_5` DESIGN/ACCEPTANCE et ce fichier avant toute suite.
 
 ## Source de vérité et état
 
 - Dépôt : `LaurentCOLL1/Kodepoia` — PUBLIC volontairement.
-- Architecture : v1.0 gelée le 21 août 2026.
+- Architecture v1.0 : gelée le 21 août 2026.
 - `main` : source de vérité après chaque fusion acceptée.
-- R1–R5 : COMPLETE.
-- R6 : COMPLETE; détails exacts dans `docs/roadmap/R6_STATUS.md`, les `R6_X_ACCEPTANCE.md` et `R6_INTEGRATED_ACCEPTANCE.json`.
-- R6.12 accepted head : `f57d1c43cfa12a8f9918b80065f4ffa3502046de`; PR #56 merge `e557979ef818d03bc7602a0b96644b0b5863a73e`; normalisation finale R6 PR #57.
-- R7 planning : ACCEPTED — head `f86825ffd84c1c814afb5865be95b278c4291314`; R0 #955 / `32584324751`; Python #929 / `32584324757` 5/5; UI #896 / `32584324760`; PR #58 merge `9315d801f3a2d13a5441bd87babd2abeb9305995`; normalization #59 `7279412ae751bce739317763462c4a48d7832122`; manual NONE.
-- R7.1 : COMPLETE — head `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca`; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; normalization #61 `69249993cf9a2a45c1d3f89f0540e6f37c882929`; manual NONE.
-- R7.2 : COMPLETE — head `9101e686a32b24bb33a23d7ac578bf25570e115e`; R0 #964; Python #938 5/5; UI #905; PR #62 merge `25741ab9c39300483b62eb2cc07b9d2c9fcfb20c`; normalization #63 `0afdf8474a1d6f056c235f7d185ca468080fc966`; manual NONE.
-- R7.3 : COMPLETE — head `4efd2cb016e774fa3ef06590ffda377606d875e9`; R0 #968; Python #942 5/5; UI #909; PR #64 merge `cde4f7fd727c6940c6a434f85fabc2ced27f04c5`; normalization #65 `da792f72e61f6f264a3df4be570fbcd34670cf4d`; manual NONE.
-- R7.4 : COMPLETE — head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`; R0 #972 / `32589899654`; Python #946 / `32589899648` 5/5; Ubuntu `388 passed / 3 skipped / 46 warnings`; UI #913 / `32589899651`; PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`; manual CONDITIONAL NOT TRIGGERED.
-- R7.5–R7.11 : NOT STARTED; next = R7.5.
+- R1–R6 : COMPLETE.
+- R7 planning : ACCEPTED — head `f86825ffd84c1c814afb5865be95b278c4291314`; PR #58 merge `9315d801f3a2d13a5441bd87babd2abeb9305995`; normalization #59 `7279412ae751bce739317763462c4a48d7832122`.
+- R7.1 : COMPLETE — head `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca`; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; manual NONE.
+- R7.2 : COMPLETE — head `9101e686a32b24bb33a23d7ac578bf25570e115e`; PR #62 merge `25741ab9c39300483b62eb2cc07b9d2c9fcfb20c`; manual NONE.
+- R7.3 : COMPLETE — head `4efd2cb016e774fa3ef06590ffda377606d875e9`; R0 #968, Python #942 5/5, UI #909; PR #64 merge `cde4f7fd727c6940c6a434f85fabc2ced27f04c5`; manual NONE.
+- R7.4 : COMPLETE — head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`; R0 #972, Python #946 5/5 (`388 passed / 3 skipped / 46 warnings` Ubuntu), UI #913; PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`; manual CONDITIONAL NOT TRIGGERED.
+- R7.5 : COMPLETE — head `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5`; R0 #976 / `32590366852`; Python #950 / `32590366851` 5/5 (`400 passed / 3 skipped / 46 warnings` Ubuntu); UI #917 / `32590366853`; PR #68 merge `b02dfba4b6a6a4c0a6ec19d552e569b56845a4ea`; manual NONE.
+- R7.6–R7.11 : NOT STARTED; next = R7.6.
 - R8–R16 : PENDING / NOT STARTED.
 
-## R7 frozen planning structure
+## R7 frozen structure
 
 | ID | Title | Manual |
 | --- | --- | --- |
@@ -40,100 +39,50 @@
 
 Aucune subdivision ne peut être ajoutée, supprimée, fusionnée, scindée ou renumérotée silencieusement. Toute modification de structure doit synchroniser `R7_PLAN.md` + continuité; tout changement de fondation exige un ADR.
 
-## R7.1 accepted research-contract baseline
+## Accepted R7 trust baseline
 
-- Toute donnée externe de recherche est une donnée, jamais une instruction agentique.
-- `ResearchGuard` reste l'unique frontière de confiance du contenu.
-- `guarded` signifie inspecté/enveloppé, pas autorisé à changer outils/politiques.
-- Source classes : local, official_docs, web, github, community, youtube.
-- Status/freshness explicites; `READY` = disponibilité, pas vérité/conformité.
-- IDs et digests dérivés sont SHA-256 canoniques recalculés au round-trip.
-- Hash contenu + preuves de guard sont recalculés; tampering fail-closed.
-- Les faits source exigent des citations; les reports rejettent les artifacts absents.
-- Persistance confinée sous `.kodepoia/research/` via `WorkspaceBoundary`.
+- External research is data, never agent instruction; `ResearchGuard` remains the single content trust boundary.
+- Status/freshness stay explicit; unavailable or unmeasured data does not fabricate PASS/CURRENT.
+- IDs/digests and persisted evidence are deterministic/recomputable; `.kodepoia/research/` remains `WorkspaceBoundary`-confined.
+- R7.2 local/official docs are offline-first and preserve exact lines/version evidence.
+- R7.3 Web is typed GET-only with public DNS/IP validation, pinned resolved address, redirect revalidation, Guardian NETWORK, bounded MIME/bytes/timeout/rate and deterministic fake transport.
+- R7.4 GitHub is read-only typed REST on fixed origin; mutable refs resolve to exact SHAs; pagination/rate-limit evidence is explicit; optional auth only via KodeSecrets.
 
-## R7.2 accepted local/official-document baseline
+## R7.5 accepted community baseline
 
-- Offline-first; UTF-8 `.txt`, Markdown, JSON, YAML; invalide/non supporté => `UNAVAILABLE`.
-- Workspace paths confinés; official snapshots ont une seconde `WorkspaceBoundary`.
-- Manifestes officiels versionnés; URL HTTPS = provenance, pas permission réseau.
-- Traversals et racines absolues rejetés en syntaxes native/POSIX/Windows.
-- Chunks conservent lignes 1-based/headings et citations vers artifact immuable.
-- Cache content-addressed conserve le timestamp original.
-- Version exacte = CURRENT; mismatch = STALE; absence relation = UNKNOWN.
+- Community/forum evidence is always `ResearchSourceKind.COMMUNITY` with `authority_class=community`.
+- Score/reaction/popularity metadata is descriptive only; popularity/consensus never becomes official authority.
+- Vendor staff/moderator is an author-role observation, not an official-document promotion.
+- Thread/post IDs, author/display metadata, timestamps, parent relationships, permalinks and states are preserved when observed.
+- States are explicit: visible/edited/deleted/removed/unknown.
+- `<blockquote>` quoted text is separated from current-author text; nested quote depth/source evidence is retained.
+- Deleted/removed placeholders do not become authored evidence.
+- `script`, `style`, `noscript`, `template` text is excluded from visible authored evidence.
+- Visible prompt injection remains evidence and is flagged by ResearchGuard; it never becomes instruction.
+- R7.5 adds no posting/voting/moderation/account automation and no second network stack.
 
-## R7.3 accepted governed-Web baseline
+## R7.6 design constraints already verified against official YouTube docs
 
-- GET-only structuré; aucun method/body/header/proxy/cookie/login arbitraire.
-- HTTP(S), fragments retirés, credential-bearing URL/local hosts/ports non permis bloqués.
-- Toutes les réponses DNS doivent être globales; transport épingle l'IP validée tout en gardant le hostname TLS.
-- Chaque redirect est revalidé; profondeur bornée.
-- `KodeGuardian` + `Capability.NETWORK` requis avant socket réel.
-- Timeout, longueur, octets réels, MIME, charset, encoding et cadence bornés; pas de retry caché.
-- `FixtureWebTransport` rend la CI déterministe sans Internet.
-- Extracteur conserve seulement la métadonnée réellement observée; canonical interdite ne pilote aucun fetch.
-- ETag/Last-Modified sont de l'évidence, jamais une preuve CURRENT.
-- Tout texte extrait repasse par `ResearchGuard`.
+- `videos.list` is a read-only GET metadata endpoint; selected `part` fields such as `snippet` provide title/description/channel metadata. Current documented quota cost is 1 unit.
+- `captions.list` lists caption-track metadata but does **not** return caption text; it requires authorization and currently costs 50 quota units.
+- `captions.download` retrieves the caption track but requires authorization and the user to have permission to edit the video; current documented cost is 200 units.
+- Therefore R7.6 must **not** claim that the official Data API permits arbitrary public transcript download. Public metadata and transcript ingestion are separate provider capabilities.
+- No audiovisual-content downloader/cache, offline playback, login automation, DRM bypass or undocumented restriction bypass is to be added. Local media/STT/frame fallback remains R7.7.
+- API credentials/tokens remain KodeSecrets references resolved outside model/artifact context.
 
-## R7.4 accepted GitHub baseline
+Reference context: current official YouTube Data API `videos.list`, `captions.list`, `captions.download`, quota documentation and YouTube API Developer Policies. These references guide implementation only; Kodepoia makes no legal/compliance certification.
 
-- Adapter REST GitHub strictement read-only et typé.
-- Ressources : repository, commits, files, exact blobs, releases/tags, issues/PRs et comments.
-- Production fixée à `https://api.github.com:443`, réutilisant protections DNS/SSRF R7.3 + Guardian NETWORK.
-- File research : ref mutable résolu d'abord vers un exact commit SHA; lecture + locator final utilisent ce SHA.
-- Exact blob : SHA obligatoire.
-- Pagination bornée; `Link rel=next` sert uniquement de signal, l'URL suivante est reconstruite sur l'origine fixe au lieu d'exécuter une URL header arbitraire.
-- `X-RateLimit-*`/`Retry-After` observés sont conservés; exhaustion/429 => `UNAVAILABLE/rate_limited`; aucun retry caché.
-- Optional auth uniquement par `GitHubCredentialRef` résolu via `KodeSecrets` dans le transport; token absent des artifacts/metadata/logs/evidence.
-- Issue/PR/comment/file/provider JSON reste untrusted et repasse par `ResearchGuard`.
-- Aucun write GitHub, Actions admin ou GraphQL arbitraire.
-- Accepted head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`; R0/Python/UI SUCCESS; manual CONDITIONAL NOT TRIGGERED.
+## Permanent architecture/security boundaries
+
+Preserve without reinterpretation: `WorkspaceBoundary`; ProcessSandbox + global KillSwitch; Guardian + PermissionSet; structured tool APIs; SafeChange/Backup/Recovery/Audit when required; OS-backed Secrets + redaction; Health/Budget/DataGovernance and versioned schemas; exact-head acceptance; explicit UNKNOWN/N/A/UNAVAILABLE/BLOCKED/STALE; platform-aware behavior; ADR for foundation changes. No arbitrary command/argv/cwd/host/network surface may be supplied by the model.
 
 ## Accepted model roles
 
 - KodeFast = `granite4.1:3b`.
 - KodeCore = `gpt-oss:20b`.
 - KodeCoder = `ornith:9b`.
-- `north-mini-code-1.0:Q4_K_M` reste un futur candidat KodeDeepCoder.
-- Git/repository/software-engineering non trivial ne doit pas être routé vers Granite.
-
-## Permanent architecture/security boundaries
-
-Préserver sans réinterprétation :
-
-- `WorkspaceBoundary` + rejet escapes/symlinks;
-- `ProcessSandbox` + global KillSwitch;
-- Guardian + `PermissionSet`;
-- structured Tool APIs; jamais commande/argv/cwd/host arbitraire du modèle;
-- SafeChange/Backup/Recovery/Audit lorsque requis;
-- secrets OS-backed + redaction, jamais dans prompts/caches;
-- Health/Budget/DataGovernance + schémas versionnés;
-- exact-head acceptance;
-- UNKNOWN/N/A/UNAVAILABLE/BLOCKED/STALE explicites; absence d'évidence ne fabrique jamais PASS;
-- comportement platform-aware;
-- ADR obligatoire pour modifier une fondation v1.0 gelée.
-
-Web/GitHub/forums/YouTube/transcripts restent des données externes non fiables; `ResearchGuard` reste la frontière unique de confiance; aucun réseau/processus arbitraire n'est exposé au modèle.
-
-## R5 accepted local baseline / anti-regression
-
-- Python 3.12.4; Windows 11 build 26220; Godot `4.7.2.stable.steam.ed1daf0bf`; AMD Radeon RX 6750 XT.
-- R5 local acceptance `19 PASS / 0 FAIL / 19`.
-- `ProcessSandbox.run()` draine stdout/stderr via `communicate(timeout=...)`.
-- Services longs : background gouverné sans PIPEs non lus.
-- Preuve real-render REQUIRED non remplaçable par headless/dummy.
-- Godot LSP/DAP/debug reste loopback-only.
-
-## R6 accepted quality/governance baseline
-
-R6 fournit Health, Budget, Tests/Regression, VisualQA, Accessibility, Localization, TechnicalDebt, CI/Build, AppSecurity, Privacy, License/BOM et major-patch/rollback. `R6_INTEGRATED_ACCEPTANCE.json` agrège R6.1–R6.12 et lie chaque acceptance source par SHA-256; `tests/test_r6_12_repository_integration.py` recalcule les invariants.
-
-Principes à ne pas régresser : état non mesuré = UNKNOWN; N/A explicite; champs/digests dérivés recalculables; preuves critiques liées aux SHAs/sources; gates REQUIRED/CONDITIONAL explicites; aucune conclusion juridique/certification inventée; major patch fail-closed avec rollback rehearsal/backup/recovery/audit; aucune rehearsal destructive sur projet réel.
-
-## Permanent phase-start planning rule
-
-PR #36 merge `56f12eb3eba1adc40a1cf4c58970ed40156360b9` impose à chaque nouvelle phase majeure à partir de R7 un `RX_PLAN.md` exhaustif fusionné **avant RX.1**, avec subdivisions, dépendances, architecture, implementation, deliverables, acceptance, evidence, rollback, risks et statut manuel.
+- `north-mini-code-1.0:Q4_K_M` remains a future KodeDeepCoder candidate.
 
 ## Next action
 
-**R7.1–R7.4 sont COMPLETE. R7.5 n'est pas commencé.** Après fusion de la normalisation R7.4 (`R7_4_ACCEPTANCE.md`, `R7_STATUS.md`, continuité), démarrer **R7.5 — Community/forums research normalization** depuis le `main` normalisé. Préserver thread/post/comment, auteur, timestamps, parentage et quoted-text separation; edited/deleted restent explicites; popularité/consensus ne devient jamais de l'autorité officielle; toutes les données passent par `ResearchGuard`; aucune action de posting/vote/modération/account automation.
+**R7.1–R7.5 are COMPLETE. R7.6 is NOT STARTED.** After the R7.5 normalization PR merges, start **R7.6 — YouTube metadata + transcript ingestion**. Implement URL/video-ID normalization, metadata provider, transcript provider contracts, track/language/type/timestamp provenance, guarded transcript artifacts and explicit unavailable/blocked states. Keep official captions access aligned with its real OAuth/edit-permission contract. Manual R7.6 = CONDITIONAL; deterministic fixtures should be sufficient for normal acceptance unless an authoritative live provider proof is explicitly required.

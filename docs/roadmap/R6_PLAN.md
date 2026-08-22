@@ -29,7 +29,7 @@ R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE wi
 - PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`;
 - post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 
-**Planning gate result: PASS. R6.1–R6.7 are COMPLETE. R6.8 is NEXT / NOT STARTED until R6.7 post-merge normalization is accepted.**
+**Planning gate result: PASS. R6.1–R6.8 are COMPLETE. R6.9 is NEXT / NOT STARTED after this R6.8 post-merge normalization is CI-green and merged.**
 
 ## Frozen-roadmap objective
 
@@ -78,7 +78,7 @@ Persistent R6 evidence belongs under initialized `.kodepoia/` roots and must be 
 
 - **Accessibility:** WCAG 2.2 source criteria where applicable; W3C WCAG2ICT 2.2 is the preferred informative interpretation for non-Web desktop software. No universal WCAG certification claim.
 - **Localization:** Unicode CLDR stable releases are reference context for locale-data conventions only. R6.6 does not vendor CLDR or claim full locale-formatting coverage.
-- **CI/Build provenance:** SLSA v1.2 is reference context for artifact digest/source/build provenance concepts in R6.8. Kodepoia must not claim a SLSA level unless all applicable requirements are separately proven. GitHub artifact attestations may be used later as supplementary provenance, but an attestation by itself is not a security guarantee and is not automatically required for R6.8 completion.
+- **CI/Build provenance:** SLSA v1.2 is reference context for artifact digest/source/build provenance concepts in R6.8. Kodepoia does not claim a SLSA level. GitHub artifact attestations may be used later as supplementary release provenance, but an attestation by itself is not a security guarantee and routine PR/test-build attestation is not an R6.8 completion gate.
 - **Application security:** OWASP ASVS 5.0.0 stable baseline, only for applicable web/API/auth/session/security surfaces.
 - **Software BOM:** SPDX 3.0 stable baseline. Pre-release SPDX versions are not authoritative without an explicit later decision.
 
@@ -95,8 +95,8 @@ If a versioned reference materially changes before a future subdivision is imple
 | R6.5 | KodeAccessibility foundation | COMPLETE | REQUIRED — SATISFIED | R6.3–R6.4 |
 | R6.6 | KodeLocalization + pseudo-localization foundation | COMPLETE | NONE | R6.3 + R6.5 |
 | R6.7 | KodeTechnicalDebt foundation | COMPLETE | NONE | R6.1–R6.6 |
-| R6.8 | KodeCI + KodeBuild foundation | NEXT / NOT STARTED | CONDITIONAL | R6.1–R6.7 |
-| R6.9 | KodeAppSecurity baseline | PLANNED | NONE | R6.3 + R6.7–R6.8 |
+| R6.8 | KodeCI + KodeBuild foundation | COMPLETE | CONDITIONAL — NOT TRIGGERED | R6.1–R6.7 |
+| R6.9 | KodeAppSecurity baseline | NEXT / NOT STARTED | NONE | R6.3 + R6.7–R6.8 |
 | R6.10 | KodePrivacy baseline | PLANNED | NONE | R6.7–R6.9 |
 | R6.11 | KodeLicense + KodeBOM foundation | PLANNED | CONDITIONAL | R6.7–R6.10 |
 | R6.12 | Major-patch validation + rollback gate and R6 integration acceptance | PLANNED | CONDITIONAL | R6.1–R6.11 |
@@ -311,6 +311,7 @@ Accepted scope:
 - accepted head `0da49c7526b54f562827d63477b7ce8f1865de43`;
 - implementation PR #45;
 - implementation merge `3986b056654b25a73e45e5135ca3110a920c4bf5`;
+- post-merge normalization PR #46 merge `fc7bd4d5803c451b4d343d08bcc212868ad24412`;
 - R0 Repository Guard `32570711736` / #756 — SUCCESS Windows + Ubuntu;
 - Python Core `32570711738` / #730 — SUCCESS Windows + Ubuntu, PowerShell syntax, full pytest and integrated KodeStudio UI smoke;
 - KodeStudio UI Smoke `32570711732` / #697 — SUCCESS Windows.
@@ -325,63 +326,102 @@ Rollback/risk: never treat accepted debt as resolved, never change fingerprints 
 
 ---
 
-# R6.8 — KodeCI + KodeBuild foundation — NEXT / NOT STARTED
+# R6.8 — KodeCI + KodeBuild foundation — COMPLETE
 
-## Objective
+## Objective and accepted scope
 
-Convert repository workflows/builds into structured evidence consumable by Health, Tests, Regression, VisualQA and later release tooling.
+R6.8 converted repository CI and Python package builds into structured, exact-source-SHA-bound evidence consumable by Health, Tests/Regression and later release tooling, without weakening any existing R0/Python/UI gate or adding an unrestricted build execution path.
 
-## In scope / expected deliverables
+Accepted scope:
 
-- normalized CI check IDs/statuses;
-- explicit queued/in-progress/pass/fail/cancelled/skipped/unknown semantics;
-- skipped/cancelled never count as PASS;
-- build manifest tied to exact source SHA, Python version, platform, dependency inputs and artifact hashes;
-- Python package wheel/sdist build validation;
-- Windows + Ubuntu build/test matrix;
-- artifact names/sizes/SHA-256 digests;
-- source/dependency-input digests;
-- clear documentation of unavoidable non-byte-reproducible metadata rather than false cross-platform byte identity;
-- available lint/compile/tests/regression/security/visual hooks;
-- recursive secret-redaction rules for manifests/log-like evidence;
-- `.kodepoia/workflows/` and `.kodepoia/releases/` persistence through `WorkspaceBoundary`;
-- Health `build` integration and R6.3 stable hooks;
-- workflow updates without weakening R0/Python/UI gates;
-- provenance concepts informed by current SLSA v1.2, without claiming a SLSA level unless independently proven.
+- stable CI check IDs;
+- explicit `queued`, `in_progress`, `pass`, `fail`, `cancelled`, `skipped`, `unknown` semantics;
+- required FAIL/CANCELLED/SKIPPED never PASS; required incomplete evidence remains UNKNOWN;
+- exact 40-character source Git SHA binding;
+- canonical CI evidence SHA-256 with derived count/blocker tamper rejection;
+- R6.3 stable CI hooks;
+- `.kodepoia/workflows/<workflow>/` persistence through `WorkspaceBoundary`;
+- build manifests with source SHA, platform, Python version and Hatchling backend;
+- deterministic source-input digest plus explicit dependency-input digest;
+- package artifact name, kind, byte size, SHA-256 and structural validation;
+- required wheel + sdist presence; missing/invalid required package is blocking;
+- recursive sensitive-field and common token/Bearer redaction before persisted metadata;
+- `.kodepoia/releases/<platform>/` persistence through `WorkspaceBoundary`;
+- Health `build` adapter and stable R6.3 `build:<platform>:<kind>` hooks;
+- `ci-report-v1` and `build-manifest-v1` schemas;
+- fixed evidence collector `scripts/r6_8_collect_build.py` with no arbitrary model-supplied command/executable/cwd/output path;
+- additive Windows+Ubuntu `package-build` matrix in Python Core using fixed `python -m build --wheel --sdist --outdir dist` and `actions/upload-artifact@v4`;
+- package job checkout explicitly pinned to `${{ github.event.pull_request.head.sha || github.sha }}` so the built bytes and evidence source SHA identify the same revision;
+- exact per-platform package and GitHub Actions bundle hashes;
+- no false requirement that Windows and Ubuntu archives be byte-identical.
 
-## Out of scope
+Out of scope: store publishing, signing certificates, installers/update channels, unsupported macOS/iOS claims, generated-app framework builds and any arbitrary model-supplied build command.
 
-Store publishing, signing certificates, installers/update channels, unsupported macOS/iOS claims, generated-app framework builds belonging to later phases and any arbitrary model-supplied build command.
+## Accepted deliverables
 
-## Acceptance gates
+- `src/kodepoia/quality/ci.py`;
+- `src/kodepoia/quality/build.py`;
+- `scripts/r6_8_collect_build.py`;
+- `schemas/ci-report-v1.schema.json`;
+- `schemas/build-manifest-v1.schema.json`;
+- `tests/test_r6_8_ci_build.py`;
+- quality exports;
+- `build>=1.2,<2` development build frontend;
+- additive package-build jobs in `.github/workflows/python-core.yml`;
+- `docs/roadmap/R6_8_DESIGN.md`;
+- `docs/roadmap/R6_8_ACCEPTANCE.md`.
 
-1. structured CI/build report schemas and round-trip/tamper checks;
-2. exact source-SHA binding;
-3. artifact name/size/SHA-256 evidence;
-4. deterministic source/dependency-input hashing;
-5. failed/cancelled/skipped distinction and no false PASS;
-6. secret-field/token redaction from persisted evidence;
-7. Python wheel + sdist built and validated on Windows and Ubuntu;
-8. platform-specific artifact evidence recorded without false cross-platform byte-reproducibility claims;
-9. `.kodepoia/workflows/` / `.kodepoia/releases/` confinement;
-10. Health/Test integration;
-11. existing R0/Python/UI gates preserved;
-12. conditional local Windows gate evaluated explicitly;
-13. merge + post-merge normalization.
+## Accepted implementation identity and CI
+
+- starting normalized main `fc7bd4d5803c451b4d343d08bcc212868ad24412`;
+- accepted implementation head `d632669b93fda7b8397b9c3de43d78ca8726323f`;
+- implementation PR #47;
+- implementation merge `d570a3930ee63802882b8682e4532004d4fd81d6`;
+- R0 Repository Guard `32571710663` / #783 — SUCCESS Windows + Ubuntu;
+- Python Core `32571710718` / #757 — SUCCESS for `python-core-ubuntu-latest`, `python-core-windows-latest`, integrated `kodestudio-ui-windows`, `package-build-ubuntu-latest`, `package-build-windows-latest`;
+- KodeStudio UI Smoke `32571710650` / #724 — SUCCESS Windows.
+
+Both package jobs explicitly checked out `d632669b93fda7b8397b9c3de43d78ca8726323f`.
+
+Ubuntu final package evidence:
+
+- Ubuntu 24.04.4; Python 3.12.14;
+- wheel 168,238 bytes, SHA-256 `35489ed602a9ade3816a4562f5cd751fbfb8924cd8ad780fba5bc7aa26a2a095`, validated;
+- sdist 247,776 bytes, SHA-256 `b803d3f316f46ea461af853240ba8ab8bf3f867e0cff8e88e70f87bf678c1a78`, validated;
+- build evidence `57e11b0a66e1f40d9984ae7aeacbe3874df5ce7b005657a72e6e603a63f983d8`;
+- CI evidence `1a9f0e6dc0c099d5a7d9336d97a1e53ec40563cce90ba2a8c56e80b2eeb58869`;
+- Actions bundle ID `9475481332`, ZIP SHA-256 `cdeef82ace3e0ca2ef0275b3111bf6d2c8f50213b20e777ddb436477e48261d8`.
+
+Windows final package evidence:
+
+- hosted Windows Server 2025; Python 3.12.10;
+- wheel 169,444 bytes, SHA-256 `1406f5a2f180b56c611fb3a0cd8a9d23436682903405f52dadc26257c5b676fb`, validated;
+- sdist 249,797 bytes, SHA-256 `42e63403069e61235cefa71ebbc4099b5e717e1528a6eae54ef0673f20e69edd`, validated;
+- build evidence `248d49db9badfea775d18ca4087eb56ba053c961f888d5641dc42e62c6d8f419`;
+- CI evidence `47ffad9f7f1d2c7af14efdc0f71e065b6b556046404069f2f02ef8b353024160`;
+- Actions bundle ID `9475485133`, ZIP SHA-256 `aae159bd0d8a04ee4cec6c65f7a20f104c4679a9081432640419c4a6e74ccbe5`.
+
+Both downloaded Actions bundles were independently inspected and contained wheel, sdist, build manifest and CI report. Both reports were PASS with zero blockers and exact source-SHA binding.
+
+## Reproducibility and provenance interpretation
+
+R6.8 does not claim cross-platform byte-identical archives. The immutable source identity is the exact Git SHA, while per-platform source/dependency/artifact digests record the bytes observed by each runner/toolchain. Different Windows/Ubuntu archive hashes are retained as evidence and are not mislabeled as regressions without a future explicit reproducible-build contract.
+
+SLSA provenance concepts were used as reference context only. No SLSA level is claimed. GitHub artifact attestations were not made a mandatory routine PR-build gate because they are provenance evidence, not an artifact-safety guarantee, and frequent automated test builds do not require such attestations for this foundation.
 
 ## Manual intervention
 
-**CONDITIONAL** only if GitHub-hosted Windows cannot authoritatively prove an acceptance-critical Windows build behavior/artifact.
+**CONDITIONAL — NOT TRIGGERED.**
 
-If triggered, the implemented runner must bind evidence to the exact source SHA, preserve artifacts/hashes, emit zero blockers and `acceptance_completed=true`; failed evidence must not be edited or reused from another SHA. The final exact commands, prerequisites, expected output, recovery and do-not-do-yet instructions will be supplied only after the final R6.8 implementation head is frozen and hosted CI has shown why the local gate is necessary.
+Hosted Windows on the exact final implementation head successfully checked out the correct SHA, built wheel+sdist, structurally validated both, recorded source/dependency/artifact hashes, emitted PASS/no-blocker CI/build evidence, uploaded the bundle and allowed independent bundle inspection. No acceptance-critical Windows behavior remained unproven; a user-local run would therefore add no required evidence.
 
-## Rollback / risks
+## Rollback / anti-regression
 
-Do not remove or narrow existing checks. Build evidence must remain tied to the exact source SHA. Never equate `skipped` or `cancelled` with success. Do not persist secrets. Do not add an unrestricted process execution path to generate builds; workflow/build commands remain fixed and governed.
+Do not remove or narrow existing R0/Python/UI checks. Package-build checkout must remain bound to the source SHA recorded in evidence. Required skipped/cancelled checks never PASS. Missing/invalid wheel/sdist remains blocking. Do not persist secrets. Do not add arbitrary model build commands/paths. Do not manufacture cross-platform byte reproducibility claims.
 
 ---
 
-# R6.9 — KodeAppSecurity baseline
+# R6.9 — KodeAppSecurity baseline — NEXT / NOT STARTED
 
 ## Objective
 
@@ -512,10 +552,11 @@ Risk: avoid circular validation where patch gate trusts its own summary without 
 - **R6.5 — REQUIRED:** SATISFIED and accepted; no further action unless regression.
 - **R6.6 — NONE:** COMPLETE; no user action required.
 - **R6.7 — NONE:** COMPLETE; no user action required.
-- **R6.8 — CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet build/provenance DoD. If hosted Windows builds and validates the required artifacts with exact source/artifact hashes, this condition is NOT TRIGGERED.
+- **R6.8 — CONDITIONAL:** NOT TRIGGERED; hosted Windows proved the final acceptance-critical package build/provenance behavior, so no user action is required.
+- **R6.9 — NONE:** NEXT / NOT STARTED after normalization merge.
+- **R6.10 — NONE:** PLANNED.
 - **R6.11 — CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved.
 - **R6.12 — CONDITIONAL:** local integration/approval only if final selected gates require hardware-local execution or explicit approval.
-- **R6.9, R6.10 — NONE** currently planned.
 
 Before any future manual gate, its acceptance document and user-facing instructions must identify the exact final implementation head and confirm final implementation-specific commands/actions, expected output, recovery and evidence requirements.
 
@@ -539,4 +580,5 @@ R6 is COMPLETE only when:
 - 2026-08-22: R6.4 accepted on head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`; PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`; PR #40 normalized main to `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
 - 2026-08-22: R6.5 accepted on head `06fd66af4b3a85da24b98ea2a5fbb2685358c540` after R0 #710, Python Core #684, UI Smoke #651 and required Windows keyboard/focus/Narrator `15 PASS / 0 FAIL / 15`; PR #41 merged as `db1a1ab78eb2ac7d90f75ab294074dec0238268c`; PR #42 normalized main to `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
 - 2026-08-22: R6.6 accepted on head `6890b9d37722c74703e8b86f7de11dbfe66821ed` after R0 #733, Python Core #707 and UI Smoke #674; PR #43 merged as `f677cb34eade0549edc951fe11955de2bc0b270d`; PR #44 normalized main to `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
-- 2026-08-22: R6.7 accepted on head `0da49c7526b54f562827d63477b7ce8f1865de43` after R0 #756, Python Core #730 and UI Smoke #697; PR #45 merged as `3986b056654b25a73e45e5135ca3110a920c4bf5`. R6.7 COMPLETE; R6.8 NEXT / NOT STARTED pending this post-merge normalization.
+- 2026-08-22: R6.7 accepted on head `0da49c7526b54f562827d63477b7ce8f1865de43` after R0 #756, Python Core #730 and UI Smoke #697; PR #45 merged as `3986b056654b25a73e45e5135ca3110a920c4bf5`; PR #46 normalized main to `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
+- 2026-08-22: R6.8 accepted on head `d632669b93fda7b8397b9c3de43d78ca8726323f` after R0 #783, Python Core #757 including Ubuntu+Windows package builds, UI Smoke #724 and downloaded artifact inspection; manual CONDITIONAL gate NOT TRIGGERED; PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`. R6.8 COMPLETE; R6.9 NEXT / NOT STARTED pending this post-merge normalization.

@@ -45,7 +45,9 @@ jobs:
           foreach ($script in @(
             "scripts/r3_accept_local.ps1",
             "scripts/r5_accept_local.ps1",
-            "scripts/r5_diagnose_godot_process.ps1"
+            "scripts/r5_diagnose_godot_process.ps1",
+            "scripts/r6_4_accept_local.ps1",
+            "scripts/r6_5_accept_local.ps1"
           )) {
             $tokens = $null
             $errors = $null
@@ -78,4 +80,4 @@ jobs:
       - name: Compile
         run: python -m compileall -q src tests
       - name: KodeStudio smoke
-        run: pytest tests/test_kodestudio_smoke.py
+        run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py

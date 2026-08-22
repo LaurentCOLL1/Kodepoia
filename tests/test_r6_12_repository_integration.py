@@ -2,12 +2,25 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator
 
 from kodepoia.quality.patch_gate import IntegrationEvidenceStatus, R6IntegrationReport
+
+
+def _git_blob_bytes(root: Path, repository_path: str) -> bytes:
+    result = subprocess.run(
+        ["git", "show", f"HEAD:{repository_path}"],
+        cwd=root,
+        check=True,
+        shell=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    return result.stdout
 
 
 def test_checked_in_r6_integrated_acceptance_is_bound_to_acceptance_documents() -> None:
@@ -31,10 +44,18 @@ def test_checked_in_r6_integrated_acceptance_is_bound_to_acceptance_documents() 
 
     roadmap_root = (root / "docs" / "roadmap").resolve(strict=True)
     for item in report.subdivisions:
+        expected_name = f"R6_{item.subdivision.split('.')[1]}_ACCEPTANCE.md"
+        expected_repository_path = f"docs/roadmap/{expected_name}"
+        assert item.source == expected_repository_path
+
         source = (root / item.source).resolve(strict=True)
         assert source.parent == roadmap_root
-        assert source.name == f"R6_{item.subdivision.split('.')[1]}_ACCEPTANCE.md"
-        assert hashlib.sha256(source.read_bytes()).hexdigest() == item.evidence_sha256
+        assert source.name == expected_name
+
+        # Hash the canonical Git blob, not working-tree bytes. Windows checkout may
+        # materialize CRLF while the repository blob remains the same LF content.
+        canonical_bytes = _git_blob_bytes(root, expected_repository_path)
+        assert hashlib.sha256(canonical_bytes).hexdigest() == item.evidence_sha256
         assert item.status is IntegrationEvidenceStatus.PASS
         assert item.manual_satisfied
         assert item.accepted_head

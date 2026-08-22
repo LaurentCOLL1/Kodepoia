@@ -2,8 +2,9 @@
 
 **Phase:** R6  
 **Roadmap title:** Quality / Health / Budget / CI  
-**Status:** IN PROGRESS — PLAN ACCEPTED  
+**Status:** COMPLETE — PLAN EXECUTED AND ACCEPTED  
 **Phase started:** 2026-08-22  
+**Phase completed:** 2026-08-22  
 **Plan reconstructed:** 2026-08-22 by explicit user request after R6.1–R6.3 had already been accepted  
 **Plan accepted:** 2026-08-22  
 **Accepted planning head:** `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a`  
@@ -62,7 +63,7 @@ Persistent R6 project evidence belongs under initialized `.kodepoia/` roots and 
 | R6.9 | KodeAppSecurity baseline | COMPLETE | NONE | R6.3 + R6.7–R6.8 |
 | R6.10 | KodePrivacy baseline | COMPLETE | NONE | R6.7–R6.9 |
 | R6.11 | KodeLicense + KodeBOM foundation | COMPLETE | CONDITIONAL — NOT TRIGGERED | R6.7–R6.10 |
-| R6.12 | Major-patch validation + rollback gate and R6 integration acceptance | NEXT / NOT STARTED | CONDITIONAL | R6.1–R6.11 |
+| R6.12 | Major-patch validation + rollback gate and R6 integration acceptance | COMPLETE | CONDITIONAL — NOT TRIGGERED | R6.1–R6.11 |
 
 ---
 
@@ -275,7 +276,7 @@ Anti-regression: never infer exact versions/licenses, treat N/A/NOASSERTION/NONE
 
 ---
 
-# R6.12 — Major-patch validation + rollback gate and R6 integration acceptance — NEXT / NOT STARTED
+# R6.12 — Major-patch validation + rollback gate and R6 integration acceptance — COMPLETE
 
 ## Objective
 
@@ -283,7 +284,7 @@ Make the frozen-roadmap rule **“tout patch majeur doit avoir validation et rol
 
 ## Dependencies
 
-R6.12 depends on accepted R6.1–R6.11 and must start only from normalized `main` after this R6.11 post-merge normalization is CI-green and merged. It must consume existing R6 reports rather than replace them.
+R6.12 depends on accepted R6.1–R6.11 and started only from normalized `main` `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9` after R6.11 post-merge normalization was CI-green and merged. It consumes existing R6 reports rather than replacing them.
 
 ## Required implementation scope
 
@@ -388,12 +389,12 @@ R6 integrated PASS requires all mandatory R6.1–R6.12 evidence to be accepted a
 ## Expected deliverables
 
 - patch classification/gate module(s) under the existing Quality/protected architecture;
-- report/schema v1 for patch gate and, if separate, R6 integrated acceptance;
-- adapters to existing Health/R6.3 where useful without duplicating evidence;
+- report/schema v1 for patch gate and R6 integrated acceptance;
+- adapters to existing Health/R6.3 without duplicating evidence;
 - focused tests covering major/minor, domain selection, wrong SHA, missing/skipped/cancelled evidence, rollback-required semantics, path escape, corrupted backup/snapshot, restore hash verification, AuditLog verification and report tamper rejection;
 - controlled temp-fixture rollback rehearsal;
 - `docs/roadmap/R6_12_DESIGN.md` and `R6_12_ACCEPTANCE.md`;
-- updates to R6_STATUS/PLAN/continuity while IN PROGRESS;
+- updates to R6_STATUS/PLAN/continuity;
 - exact-final-head hosted CI evidence;
 - implementation merge + post-merge final R6 normalization.
 
@@ -417,9 +418,19 @@ R6 integrated PASS requires all mandatory R6.1–R6.12 evidence to be accepted a
 16. post-merge normalization CI-green and merged;
 17. only then may R6_STATUS become COMPLETE and R7 planning begin.
 
+## Accepted implementation / evidence
+
+- accepted implementation head `f57d1c43cfa12a8f9918b80065f4ffa3502046de`;
+- R0 #934 / `32580881005` SUCCESS Windows+Ubuntu;
+- Python Core #908 / `32580881007` SUCCESS all five jobs;
+- KodeStudio UI Smoke #875 / `32580881010` SUCCESS Windows;
+- PR #56 merged with exact-head protection as `e557979ef818d03bc7602a0b96644b0b5863a73e`;
+- final integrated report `docs/roadmap/R6_INTEGRATED_ACCEPTANCE.json` is validated against the exact SHA-256 bytes of all 12 subdivision acceptance documents during final normalization;
+- manual `CONDITIONAL — NOT TRIGGERED`.
+
 ## Manual intervention
 
-**CONDITIONAL.** Do not trigger merely because R6.12 deals with rollback. Prefer hosted Windows/Ubuntu and temporary project fixtures. User intervention becomes required only if an acceptance-critical selected gate genuinely needs local hardware/capability unavailable to hosted CI, or Guardian policy requires explicit human approval for a real sensitive operation. If triggered, the final-head acceptance document must first provide reason, prerequisites, exact commands/actions, expected output, recovery, evidence to return and what not to do.
+**CONDITIONAL — NOT TRIGGERED.** Hosted Windows/Ubuntu and the disposable rollback fixture proved every selected R6.12 acceptance-critical property. No local hardware or explicit human Guardian approval was required.
 
 ## Failure recovery / anti-regression
 
@@ -430,11 +441,11 @@ R6 integrated PASS requires all mandatory R6.1–R6.12 evidence to be accepted a
 - no rollback plan accepted without verified restore evidence where rehearsal is required;
 - no parallel unrestricted snapshot/restore implementation;
 - preserve WorkspaceBoundary/Guardian/SafeChange/Audit and exact-head discipline;
-- do not mark R6 COMPLETE or start R7 from partial CI.
+- do not start R7 before final normalization is merged.
 
 ---
 
-# Manual-intervention forecast
+# Manual-intervention forecast — final
 
 - R6.1 NONE — COMPLETE.
 - R6.2 NONE — COMPLETE.
@@ -447,11 +458,11 @@ R6 integrated PASS requires all mandatory R6.1–R6.12 evidence to be accepted a
 - R6.9 NONE — COMPLETE.
 - R6.10 NONE — COMPLETE.
 - R6.11 CONDITIONAL — NOT TRIGGERED, COMPLETE.
-- R6.12 CONDITIONAL — not triggered at planning time; trigger only for genuinely non-hosted acceptance-critical capability or explicit human approval.
+- R6.12 CONDITIONAL — NOT TRIGGERED, COMPLETE.
 
 # R6 completion rule
 
-R6 is COMPLETE only when R6.1–R6.12 are COMPLETE, no required/triggered manual gate remains pending, R6.12 integrated gate passes, exact-final-head R0/Python Core/UI are green, implementation is merged, and final `R6_PLAN.md`, `R6_STATUS.md`, `R6_12_ACCEPTANCE.md` and continuity are synchronized by a CI-green normalization merge. Only then may R7 planning begin, and the permanent rule requires `R7_PLAN.md` to be created and merged before R7.1.
+R6 is COMPLETE only when R6.1–R6.12 are COMPLETE, no required/triggered manual gate remains pending, R6.12 integrated gate passes, exact-final-head R0/Python Core/UI are green, implementation is merged, and final `R6_PLAN.md`, `R6_STATUS.md`, `R6_12_ACCEPTANCE.md` and continuity are synchronized by a CI-green normalization merge. This final normalization satisfies that rule when PR #57 merges. Only then may R7 planning begin, and the permanent rule requires `R7_PLAN.md` to be created and merged before R7.1.
 
 # Change log
 
@@ -463,4 +474,5 @@ R6 is COMPLETE only when R6.1–R6.12 are COMPLETE, no required/triggered manual
 - 2026-08-22: R6.8 accepted head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47, normalization #48/#49; manual conditional not triggered.
 - 2026-08-22: R6.9 accepted head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; PR #50, normalization #51.
 - 2026-08-22: R6.10 accepted head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; normalization #53 `36524978a963d8c759d36902bc1ab00989da0549`.
-- 2026-08-22: R6.11 accepted net-clean head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; R0 #885, Python #859 five jobs, UI #826 SUCCESS; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; manual conditional not triggered. This post-merge normalization records R6.11 COMPLETE and R6.12 NEXT / NOT STARTED.
+- 2026-08-22: R6.11 accepted net-clean head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; R0 #885, Python #859 five jobs, UI #826 SUCCESS; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; normalization #55 merge `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`; manual conditional not triggered.
+- 2026-08-22: R6.12 accepted head `f57d1c43cfa12a8f9918b80065f4ffa3502046de`; R0 #934, Python Core #908 five jobs, UI #875 SUCCESS; PR #56 merge `e557979ef818d03bc7602a0b96644b0b5863a73e`; manual conditional not triggered; final normalization PR #57 records the SHA-bound R6.1–R6.12 integrated PASS and closes R6.

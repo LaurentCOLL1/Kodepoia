@@ -156,8 +156,9 @@ def test_deterministic_major_minor_classification_and_triggers() -> None:
 
 
 def test_required_gate_matrix_is_domain_driven_and_major_adds_rollback() -> None:
-    changes = (change(PatchDomain.UI),)
+    changes = (change(PatchDomain.UI, risk=PatchRisk.HIGH),)
     classification = KodePatchGate.classify(changes)
+    assert classification.classification is PatchClassification.MAJOR
     gates = {item.gate for item in KodePatchGate.required_gates(changes, classification)}
     assert {
         ValidationGate.TESTS,
@@ -185,6 +186,26 @@ def test_major_patch_requires_rollback_strategy_and_passing_rehearsal() -> None:
     assert missing.status is PatchGateStatus.FAIL
     assert "rollback:strategy:missing" in missing.blockers
     assert "rollback:rehearsal:missing" in missing.blockers
+
+    incomplete_strategy = RollbackStrategy(
+        id="incomplete-rollback",
+        method=RollbackMethod.COMPOSITE,
+        description="Incomplete rollback evidence must not pass.",
+        restore_scope=("src/demo.py",),
+        verification_required=False,
+    )
+    incomplete = PatchGateReport.build(
+        patch_id="incomplete-rollback",
+        base_sha=BASE,
+        head_sha=HEAD,
+        changes=changes,
+        evidence=ev,
+        rollback=incomplete_strategy,
+        rehearsal=rehearsal(),
+        generated_at=NOW,
+    )
+    assert incomplete.status is PatchGateStatus.FAIL
+    assert "rollback:strategy:verification-incomplete" in incomplete.blockers
 
     passed = pass_major_report()
     assert passed.status is PatchGateStatus.PASS
@@ -254,7 +275,7 @@ def test_warn_is_preserved_as_warn_not_fake_pass() -> None:
     assert KodePatchGate.to_health_metric(report).status.value == "warn"
 
 
-def test_measured_required_evidence_must_bind_exact_head_and_digest() -> None:
+def test_measured_evidence_must_bind_source_sha_and_digest_and_report_checks_head() -> None:
     changes = (change(PatchDomain.CORE),)
     required = KodePatchGate.required_gates(changes, KodePatchGate.classify(changes))
     target = required[0].gate
@@ -275,48 +296,22 @@ def test_measured_required_evidence_must_bind_exact_head_and_digest() -> None:
             generated_at=NOW,
         )
 
-    unbound = [
-        GateEvidence(
-            gate=item.gate,
-            status=GateEvidenceStatus.PASS,
-            source=f"fixture:{item.gate.value}",
-            evidence_sha256=digest(item.gate.value),
-            source_sha="" if item.gate is target else HEAD,
-        )
-        for item in required
-    ]
     with pytest.raises(ValueError, match="source_sha"):
-        PatchGateReport.build(
-            patch_id="unbound-source",
-            base_sha=BASE,
-            head_sha=HEAD,
-            changes=changes,
-            evidence=unbound,
-            rollback=rollback_strategy(),
-            rehearsal=rehearsal(),
-            generated_at=NOW,
+        GateEvidence(
+            gate=target,
+            status=GateEvidenceStatus.PASS,
+            source="fixture:unbound-source",
+            evidence_sha256=digest("unbound-source"),
+            source_sha="",
         )
 
-    no_digest = [
-        GateEvidence(
-            gate=item.gate,
-            status=GateEvidenceStatus.PASS,
-            source=f"fixture:{item.gate.value}",
-            evidence_sha256="" if item.gate is target else digest(item.gate.value),
-            source_sha=HEAD,
-        )
-        for item in required
-    ]
     with pytest.raises(ValueError, match="evidence_sha256"):
-        PatchGateReport.build(
-            patch_id="unbound-digest",
-            base_sha=BASE,
-            head_sha=HEAD,
-            changes=changes,
-            evidence=no_digest,
-            rollback=rollback_strategy(),
-            rehearsal=rehearsal(),
-            generated_at=NOW,
+        GateEvidence(
+            gate=target,
+            status=GateEvidenceStatus.PASS,
+            source="fixture:unbound-digest",
+            evidence_sha256="",
+            source_sha=HEAD,
         )
 
 
@@ -327,6 +322,8 @@ def test_patch_paths_reject_parent_absolute_and_windows_drive_escape() -> None:
         change(path="/tmp/outside.txt")
     with pytest.raises(ValueError, match="safe"):
         change(path="C:/Windows/System32/demo.dll")
+    with pytest.raises(ValueError, match="safe"):
+        change(path=r"D:\outside\demo.dll")
 
 
 def test_roundtrip_and_tamper_rejection() -> None:
@@ -384,10 +381,18 @@ def test_fixture_rollback_rehearsal_restores_exact_file_set_and_hashes(tmp_path:
     target = project / "src" / "demo.txt"
     target.write_text("original\n", encoding="utf-8")
     (project / "keep.txt").write_text("keep\n", encoding="utf-8")
-    before = {path.relative_to(project).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(project.rglob("*")) if path.is_file()}
+    before = {
+        path.relative_to(project).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(project.rglob("*"))
+        if path.is_file()
+    }
 
     result = rehearse_fixture_rollback(project, support, "src/demo.txt")
-    after = {path.relative_to(project).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(project.rglob("*")) if path.is_file()}
+    after = {
+        path.relative_to(project).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted(project.rglob("*"))
+        if path.is_file()
+    }
     assert result.status is RehearsalStatus.PASS
     assert result.restored_hashes_match
     assert result.backup_verified
@@ -500,8 +505,12 @@ def test_r6_integration_roundtrip_and_tamper_rejection() -> None:
 
 def test_json_schemas_accept_canonical_reports() -> None:
     root = Path(__file__).resolve().parents[1]
-    patch_schema = json.loads((root / "schemas" / "patch-gate-report-v1.schema.json").read_text(encoding="utf-8"))
-    integration_schema = json.loads((root / "schemas" / "r6-integration-report-v1.schema.json").read_text(encoding="utf-8"))
+    patch_schema = json.loads(
+        (root / "schemas" / "patch-gate-report-v1.schema.json").read_text(encoding="utf-8")
+    )
+    integration_schema = json.loads(
+        (root / "schemas" / "r6-integration-report-v1.schema.json").read_text(encoding="utf-8")
+    )
     Draft202012Validator(patch_schema).validate(pass_major_report().to_dict())
     Draft202012Validator(integration_schema).validate(
         R6IntegrationReport.build(HEAD, subdivisions(source_sha=HEAD), generated_at=NOW).to_dict()

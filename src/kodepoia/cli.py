@@ -17,6 +17,7 @@ from kodepoia.intelligence.research.media import (
     write_json_report,
 )
 from kodepoia.intelligence.research.media_fixture import run_fixture_acceptance
+from kodepoia.intelligence.research.research_cli import register_research_commands
 from kodepoia.project.dna import ApprovalPolicy, Dimension, Platform, ProjectType
 from kodepoia.project.initializer import ProjectInitializer
 from kodepoia.project.wizard import ProjectWizardState
@@ -301,6 +302,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="project-relative output path for the local acceptance report",
     )
     media_accept.set_defaults(func=_research_media_acceptance)
+
+    register_research_commands(commands)
     return parser
 
 

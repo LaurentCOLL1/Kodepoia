@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 from kodepoia.kodestudio.accessibility import mark_accessible
 from kodepoia.kodestudio.localization import KodeStudioTranslator
 
 
-def build_window(kill_switch: KillSwitch | None = None, *, locale: str = "en"):
+def build_window(
+    kill_switch: KillSwitch | None = None,
+    *,
+    locale: str = "en",
+    project_root: Path | None = None,
+    research_service=None,
+):
     from PySide6.QtWidgets import (
         QLabel,
         QListWidget,
@@ -22,6 +29,7 @@ def build_window(kill_switch: KillSwitch | None = None, *, locale: str = "en"):
 
     switch = kill_switch or GLOBAL_KILL_SWITCH
     tr = KodeStudioTranslator(locale)
+    root = (project_root or Path.cwd()).resolve(strict=False)
     window = QMainWindow()
     window.setObjectName("kodepoiaMainWindow")
     window.setAccessibleName("Kodepoia KodeStudio")
@@ -30,6 +38,7 @@ def build_window(kill_switch: KillSwitch | None = None, *, locale: str = "en"):
     window.resize(1100, 700)
     window._kodepoia_kill_switch = switch
     window._kodepoia_locale = locale
+    window._kodepoia_project_root = root
 
     nav = QListWidget()
     mark_accessible(
@@ -120,9 +129,20 @@ def build_window(kill_switch: KillSwitch | None = None, *, locale: str = "en"):
         layout.addStretch(1)
         return page
 
+    def research_page() -> QWidget:
+        from kodepoia.kodestudio.research_panel import create_research_page
+
+        return create_research_page(
+            root,
+            translator=tr,
+            service=research_service,
+            status_bar=status,
+        )
+
     sections = (
         ("app.nav.chat", None),
         ("app.nav.projects", projects_page),
+        ("app.nav.research", research_page),
         ("app.nav.security", security_page),
         ("app.nav.audit", None),
         ("app.nav.settings", None),

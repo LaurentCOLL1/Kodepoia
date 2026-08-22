@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/research-ux-result-v1.schema.json",
+  "title": "Kodepoia Research UX result v1",
+  "type": "object",
+  "required": ["schema_version", "operation", "status", "reason", "items", "metadata"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "operation": {"type": "string", "minLength": 1},
+    "status": {
+      "enum": ["ready", "blocked", "unavailable", "unknown", "stale", "cancelled"]
+    },
+    "reason": {"type": "string"},
+    "items": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": [
+          "schema_version", "item_id", "source_kind", "source_id", "locator",
+          "status", "freshness", "trust", "title", "version", "retrieved_at",
+          "published_at", "updated_at", "artifact_id", "finding_id", "finding_kind",
+          "text", "citation_ids", "citation_locators", "suspicious",
+          "guard_indicators", "reason"
+        ],
+        "properties": {
+          "schema_version": {"const": 1},
+          "item_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "source_kind": {"type": "string"},
+          "source_id": {"type": "string", "pattern": "^$|^[0-9a-f]{64}$"},
+          "locator": {"type": "string"},
+          "status": {"enum": ["ready", "blocked", "unavailable", "unknown", "stale", "cancelled"]},
+          "freshness": {"type": "string"},
+          "trust": {"type": "string"},
+          "title": {"type": "string"},
+          "version": {"type": "string"},
+          "retrieved_at": {"type": "string"},
+          "published_at": {"type": "string"},
+          "updated_at": {"type": "string"},
+          "artifact_id": {"type": "string", "pattern": "^$|^[0-9a-f]{64}$"},
+          "finding_id": {"type": "string", "pattern": "^$|^[0-9a-f]{64}$"},
+          "finding_kind": {"type": "string"},
+          "text": {"type": "string", "maxLength": 4000},
+          "citation_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          },
+          "citation_locators": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string"}
+          },
+          "suspicious": {"type": "boolean"},
+          "guard_indicators": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string"}
+          },
+          "reason": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "metadata": {"type": "object"}
+  },
+  "additionalProperties": false
+}

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R6 sont COMPLETE. Le planning R7 est ACCEPTED. R7.1–R7.7 sont COMPLETE ; R7.8 est NOT STARTED.** R7.7 a été accepté sur le head exact `04cef94c82fdacafe7313d27c8cf516e8e765295` avec R0 #997 / `32594549119`, Python Core #971 / `32594549136` cinq jobs SUCCESS, suite Ubuntu `443 passed / 4 skipped / 46 warnings`, et UI Smoke #938 / `32594549125` SUCCESS; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual R7.7 = REQUIRED SATISFIED sur Windows réel avec doctor READY, media acceptance PASS et pytest autoritaire PASS. **La prochaine implémentation autorisée est R7.8 — Version-awareness + provenance/conflict model**, uniquement après fusion de la normalisation R7.7. R7.8 manual = NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R6 COMPLETE. Planning R7 ACCEPTED. R7.1–R7.8 COMPLETE ; R7.9 NOT STARTED.** R7.8 a été accepté sur le head exact `deb5de415541004fb07bfbc6d955e9d76d717533` avec R0 #1001 / `32595358745`, Python Core #975 / `32595358772` cinq jobs SUCCESS, suite Ubuntu `460 passed / 4 skipped / 46 warnings`, UI Smoke #942 / `32595358734` SUCCESS; PR #74 merge `f0de53379d6a8eb1883137946db4f2731cb9830a`; manual R7.8 = NONE. **La prochaine implémentation autorisée est R7.9 — Research cache + Context/Memory orchestration**, uniquement après fusion de la normalisation R7.8. R7.9 manual = NONE.
 
 ## Source de vérité et état
 
@@ -18,9 +18,10 @@
 - R7.3 : COMPLETE — head `4efd2cb016e774fa3ef06590ffda377606d875e9`; R0 #968, Python #942 5/5, UI #909; PR #64 merge `cde4f7fd727c6940c6a434f85fabc2ced27f04c5`; manual NONE.
 - R7.4 : COMPLETE — head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`; R0 #972, Python #946 5/5 (`388 passed / 3 skipped / 46 warnings` Ubuntu), UI #913; PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`; manual CONDITIONAL NOT TRIGGERED.
 - R7.5 : COMPLETE — head `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5`; R0 #976, Python #950 5/5 (`400 passed / 3 skipped / 46 warnings` Ubuntu), UI #917; PR #68 merge `b02dfba4b6a6a4c0a6ec19d552e569b56845a4ea`; manual NONE.
-- R7.6 : COMPLETE — head `b623836b8f5bd39fce101eca7fe4653a996a9562`; R0 #980 / `32590863193`; Python #954 / `32590863199` 5/5 (`432 passed / 3 skipped / 46 warnings` Ubuntu); UI #921 / `32590863191`; PR #70 merge `15216b59e14d692ff1e850812d572632bad5a88b`; manual CONDITIONAL NOT TRIGGERED.
-- R7.7 : COMPLETE — head `04cef94c82fdacafe7313d27c8cf516e8e765295`; R0 #997 / `32594549119`; Python #971 / `32594549136` 5/5 (`443 passed / 4 skipped / 46 warnings` Ubuntu); UI #938 / `32594549125`; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual REQUIRED SATISFIED.
-- R7.8–R7.11 : NOT STARTED; next = R7.8.
+- R7.6 : COMPLETE — head `b623836b8f5bd39fce101eca7fe4653a996a9562`; R0 #980, Python #954 5/5 (`432 passed / 3 skipped / 46 warnings` Ubuntu), UI #921; PR #70 merge `15216b59e14d692ff1e850812d572632bad5a88b`; manual CONDITIONAL NOT TRIGGERED.
+- R7.7 : COMPLETE — head `04cef94c82fdacafe7313d27c8cf516e8e765295`; R0 #997, Python #971 5/5 (`443 passed / 4 skipped / 46 warnings` Ubuntu), UI #938; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual REQUIRED SATISFIED.
+- R7.8 : COMPLETE — head `deb5de415541004fb07bfbc6d955e9d76d717533`; R0 #1001 / `32595358745`; Python #975 / `32595358772` 5/5 (`460 passed / 4 skipped / 46 warnings` Ubuntu); UI #942 / `32595358734`; PR #74 merge `f0de53379d6a8eb1883137946db4f2731cb9830a`; manual NONE.
+- R7.9–R7.11 : NOT STARTED; next = R7.9.
 - R8–R16 : PENDING / NOT STARTED.
 
 ## R7 frozen structure
@@ -50,56 +51,54 @@ Aucune subdivision ne peut être ajoutée, supprimée, fusionnée, scindée ou r
 - R7.3 Web est GET-only typé avec DNS/IP publics, IP épinglée, redirects revalidés, Guardian NETWORK et bornes MIME/octets/timeout/rate.
 - R7.4 GitHub est REST read-only typé sur origine fixe, refs mutables résolues vers SHA exact, pagination/rate-limit explicites, auth optionnelle via KodeSecrets.
 - R7.5 Community préserve auteur/thread/parent/timestamps/états/quotes; `authority_class=community`; popularité n'est jamais autorité.
-
-## R7.6 accepted YouTube baseline
-
-- `YouTubeLocator` accepte uniquement ID vidéo exact ou formes URL vidéo YouTube connues et normalise vers un watch URL canonique.
-- Metadata et transcript sont deux capacités indépendantes; existence vidéo n'implique jamais existence transcript.
-- `videos.list` provider exige l'identité exacte retournée pour le video ID demandé.
-- Les timestamp markers de description sont conservés comme observations de description, jamais comme chapitres certifiés par le provider.
-- Le transcript provider est explicite. Fixtures déterministes prouvent l'ingestion sans inventer une API publique universelle.
-- Le chemin officiel captions est uniquement `captions.list` puis `captions.download?tfmt=vtt` dans un contexte OAuth autorisé.
-- Absence OAuth et 401/403 provider restent `BLOCKED`; absence piste reste `UNAVAILABLE`; transcript non demandé = `NOT_APPLICABLE`.
-- Caption track provenance : video ID, language, human/automatic/forced/unknown kind, provider, caption ID, name/lastUpdated si observés.
-- WebVTT conserve les bornes temporelles en millisecondes; les citations utilisent URL timestamp + `ms:start` / `ms:end`.
-- Metadata/transcript deviennent des `ResearchArtifact` distincts de `ResearchSourceKind.YOUTUBE` et repassent par ResearchGuard.
-- Production provider : origine fixe `www.googleapis.com:443`, GET-only, Guardian NETWORK avant DNS/socket, public-address validation et TLS sur IP épinglée, KodeSecrets pour API key/OAuth.
-- Aucun secret n'est persisté dans artifacts/evidence ou exposé dans les targets Guardian.
-- R7.6 n'ajoute aucun stream audio/vidéo, cache audiovisuel, offline playback, browser/login automation, scraping d'endpoint caption non documenté, DRM bypass, yt-dlp, ffmpeg ou subprocess helper.
-- STT/frame/media local reste strictement R7.7.
+- R7.6 YouTube sépare metadata/transcript, respecte les restrictions OAuth captions, préserve timing/provenance et n'ajoute aucun téléchargement audiovisuel ou contournement.
+- R7.7 local-media réutilise WorkspaceBoundary/Guardian/ProcessSandbox/KillSwitch; FFmpeg/whisper.cpp/model sont hashés; STT/frames/cleanup ont passé le gate Windows exact-head; vision reste UNAVAILABLE sans provider réel.
 
 ## R7.7 accepted local-media baseline
 
-- Accepted exact head: `04cef94c82fdacafe7313d27c8cf516e8e765295`.
-- Local doctor: READY on the exact head with FFmpeg 4.2.3, whisper.cpp 1.9.1 and project-local `ggml-base.en.bin`.
-- FFmpeg executable SHA-256: `b6bd38a97c5f118f30c93a97b5739b5f33dd2616c735f841c2a56074a9f0a9f0`.
-- whisper.cpp executable SHA-256: `58245314fb73b30fbd0cf0542c5c172e23f02b6eb7cad7b51e792439cf5e1755`.
-- STT model SHA-256: `a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002`.
-- Accepted fixture SHA-256: `8b3ed015526fd4584309a3c661b9e267ac464315e2d1c9aeed5bea19f28bdcf7`, 12,112 bytes.
-- Actual transcript was `1, 2, 3, 4.` with timestamps and passed bounded semantic normalization; no exact lexical rendering is assumed.
-- Frames at 500/1500/2500 ms were extracted as 320x180 with three distinct SHA-256 hashes.
-- Local acceptance `status=PASS`, cleanup true, temporary disk budget PASS; CPU/RAM remain explicit UNKNOWN because not measured.
-- `tests/test_r7_7_media_local_acceptance.py` passed locally and was not skipped.
-- Returned local evidence SHA-256: doctor `463c0de4ad477baabc711a2b89fc1c7ad0b7735c6bdfc2ecfdde457a9f8f86e1`; acceptance `33e52eb43ed448dd02766b823c3b22bfb08301a9f4dc3f24f336269f1ab76283`.
-- No visual interpretation is fabricated: default frame-analysis state is `UNAVAILABLE` until a real accepted provider exists.
-- No automatic binary/model/driver install; no model-provided arbitrary executable/argv/cwd/env; media processing reuses WorkspaceBoundary, Guardian, ProcessSandbox and KillSwitch.
-- Rejected candidates and their reasons remain recorded in `R7_7_ACCEPTANCE.md` and PR #72 rather than being rewritten as PASS.
+- Accepted head `04cef94c82fdacafe7313d27c8cf516e8e765295`.
+- FFmpeg 4.2.3 SHA-256 `b6bd38a97c5f118f30c93a97b5739b5f33dd2616c735f841c2a56074a9f0a9f0`.
+- whisper.cpp 1.9.1 SHA-256 `58245314fb73b30fbd0cf0542c5c172e23f02b6eb7cad7b51e792439cf5e1755`.
+- STT model SHA-256 `a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002`.
+- Fixture SHA-256 `8b3ed015526fd4584309a3c661b9e267ac464315e2d1c9aeed5bea19f28bdcf7`, 12,112 bytes.
+- Transcript réel `1, 2, 3, 4.` avec timestamps; frames 500/1500/2500 ms, 320x180, trois hashes distincts; cleanup true.
+- Preuves locales retournées : doctor SHA-256 `463c0de4ad477baabc711a2b89fc1c7ad0b7735c6bdfc2ecfdde457a9f8f86e1`; acceptance SHA-256 `33e52eb43ed448dd02766b823c3b22bfb08301a9f4dc3f24f336269f1ab76283`.
 
-## R7.8 execution contract
+## R7.8 accepted version/provenance baseline
 
-R7.8 is now the next authorized subdivision after normalization. Preserve these frozen requirements:
+- `VersionEvidenceKind`: exact/range/inferred/unknown reste distinct en mémoire et après roundtrip.
+- L'inférence exige preuve + raison et ne devient jamais une version exacte; relation = `INFERRED_MATCH` si elle correspond au target.
+- Les contraintes target refusent l'inférence silencieuse.
+- `VersionScheme` est explicite (`OPAQUE`, `SEMVER`, `PEP440`); aucun schéma n'est deviné depuis le nom du produit ou la ponctuation.
+- SemVer : parsing strict, prerelease precedence, build metadata ignoré pour la précédence/ranges mais conservé dans l'identité exacte déclarée.
+- PEP 440 : comparaison conservatrice seulement pour releases numériques simples avec zero-padding (`1.0 == 1.0.0`); formes riches non implémentées -> UNKNOWN plutôt qu'une pseudo-compatibilité.
+- Opaque : égalité exacte seulement, pas d'ordre fabriqué.
+- Project DNA : `engine` / `engine_version` sont consommés sans mutation; version absente -> UNKNOWN; caller fournit le scheme.
+- Version relation et freshness sont indépendants.
+- Source mutable : CURRENT/STALE nécessite `validated_at`; relecture cache/retrieved_at ne rafraîchit pas silencieusement la source.
+- Missing/future freshness evidence -> UNKNOWN.
+- Source immutable : révision ou snapshot hash obligatoire.
+- `VersionedClaim` source_fact requiert citation; claim lie finding/version/source/citations/freshness/relation.
+- Conflict groups : 1 claim UNRESOLVED, mêmes valeurs AGREEMENT, valeurs différentes CONFLICT.
+- Supersession explicite exige preuve/raison mais ne supprime jamais l'ancienne contradiction.
+- Ranking conserve toutes les claims; inputs explicites = relation version, authority rank, freshness, mutability, tie-break ID; popularité/source count absent.
+- Report/schema : IDs/groupes/digest recalculés au load, tampering/missing refs fail closed.
+- Aucun nouveau network/process/secret/UI surface; rollback supprime seulement la couche dérivée.
 
-- represent exact, range, inferred and unknown version relationships distinctly;
-- exact version must never be inferred without direct evidence;
-- consume Project DNA target-version constraints without silently rewriting them;
-- expose freshness/current/stale/unknown independently from version match;
-- distinguish mutable source identity from immutable identity (for example a Git ref vs exact commit SHA);
-- record conflict, agreement, supersession and unresolved evidence across sources;
-- keep source facts distinct from inference;
-- do not let source popularity or source count manufacture authority;
-- manual intervention = NONE.
+## R7.9 execution contract
 
-For Python-package style versions, PEP 440/version-specifier semantics are useful reference context; for SemVer sources, SemVer 2.0.0 precedence/range semantics are reference context. Kodepoia must record the version scheme/evidence used rather than assuming every ecosystem follows one universal scheme.
+R7.9 est la prochaine subdivision autorisée après fusion de cette normalisation. Exigences gelées :
+
+- cache et manifests sous `.kodepoia/research/` via WorkspaceBoundary;
+- query/result manifests déterministes, versionnés et hashés;
+- TTL/revalidation explicites selon source/mutability/freshness; aucun cache hit ne fabrique CURRENT;
+- déduplication par source/version/content hash avec provenance conservée;
+- invalidation par source identity, version evidence, content hash et policy/version du cache;
+- synthèses de contexte bornées avec citations et evidence IDs, sans perdre le statut untrusted/guarded;
+- injection d'un résumé de recherche dans Context/Memory ne transforme jamais celui-ci en expérience globale validée;
+- les artefacts/citations originaux restent la preuve autoritaire et peuvent être rechargés/recalculés;
+- aucune donnée secrète ne doit entrer dans les manifests/context summaries;
+- manual = NONE.
 
 ## Permanent architecture/security boundaries
 
@@ -114,4 +113,4 @@ Preserve without reinterpretation: `WorkspaceBoundary`; ProcessSandbox + global 
 
 ## Next action
 
-**R7.1–R7.7 are COMPLETE. R7.8 is NOT STARTED.** After the R7.7 normalization PR merges, start **R7.8 — Version-awareness + provenance/conflict model**. Manual gate = NONE. Implement exact/range/inferred/unknown version evidence, Project DNA target constraints, freshness/staleness, mutable/immutable identity, conflict/agreement/supersession and deterministic provenance without fabricating exact version matches.
+**R7.1–R7.8 COMPLETE. R7.9 NOT STARTED.** Après fusion de la normalisation R7.8, commencer **R7.9 — Research cache + Context/Memory orchestration**. Manual gate = NONE.

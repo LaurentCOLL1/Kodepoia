@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/asset-revision-v1.schema.json",
+  "type": "object",
+  "required": ["schema", "version", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "kodepoia.asset-revision"},
+    "version": {"const": 1},
+    "payload": {
+      "type": "object",
+      "required": ["asset_id", "revision_id", "role", "kind", "content_sha256", "content_length", "reuse_scope", "preservation", "provenance", "lineage", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {"type": "string", "pattern": "^asset_[0-9a-f]{32}$"},
+        "revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"},
+        "role": {"enum": ["source", "derived"]},
+        "kind": {"type": "string"},
+        "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "content_length": {"type": "integer", "minimum": 0},
+        "reuse_scope": {"enum": ["project_only", "vault_local", "exportable"]},
+        "preservation": {"enum": ["pinned_source", "referenced", "evictable_derived"]},
+        "status": {"enum": ["staged", "ready", "missing", "corrupt", "blocked", "stale", "unavailable"]},
+        "provenance": {"type": "array", "items": {"type": "object"}},
+        "lineage": {"type": "array", "items": {"type": "object"}}
+      }
+    }
+  }
+}

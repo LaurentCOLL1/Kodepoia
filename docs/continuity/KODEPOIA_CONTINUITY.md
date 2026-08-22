@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS et R6.1 — KodeHealth foundation est COMPLETE.** R6.1 a été acceptée sur le head `802de4ba3110ace657c4e16306a0ca29850ce2bd` après CI finale verte, puis PR #30 a été fusionnée dans `main` en `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`. La source de vérité fusionnée reste `main`. Ne pas rouvrir R5 ou R6.1 sans régression démontrée ou changement d'architecture nécessitant un ADR. Lire architecture, ADR, roadmap, `R5_STATUS.md`, `R6_STATUS.md`, `R6_1_ACCEPTANCE.md`, puis ce fichier avant de reprendre.
+> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS. R6.1 — KodeHealth et R6.2 — KodeBudget sont COMPLETE.** R6.2 a été acceptée sur le head `8ac3772e98c70260c320519a214bb25b6cedbb38` après CI finale verte, puis PR #32 a été fusionnée dans `main` en `65510a9b116d9c48b185a0edb51d99e5b951200a`. Après normalisation, reprendre par **R6.3 — KodeTests + KodeRegression foundation** depuis le `main` courant. Ne pas rouvrir une phase complète sans régression démontrée ou changement d'architecture nécessitant un ADR.
 
 ## Source de vérité et état des phases
 
@@ -16,9 +16,11 @@
 - R2 : COMPLETE.
 - R3 : COMPLETE — hardware-local model acceptance passed.
 - R4 : COMPLETE — governed KodeCode acceptance passed.
-- R5 : COMPLETE — KodeGodot 4.7.x hardware-local acceptance passed and PR #28 merged.
+- R5 : COMPLETE — KodeGodot 4.7.x hardware-local acceptance passed.
 - R6 : IN PROGRESS.
-- R6.1 : COMPLETE — PR #30 merged as `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
+- R6.1 : COMPLETE — PR #30 merge `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
+- R6.2 : COMPLETE — PR #32 merge `65510a9b116d9c48b185a0edb51d99e5b951200a`.
+- R6.3 : NEXT — KodeTests + KodeRegression foundation.
 - R7–R16 : PENDING according to the frozen roadmap.
 
 ## Accepted model roles
@@ -49,94 +51,80 @@ Accepted and merged subdivisions:
 
 - R5.1 Engine/project foundation — PR #22.
 - R5.2 Scene/resource intelligence — PR #24, merge `7720bfc90951e2180b909004b7fa8320d93a6e27`.
-- R5.3 GDScript + Godot LSP/DAP — PR #25, merge `d2641862b98a969b9adfc905f818e01b3d7e4730`.
+- R5.3 GDScript + Godot LSP/DAP — PR #25, merge `d2641862b98e5419adfc905f818e01b3d7e4730`.
 - R5.4 2D/3D intelligence + safe edits — PR #26, merge `b81cf430249e341219dcb759cb49f67697c27782`.
 - R5.5 automation/import/export/capture/benchmark — PR #27, merge `c4409c78eacfa1777d22d7e0995d4db7dbdaa5a2`.
 - R5.6 governed orchestration + real Godot acceptance — PR #28, merge `ecb0455d179c8c0b2de0a5d1d8a496a0f8f980e8`.
 
-### Target workstation accepted for R5
+Target workstation accepted for R5:
 
 - Python `3.12.4`;
 - Windows 11 build `26220`;
 - Godot `4.7.2.stable.steam.ed1daf0bf`;
 - executable `D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe`;
-- ports LSP `6005`, DAP `6006`, debug `6007`;
-- renderer/device observed during Movie Maker acceptance: AMD Radeon RX 6750 XT.
+- LSP 6005 / DAP 6006 / debug 6007;
+- AMD Radeon RX 6750 XT observed for Movie Maker acceptance.
 
-### Final hardware-local evidence
-
-Generated `2026-08-22T06:49:29.198572+00:00`:
-
-```text
-probe_only=false
-acceptance_completed=true
-passed=19
-failed=0
-total=19
-```
-
-All real gates passed: Godot version, project/scene/GDScript inspection, GDScript `--check-only`, import, smoke, benchmark, Movie Maker capture, governed scene edit with SafeChange snapshot, LSP startup/symbols/diagnostics, DAP initialize/launch/threads, Windows release export and AuditLog verification.
-
-Concrete evidence:
-
-- benchmark ~101.0 effective FPS on the disposable 120-frame fixture;
-- AVI `.kodepoia/captures/r5-acceptance.avi` = **64,612 bytes**;
-- `snapshot_created=true` for governed scene edit;
-- LSP and DAP initialized on loopback;
-- DAP project launch PASS;
-- DAP thread ID 1 name `Main`;
-- release EXE `.kodepoia/exports/r5-acceptance.exe` = **109,127,680 bytes**;
-- audit chain `valid=true`.
+Final hardware-local evidence: `probe_only=false`, `acceptance_completed=true`, **19/19 PASS**. Concrete accepted artifacts included ~101 FPS on the disposable benchmark fixture, AVI capture 64,612 bytes, governed scene-edit snapshot, loopback LSP/DAP, DAP thread `Main`, Windows release export 109,127,680 bytes and valid audit chain.
 
 ### Important R5 defects that must not regress
 
-1. Foreground `ProcessSandbox.run()` must drain stdout/stderr while waiting via `communicate(timeout=...)`; polling for exit before reading PIPEs can deadlock verbose processes.
-2. Long-lived socket services must use the sandboxed background-process path when stdio is not their protocol; do not leave unread stdout/stderr PIPEs.
-3. Godot Movie Maker capture must not combine normal capture with headless/dummy rendering when real rendered frames are required.
-4. TCP connect timeouts must not remain as protocol-read timeouts after the LSP/DAP socket is established.
-5. DAP launch must support deferred response sequencing: send launch, complete initialization/configuration including `configurationDone`, then consume the launch response; do not assume launch always responds before `configurationDone`.
-6. Godot services remain loopback-only; model input must not expose arbitrary host, argv, command, program or cwd fields.
-
-### Final supporting CI before PR #28 merge
-
-PR #28 head `8e9f01d785a691ce03d3b589367b724b073c8cec`:
-
-- R0 Repository Guard `32557370901` — SUCCESS;
-- Python Core `32557370829` — SUCCESS Windows + Ubuntu and PowerShell validation;
-- KodeStudio UI Smoke `32557370915` — SUCCESS Windows.
+1. `ProcessSandbox.run()` must drain stdout/stderr through `communicate(timeout=...)`; do not poll process exit before draining PIPEs.
+2. Long-lived socket services must use the sandboxed background-process path when stdio is not their protocol.
+3. Movie Maker real capture must not combine normal capture with headless/dummy rendering.
+4. TCP connection timeouts must not remain protocol-read timeouts after LSP/DAP connection establishment.
+5. DAP launch must support deferred response sequencing through `configurationDone`.
+6. Godot services remain loopback-only; model input must not expose arbitrary host, argv, command, program or cwd.
 
 ## R6 — Quality / Health / Budget / CI — IN PROGRESS
 
 ### R6.1 — KodeHealth foundation — COMPLETE
 
-Accepted implementation head: `802de4ba3110ace657c4e16306a0ca29850ce2bd`.  
-Merged PR: **#30**.  
-Merge commit: `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
+Accepted implementation head `802de4ba3110ace657c4e16306a0ca29850ce2bd`, merged by PR #30 as `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
 
-Delivered and accepted:
+Accepted scope:
 
-- `src/kodepoia/quality/health.py` with the 14 frozen-architecture health dimensions;
-- explicit `unknown/pass/warn/fail` states, deterministic score and coverage calculation, and blocking failures;
-- exhaustive report validation and JSON round-trip;
-- serialized `blockers` and `unknown_dimensions` consistency checks;
-- `HealthStore` writing only to `.kodepoia/health/`, with atomic `latest.json` and timestamped snapshots;
-- reuse of `WorkspaceBoundary`, including rejection of `.kodepoia` symlink escape;
-- `schemas/health-report-v1.schema.json`;
-- focused R6.1 tests and documented rollback.
+- 14 frozen health dimensions;
+- `unknown/pass/warn/fail`, score, coverage and blocking failures;
+- exhaustive report validation and serialized derived-field consistency;
+- atomic `.kodepoia/health/` persistence through `WorkspaceBoundary`;
+- symlink escape rejection;
+- health-report-v1 schema and focused tests.
 
-Final acceptance evidence:
+Final evidence:
 
-- isolated R6.1 tests after hardening: **9 passed**;
-- R0 Repository Guard `32561211168` — SUCCESS Windows + Ubuntu;
-- Python Core `32561211156` — SUCCESS Windows + Ubuntu, including PowerShell validation and integrated KodeStudio smoke;
-- KodeStudio UI Smoke `32561211167` — SUCCESS Windows;
-- PR #30 merged only after those final-head gates passed.
+- isolated hardened R6.1 tests: **9 passed**;
+- R0 `32561211168` — SUCCESS Windows + Ubuntu;
+- Python Core `32561211156` — SUCCESS Windows + Ubuntu;
+- KodeStudio UI Smoke `32561211167` — SUCCESS Windows.
 
-**R6.1 is COMPLETE. R6 remains IN PROGRESS.**
+### R6.2 — KodeBudget foundation — COMPLETE
+
+Accepted implementation head `8ac3772e98c70260c320519a214bb25b6cedbb38`, merged by PR #32 as `65510a9b116d9c48b185a0edb51d99e5b951200a`.
+
+Accepted scope:
+
+- 16 architecture-aligned budget metrics covering FPS/frame time, CPU/GPU, RAM/VRAM, storage, draw calls, polygons, textures, audio memory/voices, build size, mobile battery/thermal and online network;
+- per-platform `at_least` / `at_most` constraints;
+- target versus hard-limit semantics;
+- Project DNA derivation for FPS, frame time, RAM, VRAM and build size without inventing untargeted platform requirements;
+- explicit configured-observation coverage, unknown values and unconfigured-observation rejection;
+- blocking hard-limit failures;
+- validated report round-trip with derived-field tamper checks;
+- `.kodepoia/budgets/` persistence through `WorkspaceBoundary`;
+- budget-report-v1 schema and focused tests.
+
+Final evidence:
+
+- isolated core derivation/evaluation/persistence smoke: PASS;
+- R0 Repository Guard `32561719921` / #603 — SUCCESS Windows + Ubuntu;
+- Python Core `32561719925` / #577 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
+- KodeStudio UI Smoke `32561720008` / #544 — SUCCESS Windows;
+- PR #32 merged only after final-head gates were green.
 
 ## Next phase action
 
-Continue R6 only from the normalized current `main`, on a dedicated branch. The remaining frozen R6 scope includes Budget, Tests, Regression, VisualQA, Accessibility, Localization, TechnicalDebt, CI/Build, AppSecurity baseline, Privacy baseline, License/BOM, and major-patch validation/rollback. Do not skip directly to R7.
+Start **R6.3 — KodeTests + KodeRegression foundation** only from normalized current `main`, on a dedicated branch. R6 remains IN PROGRESS after R6.3; later scope still includes VisualQA, Accessibility, Localization, TechnicalDebt, CI/Build, AppSecurity baseline, Privacy baseline, License/BOM and major-patch validation/rollback.
 
 ## User operational preference — permanent
 
@@ -144,4 +132,4 @@ Whenever the user must perform a manual operation, explain the reason, prerequis
 
 ## Permanent process rules
 
-Update this continuity file in the same work cycle whenever phase status, PR state, hardware acceptance, prerequisites or important recovered defects change. Never declare a phase COMPLETE from partial CI. Use exact acceptance evidence where required, but do not write self-invalidating instructions that tell a future session to reset to an old branch head. Preserve the frozen architecture unless an ADR explicitly authorizes a change.
+Update this continuity file in the same work cycle whenever phase status, PR state, hardware acceptance, prerequisites or important recovered defects change. Never declare a phase COMPLETE from partial CI. Use exact acceptance evidence where required. Preserve the frozen architecture unless an ADR explicitly authorizes a change.

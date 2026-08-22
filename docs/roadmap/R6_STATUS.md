@@ -10,10 +10,7 @@ R1–R5 remain COMPLETE. R6 is active under the frozen architecture v1.0.
 
 1. **R6.1 — KodeHealth foundation** — COMPLETE — PR #30 merged as `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
 2. **R6.2 — KodeBudget foundation** — COMPLETE — PR #32 merged as `65510a9b116d9c48b185a0edb51d99e5b951200a`.
-
-## Current subdivision
-
-3. **R6.3 — KodeTests + KodeRegression foundation** — IMPLEMENTED / ACCEPTANCE PENDING on `feature/r6-3-tests-regression`.
+3. **R6.3 — KodeTests + KodeRegression foundation** — COMPLETE — PR #34 merged as `6657b258f2396b3d6a3850153b1ffaae1951104d`.
 
 ## R6.1 accepted scope
 
@@ -27,29 +24,38 @@ R6.2 established per-platform KodeBudget with 16 architecture-aligned metrics, t
 
 Accepted head `8ac3772e98c70260c320519a214bb25b6cedbb38`; R0 `32561719921`, Python Core `32561719925` and UI Smoke `32561720008` all SUCCESS. PR #32 merged as `65510a9b116d9c48b185a0edb51d99e5b951200a`.
 
-## R6.3 delivered scope pending acceptance
+## R6.3 accepted scope
 
 R6.3 implements the adjacent roadmap pair Tests + Regression:
 
 - stable test case IDs and `pass/fail/error/skip` observations;
 - deterministic test-run `unknown/pass/warn/fail` aggregation;
 - validated derived counts and total duration;
-- atomic test-run evidence under `.kodepoia/tests/runs/`;
+- atomic test-run evidence under `.kodepoia/tests/runs/` through `WorkspaceBoundary`;
 - baseline/current comparison by stable test ID;
 - explicit `unchanged/regressed/fixed/added/removed` changes;
-- regression detection for failures/errors, skipped formerly-passing/failing tests, removed cases and added failing tests;
-- validated derived regression lists;
-- atomic regression evidence under `.kodepoia/tests/regression/`;
+- regression detection for failures/errors, skipped formerly-passing/failing tests, removed cases and added failing/error tests;
+- explicit protection against hiding an existing failure by converting it to `skip`;
+- validated derived regression lists and serialized tamper detection;
+- atomic regression evidence under `.kodepoia/tests/regression/` through `WorkspaceBoundary`;
 - `test-run-report-v1` and `regression-report-v1` schemas;
 - focused R6.3 acceptance tests and documented rollback;
 - no new arbitrary command execution path.
 
-Pre-CI isolated core smoke: PASS.
+Accepted implementation head: `7150237c263dd3ac96af4662d74909e05f3cf991`.
 
-R6.3 remains **ACCEPTANCE PENDING** until final-head R0 Repository Guard, Python Core Windows + Ubuntu, KodeStudio UI Smoke and PR merge all pass.
+Final R6.3 GitHub CI:
 
-## Remaining R6 scope after R6.3
+- R0 Repository Guard `32562032986` / #622 — SUCCESS Windows + Ubuntu;
+- Python Core `32562032998` / #596 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
+- KodeStudio UI Smoke `32562032982` / #563 — SUCCESS Windows.
 
-VisualQA, Accessibility, Localization, TechnicalDebt, CI/Build, AppSecurity baseline, Privacy baseline, License/BOM, and the rule that major patches have validation and rollback.
+PR #34 merged as `6657b258f2396b3d6a3850153b1ffaae1951104d`.
 
-R6 itself remains **IN PROGRESS**. Do not mark R6 COMPLETE before all required R6 subdivisions are accepted.
+**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE.**
+
+## Remaining R6 scope
+
+The frozen roadmap still requires VisualQA, Accessibility, Localization, TechnicalDebt, CI/Build, AppSecurity baseline, Privacy baseline, License/BOM, and the rule that every major patch has validation and rollback.
+
+R6 itself remains **IN PROGRESS**. Do not mark R6 COMPLETE and do not skip directly to R7 before the remaining R6 scope is accepted.

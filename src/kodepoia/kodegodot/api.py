@@ -150,7 +150,12 @@ class GodotToolAPI:
         return {"initialized": session.initialized, "capabilities": dict(session.capabilities)}
     def _dap_launch_project(self, _args: dict[str, Any]) -> dict[str, Any]:
         session = self.services.connect_dap() if self.services.dap is None else self.services.dap
-        config = session.spec.configurations[0]; body = session.start_configuration(config); session.configuration_done(); return {"launched": True, "body": body}
+        config = session.spec.configurations[0]
+        launch_seq = session.begin_configuration(config)
+        session.wait_for_event("initialized")
+        session.configuration_done()
+        body = session.wait_for_response(launch_seq, config.mode)
+        return {"launched": True, "body": body}
     def _dap_threads(self, _args: dict[str, Any]) -> list[dict[str, Any]]:
         session = self.services.connect_dap() if self.services.dap is None else self.services.dap
         return session.threads()

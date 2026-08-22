@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/hybrid-ranking-policy-v1.schema.json",
+  "type": "object",
+  "required": ["version", "lexical_weight", "semantic_weight"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"const": 1},
+    "lexical_weight": {"type": "number", "minimum": 0, "maximum": 1},
+    "semantic_weight": {"type": "number", "minimum": 0, "maximum": 1}
+  }
+}

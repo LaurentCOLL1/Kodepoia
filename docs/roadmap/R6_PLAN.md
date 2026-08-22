@@ -33,9 +33,10 @@ The plan itself passed the normal repository acceptance discipline before R6.4 w
 - R0 Repository Guard run `32563057993` / #639 — SUCCESS Windows + Ubuntu;
 - Python Core run `32563057956` / #613 — SUCCESS Windows + Ubuntu, PowerShell syntax validation and integrated KodeStudio smoke;
 - KodeStudio UI Smoke run `32563057903` / #580 — SUCCESS Windows;
-- PR #37 merged to `main` as `0a91064608507966a47921df8fb36e5f25477141`.
+- PR #37 merged to `main` as `0a91064608507966a47921df8fb36e5f25477141`;
+- post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 
-**Planning gate result: PASS. R6.4 is NEXT / NOT STARTED.**
+**Planning gate result: PASS. R6.4 is IN PROGRESS on `feature/r6-4-visualqa`; required hardware-local evidence remains pending.**
 
 ## Frozen-roadmap objective
 
@@ -99,7 +100,7 @@ If implementation occurs substantially later, any externally versioned requireme
 | R6.1 | KodeHealth foundation | COMPLETE | NONE | R5 COMPLETE |
 | R6.2 | KodeBudget foundation | COMPLETE | NONE | R6.1 |
 | R6.3 | KodeTests + KodeRegression foundation | COMPLETE | NONE | R6.1–R6.2 |
-| R6.4 | KodeVisualQA foundation | NEXT / PLANNED | REQUIRED | R6.1–R6.3 + accepted R5 Godot automation |
+| R6.4 | KodeVisualQA foundation | IN PROGRESS | REQUIRED | R6.1–R6.3 + accepted R5 Godot automation |
 | R6.5 | KodeAccessibility foundation | PLANNED | REQUIRED | R6.3–R6.4 |
 | R6.6 | KodeLocalization + pseudo-localization foundation | PLANNED | NONE | R6.3 + R6.5 |
 | R6.7 | KodeTechnicalDebt foundation | PLANNED | NONE | R6.1–R6.6 |
@@ -232,7 +233,7 @@ Deleting or skipping a known case must never manufacture an apparent fix.
 
 ---
 
-# R6.4 — KodeVisualQA foundation — NEXT / NOT STARTED
+# R6.4 — KodeVisualQA foundation — IN PROGRESS
 
 ## Objective and rationale
 
@@ -271,6 +272,26 @@ AI aesthetic judgement, automatic baseline replacement, Blender/ComfyUI visual g
 - storage: `.kodepoia/visual_tests/baselines/`, `runs/`, `diffs/`.
 
 All project paths resolve through `WorkspaceBoundary`. No evaluator API may expose arbitrary executable/argv/host-path fields. Godot capture must use the already governed KodeGodot path.
+
+## Current implementation record
+
+R6.4 started from normalized `main` `e96e7c3b168975869c911f880044b7ef8e322157` on branch `feature/r6-4-visualqa`; implementation PR #39 is open and MUST remain unmerged until final-head CI plus the REQUIRED hardware-local gate pass.
+
+Implemented on the branch:
+
+- deterministic visual policy, image metadata, immutable content-addressed baseline approval and canonical SHA-256 evidence;
+- exact file identity, pixel statistics, normalized mean error and deterministic 64-bit dHash/Hamming perceptual signal;
+- explicit masks bound into the policy hash and applied consistently to metrics/diffs;
+- explicit missing evidence and format/mode/resolution incompatibility handling;
+- PNG diff generation and `visual-report-v1` validation/tamper rejection;
+- R6.3 stable `visual:<case-id>` adapter;
+- `.kodepoia/visual_tests/{baselines,runs,diffs}` persistence through `WorkspaceBoundary`;
+- Pillow `>=12.3,<12.4` dependency control;
+- separate governed `kodegodot_capture_png_sequence` real-render Movie Maker tool with fixed output root, while preserving R5 AVI capture unchanged;
+- Windows hardware-local acceptance module/wrapper requiring non-empty rendering method/driver/video-adapter evidence, VisualQA PASS, R6.3 hook PASS and AuditLog-chain PASS;
+- focused fixtures and design/acceptance documentation.
+
+Current state remains **IN PROGRESS**. No implementation head is authoritative for manual acceptance until ChatGPT announces the exact final PR head after all final-head workflows are green.
 
 ## Acceptance gates / Definition of Done
 
@@ -728,16 +749,16 @@ Avoid circular validation where patch gate trusts its own summary without valida
 
 # Manual-intervention forecast for the remainder of R6
 
-The user is informed now, before implementation begins:
+The user is informed before each applicable manual gate:
 
-- **R6.4 — REQUIRED:** real Windows/Godot rendered visual-regression acceptance on the accepted workstation.
+- **R6.4 — REQUIRED:** real Windows/Godot rendered visual-regression acceptance on the accepted workstation; currently pending after final-head CI.
 - **R6.5 — REQUIRED:** real interactive Windows keyboard-only + Narrator accessibility checklist.
 - **R6.8 — CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet build/reproducibility DoD.
 - **R6.11 — CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved.
 - **R6.12 — CONDITIONAL:** local integration/approval only if final selected gates require hardware-local execution or explicit approval.
 - **R6.6, R6.7, R6.9, R6.10 — NONE** currently planned.
 
-Before asking the user to run a manual gate, its acceptance document must replace all `<...FINAL_HEAD>` placeholders with the exact final implementation head and confirm the final implementation-specific commands, expected output, recovery and evidence requirements.
+Before asking the user to run a manual gate, its acceptance document and the user-facing instructions must identify the exact final implementation head and confirm the final implementation-specific commands, expected output, recovery and evidence requirements.
 
 # R6 completion rule
 
@@ -754,4 +775,5 @@ R6 is COMPLETE only when:
 # Change log
 
 - 2026-08-22: retroactive plan created by explicit user request before R6.4; R6.1–R6.3 recorded from already accepted evidence; R6.4–R6.12 structure frozen.
-- 2026-08-22: planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a` passed R0 `32563057993`/#639, Python Core `32563057956`/#613 and UI Smoke `32563057903`/#580; PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`. R6.4 becomes NEXT / NOT STARTED.
+- 2026-08-22: planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a` passed R0 `32563057993`/#639, Python Core `32563057956`/#613 and UI Smoke `32563057903`/#580; PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`.
+- 2026-08-22: post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`; R6.4 started from that normalized `main` on `feature/r6-4-visualqa`, implementation PR #39 opened, manual classification remains REQUIRED and merge/R6.5 remain blocked until final-head CI plus real-render local acceptance pass.

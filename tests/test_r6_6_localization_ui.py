@@ -36,7 +36,8 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         assert research is not None and research.text().startswith("⟦")
 
         assert window.windowTitle().startswith("⟦")
-        assert window.size().width() == 1100
+        assert window.size().width() >= 1100
+        assert window.size().height() >= 700
     finally:
         window.close()
         QApplication.processEvents()

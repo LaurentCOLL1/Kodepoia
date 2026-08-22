@@ -4,7 +4,7 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from enum import StrEnum
-from pathlib import Path, PureWindowsPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 from urllib.parse import quote, urlsplit
 
@@ -69,8 +69,15 @@ class OfficialDocEntry:
         if not local_root:
             raise ValueError("Official documentation local_root must not be empty")
         path = Path(local_root)
+        posix_path = PurePosixPath(local_root)
         windows_path = PureWindowsPath(local_root)
-        if path.is_absolute() or windows_path.is_absolute() or ".." in path.parts:
+        if (
+            path.is_absolute()
+            or posix_path.is_absolute()
+            or windows_path.is_absolute()
+            or ".." in posix_path.parts
+            or ".." in windows_path.parts
+        ):
             raise ValueError("Official documentation local_root must stay project-relative")
         parsed = urlsplit(base)
         if parsed.scheme.lower() != "https" or not parsed.hostname:

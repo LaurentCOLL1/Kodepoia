@@ -15,6 +15,10 @@ R6.11 is COMPLETE only after its exact final implementation head passes required
 | project/package/asset component kinds | yes | IMPLEMENTED |
 | resolved/unresolved/N/A version state | yes | IMPLEMENTED |
 | exact version only for resolved components | yes | IMPLEMENTED |
+| strict N/A component/integrity coupling | yes | IMPLEMENTED |
+| all-N/A BOM remains UNKNOWN | yes | IMPLEMENTED |
+| N/A excluded from scoring/license decisions/SPDX packages | yes | IMPLEMENTED |
+| N/A R6.3 BOM case remains SKIP | yes | IMPLEMENTED |
 | manifest/source provenance retained | yes | IMPLEMENTED |
 | SHA-256 integrity evidence retained | yes | IMPLEMENTED |
 | recorded hash distinct from verified claim | yes | IMPLEMENTED |
@@ -23,6 +27,7 @@ R6.11 is COMPLETE only after its exact final implementation head passes required
 | SPDX expression / NOASSERTION / NONE distinct | yes | IMPLEMENTED |
 | NOASSERTION/NONE require provenance+rationale | yes | IMPLEMENTED |
 | LicenseRef custom-text hash supported | yes | IMPLEMENTED |
+| custom text hash requires standalone LicenseRef | yes | IMPLEMENTED |
 | no free-text→SPDX inference | yes | IMPLEMENTED |
 | no unresolved range→exact license inference | yes | IMPLEMENTED |
 | exact-expression allow/warn/deny/unknown policy | yes | IMPLEMENTED |
@@ -59,27 +64,30 @@ The final suite must demonstrate at minimum:
 
 1. SPDX expression normalization accepts ordinary expressions and `LicenseRef-*` while rejecting malformed characters/parentheses;
 2. `NOASSERTION` and `NONE` remain distinct explicit known-unknown/none states and require provenance+rationale;
-3. custom-license text hashes require a `LicenseRef-*` expression;
-4. recorded, unknown and mismatched integrity states remain distinct;
-5. empty BOM is UNKNOWN, incomplete/unresolved BOM is WARN, fully resolved fixture can PASS, mismatch FAILs and blocks;
-6. complete inventory requires review provenance;
-7. pyproject ranges remain unresolved rather than being treated as installed exact versions;
-8. unresolved pyproject dependencies remain NOASSERTION rather than inheriting current web metadata;
-9. duplicate normalized package names across dependency groups merge while preserving requirements/groups;
-10. current Kodepoia pyproject inventory includes build/runtime/optional/dev dependencies and preserves one source-manifest SHA-256;
-11. proprietary Kodepoia license can be represented as a source-hash-backed `LicenseRef-Kodepoia-Proprietary` without claiming an SPDX-listed license;
-12. SPDX compatibility view records 3.0 baseline, 3.0.1 serialization/context and `conformance_claim=false`;
-13. license policy forbids default ALLOW, uses exact expressions and leaves unmatched/NOASSERTION UNKNOWN;
-14. license report can distinguish PASS/WARN/FAIL and DENY creates blocker;
-15. incomplete license inventory cannot PASS;
-16. BOM/license JSON round-trip preserves canonical evidence;
-17. counts/blockers/hash/blocking-field tampering is rejected;
-18. duplicate components and duplicate requirement evidence fail closed;
-19. Health dependencies/licenses preserve UNKNOWN/WARN/PASS/FAIL semantics;
-20. R6.3 adapters map unresolved/unknown to SKIP and mismatch/DENY to FAIL;
-21. stores require initialized `.kodepoia`, persist inside project boundary and round-trip;
-22. JSON Schemas accept canonical reports;
-23. component detail secrets are redacted.
+3. custom-license text hashes require one standalone unambiguous `LicenseRef-*`, never a composite expression;
+4. recorded, unknown, mismatched and N/A integrity states remain distinct;
+5. a N/A component requires N/A integrity, while applicable components reject N/A integrity;
+6. empty/all-N/A BOM is UNKNOWN, incomplete/unresolved BOM is WARN, fully resolved fixture can PASS, mismatch FAILs and blocks;
+7. N/A components are counted separately but excluded from dependency Health scoring, license decisions and SPDX package entries;
+8. N/A BOM cases remain R6.3 SKIP and all-N/A license evidence yields no decisions/UNKNOWN;
+9. complete inventory requires review provenance;
+10. pyproject ranges remain unresolved rather than being treated as installed exact versions;
+11. unresolved pyproject dependencies remain NOASSERTION rather than inheriting current web metadata;
+12. duplicate normalized package names across dependency groups merge while preserving requirements/groups;
+13. current Kodepoia pyproject inventory includes build/runtime/optional/dev dependencies and preserves one source-manifest SHA-256;
+14. proprietary Kodepoia license can be represented as a source-hash-backed `LicenseRef-Kodepoia-Proprietary` without claiming an SPDX-listed license;
+15. SPDX compatibility view records 3.0 baseline, 3.0.1 serialization/context, excluded N/A IDs and `conformance_claim=false`;
+16. license policy forbids default ALLOW, uses exact expressions and leaves unmatched/NOASSERTION UNKNOWN;
+17. license report can distinguish UNKNOWN/PASS/WARN/FAIL and DENY creates blocker;
+18. incomplete license inventory cannot PASS;
+19. BOM/license JSON round-trip preserves canonical evidence;
+20. counts/blockers/hash/blocking-field tampering is rejected;
+21. duplicate components and duplicate requirement evidence fail closed;
+22. Health dependencies/licenses preserve UNKNOWN/WARN/PASS/FAIL semantics;
+23. R6.3 adapters map unresolved/unknown/N/A to SKIP and mismatch/DENY to FAIL;
+24. stores require initialized `.kodepoia`, persist inside project boundary and round-trip;
+25. JSON Schemas accept canonical PASS and all-N/A reports;
+26. component detail secrets are redacted.
 
 ## Current-project acceptance interpretation
 
@@ -87,31 +95,49 @@ The current Kodepoia `pyproject.toml` declares version ranges, not a lock/resolv
 
 The repository's own `LICENSE` is proprietary/all-rights-reserved text. R6.11 may represent it with a project-local `LicenseRef-Kodepoia-Proprietary` bound to the `LICENSE` SHA-256; it must not map that text to an SPDX-listed open-source identifier.
 
+## Development diagnostic / hardening
+
+Initial diagnostic head `5d76ba98f0fc715f2e672fc27cc1b99fc015bc8e` passed R0 #863, Python Core #837 with all five jobs and UI Smoke #804. Independent review nevertheless found a false-green path: N/A components could contribute to BOM PASS and an R6.3 BOM PASS case.
+
+The contract was hardened before final acceptance:
+
+- strict component-resolution/integrity N/A coupling;
+- N/A counts in canonical report/schema;
+- all-N/A BOM becomes UNKNOWN;
+- N/A excluded from dependency Health score, license decisions and SPDX package view;
+- N/A R6.3 BOM case becomes SKIP;
+- custom license-text hash requires one standalone `LicenseRef-*`;
+- schemas and tests enforce the same rules.
+
+Hardened diagnostic head `ad19f69d1d706db657be809698395a2340ec779c` passed R0 #869, Python Core #843 with all five jobs and UI Smoke #810. No blocker, provenance, unknown-state or architecture boundary was weakened.
+
 ## Standards interpretation
 
 - Frozen R6 BOM baseline: SPDX 3.0 family.
 - Current patch-level specification/serialization rechecked 2026-08-22: SPDX 3.0.1.
 - Current SPDX JSON-LD context: `https://spdx.org/rdf/3.0.1/spdx-context.jsonld`.
+- SPDX declared/concluded licensing and explicit NoAssertion semantics are reference context for the evidence model.
 - Current CycloneDX stable interoperability context: 1.7; not a replacement for the frozen SPDX baseline.
 
-The compact `spdx_compatibility_view()` is normalization/interoperability evidence only. It is not claimed as an official conformant SPDX JSON-LD document because official conformance requires the official structural and semantic validation layers.
+The compact `spdx_compatibility_view()` is normalization/interoperability evidence only. It is not claimed as an official conformant SPDX JSON-LD document. The lexical expression normalizer is also not a replacement for the official SPDX license-list/parser/ontology.
 
 ## Manual intervention
 
 **CONDITIONAL — NOT TRIGGERED.**
 
-No user action is currently required. Foundation acceptance intentionally includes unresolved `NOASSERTION` evidence. Manual resolution is required only if an acceptance-critical real component must receive a specific license conclusion and trusted repository/package/authoritative-source evidence remains ambiguous. Never invent an SPDX ID to satisfy the gate.
+No user action is currently required. Foundation acceptance intentionally includes unresolved `NOASSERTION` and neutral N/A evidence. Manual resolution is required only if an acceptance-critical real component must receive a specific license conclusion and trusted repository/package/authoritative-source evidence remains ambiguous. Never invent an SPDX ID to satisfy the gate.
 
 ## Failure recovery / anti-regression
 
 - Never infer a dependency's exact version from a range.
 - Never copy a current package-page license onto an unresolved allowed version range.
 - Never convert free-text license metadata into an SPDX identifier without explicit evidence.
-- Never treat missing license evidence as ALLOW.
+- Never treat missing license evidence or N/A as ALLOW/PASS.
 - Never let NOASSERTION/NONE become PASS through scoring.
 - Never call a recorded digest independently verified without verification evidence.
 - Never suppress integrity mismatch or DENY blockers.
 - Never loosen component/provenance duplicate checks or evidence hash validation.
+- Never loosen N/A component/integrity coupling or let N/A enter applicable scoring.
 - Never loosen `WorkspaceBoundary` confinement.
 - Never add model-controlled installer, scanner, shell command, arbitrary package URL fetch, license-page instruction execution or publisher.
 - Never claim official SPDX conformance from the compact compatibility view.

@@ -1,10 +1,14 @@
 # R6.1 — KodeHealth foundation — Acceptance
 
-**Status:** PENDING CI / PR MERGE
+**Status:** COMPLETE  
+**Accepted:** 2026-08-22  
+**Accepted implementation head:** `802de4ba3110ace657c4e16306a0ca29850ce2bd`  
+**Merged by:** PR #30  
+**Merge commit:** `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`
 
 ## Acceptance gates
 
-R6.1 is accepted only when all of the following pass on the branch and PR:
+R6.1 required all of the following:
 
 1. Python compilation passes on Windows and Ubuntu.
 2. Existing full pytest suite remains green.
@@ -21,12 +25,45 @@ R6.1 is accepted only when all of the following pass on the branch and PR:
 13. The JSON schema for health report v1 is present.
 14. No R1–R5 governance boundary is bypassed or weakened.
 
-## Local implementation evidence before final CI
+## Local implementation evidence
 
-The isolated R6.1 unit suite was executed after workspace-boundary hardening and reported:
+After workspace-boundary and serialized-evidence hardening:
 
 ```text
 9 passed
 ```
 
-This local evidence is not sufficient to mark R6.1 COMPLETE. GitHub CI and merge evidence are still required.
+## Authoritative GitHub CI evidence
+
+Final accepted PR #30 head: `802de4ba3110ace657c4e16306a0ca29850ce2bd`.
+
+- R0 Repository Guard — run `32561211168` — **SUCCESS** (Windows + Ubuntu).
+- Python Core — run `32561211156` — **SUCCESS**:
+  - `python-core-ubuntu-latest` — SUCCESS;
+  - `python-core-windows-latest` — SUCCESS, including PowerShell acceptance-runner syntax validation;
+  - integrated `kodestudio-ui-windows` job — SUCCESS.
+- KodeStudio UI Smoke — run `32561211167` — **SUCCESS** (Windows).
+
+## Merge evidence
+
+PR #30 was merged to `main` as `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1` only after all final-head gates above were successful.
+
+## Acceptance result
+
+| Gate | Result |
+| --- | --- |
+| 14 architecture health dimensions | PASS |
+| Explicit unknown coverage | PASS |
+| Deterministic aggregate status | PASS |
+| Blocking failure reporting | PASS |
+| Report validation / JSON round-trip | PASS |
+| Derived-field tamper detection | PASS |
+| WorkspaceBoundary persistence confinement | PASS |
+| Symlink escape rejection | PASS |
+| Local focused tests | PASS — 9 |
+| R0 Windows + Ubuntu | PASS |
+| Python Core Windows + Ubuntu | PASS |
+| KodeStudio smoke | PASS |
+| PR #30 merged | PASS |
+
+**R6.1 = COMPLETE.**

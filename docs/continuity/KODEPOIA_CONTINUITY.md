@@ -4,13 +4,13 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R5 sont COMPLETE. R6 est IN PROGRESS. R6.1–R6.8 sont COMPLETE. `docs/roadmap/R6_PLAN.md` reste le plan exhaustif accepté et fige R6.1–R6.12. R6.9 — KodeAppSecurity baseline est NEXT / NOT STARTED.** R6.8 a été accepté sur le head exact `d632669b93fda7b8397b9c3de43d78ca8726323f`; R0 #783, Python Core #757 avec les cinq jobs y compris les builds package Ubuntu/Windows, et UI Smoke #724 ont réussi. Les deux bundles GitHub Actions ont été téléchargés et inspectés; leurs manifests Build/CI sont PASS, zéro blocker, liés au head exact. PR #47 a été fusionnée en `d570a3930ee63802882b8682e4532004d4fd81d6`; la normalisation #48 a passé R0 #790, Python Core #764 et UI Smoke #731 puis fusionné en `92effbde1e432a8fcb6c794038d77367d034bcb0`. Le gate manuel R6.8 était CONDITIONAL et est **NOT TRIGGERED**. Lire `R6_PLAN.md`, `R6_STATUS.md`, `R6_8_DESIGN.md`, `R6_8_ACCEPTANCE.md`, l'architecture gelée et ce fichier avant reprise. Ne pas rouvrir R1–R6.8 sans régression démontrée/ADR et ne pas commencer R7 avant R6 COMPLETE.
+> Kodepoia, architecture v1.0 gelée. **R1–R5 sont COMPLETE. R6 est IN PROGRESS. R6.1–R6.8 sont COMPLETE. R6.9 — KodeAppSecurity baseline est IN PROGRESS sur `feature/r6-9-appsecurity` depuis le main normalisé `616899291fc3b4dc40695415a5008d6fdd599230`.** Lire `docs/roadmap/R6_PLAN.md`, `R6_STATUS.md`, `R6_9_DESIGN.md`, `R6_9_ACCEPTANCE.md`, l'architecture gelée et ce fichier avant reprise. R6.9 introduit un modèle de menaces structuré, des exigences applicables/N/A distinctes, des observations de vulnérabilité dépendance horodatées/provenancées, anti-tamper SHA-256, redaction des secrets, Health `security` et cas R6.3. Le risque résiduel du modèle de menaces reste UNKNOWN par défaut : ne pas transformer une mitigation architecturale en PASS automatique. OWASP ASVS 5.0.0 est utilisé uniquement comme catalogue lorsque pertinent, avec références `v5.0.0-x.y.z`; N/A n'est jamais PASS. Manual R6.9 = NONE. Ne pas commencer R6.10 avant acceptation/fusion/normalisation R6.9 et ne pas commencer R7 avant R6 COMPLETE.
 
 ## Source de vérité et état
 
 - Dépôt : `LaurentCOLL1/Kodepoia` — PUBLIC volontairement.
 - Architecture : v1.0 gelée le 21 août 2026.
-- Source de vérité normalisée après R6.8 : `main` contenant la normalisation PR #48 merge `92effbde1e432a8fcb6c794038d77367d034bcb0`.
+- Source de vérité avant R6.9 : normalized `main` `616899291fc3b4dc40695415a5008d6fdd599230`.
 - R1–R5 : COMPLETE.
 - R6 : IN PROGRESS.
 - R6 plan : ACCEPTED — PR #37 merge `0a91064608507966a47921df8fb36e5f25477141`; normalization #38 `e96e7c3b168975869c911f880044b7ef8e322157`.
@@ -21,8 +21,8 @@
 - R6.5 : COMPLETE — PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`; normalization #42 `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`; manual REQUIRED SATISFIED.
 - R6.6 : COMPLETE — accepted head `6890b9d37722c74703e8b86f7de11dbfe66821ed`; PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`; normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`; manual NONE.
 - R6.7 : COMPLETE — accepted head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`; manual NONE.
-- R6.8 : COMPLETE — accepted head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 merge `92effbde1e432a8fcb6c794038d77367d034bcb0`; manual CONDITIONAL NOT TRIGGERED.
-- R6.9 : NEXT / NOT STARTED — manual NONE.
+- R6.8 : COMPLETE — accepted head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 merge `92effbde1e432a8fcb6c794038d77367d034bcb0`; final normalized-state wording PR #49 merge `616899291fc3b4dc40695415a5008d6fdd599230`; manual CONDITIONAL NOT TRIGGERED.
+- R6.9 : IN PROGRESS — branch `feature/r6-9-appsecurity` — manual NONE.
 - R6.10–R6.12 : PLANNED.
 - R7–R16 : PENDING.
 
@@ -36,7 +36,30 @@
 
 ## Permanent architecture/security boundaries
 
-Preserve `WorkspaceBoundary`, `ProcessSandbox` + KillSwitch, Guardian + `PermissionSet`, structured Tool APIs, SafeChange where required, AuditLog chain, secrets redaction/exclusion, schema/DataGovernance discipline, platform-aware target behavior and exact-head acceptance. No arbitrary model-supplied command/argv/cwd/host, no direct governance bypass and no architecture foundation change without ADR.
+Preserve:
+
+- `WorkspaceBoundary` path confinement and symlink-escape rejection;
+- `ProcessSandbox` + global KillSwitch;
+- Guardian + `PermissionSet` authorization/risk control;
+- structured Tool APIs; no arbitrary model-supplied commands/argv/cwd/host;
+- SafeChange before sensitive mutations;
+- AuditLog hash chain;
+- raw secret reads denied; delegated secret operations via `KodeSecrets`/OS keyring;
+- secrets redaction/exclusion from model context and persistent evidence;
+- schema/DataGovernance discipline;
+- structured Health/Budget/Test/Regression/VisualQA/Accessibility/Localization/TechnicalDebt/CI/Build/Security evidence;
+- platform-aware behavior and explicit N/A/UNKNOWN rather than fake PASS;
+- exact-head acceptance;
+- ADR for foundation architecture changes.
+
+## R5 accepted local baseline / anti-regression
+
+- Python 3.12.4; Windows 11 build 26220; Godot `4.7.2.stable.steam.ed1daf0bf`; AMD Radeon RX 6750 XT.
+- R5 local acceptance 19/19 PASS.
+- `ProcessSandbox.run()` drains stdout/stderr with `communicate(timeout=...)`.
+- long-lived socket services use background execution without unread PIPEs;
+- real-render evidence cannot be replaced by headless/dummy when real rendering is required;
+- Godot LSP/DAP/debug remains loopback-only and no arbitrary host/program/cwd is accepted from model input.
 
 ## Frozen R6 structure
 
@@ -48,7 +71,7 @@ Preserve `WorkspaceBoundary`, `ProcessSandbox` + KillSwitch, Guardian + `Permiss
 6. R6.6 KodeLocalization + pseudo-localization — COMPLETE — NONE.
 7. R6.7 KodeTechnicalDebt — COMPLETE — NONE.
 8. R6.8 KodeCI + KodeBuild — COMPLETE — CONDITIONAL NOT TRIGGERED.
-9. R6.9 KodeAppSecurity — NEXT / NOT STARTED — NONE.
+9. R6.9 KodeAppSecurity — IN PROGRESS — NONE.
 10. R6.10 KodePrivacy — PLANNED — NONE.
 11. R6.11 KodeLicense + KodeBOM — PLANNED — CONDITIONAL.
 12. R6.12 major-patch validation/rollback + integrated R6 acceptance — PLANNED — CONDITIONAL.
@@ -57,40 +80,54 @@ Do not silently add/remove/merge/split/renumber any R6.N.
 
 ## R6.8 accepted evidence
 
-Accepted final head `d632669b93fda7b8397b9c3de43d78ca8726323f`:
+Accepted final implementation head `d632669b93fda7b8397b9c3de43d78ca8726323f`:
 
 - R0 #783 `32571710663` SUCCESS Windows+Ubuntu;
 - Python Core #757 `32571710718` SUCCESS for core Ubuntu, core Windows, integrated Windows UI, package-build Ubuntu and package-build Windows;
 - separate UI Smoke #724 `32571710650` SUCCESS Windows;
-- both package jobs explicitly checked out the exact source SHA above;
-- Windows hosted image: Windows Server 2025, Python 3.12.10;
-- Ubuntu hosted image: Ubuntu 24.04.4, Python 3.12.14;
-- Windows wheel SHA-256 `1406f5a2f180b56c611fb3a0cd8a9d23436682903405f52dadc26257c5b676fb`, sdist `42e63403069e61235cefa71ebbc4099b5e717e1528a6eae54ef0673f20e69edd`, build evidence `248d49db9badfea775d18ca4087eb56ba053c961f888d5641dc42e62c6d8f419`, CI evidence `47ffad9f7f1d2c7af14efdc0f71e065b6b556046404069f2f02ef8b353024160`;
-- Ubuntu wheel SHA-256 `35489ed602a9ade3816a4562f5cd751fbfb8924cd8ad780fba5bc7aa26a2a095`, sdist `b803d3f316f46ea461af853240ba8ab8bf3f867e0cff8e88e70f87bf678c1a78`, build evidence `57e11b0a66e1f40d9984ae7aeacbe3874df5ce7b005657a72e6e603a63f983d8`, CI evidence `1a9f0e6dc0c099d5a7d9336d97a1e53ec40563cce90ba2a8c56e80b2eeb58869`;
 - Windows Actions bundle ID `9475485133`, ZIP SHA-256 `aae159bd0d8a04ee4cec6c65f7a20f104c4679a9081432640419c4a6e74ccbe5`;
 - Ubuntu Actions bundle ID `9475481332`, ZIP SHA-256 `cdeef82ace3e0ca2ef0275b3111bf6d2c8f50213b20e777ddb436477e48261d8`;
-- both downloaded bundles inspected: expected wheel, sdist, build manifest and CI report; Build/CI PASS, zero blockers, exact source SHA.
+- both downloaded bundles inspected: wheel + sdist + build manifest + CI report, Build/CI PASS, zero blockers, exact source SHA;
+- manual CONDITIONAL gate NOT TRIGGERED.
 
-R6.8 implements explicit CI states, source-SHA-bound CI evidence, wheel/sdist manifests, source/dependency/artifact hashes, secret redaction, WorkspaceBoundary persistence, Health build adapter, R6.3 hooks and an additive Windows+Ubuntu package-build matrix. The fixed collector exposes no arbitrary model-supplied command/path surface.
+Normalization #48 head `0580f930d6dfaa387c1eda1cf8ad56de79cc42b9` passed R0 #790, Python Core #764 and UI Smoke #731 and merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`. Final wording #49 head `beb431d19c487c55b92c86a7a0eead90c7529b6e` passed R0 #797, Python Core #771 including both package builds and UI Smoke #738, then merged as `616899291fc3b4dc40695415a5008d6fdd599230`.
 
-Cross-platform archive/source-input byte hashes may differ because the hosted images/toolchains/checkouts differ. R6.8 records those per-platform bytes and the immutable Git source SHA; it does not falsely claim byte-identical Windows/Ubuntu packages.
+## R6.9 current implementation contract
 
-### Conditional manual gate
+R6.9 currently implements:
 
-**NOT TRIGGERED.** Hosted Windows proved every acceptance-critical Windows build operation and its uploaded bundle was independently inspected. Do not ask the user to repeat this locally unless a later demonstrated regression invalidates the evidence.
+- `SecurityApplicability`: `applicable` / `not_applicable`;
+- requirement statuses `pass/warn/fail/unknown/not_applicable` and report statuses `unknown/pass/warn/fail`;
+- stable lowercase IDs and version-pinned ASVS refs only (`v5.0.0-x.y.z`) when used;
+- typed threat assets, trust boundaries, entry points and threats with cross-reference validation;
+- initial Kodepoia threats: path traversal, arbitrary process execution, secret disclosure, loopback exposure and downloaded-code governance bypass;
+- residual-risk UNKNOWN default so architecture intent does not auto-pass;
+- measured PASS/WARN/FAIL requires `evidence_source`; N/A requires rationale and cannot block;
+- dependency-vulnerability evidence with exact component/version, timezone-aware check time, provenance and advisory IDs for AFFECTED;
+- conservative aggregate FAIL on failed requirement / affected dependency / blocking threat;
+- recursive secret redaction using the accepted R6.8 evidence-redaction helper;
+- canonical SHA-256 report with derived-count/blocker/status tamper rejection;
+- `.kodepoia/diagnostics/security/` through `WorkspaceBoundary`;
+- Health `security` adapter with UNKNOWN score semantics;
+- stable R6.3 IDs for requirements, dependencies and threats; N/A/WARN/UNKNOWN are SKIP, not PASS;
+- `security-report-v1.schema.json`;
+- `tests/test_r6_9_appsecurity.py` covering cross refs, N/A semantics, ASVS versioning, secure storage, dependency evidence, status aggregation, tamper, redaction, Health/R6.3, store and malformed payloads;
+- `docs/roadmap/R6_9_DESIGN.md` and `R6_9_ACCEPTANCE.md`;
+- no unrestricted security scanner/network/process path.
 
-### Post-merge normalization
+### ASVS interpretation
 
-PR #48 head `0580f930d6dfaa387c1eda1cf8ad56de79cc42b9` passed:
+OWASP ASVS 5.0.0 was rechecked as the current stable release on 2026-08-22. It is a Web-application/service standard, so Kodepoia applies individual controls only where a real surface exists. Representative mappings recorded in R6.9 include:
 
-- R0 #790 `32572054011` — SUCCESS;
-- Python Core #764 `32572054001` — SUCCESS including both core OS jobs, integrated UI and both package-build jobs;
-- KodeStudio UI Smoke #731 `32572054015` — SUCCESS;
-- merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`.
+- `v5.0.0-1.2.5` for OS-command injection/process construction;
+- `v5.0.0-5.3.2` for trusted/validated file-path construction and path-traversal exposure;
+- `v5.0.0-13.3.1` for secrets-management solution / keeping secrets out of source or build artifacts.
 
-## External reference context
+No full ASVS compliance or certification claim is made.
 
-SLSA provenance concepts and GitHub artifact attestations were reviewed for R6.8. No SLSA level is claimed. GitHub documentation says attestations establish artifact provenance but are not by themselves a guarantee that an artifact is secure, and recommends against attesting frequent builds used only for automated testing; therefore routine PR-build attestation is not an R6.8 completion gate.
+## R6.9 manual gate
+
+**NONE.** Hosted Windows + Ubuntu CI are authoritative for this foundation. Do not ask for local user execution merely to duplicate hosted evidence.
 
 ## Permanent phase-start planning rule
 
@@ -98,4 +135,4 @@ PR #36 merge `56f12eb3eba1adc40a1cf4c58970ed40156360b9` requires every major pha
 
 ## Next action
 
-R6.9 — KodeAppSecurity baseline is the next permitted R6 subdivision. R6 remains IN PROGRESS and R7 must not start before R6.12 completes the integrated phase gate.
+Finish R6.9 implementation/testing, run exact-final-head R0/Python Core/UI/package-build gates, merge the implementation PR, then perform post-merge R6.9 normalization. Only after normalized R6.9 may R6.10 begin. R6 remains IN PROGRESS; R7 must not start before R6.12.

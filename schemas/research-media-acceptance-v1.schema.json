@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/research-media-acceptance-v1.schema.json",
+  "title": "Kodepoia R7.7 local media acceptance report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "generated_at", "source_sha", "status",
+    "fixture_relative_path", "fixture_sha256", "fixture_size_bytes",
+    "ffmpeg", "stt", "stt_model", "transcript_segments", "frames",
+    "checks", "vision_status", "vision_reason", "resources", "cleanup_passed"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "status": {"enum": ["PASS", "FAIL"]},
+    "fixture_relative_path": {"type": "string", "minLength": 1},
+    "fixture_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "fixture_size_bytes": {"type": "integer", "minimum": 0},
+    "ffmpeg": {"$ref": "#/$defs/tool"},
+    "stt": {"$ref": "#/$defs/tool"},
+    "stt_model": {"$ref": "#/$defs/model"},
+    "transcript_segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["start_ms", "end_ms", "text", "confidence"],
+        "properties": {
+          "start_ms": {"type": "integer", "minimum": 0},
+          "end_ms": {"type": "integer", "minimum": 0},
+          "text": {"type": "string", "minLength": 1},
+          "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["timestamp_ms", "sha256", "width", "height"],
+        "properties": {
+          "timestamp_ms": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "width": {"type": "integer", "minimum": 1},
+          "height": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["check_id", "passed", "detail"],
+        "properties": {
+          "check_id": {"type": "string", "minLength": 1},
+          "passed": {"type": "boolean"},
+          "detail": {"type": "string"}
+        }
+      }
+    },
+    "vision_status": {"$ref": "#/$defs/research_status"},
+    "vision_reason": {"type": "string"},
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["elapsed_ms", "input_bytes", "temporary_peak_bytes", "cpu_measurement_status", "ram_measurement_status"],
+      "properties": {
+        "elapsed_ms": {"type": "integer", "minimum": 0},
+        "input_bytes": {"type": "integer", "minimum": 0},
+        "temporary_peak_bytes": {"type": "integer", "minimum": 0},
+        "cpu_measurement_status": {"$ref": "#/$defs/research_status"},
+        "ram_measurement_status": {"$ref": "#/$defs/research_status"}
+      }
+    },
+    "cleanup_passed": {"type": "boolean"}
+  },
+  "$defs": {
+    "research_status": {
+      "type": "string",
+      "enum": ["unknown", "ready", "unavailable", "not_applicable", "blocked", "stale"]
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "status", "executable_name", "version", "executable_sha256", "contract_supported", "reason"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "status": {"$ref": "#/$defs/research_status"},
+        "executable_name": {"type": "string"},
+        "version": {"type": "string"},
+        "executable_sha256": {"type": "string", "pattern": "^(?:[0-9a-f]{64})?$"},
+        "contract_supported": {"type": "boolean"},
+        "reason": {"type": "string"}
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "status", "relative_path", "sha256", "size_bytes", "reason"],
+      "properties": {
+        "engine": {"const": "whisper.cpp"},
+        "status": {"$ref": "#/$defs/research_status"},
+        "relative_path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^(?:[0-9a-f]{64})?$"},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "reason": {"type": "string"}
+      }
+    }
+  }
+}

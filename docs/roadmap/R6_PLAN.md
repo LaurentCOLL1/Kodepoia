@@ -16,27 +16,27 @@
 
 This is the exhaustive recovery and execution plan for R6. It is a retroactive exception to the normal phase-start planning rule because R6.1–R6.3 were already complete when the permanent `RX_PLAN.md` rule was introduced. The user explicitly requested that R6 be brought under the same discipline before R6.4.
 
-The plan is now accepted and merged. It therefore:
+The plan is accepted and merged. It:
 
-1. records R6.1–R6.3 exactly as already accepted, without reopening or redefining them;
-2. freezes the remaining R6.4–R6.12 subdivision structure;
-3. defines the acceptance, rollback and manual-intervention contract for every remaining subdivision;
-4. is the authoritative R6 planning/recovery artifact together with `R6_STATUS.md` and `KODEPOIA_CONTINUITY.md`.
+1. records completed R6 subdivisions without reopening or redefining them;
+2. freezes the R6.1–R6.12 subdivision structure;
+3. defines acceptance, rollback and manual-intervention contracts for every subdivision;
+4. remains authoritative together with `R6_STATUS.md`, subdivision acceptance documents and `KODEPOIA_CONTINUITY.md`.
 
-R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE with the required evidence, or a later recorded roadmap/architecture decision explicitly removes a subdivision from scope.
+R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE with required evidence, or a later recorded roadmap/architecture decision explicitly removes a subdivision from scope.
 
 ## Planning acceptance evidence
 
 The plan itself passed the normal repository acceptance discipline before R6.4 was authorized:
 
-- accepted planning head: `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a`;
-- R0 Repository Guard run `32563057993` / #639 — SUCCESS Windows + Ubuntu;
-- Python Core run `32563057956` / #613 — SUCCESS Windows + Ubuntu, PowerShell syntax validation and integrated KodeStudio smoke;
-- KodeStudio UI Smoke run `32563057903` / #580 — SUCCESS Windows;
-- PR #37 merged to `main` as `0a91064608507966a47921df8fb36e5f25477141`;
+- accepted planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a`;
+- R0 Repository Guard `32563057993` / #639 — SUCCESS Windows + Ubuntu;
+- Python Core `32563057956` / #613 — SUCCESS Windows + Ubuntu, PowerShell syntax validation and integrated KodeStudio smoke;
+- KodeStudio UI Smoke `32563057903` / #580 — SUCCESS Windows;
+- PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`;
 - post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 
-**Planning gate result: PASS. R6.4 is IN PROGRESS on `feature/r6-4-visualqa`; required hardware-local evidence remains pending.**
+**Planning gate result: PASS. R6.1–R6.4 are COMPLETE. R6.5 is NEXT / NOT STARTED.**
 
 ## Frozen-roadmap objective
 
@@ -100,8 +100,8 @@ If implementation occurs substantially later, any externally versioned requireme
 | R6.1 | KodeHealth foundation | COMPLETE | NONE | R5 COMPLETE |
 | R6.2 | KodeBudget foundation | COMPLETE | NONE | R6.1 |
 | R6.3 | KodeTests + KodeRegression foundation | COMPLETE | NONE | R6.1–R6.2 |
-| R6.4 | KodeVisualQA foundation | IN PROGRESS | REQUIRED | R6.1–R6.3 + accepted R5 Godot automation |
-| R6.5 | KodeAccessibility foundation | PLANNED | REQUIRED | R6.3–R6.4 |
+| R6.4 | KodeVisualQA foundation | COMPLETE | REQUIRED — SATISFIED | R6.1–R6.3 + accepted R5 Godot automation |
+| R6.5 | KodeAccessibility foundation | NEXT / NOT STARTED | REQUIRED | R6.3–R6.4 |
 | R6.6 | KodeLocalization + pseudo-localization foundation | PLANNED | NONE | R6.3 + R6.5 |
 | R6.7 | KodeTechnicalDebt foundation | PLANNED | NONE | R6.1–R6.6 |
 | R6.8 | KodeCI + KodeBuild foundation | PLANNED | CONDITIONAL | R6.1–R6.7 |
@@ -233,135 +233,129 @@ Deleting or skipping a known case must never manufacture an apparent fix.
 
 ---
 
-# R6.4 — KodeVisualQA foundation — IN PROGRESS
+# R6.4 — KodeVisualQA foundation — COMPLETE
 
 ## Objective and rationale
 
-Build a deterministic visual-regression contract comparing a current render/capture with a named approved baseline. It must distinguish exact identity, controlled tolerance and blocking visual regression. R6.4 bridges accepted R5 capture automation with R6.3 regression evidence while keeping the comparison layer engine-neutral.
+R6.4 established a deterministic visual-regression contract comparing a current render/capture with a named approved baseline. It distinguishes exact identity, controlled tolerance and blocking visual regression, bridges accepted R5 capture automation with R6.3 regression evidence, and keeps the comparison layer engine-neutral.
 
-## In scope
+## Accepted scope
 
 - immutable baseline identity/metadata and approval provenance;
 - current capture identity/metadata;
 - image dimensions/format/channel validation;
 - deterministic pixel-difference statistics;
-- reproducible dependency-controlled perceptual metric(s);
-- structured ignore/mask regions declared by policy, never invented during evaluation;
-- explicit PASS/WARN/FAIL and reasons;
-- visual diff artifact generation;
+- dependency-controlled perceptual dHash metric;
+- structured ignore/mask regions declared by policy and hash-bound into evidence;
+- explicit PASS/WARN/FAIL/UNKNOWN and reasons;
+- visual diff PNG generation;
 - missing baseline/current evidence handling;
-- hash-bound policy/baseline/current/diff evidence;
+- hash-bound policy/baseline/current/report evidence;
 - persistence under `.kodepoia/visual_tests/` with separate baselines/runs/diffs;
-- R6.3 regression integration hooks;
-- fixtures for exact match, changed pixels, threshold boundary, resolution mismatch and tamper detection;
+- R6.3 stable `visual:<case-id>` integration;
+- fixtures for exact match, encoding identity, changed pixels, threshold boundaries, resolution/mode/format mismatch, missing evidence and tamper detection;
 - one real hardware-local Godot rendered comparison on the accepted workstation.
 
 ## Out of scope
 
 AI aesthetic judgement, automatic baseline replacement, Blender/ComfyUI visual generation, DeviceLab matrix, shader/LOD/texture optimization, audio QA and store screenshot certification.
 
-## Expected implementation/deliverables
+## Accepted implementation/deliverables
 
 - `src/kodepoia/quality/visual.py`;
 - `src/kodepoia/quality/__init__.py` exports;
+- `src/kodepoia/quality/visual_acceptance.py`;
 - `schemas/visual-report-v1.schema.json`;
 - `tests/test_r6_4_visualqa.py`;
 - `docs/roadmap/R6_4_DESIGN.md`;
 - `docs/roadmap/R6_4_ACCEPTANCE.md`;
 - `scripts/r6_4_accept_local.ps1`;
-- storage: `.kodepoia/visual_tests/baselines/`, `runs/`, `diffs/`.
+- `.kodepoia/visual_tests/baselines/`, `runs/`, `diffs/`;
+- separate `kodegodot_capture_png_sequence` tool with explicit KodeGodotExecutor policy and fixed VisualQA output root;
+- Pillow constrained to `>=12.3,<12.4` for deterministic image handling in this accepted foundation.
 
-All project paths resolve through `WorkspaceBoundary`. No evaluator API may expose arbitrary executable/argv/host-path fields. Godot capture must use the already governed KodeGodot path.
+All project paths resolve through `WorkspaceBoundary`. The new evaluator/capture surface exposes no arbitrary model-supplied executable, argv, command, cwd, host or output-path fields. The accepted R5 AVI capture behavior remains unchanged.
 
-## Current implementation record
+## Acceptance record
 
-R6.4 started from normalized `main` `e96e7c3b168975869c911f880044b7ef8e322157` on branch `feature/r6-4-visualqa`; implementation PR #39 is open and MUST remain unmerged until final-head CI plus the REQUIRED hardware-local gate pass.
+### Accepted implementation identity
 
-Implemented on the branch:
+- starting normalized `main`: `e96e7c3b168975869c911f880044b7ef8e322157`;
+- implementation branch: `feature/r6-4-visualqa`;
+- implementation PR: #39;
+- accepted final implementation head: `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`;
+- implementation merge: `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`.
 
-- deterministic visual policy, image metadata, immutable content-addressed baseline approval and canonical SHA-256 evidence;
-- exact file identity, pixel statistics, normalized mean error and deterministic 64-bit dHash/Hamming perceptual signal;
-- explicit masks bound into the policy hash and applied consistently to metrics/diffs;
-- explicit missing evidence and format/mode/resolution incompatibility handling;
-- PNG diff generation and `visual-report-v1` validation/tamper rejection;
-- R6.3 stable `visual:<case-id>` adapter;
-- `.kodepoia/visual_tests/{baselines,runs,diffs}` persistence through `WorkspaceBoundary`;
-- Pillow `>=12.3,<12.4` dependency control;
-- separate governed `kodegodot_capture_png_sequence` real-render Movie Maker tool with fixed output root, while preserving R5 AVI capture unchanged;
-- Windows hardware-local acceptance module/wrapper requiring non-empty rendering method/driver/video-adapter evidence, VisualQA PASS, R6.3 hook PASS and AuditLog-chain PASS;
-- focused fixtures and design/acceptance documentation.
+### Final-head hosted evidence
 
-Current state remains **IN PROGRESS**. No implementation head is authoritative for manual acceptance until ChatGPT announces the exact final PR head after all final-head workflows are green.
+All hosted gates passed on the exact accepted implementation head:
 
-## Acceptance gates / Definition of Done
+- R0 Repository Guard `32564304755` / #666 — SUCCESS Windows + Ubuntu;
+- Python Core `32564304757` / #640 — SUCCESS Windows + Ubuntu, PowerShell acceptance-runner validation, full pytest and integrated KodeStudio smoke;
+- KodeStudio UI Smoke `32564304798` / #607 — SUCCESS Windows.
 
-1. deterministic fixture comparison on Windows + Ubuntu;
-2. exact match = PASS;
-3. tolerance boundary deterministic;
-4. change above blocking threshold = FAIL;
-5. resolution/channel/format incompatibility explicit;
-6. baseline/current hashes preserved;
-7. derived metric tampering rejected;
-8. masks/ignore policy included in evidence hash;
-9. persistence confined to `.kodepoia/visual_tests/`;
-10. R0/Python Core/KodeStudio CI green;
-11. required real Godot rendered baseline/current/diff/report chain on accepted workstation;
-12. implementation PR merges only after CI + required local evidence;
-13. post-merge plan/status/continuity normalization.
+### Required manual hardware-local evidence — SATISFIED
+
+The user executed `scripts/r6_4_accept_local.ps1` on the exact same head. Accepted result:
+
+- `metadata.acceptance_completed=true`;
+- Windows `Windows-11-10.0.26220-SP0`;
+- Python `3.12.4`;
+- Godot `4.7.2.stable.steam.ed1daf0bf`, compatible 4.7.x;
+- rendering method `gl_compatibility`;
+- rendering driver `opengl3`;
+- video adapter `AMD Radeon RX 6750 XT`;
+- baseline/current Movie Maker PNG captures return code 0, no timeout or cancellation;
+- baseline SHA-256 `98dca538d872e8f883b4de4e9b92b741091365f15d193bac1127801277ca567a`;
+- current SHA-256 `98dca538d872e8f883b4de4e9b92b741091365f15d193bac1127801277ca567a`;
+- changed ratio `0.0`;
+- perceptual distance ratio `0.0`;
+- policy SHA-256 `a2dbb4532c50e522639a1b1a264420d2f491d17e7b2350d500ddf415bd70014e`;
+- evidence SHA-256 `4c0375391d8f0e1b54c8c949b264ec70d6c9a18f10798a52a72d79ac18daab56`;
+- VisualQA status `pass`;
+- R6.3 hook `visual:godot-real-render` PASS;
+- AuditLog chain valid;
+- summary `8 PASS / 0 FAIL / 8`.
+
+The real-render requirement is satisfied because rendering method, driver and Radeon adapter evidence are explicit and non-headless/non-dummy.
+
+## Acceptance gates / Definition of Done — RESULT
+
+1. deterministic fixture comparison Windows + Ubuntu — PASS;
+2. exact match = PASS — PASS;
+3. tolerance boundaries deterministic — PASS;
+4. change above blocking threshold = FAIL — PASS;
+5. resolution/mode/format incompatibility explicit — PASS;
+6. baseline/current hashes preserved — PASS;
+7. derived/policy/evidence tampering rejected — PASS;
+8. masks/ignore policy included in evidence hash — PASS;
+9. persistence confined to `.kodepoia/visual_tests/` — PASS;
+10. R0/Python Core/KodeStudio CI green — PASS;
+11. required real Godot rendered baseline/current/diff/report chain — PASS;
+12. implementation PR merged only after CI + required local evidence — PASS;
+13. post-merge plan/status/continuity normalization — this normalization PR.
 
 ## Manual intervention
 
-**REQUIRED.**
+**REQUIRED — SATISFIED.** No further R6.4 user action is required unless a later regression is demonstrated.
 
-### Reason
+The accepted manual gate used the exact final implementation head and the accepted Windows/Radeon/Godot environment. The historical command contract remains documented in `R6_4_ACCEPTANCE.md`; it must not be reused as evidence for a later changed implementation head without rerunning the gate.
 
-Hosted CI can prove the comparison engine with fixtures but cannot authoritatively prove the same real-render Godot path on the accepted Windows/Radeon RX 6750 XT workstation. R5 established that rendered-frame acceptance must not be replaced by headless/dummy capture.
+## Rollback / regression protection
 
-### Prerequisites
+R6.4 is additive. A demonstrated regression may revert its implementation merge without mutating R6.1–R6.3 evidence. Later changes must not:
 
-- exact final R6.4 implementation head supplied by ChatGPT;
-- clean local clone checked out to that head;
-- Python 3.12.x;
-- Godot `4.7.2.stable.steam.ed1daf0bf` at `D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe` unless the acceptance document explicitly records an approved equivalent;
-- no unrelated changes to acceptance fixtures.
-
-### Planned commands
-
-```powershell
-git fetch origin
-git checkout <R6_4_FINAL_HEAD>
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev,ui]"
-$env:KODEPOIA_GODOT_EXE="D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
-powershell -ExecutionPolicy Bypass -File .\scripts\r6_4_accept_local.ps1
-```
-
-The placeholder must be replaced by the exact final PR head before the user is asked to execute this.
-
-### Expected output
-
-Machine-readable summary containing at least `acceptance_completed=true`, Godot version, renderer/device where available, baseline hash, current hash, diff/report paths, visual status PASS, and passed/failed/total with `failed=0`.
-
-### Failure recovery
-
-Never replace/approve the baseline to hide failure. Preserve diff/report. If Godot path/version changed, report it. If capture is blank/headless/dummy, stop and report logs. On script error, provide complete command output with secrets redacted.
-
-### Evidence to send back
-
-Complete terminal summary and generated JSON report; diff/capture metadata if requested by `R6_4_ACCEPTANCE.md`. No passwords, tokens, private keys or unrelated files.
-
-### Do not do yet
-
-Do not merge R6.4, change thresholds/baseline, or proceed to R6.5 until local evidence is reviewed and accepted.
-
-## Rollback / risks
-
-R6.4 is additive. Revert the implementation PR without mutating R6.1–R6.3 evidence. Risks: renderer nondeterminism, color/gamma/AA/driver variance, oversized diff artifacts, overbroad masks, missing evidence falsely passing, accidental baseline auto-update, and regression of the R5 headless/dummy rule.
+- auto-approve or replace a baseline to hide a failure;
+- convert missing evidence into PASS;
+- weaken baseline/report/policy tamper checks;
+- remove mask policy hashing;
+- substitute headless/dummy rendering where real-render evidence is required;
+- regress the accepted R5 AVI capture path;
+- introduce arbitrary model-supplied process arguments or host paths.
 
 ---
 
-# R6.5 — KodeAccessibility foundation
+# R6.5 — KodeAccessibility foundation — NEXT / NOT STARTED
 
 ## Objective and rationale
 
@@ -751,14 +745,14 @@ Avoid circular validation where patch gate trusts its own summary without valida
 
 The user is informed before each applicable manual gate:
 
-- **R6.4 — REQUIRED:** real Windows/Godot rendered visual-regression acceptance on the accepted workstation; currently pending after final-head CI.
+- **R6.4 — REQUIRED:** SATISFIED and accepted on head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`; no further action unless regression.
 - **R6.5 — REQUIRED:** real interactive Windows keyboard-only + Narrator accessibility checklist.
 - **R6.8 — CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet build/reproducibility DoD.
 - **R6.11 — CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved.
 - **R6.12 — CONDITIONAL:** local integration/approval only if final selected gates require hardware-local execution or explicit approval.
 - **R6.6, R6.7, R6.9, R6.10 — NONE** currently planned.
 
-Before asking the user to run a manual gate, its acceptance document and the user-facing instructions must identify the exact final implementation head and confirm the final implementation-specific commands, expected output, recovery and evidence requirements.
+Before asking the user to run a manual gate, its acceptance document and user-facing instructions must identify the exact final implementation head and confirm final implementation-specific commands, expected output, recovery and evidence requirements.
 
 # R6 completion rule
 
@@ -776,4 +770,5 @@ R6 is COMPLETE only when:
 
 - 2026-08-22: retroactive plan created by explicit user request before R6.4; R6.1–R6.3 recorded from already accepted evidence; R6.4–R6.12 structure frozen.
 - 2026-08-22: planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a` passed R0 `32563057993`/#639, Python Core `32563057956`/#613 and UI Smoke `32563057903`/#580; PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`.
-- 2026-08-22: post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`; R6.4 started from that normalized `main` on `feature/r6-4-visualqa`, implementation PR #39 opened, manual classification remains REQUIRED and merge/R6.5 remain blocked until final-head CI plus real-render local acceptance pass.
+- 2026-08-22: post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`; R6.4 started from that normalized `main` on `feature/r6-4-visualqa`.
+- 2026-08-22: R6.4 accepted on final head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41` after R0 #666, Python Core #640, UI Smoke #607 and required Windows/Godot/Radeon hardware acceptance all passed; PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`. R6.4 is COMPLETE; R6.5 is NEXT / NOT STARTED.

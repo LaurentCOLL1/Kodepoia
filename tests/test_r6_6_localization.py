@@ -147,7 +147,7 @@ def test_report_roundtrip_and_tamper_rejection() -> None:
     source = _source()
     report = KodeLocalization(source).validate_catalog(pseudo_catalog(source))
     restored = LocalizationReport.from_dict(report.to_dict())
-    assert restored == report
+    assert restored.to_dict() == report.to_dict()
 
     payload = report.to_dict()
     payload["counts"]["passed"] += 1
@@ -177,7 +177,7 @@ def test_store_is_confined_and_roundtrips(tmp_path: Path) -> None:
     latest, snapshot = store.save(report)
     assert latest.is_file() and snapshot.is_file()
     assert latest.parent == tmp_path / ".kodepoia" / "diagnostics" / "localization"
-    assert store.load_latest("qps-ploc") == report
+    assert store.load_latest("qps-ploc").to_dict() == report.to_dict()
 
 
 def test_store_rejects_symlink_escape(tmp_path: Path) -> None:

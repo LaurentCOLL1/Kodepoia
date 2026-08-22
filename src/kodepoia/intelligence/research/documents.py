@@ -4,7 +4,7 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from enum import StrEnum
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 from urllib.parse import quote, urlsplit
 
@@ -33,6 +33,10 @@ def _canonical_digest(payload: Any) -> str:
         allow_nan=False,
     ).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
+
+
+def _is_sha256(value: str) -> bool:
+    return len(value) == 64 and all(character in "0123456789abcdef" for character in value)
 
 
 class DocumentFormat(StrEnum):
@@ -65,7 +69,8 @@ class OfficialDocEntry:
         if not local_root:
             raise ValueError("Official documentation local_root must not be empty")
         path = Path(local_root)
-        if path.is_absolute() or ".." in path.parts:
+        windows_path = PureWindowsPath(local_root)
+        if path.is_absolute() or windows_path.is_absolute() or ".." in path.parts:
             raise ValueError("Official documentation local_root must stay project-relative")
         parsed = urlsplit(base)
         if parsed.scheme.lower() != "https" or not parsed.hostname:
@@ -125,9 +130,9 @@ class OfficialDocsManifest:
     def __post_init__(self) -> None:
         if self.schema_version != MANIFEST_SCHEMA_VERSION:
             raise ValueError("Unsupported official documentation manifest schema version")
-        keys = [entry.key for entry in self.entries]
-        if not entries_nonempty(self.entries):
+        if not self.entries:
             raise ValueError("Official documentation manifest requires at least one entry")
+        keys = [entry.key for entry in self.entries]
         if len(keys) != len(set(keys)):
             raise ValueError("Official documentation manifest keys must be unique")
         object.__setattr__(
@@ -163,7 +168,8 @@ class OfficialDocsManifest:
             entries=tuple(OfficialDocEntry.from_dict(item) for item in raw_entries),
             schema_version=int(payload.get("schema_version", 0)),
         )
-        if str(payload.get("manifest_id", "")) != manifest.manifest_id:
+        stored_id = payload.get("manifest_id")
+        if stored_id is not None and str(stored_id) != manifest.manifest_id:
             raise ValueError("Official documentation manifest ID does not match canonical evidence")
         return manifest
 
@@ -183,10 +189,6 @@ class OfficialDocsManifest:
         return cls.from_dict(payload)
 
 
-def entries_nonempty(entries: tuple[OfficialDocEntry, ...]) -> bool:
-    return bool(entries)
-
-
 @dataclass(frozen=True, slots=True)
 class DocumentChunk:
     artifact_id: str
@@ -200,8 +202,8 @@ class DocumentChunk:
     def __post_init__(self) -> None:
         if self.line_start < 1 or self.line_end < self.line_start:
             raise ValueError("Document chunk line range is invalid")
-        if len(self.artifact_id) != 64:
-            raise ValueError("Document chunk artifact ID must be a SHA-256 digest")
+        if not _is_sha256(self.artifact_id):
+            raise ValueError("Document chunk artifact ID must be a lowercase SHA-256 digest")
         if not self.source_locator.strip():
             raise ValueError("Document chunk source locator must not be empty")
         object.__setattr__(
@@ -275,7 +277,12 @@ class LocalDocumentAdapter:
         self._store = ResearchStore(root)
 
     @staticmethod
-    def _freshness(*, source_kind: ResearchSourceKind, version: str, target_version: str | None) -> ResearchFreshness:
+    def _freshness(
+        *,
+        source_kind: ResearchSourceKind,
+        version: str,
+        target_version: str | None,
+    ) -> ResearchFreshness:
         if source_kind is ResearchSourceKind.LOCAL and not version and target_version is None:
             return ResearchFreshness.NOT_APPLICABLE
         if not version or target_version is None or not target_version.strip():

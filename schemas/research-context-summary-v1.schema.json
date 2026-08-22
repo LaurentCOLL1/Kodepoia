@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/research-context-summary-v1.schema.json",
+  "title": "Kodepoia Research Context Summary v1",
+  "type": "object",
+  "required": ["schema_version", "report_digests", "entries", "omitted_finding_ids", "max_chars", "max_items", "rendered_chars", "trust", "validated_experience", "summary_id"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "report_digests": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+    "entries": {"type": "array", "items": {"$ref": "#/$defs/entry"}},
+    "omitted_finding_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+    "max_chars": {"type": "integer", "minimum": 256, "maximum": 1000000},
+    "max_items": {"type": "integer", "minimum": 1, "maximum": 1000},
+    "rendered_chars": {"type": "integer", "minimum": 0},
+    "trust": {"const": "external_guarded_untrusted"},
+    "validated_experience": {"const": false},
+    "summary_id": {"$ref": "#/$defs/sha256"}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "entry": {
+      "type": "object",
+      "required": ["finding_id", "kind", "text", "citation_ids", "artifact_ids", "locators", "freshness", "version_relation", "suspicious", "guard_indicators", "trust", "entry_id"],
+      "properties": {
+        "finding_id": {"$ref": "#/$defs/sha256"},
+        "kind": {"enum": ["source_fact", "inference"]},
+        "text": {"type": "string", "minLength": 1},
+        "citation_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+        "artifact_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/sha256"}},
+        "locators": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "freshness": {"type": "array", "uniqueItems": true, "items": {"enum": ["unknown", "current", "stale", "not_applicable"]}},
+        "version_relation": {"enum": ["exact_match", "range_match", "inferred_match", "mismatch", "unknown"]},
+        "suspicious": {"type": "boolean"},
+        "guard_indicators": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "trust": {"const": "external_guarded_untrusted"},
+        "entry_id": {"$ref": "#/$defs/sha256"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -3,7 +3,7 @@
 **Phase:** R7 — Research sécurisé  
 **Overall status:** IN PROGRESS  
 **Planning:** ACCEPTED  
-**Current subdivision:** R7.4 NOT STARTED  
+**Current subdivision:** R7.5 NOT STARTED  
 **Manual blocker:** NONE
 
 ## Subdivision status
@@ -13,7 +13,7 @@
 | R7.1 | KodeResearch contracts + ResearchGuard hardening | COMPLETE | `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca` | NONE |
 | R7.2 | Local + official documentation research | COMPLETE | `9101e686a32b24bb33a23d7ac578bf25570e115e` | NONE |
 | R7.3 | Governed Web fetch + extraction | COMPLETE | `4efd2cb016e774fa3ef06590ffda377606d875e9` | NONE |
-| R7.4 | GitHub research adapter | NOT STARTED | — | CONDITIONAL |
+| R7.4 | GitHub research adapter | COMPLETE | `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be` | CONDITIONAL NOT TRIGGERED |
 | R7.5 | Community/forums research normalization | NOT STARTED | — | NONE |
 | R7.6 | YouTube metadata + transcript ingestion | NOT STARTED | — | CONDITIONAL |
 | R7.7 | Local STT + frame extraction/analysis hooks | NOT STARTED | — | REQUIRED |
@@ -60,6 +60,17 @@
 - manual NONE;
 - acceptance source: `docs/roadmap/R7_3_ACCEPTANCE.md`.
 
+## R7.4 acceptance
+
+- implementation head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`;
+- implementation PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`;
+- R0 #972 / `32589899654` SUCCESS;
+- Python Core #946 / `32589899648` SUCCESS, 5/5 jobs; Ubuntu authoritative suite: 388 passed / 3 skipped / 46 warnings;
+- KodeStudio UI Smoke #913 / `32589899651` SUCCESS;
+- manual CONDITIONAL NOT TRIGGERED;
+- public unauthenticated acceptance was sufficient; no real token/private repository was required;
+- acceptance source: `docs/roadmap/R7_4_ACCEPTANCE.md`.
+
 ## Next authorized action
 
-Start **R7.4 — GitHub research adapter** only after this R7.3 normalization PR is accepted and merged. R7.4 must remain read-only, typed and provenance-preserving; prefer immutable commit-SHA locators, pass README/issue/PR/comment content through `ResearchGuard`, preserve pagination/rate-limit evidence, expose no GitHub write operation or arbitrary GraphQL, and resolve optional credentials only outside model context through the existing secret boundary.
+Start **R7.5 — Community/forums research normalization** only after this R7.4 normalization PR is accepted and merged. R7.5 must preserve community evidence as community evidence: retain author/time/thread/parent/quote provenance, distinguish quoted text from post-author text, keep edited/deleted states explicit, and never promote popularity or consensus into official-document authority. All community text remains untrusted data routed through the existing `ResearchGuard`; no posting, voting, moderation or account automation is permitted.

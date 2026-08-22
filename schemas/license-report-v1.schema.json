@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/license-report-v1.schema.json",
+  "title": "Kodepoia License Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "generated_at", "project_name", "bom_evidence_sha256", "inventory_complete",
+    "inventory_review_source", "policy_name", "policy_fingerprint", "status", "score", "counts",
+    "blockers", "decisions", "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "project_name": {"type": "string", "minLength": 1},
+    "bom_evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "inventory_complete": {"type": "boolean"},
+    "inventory_review_source": {"type": "string"},
+    "policy_name": {"type": "string", "minLength": 1},
+    "policy_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+    "score": {"oneOf": [{"type": "null"}, {"type": "number", "minimum": 0, "maximum": 100}]},
+    "counts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["components_total", "allow", "warn", "deny", "unknown"],
+      "properties": {
+        "components_total": {"type": "integer", "minimum": 0},
+        "allow": {"type": "integer", "minimum": 0},
+        "warn": {"type": "integer", "minimum": 0},
+        "deny": {"type": "integer", "minimum": 0},
+        "unknown": {"type": "integer", "minimum": 0}
+      }
+    },
+    "blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "decisions": {"type": "array", "items": {"$ref": "#/$defs/decision"}},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "decision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["component_id", "license_token", "action", "policy_source", "evidence_source", "blocking"],
+      "properties": {
+        "component_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.:-]{1,191}$"},
+        "license_token": {"type": "string", "minLength": 1},
+        "action": {"enum": ["allow", "warn", "deny", "unknown"]},
+        "policy_source": {"type": "string", "minLength": 1},
+        "evidence_source": {"type": "string", "minLength": 1},
+        "blocking": {"type": "boolean"}
+      }
+    }
+  }
+}

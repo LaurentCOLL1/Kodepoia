@@ -18,8 +18,8 @@ R1–R5 remain COMPLETE. R6 remains active and must not be marked COMPLETE befor
 6. **R6.6 — KodeLocalization + pseudo-localization foundation** — COMPLETE — manual `NONE` — PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`; normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
 7. **R6.7 — KodeTechnicalDebt foundation** — COMPLETE — manual `NONE` — head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
 8. **R6.8 — KodeCI + KodeBuild foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording #49 merge `616899291fc3b4dc40695415a5008d6fdd599230`.
-9. **R6.9 — KodeAppSecurity baseline** — IN PROGRESS — manual `NONE` — branch `feature/r6-9-appsecurity`, starting main `616899291fc3b4dc40695415a5008d6fdd599230`.
-10. **R6.10 — KodePrivacy baseline** — PLANNED — manual `NONE`.
+9. **R6.9 — KodeAppSecurity baseline** — COMPLETE — manual `NONE` — head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`.
+10. **R6.10 — KodePrivacy baseline** — NEXT / NOT STARTED — manual `NONE`.
 11. **R6.11 — KodeLicense + KodeBOM foundation** — PLANNED — manual `CONDITIONAL`.
 12. **R6.12 — Major-patch validation + rollback gate and R6 integration acceptance** — PLANNED — manual `CONDITIONAL`.
 
@@ -44,40 +44,31 @@ No subdivision may be silently added, removed, merged, split or renumbered.
 
 Accepted implementation head `d632669b93fda7b8397b9c3de43d78ca8726323f`.
 
-Final hosted evidence on that exact head:
-
 - R0 Repository Guard #783 `32571710663` — SUCCESS Windows + Ubuntu;
 - Python Core #757 `32571710718` — SUCCESS for all five jobs: core Ubuntu, core Windows, integrated Windows UI, package-build Ubuntu, package-build Windows;
 - KodeStudio UI Smoke #724 `32571710650` — SUCCESS Windows.
 
-Final package evidence remained exact-source-SHA-bound and zero-blocker on both hosted OSes. Manual R6.8 was `CONDITIONAL — NOT TRIGGERED`. PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 passed R0 #790, Python Core #764 and UI Smoke #731 then merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording PR #49 passed R0 #797, Python Core #771 and UI Smoke #738 then merged as `616899291fc3b4dc40695415a5008d6fdd599230`.
+Manual R6.8 was `CONDITIONAL — NOT TRIGGERED`. PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording #49 merged as `616899291fc3b4dc40695415a5008d6fdd599230`.
 
-## R6.9 implementation state
+### R6.9
 
-R6.9 started only after normalized main `616899291fc3b4dc40695415a5008d6fdd599230`.
+Accepted implementation head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`.
 
-Current implemented scope on `feature/r6-9-appsecurity`:
+Final hosted evidence on that exact head:
 
-- structured assets, trust boundaries, entry points and threats with duplicate/cross-reference validation;
-- initial Kodepoia threat model for workspace paths, governed child processes, delegated secrets/model context, loopback services and external-network/download boundaries;
-- residual risk defaults UNKNOWN so architectural mitigation text never manufactures a LOW/PASS result;
-- stable requirement IDs with explicit `applicable` / `not_applicable` distinction;
-- N/A requires rationale and can never count as PASS or block;
-- measured PASS/WARN/FAIL requirements require an evidence source;
-- optional ASVS references must use version-qualified `v5.0.0-x.y.z` syntax;
-- dependency-vulnerability observations require exact component/version, timezone-aware check time and provenance; AFFECTED requires advisory IDs;
-- affected dependency or failed/blocking security requirement fails the aggregate report;
-- recursive secret redaction reuses the accepted R6.8 redaction contract;
-- canonical SHA-256 with derived count/blocker/status tamper rejection;
-- `.kodepoia/diagnostics/security/` persistence via `WorkspaceBoundary`;
-- Health `security` adapter and stable R6.3 requirement/dependency/threat cases;
-- fixed semantics ensure N/A/UNKNOWN/WARN map to SKIP rather than fake PASS;
-- JSON Schema `security-report-v1` and focused R6.9 tests;
-- no arbitrary scanner command/executable/cwd/URL/network path added.
+- R0 Repository Guard #812 `32573265598` — SUCCESS Windows + Ubuntu;
+- Python Core #786 `32573265793` — SUCCESS for all five jobs: core Ubuntu, core Windows, integrated Windows UI, package-build Ubuntu and package-build Windows;
+- KodeStudio UI Smoke #753 `32573265579` — SUCCESS Windows.
 
-External reference baseline rechecked on 2026-08-22: OWASP ASVS stable release remains 5.0.0. Kodepoia uses it only as an applicable-control catalogue, not as a desktop-IDE certification claim.
+Accepted R6.9 scope includes structured threat assets/boundaries/entry points/threats with cross-reference validation; explicit applicable/N/A semantics; version-qualified ASVS references; source-required measured requirement evidence; point-in-time dependency vulnerability evidence; recursive secret redaction; canonical SHA-256 anti-tamper report; project-confined security persistence; Health SECURITY adapter; stable R6.3 requirement/dependency/threat cases; and no unrestricted scanner/process/network execution path.
 
-**R6.1–R6.8 = COMPLETE. R6.9 = IN PROGRESS. R6 remains IN PROGRESS. R6.10 must not start before R6.9 is accepted, merged and normalized.**
+The initial Kodepoia threat model covers workspace path traversal, arbitrary process execution, raw secret disclosure, loopback-service exposure and downloaded-code governance bypass. Residual risk defaults UNKNOWN; existing mitigations do not manufacture PASS.
+
+Development CI found one fixture expectation error: a blocking Health metric had aggregate score 75.0 rather than the test's expected 0.0 because five LOW measured threat risks remained part of the aggregate. The metric was already FAIL and blocking. Only the assertion changed; no security rule or scoring formula changed.
+
+PR #50 merged as `f5c135edf0be464a02b4b46d67c14e665f236009`. Manual intervention: **NONE**.
+
+**R6.1–R6.9 = COMPLETE. R6 remains IN PROGRESS. R6.10 = NEXT / NOT STARTED until this post-merge normalization is CI-green and merged.**
 
 ## Manual-intervention forecast
 
@@ -86,8 +77,8 @@ External reference baseline rechecked on 2026-08-22: OWASP ASVS stable release r
 - R6.6 `NONE`: COMPLETE.
 - R6.7 `NONE`: COMPLETE.
 - R6.8 `CONDITIONAL`: NOT TRIGGERED; no user action required.
-- R6.9 `NONE`: no local user action planned or required by its contract.
-- R6.10 `NONE`: PLANNED.
+- R6.9 `NONE`: COMPLETE; no user action required.
+- R6.10 `NONE`: NEXT / NOT STARTED.
 - R6.11 `CONDITIONAL`: only for unresolved acceptance-critical license/provenance ambiguity.
 - R6.12 `CONDITIONAL`: only if selected final gates require local hardware execution or explicit approval.
 

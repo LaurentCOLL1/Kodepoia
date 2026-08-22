@@ -396,7 +396,8 @@ def test_health_adapter_preserves_unknown_and_blocking_failure() -> None:
     failed_metric = KodeAppSecurity.to_health_metric(failed)
     assert failed_metric.status is HealthStatus.FAIL
     assert failed_metric.blocking
-    assert failed_metric.score == 0.0
+    # Score remains aggregate evidence; the blocker independently forces FAIL.
+    assert failed_metric.score == 75.0
 
 
 def test_test_adapter_uses_stable_ids_and_never_turns_na_into_pass() -> None:

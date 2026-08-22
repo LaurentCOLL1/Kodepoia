@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R6 sont COMPLETE. Le planning R7 est ACCEPTED. R7.1 est COMPLETE ; R7.2 est NOT STARTED.** Le planning head exact R7 `f86825ffd84c1c814afb5865be95b278c4291314` a obtenu R0 #955 / `32584324751`, Python Core #929 / `32584324757` 5/5 et UI Smoke #896 / `32584324760` SUCCESS, puis PR #58 a été fusionnée avec verrou exact-head en `9315d801f3a2d13a5441bd87babd2abeb9305995` et normalisée par PR #59 merge `7279412ae751bce739317763462c4a48d7832122`. R7.1 a été accepté sur le head exact `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca` avec R0 #959 / `32584754313`, Python Core #933 / `32584754311` cinq jobs SUCCESS (Ubuntu full suite 310 passed / 3 skipped / 46 warnings), et UI Smoke #900 / `32584754325` SUCCESS; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; manual R7.1 = NONE. `R7_1_ACCEPTANCE.md` et `R7_STATUS.md` enregistrent les preuves. **La prochaine implémentation autorisée est R7.2 — Local + official documentation research.** Lire l'architecture gelée, `R6_PLAN.md`, `R6_STATUS.md`, `R6_12_DESIGN.md`, `R6_12_ACCEPTANCE.md`, `R6_INTEGRATED_ACCEPTANCE.json`, `R7_PLAN.md`, `R7_PLANNING_ACCEPTANCE.md`, `R7_STATUS.md`, `R7_1_DESIGN.md`, `R7_1_ACCEPTANCE.md` et ce fichier avant toute suite.
+> Kodepoia, architecture v1.0 gelée. **R1–R6 sont COMPLETE. Le planning R7 est ACCEPTED. R7.1 et R7.2 sont COMPLETE ; R7.3 est NOT STARTED.** Le planning head exact R7 `f86825ffd84c1c814afb5865be95b278c4291314` a obtenu R0 #955 / `32584324751`, Python Core #929 / `32584324757` 5/5 et UI Smoke #896 / `32584324760` SUCCESS, puis PR #58 a été fusionnée avec verrou exact-head en `9315d801f3a2d13a5441bd87babd2abeb9305995` et normalisée par PR #59 merge `7279412ae751bce739317763462c4a48d7832122`. R7.1 a été accepté sur `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca` avec R0 #959, Python Core #933 5/5 et UI Smoke #900 SUCCESS; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; manual NONE. R7.2 a été accepté sur `9101e686a32b24bb33a23d7ac578bf25570e115e` avec R0 #964 / `32585721455`, Python Core #938 / `32585721645` 5/5 et UI Smoke #905 / `32585721536` SUCCESS; PR #62 merge `25741ab9c39300483b62eb2cc07b9d2c9fcfb20c`; manual NONE. Le head précédent R7.2 `61eb6fbaf73066274249b3e490695bb0d4ff122c` a été rejeté car Python Core #937 a trouvé un unique défaut Windows de validation d'un chemin POSIX absolu; le head accepté valide nativement les syntaxes native/POSIX/Windows. **La prochaine implémentation autorisée est R7.3 — Governed Web fetch + extraction.** Lire l'architecture gelée, `R6_PLAN.md`, `R6_STATUS.md`, `R6_12_DESIGN.md`, `R6_12_ACCEPTANCE.md`, `R6_INTEGRATED_ACCEPTANCE.json`, `R7_PLAN.md`, `R7_PLANNING_ACCEPTANCE.md`, `R7_STATUS.md`, `R7_1_DESIGN.md`, `R7_1_ACCEPTANCE.md`, `R7_2_DESIGN.md`, `R7_2_ACCEPTANCE.md` et ce fichier avant toute suite.
 
 ## Source de vérité et état
 
@@ -29,7 +29,8 @@
 - R7 planning : ACCEPTED — accepted planning head `f86825ffd84c1c814afb5865be95b278c4291314`; R0 #955 / `32584324751`; Python Core #929 / `32584324757` 5/5; UI Smoke #896 / `32584324760`; PR #58 merge `9315d801f3a2d13a5441bd87babd2abeb9305995`; planning normalization PR #59 merge `7279412ae751bce739317763462c4a48d7832122`; manual NONE.
 - R7 plan : `docs/roadmap/R7_PLAN.md` — structure R7.1–R7.11 frozen.
 - R7.1 : COMPLETE — accepted head `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca`; R0 #959 / `32584754313`; Python Core #933 / `32584754311` 5/5; UI Smoke #900 / `32584754325`; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; manual NONE.
-- R7.2–R7.11 : NOT STARTED; next = R7.2.
+- R7.2 : COMPLETE — accepted head `9101e686a32b24bb33a23d7ac578bf25570e115e`; R0 #964 / `32585721455`; Python Core #938 / `32585721645` 5/5; UI Smoke #905 / `32585721536`; PR #62 merge `25741ab9c39300483b62eb2cc07b9d2c9fcfb20c`; manual NONE.
+- R7.3–R7.11 : NOT STARTED; next = R7.3.
 - R8–R16 : PENDING / NOT STARTED.
 
 ## R7 frozen planning structure
@@ -48,7 +49,7 @@
 | R7.10 | CLI + KodeStudio Research UX | NONE |
 | R7.11 | Adversarial hardening + R7 integrated acceptance | CONDITIONAL |
 
-No subdivision may be silently added, removed, merged, split or renumbered. Any scope change must synchronize `R7_PLAN.md` + continuity; an architecture/foundation change requires an ADR.
+No subdivision may be silently added, removed, merged, split or renumbered. Any scope change must synchronize `R7_PLAN.md` + continuity; an architecture/foundation change requires un ADR.
 
 ## R7 planning acceptance invariants
 
@@ -65,7 +66,7 @@ No subdivision may be silently added, removed, merged, split or renumbered. Any 
 ## R7.1 accepted research-contract baseline
 
 - External research material is data, never agent instruction.
-- `ResearchGuard` remains the single content trust boundary and now carries deterministic guard version 1.
+- `ResearchGuard` remains the single content trust boundary and carries deterministic guard version 1.
 - `guarded` means inspected/wrapped, not trusted for tool authorization or policy changes.
 - Source classes are local, official_docs, web, github, community and youtube.
 - Research status/freshness remains explicit; `ready` is availability, not factual correctness or compliance PASS.
@@ -76,6 +77,20 @@ No subdivision may be silently added, removed, merged, split or renumbered. Any 
 - R7.1 introduced no live network, provider, subprocess or UI execution surface.
 - Accepted implementation head `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca`; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; manual NONE.
 - Hosted authoritative suite on Ubuntu: 310 passed / 3 skipped / 46 warnings; workflow successful.
+
+## R7.2 accepted local/official-document baseline
+
+- R7.2 is offline-first: no general Web transport is present.
+- Supported local evidence formats are UTF-8 `.txt`, `.md`/`.markdown`, `.json`, `.yaml`/`.yml`; malformed/unsupported inputs return explicit `UNAVAILABLE`.
+- Local project paths remain confined by `WorkspaceBoundary`; official snapshots add a second `WorkspaceBoundary` rooted at the configured snapshot subtree.
+- Official-document manifests are versioned configuration/provenance records. Canonical HTTPS bases do not grant network permission or perform retrieval.
+- Snapshot-root validation rejects parent traversal and absolute roots using native, POSIX and Windows path semantics consistently across hosts.
+- Stable local locators do not persist absolute host paths.
+- `DocumentChunk` preserves exact 1-based line anchors and Markdown heading labels; citations point back to the immutable research artifact/source locator.
+- Cache reuse is content-addressed and preserves original retrieval timestamps instead of manufacturing freshness.
+- Exact source-version match = CURRENT; mismatch = STALE; missing version relation = UNKNOWN. Richer version inference remains R7.8.
+- Accepted implementation head `9101e686a32b24bb33a23d7ac578bf25570e115e`; PR #62 merge `25741ab9c39300483b62eb2cc07b9d2c9fcfb20c`; R0 #964, Python Core #938 5/5 and UI Smoke #905 SUCCESS; manual NONE.
+- Preceding head `61eb6fbaf73066274249b3e490695bb0d4ff122c` is explicitly rejected acceptance evidence, not an accepted implementation head.
 
 ## Accepted model roles
 
@@ -178,4 +193,4 @@ PR #36 merge `56f12eb3eba1adc40a1cf4c58970ed40156360b9` impose à toute nouvelle
 
 ## Next action
 
-**R7.1 est COMPLETE. R7.2 n'est pas commencé.** Après fusion de la normalisation R7.1 qui ajoute `R7_1_ACCEPTANCE.md`, `R7_STATUS.md` et cette continuité, la prochaine action autorisée est de démarrer **R7.2 — Local + official documentation research** depuis le `main` normalisé. R7.2 doit rester offline-first/local/official-doc, préserver les citations/versions/provenance R7.1 et ne pas introduire le transport Web général réservé à R7.3.
+**R7.1 et R7.2 sont COMPLETE. R7.3 n'est pas commencé.** Après fusion de la normalisation R7.2 qui ajoute `R7_2_ACCEPTANCE.md`, met à jour `R7_STATUS.md` et cette continuité, la prochaine action autorisée est de démarrer **R7.3 — Governed Web fetch + extraction** depuis le `main` normalisé. R7.3 doit ajouter uniquement un transport HTTP(S) en lecture seule, typé et borné, avec protections SSRF/redirect/timeout/size/MIME/rate-limit, faux transport déterministe pour CI et passage de tout texte externe extrait par le `ResearchGuard` existant.

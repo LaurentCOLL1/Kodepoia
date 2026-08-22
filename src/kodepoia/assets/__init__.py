@@ -7,6 +7,10 @@ from kodepoia.assets.duplicates import (
     DuplicateCandidate, DuplicateDecisionKind, DuplicateDetector, DuplicateKind, Fingerprint,
     ImageDHashFingerprinter, TextByteShapeFingerprinter,
 )
+from kodepoia.assets.governance import (
+    AssetExportPlan, AssetExportReport, AssetGovernanceDecision, AssetGovernanceOutcome,
+    AssetGovernanceService, AssetLicenseEvidence,
+)
 from kodepoia.assets.search import (
     AssetSearchIndex, EmbeddingIdentity, EmbeddingProvider, EmbeddingState, HybridRankingPolicy,
     OllamaEmbeddingProvider, ReindexReport, SearchDocument, SearchDocumentBuilder, SearchFilters,

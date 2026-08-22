@@ -349,10 +349,11 @@ class GuardedHttpTransport:
                 raise WebPolicyViolation("Encoded/compressed Web responses are not accepted")
             content_type = response.getheader("Content-Type", "")
             mime, _ = _mime_and_charset(content_type)
-            if not mime:
-                raise WebPolicyViolation("Web response is missing Content-Type")
-            if mime not in policy.allowed_mime_types:
-                raise WebPolicyViolation(f"Web response MIME type is not allowed: {mime}")
+            if 200 <= int(response.status) < 300:
+                if not mime:
+                    raise WebPolicyViolation("Web response is missing Content-Type")
+                if mime not in policy.allowed_mime_types:
+                    raise WebPolicyViolation(f"Web response MIME type is not allowed: {mime}")
             content_length = response.getheader("Content-Length")
             if content_length:
                 try:
@@ -580,10 +581,11 @@ def validate_raw_web_response(response: RawWebResponse, *, policy: WebPolicy) ->
     if content_encoding not in {"", "identity"}:
         raise WebPolicyViolation("Encoded/compressed Web responses are not accepted")
     mime, _ = _mime_and_charset(response.header("Content-Type"))
-    if not mime:
-        raise WebPolicyViolation("Web response is missing Content-Type")
-    if mime not in policy.allowed_mime_types:
-        raise WebPolicyViolation(f"Web response MIME type is not allowed: {mime}")
+    if 200 <= response.status_code < 300:
+        if not mime:
+            raise WebPolicyViolation("Web response is missing Content-Type")
+        if mime not in policy.allowed_mime_types:
+            raise WebPolicyViolation(f"Web response MIME type is not allowed: {mime}")
 
 
 def extract_web_document(response: RawWebResponse, *, policy: WebPolicy) -> ExtractedWebDocument:

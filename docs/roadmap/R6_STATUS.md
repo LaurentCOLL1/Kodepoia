@@ -20,8 +20,8 @@ R1–R5 remain COMPLETE. R6 remains active and must not be marked COMPLETE befor
 8. **R6.8 — KodeCI + KodeBuild foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording #49 `616899291fc3b4dc40695415a5008d6fdd599230`.
 9. **R6.9 — KodeAppSecurity baseline** — COMPLETE — manual `NONE` — head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 `4df229e431d2d54e4268607f38bac4045ac590d1`.
 10. **R6.10 — KodePrivacy baseline** — COMPLETE — manual `NONE` — head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; normalization #53 `36524978a963d8c759d36902bc1ab00989da0549`.
-11. **R6.11 — KodeLicense + KodeBOM foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — accepted head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`.
-12. **R6.12 — Major-patch validation + rollback gate and R6 integration acceptance** — NEXT / NOT STARTED — manual `CONDITIONAL`.
+11. **R6.11 — KodeLicense + KodeBOM foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — accepted head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; normalization #55 merge `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`.
+12. **R6.12 — Major-patch validation + rollback gate and R6 integration acceptance** — IN PROGRESS — manual `CONDITIONAL — NOT TRIGGERED` — branch `feature/r6-12-major-patch-gate`, starting normalized main `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`.
 
 No subdivision may be silently added, removed, merged, split or renumbered.
 
@@ -37,13 +37,32 @@ No subdivision may be silently added, removed, merged, split or renumbered.
 - R6.8 head `d632669b93fda7b8397b9c3de43d78ca8726323f`; R0 #783, Python Core #757 five jobs, UI Smoke #724 SUCCESS; manual conditional NOT TRIGGERED.
 - R6.9 head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; R0 #812, Python Core #786 five jobs, UI Smoke #753 SUCCESS; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 `4df229e431d2d54e4268607f38bac4045ac590d1`.
 - R6.10 head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; R0 #844, Python Core #818 five jobs, UI Smoke #785 SUCCESS; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; normalization #53 `36524978a963d8c759d36902bc1ab00989da0549`.
-- R6.11 final net-clean head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; R0 #885 / `32578903951`, Python Core #859 / `32578903981` five jobs, UI Smoke #826 / `32578903942` SUCCESS; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; manual conditional NOT TRIGGERED.
+- R6.11 final net-clean head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; R0 #885 / `32578903951`, Python Core #859 / `32578903981` five jobs, UI Smoke #826 / `32578903942` SUCCESS; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; normalization #55 head `f4c2926e2e656940ab987a2af8c8af953e671e4c` passed R0 #892, Python Core #866 five jobs and UI #833, merged as `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`; manual conditional NOT TRIGGERED.
 
-## R6.11 accepted scope / anti-regression
+## R6.12 implementation state
 
-R6.11 provides structured BOM/license evidence with explicit unresolved and N/A semantics, deterministic pyproject inventory, provenance/hashes, declared/concluded license assertions, NOASSERTION/NONE/LicenseRef, policy allow/warn/deny/unknown, canonical tamper-resistant reports, Health/R6.3 adapters and WorkspaceBoundary stores. Dependency version ranges remain unresolved and cannot inherit a current web license. N/A remains neutral/UNKNOWN/SKIP. Recorded hashes are not called verified. The compact SPDX view is interoperability evidence, not official conformance or legal analysis.
+R6.12 started only after R6.11 normalized main `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`.
 
-The first green diagnostic was intentionally hardened after a review found possible N/A false-green behavior. The accepted implementation therefore excludes N/A from applicable scoring/license decisions/SPDX packages and requires strict N/A integrity coupling.
+Current implementation contract:
+
+- deterministic `minor/major` classification from structured changed path/domain/operation/risk/platform data;
+- protected-domain, high/critical-risk, destructive non-doc/test, >=10-change and multi-platform major triggers;
+- domain-driven required validation matrix reusing existing R6 tests/regression/visual/accessibility/localization/debt/CI-build/security/privacy/license-BOM/health/budget evidence;
+- major patches add rollback, regression and technical-debt validation;
+- explicit required evidence statuses PASS/WARN/FAIL/SKIP/CANCELLED/MISSING/N/A;
+- required fail/skip/cancelled/missing/N/A fails closed; WARN remains WARN;
+- exact patch base/head Git SHA report binding, with strict tests requiring measured required evidence to bind the exact head plus evidence SHA-256;
+- explicit `RollbackStrategy` and mandatory passing rehearsal before a major patch can PASS;
+- fixture-only rollback rehearsal guarded by `.kodepoia-r6-rollback-fixture`;
+- reuse of `SafeChangeManager`, `BackupManager`, `RecoveryJournal`, `AuditLog` and `WorkspaceBoundary`; no parallel rollback engine;
+- full before/after fixture file-set + SHA-256 comparison, backup verification, checkpoint clearing and audit-chain verification;
+- report schema `patch-gate-report-v1` plus integrated `r6-integration-report-v1`;
+- `PatchGateStore` confined under initialized `.kodepoia/patch_gates/`;
+- Health/R6.3 adapters;
+- integrated R6.1–R6.12 evidence with missing/manual/tamper detection; strict tests require PASS subdivision accepted heads and R6.12 head equality to integration `source_sha`;
+- no arbitrary shell/argv/cwd/host/network field and no destructive rehearsal on real repository/user project.
+
+The first strict R6.12 diagnostic is intentionally allowed to fail if the tests expose an exact-head, accepted-head or path-confinement false-green in the initial implementation. Such findings must be hardened rather than bypassed.
 
 ## Manual-intervention forecast
 
@@ -55,10 +74,10 @@ The first green diagnostic was intentionally hardened after a review found possi
 - R6.9 `NONE`: COMPLETE.
 - R6.10 `NONE`: COMPLETE.
 - R6.11 `CONDITIONAL`: NOT TRIGGERED.
-- R6.12 `CONDITIONAL`: only if selected final gates genuinely require hardware-local execution or explicit Guardian/user approval. Hosted/temp-fixture validation should be preferred when it proves the same property.
+- R6.12 `CONDITIONAL`: NOT TRIGGERED; only if selected final gates genuinely require hardware-local execution or explicit Guardian/user approval. Hosted/temp-fixture validation is preferred when it proves the same property.
 
-**R6.1–R6.11 = COMPLETE. R6.12 = NEXT / NOT STARTED until this normalization is CI-green and merged. R6 remains IN PROGRESS.**
+**R6.1–R6.11 = COMPLETE. R6.12 = IN PROGRESS. R6 remains IN PROGRESS.**
 
 ## Completion rule
 
-R6 cannot be COMPLETE until R6.12 implementation and integrated acceptance are accepted, all triggered manual gates are satisfied, the implementation and final normalization are CI-green and merged, and `R6_PLAN.md`, this file and continuity agree on normalized `main`. R7 must not start before that. When R7 starts, its exhaustive `R7_PLAN.md` must be created and merged before R7.1 under the permanent phase-start planning rule.
+R6 cannot be COMPLETE until R6.12 implementation and integrated acceptance are accepted, all triggered manual gates are satisfied, exact-final-head R0/Python Core/UI are green, the implementation PR is merged, and final `R6_PLAN.md`, this file, `R6_12_ACCEPTANCE.md` and continuity are synchronized by a CI-green normalization merge. R7 must not start before that. When R7 starts, its exhaustive `R7_PLAN.md` must be created and merged before R7.1 under the permanent phase-start planning rule.

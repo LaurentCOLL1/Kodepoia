@@ -1,0 +1,120 @@
+{
+  "blockers": [],
+  "evidence_sha256": "2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437",
+  "generated_at": "2026-08-22T21:17:00Z",
+  "schema_version": 1,
+  "source_sha": "52330ca576fe294956a8fb601bdfda1d72dc3f92",
+  "status": "pass",
+  "subdivisions": [
+    {
+      "accepted_head": "a6e9cf9f6db717155c311f4ded1ad5fb744b70ca",
+      "evidence_bytes": 3503,
+      "evidence_sha256": "1043e1c07bec0f3b8790825d0312719652b9cf90205a16331c2ad24e418a052d",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R7_1_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.1"
+    },
+    {
+      "accepted_head": "9101e686a32b24bb33a23d7ac578bf25570e115e",
+      "evidence_bytes": 4179,
+      "evidence_sha256": "67b8c251eccc12b6b60e3cfcad741c0ff74f36d78178e36d660cce091af9430d",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R7_2_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.2"
+    },
+    {
+      "accepted_head": "4efd2cb016e774fa3ef06590ffda377606d875e9",
+      "evidence_bytes": 4287,
+      "evidence_sha256": "8a6f93f4724961de8ef477d9968899cf49565205bbe8e40ff4a6a8ce401b71dc",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R7_3_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.3"
+    },
+    {
+      "accepted_head": "be6f1d5d2f7d9a16c1c295a51905fcd22e9835be",
+      "evidence_bytes": 3793,
+      "evidence_sha256": "02283c2c292ef0b1614721011800544d975c39aec2d44114e5961cf68d779fe5",
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "source": "docs/roadmap/R7_4_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.4"
+    },
+    {
+      "accepted_head": "12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5",
+      "evidence_bytes": 3233,
+      "evidence_sha256": "e964d84b54f36673cde267791a94b66be27c5ab043700e735ef44eee3535683f",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R7_5_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.5"
+    },
+    {
+      "accepted_head": "b623836b8f5bd39fce101eca7fe4653a996a9562",
+      "evidence_bytes": 5575,
+      "evidence_sha256": "5d4c9f949d1793e7a44f1df1da87122b5c6fdd8a491cba6573a9ab8a208d06fc",
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "source": "docs/roadmap/R7_6_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.6"
+    },
+    {
+      "accepted_head": "04cef94c82fdacafe7313d27c8cf516e8e765295",
+      "evidence_bytes": 5815,
+      "evidence_sha256": "afc9c87134850ec534705ff2603098f15c06a1bee7e07a127aac5c1d572b5e13",
+      "manual_satisfied": true,
+      "manual_state": "required_satisfied",
+      "source": "docs/roadmap/R7_7_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.7"
+    },
+    {
+      "accepted_head": "deb5de415541004fb07bfbc6d955e9d76d717533",
+      "evidence_bytes": 6836,
+      "evidence_sha256": "d6dff862617b4f71674cedd9693556314a7fd5e77e7224747d3a5f35ae614adf",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R7_8_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.8"
+    },
+    {
+      "accepted_head": "80390f95a11e5b3d4353b16eada26f10204bb4fa",
+      "evidence_bytes": 4282,
+      "evidence_sha256": "f9668b70b33b929f13fd2583690bc6d80664db3c01c1f9916f4dab16ee9dc473",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R7_9_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.9"
+    },
+    {
+      "accepted_head": "cfd0f7ba02af04b456993f686827f10810b3a61a",
+      "evidence_bytes": 4615,
+      "evidence_sha256": "0ef1f97c22b0f7de053dd48b6390f30dd9c364ae44a1ee7c6eb83e4a823ee5f5",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R7_10_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.10"
+    },
+    {
+      "accepted_head": "52330ca576fe294956a8fb601bdfda1d72dc3f92",
+      "evidence_bytes": 5288,
+      "evidence_sha256": "9afc706415af12b707fed29dcaad8805368a1d5079db11e0aad5e2909f31a191",
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "source": "docs/roadmap/R7_11_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R7.11"
+    }
+  ]
+}

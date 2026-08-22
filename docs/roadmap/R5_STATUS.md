@@ -48,22 +48,11 @@ Implemented:
 
 ## Hardware probe — ACCEPTED
 
-After fixing the original `ProcessSandbox.run()` deadlock, the fresh hardware probe generated `2026-08-22T00:28:38.116174+00:00` passed 5/5:
-
-```text
-engine_version      PASS  ~0.094 s  4.7.2.stable.steam.ed1daf0bf
-project_inspect     PASS
-scene_parse         PASS
-gdscript_inspect    PASS
-export_presets      PASS
-summary             5/5 PASS, failed=0
-```
-
-Evidence: `.kodepoia/benchmarks/r5-local-acceptance.json` with `probe_only=true`, `acceptance_completed=false`.
+The post-ProcessSandbox-fix hardware probe passed **5/5**, including Godot 4.7.2 engine version detection in ~0.094 s. Evidence used `probe_only=true`, `acceptance_completed=false` as expected.
 
 ## Full hardware acceptance attempt #1 — 12/19 PASS
 
-Full report generated `2026-08-22T01:01:59.706424+00:00`:
+Full report generated `2026-08-22T01:01:59.706424+00:00`.
 
 Passed:
 - engine version;
@@ -79,53 +68,40 @@ Passed:
 
 The real export produced `.kodepoia/exports/r5-acceptance.exe`, 109,127,680 bytes.
 
-Failed: 7 steps, but only **two independent root causes**:
+The 7 failures represent only two root causes:
 
-### Root cause A — movie capture used a dummy renderer
+### A — Movie Maker + headless — fixed
 
-`capture_movie` crashed inside Godot `dummy/storage/texture_storage.h::texture_2d_get` with Windows exit code `3221225477`.
+`capture_movie` crashed in Godot `dummy/storage/texture_storage.h::texture_2d_get`, Windows code `3221225477`. Kodepoia had combined `--headless` with `--write-movie`. Movie capture now omits `--headless` so Godot uses a real renderer, while ProcessSandbox, path confinement and frame/FPS/timeout bounds remain.
 
-Kodepoia had combined `--headless` with `--write-movie`. Godot documents that `--headless` selects the headless display/audio drivers and disables normal rendering, while Movie Maker requires actual rendered frames. Fix:
-- remove `--headless` only from the Movie Maker command;
-- keep `--path`, confined output, bounded frames/FPS/timeout and ProcessSandbox governance;
-- keep headless mode for import, smoke, export and other operations where it is appropriate.
+### B — background editor PIPE backpressure — fixed
 
-### Root cause B — persistent Godot editor services used unread pipes
-
-`services_start` timed out waiting for LSP port 6005. The five later LSP/DAP failures were cascading `Godot editor services are not running` failures, not independent defects.
-
-`GodotEditorServices` communicated with Godot over loopback sockets but launched the persistent editor with `spawn_piped()`, leaving stdout/stderr PIPEs unread. This recreates the same backpressure class previously fixed for foreground `run()`.
+`services_start` timed out waiting for LSP port 6005. Five later LSP/DAP failures were cascades because services were not running. The long-lived Godot editor had used `spawn_piped()` even though its protocol is socket-based and the pipes were unread.
 
 Fix:
-- add `ProcessSandbox.spawn_background()` using the same command validation, sanitized environment and global kill-switch registration, but stdin/stdout/stderr are `DEVNULL` because socket services do not use stdio as their protocol;
-- keep `spawn_piped()` unchanged for genuine stdio protocols;
-- start Godot LSP/DAP via `spawn_background()`;
-- add official `--log-file .kodepoia/logs/godot-services.log` so service startup remains diagnosable despite DEVNULL;
-- on startup failure, include a bounded tail of that log in the raised error.
+- `ProcessSandbox.spawn_background()` reuses allowlist, sanitized environment, workspace boundary and global kill-switch registration;
+- unused stdin/stdout/stderr use DEVNULL;
+- `spawn_piped()` remains for actual stdio protocols;
+- Godot services use `spawn_background()`;
+- `--log-file .kodepoia/logs/godot-services.log` preserves bounded startup diagnostics.
 
-## CI proof after both fixes
+## CI proof checkpoints
 
-Functional correction head `6b968d284a5f10195cbe465d5c94208f65c3a94e`:
-- Repository Guard `32543313597` — SUCCESS;
-- Python Core `32543313587` — SUCCESS Windows + Ubuntu;
-- KodeStudio UI Smoke `32543313595` — SUCCESS Windows.
+Functional correction checkpoint `6b968d284a5f10195cbe465d5c94208f65c3a94e`:
+- Guard `32543313597` SUCCESS;
+- Python Core `32543313587` SUCCESS Windows + Ubuntu;
+- UI Smoke `32543313595` SUCCESS.
 
-Final retest-gate head `5295729b23187652b47b2fc94487f9213bcf3830`:
-- Repository Guard `32543573230` — SUCCESS;
-- Python Core `32543573250` — SUCCESS Windows + Ubuntu, PowerShell syntax and embedded UI smoke;
-- KodeStudio UI Smoke `32543573253` — SUCCESS Windows.
+Later green checkpoint `170f0608cabd7810227eb47ed198d68000aeb071`:
+- Guard `32543888864` SUCCESS;
+- Python Core `32543888938` SUCCESS Windows + Ubuntu, PowerShell syntax and embedded UI smoke;
+- UI Smoke `32543888867` SUCCESS.
 
-Regression coverage includes:
-- foreground process: 512 KiB stdout + 512 KiB stderr must drain without deadlock;
-- background process: 2 MiB stdout + 2 MiB stderr must terminate without pipe backpressure because unused stdio is DEVNULL;
-- Movie Maker command must not include `--headless`;
-- Godot network services must use `spawn_background()`, loopback-only ports and confined service log.
-
-Current branch head may later advance only for reviewed acceptance evidence/documentation; always pull the current head and never reset backward to a checkpoint.
+These SHAs are proof checkpoints only. **Always pull the current remote branch head and never reset backward to a checkpoint.**
 
 ## Next gate — full hardware-local acceptance retest
 
-The next and only authorized local action is to rerun the full acceptance, without `-ProbeOnly`:
+The next authorized local action is to rerun the full acceptance, without `-ProbeOnly`:
 
 ```powershell
 .\scripts\r5_accept_local.ps1 `
@@ -153,17 +129,4 @@ Do **not** merge PR #28 even if the retest passes. Final review, final CI, merge
 
 ## Completion rule
 
-R5 is **not COMPLETE** until:
-- full target report has `probe_only=false`, `acceptance_completed=true`, `summary.failed=0`;
-- all real Godot version/check/import/smoke/benchmark/capture steps pass;
-- governed edit creates SafeChange snapshot;
-- real LSP and DAP pass;
-- Windows release export produces a non-empty executable;
-- audit chain verifies;
-- final PR #28 CI is green;
-- PR #28 is merged and `main` verified.
-
-Until then:
-- PR #28 remains open;
-- R5 remains IN PROGRESS;
-- R6 remains NOT STARTED.
+R5 is **not COMPLETE** until full target report has `probe_only=false`, `acceptance_completed=true`, `summary.failed=0`, all real Godot/LSP/DAP/export/audit steps pass, final PR #28 CI is green, PR #28 is merged and `main` verified.

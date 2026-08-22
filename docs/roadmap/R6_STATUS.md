@@ -8,13 +8,14 @@ R1–R5 remain COMPLETE. R6 is now active on dedicated short-lived branches unde
 
 ## Current subdivision
 
-1. **R6.1 — KodeHealth foundation** — IMPLEMENTED / ACCEPTANCE PENDING.
+1. **R6.1 — KodeHealth foundation** — IMPLEMENTED / ACCEPTANCE PENDING — PR #30 OPEN.
 
 R6.1 establishes the structured KodeHealth report, scoring/coverage policy, persistence contract, JSON schema, and acceptance tests. It does not yet claim real measurements for every health domain; later R6 work must supply those collectors and gates.
 
-## R6.1 implementation head
+## R6.1 implementation
 
-Branch: `feature/r6-1-kodehealth`.
+Branch: `feature/r6-1-kodehealth`.  
+Pull request: **#30 — OPEN** against `main`.
 
 Delivered:
 
@@ -29,12 +30,14 @@ Delivered:
 
 Local isolated unit evidence: **7 passed**.
 
+PR #30 has been opened so the repository `pull_request` gates can provide authoritative CI evidence. R6.1 remains ACCEPTANCE PENDING until those results are green.
+
 Still required before R6.1 can be marked COMPLETE:
 
 - GitHub Python Core on Windows and Ubuntu;
 - KodeStudio UI smoke on Windows;
 - repository guard checks;
-- PR review/merge to `main`;
+- PR #30 merge to `main`;
 - continuity normalization after merge.
 
 ## Remaining R6 scope

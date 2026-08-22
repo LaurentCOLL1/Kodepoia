@@ -17,7 +17,7 @@ R1–R5 remain COMPLETE. R6 remains active and must not be marked COMPLETE befor
 5. **R6.5 — KodeAccessibility foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`.
 6. **R6.6 — KodeLocalization + pseudo-localization foundation** — COMPLETE — manual `NONE` — PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`; normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
 7. **R6.7 — KodeTechnicalDebt foundation** — COMPLETE — manual `NONE` — head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
-8. **R6.8 — KodeCI + KodeBuild foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`.
+8. **R6.8 — KodeCI + KodeBuild foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`.
 9. **R6.9 — KodeAppSecurity baseline** — NEXT / NOT STARTED — manual `NONE`.
 10. **R6.10 — KodePrivacy baseline** — PLANNED — manual `NONE`.
 11. **R6.11 — KodeLicense + KodeBOM foundation** — PLANNED — manual `CONDITIONAL`.
@@ -47,27 +47,10 @@ Accepted implementation head `d632669b93fda7b8397b9c3de43d78ca8726323f`.
 Final hosted evidence on that exact head:
 
 - R0 Repository Guard #783 `32571710663` — SUCCESS Windows + Ubuntu;
-- Python Core #757 `32571710718` — SUCCESS for all five jobs:
-  - `python-core-ubuntu-latest`;
-  - `python-core-windows-latest`;
-  - integrated `kodestudio-ui-windows`;
-  - `package-build-ubuntu-latest`;
-  - `package-build-windows-latest`;
+- Python Core #757 `32571710718` — SUCCESS for all five jobs: core Ubuntu, core Windows, integrated Windows UI, package-build Ubuntu, package-build Windows;
 - KodeStudio UI Smoke #724 `32571710650` — SUCCESS Windows.
 
-Accepted R6.8 scope:
-
-- structured `KodeCI` statuses and exact source-SHA evidence;
-- required skipped/cancelled never PASS;
-- canonical hash-protected CI reports with derived count/blocker validation;
-- `KodeBuild` manifests with source SHA, platform, Python version, backend, source/dependency-input hashes and artifact hashes;
-- structural wheel/sdist validation and blocking missing/invalid package artifacts;
-- recursive secret redaction;
-- `.kodepoia/workflows/` and `.kodepoia/releases/` confinement through `WorkspaceBoundary`;
-- Health `build` and stable R6.3 hooks;
-- fixed package evidence collector with no arbitrary build-command/path surface;
-- additive Windows+Ubuntu package build matrix without weakening previous R0/Python/UI gates;
-- exact package checkout bound to the same source SHA recorded in manifests.
+Accepted R6.8 scope includes structured CI states/source-SHA evidence, hash-protected CI/build manifests, wheel+sdist structural validation, source/dependency/artifact SHA-256 evidence, recursive secret redaction, `WorkspaceBoundary` confinement, Health `build`, R6.3 hooks, a fixed collector with no arbitrary build-command/path surface, and additive Windows+Ubuntu package builds bound to the same exact source SHA recorded in manifests.
 
 Final artifact inspection:
 
@@ -78,9 +61,9 @@ Both downloaded bundles contained the expected wheel, sdist, build manifest and 
 
 Manual intervention R6.8: **CONDITIONAL — NOT TRIGGERED.** Hosted Windows fully proved the acceptance-critical package build/validation/hash/upload behavior, so no local user-side run is necessary.
 
-Implementation PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`.
+Implementation PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`. Post-merge normalization PR #48 passed R0 #790, Python Core #764 (including both package-build jobs) and UI Smoke #731, then merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`.
 
-**R6.1–R6.8 = COMPLETE. R6 remains IN PROGRESS. R6.9 = NEXT / NOT STARTED until this post-merge normalization is CI-green and merged.**
+**R6.1–R6.8 = COMPLETE. R6 remains IN PROGRESS. R6.9 = NEXT / NOT STARTED.**
 
 ## Manual-intervention forecast
 

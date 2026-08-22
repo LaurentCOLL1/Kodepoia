@@ -2,22 +2,40 @@
 
 **Phase:** R6  
 **Roadmap title:** Quality / Health / Budget / CI  
-**Status:** IN PROGRESS  
+**Status:** IN PROGRESS — PLAN ACCEPTED  
 **Phase started:** 2026-08-22  
 **Plan reconstructed:** 2026-08-22 by explicit user request, after R6.1–R6.3 had already been accepted  
+**Plan accepted:** 2026-08-22  
+**Accepted planning head:** `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a`  
+**Planning PR:** #37  
+**Planning merge:** `0a91064608507966a47921df8fb36e5f25477141`  
 **Architecture:** v1.0 frozen  
-**Source of truth after this planning PR merges:** normalized `main`
+**Source of truth:** normalized `main`
 
-## Purpose of this document
+## Purpose and authority
 
-This is the exhaustive recovery and execution plan for R6. It is a retroactive exception to the normal phase-start planning rule because R6.1–R6.3 were already complete when the permanent `RX_PLAN.md` governance rule was introduced. The user explicitly requested that R6 be brought under the same planning discipline before R6.4 starts.
+This is the exhaustive recovery and execution plan for R6. It is a retroactive exception to the normal phase-start planning rule because R6.1–R6.3 were already complete when the permanent `RX_PLAN.md` rule was introduced. The user explicitly requested that R6 be brought under the same discipline before R6.4.
 
-This file therefore does two things:
+The plan is now accepted and merged. It therefore:
 
 1. records R6.1–R6.3 exactly as already accepted, without reopening or redefining them;
-2. freezes the remaining R6 subdivision structure before any R6.4 implementation begins.
+2. freezes the remaining R6.4–R6.12 subdivision structure;
+3. defines the acceptance, rollback and manual-intervention contract for every remaining subdivision;
+4. is the authoritative R6 planning/recovery artifact together with `R6_STATUS.md` and `KODEPOIA_CONTINUITY.md`.
 
-R6 may not be marked COMPLETE until every subdivision in this file is COMPLETE with its required acceptance evidence, or a later recorded roadmap/architecture decision explicitly removes a subdivision from scope.
+R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE with the required evidence, or a later recorded roadmap/architecture decision explicitly removes a subdivision from scope.
+
+## Planning acceptance evidence
+
+The plan itself passed the normal repository acceptance discipline before R6.4 was authorized:
+
+- accepted planning head: `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a`;
+- R0 Repository Guard run `32563057993` / #639 — SUCCESS Windows + Ubuntu;
+- Python Core run `32563057956` / #613 — SUCCESS Windows + Ubuntu, PowerShell syntax validation and integrated KodeStudio smoke;
+- KodeStudio UI Smoke run `32563057903` / #580 — SUCCESS Windows;
+- PR #37 merged to `main` as `0a91064608507966a47921df8fb36e5f25477141`.
+
+**Planning gate result: PASS. R6.4 is NEXT / NOT STARTED.**
 
 ## Frozen-roadmap objective
 
@@ -37,50 +55,42 @@ R6 must establish the quality, health, budget and CI foundations required by the
 - License/BOM;
 - validation and rollback for every major patch.
 
-The frozen architecture further requires that quality remain connected to the protected execution cycle: request → plan/context → Guardian → snapshot when required → governed executor → tests/verifier → Health/Budget/Regression → commit or correction. R6 must not create any direct model-to-shell, arbitrary command, unrestricted host-path, or governance bypass.
+The frozen architecture requires the quality layer to remain connected to the protected execution cycle: request → plan/context → Guardian → snapshot when required → governed executor → Tests/Verifier → Health/Budget/Regression → commit or correction. R6 must never create a direct model-to-shell path, unrestricted host path, arbitrary process invocation or governance bypass.
 
 ## Explicitly out of scope for R6
 
-The architecture lists additional quality capabilities such as KodeAudioQA, KodeDeviceLab, KodeAssetDoctor, KodeTextureOptimizer, KodeLOD and KodeShaderProfiler. They are not named in the frozen R6 roadmap and are therefore not silently pulled into this phase. They remain for later roadmap phases or the subsystem phases that naturally own them.
+The architecture contains additional quality components such as KodeAudioQA, KodeDeviceLab, KodeAssetDoctor, KodeTextureOptimizer, KodeLOD and KodeShaderProfiler. They are not named in the frozen R6 roadmap and are not silently imported into this phase. They remain for later roadmap phases or the subsystem phases that naturally own them.
 
-Likewise, R6 does not perform store release/signing, Android/iOS device certification, full desktop application generation, ComfyUI integration, Blender integration, audio/voice production, or backend/live-ops activation. Those belong to later phases.
+Also out of R6: store publishing/signing, Android/iOS device certification, full desktop-app generation, ComfyUI, Blender, audio/voice production, backend/live-ops implementation, release channels and updater implementation beyond the rollback contract required by R6.12.
 
 ## Phase-wide architecture and governance boundaries
 
-Every R6 subdivision must preserve all previously accepted boundaries:
+Every R6 subdivision must preserve:
 
-- `WorkspaceBoundary` for project path confinement;
-- `ProcessSandbox` and the global KillSwitch for process execution;
-- Guardian and `PermissionSet` for authorization and risk policy;
-- structured Tool APIs instead of model-supplied arbitrary commands;
-- SafeChange snapshots before sensitive mutations;
+- `WorkspaceBoundary` for project-path confinement and symlink-escape rejection;
+- `ProcessSandbox` plus the global KillSwitch for process execution;
+- Guardian and `PermissionSet` for authorization/risk control;
+- structured Tool APIs rather than arbitrary model-supplied commands;
+- SafeChange snapshots before sensitive mutation;
 - AuditLog hash-chain evidence for governed sensitive operations;
-- Secrets redaction and secrets exclusion from model context / persistent memory;
-- DataGovernance and schema-version discipline;
-- platform-aware behavior: non-target platforms must not impose requirements, inputs, budgets, dependencies or test obligations;
-- local-first/offline-capable behavior for already configured projects;
-- no architecture-foundation modification without ADR;
-- no phase/subdivision completion from partial CI or unsupported inference.
+- Secrets redaction and exclusion from LLM context/persistent memory;
+- schema versioning and DataGovernance;
+- platform-aware behavior: a non-target platform must not impose requirements, dependencies, inputs, budgets or tests;
+- local-first/offline-capable operation for already configured projects;
+- ADR requirement for any foundation-level architecture change;
+- no completion from partial CI, missing evidence, silence or evidence from the wrong environment.
 
-All persistent R6 project evidence must remain under the initialized `.kodepoia/` tree and must be resolved through `WorkspaceBoundary`. The project initializer already reserves `health/`, `budgets/`, `tests/`, `visual_tests/`, `licenses/`, `bom/`, `workflows/`, `diagnostics/` and `releases/`; R6 should reuse those locations instead of inventing ungoverned storage roots.
+All persistent R6 evidence belongs under the initialized `.kodepoia/` tree and must be resolved through `WorkspaceBoundary`. Existing reserved roots include `health/`, `budgets/`, `tests/`, `visual_tests/`, `licenses/`, `bom/`, `workflows/`, `diagnostics/` and `releases/`.
 
 ## Current external-reference baselines
 
-These are current reference baselines used only to inform implementation and acceptance where applicable. They do not override the frozen architecture and must be rechecked if a later implementation depends materially on current external requirements.
+External references inform applicable checks but never override the frozen architecture or create requirements for irrelevant platforms:
 
-- Accessibility: W3C WCAG 2.2 is the current W3C Recommendation baseline. Use it as a testable reference for applicable UI/web semantics, keyboard/focus, target sizing and related accessibility behavior; do not force web-only requirements onto non-web products.
-- Application security: OWASP ASVS 5.0.0 is the current stable ASVS release. Use it as a requirement catalogue where a generated product exposes web/API/auth/session/security surfaces, while keeping platform-aware applicability.
-- Software BOM: SPDX 3.0 is the current stable SPDX specification baseline. SPDX 3.1 RC1 is pre-release/testing material and must not replace the stable baseline for authoritative R6 acceptance unless it becomes stable and a recorded decision updates the plan.
+- **Accessibility:** W3C WCAG 2.2, current W3C Recommendation baseline, used for applicable keyboard/focus/target/semantic checks without claiming that every desktop/game UI is a web page.
+- **Application security:** OWASP ASVS 5.0.0, current stable ASVS baseline, used only for applicable web/API/auth/session/security surfaces.
+- **Software BOM:** SPDX 3.0, current stable SPDX baseline. SPDX 3.1 RC1 is pre-release/testing material and is not authoritative for stable R6 acceptance unless a later recorded decision updates the plan after a stable release.
 
-## Global prerequisites before R6.4
-
-Before R6.4 implementation begins:
-
-1. R1–R5 remain COMPLETE without demonstrated regression.
-2. R6.1, R6.2 and R6.3 remain COMPLETE with their accepted heads/PRs/CI evidence below.
-3. This `R6_PLAN.md` planning PR must pass the normal final-head GitHub checks and be merged to normalized `main`.
-4. R6.4 must branch only from that normalized `main`.
-5. No previously accepted R5 hardware-local workaround may be regressed, especially process pipe draining, background service handling, Movie Maker real-render constraints, socket timeout handling, DAP sequencing and loopback-only service exposure.
+If implementation occurs substantially later, any externally versioned requirement that materially affects acceptance must be rechecked before coding and the plan updated if necessary.
 
 ## Complete subdivision index
 
@@ -89,7 +99,7 @@ Before R6.4 implementation begins:
 | R6.1 | KodeHealth foundation | COMPLETE | NONE | R5 COMPLETE |
 | R6.2 | KodeBudget foundation | COMPLETE | NONE | R6.1 |
 | R6.3 | KodeTests + KodeRegression foundation | COMPLETE | NONE | R6.1–R6.2 |
-| R6.4 | KodeVisualQA foundation | PLANNED | REQUIRED | R6.1–R6.3 + accepted R5 Godot automation |
+| R6.4 | KodeVisualQA foundation | NEXT / PLANNED | REQUIRED | R6.1–R6.3 + accepted R5 Godot automation |
 | R6.5 | KodeAccessibility foundation | PLANNED | REQUIRED | R6.3–R6.4 |
 | R6.6 | KodeLocalization + pseudo-localization foundation | PLANNED | NONE | R6.3 + R6.5 |
 | R6.7 | KodeTechnicalDebt foundation | PLANNED | NONE | R6.1–R6.6 |
@@ -99,7 +109,7 @@ Before R6.4 implementation begins:
 | R6.11 | KodeLicense + KodeBOM foundation | PLANNED | CONDITIONAL | R6.7–R6.10 |
 | R6.12 | Major-patch validation + rollback gate and R6 integration acceptance | PLANNED | CONDITIONAL | R6.1–R6.11 |
 
-No subdivision may be silently added, removed, merged, split or renumbered. Any scope change must update this file and continuity in the same work cycle. Architecture-changing scope requires an ADR before implementation.
+No subdivision may be silently added, removed, merged, split or renumbered. Any scope change updates this plan and continuity in the same work cycle; architecture-changing scope requires an ADR before implementation.
 
 ---
 
@@ -107,34 +117,34 @@ No subdivision may be silently added, removed, merged, split or renumbered. Any 
 
 ## Objective and accepted scope
 
-R6.1 established the structured health contract required by the frozen architecture: all 14 architecture health dimensions, explicit `unknown/pass/warn/fail` states, deterministic score/coverage aggregation, blocking failures, exhaustive report validation and project-confined persistence.
+R6.1 established the structured KodeHealth contract: all 14 architecture health dimensions, explicit `unknown/pass/warn/fail`, deterministic score and coverage, blocking failures, exhaustive report validation and project-confined persistence.
 
-Accepted modules/evidence include:
+Accepted artifacts/behavior:
 
 - `src/kodepoia/quality/health.py`;
 - `schemas/health-report-v1.schema.json`;
 - `tests/test_r6_1_health.py`;
-- `.kodepoia/health/` persistence through `WorkspaceBoundary`;
-- atomic `latest.json` plus timestamped evidence snapshots;
+- `.kodepoia/health/` through `WorkspaceBoundary`;
+- atomic `latest.json` plus timestamped snapshots;
 - rejection of `.kodepoia` symlink escape;
-- serialized `blockers` and `unknown_dimensions` consistency validation.
+- consistency checks for serialized `blockers` and `unknown_dimensions`.
 
 ## Acceptance record
 
-- accepted implementation head: `802de4ba3110ace657c4e16306a0ca29850ce2bd`;
-- PR #30 merge: `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`;
+- accepted implementation head `802de4ba3110ace657c4e16306a0ca29850ce2bd`;
+- PR #30 merge `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`;
 - isolated hardened focused tests: 9 PASS;
-- R0 Repository Guard `32561211168` — SUCCESS Windows + Ubuntu;
-- Python Core `32561211156` — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
+- R0 `32561211168` — SUCCESS Windows + Ubuntu;
+- Python Core `32561211156` — SUCCESS Windows + Ubuntu;
 - KodeStudio UI Smoke `32561211167` — SUCCESS Windows.
 
 ## Manual intervention
 
 **NONE.** R6.1 was authoritatively accepted without user-side execution.
 
-## Rollback / regression protection
+## Regression protection
 
-R6.1 must not be reopened without a demonstrated regression or an architecture-changing ADR. Later health integrations may add producers of health observations, but must not weaken exhaustive dimensions, explicit unknown coverage, validation integrity or WorkspaceBoundary confinement.
+Later integrations may produce Health observations but must not weaken the exhaustive dimensions, explicit unknown coverage, validation integrity or `WorkspaceBoundary` confinement.
 
 ---
 
@@ -142,37 +152,37 @@ R6.1 must not be reopened without a demonstrated regression or an architecture-c
 
 ## Objective and accepted scope
 
-R6.2 established architecture-aligned per-platform budget contracts without changing Project DNA. It covers FPS/frame time, CPU/GPU, RAM/VRAM, storage, draw calls, polygons, textures, audio memory/voices, build size, mobile battery/thermal and online network budgets.
+R6.2 established per-platform budget contracts without changing Project DNA. It covers FPS/frame time, CPU/GPU, RAM/VRAM, storage, draw calls, polygons, textures, audio memory/voices, build size, mobile battery/thermal and online network.
 
-Accepted behavior includes:
+Accepted behavior:
 
-- per-platform `at_least` / `at_most` constraints;
+- `at_least` / `at_most` constraints;
 - target versus hard-limit semantics;
 - deterministic `pass/warn/fail/unknown` evaluation;
-- Project DNA derivation for FPS, frame time, RAM, VRAM and build size;
+- Project DNA derivation for FPS/frame time/RAM/VRAM/build size;
 - explicit configured-but-unmeasured coverage;
-- rejection of duplicate/unconfigured observations;
+- duplicate/unconfigured observation rejection;
 - blocking hard-limit failures;
-- validated report round-trip and derived-field tamper detection;
-- `.kodepoia/budgets/` persistence through `WorkspaceBoundary`;
-- `schemas/budget-report-v1.schema.json`.
+- report round-trip and derived-field tamper validation;
+- `.kodepoia/budgets/` through `WorkspaceBoundary`;
+- `budget-report-v1` schema.
 
 ## Acceptance record
 
-- accepted implementation head: `8ac3772e98c70260c320519a214bb25b6cedbb38`;
-- PR #32 merge: `65510a9b116d9c48b185a0edb51d99e5b951200a`;
+- accepted implementation head `8ac3772e98c70260c320519a214bb25b6cedbb38`;
+- PR #32 merge `65510a9b116d9c48b185a0edb51d99e5b951200a`;
 - isolated derivation/evaluation/persistence smoke: PASS;
-- R0 Repository Guard `32561719921` / #603 — SUCCESS Windows + Ubuntu;
-- Python Core `32561719925` / #577 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
+- R0 `32561719921` / #603 — SUCCESS Windows + Ubuntu;
+- Python Core `32561719925` / #577 — SUCCESS Windows + Ubuntu;
 - KodeStudio UI Smoke `32561720008` / #544 — SUCCESS Windows.
 
 ## Manual intervention
 
-**NONE.** R6.2 defined/evaluated structured budget observations; it did not require hardware profiling for foundation acceptance.
+**NONE.** Foundation acceptance evaluated structured observations and did not require hardware profiling.
 
-## Rollback / regression protection
+## Regression protection
 
-Later performance collectors may feed R6.2 but must not reinterpret Project DNA into requirements for non-target platforms or weaken target/hard-limit distinction and explicit unknown coverage.
+Performance collectors may feed R6.2 later but must not create requirements for non-target platforms or weaken target/hard-limit/unknown semantics.
 
 ---
 
@@ -180,119 +190,103 @@ Later performance collectors may feed R6.2 but must not reinterpret Project DNA 
 
 ## Objective and accepted scope
 
-R6.3 established stable structured test-run evidence and baseline/current regression comparison.
+R6.3 established structured test-run evidence and baseline/current regression comparison.
 
-Accepted KodeTests behavior:
+KodeTests accepted behavior:
 
-- stable unique test case IDs;
+- stable unique IDs;
 - `pass/fail/error/skip` observations;
-- deterministic run `unknown/pass/warn/fail` aggregation;
+- run `unknown/pass/warn/fail` aggregation;
 - validated counts and total duration;
-- atomic `.kodepoia/tests/runs/` persistence through `WorkspaceBoundary`;
+- `.kodepoia/tests/runs/` through `WorkspaceBoundary`;
 - `test-run-report-v1` schema.
 
-Accepted KodeRegression behavior:
+KodeRegression accepted behavior:
 
-- matching-suite baseline/current comparison by stable test ID;
+- matching-suite comparison by stable ID;
 - `unchanged/regressed/fixed/added/removed` classification;
-- PASS→FAIL/ERROR, PASS→SKIP, FAIL→ERROR and removed cases treated as regressions;
+- PASS→FAIL/ERROR, PASS→SKIP, FAIL→ERROR and removed cases are regressions;
 - FAIL/ERROR→SKIP cannot hide a known failure;
-- added failing/error tests fail regression comparison;
+- newly added FAIL/ERROR cases fail regression comparison;
 - derived-field tamper detection;
-- `.kodepoia/tests/regression/` persistence through `WorkspaceBoundary`;
+- `.kodepoia/tests/regression/` through `WorkspaceBoundary`;
 - `regression-report-v1` schema;
-- no new arbitrary command execution path.
+- no new arbitrary command-execution path.
 
 ## Acceptance record
 
-- accepted implementation head: `7150237c263dd3ac96af4662d74909e05f3cf991`;
-- PR #34 merge: `6657b258f2396b3d6a3850153b1ffaae1951104d`;
-- isolated baseline/current comparison and persistence smoke: PASS;
-- R0 Repository Guard `32562032986` / #622 — SUCCESS Windows + Ubuntu;
-- Python Core `32562032998` / #596 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
+- accepted implementation head `7150237c263dd3ac96af4662d74909e05f3cf991`;
+- PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`;
+- isolated baseline/current persistence smoke: PASS;
+- R0 `32562032986` / #622 — SUCCESS Windows + Ubuntu;
+- Python Core `32562032998` / #596 — SUCCESS Windows + Ubuntu;
 - KodeStudio UI Smoke `32562032982` / #563 — SUCCESS Windows.
 
 ## Manual intervention
 
-**NONE.** R6.3 consumes structured observations produced by governed executors/CI and does not directly execute arbitrary test commands.
+**NONE.** R6.3 consumes structured evidence produced by governed executors/CI.
 
-## Rollback / regression protection
+## Regression protection
 
-Later integrations must preserve stable IDs and must never allow deleting/skipping tests to manufacture an apparent regression fix.
+Deleting or skipping a known case must never manufacture an apparent fix.
 
 ---
 
-# R6.4 — KodeVisualQA foundation
+# R6.4 — KodeVisualQA foundation — NEXT / NOT STARTED
 
 ## Objective and rationale
 
-Create a deterministic visual-regression contract capable of comparing a current render/capture against a named approved baseline while distinguishing exact identity, harmless encoding/noise differences, acceptable tolerance and blocking visual regression. R6.4 bridges accepted R5 capture automation with R6.3 regression evidence.
-
-The foundation must be useful for Godot captures immediately but remain engine-neutral at the report/evaluation layer so later desktop/web/media adapters can reuse it.
+Build a deterministic visual-regression contract comparing a current render/capture with a named approved baseline. It must distinguish exact identity, controlled tolerance and blocking visual regression. R6.4 bridges accepted R5 capture automation with R6.3 regression evidence while keeping the comparison layer engine-neutral.
 
 ## In scope
 
-- baseline identity and immutable baseline metadata;
-- current capture metadata;
-- image size/format validation;
+- immutable baseline identity/metadata and approval provenance;
+- current capture identity/metadata;
+- image dimensions/format/channel validation;
 - deterministic pixel-difference statistics;
-- perceptual comparison metric(s) that are reproducible and dependency-controlled;
-- optional ignore/mask regions declared by structured policy, never model-invented during evaluation;
-- pass/warn/fail thresholds with explicit reasons;
+- reproducible dependency-controlled perceptual metric(s);
+- structured ignore/mask regions declared by policy, never invented during evaluation;
+- explicit PASS/WARN/FAIL and reasons;
 - visual diff artifact generation;
-- missing baseline/current artifact handling;
-- baseline approval provenance;
-- deterministic report serialization;
-- persistence under `.kodepoia/visual_tests/` with baseline/run/diff separation;
-- integration hooks to R6.3 without replacing generic regression logic;
-- focused fixtures that prove changed pixels, resolution mismatch, threshold boundary behavior and tamper detection;
-- one real hardware-local Godot capture comparison on the already accepted Windows/Godot workstation.
+- missing baseline/current evidence handling;
+- hash-bound policy/baseline/current/diff evidence;
+- persistence under `.kodepoia/visual_tests/` with separate baselines/runs/diffs;
+- R6.3 regression integration hooks;
+- fixtures for exact match, changed pixels, threshold boundary, resolution mismatch and tamper detection;
+- one real hardware-local Godot rendered comparison on the accepted workstation.
 
 ## Out of scope
 
-- AI aesthetic judgement;
-- automatic baseline replacement after failure;
-- Blender/ComfyUI visual pipelines;
-- full DeviceLab matrix;
-- shader/LOD/texture optimization diagnosis;
-- audio QA;
-- store screenshot compliance.
+AI aesthetic judgement, automatic baseline replacement, Blender/ComfyUI visual generation, DeviceLab matrix, shader/LOD/texture optimization, audio QA and store screenshot certification.
 
-## Expected implementation
-
-Planned files/modules:
+## Expected implementation/deliverables
 
 - `src/kodepoia/quality/visual.py`;
-- export surface updates in `src/kodepoia/quality/__init__.py`;
+- `src/kodepoia/quality/__init__.py` exports;
 - `schemas/visual-report-v1.schema.json`;
 - `tests/test_r6_4_visualqa.py`;
 - `docs/roadmap/R6_4_DESIGN.md`;
 - `docs/roadmap/R6_4_ACCEPTANCE.md`;
-- `scripts/r6_4_accept_local.ps1` for the required real-render acceptance gate.
+- `scripts/r6_4_accept_local.ps1`;
+- storage: `.kodepoia/visual_tests/baselines/`, `runs/`, `diffs/`.
 
-Planned storage:
-
-- `.kodepoia/visual_tests/baselines/` — approved immutable reference artifacts + metadata;
-- `.kodepoia/visual_tests/runs/` — current captures and normalized reports;
-- `.kodepoia/visual_tests/diffs/` — generated diff images/diagnostics.
-
-All paths must be resolved through `WorkspaceBoundary`; symlink escape must be rejected. The visual evaluator must never receive arbitrary process arguments. Godot capture remains delegated to the already governed KodeGodot APIs/acceptance path.
+All project paths resolve through `WorkspaceBoundary`. No evaluator API may expose arbitrary executable/argv/host-path fields. Godot capture must use the already governed KodeGodot path.
 
 ## Acceptance gates / Definition of Done
 
-1. deterministic unit/fixture comparisons pass on Windows and Ubuntu;
-2. exact baseline match = PASS;
-3. configured tolerance boundary is deterministic;
-4. changed image above blocking threshold = FAIL;
-5. resolution/channel/format incompatibility is explicit and cannot silently normalize away evidence;
-6. baseline IDs/hashes and current IDs/hashes are preserved;
-7. serialized derived metrics cannot be tampered without validation failure;
-8. mask/ignore regions are policy data and are hash-bound into evidence;
-9. persistence is confined to `.kodepoia/visual_tests/`;
-10. R0, Python Core and KodeStudio smoke remain green;
-11. real Godot rendered capture on the accepted workstation produces a baseline/current/diff/report chain;
-12. R6.4 PR merges only after CI and required local evidence are both accepted;
-13. post-merge status/continuity normalization records exact evidence.
+1. deterministic fixture comparison on Windows + Ubuntu;
+2. exact match = PASS;
+3. tolerance boundary deterministic;
+4. change above blocking threshold = FAIL;
+5. resolution/channel/format incompatibility explicit;
+6. baseline/current hashes preserved;
+7. derived metric tampering rejected;
+8. masks/ignore policy included in evidence hash;
+9. persistence confined to `.kodepoia/visual_tests/`;
+10. R0/Python Core/KodeStudio CI green;
+11. required real Godot rendered baseline/current/diff/report chain on accepted workstation;
+12. implementation PR merges only after CI + required local evidence;
+13. post-merge plan/status/continuity normalization.
 
 ## Manual intervention
 
@@ -300,23 +294,21 @@ All paths must be resolved through `WorkspaceBoundary`; symlink escape must be r
 
 ### Reason
 
-GitHub-hosted CI can validate the comparison engine with deterministic fixtures, but it cannot authoritatively prove the same real-render Godot path on the already accepted Windows workstation / Radeon RX 6750 XT environment. R5 showed that real Movie Maker rendering cannot be substituted by headless/dummy output when rendered-frame evidence is required.
+Hosted CI can prove the comparison engine with fixtures but cannot authoritatively prove the same real-render Godot path on the accepted Windows/Radeon RX 6750 XT workstation. R5 established that rendered-frame acceptance must not be replaced by headless/dummy capture.
 
 ### Prerequisites
 
-- R6.4 implementation PR final head identified;
-- local Kodepoia clone clean and checked out to that exact head;
-- Python 3.12.x environment;
-- Godot `4.7.2.stable.steam.ed1daf0bf` still available at `D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe` or the implementation-approved equivalent path;
-- no unrelated local modifications to acceptance fixtures.
+- exact final R6.4 implementation head supplied by ChatGPT;
+- clean local clone checked out to that head;
+- Python 3.12.x;
+- Godot `4.7.2.stable.steam.ed1daf0bf` at `D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe` unless the acceptance document explicitly records an approved equivalent;
+- no unrelated changes to acceptance fixtures.
 
-### Planned exact command contract
-
-The subdivision must deliver this copy-paste workflow:
+### Planned commands
 
 ```powershell
 git fetch origin
-git checkout <R6_4_ACCEPTED_HEAD>
+git checkout <R6_4_FINAL_HEAD>
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,ui]"
@@ -324,52 +316,27 @@ $env:KODEPOIA_GODOT_EXE="D:\SteamLibrary\steamapps\common\Godot Engine\godot.win
 powershell -ExecutionPolicy Bypass -File .\scripts\r6_4_accept_local.ps1
 ```
 
-The actual accepted head placeholder will be replaced with the final PR SHA when this gate is reached.
+The placeholder must be replaced by the exact final PR head before the user is asked to execute this.
 
 ### Expected output
 
-The script must print a machine-readable summary containing at minimum:
-
-- `acceptance_completed=true`;
-- Godot version detected;
-- renderer/device evidence when available;
-- baseline hash;
-- current capture hash;
-- diff artifact path;
-- visual report path;
-- visual status PASS;
-- passed/failed/total gate counts with `failed=0`.
+Machine-readable summary containing at least `acceptance_completed=true`, Godot version, renderer/device where available, baseline hash, current hash, diff/report paths, visual status PASS, and passed/failed/total with `failed=0`.
 
 ### Failure recovery
 
-- do not update/approve a baseline merely to make a failure disappear;
-- preserve the generated report/diff;
-- if Godot path/version changed, stop and report the exact version/path;
-- if capture is blank/headless/dummy, stop and report logs; do not accept it as rendered evidence;
-- if the script errors, provide the full final command output with secrets redacted.
+Never replace/approve the baseline to hide failure. Preserve diff/report. If Godot path/version changed, report it. If capture is blank/headless/dummy, stop and report logs. On script error, provide complete command output with secrets redacted.
 
 ### Evidence to send back
 
-Send the complete terminal summary plus the generated JSON report and, if requested by the acceptance document, the diff image/capture metadata. Do not send passwords, tokens, unrelated files or private keys.
+Complete terminal summary and generated JSON report; diff/capture metadata if requested by `R6_4_ACCEPTANCE.md`. No passwords, tokens, private keys or unrelated files.
 
 ### Do not do yet
 
-Do not merge the R6.4 implementation PR, replace the baseline, modify thresholds, or move to R6.5 until the local evidence has been reviewed and accepted.
+Do not merge R6.4, change thresholds/baseline, or proceed to R6.5 until local evidence is reviewed and accepted.
 
-## Rollback / recovery
+## Rollback / risks
 
-R6.4 must remain additive. Reverting its PR removes the visual evaluator/schemas/tests without mutating approved R6.1–R6.3 evidence. Baseline creation/approval must be explicit and never rewritten by a failed comparison.
-
-## Risks and regression traps
-
-- nondeterministic renderer output;
-- color-space/gamma differences;
-- anti-aliasing/driver differences;
-- accidental baseline auto-update;
-- huge diff artifacts;
-- masking too much of the image;
-- treating missing evidence as PASS;
-- reintroducing R5 headless/dummy capture mistakes.
+R6.4 is additive. Revert the implementation PR without mutating R6.1–R6.3 evidence. Risks: renderer nondeterminism, color/gamma/AA/driver variance, oversized diff artifacts, overbroad masks, missing evidence falsely passing, accidental baseline auto-update, and regression of the R5 headless/dummy rule.
 
 ---
 
@@ -377,49 +344,38 @@ R6.4 must remain additive. Reverting its PR removes the visual evaluator/schemas
 
 ## Objective and rationale
 
-Create an accessibility evidence model and automated baseline checks for Kodepoia/generated UI surfaces, plus a real interactive Windows validation path for keyboard/focus/accessibility semantics that hosted CI cannot fully prove.
+Create structured accessibility evidence and automated baseline checks for supported UI surfaces, plus a real Windows interactive validation path for keyboard/focus/accessibility semantics that hosted CI cannot fully prove.
 
-WCAG 2.2 is used as a current testable reference where criteria are applicable, especially keyboard/focus/target semantics. This is not a claim that every desktop/game surface is a web page, and platform-specific adapters may add their own rules later.
+WCAG 2.2 is a current testable reference where criteria apply; the implementation must not claim universal WCAG certification for desktop/game surfaces.
 
 ## In scope
 
-- structured accessibility checks with stable rule IDs;
-- severity/status/evidence model;
-- keyboard reachability/focus-order/focus-visible checks for supported KodeStudio widgets where automatable;
-- accessible-name/role/state presence checks where PySide exposes them;
-- minimum contrast/target-size checks only where deterministic data is available;
-- explicit `not_applicable` with reason instead of false PASS;
-- report/schema persistence under `.kodepoia/tests/accessibility/` or another plan-approved child of `.kodepoia/tests/`;
-- mapping of checks to applicable reference criteria without pretending full WCAG conformance;
-- real keyboard-only and Windows Narrator smoke of KodeStudio on the accepted workstation.
+- stable accessibility rule IDs;
+- severity/status/evidence/applicability;
+- keyboard reachability, focus order and visible-focus checks where automatable;
+- accessible name/role/state checks where PySide exposes them;
+- deterministic contrast/target-size checks where source data exists;
+- explicit `not_applicable` with reason rather than false PASS;
+- report/schema and project-confined persistence;
+- R6.3 regression integration;
+- KodeStudio interactive keyboard-only + Windows Narrator acceptance fixture.
 
 ## Out of scope
 
-- certification of every future generated application;
-- mobile TalkBack/VoiceOver testing;
-- console accessibility certification;
-- full cognitive/user research;
-- game-specific accessibility feature design beyond the foundation checks.
+Certification of future applications, TalkBack/VoiceOver/mobile testing, console certification, cognitive user research and game-specific accessibility feature design beyond foundation checks.
 
-## Expected implementation
+## Expected deliverables
 
 - `src/kodepoia/quality/accessibility.py`;
 - `schemas/accessibility-report-v1.schema.json`;
 - `tests/test_r6_5_accessibility.py`;
-- KodeStudio smoke extensions using deterministic widget introspection;
-- `scripts/r6_5_accept_local.ps1` plus a short manual Narrator/keyboard checklist recorded into machine-readable evidence;
-- design/acceptance docs.
+- KodeStudio deterministic introspection smoke extensions;
+- `scripts/r6_5_accept_local.ps1`;
+- design/acceptance docs and machine-readable manual checklist evidence.
 
-## Acceptance gates / Definition of Done
+## Acceptance gates
 
-- stable rule IDs and applicability semantics;
-- deterministic automated fixtures on Windows + Ubuntu where supported;
-- no inaccessible-name/focus rule can silently disappear between baseline/current evidence;
-- structured report round-trip/tamper validation;
-- R6.3 regression integration for accessibility rule regressions;
-- hosted CI green;
-- required local interactive keyboard/Narrator checklist complete with zero blocking failures;
-- PR merge + post-merge normalization.
+Stable IDs/applicability, deterministic automated fixtures, missing accessibility rules detectable as regressions, round-trip/tamper validation, R6.3 integration, hosted CI green, required keyboard/Narrator checklist with zero blocking failures, merge + post-merge normalization.
 
 ## Manual intervention
 
@@ -427,532 +383,375 @@ WCAG 2.2 is used as a current testable reference where criteria are applicable, 
 
 ### Reason
 
-Hosted CI can inspect widgets but cannot provide authoritative human-observable keyboard navigation and Windows Narrator behavior in a real interactive desktop session.
+Hosted CI cannot authoritatively prove human-observable keyboard navigation and Windows Narrator behavior in a real interactive desktop session.
 
-### Prerequisites
-
-- exact final R6.5 PR head checked out locally;
-- Windows interactive desktop session;
-- PySide UI dependencies installed;
-- Windows Narrator available;
-- no need to expose any credential or personal data.
-
-### Planned exact command contract
+### Planned commands and actions
 
 ```powershell
 git fetch origin
-git checkout <R6_5_ACCEPTED_HEAD>
+git checkout <R6_5_FINAL_HEAD>
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,ui]"
 powershell -ExecutionPolicy Bypass -File .\scripts\r6_5_accept_local.ps1
 ```
 
-The script will launch/prepare the acceptance fixture and print the exact checklist. The required UI actions will include: navigate the defined KodeStudio acceptance screen using keyboard only; verify visible focus is never lost/obscured; activate primary controls without mouse; enable Narrator with `Win+Ctrl+Enter`; traverse the same controls and confirm the announced names/roles match the acceptance manifest; then return to the script to record PASS/FAIL for each item.
+Then follow the script-generated manifest: navigate the defined screen using keyboard only, confirm visible focus is not lost/obscured, activate primary controls without mouse, enable Narrator with `Win+Ctrl+Enter`, traverse the same controls, confirm announced names/roles, and record PASS/FAIL for every manifest ID.
 
-### Expected output
+### Expected evidence
 
-- machine-readable accessibility report path;
-- checklist IDs and PASS/FAIL state;
-- `blocking_failures=0`;
-- `acceptance_completed=true`.
+Generated accessibility JSON, checklist IDs/states, `blocking_failures=0`, `acceptance_completed=true`.
 
-### Failure recovery
+### Recovery and do-not-do
 
-If focus becomes trapped, a control is unnamed, Narrator output is wrong, or the app crashes, record the exact checklist ID and stop acceptance. Do not mark the item PASS based on intended behavior.
-
-### Evidence to send back
-
-Send terminal summary and generated JSON checklist/report. A screenshot may supplement but not replace the checklist evidence. No audio recording is required unless the acceptance document later explicitly requests one.
-
-### Do not do yet
-
-Do not merge R6.5 or proceed to R6.6 until the required local checklist is reviewed.
+If focus traps, unnamed controls, incorrect Narrator output or crashes occur, record the exact checklist ID and stop. Do not infer PASS from intended behavior. Do not merge/proceed to R6.6 until reviewed. A screenshot may supplement but not replace checklist evidence.
 
 ## Rollback / risks
 
-Accessibility metadata changes must not break KodeStudio behavior. Avoid brittle rules tied to incidental widget geometry, and never claim unsupported cross-platform conformance from Windows-only evidence.
+Accessibility metadata changes must not break UI behavior. Avoid brittle geometry-only rules and unsupported cross-platform conformance claims from Windows-only evidence.
 
 ---
 
 # R6.6 — KodeLocalization + pseudo-localization foundation
 
-## Objective and rationale
+## Objective
 
-Establish a deterministic localization contract before later desktop/mobile/release phases multiply UI surfaces. The foundation focuses on extractable message IDs, locale catalogs, placeholder integrity and pseudo-localization, not human-quality translation certification.
+Establish deterministic localization contracts before later phases multiply UI surfaces: stable message IDs, catalogs, placeholder integrity, fallback and pseudo-localization. Human-quality translation certification is deliberately not part of this foundation.
 
-## In scope
+## In scope / deliverables
 
-- locale/message catalog model with stable IDs;
-- source/default locale declaration;
+- stable locale/message IDs and source locale;
 - missing/extra/duplicate key detection;
 - placeholder/token parity;
-- plural/select structure validation where supported;
-- pseudo-localization modes that expand text and preserve placeholders/markup;
-- detection of hard-coded user-visible strings in explicitly registered surfaces where feasible;
-- locale fallback policy;
-- structured localization report and schema;
-- persistence under `.kodepoia/tests/localization/`;
-- regression integration;
-- KodeStudio fixture demonstrating long pseudo-localized strings without silent truncation of critical labels.
-
-## Out of scope
-
-- professional translation of all future languages;
-- linguistic/cultural certification;
-- voice localization;
-- font-family global coverage and shaping for all scripts beyond deterministic fixture coverage;
-- store metadata translation.
-
-## Expected implementation
-
+- plural/select validation where supported;
+- pseudo-localization that expands text without corrupting placeholders/markup;
+- hard-coded user-visible string detection on registered surfaces where feasible;
+- explicit locale fallback;
 - `src/kodepoia/quality/localization.py`;
 - `schemas/localization-report-v1.schema.json`;
 - `tests/test_r6_6_localization.py`;
-- pseudo-locale fixture/catalogs;
-- KodeStudio smoke additions;
-- design/acceptance docs.
+- pseudo-locale fixtures/catalogs;
+- KodeStudio long-string/truncation smoke;
+- project-confined localization evidence and R6.3 integration.
 
-## Acceptance gates / Definition of Done
+## Out of scope
 
-- stable IDs and deterministic catalog serialization;
-- missing placeholders = FAIL;
-- pseudo-localization never mutates placeholder identity;
-- unknown locale/fallback behavior explicit;
-- no target-platform pollution;
-- report round-trip/tamper validation;
-- Windows + Ubuntu tests and KodeStudio smoke green;
-- PR merge and continuity normalization.
+Professional translation, cultural certification, voice localization, universal font/script certification and store metadata translation.
+
+## Acceptance gates
+
+Stable IDs/serialization, missing placeholders FAIL, pseudo-localization preserves placeholders, fallback explicit, no platform pollution, report tamper validation, Windows + Ubuntu tests and KodeStudio smoke, merge + normalization.
 
 ## Manual intervention
 
-**NONE.** R6.6 foundation acceptance is structural/pseudo-localized and can be objectively tested in CI. Human translation quality may become a later release-specific manual task but is not required to accept this foundation.
+**NONE.** Structural and pseudo-localized acceptance is objectively testable in CI.
 
 ## Rollback / risks
 
-Avoid replacing existing user-facing strings in a way that destabilizes tests without migration. Pseudo-localization must not be accidentally shipped as the default locale.
+Do not destabilize existing strings without migration; pseudo-locale must never become production default.
 
 ---
 
 # R6.7 — KodeTechnicalDebt foundation
 
-## Objective and rationale
+## Objective
 
-Create a persistent, structured technical-debt register so debt is observable, prioritized and linked to code/requirements/tests instead of remaining informal comments. This also provides the maintenance bridge to later KodeVersions/KodeMigration work.
+Create a persistent structured technical-debt register so debt is observable, prioritized and linked to code/requirements/tests instead of remaining informal comments.
 
-## In scope
+## In scope / deliverables
 
-- stable debt item IDs;
-- category/severity/impact/probability/effort fields;
+- stable debt IDs;
+- category/severity/impact/probability/effort;
 - owner/scope/source/provenance;
-- file/symbol/test/requirement references where available;
+- file/symbol/test/requirement references;
 - first-seen/last-seen/resolved lifecycle;
-- accepted-debt rationale and optional expiry/review date;
-- deterministic score/ranking policy;
-- duplicate detection by stable fingerprint where appropriate;
-- persistence under `.kodepoia/diagnostics/technical_debt/` or another plan-approved governed location;
+- accepted-debt rationale with optional review/expiry;
+- deterministic ranking;
+- stable duplicate fingerprinting where applicable;
+- project-confined persistence under diagnostics;
 - structured report/schema;
-- health `technical_debt` observation adapter;
-- regression behavior for newly introduced blocking debt.
+- Health `technical_debt` adapter;
+- regression semantics for newly introduced blocking debt;
+- `src/kodepoia/quality/technical_debt.py`, schema, focused tests and docs.
 
 ## Out of scope
 
-- automatic code rewriting to remove all debt;
-- dependency licensing/BOM (R6.11);
-- architecture changes without ADR;
-- arbitrary static-analysis command execution from model text.
-
-## Expected implementation
-
-- `src/kodepoia/quality/technical_debt.py`;
-- schema and focused tests;
-- debt-store persistence through `WorkspaceBoundary`;
-- optional ingestion adapters for known Kodepoia diagnostics, never arbitrary shell commands;
-- design/acceptance docs.
+Automatic code rewriting, License/BOM, architecture changes without ADR and arbitrary static-analysis shell commands supplied by a model.
 
 ## Acceptance gates
 
-Stable IDs, lifecycle validation, deterministic ranking, explicit accepted-debt state, WorkspaceBoundary confinement, Health integration, serialization tamper checks, full CI and merge.
+Stable lifecycle, deterministic score, accepted debt distinct from resolved debt, confinement, Health integration, serialization tamper checks, CI green, merge + normalization.
 
 ## Manual intervention
 
-**NONE.** The foundation can be accepted using deterministic fixtures and repository data.
+**NONE.** Deterministic fixtures and repository evidence suffice.
 
-## Rollback / risks
+## Risks
 
-Do not treat accepted debt as resolved. Do not allow changing severity/rationale without evidence/history. Avoid unstable fingerprints that duplicate every run.
+Never treat accepted debt as resolved; preserve rationale/history; avoid unstable fingerprints producing duplicate debt each run.
 
 ---
 
 # R6.8 — KodeCI + KodeBuild foundation
 
-## Objective and rationale
+## Objective
 
-Turn the existing repository workflows into a structured CI/build contract that produces reproducible evidence consumable by KodeHealth, KodeTests, KodeRegression and later release tooling.
+Convert repository workflows/builds into structured evidence consumable by Health, Tests, Regression, VisualQA and later release tooling.
 
 ## In scope
 
-- normalized CI check identities and statuses;
-- deterministic build manifest (source SHA, Python version, platform, dependency inputs, produced artifacts/hashes);
-- Python package build validation for current Kodepoia;
+- normalized CI check IDs/statuses;
+- build manifest tied to source SHA, Python version, platform, dependency inputs and artifact hashes;
+- Python package build validation;
 - Windows + Ubuntu build/test matrix;
-- artifact hash evidence;
 - failed/cancelled/skipped distinction;
-- integration of lint/compile/tests/regression/security/visual hooks as they become available;
-- no secrets in logs/manifests;
-- persistence under `.kodepoia/workflows/` and `.kodepoia/releases/` for project-managed evidence where applicable;
-- repository workflow updates without disabling existing R0/Python/UI gates.
+- lint/compile/tests/regression/security/visual hooks as available;
+- secrets-free logs/manifests;
+- `.kodepoia/workflows/` and `.kodepoia/releases/` evidence where applicable;
+- workflow updates without weakening R0/Python/UI gates.
 
 ## Out of scope
 
-- store publishing;
-- code signing with user certificates;
-- installers/update channels (later release phases);
-- macOS/iOS build claims from Windows/Ubuntu CI;
-- generated application framework builds belonging to R12+.
+Store publishing, signing certificates, installers/update channels, macOS/iOS claims from Windows/Ubuntu CI and generated app framework builds belonging to later phases.
 
-## Expected implementation
+## Expected deliverables / gates
 
-- `src/kodepoia/quality/ci.py` and/or `src/kodepoia/build/` only if consistent with existing package layout;
-- build manifest schema;
-- deterministic package build tests;
-- workflow updates kept minimal and auditable;
-- focused acceptance docs.
-
-## Acceptance gates
-
-- source SHA/artifact hash manifest reproducible for same inputs where byte reproducibility is technically supported, otherwise deterministic normalized metadata with the non-reproducible field explicitly documented;
-- Windows + Ubuntu package build succeeds;
-- existing test/regression/visual hooks represented without weakening gates;
-- cancelled/skipped jobs cannot count as PASS;
-- secrets redaction verified;
-- final-head workflows all green;
-- merge/post-merge normalization.
+Structured CI/build module(s), build-manifest schema, deterministic package-build tests, source/artifact hash evidence, documented unavoidable non-byte-reproducible fields, Windows+Ubuntu success, skipped/cancelled never PASS, secret redaction, final-head workflows green, merge + normalization.
 
 ## Manual intervention
 
-**CONDITIONAL.**
+**CONDITIONAL.** Trigger only if GitHub-hosted Windows cannot authoritatively prove a Windows-specific build behavior/artifact required by the DoD or a runner limitation conflicts with the accepted local environment.
 
-### Trigger condition
-
-User-side local execution is required only if GitHub-hosted Windows CI cannot authoritatively reproduce a Windows-specific build behavior/artifact needed by the R6.8 DoD, or if a runner limitation produces evidence that differs from the accepted local Windows environment.
-
-### Planned local command contract if triggered
+If triggered:
 
 ```powershell
 git fetch origin
-git checkout <R6_8_ACCEPTED_HEAD>
+git checkout <R6_8_FINAL_HEAD>
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,ui,code]"
 powershell -ExecutionPolicy Bypass -File .\scripts\r6_8_accept_local.ps1
 ```
 
-### Expected output
+Expected: build manifest, source SHA, Python/platform, artifact names/sizes/hashes, tests, `acceptance_completed=true`, zero blocking failures. Preserve logs/manifest on failure; never edit hashes or reuse artifacts from another SHA; do not merge until reviewed if this conditional gate triggers.
 
-Build manifest JSON, source SHA, Python version, platform, artifact names/sizes/hashes, test status and `acceptance_completed=true` with zero blocking failures.
+## Risks
 
-### Failure recovery / evidence
-
-Preserve the manifest/logs and report the exact failing build step. Do not manually edit artifact hashes or copy an artifact from a different SHA. Send the generated manifest and terminal summary only; redact secrets.
-
-### Do not do yet
-
-If the conditional gate triggers, do not merge R6.8 until the local result is reviewed.
-
-## Rollback / risks
-
-Workflow changes must not accidentally remove checks, narrow platform coverage or create self-referential acceptance. Build evidence must remain tied to exact source SHA.
+Do not remove/narrow checks or create self-referential acceptance. Build evidence must remain tied to exact source SHA.
 
 ---
 
 # R6.9 — KodeAppSecurity baseline
 
-## Objective and rationale
+## Objective
 
-Create a platform-aware security baseline for products Kodepoia creates and for Kodepoia's own applicable surfaces. The frozen architecture requires threat modeling, input/auth/network validation, dependency security, secure storage and useful fuzzing where appropriate.
+Create a platform-aware application-security baseline for products Kodepoia creates and for applicable Kodepoia surfaces. The frozen architecture requires threat modeling, input/auth/network validation, dependency security, secure storage and useful fuzzing where applicable.
 
-OWASP ASVS 5.0.0 is a current external requirement catalogue for applicable web/API/auth/security controls, but non-web projects only receive relevant controls.
+OWASP ASVS 5.0.0 is used as a current catalogue for applicable web/API/auth/session/security controls only.
 
-## In scope
+## In scope / deliverables
 
 - structured threat model: assets, trust boundaries, entry points, threats, mitigations, residual risk;
-- stable security requirement/check IDs;
-- input/path/network/auth/session controls only when the target actually has those surfaces;
-- dependency vulnerability evidence adapter with provenance and timestamp;
-- secure-storage expectation checks for secrets/config where applicable;
-- deterministic fuzz/property tests for parsers/structured inputs where useful;
-- report/schema and Health `security` adapter;
-- persistence under `.kodepoia/diagnostics/security/` or plan-approved governed storage;
-- no remote mandatory security SaaS.
+- stable requirement/check IDs;
+- path/input/network/auth/session checks only for present surfaces;
+- dependency-vulnerability evidence with timestamp/provenance;
+- secure-storage expectations where applicable;
+- deterministic fuzz/property tests for structured inputs where useful;
+- report/schema + Health `security` adapter;
+- governed diagnostic persistence;
+- no mandatory remote security SaaS and no arbitrary scanner command injection.
 
 ## Out of scope
 
-- penetration testing against third-party systems;
-- exploit development;
-- store compliance certification;
-- cloud auth/backend implementation belonging to later phases.
+Third-party penetration testing, exploit development, store certification and cloud/backend implementation.
 
 ## Acceptance gates
 
-Threat-model completeness on fixtures, platform applicability, no false requirements for absent auth/network surfaces, blocking security failures represented in Health, dependency evidence timestamp/provenance, no arbitrary scanner command injection, full CI green and merge.
+Threat model completeness, platform applicability, absent surfaces do not create false requirements, blocking failures feed Health, dependency evidence has provenance/time, malformed evidence fails closed, CI green, merge + normalization.
 
 ## Manual intervention
 
-**NONE.** Foundation acceptance uses controlled fixtures/repository surfaces and does not require testing a private external service or credentialed production environment.
+**NONE.** Controlled fixtures/repository surfaces suffice for foundation acceptance.
 
-## Rollback / risks
+## Risks
 
-Security checks must fail closed for malformed evidence, but `not_applicable` must remain distinct from PASS. Do not log secrets or vulnerability-scan private credentials.
+`not_applicable` must never be represented as PASS. Never log secrets or scan private credentials.
 
 ---
 
 # R6.10 — KodePrivacy baseline
 
-## Objective and rationale
+## Objective
 
-Establish a structured data inventory and lifecycle model so generated products can state what data they collect/store, why, how long, where it lives, how it is deleted and what declarations are required.
+Establish structured data inventory/lifecycle evidence: what data exists, source, purpose, storage, recipient, retention, deletion and declaration needs.
 
-## In scope
+## In scope / deliverables
 
 - stable data-category IDs;
-- source, purpose, legal/consent basis placeholder fields where applicable, storage location, recipients, retention, deletion mechanism, sensitivity and project/platform scope;
-- explicit `none`/`not_applicable` instead of missing data;
+- purpose and applicable legal/consent-basis placeholder fields without making legal conclusions;
+- storage/recipients/retention/deletion/sensitivity/platform scope;
+- explicit `none/not_applicable`;
 - privacy issue severity/status;
-- report/schema and Health `privacy` adapter;
-- store-declaration preparation fields without pretending final store submission;
-- deletion/retention fixture tests;
-- persistence under `.kodepoia/diagnostics/privacy/` or another governed path.
+- report/schema + Health `privacy` adapter;
+- store-declaration preparation fields without submission claims;
+- retention/deletion fixtures;
+- governed diagnostic persistence.
 
 ## Out of scope
 
-- legal advice;
-- automatic claim of GDPR/CCPA/etc. compliance;
-- store submission;
-- remote analytics implementation.
+Legal advice, automatic GDPR/CCPA/etc. compliance claims, store submission and remote analytics implementation.
 
 ## Acceptance gates
 
-Inventory completeness validation, explicit purpose/retention/deletion fields, no secret values stored in privacy reports, platform-aware declarations, Health integration, full CI and merge.
+Inventory completeness, explicit purpose/retention/deletion, no raw secrets/personal data in evidence, platform-aware declarations, Health integration, CI green, merge + normalization.
 
 ## Manual intervention
 
-**NONE.** The foundation is a structured inventory/control system. Future product-specific legal/store review may require humans but is outside R6.10 acceptance.
+**NONE.** This is a structured inventory/control foundation.
 
-## Rollback / risks
+## Risks
 
-Never infer consent/legal basis from silence. Never put raw personal data into diagnostic evidence merely to prove a category exists.
+Never infer consent/legal basis from silence and never copy raw personal data into evidence just to prove a category exists.
 
 ---
 
 # R6.11 — KodeLicense + KodeBOM foundation
 
-## Objective and rationale
+## Objective
 
-Establish provenance, license normalization and BOM generation for Kodepoia dependencies/assets so later build/release phases can make auditable compliance decisions.
+Establish provenance, license normalization and BOM generation for dependencies/assets so later build/release phases can make auditable decisions.
 
-SPDX 3.0 is the stable external BOM baseline for R6 acceptance. Pre-release SPDX 3.1 material may be evaluated experimentally but must not become the authoritative format during R6 without an explicit recorded update after stable release.
+SPDX 3.0 is the stable R6 BOM baseline; pre-release SPDX material is not authoritative unless a later stable-version decision updates this plan.
 
 ## In scope
 
-- normalized component identity/version/source/hash fields;
+- component identity/version/source/hash;
 - SPDX license expressions where known;
-- `NOASSERTION`/unknown state handling without converting uncertainty into approval;
-- dependency and asset provenance records;
-- license-policy results: allow/warn/deny/unknown according to explicit project policy;
-- BOM generation for current Kodepoia Python dependencies and deterministic fixtures;
+- explicit unknown/`NOASSERTION` handling;
+- dependency/asset provenance;
+- allow/warn/deny/unknown policy result;
+- BOM for current Kodepoia Python dependencies and fixtures;
 - report/schema validation;
-- `.kodepoia/licenses/` and `.kodepoia/bom/` persistence through `WorkspaceBoundary`;
-- Health `licenses` and `dependencies` observation adapters;
-- compatibility hooks for later release tooling.
+- `.kodepoia/licenses/` and `.kodepoia/bom/` through `WorkspaceBoundary`;
+- Health `licenses`/`dependencies` adapters;
+- release compatibility hooks.
 
 ## Out of scope
 
-- legal determination of ambiguous custom licenses;
-- automatically granting rights for user-provided assets;
-- downloading license texts from arbitrary untrusted locations as executable instructions;
-- store publishing.
+Legal determination of ambiguous licenses, automatically granting rights to user assets, executing instructions found in untrusted license pages, store publishing.
 
-## Expected implementation
+## Expected deliverables / gates
 
-- `src/kodepoia/quality/licenses.py` and `src/kodepoia/quality/bom.py` or a cohesive equivalent;
-- SPDX 3.0-compatible generation/normalization layer sufficient for the R6 scope;
-- schemas and focused tests;
-- provenance/tamper checks;
-- design/acceptance docs.
-
-## Acceptance gates
-
-Known dependency fixture → correct normalized component/license record; unknown/custom license stays unresolved; hash/provenance retained; duplicate component handling deterministic; BOM round-trip/schema validation; no path escape; Health integration; CI green and merge.
+Cohesive `licenses.py`/`bom.py` equivalent, SPDX 3.0-compatible normalization sufficient for R6, schemas/tests, provenance/tamper checks, correct known fixture mapping, unresolved licenses stay unresolved, hashes retained, duplicates deterministic, no path escape, Health integration, CI green, merge + normalization.
 
 ## Manual intervention
 
-**CONDITIONAL.**
+**CONDITIONAL.** Trigger only if an acceptance-critical component/asset has provenance or licensing that cannot be established from repository/package metadata or a trusted authoritative source.
 
-### Trigger condition
-
-Manual input is required only when authoritative acceptance encounters a component/asset whose license or provenance cannot be established from repository metadata, package metadata or a trusted source, and the item is required for the R6.11 fixture/acceptance path.
-
-### Exact user action if triggered
-
-Do not guess the license. Provide one of the following for the exact component identified by R6.11:
-
-1. the authoritative source page/file containing the license/provenance statement; or
-2. if it is a user-created/user-owned asset, a short explicit provenance statement naming the asset and confirming ownership/permission for the intended project use.
-
-Then run the planned resolver against that exact component:
+If triggered, do not guess. Provide either the authoritative license/provenance source for the named component or, for a user-owned asset, an explicit ownership/permission statement. Then the implemented R6.11 CLI contract will be:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -m kodepoia.cli license-audit --project <PROJECT_PATH> --component <COMPONENT_ID> --output .kodepoia\licenses\manual-resolution.json
 ```
 
-The command name/arguments are part of the intended R6.11 contract and must exist before the conditional gate can be invoked.
-
-### Expected output
-
-A structured component record with provenance source, normalized license status, evidence hash and no unresolved blocking field for the acceptance fixture.
-
-### Failure recovery
-
-If the license remains unclear, keep the item `unknown`/blocking according to policy. Do not invent an SPDX identifier or paste a third-party license from an unrelated package.
-
-### Evidence to send back
-
-Send the authoritative source reference/provenance statement plus the generated `manual-resolution.json`. Redact account tokens or unrelated personal data.
-
-### Do not do yet
-
-Do not approve/release the unresolved component or mark R6.11 COMPLETE until the ambiguity is resolved or the component is explicitly removed from the acceptance scope by recorded decision.
-
-## Rollback / risks
-
-License policy changes must be explicit and versioned. BOM generation must not silently omit transitive/runtime components it claims to cover.
+The command must exist and be documented before this gate is invoked. Expected output: structured component/provenance/license status/evidence hash with no unresolved blocking field. If ambiguity remains, keep it unknown/blocking; never invent an SPDX ID. Send authoritative source/statement + generated JSON, redacting tokens/unrelated personal data. Do not approve/release the unresolved item or mark R6.11 COMPLETE until resolved or explicitly removed by governed decision.
 
 ---
 
 # R6.12 — Major-patch validation + rollback gate and R6 integration acceptance
 
-## Objective and rationale
+## Objective
 
-Satisfy the frozen-roadmap rule that every major patch has validation and rollback. R6.12 turns R6.1–R6.11 into an enforceable cross-cutting gate rather than a collection of disconnected tools, then performs final R6 integration acceptance.
+Make the frozen-roadmap rule “every major patch has validation and rollback” enforceable, then run final integrated R6 acceptance.
 
 ## In scope
 
-- deterministic definition/classification of a `major patch` based on affected scope/risk rather than model opinion;
-- patch manifest tied to source/base/head SHAs;
-- required validation matrix derived from changed domains: tests, regression, visual, accessibility, localization, debt, build, security, privacy, license/BOM, health/budget as applicable;
-- explicit rollback strategy requirement before major patch acceptance;
-- SafeChange snapshot requirement for sensitive mutable project changes;
-- rollback rehearsal on controlled fixtures;
-- refusal to accept missing/partial required evidence;
-- final integrated R6 acceptance fixture demonstrating the full gate;
-- R6 completion report that enumerates all R6.1–R6.12 evidence.
+- deterministic major-patch classification from changed scope/risk rather than model opinion;
+- manifest tied to base/head SHAs;
+- validation matrix selected from changed domains/platforms: tests, regression, visual, accessibility, localization, debt, build, security, privacy, license/BOM, health/budget as applicable;
+- mandatory explicit rollback strategy for every major patch;
+- SafeChange snapshot for sensitive mutable project changes;
+- controlled rollback rehearsal;
+- missing/partial/skipped/cancelled required evidence blocks acceptance;
+- final integrated R6 fixture/report enumerating R6.1–R6.12 evidence.
 
 ## Out of scope
 
-- R7 Research implementation;
-- release-channel updater implementation beyond proving rollback contract;
-- destructive production rollback tests;
-- weakening Guardian approval requirements.
+R7 implementation, release-channel updater, destructive production rollback tests and any weakening of Guardian approvals.
 
-## Expected implementation
+## Expected deliverables
 
-- `src/kodepoia/quality/patch_gate.py` or equivalent governed orchestrator component;
+- `src/kodepoia/quality/patch_gate.py` or governed equivalent;
 - major-patch manifest/report schema;
-- tests covering classification, evidence requirements, missing evidence, failed rollback and successful controlled rollback;
-- orchestrator integration only through existing protected boundaries;
-- `scripts/r6_12_accept_local.ps1` only if a hardware/local conditional gate is triggered;
-- `docs/roadmap/R6_12_ACCEPTANCE.md` and final R6 status/continuity normalization.
+- classification/evidence/rollback tests;
+- protected orchestrator integration;
+- `scripts/r6_12_accept_local.ps1` if conditional local gate triggers;
+- `R6_12_ACCEPTANCE.md` and final plan/status/continuity normalization.
 
-## Acceptance gates / Definition of Done
+## Acceptance gates
 
-1. major/minor classification deterministic and test-covered;
-2. a major patch cannot PASS without an explicit rollback plan;
-3. required evidence is selected by changed domains/platform targets, not universally imposed on irrelevant platforms;
+1. deterministic major/minor classification;
+2. major patch cannot PASS without rollback plan;
+3. required gates selected by relevant domains/platform targets;
 4. missing/skipped/cancelled required checks block acceptance;
-5. rollback rehearsal on controlled fixture restores expected state and verifies hashes;
-6. SafeChange/Audit integration used where mutation is sensitive;
-7. no arbitrary model-supplied shell command/path fields introduced;
-8. all R6.1–R6.11 focused and regression suites remain green;
-9. final R0/Python Core/KodeStudio checks green on final head;
-10. any triggered manual/hardware-local gate completed;
-11. PR merged and post-merge normalization records R6.1–R6.12 as COMPLETE;
-12. only then may R6 itself become COMPLETE and R7 planning start.
+5. controlled rollback restores expected state/hashes;
+6. SafeChange/Audit used where required;
+7. no arbitrary model shell/path fields;
+8. all R6.1–R6.11 regression suites green;
+9. final R0/Python Core/KodeStudio green;
+10. triggered manual/local gates complete;
+11. PR merge + normalization records R6.1–R6.12 COMPLETE;
+12. only then can R6 become COMPLETE and R7 planning begin.
 
 ## Manual intervention
 
-**CONDITIONAL.**
+**CONDITIONAL.** Trigger if the final integration fixture uses a hardware-local capability unavailable to hosted CI (for example the real-render VisualQA path) or Guardian policy explicitly requires user approval for a sensitive local operation.
 
-### Trigger condition
-
-Manual execution is required if the selected final integration fixture exercises a hardware-local capability that hosted CI cannot authoritatively reproduce (for example the R6.4 real-render visual path), or if a major-patch policy explicitly requires user approval for a sensitive local operation under Guardian/PermissionSet.
-
-### Planned command contract if triggered
+If triggered:
 
 ```powershell
 git fetch origin
-git checkout <R6_12_ACCEPTED_HEAD>
+git checkout <R6_12_FINAL_HEAD>
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,ui,code]"
 powershell -ExecutionPolicy Bypass -File .\scripts\r6_12_accept_local.ps1
 ```
 
-The script must not ask for arbitrary command strings. It must execute only predefined governed acceptance operations.
+Expected: base/head SHA, classification/reasons, required-gate list, PASS evidence IDs, rollback-plan ID, snapshot/rollback evidence where applicable, AuditLog verification where applicable, `failed=0`, `acceptance_completed=true`.
 
-### Expected output
+If rollback rehearsal fails, stop and preserve the pre-test snapshot/evidence. Never repeatedly mutate an unrestored fixture or downgrade an unavailable required gate. Send terminal summary + final integration JSON + specifically required local reports, with secrets redacted. Do not mark R6 COMPLETE/start R7/merge final implementation until reviewed.
 
-- exact base/head SHA;
-- major-patch classification and reasons;
-- required gate list;
-- each gate PASS with evidence path/ID;
-- rollback plan ID;
-- snapshot/rollback rehearsal evidence when applicable;
-- AuditLog chain verification where applicable;
-- `failed=0` and `acceptance_completed=true`.
+## Risks
 
-### Failure recovery
-
-If rollback rehearsal fails, stop immediately and preserve the pre-test snapshot/evidence. Do not repeatedly mutate the same fixture without restoring a known state. If a required gate is unavailable, R6.12 remains incomplete rather than downgrading that gate.
-
-### Evidence to send back
-
-Complete terminal summary plus final integration JSON report and any specifically requested local report from the triggered hardware gate. Redact secrets.
-
-### Do not do yet
-
-Do not mark R6 COMPLETE, start R7 planning, or merge the final implementation PR until the triggered local evidence and all authoritative CI are accepted.
-
-## Rollback / risks
-
-The final gate itself must be revertible and must never become a mechanism for bypassing Guardian, SafeChange or existing CI. Beware circular validation where the patch gate accepts its own summary without verifying underlying evidence.
+Avoid circular validation where patch gate trusts its own summary without validating underlying evidence. The gate must itself remain revertible and never bypass Guardian/SafeChange/CI.
 
 ---
 
 # Manual-intervention forecast for the remainder of R6
 
-The user must be told early about these expected gates:
+The user is informed now, before implementation begins:
 
-- **R6.4 — REQUIRED:** one real Windows/Godot rendered visual-regression acceptance run on the accepted workstation.
-- **R6.5 — REQUIRED:** one real interactive Windows keyboard-only + Narrator accessibility checklist.
-- **R6.8 — CONDITIONAL:** local Windows build evidence only if GitHub-hosted CI cannot authoritatively satisfy the build/reproducibility DoD.
-- **R6.11 — CONDITIONAL:** provenance/license input only if an acceptance-critical component remains ambiguous after trusted metadata/source resolution.
-- **R6.12 — CONDITIONAL:** local integration/approval only if the final major-patch fixture selects a hardware-local or user-approval-required gate.
+- **R6.4 — REQUIRED:** real Windows/Godot rendered visual-regression acceptance on the accepted workstation.
+- **R6.5 — REQUIRED:** real interactive Windows keyboard-only + Narrator accessibility checklist.
+- **R6.8 — CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet build/reproducibility DoD.
+- **R6.11 — CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved.
+- **R6.12 — CONDITIONAL:** local integration/approval only if final selected gates require hardware-local execution or explicit approval.
+- **R6.6, R6.7, R6.9, R6.10 — NONE** currently planned.
 
-No manual intervention is currently planned for R6.6, R6.7, R6.9 or R6.10.
-
-When each manual subdivision is reached, the exact accepted head SHA and any final implementation-specific command details must be inserted into its acceptance document before the user is asked to run anything.
+Before asking the user to run a manual gate, its acceptance document must replace all `<...FINAL_HEAD>` placeholders with the exact final implementation head and confirm the final implementation-specific commands, expected output, recovery and evidence requirements.
 
 # R6 completion rule
 
 R6 is COMPLETE only when:
 
-1. R6.1 through R6.12 are all COMPLETE with their required evidence;
-2. no required manual gate remains pending;
-3. the final R6.12 integration gate passes;
-4. R0 Repository Guard, Python Core Windows + Ubuntu and KodeStudio UI Smoke are successful on the final implementation head;
-5. the final implementation PR is merged;
-6. post-merge `R6_STATUS.md`, this `R6_PLAN.md` and `KODEPOIA_CONTINUITY.md` are synchronized on normalized `main`;
-7. only after that may R7 planning begin under the permanent phase-start planning rule.
+1. R6.1 through R6.12 are COMPLETE with all required evidence;
+2. no REQUIRED/triggered CONDITIONAL manual gate remains pending;
+3. R6.12 integrated gate passes;
+4. final implementation-head R0, Python Core Windows+Ubuntu and KodeStudio UI Smoke succeed;
+5. final implementation PR is merged;
+6. `R6_PLAN.md`, `R6_STATUS.md` and `KODEPOIA_CONTINUITY.md` are synchronized on normalized `main`;
+7. only then may R7 planning begin under the permanent phase-start planning rule.
 
-# Change log for this plan
+# Change log
 
-- 2026-08-22: retroactive plan created by explicit user request before R6.4. R6.1–R6.3 recorded from already accepted evidence; R6.4–R6.12 structure frozen for the remainder of R6.
+- 2026-08-22: retroactive plan created by explicit user request before R6.4; R6.1–R6.3 recorded from already accepted evidence; R6.4–R6.12 structure frozen.
+- 2026-08-22: planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a` passed R0 `32563057993`/#639, Python Core `32563057956`/#613 and UI Smoke `32563057903`/#580; PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`. R6.4 becomes NEXT / NOT STARTED.

@@ -1,4 +1,4 @@
-"""Quality, health, budget, test, regression, visual QA, accessibility, localization, debt, CI, build and security primitives."""
+"""Quality, health, budget, test, regression, visual QA, accessibility, localization, debt, CI, build, security and privacy primitives."""
 
 from kodepoia.quality.accessibility import (
     AccessibilityReport, AccessibilityReportStatus, AccessibilityResult, AccessibilitySeverity,
@@ -19,6 +19,12 @@ from kodepoia.quality.health import (
 from kodepoia.quality.localization import (
     KodeLocalization, LocaleCatalog, LocalizationReport, LocalizationResult, LocalizationSeverity,
     LocalizationStatus, LocalizationStore, LocalizedMessage, pseudo_catalog, pseudo_localize_text,
+)
+from kodepoia.quality.privacy import (
+    DeclarationValue, KodePrivacy, PrivacyApplicability, PrivacyBasisState, PrivacyCheckStatus,
+    PrivacyDataItem, PrivacyDisposition, PrivacyIssue, PrivacyReport, PrivacyReportStatus,
+    PrivacySensitivity, PrivacySeverity, PrivacyStore, StoreKind, StorePrivacyDeclaration,
+    redact_privacy_evidence,
 )
 from kodepoia.quality.regression import (
     KodeRegression, RegressionChange, RegressionEntry, RegressionReport, RegressionStatus, RegressionStore,
@@ -48,21 +54,26 @@ __all__ = [
     "BuildStatus", "BuildStore", "BudgetConstraint", "BudgetDirection", "BudgetMetric",
     "BudgetMetricResult", "BudgetObservation", "BudgetReport", "BudgetStatus", "BudgetStore",
     "CICheck", "CICheckStatus", "CIReport", "CIReportStatus", "CIStore", "DebtCategory",
-    "DebtReference", "DebtReferenceKind", "DebtSeverity", "DebtState", "DependencySecurityStatus",
-    "DependencyVulnerabilityEvidence", "HealthDimension", "HealthMetric", "HealthPolicy",
-    "HealthReport", "HealthStatus", "HealthStore", "KodeAccessibility", "KodeAppSecurity", "KodeBuild",
-    "KodeBudget", "KodeCI", "KodeHealth", "KodeLocalization", "KodeRegression", "KodeTechnicalDebt",
-    "KodeTests", "KodeVisualQA", "LocaleCatalog", "LocalizationReport", "LocalizationResult",
-    "LocalizationSeverity", "LocalizationStatus", "LocalizationStore", "LocalizedMessage",
-    "PlatformBudgetSpec", "RegressionChange", "RegressionEntry", "RegressionReport", "RegressionStatus",
-    "RegressionStore", "ResidualRisk", "SecurityApplicability", "SecurityCategory",
-    "SecurityCheckStatus", "SecurityEntryPoint", "SecurityReport", "SecurityReportStatus",
-    "SecurityRequirement", "SecuritySeverity", "SecurityStore", "TechnicalDebtItem",
-    "TechnicalDebtReport", "TechnicalDebtStatus", "TechnicalDebtStore", "TestCaseResult",
-    "TestCaseStatus", "TestRunReport", "TestRunStatus", "TestRunStore", "Threat", "ThreatAsset",
-    "ThreatModel", "TrustBoundary", "VisualBaselineApproval", "VisualImage", "VisualMask",
-    "VisualMetrics", "VisualPolicy", "VisualReport", "VisualStatus", "VisualStore",
-    "applicable_requirement", "collect_python_artifacts", "dependency_input_digests",
-    "hash_source_inputs", "kodepoia_threat_model", "not_applicable_requirement", "pseudo_catalog",
-    "pseudo_localize_text", "redact_sensitive", "secure_storage_requirement",
+    "DebtReference", "DebtReferenceKind", "DebtSeverity", "DebtState", "DeclarationValue",
+    "DependencySecurityStatus", "DependencyVulnerabilityEvidence", "HealthDimension", "HealthMetric",
+    "HealthPolicy", "HealthReport", "HealthStatus", "HealthStore", "KodeAccessibility",
+    "KodeAppSecurity", "KodeBuild", "KodeBudget", "KodeCI", "KodeHealth", "KodeLocalization",
+    "KodePrivacy", "KodeRegression", "KodeTechnicalDebt", "KodeTests", "KodeVisualQA",
+    "LocaleCatalog", "LocalizationReport", "LocalizationResult", "LocalizationSeverity",
+    "LocalizationStatus", "LocalizationStore", "LocalizedMessage", "PlatformBudgetSpec",
+    "PrivacyApplicability", "PrivacyBasisState", "PrivacyCheckStatus", "PrivacyDataItem",
+    "PrivacyDisposition", "PrivacyIssue", "PrivacyReport", "PrivacyReportStatus",
+    "PrivacySensitivity", "PrivacySeverity", "PrivacyStore", "RegressionChange", "RegressionEntry",
+    "RegressionReport", "RegressionStatus", "RegressionStore", "ResidualRisk", "SecurityApplicability",
+    "SecurityCategory", "SecurityCheckStatus", "SecurityEntryPoint", "SecurityReport",
+    "SecurityReportStatus", "SecurityRequirement", "SecuritySeverity", "SecurityStore", "StoreKind",
+    "StorePrivacyDeclaration", "TechnicalDebtItem", "TechnicalDebtReport", "TechnicalDebtStatus",
+    "TechnicalDebtStore", "TestCaseResult", "TestCaseStatus", "TestRunReport", "TestRunStatus",
+    "TestRunStore", "Threat", "ThreatAsset", "ThreatModel", "TrustBoundary",
+    "VisualBaselineApproval", "VisualImage", "VisualMask", "VisualMetrics", "VisualPolicy",
+    "VisualReport", "VisualStatus", "VisualStore", "applicable_requirement",
+    "collect_python_artifacts", "dependency_input_digests", "hash_source_inputs",
+    "kodepoia_threat_model", "not_applicable_requirement", "pseudo_catalog",
+    "pseudo_localize_text", "redact_privacy_evidence", "redact_sensitive",
+    "secure_storage_requirement",
 ]

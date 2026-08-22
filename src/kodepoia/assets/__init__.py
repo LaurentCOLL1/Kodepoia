@@ -22,6 +22,16 @@ from kodepoia.assets.serialization import (
     verify_content,
 )
 from kodepoia.assets.store import DeletionPlan, RebuildReport, VaultStore
+from kodepoia.assets.transforms import (
+    CacheState,
+    DeterminismState,
+    DeterministicTextTransform,
+    ToolIdentity,
+    TransformRecipe,
+    TransformRegistry,
+    TransformResult,
+    TransformService,
+)
 
 __all__ = [
     "AssetId",
@@ -31,13 +41,21 @@ __all__ = [
     "AssetRevisionId",
     "AssetRole",
     "AssetStatus",
+    "CacheState",
     "DeletionPlan",
+    "DeterminismState",
+    "DeterministicTextTransform",
     "LineageRef",
     "PreservationPolicy",
     "ProjectAssetReference",
     "ProvenanceRef",
     "RebuildReport",
     "ReuseScope",
+    "ToolIdentity",
+    "TransformRecipe",
+    "TransformRegistry",
+    "TransformResult",
+    "TransformService",
     "VaultBoundary",
     "VaultStore",
     "VaultViolation",

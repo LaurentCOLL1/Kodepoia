@@ -46,6 +46,12 @@ DEFAULT_GODOT_POLICIES: dict[str, GodotToolPolicy] = {
     "kodegodot_export_presets": _READ,
     "kodegodot_export_project": GodotToolPolicy(ActionType.EXECUTE, extra_capabilities=(Capability.FILE_WRITE,), extra_write_root=".kodepoia/exports"),
     "kodegodot_capture_movie": GodotToolPolicy(ActionType.EXECUTE, target_arg="scene", extra_capabilities=(Capability.FILE_READ, Capability.FILE_WRITE), extra_write_root=".kodepoia/captures"),
+    "kodegodot_capture_png_sequence": GodotToolPolicy(
+        ActionType.EXECUTE,
+        target_arg="scene",
+        extra_capabilities=(Capability.FILE_READ, Capability.FILE_WRITE),
+        extra_write_root=".kodepoia/visual_tests/runs",
+    ),
     "kodegodot_benchmark_scene": _EXECUTE,
     "kodegodot_services_start": _EXECUTE,
     "kodegodot_services_stop": _EXECUTE,

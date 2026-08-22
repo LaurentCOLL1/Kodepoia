@@ -26,8 +26,8 @@ Accepted planning evidence:
 2. **R6.2 — KodeBudget foundation** — COMPLETE — manual `NONE` — PR #32 merge `65510a9b116d9c48b185a0edb51d99e5b951200a`.
 3. **R6.3 — KodeTests + KodeRegression foundation** — COMPLETE — manual `NONE` — PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`.
 4. **R6.4 — KodeVisualQA foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`.
-5. **R6.5 — KodeAccessibility foundation** — IN PROGRESS — manual `REQUIRED` — branch `feature/r6-5-accessibility`, PR #41, started from normalized `main` `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
-6. **R6.6 — KodeLocalization + pseudo-localization foundation** — PLANNED — manual `NONE`.
+5. **R6.5 — KodeAccessibility foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`.
+6. **R6.6 — KodeLocalization + pseudo-localization foundation** — NEXT / NOT STARTED — manual `NONE`.
 7. **R6.7 — KodeTechnicalDebt foundation** — PLANNED — manual `NONE`.
 8. **R6.8 — KodeCI + KodeBuild foundation** — PLANNED — manual `CONDITIONAL`.
 9. **R6.9 — KodeAppSecurity baseline** — PLANNED — manual `NONE`.
@@ -35,7 +35,7 @@ Accepted planning evidence:
 11. **R6.11 — KodeLicense + KodeBOM foundation** — PLANNED — manual `CONDITIONAL`.
 12. **R6.12 — Major-patch validation + rollback gate and R6 integration acceptance** — PLANNED — manual `CONDITIONAL`.
 
-The exact objective, implementation contract, acceptance gates, rollback/recovery, risks and manual procedures are authoritative in `R6_PLAN.md`.
+The exact objective, implementation contract, acceptance gates, rollback/recovery, risks and manual procedures remain authoritative in `R6_PLAN.md`.
 
 ## Accepted R6.1 evidence
 
@@ -91,49 +91,44 @@ Required hardware-local evidence on the exact same head:
 - AuditLog chain valid;
 - summary `8 PASS / 0 FAIL / 8`, `acceptance_completed=true`.
 
-PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f` after the local evidence was reviewed, without changing the tested head.
+PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`; post-merge normalization PR #40 merged as `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
 
-Accepted R6.4 scope includes deterministic VisualQA, immutable content-addressed baselines, hash-bound masks/policy, PNG diff artifacts, anti-tamper report validation, R6.3 regression hooks, WorkspaceBoundary confinement and a separate governed real-render PNG capture path that preserves the accepted R5 AVI behavior.
+## Accepted R6.5 evidence
 
-## R6.5 implementation state
+Accepted implementation head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`.
 
-R6.5 started from normalized `main` `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1` on branch `feature/r6-5-accessibility`; implementation PR #41 is open and remains blocked from merge until final-head hosted CI plus the REQUIRED real interactive Windows keyboard/focus/Narrator acceptance pass.
+Hosted final-head evidence:
 
-Implemented scope currently includes:
+- R0 Repository Guard `32567824374` / #710 — SUCCESS Windows + Ubuntu;
+- Python Core `32567824373` / #684 — SUCCESS Windows + Ubuntu, compilation, PowerShell runner syntax, full pytest and integrated KodeStudio accessibility UI smoke;
+- KodeStudio UI Smoke `32567824370` / #651 — SUCCESS Windows.
 
-- structured accessibility evidence with stable rule/target IDs;
-- explicit `unknown/pass/warn/fail/not_applicable` semantics and applicability reasons;
-- severity, blockers, deterministic aggregate counts and canonical SHA-256 anti-tamper evidence;
-- `accessibility-report-v1` JSON Schema;
-- `AccessibilityStore` under `.kodepoia/diagnostics/accessibility/` through `WorkspaceBoundary`;
-- R6.3 stable accessibility test hooks;
-- explicit sRGB contrast and direct-rectangle target-size helpers;
-- KodeStudio and Project Wizard explicit Qt accessible names/descriptions;
-- stable control manifests including dynamic budget and requirement-priority controls;
-- QAccessible interface/name/role/state audit;
-- keyboard tab-focus audit with hidden/disabled adaptive controls explicitly `not_applicable`;
-- blocking discovery of named application controls that bypass accessibility registration;
-- Windows UI CI coverage;
-- structured 13-item Windows keyboard/focus/Narrator manual checklist;
-- source-head and automated-report-hash binding of manual evidence;
-- confined manual evidence under `.kodepoia/diagnostics/accessibility/`;
-- design and acceptance documents.
+Required interactive Windows evidence on the exact same head:
 
-Initial CI found and drove two non-architectural corrections:
+- Windows `Windows-11-10.0.26220-SP0`;
+- Python `3.12.4`;
+- KodeStudio main automated report: `343/343` applicable checks PASS, `0` failed, `0` warnings, `0` unknown, `0` blockers, evidence SHA-256 `9244424a8addb921822bae80de2d7c1a95733a10f04775dc7ec8b55194041920`;
+- Project Wizard automated report: `318/318` applicable checks PASS, `0` failed, `0` warnings, `0` unknown, `0` blockers, evidence SHA-256 `e824358a8068d871f59fdbcc55092b300b572d34548d76b0c379973002ea2d91`;
+- keyboard manual checks `5/5` PASS;
+- visible/unobscured focus checks `2/2` PASS;
+- Windows Narrator checks `6/6` PASS;
+- manual total `13/13` PASS, `0` blocking failures;
+- integrated summary `15 PASS / 0 FAIL / 15`;
+- `metadata.acceptance_completed=true`;
+- final local evidence `.kodepoia/diagnostics/accessibility/r6-5-local-acceptance.json`.
 
-1. the symlink-escape test incorrectly expected `ValueError`; existing `WorkspaceBoundary` correctly raised `WorkspaceViolation`, so the test was corrected without weakening confinement;
-2. Qt creates internal `QTabBar` controls named `ScrollLeftButton` and `ScrollRightButton`; the application-control discovery now excludes only those identified Qt-owned implementation children instead of requiring them as Kodepoia controls.
+PR #41 merged as `db1a1ab78eb2ac7d90f75ab294074dec0238268c` after the hosted and required local evidence were reviewed, without changing the tested implementation head.
 
-A PySide focus-policy conversion was also hardened to avoid eager enum conversion. No Guardian/Sandbox/KillSwitch policy was changed.
+Accepted R6.5 scope includes structured accessibility evidence, explicit applicability/N/A semantics, anti-tamper report hashing, `WorkspaceBoundary` confinement, R6.3 hooks, deterministic contrast/target-size helpers, KodeStudio/Project Wizard accessible metadata, QAccessible name/role/state inspection, keyboard-focus audit, dynamic-control registration, Windows UI CI and a source-head-bound real keyboard/focus/Narrator acceptance contract.
 
-**R6.5 is NOT COMPLETE.** The implementation head is not yet frozen. Final-head R0/Python Core/KodeStudio workflows and the REQUIRED Windows keyboard/focus/Narrator gate are still pending.
+The local run emitted non-blocking Qt font-directory / `propagateSizeHints()` notices, but both structured accessibility reports contained zero warnings, zero unknowns and zero blockers. They do not reopen R6.5; if still relevant they may be tracked later as technical debt.
 
-**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE. R6.4 = COMPLETE. R6.5 = IN PROGRESS. R6 remains IN PROGRESS.**
+**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE. R6.4 = COMPLETE. R6.5 = COMPLETE. R6 remains IN PROGRESS. R6.6 is NEXT / NOT STARTED.**
 
 ## Manual-intervention forecast
 
 - R6.4 `REQUIRED`: SATISFIED and accepted; no further user action required unless a regression is demonstrated.
-- R6.5 `REQUIRED`: real interactive Windows keyboard-only, visible/unobscured focus and Narrator checklist after the exact final PR head is CI-green. Expected local success is 13/13 manual plus 2/2 automated surfaces = `15 PASS / 0 FAIL / 15` and `acceptance_completed=true`.
+- R6.5 `REQUIRED`: SATISFIED and accepted; no further user action required unless a regression is demonstrated.
 - R6.8 `CONDITIONAL`: local Windows build evidence only if hosted CI cannot satisfy build/reproducibility DoD.
 - R6.11 `CONDITIONAL`: provenance/license evidence only if an acceptance-critical component remains ambiguous.
 - R6.12 `CONDITIONAL`: local integration/user approval only if final selected gates require it.

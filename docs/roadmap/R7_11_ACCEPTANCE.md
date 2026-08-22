@@ -1,12 +1,19 @@
 # R7.11 — Adversarial hardening + R7 integrated acceptance — Acceptance
 
-**Status: IN PROGRESS — R7 MUST NOT be marked COMPLETE before post-merge integrated normalization passes.**
+**Status: COMPLETE — implementation accepted; R7 phase closure still requires this normalization to pass and merge.**
+
+## Accepted implementation
+
+- Accepted head: `52330ca576fe294956a8fb601bdfda1d72dc3f92`
+- PR: #80
+- Merge commit: `1cdf5b90cc6c3e829c13e63f753f47fb067ef14e`
+- Manual intervention: **CONDITIONAL NOT TRIGGERED**
 
 ## Scope
 
 This acceptance covers the frozen final R7 subdivision only: cross-source adversarial/security regressions, integrated acceptance contracts/schema, repository evidence validator, final quality/security/BOM review and phase-closing evidence preparation.
 
-## Frozen invariants under test
+## Accepted invariants
 
 - Hostile local/official/Web/GitHub/Community/YouTube text remains guarded/untrusted data and cannot become tool instructions or permission authority.
 - SSRF defenses reject unsafe schemes/credential targets/private, loopback and link-local addresses, mixed safe/unsafe DNS answers and unsafe redirect targets before a dangerous request.
@@ -22,9 +29,8 @@ This acceptance covers the frozen final R7 subdivision only: cross-source advers
 - Stored `manual_satisfied` and report evidence digest are derived/recalculated and tampering fails closed.
 - Repository validation reloads canonical bytes, recalculates SHA-256/length, verifies accepted head presence/manual PASS state and requires R7.11 head == report source SHA.
 - The domain validator receives an injected blob reader and does not obtain a shell/process/network surface.
-- `R7_INTEGRATED_ACCEPTANCE.json` is created only in post-merge normalization after the exact accepted R7.11 implementation head exists, mirroring the accepted R6 self-reference solution.
 - R7.7 REQUIRED manual evidence remains satisfied and mandatory for final phase PASS.
-- R7.11 manual = CONDITIONAL; deterministic evidence is expected to satisfy the frozen contract without a live probe, in which case the final state is CONDITIONAL NOT TRIGGERED.
+- Deterministic hosted evidence established every frozen R7.11 behavior, so no live-provider probe was required; the CONDITIONAL gate is explicitly NOT TRIGGERED.
 
 ## Deliverables
 
@@ -35,28 +41,34 @@ This acceptance covers the frozen final R7 subdivision only: cross-source advers
 - `docs/roadmap/R7_11_DESIGN.md`
 - `docs/roadmap/R7_11_SECURITY_REVIEW.md`
 - this acceptance document
-- post-merge normalization deliverable: `docs/roadmap/R7_INTEGRATED_ACCEPTANCE.json`
+- normalization deliverable: `docs/roadmap/R7_INTEGRATED_ACCEPTANCE.json`
 
 ## Quality / security / BOM review
 
-`docs/roadmap/R7_11_SECURITY_REVIEW.md` records the final review. R7.11 adds no Python dependency and does not modify `pyproject.toml`; accepted R7.7 FFmpeg/whisper.cpp/model hashes remain unchanged. The authoritative Python suite re-runs R6 Health/Regression/TechnicalDebt/AppSecurity/Privacy/License/BOM and R6.12 repository integration.
+`docs/roadmap/R7_11_SECURITY_REVIEW.md` records the final review. R7.11 adds no Python dependency and does not modify `pyproject.toml`; accepted R7.7 FFmpeg/whisper.cpp/model hashes remain unchanged. The authoritative Python suite re-ran the existing R6 Health/Regression/TechnicalDebt/AppSecurity/Privacy/License/BOM and R6.12 repository-integration coverage.
 
-## Hosted implementation acceptance
+## Exact-head hosted implementation acceptance
 
-Required exact-head workflows:
+All required workflows succeeded on accepted head `52330ca576fe294956a8fb601bdfda1d72dc3f92`:
 
-- R0 Repository Guard — **PENDING**
-- Python Core (all required jobs) — **PENDING**
-- KodeStudio UI Smoke — **PENDING**
+- R0 Repository Guard — **#1030 / `32598775535` — SUCCESS**
+- Python Core — **#1004 / `32598775562` — SUCCESS, 5/5 jobs**
+- Authoritative Ubuntu suite — **514 passed / 6 skipped / 46 warnings**
+- KodeStudio UI Smoke — **#971 / `32598775534` — SUCCESS**
+- Embedded `kodestudio-ui-windows` job inside Python Core — **SUCCESS**
 
-Authoritative run IDs/test counts and the accepted R7.11 head will be written only after the exact final implementation candidate is green.
+## Rejected implementation candidate retained as evidence
+
+- `b35a6dcd330c7cc3cb582d775ce0275d7a9b2f87`: Python Core #1003 and UI Smoke #970 succeeded, but R0 #1029 correctly rejected a literal GitHub-token-shaped **test fixture** as a possible hard-coded secret. The fixture was changed to construct the fake token at runtime; the repository secret scanner was not weakened or bypassed. The new exact head then passed R0 #1030.
+
+No failed candidate/run is reused as accepted evidence.
 
 ## Manual intervention
 
-**CONDITIONAL — currently NOT TRIGGERED for the implementation candidate.**
+**CONDITIONAL NOT TRIGGERED.**
 
-A live provider probe becomes mandatory only if a frozen R7.11 requirement cannot be established by deterministic hosted evidence. Any trigger must be documented before execution; silence never satisfies it.
+All frozen R7.11 provider/security behaviors are covered through deterministic typed fixtures and already accepted lower-layer provider contracts. No live account, credential or external-provider probe was needed. Silence is not being used as evidence; this decision is explicit.
 
 ## Phase completion rule
 
-A green R7.11 implementation PR is necessary but not sufficient to mark R7 COMPLETE. After that merge, a separate normalization must finalize this document with the accepted implementation head, create `R7_INTEGRATED_ACCEPTANCE.json` bound to canonical acceptance-document blobs, pass the checked-in repository validator plus exact-head R0/Python/UI gates, synchronize status/continuity and merge. Only then may R7 become COMPLETE.
+R7.11 implementation is accepted, but **R7 is not COMPLETE yet at this point in the document lifecycle**. This normalization must now create `R7_INTEGRATED_ACCEPTANCE.json` bound to the canonical bytes of R7.1–R7.11 acceptance documents, pass the checked-in repository validator plus exact-head R0/Python/UI gates, synchronize status/continuity, and merge to `main`. Only after that merge is R7 COMPLETE.

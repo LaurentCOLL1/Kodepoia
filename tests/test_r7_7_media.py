@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import base64
-import hashlib
 import json
+import shutil
 from pathlib import Path
 from typing import Sequence
 
@@ -11,6 +10,7 @@ from jsonschema import Draft202012Validator
 from PIL import Image
 
 from kodepoia.core.sandbox import SandboxResult
+from kodepoia.exceptions import PermissionDenied
 from kodepoia.intelligence.research.contracts import ResearchStatus
 from kodepoia.intelligence.research.media import (
     EXPECTED_FIXTURE_SHA256,
@@ -23,7 +23,10 @@ from kodepoia.intelligence.research.media import (
     build_governed_media_runner,
     parse_whisper_json,
 )
-from kodepoia.exceptions import PermissionDenied
+from kodepoia.intelligence.research.media_fixture import (
+    multipart_fixture_sha256,
+    run_fixture_acceptance,
+)
 
 
 class FakeMediaRunner:
@@ -79,8 +82,11 @@ class FakeMediaRunner:
         return SandboxResult(1, "", "unexpected fake invocation")
 
 
-def _fixture_source() -> Path:
-    return Path(__file__).parent / "fixtures" / "research" / "r7_7_media_fixture.mp4.b64"
+def _fixture_parts() -> tuple[Path, ...]:
+    root = Path(__file__).parent / "fixtures" / "research"
+    parts = tuple(sorted(root.glob("r7_7_media_fixture.mp4.b64.[0-9][0-9][0-9]")))
+    assert len(parts) == 4
+    return parts
 
 
 def _project(tmp_path: Path, *, model: bool = True) -> tuple[Path, Path, Path]:
@@ -90,8 +96,8 @@ def _project(tmp_path: Path, *, model: bool = True) -> tuple[Path, Path, Path]:
     (root / ".git" / "HEAD").write_text("a" * 40 + "\n", encoding="utf-8")
     fixture_dir = root / "tests" / "fixtures" / "research"
     fixture_dir.mkdir(parents=True)
-    fixture_text = _fixture_source().read_text(encoding="ascii")
-    (fixture_dir / "r7_7_media_fixture.mp4.b64").write_text(fixture_text, encoding="ascii")
+    for source in _fixture_parts():
+        shutil.copyfile(source, fixture_dir / source.name)
     ffmpeg = root / ("ffmpeg.exe" if __import__("os").name == "nt" else "ffmpeg")
     whisper = root / ("whisper-cli.exe" if __import__("os").name == "nt" else "whisper-cli")
     ffmpeg.write_bytes(b"fake-ffmpeg")
@@ -103,10 +109,15 @@ def _project(tmp_path: Path, *, model: bool = True) -> tuple[Path, Path, Path]:
     return root, ffmpeg, whisper
 
 
-def test_fixture_payload_is_canonical_and_small() -> None:
-    raw = base64.b64decode(_fixture_source().read_text(encoding="ascii"), validate=True)
-    assert len(raw) == 12112
-    assert hashlib.sha256(raw).hexdigest() == EXPECTED_FIXTURE_SHA256
+def test_fixture_payload_is_canonical_and_small(tmp_path: Path) -> None:
+    root, _, _ = _project(tmp_path)
+    size, digest = multipart_fixture_sha256(
+        root,
+        "tests/fixtures/research/r7_7_media_fixture.mp4",
+        max_decoded_bytes=32 * 1024 * 1024,
+    )
+    assert size == 12112
+    assert digest == EXPECTED_FIXTURE_SHA256
 
 
 def test_whisper_json_preserves_millisecond_offsets() -> None:
@@ -148,16 +159,21 @@ def test_full_fake_acceptance_uses_fixed_cpu_stt_and_cleans_temp(tmp_path: Path)
     root, ffmpeg, whisper = _project(tmp_path)
     runner = FakeMediaRunner()
     doctor = MediaDoctor(root, runner, ffmpeg_executable=ffmpeg, whisper_executable=whisper)
-    report = LocalMediaAcceptance(
+    acceptance = LocalMediaAcceptance(
         root,
         runner,
         doctor,
         policy=MediaExecutionPolicy(frame_timestamps_ms=(500, 1500, 2500)),
         frame_analysis=UnavailableFrameAnalysisProvider(),
-    ).run("tests/fixtures/research/r7_7_media_fixture.mp4")
+    )
+    report = run_fixture_acceptance(
+        acceptance,
+        "tests/fixtures/research/r7_7_media_fixture.mp4",
+    )
 
     assert report.status is AcceptanceStatus.PASS
     assert report.source_sha == "a" * 40
+    assert report.fixture_relative_path == "tests/fixtures/research/r7_7_media_fixture.mp4"
     assert report.fixture_sha256 == EXPECTED_FIXTURE_SHA256
     assert report.cleanup_passed is True
     assert len(report.frames) == 3
@@ -165,7 +181,11 @@ def test_full_fake_acceptance_uses_fixed_cpu_stt_and_cleans_temp(tmp_path: Path)
     assert report.vision_status is ResearchStatus.UNAVAILABLE
     assert report.resources.cpu_measurement_status is ResearchStatus.UNKNOWN
     assert report.resources.ram_measurement_status is ResearchStatus.UNKNOWN
-    whisper_calls = [call for call in runner.calls if "whisper-cli" in Path(call[0]).name.lower() and "-f" in call]
+    whisper_calls = [
+        call
+        for call in runner.calls
+        if "whisper-cli" in Path(call[0]).name.lower() and "-f" in call
+    ]
     assert len(whisper_calls) == 1
     whisper_call = whisper_calls[0]
     assert "-ng" in whisper_call
@@ -179,12 +199,14 @@ def test_timeout_fails_closed_and_still_cleans_temp(tmp_path: Path) -> None:
     root, ffmpeg, whisper = _project(tmp_path)
     runner = FakeMediaRunner(timeout_audio=True)
     doctor = MediaDoctor(root, runner, ffmpeg_executable=ffmpeg, whisper_executable=whisper)
-    report = LocalMediaAcceptance(root, runner, doctor).run(
-        "tests/fixtures/research/r7_7_media_fixture.mp4"
+    report = run_fixture_acceptance(
+        LocalMediaAcceptance(root, runner, doctor),
+        "tests/fixtures/research/r7_7_media_fixture.mp4",
     )
     assert report.status is AcceptanceStatus.FAIL
     assert report.cleanup_passed is True
     assert any(check.check_id == "processing" and not check.passed for check in report.checks)
+    assert not any((root / ".kodepoia" / "research" / "tmp").glob("r7_7_fixture_*"))
 
 
 def test_governed_runner_rejects_non_allowlisted_executable(tmp_path: Path) -> None:
@@ -198,8 +220,9 @@ def test_report_schemas_accept_deterministic_fake_evidence(tmp_path: Path) -> No
     runner = FakeMediaRunner()
     doctor = MediaDoctor(root, runner, ffmpeg_executable=ffmpeg, whisper_executable=whisper)
     doctor_payload = doctor.run().to_dict()
-    acceptance_payload = LocalMediaAcceptance(root, runner, doctor).run(
-        "tests/fixtures/research/r7_7_media_fixture.mp4"
+    acceptance_payload = run_fixture_acceptance(
+        LocalMediaAcceptance(root, runner, doctor),
+        "tests/fixtures/research/r7_7_media_fixture.mp4",
     ).to_dict()
 
     repository_root = Path(__file__).resolve().parents[1]

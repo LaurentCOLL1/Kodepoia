@@ -61,7 +61,7 @@ class ImageDHashFingerprinter:
     def fingerprint(self, path: Path) -> Fingerprint:
         with Image.open(path) as image:
             gray = image.convert("L").resize((9, 8), Image.Resampling.BILINEAR)
-            pixels = list(gray.getdata())
+            pixels = list(gray.get_flattened_data())
         bits = 0
         bit_index = 0
         for row in range(8):

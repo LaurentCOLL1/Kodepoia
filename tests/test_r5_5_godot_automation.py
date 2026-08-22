@@ -50,8 +50,10 @@ def test_runtime_builds_confined_export_and_movie_commands(tmp_path: Path) -> No
 
     result = runtime.capture_movie(scene="main.tscn", output_name="smoke.avi", frames=90, fps=30, timeout=30)
     assert result.ok
+    # Movie Maker needs a real renderer; --headless would select the dummy
+    # RenderingServer and cannot produce valid frame textures.
     assert runner.calls[-1][0] == [
-        "godot", "--headless", "--path", ".", "--write-movie", ".kodepoia/captures/smoke.avi",
+        "godot", "--path", ".", "--write-movie", ".kodepoia/captures/smoke.avi",
         "--fixed-fps", "30", "--quit-after", "90", "--scene", "res://main.tscn",
     ]
 

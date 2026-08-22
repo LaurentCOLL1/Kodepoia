@@ -2,12 +2,29 @@ from __future__ import annotations
 
 import os
 import subprocess
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import BinaryIO, Mapping, Sequence
 
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
+
+
+_BASE_ENVIRONMENT_KEYS = (
+    "PATH",
+    "SYSTEMROOT",
+    "WINDIR",
+    "TEMP",
+    "TMP",
+    "HOME",
+    "USERPROFILE",
+    "HOMEDRIVE",
+    "HOMEPATH",
+    "APPDATA",
+    "LOCALAPPDATA",
+    "XDG_DATA_HOME",
+    "XDG_CONFIG_HOME",
+    "XDG_CACHE_HOME",
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,7 +96,9 @@ class ProcessSandbox:
 
     This is a protected launcher, not a claim of full OS/container isolation.
     The caller still controls which executables are allowlisted and which root
-    the process is allowed to use as its working directory.
+    the process is allowed to use as its working directory. Only a bounded set
+    of non-secret OS path variables is inherited by default so desktop tools
+    such as Godot can locate their normal user data/settings directories.
     """
 
     def __init__(
@@ -111,14 +130,7 @@ class ProcessSandbox:
         if workdir != self.root and self.root not in workdir.parents:
             raise PermissionError(f"Working directory escapes sandbox root: {workdir}")
 
-        clean_env = {
-            "PATH": os.environ.get("PATH", ""),
-            "SYSTEMROOT": os.environ.get("SYSTEMROOT", ""),
-            "WINDIR": os.environ.get("WINDIR", ""),
-            "TEMP": os.environ.get("TEMP", ""),
-            "TMP": os.environ.get("TMP", ""),
-            "HOME": os.environ.get("HOME", ""),
-        }
+        clean_env = {key: os.environ.get(key, "") for key in _BASE_ENVIRONMENT_KEYS}
         if env:
             clean_env.update({str(key): str(value) for key, value in env.items()})
         return workdir, clean_env
@@ -147,6 +159,34 @@ class ProcessSandbox:
         self.kill_switch.register(process)
         return ManagedProcess(process, self.kill_switch)
 
+    def spawn_background(
+        self,
+        argv: Sequence[str],
+        *,
+        cwd: Path | None = None,
+        env: Mapping[str, str] | None = None,
+    ) -> ManagedProcess:
+        """Launch a persistent network/background process without unused stdio pipes.
+
+        This is intended for services such as Godot's loopback LSP/DAP servers,
+        where communication happens over sockets. Redirecting unused stdout/stderr
+        pipes can otherwise block a verbose child on pipe backpressure.
+        """
+
+        workdir, clean_env = self._validate_launch(argv, cwd, env)
+        process = subprocess.Popen(
+            list(argv),
+            cwd=workdir,
+            env=clean_env,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            text=False,
+            shell=False,
+        )
+        self.kill_switch.register(process)
+        return ManagedProcess(process, self.kill_switch)
+
     def run(
         self,
         argv: Sequence[str],
@@ -166,21 +206,15 @@ class ProcessSandbox:
             shell=False,
         )
         self.kill_switch.register(process)
-        start = time.monotonic()
         timed_out = False
         cancelled = False
         try:
-            while process.poll() is None:
-                if self.kill_switch.triggered:
-                    cancelled = True
-                    self.kill_switch._stop_process(process)
-                    break
-                if timeout >= 0 and time.monotonic() - start >= timeout:
-                    timed_out = True
-                    self.kill_switch._stop_process(process)
-                    break
-                time.sleep(0.02)
-            stdout, stderr = process.communicate()
+            try:
+                stdout, stderr = process.communicate(timeout=None if timeout < 0 else timeout)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                self.kill_switch._stop_process(process)
+                stdout, stderr = process.communicate()
             if self.kill_switch.triggered and not timed_out and process.returncode != 0:
                 cancelled = True
         finally:

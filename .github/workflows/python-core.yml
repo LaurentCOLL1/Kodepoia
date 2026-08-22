@@ -38,20 +38,26 @@ jobs:
         run: python -m pip install -e ".[dev,code]"
       - name: Compile
         run: python -m compileall -q src tests
-      - name: Validate R3 PowerShell acceptance runner syntax
+      - name: Validate PowerShell acceptance runner syntax
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $tokens = $null
-          $errors = $null
-          [System.Management.Automation.Language.Parser]::ParseFile(
-            (Resolve-Path "scripts/r3_accept_local.ps1"),
-            [ref]$tokens,
-            [ref]$errors
-          ) | Out-Null
-          if ($errors.Count -gt 0) {
-            $errors | ForEach-Object { Write-Error $_ }
-            exit 1
+          foreach ($script in @(
+            "scripts/r3_accept_local.ps1",
+            "scripts/r5_accept_local.ps1",
+            "scripts/r5_diagnose_godot_process.ps1"
+          )) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $script),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error $_ }
+              exit 1
+            }
           }
       - name: Test
         run: pytest

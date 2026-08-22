@@ -120,6 +120,36 @@ def test_dap_lifecycle_breakpoints_stack_scopes_variables(tmp_path: Path) -> Non
     ]
 
 
+def test_dap_deferred_launch_allows_configuration_done_before_launch_wait(tmp_path: Path) -> None:
+    config = DebugConfigurationSpec("deferred", "launch", {"project": str(tmp_path)})
+    spec = DebugAdapterSpec("fake", ("fake-adapter",), configurations=(config,))
+    channel = ScriptedChannel(
+        [
+            response(1, "initialize", {"supportsConfigurationDoneRequest": True}),
+            {"seq": 200, "type": "event", "event": "initialized", "body": {}},
+            # A fast adapter may answer launch before configurationDone. The
+            # response must be preserved while configurationDone waits for seq 3.
+            response(2, "launch", {"started": True}),
+            response(3, "configurationDone", {}),
+            response(4, "threads", {"threads": [{"id": 7, "name": "debug-main"}]}),
+        ]
+    )
+    session = DapSession(spec, tmp_path, channel)  # type: ignore[arg-type]
+
+    session.initialize()
+    launch_seq = session.begin_configuration(config)
+    initialized = session.wait_for_event("initialized")
+    session.configuration_done()
+    launched = session.wait_for_response(launch_seq, "launch")
+    threads = session.threads()
+
+    assert initialized["event"] == "initialized"
+    assert launched == {"started": True}
+    assert threads == [{"id": 7, "name": "debug-main"}]
+    commands = [item["command"] for item in channel.sent if item.get("type") == "request"]
+    assert commands == ["initialize", "launch", "configurationDone", "threads"]
+
+
 def test_dap_source_must_remain_inside_workspace(tmp_path: Path) -> None:
     outside = tmp_path.parent / "outside-r4-dap.py"
     outside.write_text("print('outside')\n", encoding="utf-8")

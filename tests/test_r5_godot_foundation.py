@@ -8,6 +8,7 @@ import pytest
 from kodepoia.core.sandbox import SandboxResult
 from kodepoia.kodecode.workspace import WorkspaceViolation
 from kodepoia.kodegodot import GodotProjectInspector, GodotRuntime, GodotToolAPI
+from kodepoia.kodegodot.runtime import CHECK_SCRIPT_TIMEOUT_SECONDS, VERSION_TIMEOUT_SECONDS
 
 
 class FakeRunner:
@@ -65,10 +66,20 @@ def test_runtime_version_accepts_only_target_family(tmp_path: Path) -> None:
     runtime = GodotRuntime(tmp_path, executable="godot", runner=good)
     info = runtime.require_47()
     assert info.major == 4 and info.minor == 7 and info.compatible_47
+    assert good.calls[0][2] == VERSION_TIMEOUT_SECONDS
 
     bad = FakeRunner([SandboxResult(0, "4.6.4.stable.official\n", "")])
     with pytest.raises(RuntimeError, match="requires Godot 4.7.x"):
         GodotRuntime(tmp_path, executable="godot", runner=bad).require_47()
+
+
+def test_runtime_version_timeout_reports_cause(tmp_path: Path) -> None:
+    runner = FakeRunner([SandboxResult(1, "", "", timed_out=True)])
+    runtime = GodotRuntime(tmp_path, executable="godot", runner=runner)
+    with pytest.raises(RuntimeError, match=r"timed_out=True.*timeout=90s"):
+        runtime.version()
+    with pytest.raises(ValueError, match="version timeout"):
+        runtime.version(timeout=301)
 
 
 def test_runtime_builds_only_named_bounded_commands(tmp_path: Path) -> None:
@@ -82,6 +93,7 @@ def test_runtime_builds_only_named_bounded_commands(tmp_path: Path) -> None:
     assert runner.calls[-1][0] == [
         "godot", "--headless", "--path", ".", "--check-only", "--script", "main.gd"
     ]
+    assert runner.calls[-1][2] == CHECK_SCRIPT_TIMEOUT_SECONDS
 
     assert runtime.import_project(timeout=12).ok
     assert runner.calls[-1][0] == ["godot", "--headless", "--path", ".", "--import"]

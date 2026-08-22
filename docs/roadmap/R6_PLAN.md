@@ -16,20 +16,20 @@
 
 This is the exhaustive execution/recovery plan for R6. It is a retroactive exception to the normal phase-start planning rule because R6.1–R6.3 were already complete when the permanent `RX_PLAN.md` rule was introduced. The user explicitly requested that R6 be brought under the same discipline before R6.4.
 
-The plan freezes the R6.1–R6.12 subdivision structure and defines objective, scope, deliverables, acceptance, evidence, rollback and manual-intervention contracts for every subdivision. It remains authoritative together with `R6_STATUS.md`, subdivision acceptance documents and `KODEPOIA_CONTINUITY.md`.
+The R6.1–R6.12 subdivision structure is frozen. This plan defines scope, acceptance, evidence, rollback and manual-intervention contracts. It remains authoritative together with `R6_STATUS.md`, subdivision acceptance documents and `docs/continuity/KODEPOIA_CONTINUITY.md`.
 
 R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE with required evidence, or a later recorded roadmap/architecture decision explicitly removes a subdivision from scope.
 
 ## Planning acceptance evidence
 
-- accepted planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a`;
+- planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a`;
 - R0 Repository Guard `32563057993` / #639 — SUCCESS Windows + Ubuntu;
-- Python Core `32563057956` / #613 — SUCCESS Windows + Ubuntu, PowerShell syntax validation and integrated KodeStudio smoke;
+- Python Core `32563057956` / #613 — SUCCESS Windows + Ubuntu, PowerShell syntax and integrated KodeStudio smoke;
 - KodeStudio UI Smoke `32563057903` / #580 — SUCCESS Windows;
 - PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`;
 - post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 
-**Planning gate result: PASS. R6.1–R6.8 are COMPLETE. R6.9 is NEXT / NOT STARTED.**
+**Planning gate result: PASS. R6.1–R6.9 are COMPLETE. R6.10 is NEXT / NOT STARTED after the R6.9 normalization PR is CI-green and merged.**
 
 ## Frozen-roadmap objective
 
@@ -62,10 +62,10 @@ Every R6 subdivision must preserve:
 - `WorkspaceBoundary` path confinement and symlink-escape rejection;
 - `ProcessSandbox` plus global KillSwitch for process execution;
 - Guardian and `PermissionSet` authorization/risk control;
-- structured Tool APIs, never arbitrary model-supplied commands;
+- structured Tool APIs, never arbitrary model-supplied commands/argv/cwd/hosts;
 - SafeChange snapshots before sensitive mutation;
 - AuditLog hash-chain evidence for governed sensitive operations;
-- secrets redaction/exclusion from LLM context and persistent memory;
+- secrets redaction/exclusion from LLM context and persistent evidence;
 - schema versioning/DataGovernance;
 - platform-aware behavior: non-target platforms must not impose requirements, dependencies, inputs, budgets or tests;
 - local-first/offline-capable operation for configured projects;
@@ -76,11 +76,12 @@ Persistent R6 evidence belongs under initialized `.kodepoia/` roots and must be 
 
 ## External-reference baselines
 
-- **Accessibility:** WCAG 2.2 source criteria where applicable; W3C WCAG2ICT 2.2 is the preferred informative interpretation for non-Web desktop software. No universal WCAG certification claim.
-- **Localization:** Unicode CLDR stable releases are reference context for locale-data conventions only. R6.6 does not vendor CLDR or claim full locale-formatting coverage.
-- **CI/Build provenance:** SLSA v1.2 is reference context for artifact digest/source/build provenance concepts in R6.8. Kodepoia does not claim a SLSA level. GitHub artifact attestations may be used later as supplementary release provenance, but an attestation by itself is not a security guarantee and routine PR/test-build attestation is not an R6.8 completion gate.
-- **Application security:** OWASP ASVS 5.0.0 stable baseline, only for applicable web/API/auth/session/security surfaces.
-- **Software BOM:** SPDX 3.0 stable baseline. Pre-release SPDX versions are not authoritative without an explicit later decision.
+- **Accessibility:** WCAG 2.2 source criteria where applicable; W3C WCAG2ICT 2.2 is informative context for non-Web desktop software. No universal WCAG certification claim.
+- **Localization:** Unicode CLDR stable releases are reference context only. R6.6 does not vendor CLDR or claim universal locale coverage.
+- **CI/Build provenance:** SLSA v1.2 is reference context for artifact digest/source/build provenance. No SLSA level is claimed.
+- **Application security:** OWASP ASVS 5.0.0 is used only as an applicable-control catalogue; references are version-qualified and no global ASVS certification claim is made.
+- **Privacy:** GDPR principles and platform store declarations are reference context for explicit purpose/minimisation/retention/deletion and declaration-preparation fields. R6.10 must not make legal conclusions.
+- **Software BOM:** SPDX 3.0 is the stable R6 BOM baseline. Pre-release SPDX versions are not authoritative without an explicit later decision.
 
 If a versioned reference materially changes before a future subdivision is implemented, recheck it and record any acceptance-impacting change before coding.
 
@@ -96,8 +97,8 @@ If a versioned reference materially changes before a future subdivision is imple
 | R6.6 | KodeLocalization + pseudo-localization foundation | COMPLETE | NONE | R6.3 + R6.5 |
 | R6.7 | KodeTechnicalDebt foundation | COMPLETE | NONE | R6.1–R6.6 |
 | R6.8 | KodeCI + KodeBuild foundation | COMPLETE | CONDITIONAL — NOT TRIGGERED | R6.1–R6.7 |
-| R6.9 | KodeAppSecurity baseline | NEXT / NOT STARTED | NONE | R6.3 + R6.7–R6.8 |
-| R6.10 | KodePrivacy baseline | PLANNED | NONE | R6.7–R6.9 |
+| R6.9 | KodeAppSecurity baseline | COMPLETE | NONE | R6.3 + R6.7–R6.8 |
+| R6.10 | KodePrivacy baseline | NEXT / NOT STARTED | NONE | R6.7–R6.9 |
 | R6.11 | KodeLicense + KodeBOM foundation | PLANNED | CONDITIONAL | R6.7–R6.10 |
 | R6.12 | Major-patch validation + rollback gate and R6 integration acceptance | PLANNED | CONDITIONAL | R6.1–R6.11 |
 
@@ -107,354 +108,193 @@ No subdivision may be silently added, removed, merged, split or renumbered. Scop
 
 # R6.1 — KodeHealth foundation — COMPLETE
 
-## Accepted scope
+Accepted scope: all 14 architecture health dimensions with explicit `unknown/pass/warn/fail`, deterministic score/coverage, blockers, validated report JSON and `WorkspaceBoundary` persistence.
 
-Structured KodeHealth contract with all 14 architecture health dimensions, explicit `unknown/pass/warn/fail`, deterministic score/coverage, blockers, validated exhaustive report JSON and project-confined persistence.
-
-## Accepted evidence
-
+Accepted evidence:
 - head `802de4ba3110ace657c4e16306a0ca29850ce2bd`;
 - PR #30 merge `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`;
-- 9 focused tests PASS;
 - R0 `32561211168`, Python Core `32561211156`, UI Smoke `32561211167` — SUCCESS.
 
 Manual intervention: **NONE**.
 
-Regression protection: do not weaken exhaustive dimensions, explicit unknown coverage, validation integrity or `WorkspaceBoundary` confinement.
+Anti-regression: preserve exhaustive dimensions, explicit unknown coverage, validation integrity and project confinement.
 
 ---
 
 # R6.2 — KodeBudget foundation — COMPLETE
 
-## Accepted scope
+Accepted scope: per-platform FPS/frame-time, CPU/GPU, RAM/VRAM, storage, draw calls, polygons, textures, audio memory/voices, build size, mobile battery/thermal and online network budgets with deterministic target/hard-limit semantics and explicit unknown coverage.
 
-Per-platform budget contracts for FPS/frame time, CPU/GPU, RAM/VRAM, storage, draw calls, polygons, textures, audio memory/voices, build size, mobile battery/thermal and online network; deterministic target/hard-limit semantics and explicit unknown coverage.
-
-## Accepted evidence
-
+Accepted evidence:
 - head `8ac3772e98c70260c320519a214bb25b6cedbb38`;
 - PR #32 merge `65510a9b116d9c48b185a0edb51d99e5b951200a`;
-- derivation/evaluation/persistence smoke PASS;
-- R0 `32561719921`/#603, Python Core `32561719925`/#577, UI Smoke `32561720008`/#544 — SUCCESS.
+- R0 #603, Python Core #577, UI Smoke #544 — SUCCESS.
 
 Manual intervention: **NONE**.
 
-Regression protection: later collectors may feed R6.2 but must not create requirements for non-target platforms or weaken target/hard-limit/unknown semantics.
+Anti-regression: later collectors must not create requirements for non-target platforms or weaken target/hard-limit/unknown semantics.
 
 ---
 
 # R6.3 — KodeTests + KodeRegression foundation — COMPLETE
 
-## Accepted scope
+Accepted scope: structured test-run evidence and baseline/current regression comparison by stable ID. FAIL/ERROR→SKIP cannot hide a known failure; removed cases and newly failing cases remain regressions.
 
-Structured test-run evidence and baseline/current regression comparison by stable IDs. FAIL/ERROR→SKIP cannot hide a known failure; removed cases and newly failing cases remain regressions. Persistence is confined and no arbitrary process execution path was added.
-
-## Accepted evidence
-
+Accepted evidence:
 - head `7150237c263dd3ac96af4662d74909e05f3cf991`;
 - PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`;
-- baseline/current persistence smoke PASS;
-- R0 `32562032986`/#622, Python Core `32562032998`/#596, UI Smoke `32562032982`/#563 — SUCCESS.
+- R0 #622, Python Core #596, UI Smoke #563 — SUCCESS.
 
 Manual intervention: **NONE**.
 
-Regression protection: deleting/skipping a known case must never manufacture an apparent fix.
+Anti-regression: deleting/skipping a known case must never manufacture an apparent fix.
 
 ---
 
 # R6.4 — KodeVisualQA foundation — COMPLETE
 
-## Accepted scope
+Accepted scope: deterministic visual-regression comparison with immutable content-addressed baselines, exact-file/pixel/perceptual evidence, hash-bound masks/policy, PNG diffs, anti-tamper reports, R6.3 hooks, `WorkspaceBoundary`, and governed real-render Godot PNG capture while preserving R5 AVI capture.
 
-Deterministic visual-regression comparison with immutable content-addressed baselines, exact-file/pixel/perceptual evidence, hash-bound policy/masks, PNG diff artifacts, anti-tamper report validation, R6.3 hooks, `WorkspaceBoundary` confinement and governed real-render Godot PNG capture while preserving accepted R5 AVI capture.
-
-## Accepted evidence
-
-- base normalized main `e96e7c3b168975869c911f880044b7ef8e322157`;
-- head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`;
+Accepted evidence:
+- base `e96e7c3b168975869c911f880044b7ef8e322157`;
+- accepted head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`;
 - PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`;
-- post-merge normalization PR #40 merge `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`;
-- R0 `32564304755`/#666, Python Core `32564304757`/#640, UI Smoke `32564304798`/#607 — SUCCESS;
-- required Windows/Godot/Radeon local gate: `8 PASS / 0 FAIL / 8`, `acceptance_completed=true`;
-- VisualQA evidence SHA-256 `4c0375391d8f0e1b54c8c949b264ec70d6c9a18f10798a52a72d79ac18daab56`.
+- normalization #40 `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`;
+- R0 #666, Python Core #640, UI Smoke #607 — SUCCESS;
+- required Windows/Godot/Radeon gate `8 PASS / 0 FAIL / 8`.
 
 Manual intervention: **REQUIRED — SATISFIED**.
 
-Anti-regression: no auto-baseline replacement, no missing-evidence PASS, no weakened hashes/mask policy, no headless substitute where real-render evidence is required, no regression of R5 AVI capture, no arbitrary process/path fields.
+Anti-regression: no auto-baseline replacement, missing-evidence PASS, weakened hashes/masks or headless substitute where real rendering is required.
 
 ---
 
 # R6.5 — KodeAccessibility foundation — COMPLETE
 
-## Accepted scope
+Accepted scope: structured accessibility evidence, explicit applicability/N/A, canonical evidence hashing, KodeStudio/Project Wizard checks, Qt accessibility inspection, keyboard focus audit and source-head-bound Windows keyboard/focus/Narrator gate.
 
-Structured accessibility evidence and deterministic KodeStudio/Project Wizard checks, explicit applicability/N/A semantics, canonical evidence hashing, `WorkspaceBoundary` confinement, R6.3 hooks, explicit contrast/target-size helpers, Qt accessible metadata/QAccessible inspection, keyboard focus audit, dynamic-control registration and a source-head/hash-bound real Windows keyboard/focus/Narrator gate.
-
-## Accepted evidence
-
-- base normalized main `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`;
-- head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`;
+Accepted evidence:
+- accepted head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`;
 - PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`;
-- post-merge normalization PR #42 merge `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`;
-- R0 `32567824374`/#710, Python Core `32567824373`/#684, UI Smoke `32567824370`/#651 — SUCCESS;
-- required Windows automated accessibility reports: main 343 applicable PASS; wizard 318 applicable PASS; zero failures/warnings/unknown/blockers;
-- human keyboard 5/5, focus 2/2, Narrator 6/6;
-- integrated `15 PASS / 0 FAIL / 15`, `acceptance_completed=true`.
+- normalization #42 `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`;
+- R0 #710, Python Core #684, UI Smoke #651 — SUCCESS;
+- required Windows accessibility gate `15 PASS / 0 FAIL / 15`.
 
 Manual intervention: **REQUIRED — SATISFIED**.
 
-Anti-regression: no missing/N/A evidence to PASS, no weakened hashes, no broad framework exemptions, no registry bypass, no offscreen substitute for a required assistive-technology gate, no wrong-SHA manual evidence.
+Anti-regression: no N/A→PASS, no broad framework exemptions, no wrong-SHA manual evidence and no offscreen substitute for required assistive-technology evidence.
 
 ---
 
 # R6.6 — KodeLocalization + pseudo-localization foundation — COMPLETE
 
-## Objective and accepted scope
+Accepted scope: stable message IDs/forms, missing/extra/form/placeholder evidence, explicit fallback, deterministic `qps-ploc`, protected placeholders/markup/entities, canonical anti-tamper reports, `WorkspaceBoundary`, R6.3 hooks and KodeStudio pseudo-localized UI smoke while English remains production default.
 
-R6.6 established deterministic localization contracts before later phases multiply UI surfaces. The foundation is structural rather than a professional translation/cultural-certification effort.
-
-Accepted scope:
-
-- stable locale/message IDs independent of visible copy;
-- duplicate message-ID rejection;
-- mandatory `other` message form;
-- missing/extra-key evidence;
-- exact source/target message-form parity;
-- Python-format placeholder parity per form;
-- explicit source-locale fallback semantics;
-- deterministic `qps-ploc` pseudo-localization;
-- protection of `{placeholder}`, `<markup>` and `&entity;` tokens;
-- deterministic visible expansion and `⟦...⟧` markers;
-- canonical report/status/count/blocker SHA-256 evidence with tamper rejection;
-- `.kodepoia/diagnostics/localization/` persistence through `WorkspaceBoundary`;
-- R6.3 stable `localization:<rule>:<target>` hooks;
-- KodeStudio English source-message registry for the registered main surface;
-- English remains production default;
-- pseudo-localized KodeStudio navigation/button/window smoke and adaptive navigation width for expanded strings;
-- preservation of R6.5 accessibility smoke after visible text routing changes.
-
-Out of scope: professional translation, cultural certification, voice localization, universal font/script certification, store metadata translation and a claim that every future Project Wizard/user-facing string has already been migrated.
-
-## Accepted deliverables
-
-- `src/kodepoia/quality/localization.py`;
-- `src/kodepoia/kodestudio/localization.py`;
-- localization integration in `src/kodepoia/kodestudio/app.py`;
-- `schemas/localization-report-v1.schema.json`;
-- `tests/test_r6_6_localization.py`;
-- `tests/test_r6_6_localization_ui.py`;
-- `docs/roadmap/R6_6_DESIGN.md`;
-- `docs/roadmap/R6_6_ACCEPTANCE.md`;
-- Windows UI workflow coverage in Python Core and KodeStudio UI Smoke.
-
-## Accepted evidence
-
-- starting normalized main `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`;
-- implementation branch `feature/r6-6-localization`;
+Accepted evidence:
+- starting main `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`;
 - accepted head `6890b9d37722c74703e8b86f7de11dbfe66821ed`;
-- implementation PR #43;
-- implementation merge `f677cb34eade0549edc951fe11955de2bc0b270d`;
-- R0 Repository Guard `32570001461` / #733 — SUCCESS Windows + Ubuntu;
-- Python Core `32570001514` / #707 — SUCCESS Windows + Ubuntu, PowerShell syntax and integrated KodeStudio UI smoke;
-- KodeStudio UI Smoke `32570001491` / #674 — SUCCESS Windows.
+- PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`;
+- normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`;
+- R0 #733, Python Core #707, UI Smoke #674 — SUCCESS.
 
-The first draft head produced two round-trip test assertion failures because Python object equality distinguished `details=None` from canonical serialized `details={}`. Tests were corrected to compare the canonical persisted/hashed representation. No localization rule, blocker, fallback/placeholder check or `WorkspaceBoundary` protection was weakened.
+Development finding: two round-trip assertions initially compared `details=None` with canonical serialized `details={}`. Only canonical test comparison was corrected; no localization rule or blocker was weakened.
 
 Manual intervention: **NONE — COMPLETE**.
 
-Rollback/risk: pseudo-locale must never become production default; stable IDs should survive copy changes; missing keys/forms/placeholders remain explicit; rollback restores accepted English UI without touching R6.1–R6.5 evidence.
+Anti-regression: pseudo-locale never becomes production default; missing keys/forms/placeholders remain explicit.
 
 ---
 
 # R6.7 — KodeTechnicalDebt foundation — COMPLETE
 
-## Objective and accepted scope
+Accepted scope: persistent debt register with stable IDs, category/severity/impact/probability/effort, lifecycle `OPEN/ACCEPTED/RESOLVED`, rationale/history, deterministic priority/fingerprint, canonical anti-tamper report, `WorkspaceBoundary`, Health and R6.3 adapters.
 
-R6.7 created a persistent structured technical-debt register so debt is observable, prioritized and linked to code/requirements/tests rather than informal comments.
-
-Accepted scope:
-
-- stable debt IDs;
-- category/severity/impact/probability/effort;
-- owner/scope/source/provenance;
-- structured file/symbol/test/requirement/issue references;
-- timezone-aware first-seen/last-seen/review/expiry/resolution evidence;
-- explicit `OPEN`, `ACCEPTED`, `RESOLVED` lifecycle;
-- accepted debt requires rationale and remains visible/penalized rather than becoming resolved;
-- resolved debt remains historical and requires `resolved_at`;
-- accepted/resolved debt cannot remain blocking;
-- deterministic priority `severity_weight × impact × probability ÷ effort`, bounded to 100;
-- stable duplicate fingerprinting based on debt identity rather than volatile timestamps/state;
-- duplicate IDs/fingerprints rejected;
-- derived counts, blockers, ranking and debt penalty;
-- canonical SHA-256 anti-tamper evidence;
-- `.kodepoia/diagnostics/technical_debt/` persistence through `WorkspaceBoundary`;
-- Health `technical_debt` adapter;
-- stable R6.3 `technical-debt:<id>` cases;
-- newly introduced blocking debt becomes an added FAIL and therefore a regression;
-- repository-observed debt can be recorded with actual provenance without claiming an unexecuted scanner.
-
-## Accepted deliverables
-
-- `src/kodepoia/quality/technical_debt.py`;
-- `schemas/technical-debt-report-v1.schema.json`;
-- `tests/test_r6_7_technical_debt.py`;
-- quality exports;
-- `docs/roadmap/R6_7_DESIGN.md`;
-- `docs/roadmap/R6_7_ACCEPTANCE.md`;
-- `docs/roadmap/R6_7_KNOWN_DEBT.md`.
-
-## Accepted evidence
-
-- starting normalized main `c5edd3c80ad9afec25997f1372d5f98ac861becc`;
-- implementation branch `feature/r6-7-technical-debt`;
+Accepted evidence:
+- starting main `c5edd3c80ad9afec25997f1372d5f98ac861becc`;
 - accepted head `0da49c7526b54f562827d63477b7ce8f1865de43`;
-- implementation PR #45;
-- implementation merge `3986b056654b25a73e45e5135ca3110a920c4bf5`;
-- post-merge normalization PR #46 merge `fc7bd4d5803c451b4d343d08bcc212868ad24412`;
-- R0 Repository Guard `32570711736` / #756 — SUCCESS Windows + Ubuntu;
-- Python Core `32570711738` / #730 — SUCCESS Windows + Ubuntu, PowerShell syntax, full pytest and integrated KodeStudio UI smoke;
-- KodeStudio UI Smoke `32570711732` / #697 — SUCCESS Windows.
+- PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`;
+- normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`;
+- R0 #756, Python Core #730, UI Smoke #697 — SUCCESS.
 
-Development CI found one incorrect test expectation: critical severity with impact 4, probability 3 and effort 2 evaluates to `4 × 4 × 3 ÷ 2 = 24`, not 30. The fixture expectation was corrected; the deterministic formula was unchanged.
-
-The same hosted logs reproduced non-blocking debt candidates with actual provenance: imported quality classes named `Test*` causing `PytestCollectionWarning`, and Pillow `Image.Image.getdata()` deprecation warnings in VisualQA. R6.5 Qt font/size-hint notices remain environment-specific candidate debt. These observations are not fabricated scanner results and are not falsely marked remediated.
+Development finding: one test expected priority 30 where the frozen formula produced 24. Only the fixture expectation changed.
 
 Manual intervention: **NONE — COMPLETE**.
 
-Rollback/risk: never treat accepted debt as resolved, never change fingerprints merely to avoid duplicate detection, preserve rationale/history, keep blocking debt visible to R6.3, keep derived fields/hash validation and `WorkspaceBoundary` confinement intact.
+Anti-regression: accepted debt is not resolved debt; blocking debt remains visible and cannot be hidden by fingerprint changes.
 
 ---
 
 # R6.8 — KodeCI + KodeBuild foundation — COMPLETE
 
-## Objective and accepted scope
+Accepted scope: exact-source-SHA CI evidence, required-state semantics, wheel+sdist manifests, source/dependency/artifact SHA-256 evidence, structural package validation, recursive secret redaction, `WorkspaceBoundary`, Health/R6.3 adapters and additive Windows+Ubuntu package-build jobs with fixed commands and exact-SHA checkout.
 
-R6.8 converted repository CI and Python package builds into structured, exact-source-SHA-bound evidence consumable by Health, Tests/Regression and later release tooling, without weakening any existing R0/Python/UI gate or adding an unrestricted build execution path.
+Accepted evidence:
+- starting main `fc7bd4d5803c451b4d343d08bcc212868ad24412`;
+- accepted implementation head `d632669b93fda7b8397b9c3de43d78ca8726323f`;
+- PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`;
+- R0 #783 `32571710663` — SUCCESS Windows+Ubuntu;
+- Python Core #757 `32571710718` — SUCCESS for both core OS jobs, integrated Windows UI and both package-build jobs;
+- UI Smoke #724 `32571710650` — SUCCESS Windows;
+- both uploaded package bundles independently inspected: wheel, sdist, Build/CI reports PASS, zero blockers, exact source SHA;
+- normalization #48 head `0580f930d6dfaa387c1eda1cf8ad56de79cc42b9` passed R0 #790, Python Core #764 and UI Smoke #731 then merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`;
+- final normalized-state wording #49 head `beb431d19c487c55b92c86a7a0eead90c7529b6e` passed R0 #797, Python Core #771 including both package-builds and UI Smoke #738, then merged as `616899291fc3b4dc40695415a5008d6fdd599230`.
+
+Manual intervention: **CONDITIONAL — NOT TRIGGERED**. Hosted Windows proved all acceptance-critical R6.8 behavior.
+
+Anti-regression: package builds remain source-SHA-bound; skipped/cancelled required checks never PASS; missing/invalid wheel or sdist remains blocking; no arbitrary model-supplied build command/path.
+
+---
+
+# R6.9 — KodeAppSecurity baseline — COMPLETE
+
+## Accepted scope
+
+R6.9 established a platform-aware application-security evidence baseline for Kodepoia and products it creates without claiming a universal certification.
 
 Accepted scope:
 
-- stable CI check IDs;
-- explicit `queued`, `in_progress`, `pass`, `fail`, `cancelled`, `skipped`, `unknown` semantics;
-- required FAIL/CANCELLED/SKIPPED never PASS; required incomplete evidence remains UNKNOWN;
-- exact 40-character source Git SHA binding;
-- canonical CI evidence SHA-256 with derived count/blocker tamper rejection;
-- R6.3 stable CI hooks;
-- `.kodepoia/workflows/<workflow>/` persistence through `WorkspaceBoundary`;
-- build manifests with source SHA, platform, Python version and Hatchling backend;
-- deterministic source-input digest plus explicit dependency-input digest;
-- package artifact name, kind, byte size, SHA-256 and structural validation;
-- required wheel + sdist presence; missing/invalid required package is blocking;
-- recursive sensitive-field and common token/Bearer redaction before persisted metadata;
-- `.kodepoia/releases/<platform>/` persistence through `WorkspaceBoundary`;
-- Health `build` adapter and stable R6.3 `build:<platform>:<kind>` hooks;
-- `ci-report-v1` and `build-manifest-v1` schemas;
-- fixed evidence collector `scripts/r6_8_collect_build.py` with no arbitrary model-supplied command/executable/cwd/output path;
-- additive Windows+Ubuntu `package-build` matrix in Python Core using fixed `python -m build --wheel --sdist --outdir dist` and `actions/upload-artifact@v4`;
-- package job checkout explicitly pinned to `${{ github.event.pull_request.head.sha || github.sha }}` so the built bytes and evidence source SHA identify the same revision;
-- exact per-platform package and GitHub Actions bundle hashes;
-- no false requirement that Windows and Ubuntu archives be byte-identical.
+- typed threat model with assets, trust boundaries, entry points, threats, mitigations and residual risk;
+- cross-reference/duplicate validation;
+- residual risk defaults `UNKNOWN` rather than inferred safe;
+- stable requirement IDs;
+- explicit `applicable` / `not_applicable`; N/A requires rationale and never becomes PASS;
+- measured PASS/WARN/FAIL requires evidence provenance;
+- optional OWASP ASVS references pinned as `v5.0.0-x.y.z`;
+- dependency-vulnerability evidence with exact component/version, timezone-aware check time and provenance;
+- AFFECTED dependencies require advisory IDs and fail the aggregate report;
+- secure-storage evidence helper distinguishing OS-backed/no-plaintext from insecure storage;
+- recursive secret redaction;
+- canonical SHA-256 report with derived status/count/blocker tamper rejection;
+- `.kodepoia/diagnostics/security/` persistence through `WorkspaceBoundary`;
+- Health `security` adapter and stable R6.3 requirement/dependency/threat cases;
+- N/A/WARN/UNKNOWN adapters map to SKIP, never fake PASS;
+- `security-report-v1.schema.json`;
+- no unrestricted security scanner, process or network execution path.
 
-Out of scope: store publishing, signing certificates, installers/update channels, unsupported macOS/iOS claims, generated-app framework builds and any arbitrary model-supplied build command.
+## Accepted evidence
 
-## Accepted deliverables
+- starting normalized main `616899291fc3b4dc40695415a5008d6fdd599230`;
+- implementation branch `feature/r6-9-appsecurity`;
+- accepted implementation head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`;
+- implementation PR #50;
+- implementation merge `f5c135edf0be464a02b4b46d67c14e665f236009`;
+- R0 Repository Guard #812 `32573265598` — SUCCESS Windows + Ubuntu;
+- Python Core #786 `32573265793` — SUCCESS for all five jobs: core Ubuntu, core Windows, integrated Windows UI, package-build Ubuntu, package-build Windows;
+- KodeStudio UI Smoke #753 `32573265579` — SUCCESS Windows.
 
-- `src/kodepoia/quality/ci.py`;
-- `src/kodepoia/quality/build.py`;
-- `scripts/r6_8_collect_build.py`;
-- `schemas/ci-report-v1.schema.json`;
-- `schemas/build-manifest-v1.schema.json`;
-- `tests/test_r6_8_ci_build.py`;
-- quality exports;
-- `build>=1.2,<2` development build frontend;
-- additive package-build jobs in `.github/workflows/python-core.yml`;
-- `docs/roadmap/R6_8_DESIGN.md`;
-- `docs/roadmap/R6_8_ACCEPTANCE.md`.
+Development diagnostic: initial draft head `85742e808dfb68dbe6e1f5f64c2b4fee5d63b0f3` had exactly one incorrect test expectation: a blocking Health SECURITY metric was expected to score 0.0 while deterministic aggregation correctly yielded 75.0. The metric was already FAIL and blocking. Only the assertion was corrected; no security rule, blocker, scoring formula, applicability, provenance, redaction or threat-risk rule changed. Diagnostic head `0251a62c92230a486abfdd8b151e59a1adb98bb3` then passed R0 #810, Python Core #784 and UI #751 before final acceptance.
 
-## Accepted implementation identity and CI
+External-reference interpretation: OWASP ASVS 5.0.0 is a catalogue only for applicable surfaces. Representative mappings include `v5.0.0-1.2.5` command injection/process construction, `v5.0.0-5.3.2` trusted/validated paths, and `v5.0.0-13.3.1` secrets management. No full ASVS certification claim is made.
 
-- starting normalized main `fc7bd4d5803c451b4d343d08bcc212868ad24412`;
-- accepted implementation head `d632669b93fda7b8397b9c3de43d78ca8726323f`;
-- implementation PR #47;
-- implementation merge `d570a3930ee63802882b8682e4532004d4fd81d6`;
-- post-merge normalization PR #48 merge `92effbde1e432a8fcb6c794038d77367d034bcb0`;
-- R0 Repository Guard `32571710663` / #783 — SUCCESS Windows + Ubuntu;
-- Python Core `32571710718` / #757 — SUCCESS for `python-core-ubuntu-latest`, `python-core-windows-latest`, integrated `kodestudio-ui-windows`, `package-build-ubuntu-latest`, `package-build-windows-latest`;
-- KodeStudio UI Smoke `32571710650` / #724 — SUCCESS Windows.
+Manual intervention: **NONE — COMPLETE**.
 
-Both package jobs explicitly checked out `d632669b93fda7b8397b9c3de43d78ca8726323f`.
+Anti-regression: never weaken N/A semantics, provenance, residual-risk UNKNOWN defaults, secret redaction or `WorkspaceBoundary`; never add arbitrary scanner commands/executables/cwd/URLs/model-provided process arguments.
 
-Ubuntu final package evidence:
-
-- Ubuntu 24.04.4; Python 3.12.14;
-- wheel 168,238 bytes, SHA-256 `35489ed602a9ade3816a4562f5cd751fbfb8924cd8ad780fba5bc7aa26a2a095`, validated;
-- sdist 247,776 bytes, SHA-256 `b803d3f316f46ea461af853240ba8ab8bf3f867e0cff8e88e70f87bf678c1a78`, validated;
-- build evidence `57e11b0a66e1f40d9984ae7aeacbe3874df5ce7b005657a72e6e603a63f983d8`;
-- CI evidence `1a9f0e6dc0c099d5a7d9336d97a1e53ec40563cce90ba2a8c56e80b2eeb58869`;
-- Actions bundle ID `9475481332`, ZIP SHA-256 `cdeef82ace3e0ca2ef0275b3111bf6d2c8f50213b20e777ddb436477e48261d8`.
-
-Windows final package evidence:
-
-- hosted Windows Server 2025; Python 3.12.10;
-- wheel 169,444 bytes, SHA-256 `1406f5a2f180b56c611fb3a0cd8a9d23436682903405f52dadc26257c5b676fb`, validated;
-- sdist 249,797 bytes, SHA-256 `42e63403069e61235cefa71ebbc4099b5e717e1528a6eae54ef0673f20e69edd`, validated;
-- build evidence `248d49db9badfea775d18ca4087eb56ba053c961f888d5641dc42e62c6d8f419`;
-- CI evidence `47ffad9f7f1d2c7af14efdc0f71e065b6b556046404069f2f02ef8b353024160`;
-- Actions bundle ID `9475485133`, ZIP SHA-256 `aae159bd0d8a04ee4cec6c65f7a20f104c4679a9081432640419c4a6e74ccbe5`.
-
-Both downloaded Actions bundles were independently inspected and contained wheel, sdist, build manifest and CI report. Both reports were PASS with zero blockers and exact source-SHA binding.
-
-## Reproducibility and provenance interpretation
-
-R6.8 does not claim cross-platform byte-identical archives. The immutable source identity is the exact Git SHA, while per-platform source/dependency/artifact digests record the bytes observed by each runner/toolchain. Different Windows/Ubuntu archive hashes are retained as evidence and are not mislabeled as regressions without a future explicit reproducible-build contract.
-
-SLSA provenance concepts were used as reference context only. No SLSA level is claimed. GitHub artifact attestations were not made a mandatory routine PR-build gate because they are provenance evidence, not an artifact-safety guarantee, and frequent automated test builds do not require such attestations for this foundation.
-
-## Manual intervention
-
-**CONDITIONAL — NOT TRIGGERED.**
-
-Hosted Windows on the exact final implementation head successfully checked out the correct SHA, built wheel+sdist, structurally validated both, recorded source/dependency/artifact hashes, emitted PASS/no-blocker CI/build evidence, uploaded the bundle and allowed independent bundle inspection. No acceptance-critical Windows behavior remained unproven; a user-local run would therefore add no required evidence.
-
-## Post-merge normalization evidence
-
-PR #48 head `0580f930d6dfaa387c1eda1cf8ad56de79cc42b9` passed R0 #790 `32572054011`, Python Core #764 `32572054001` including both package-build jobs, and KodeStudio UI Smoke #731 `32572054015`, then merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`.
-
-## Rollback / anti-regression
-
-Do not remove or narrow existing R0/Python/UI checks. Package-build checkout must remain bound to the source SHA recorded in evidence. Required skipped/cancelled checks never PASS. Missing/invalid wheel/sdist remains blocking. Do not persist secrets. Do not add arbitrary model build commands/paths. Do not manufacture cross-platform byte reproducibility claims.
+Post-merge normalization: this normalization records R6.9 COMPLETE and promotes R6.10 to NEXT / NOT STARTED only after its own CI is green and merged.
 
 ---
 
-# R6.9 — KodeAppSecurity baseline — NEXT / NOT STARTED
-
-## Objective
-
-Create a platform-aware application-security baseline for products Kodepoia creates and for applicable Kodepoia surfaces, using OWASP ASVS 5.0.0 as a catalogue only where relevant.
-
-## In scope / deliverables
-
-- structured threat model: assets, trust boundaries, entry points, threats, mitigations, residual risk;
-- stable requirement/check IDs;
-- path/input/network/auth/session checks only for present surfaces;
-- dependency-vulnerability evidence with timestamp/provenance;
-- secure-storage expectations where applicable;
-- deterministic fuzz/property tests for structured inputs where useful;
-- report/schema + Health `security` adapter;
-- governed diagnostic persistence;
-- no mandatory remote security SaaS or arbitrary scanner-command injection.
-
-Out of scope: third-party penetration testing, exploit development, store certification and cloud/backend implementation.
-
-Acceptance: threat-model completeness, applicability, blocking failures feed Health, dependency provenance/time, malformed evidence fails closed, CI green, merge + normalization.
-
-Manual intervention: **NONE**.
-
-Risk: `not_applicable` must never be represented as PASS; never log secrets or scan private credentials.
-
----
-
-# R6.10 — KodePrivacy baseline
+# R6.10 — KodePrivacy baseline — NEXT / NOT STARTED
 
 ## Objective
 
@@ -464,21 +304,22 @@ Establish structured data inventory/lifecycle evidence: what data exists, source
 
 - stable data-category IDs;
 - purpose and applicable legal/consent-basis placeholder fields without making legal conclusions;
-- storage/recipients/retention/deletion/sensitivity/platform scope;
-- explicit `none/not_applicable`;
+- storage, recipients, retention, deletion, sensitivity and platform scope;
+- explicit `none/not_applicable` semantics;
 - privacy issue severity/status;
 - report/schema + Health `privacy` adapter;
 - store-declaration preparation fields without submission claims;
 - retention/deletion fixtures;
-- governed diagnostic persistence.
+- governed diagnostic persistence;
+- no raw personal data copied into evidence.
 
 Out of scope: legal advice, automatic GDPR/CCPA/etc. compliance claims, store submission and remote analytics implementation.
 
-Acceptance: inventory completeness, explicit purpose/retention/deletion, no raw secrets/personal data in evidence, platform-aware declarations, Health integration, CI green, merge + normalization.
+Acceptance: inventory completeness, explicit purpose/retention/deletion, no raw secrets/personal data in evidence, platform-aware declarations, Health integration, exact-head CI green, merge + normalization.
 
 Manual intervention: **NONE**.
 
-Risk: never infer consent/legal basis from silence and never copy raw personal data into evidence merely to prove a category exists.
+Risk: never infer consent/legal basis from silence. Purpose/minimisation/retention/deletion are evidence fields, not automatic legal conclusions.
 
 ---
 
@@ -531,7 +372,6 @@ Out of scope: R7 implementation, release-channel updater, destructive production
 Expected deliverables: patch-gate module/report schema, classification/evidence/rollback tests, protected orchestrator integration, conditional local runner if needed, `R6_12_ACCEPTANCE.md` and final plan/status/continuity normalization.
 
 Acceptance:
-
 1. deterministic major/minor classification;
 2. major patch cannot PASS without rollback plan;
 3. required gates selected by relevant domains/platform targets;
@@ -555,11 +395,11 @@ Risk: avoid circular validation where patch gate trusts its own summary without 
 
 - **R6.4 — REQUIRED:** SATISFIED and accepted; no further action unless regression.
 - **R6.5 — REQUIRED:** SATISFIED and accepted; no further action unless regression.
-- **R6.6 — NONE:** COMPLETE; no user action required.
-- **R6.7 — NONE:** COMPLETE; no user action required.
-- **R6.8 — CONDITIONAL:** NOT TRIGGERED; hosted Windows proved the final acceptance-critical package build/provenance behavior, so no user action is required.
-- **R6.9 — NONE:** NEXT / NOT STARTED.
-- **R6.10 — NONE:** PLANNED.
+- **R6.6 — NONE:** COMPLETE.
+- **R6.7 — NONE:** COMPLETE.
+- **R6.8 — CONDITIONAL:** NOT TRIGGERED; COMPLETE.
+- **R6.9 — NONE:** COMPLETE; no user action required.
+- **R6.10 — NONE:** NEXT / NOT STARTED.
 - **R6.11 — CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved.
 - **R6.12 — CONDITIONAL:** local integration/approval only if final selected gates require hardware-local execution or explicit approval.
 
@@ -568,7 +408,6 @@ Before any future manual gate, its acceptance document and user-facing instructi
 # R6 completion rule
 
 R6 is COMPLETE only when:
-
 1. R6.1 through R6.12 are COMPLETE with all required evidence;
 2. no REQUIRED/triggered CONDITIONAL manual gate remains pending;
 3. R6.12 integrated gate passes;
@@ -579,11 +418,11 @@ R6 is COMPLETE only when:
 
 # Change log
 
-- 2026-08-22: retroactive plan created by explicit user request before R6.4; R6.1–R6.3 recorded from already accepted evidence; R6.4–R6.12 structure frozen.
-- 2026-08-22: planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a` passed R0 #639, Python Core #613 and UI Smoke #580; PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`.
-- 2026-08-22: post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
-- 2026-08-22: R6.4 accepted on head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`; PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`; PR #40 normalized main to `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
-- 2026-08-22: R6.5 accepted on head `06fd66af4b3a85da24b98ea2a5fbb2685358c540` after R0 #710, Python Core #684, UI Smoke #651 and required Windows keyboard/focus/Narrator `15 PASS / 0 FAIL / 15`; PR #41 merged as `db1a1ab78eb2ac7d90f75ab294074dec0238268c`; PR #42 normalized main to `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
-- 2026-08-22: R6.6 accepted on head `6890b9d37722c74703e8b86f7de11dbfe66821ed` after R0 #733, Python Core #707 and UI Smoke #674; PR #43 merged as `f677cb34eade0549edc951fe11955de2bc0b270d`; PR #44 normalized main to `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
-- 2026-08-22: R6.7 accepted on head `0da49c7526b54f562827d63477b7ce8f1865de43` after R0 #756, Python Core #730 and UI Smoke #697; PR #45 merged as `3986b056654b25a73e45e5135ca3110a920c4bf5`; PR #46 normalized main to `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
-- 2026-08-22: R6.8 accepted on head `d632669b93fda7b8397b9c3de43d78ca8726323f` after R0 #783, Python Core #757 including Ubuntu+Windows package builds, UI Smoke #724 and downloaded artifact inspection; manual CONDITIONAL gate NOT TRIGGERED; PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`; post-merge normalization PR #48 passed R0 #790, Python Core #764 and UI Smoke #731 then merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`. R6.8 COMPLETE; R6.9 NEXT / NOT STARTED.
+- 2026-08-22: retroactive plan created before R6.4; R6.1–R6.3 recorded from accepted evidence; R6.4–R6.12 structure frozen.
+- 2026-08-22: planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a` passed R0 #639, Python Core #613 and UI Smoke #580; PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`; post-plan normalization #38 `e96e7c3b168975869c911f880044b7ef8e322157`.
+- 2026-08-22: R6.4 accepted head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`; PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`; normalization #40 `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
+- 2026-08-22: R6.5 accepted head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`; PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`; normalization #42 `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
+- 2026-08-22: R6.6 accepted head `6890b9d37722c74703e8b86f7de11dbfe66821ed`; PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`; normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
+- 2026-08-22: R6.7 accepted head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
+- 2026-08-22: R6.8 accepted head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording #49 `616899291fc3b4dc40695415a5008d6fdd599230`.
+- 2026-08-22: R6.9 accepted head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351` after R0 #812, Python Core #786 and UI Smoke #753; PR #50 merged as `f5c135edf0be464a02b4b46d67c14e665f236009`; post-merge normalization records R6.9 COMPLETE and R6.10 NEXT / NOT STARTED.

@@ -32,6 +32,23 @@ def _git(root: Path, *args: str) -> str:
     return result.stdout
 
 
+def _stage_raw_blob(root: Path, path: str, data: bytes) -> None:
+    hashed = subprocess.run(
+        ["git", "hash-object", "-w", "--stdin"],
+        cwd=root,
+        input=data,
+        capture_output=True,
+        check=True,
+    )
+    oid = hashed.stdout.decode("ascii").strip()
+    subprocess.run(
+        ["git", "update-index", "--add", "--cacheinfo", "100644", oid, path],
+        cwd=root,
+        capture_output=True,
+        check=True,
+    )
+
+
 def test_pointer_roundtrip_is_canonical_and_malformed_forms_fail() -> None:
     payload = b"fixture-heavy-asset"
     pointer = LfsPointer(hashlib.sha256(payload).hexdigest(), len(payload))
@@ -49,11 +66,11 @@ def test_missing_local_object_is_distinct_from_invalid_pointer(tmp_path: Path) -
     root.mkdir()
     _git(root, "init")
     (root / ".gitattributes").write_text("*.bin filter=lfs diff=lfs merge=lfs -text\n", encoding="utf-8")
+    _git(root, "add", ".gitattributes")
     payload = b"large-content"
     pointer = _pointer_bytes(payload)
     (root / "asset.bin").write_bytes(pointer)
-    _git(root, "add", ".gitattributes")
-    subprocess.run(["git", "-c", "filter.lfs.clean=cat", "-c", "filter.lfs.required=false", "add", "asset.bin"], cwd=root, check=True, capture_output=True)
+    _stage_raw_blob(root, "asset.bin", pointer)
 
     diagnostic = GitLfsService(WorkspaceBoundary(root)).diagnose("asset.bin")
     assert diagnostic.pointer_state.value == "valid"
@@ -62,7 +79,7 @@ def test_missing_local_object_is_distinct_from_invalid_pointer(tmp_path: Path) -
 
     bad = pointer.replace(b"sha256:", b"sha1:")
     (root / "asset.bin").write_bytes(bad)
-    subprocess.run(["git", "-c", "filter.lfs.clean=cat", "-c", "filter.lfs.required=false", "add", "asset.bin"], cwd=root, check=True, capture_output=True)
+    _stage_raw_blob(root, "asset.bin", bad)
     invalid = GitLfsService(WorkspaceBoundary(root)).diagnose("asset.bin")
     assert invalid.pointer_state.value == "invalid"
     assert invalid.object_state is LfsObjectState.UNAVAILABLE
@@ -73,10 +90,10 @@ def test_hydrated_content_oid_and_size_are_verified(tmp_path: Path) -> None:
     root.mkdir()
     _git(root, "init")
     (root / ".gitattributes").write_text("*.bin filter=lfs diff=lfs merge=lfs -text\n", encoding="utf-8")
+    _git(root, "add", ".gitattributes")
     payload = b"hydrated-bytes"
     pointer = _pointer_bytes(payload)
-    (root / "asset.bin").write_bytes(pointer)
-    subprocess.run(["git", "-c", "filter.lfs.clean=cat", "-c", "filter.lfs.required=false", "add", ".gitattributes", "asset.bin"], cwd=root, check=True, capture_output=True)
+    _stage_raw_blob(root, "asset.bin", pointer)
     (root / "asset.bin").write_bytes(payload)
 
     diagnostic = GitLfsService(WorkspaceBoundary(root)).diagnose("asset.bin")

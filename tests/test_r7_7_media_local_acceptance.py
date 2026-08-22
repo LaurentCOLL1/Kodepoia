@@ -9,7 +9,7 @@ from jsonschema import Draft202012Validator
 
 from kodepoia.intelligence.research.media import (
     EXPECTED_FIXTURE_SHA256,
-    EXPECTED_FIXTURE_TOKENS,
+    _fixture_transcript_matches_expected,
 )
 
 
@@ -74,9 +74,9 @@ def test_r7_7_authoritative_local_acceptance_evidence() -> None:
     assert _SHA64.fullmatch(doctor["stt_model"]["sha256"])
 
     transcript_text = " ".join(
-        segment["text"].lower() for segment in acceptance["transcript_segments"]
+        segment["text"] for segment in acceptance["transcript_segments"]
     )
-    assert all(token in transcript_text for token in EXPECTED_FIXTURE_TOKENS)
+    assert _fixture_transcript_matches_expected(transcript_text)
     assert acceptance["transcript_segments"]
     assert len(acceptance["frames"]) == 3
     assert len({frame["sha256"] for frame in acceptance["frames"]}) == 3

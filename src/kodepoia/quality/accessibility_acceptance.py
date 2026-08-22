@@ -4,12 +4,12 @@ import argparse
 import json
 import os
 import platform
-import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from kodepoia.kodecode.workspace import WorkspaceBoundary
 from kodepoia.quality.accessibility import AccessibilityReportStatus, AccessibilityStore
 
 
@@ -128,18 +128,19 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def _evidence_root(repo_root: Path) -> Path:
-    metadata = repo_root / ".kodepoia"
-    if not metadata.is_dir():
+    store = AccessibilityStore(repo_root)
+    if not store.metadata_root.is_dir():
         raise FileNotFoundError(
-            f"Kodepoia metadata not found: {metadata}. Do not create acceptance evidence outside .kodepoia."
+            f"Kodepoia metadata not found: {store.metadata_root}. "
+            "Do not create acceptance evidence outside .kodepoia."
         )
-    root = metadata / "diagnostics" / "accessibility"
+    root = store.accessibility_root
     root.mkdir(parents=True, exist_ok=True)
     return root
 
 
 def prepare(repo_root: Path, *, source_head: str) -> dict[str, Any]:
-    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    os.environ["QT_QPA_PLATFORM"] = "offscreen"
     try:
         from PySide6.QtWidgets import QApplication
     except ImportError as exc:
@@ -180,6 +181,7 @@ def prepare(repo_root: Path, *, source_head: str) -> dict[str, Any]:
         QApplication.processEvents()
 
     store = AccessibilityStore(repo_root)
+    boundary = WorkspaceBoundary(repo_root)
     main_latest, _ = store.save(main_report)
     wizard_latest, _ = store.save(wizard_report)
     automated_pass = (
@@ -203,14 +205,14 @@ def prepare(repo_root: Path, *, source_head: str) -> dict[str, Any]:
                 "status": main_report.status.value,
                 "counts": main_report.counts,
                 "evidence_sha256": main_report.evidence_sha256,
-                "path": main_latest.relative_to(repo_root).as_posix(),
+                "path": boundary.relative(main_latest),
             },
             {
                 "surface": wizard_report.surface,
                 "status": wizard_report.status.value,
                 "counts": wizard_report.counts,
                 "evidence_sha256": wizard_report.evidence_sha256,
-                "path": wizard_latest.relative_to(repo_root).as_posix(),
+                "path": boundary.relative(wizard_latest),
             },
         ],
         "manual_checks": [check.to_dict() for check in MANUAL_CHECKS],
@@ -221,12 +223,17 @@ def prepare(repo_root: Path, *, source_head: str) -> dict[str, Any]:
     }
     manifest = _evidence_root(repo_root) / "r6-5-manual-manifest.json"
     _write_json(manifest, payload)
-    payload["manifest_path"] = manifest.relative_to(repo_root).as_posix()
+    payload["manifest_path"] = boundary.relative(manifest)
     return payload
 
 
 def finalize(repo_root: Path, *, source_head: str, responses_path: Path) -> dict[str, Any]:
+    boundary = WorkspaceBoundary(repo_root)
     root = _evidence_root(repo_root)
+    confined_responses = boundary.resolve(boundary.relative(responses_path), must_exist=True)
+    if root != confined_responses.parent:
+        raise ValueError("R6.5 manual responses must be stored in the accessibility evidence directory")
+
     manifest_path = root / "r6-5-manual-manifest.json"
     if not manifest_path.is_file():
         raise FileNotFoundError("R6.5 manual manifest is missing; run --prepare first")
@@ -234,7 +241,7 @@ def finalize(repo_root: Path, *, source_head: str, responses_path: Path) -> dict
     if str(manifest.get("source_head", "")) != source_head:
         raise ValueError("R6.5 manifest source head does not match the current acceptance head")
 
-    response_payload = json.loads(responses_path.read_text(encoding="utf-8"))
+    response_payload = json.loads(confined_responses.read_text(encoding="utf-8"))
     if int(response_payload.get("schema_version", 0)) != 1:
         raise ValueError("Unsupported R6.5 manual response schema version")
     if str(response_payload.get("source_head", "")) != source_head:
@@ -318,7 +325,7 @@ def finalize(repo_root: Path, *, source_head: str, responses_path: Path) -> dict
     }
     output = root / "r6-5-local-acceptance.json"
     _write_json(output, payload)
-    payload["output_path"] = output.relative_to(repo_root).as_posix()
+    payload["output_path"] = boundary.relative(output)
     return payload
 
 

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/research-result-cache-v1.schema.json",
+  "title": "Kodepoia Research Result Cache v1",
+  "type": "object",
+  "required": ["schema_version", "cache_key", "request_id", "report_digest", "artifact_refs", "stored_at", "revalidated_at", "policy_digest", "manifest_id"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "cache_key": {"$ref": "#/$defs/sha256"},
+    "request_id": {"$ref": "#/$defs/sha256"},
+    "report_digest": {"$ref": "#/$defs/sha256"},
+    "artifact_refs": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/artifact_ref"}},
+    "stored_at": {"type": "string", "format": "date-time"},
+    "revalidated_at": {"type": ["string", "null"]},
+    "policy_digest": {"$ref": "#/$defs/sha256"},
+    "manifest_id": {"$ref": "#/$defs/sha256"}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "artifact_ref": {
+      "type": "object",
+      "required": ["artifact_id", "source_id", "content_sha256", "source_identity_id", "version_fingerprint", "mutability", "original_retrieved_at", "original_freshness", "trust", "suspicious"],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/sha256"},
+        "source_id": {"$ref": "#/$defs/sha256"},
+        "content_sha256": {"$ref": "#/$defs/sha256"},
+        "source_identity_id": {"type": "string", "pattern": "^$|^[0-9a-f]{64}$"},
+        "version_fingerprint": {"$ref": "#/$defs/sha256"},
+        "mutability": {"enum": ["unknown", "mutable", "immutable"]},
+        "original_retrieved_at": {"type": "string", "format": "date-time"},
+        "original_freshness": {"enum": ["unknown", "current", "stale", "not_applicable"]},
+        "trust": {"const": "guarded"},
+        "suspicious": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

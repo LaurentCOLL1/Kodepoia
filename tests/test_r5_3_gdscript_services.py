@@ -98,8 +98,10 @@ def test_services_construct_only_managed_loopback_godot_command(tmp_path: Path, 
     assert result["lsp_initialized"] is True
     assert result["dap_initialized"] is True
     assert result["ports"] == {"lsp": 6105, "dap": 6106, "debug": 6107}
+    assert result["log"] == ".kodepoia/logs/godot-services.log"
     assert sandbox.calls[0][0] == [
         "godot", "--headless", "--editor", "--path", ".",
+        "--log-file", ".kodepoia/logs/godot-services.log",
         "--lsp-port", "6105", "--dap-port", "6106",
         "--debug-server", "tcp://127.0.0.1:6107",
     ]

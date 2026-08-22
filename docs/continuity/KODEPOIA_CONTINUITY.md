@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 PLANNING. R8.1 NOT STARTED.** R7.11 est accepté sur le head exact `52330ca576fe294956a8fb601bdfda1d72dc3f92`; PR #80 merge `1cdf5b90cc6c3e829c13e63f753f47fb067ef14e`; manual R7.11 = CONDITIONAL NOT TRIGGERED. La normalisation finale R7 est acceptée sur le head exact `d2278b1ee31d7d4a7b8570836edc3082e9fe30c4` avec R0 #1035 / `32599397013`, Python Core #1009 / `32599397057` cinq jobs SUCCESS, suite Ubuntu `515 passed / 5 skipped / 46 warnings`, validation `R7 integrated acceptance: PASS`, UI Smoke #976 / `32599397003` SUCCESS; PR #81 merge `24dc403b329fd748a8aadac9d6760a2fb73a9730`. La continuité finale R7 a ensuite été fusionnée par PR #82 sur `main` `b98832b339902527bce8a5ea95b5a08a19839a40`. **R8 est maintenant uniquement en phase de planning sur `r8/r8-planning` depuis ce branch point. `docs/roadmap/R8_PLAN.md` définit exhaustivement R8.1–R8.11. Prochaine action autorisée : faire passer R0 Repository Guard, Python Core complet et KodeStudio UI Smoke sur le head exact contenant le plan + cette continuité, puis merger le planning. Ne pas commencer R8.1 avant l'acceptation et le merge du plan.**
+> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 PLANNING ACCEPTED. R8.1 AUTHORIZED / NOT STARTED.** R7.11 est accepté sur le head exact `52330ca576fe294956a8fb601bdfda1d72dc3f92`; PR #80 merge `1cdf5b90cc6c3e829c13e63f753f47fb067ef14e`; manual R7.11 = CONDITIONAL NOT TRIGGERED. La normalisation finale R7 est acceptée sur le head exact `d2278b1ee31d7d4a7b8570836edc3082e9fe30c4` avec R0 #1035 / `32599397013`, Python Core #1009 / `32599397057` cinq jobs SUCCESS, suite Ubuntu `515 passed / 5 skipped / 46 warnings`, validation `R7 integrated acceptance: PASS`, UI Smoke #976 / `32599397003` SUCCESS; PR #81 merge `24dc403b329fd748a8aadac9d6760a2fb73a9730`. La continuité finale R7 a ensuite été fusionnée par PR #82 sur `main` `b98832b339902527bce8a5ea95b5a08a19839a40`. **Le planning exhaustif R8 est ACCEPTED sur le head exact `08844fc09501ed8a4974909eca4595021bc73bf4` avec R0 Repository Guard #1039 / `32600268817` SUCCESS, Python Core #1013 / `32600268710` cinq jobs SUCCESS, KodeStudio UI Smoke #980 / `32600268680` SUCCESS; PR #83 merge `60412afac35678b2a25547a7f0c937891a8a1004`. `docs/roadmap/R8_PLAN.md` fige R8.1–R8.11. La prochaine action autorisée après cette normalisation est R8.1 — Asset/Vault contracts, identity, schemas + boundary — sur une branche dédiée issue du `main` normalisé. Ne pas sauter directement à R8.2 ni modifier la structure R8 sans synchroniser plan + continuité; toute modification de fondation exige un ADR.**
 
 ## Source de vérité et état
 
@@ -29,13 +29,15 @@
 - R7 integrated report : PASS, no blockers, digest `2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437`.
 - R7 final normalization : COMPLETE — head `d2278b1ee31d7d4a7b8570836edc3082e9fe30c4`; R0 #1035 / `32599397013`; Python Core #1009 / `32599397057` 5/5 (`515 passed / 5 skipped / 46 warnings` Ubuntu, integrated check PASS); UI Smoke #976 / `32599397003`; PR #81 merge `24dc403b329fd748a8aadac9d6760a2fb73a9730`.
 - R7 final continuity : PR #82 merged to `main` `b98832b339902527bce8a5ea95b5a08a19839a40`.
-- R8 : **PLANNING** — branch `r8/r8-planning`; exhaustive plan file created; planning acceptance CI/merge PENDING.
-- R8.1–R8.11 : PLANNED / NOT STARTED.
+- R8 planning : **ACCEPTED** — head `08844fc09501ed8a4974909eca4595021bc73bf4`; R0 #1039 / `32600268817` SUCCESS (Ubuntu + Windows); Python Core #1013 / `32600268710` SUCCESS 5/5; UI Smoke #980 / `32600268680` SUCCESS; PR #83 merge `60412afac35678b2a25547a7f0c937891a8a1004`.
+- R8 : AUTHORIZED / NOT IMPLEMENTED YET.
+- R8.1 : **AUTHORIZED / NOT STARTED**.
+- R8.2–R8.11 : PLANNED / NOT STARTED.
 - R9–R16 : PENDING / NOT STARTED.
 
-## R8 frozen planning structure — pending acceptance
+## R8 frozen structure — planning accepted
 
-`docs/roadmap/R8_PLAN.md` is the exhaustive planning authority. Once its planning PR is accepted and merged, the following subdivision structure is frozen and cannot be silently reinterpreted:
+`docs/roadmap/R8_PLAN.md` est l'autorité exhaustive de planification. La PR #83 étant acceptée et fusionnée, la structure suivante est maintenant gelée et ne peut pas être réinterprétée silencieusement :
 
 | ID | Title | Manual planned |
 | --- | --- | --- |
@@ -51,7 +53,19 @@
 | R8.10 | CLI + KodeStudio Vault/Asset/VCS UX | NONE |
 | R8.11 | Adversarial hardening + R8 integrated acceptance | CONDITIONAL |
 
-R8.1 MUST NOT start while R8 planning is unmerged. A planning CI failure leaves R8 in PLANNING and requires correction on the same planning branch (or a replacement planning branch from current `main`) before any implementation.
+R8.1 peut être commencé uniquement depuis le `main` contenant le planning accepté et cette normalisation de continuité. Toute modification ultérieure de subdivision, dépendance, état manuel ou gate d'acceptation doit modifier `R8_PLAN.md` et cette continuité dans le même work cycle. Toute modification de fondation gelée exige un ADR.
+
+## R8 planning acceptance — source de vérité
+
+- Planning head exact : `08844fc09501ed8a4974909eca4595021bc73bf4`.
+- Branch point : `b98832b339902527bce8a5ea95b5a08a19839a40`.
+- `docs/roadmap/R8_PLAN.md` + `docs/continuity/KODEPOIA_CONTINUITY.md` étaient les deux seuls fichiers modifiés sur le planning head.
+- R0 Repository Guard #1039 / `32600268817` : SUCCESS, Ubuntu + Windows.
+- Python Core #1013 / `32600268710` : SUCCESS, cinq jobs (`python-core` Ubuntu/Windows, package build Ubuntu/Windows, KodeStudio UI Windows).
+- KodeStudio UI Smoke #980 / `32600268680` : SUCCESS.
+- PR #83 : merged.
+- Merge SHA : `60412afac35678b2a25547a7f0c937891a8a1004`.
+- R8.1 implementation on the planning branch : **NONE**.
 
 ## R8 planning architecture summary
 
@@ -173,4 +187,4 @@ Pour toute phase R8+ :
 
 ## Next action
 
-**R1–R7 COMPLETE. R8 PLANNING. R8.1 NOT STARTED.** La prochaine action autorisée est uniquement l'acceptation du planning R8 : vérifier le head exact contenant `R8_PLAN.md` + cette continuité, ouvrir/mettre à jour la PR de planning, faire passer R0 Repository Guard + Python Core complet + KodeStudio UI Smoke, puis merger le plan. Après merge et normalisation de l'évidence de planning, R8.1 pourra être autorisée. Ne pas commencer R8.1 avant cela.
+**R1–R7 COMPLETE. R8 PLANNING ACCEPTED. R8.1 AUTHORIZED / NOT STARTED.** La prochaine action autorisée, après fusion de cette normalisation de continuité, est **R8.1 — Asset/Vault contracts, identity, schemas + boundary** sur une nouvelle branche dédiée issue du `main` normalisé. Ne pas commencer R8.2 avant acceptation de R8.1 et ne pas modifier la structure R8 sans synchroniser `R8_PLAN.md` + continuité.

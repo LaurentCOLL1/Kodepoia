@@ -1,5 +1,14 @@
-"""Quality, health, budget, test, regression and visual QA primitives."""
+"""Quality, health, budget, test, regression, visual QA and accessibility primitives."""
 
+from kodepoia.quality.accessibility import (
+    AccessibilityReport,
+    AccessibilityReportStatus,
+    AccessibilityResult,
+    AccessibilitySeverity,
+    AccessibilityStatus,
+    AccessibilityStore,
+    KodeAccessibility,
+)
 from kodepoia.quality.budget import (
     BudgetConstraint,
     BudgetDirection,
@@ -50,6 +59,12 @@ from kodepoia.quality.visual import (
 )
 
 __all__ = [
+    "AccessibilityReport",
+    "AccessibilityReportStatus",
+    "AccessibilityResult",
+    "AccessibilitySeverity",
+    "AccessibilityStatus",
+    "AccessibilityStore",
     "BudgetConstraint",
     "BudgetDirection",
     "BudgetMetric",
@@ -64,6 +79,7 @@ __all__ = [
     "HealthReport",
     "HealthStatus",
     "HealthStore",
+    "KodeAccessibility",
     "KodeBudget",
     "KodeHealth",
     "KodeRegression",

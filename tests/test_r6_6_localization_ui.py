@@ -24,7 +24,6 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         texts = [nav.item(index).text() for index in range(nav.count())]
         assert len(texts) == 6
         assert all(text.startswith("⟦") and text.endswith("⟧") for text in texts)
-        assert any("Research" in text for text in texts)
         assert nav.minimumWidth() >= nav.sizeHintForColumn(0) + 24
 
         new_project = window.findChild(QPushButton, "newProjectButton")

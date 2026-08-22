@@ -91,6 +91,23 @@ def resolved_component(
     )
 
 
+def not_applicable_component(name: str = "unused") -> BomComponent:
+    canonical = canonical_python_name(name)
+    return BomComponent(
+        id=f"python:{canonical}",
+        name=name,
+        kind=ComponentKind.PACKAGE,
+        resolution=ComponentResolution.NOT_APPLICABLE,
+        source_locator="fixture:not-applicable",
+        provenance_source="fixture:scope-review",
+        integrity=IntegrityEvidence(
+            status=IntegrityStatus.NOT_APPLICABLE,
+            source="fixture:scope-review",
+        ),
+        concluded_license=noassertion("Component is outside the applicable BOM scope."),
+    )
+
+
 def proprietary_project() -> BomComponent:
     text_hash = digest("Kodepoia proprietary fixture license")
     assertion = LicenseAssertion(
@@ -169,6 +186,13 @@ def test_spdx_expression_normalization_and_license_ref() -> None:
             evidence_source="fixture",
             custom_text_sha256=digest("custom"),
         )
+    with pytest.raises(ValueError, match="unambiguous LicenseRef"):
+        LicenseAssertion(
+            state=LicenseAssertionState.SPDX_EXPRESSION,
+            expression="LicenseRef-Custom OR MIT",
+            evidence_source="fixture",
+            custom_text_sha256=digest("custom"),
+        )
 
 
 def test_noassertion_and_none_are_explicit_known_unknown_states() -> None:
@@ -211,11 +235,40 @@ def test_integrity_evidence_records_unknown_and_mismatch_without_faking_verifica
         )
 
 
+def test_not_applicable_component_integrity_is_strictly_coupled() -> None:
+    component = not_applicable_component()
+    assert component.resolution is ComponentResolution.NOT_APPLICABLE
+    assert component.integrity.status is IntegrityStatus.NOT_APPLICABLE
+    with pytest.raises(ValueError, match="requires not-applicable integrity"):
+        replace(
+            component,
+            integrity=IntegrityEvidence(IntegrityStatus.UNKNOWN, "fixture:wrong"),
+        )
+    with pytest.raises(ValueError, match="applicable component cannot use not-applicable"):
+        replace(
+            resolved_component(),
+            integrity=IntegrityEvidence(IntegrityStatus.NOT_APPLICABLE, "fixture:wrong"),
+        )
+
+
 def test_bom_status_unknown_warn_pass_and_fail() -> None:
     empty = BomReport.build(
         "x", "fixture", (), inventory_complete=False, generated_at=NOW
     )
     assert empty.status is BomStatus.UNKNOWN
+
+    all_na = BomReport.build(
+        "x",
+        "fixture",
+        (not_applicable_component(),),
+        inventory_complete=True,
+        inventory_review_source="fixture:review",
+        generated_at=NOW,
+    )
+    assert all_na.status is BomStatus.UNKNOWN
+    assert all_na.counts["not_applicable"] == 1
+    assert all_na.counts["integrity_not_applicable"] == 1
+    assert not all_na.blockers
 
     incomplete = BomReport.build(
         "x",
@@ -309,6 +362,7 @@ ui = ["Demo_Dep>=2,<3", "PySide6>=6.10,<7"]
     assert demo.concluded_license.state is LicenseAssertionState.NOASSERTION
     assert {item.group for item in demo.requirements} == {"runtime", "optional:ui"}
     assert report.counts["integrity_unknown"] >= 4
+    assert report.counts["not_applicable"] == 0
 
 
 def test_current_kodepoia_pyproject_generates_real_declared_dependency_bom() -> None:
@@ -342,6 +396,18 @@ def test_spdx_compatibility_view_is_versioned_and_explicitly_not_conformance_cla
     package = next(item for item in view["packages"] if item["id"] == "python:example")
     assert package["package_url"] == "pkg:pypi/example@1.2.3"
     assert package["concluded_license"] == "MIT"
+
+    mixed = BomReport.build(
+        "x",
+        "fixture",
+        (resolved_component(), not_applicable_component()),
+        inventory_complete=True,
+        inventory_review_source="fixture:review",
+        generated_at=NOW,
+    )
+    mixed_view = KodeBOM.spdx_compatibility_view(mixed)
+    assert [item["id"] for item in mixed_view["packages"]] == ["python:example"]
+    assert mixed_view["not_applicable_component_ids"] == ["python:unused"]
 
 
 def test_license_policy_is_exact_evidence_policy_not_legal_inference() -> None:
@@ -382,6 +448,19 @@ def test_license_report_pass_warn_fail_and_blockers() -> None:
     warned = LicenseReport.build(warn_bom, policy(), generated_at=NOW)
     assert warned.status is LicenseReportStatus.WARN
     assert warned.counts["unknown"] == 1
+
+    all_na_bom = BomReport.build(
+        "x",
+        "fixture",
+        (not_applicable_component(),),
+        inventory_complete=True,
+        inventory_review_source="fixture:review",
+        generated_at=NOW,
+    )
+    all_na_license = LicenseReport.build(all_na_bom, policy(), generated_at=NOW)
+    assert all_na_license.status is LicenseReportStatus.UNKNOWN
+    assert all_na_license.score is None
+    assert all_na_license.counts["components_total"] == 0
 
     failed = LicenseReport.build(pass_bom(), policy(deny_mit=True), generated_at=NOW)
     assert failed.status is LicenseReportStatus.FAIL
@@ -453,6 +532,23 @@ def test_health_adapters_preserve_unknown_warn_pass_and_fail() -> None:
     assert dep_unknown.status is HealthStatus.UNKNOWN
     assert dep_unknown.score is None
 
+    all_na = BomReport.build(
+        "x",
+        "fixture",
+        (not_applicable_component(),),
+        inventory_complete=True,
+        inventory_review_source="fixture:review",
+        generated_at=NOW,
+    )
+    dep_na = KodeBOM.to_dependencies_health_metric(all_na)
+    assert dep_na.status is HealthStatus.UNKNOWN
+    assert dep_na.score is None
+    license_na = KodeLicense.to_health_metric(
+        LicenseReport.build(all_na, policy(), generated_at=NOW)
+    )
+    assert license_na.status is HealthStatus.UNKNOWN
+    assert license_na.score is None
+
     unresolved = replace(
         resolved_component(),
         resolution=ComponentResolution.UNRESOLVED,
@@ -480,7 +576,7 @@ def test_health_adapters_preserve_unknown_warn_pass_and_fail() -> None:
     assert license_fail.blocking
 
 
-def test_r6_3_adapters_keep_unknown_as_skip_and_deny_as_fail() -> None:
+def test_r6_3_adapters_keep_unknown_and_na_as_skip_and_deny_as_fail() -> None:
     unresolved = replace(
         resolved_component(),
         resolution=ComponentResolution.UNRESOLVED,
@@ -504,6 +600,21 @@ def test_r6_3_adapters_keep_unknown_as_skip_and_deny_as_fail() -> None:
     license_case = KodeLicense.to_test_cases(unknown_license)[0]
     assert license_case.id == "license:python:example"
     assert license_case.status is TestCaseStatus.SKIP
+
+    na_bom = BomReport.build(
+        "x",
+        "fixture",
+        (not_applicable_component(),),
+        inventory_complete=True,
+        inventory_review_source="fixture",
+        generated_at=NOW,
+    )
+    na_case = KodeBOM.to_test_cases(na_bom)[0]
+    assert na_case.id == "bom:python:unused"
+    assert na_case.status is TestCaseStatus.SKIP
+    assert KodeLicense.to_test_cases(
+        LicenseReport.build(na_bom, policy(), generated_at=NOW)
+    ) == ()
 
     denied = LicenseReport.build(pass_bom(), policy(deny_mit=True), generated_at=NOW)
     cases = {item.id: item for item in KodeLicense.to_test_cases(denied)}
@@ -529,7 +640,7 @@ def test_stores_require_initialized_metadata_and_roundtrip(tmp_path: Path) -> No
     assert license_latest.is_relative_to(tmp_path)
 
 
-def test_schemas_accept_canonical_reports() -> None:
+def test_schemas_accept_canonical_reports_and_na_reports() -> None:
     root = Path(__file__).resolve().parents[1]
     bom_schema = json.loads((root / "schemas" / "bom-report-v1.schema.json").read_text(encoding="utf-8"))
     license_schema = json.loads(
@@ -538,6 +649,18 @@ def test_schemas_accept_canonical_reports() -> None:
     Draft202012Validator(bom_schema).validate(pass_bom().to_dict())
     Draft202012Validator(license_schema).validate(
         LicenseReport.build(pass_bom(), policy(), generated_at=NOW).to_dict()
+    )
+    na_bom = BomReport.build(
+        "x",
+        "fixture",
+        (not_applicable_component(),),
+        inventory_complete=True,
+        inventory_review_source="fixture",
+        generated_at=NOW,
+    )
+    Draft202012Validator(bom_schema).validate(na_bom.to_dict())
+    Draft202012Validator(license_schema).validate(
+        LicenseReport.build(na_bom, policy(), generated_at=NOW).to_dict()
     )
 
 

@@ -25,7 +25,9 @@ R7.7 uses FFmpeg only for:
 
 No model-supplied codec, filter string, output path, executable, cwd or environment is accepted.
 
-Reference used for implementation verification: <https://ffmpeg.org/ffmpeg.html> and <https://ffmpeg.org/ffmpeg-filters.html>.
+Frame extraction deliberately uses `-frames:v 1` without `-fps_mode`. FFmpeg added `-fps_mode` only in June 2022, so requiring it would incorrectly exclude older otherwise-capable installations such as the accepted local FFmpeg 4.2.3. A dedicated regression runner fails if `-fps_mode` reappears in the R7.7 frame argv.
+
+References used for implementation verification: <https://ffmpeg.org/ffmpeg.html>, <https://ffmpeg.org/ffmpeg-filters.html>, and the upstream June 2022 `fps_mode` change discussion/log.
 
 ### Local STT: whisper.cpp
 
@@ -63,7 +65,7 @@ tests/fixtures/research/r7_7_media_fixture.mp4.b64.004
 
 The first three fragments are 4,096 ASCII characters and the final fragment is 3,864 characters. Each fragment is Base64-aligned. The acceptance-only materializer concatenates the fragments in numeric order, applies strict `base64(validate=True)`, enforces the media byte budget, and writes the decoded MP4 only under `.kodepoia/research/tmp/`.
 
-The decoded media is a tiny generated 4-second MP4 containing synthetic test video and the spoken words:
+The decoded media is a tiny generated 4-second MP4 containing synthetic test video and the spoken sequence:
 
 ```text
 one two three four
@@ -117,7 +119,7 @@ Elapsed time, input bytes and observed temporary peak bytes are recorded. Portab
 
 R7.7 requests whisper.cpp full JSON output. Transcript records preserve text and `offsets.from` / `offsets.to` as millisecond start/end anchors. A confidence value is preserved only if the provider emitted a numeric value in `[0, 1]`; absence remains `null`.
 
-For the generated acceptance fixture, the semantic success condition is deliberately tolerant of segmentation: the combined transcript must contain `one`, `two`, `three`, `four`. R7.7 does not require one particular punctuation or segment boundary.
+Whisper output is not required to preserve the orthographic form of spoken numbers. For the generated fixture, R7.7 canonicalizes only the four expected number tokens: `one|1`, `two|2`, `three|3`, `four|4`. The ordered contiguous canonical sequence must be exactly `1,2,3,4`; punctuation and segmentation may vary, but missing or reordered numbers fail. This accepts the observed local output `1, 2, 3, 4.` without weakening the semantic fixture check.
 
 ## Frame evidence
 
@@ -167,7 +169,7 @@ Before the local gate is declared READY, the exact candidate head must pass:
 - R0 Repository Guard;
 - Python Core all jobs on Ubuntu/Windows;
 - KodeStudio UI Smoke;
-- deterministic unit/schema tests in `tests/test_r7_7_media.py`.
+- deterministic unit/schema tests in `tests/test_r7_7_media.py` and compatibility regressions in `tests/test_r7_7_media_compat.py`.
 
 `tests/test_r7_7_media_local_acceptance.py` deliberately skips when local evidence files do not exist. This skip does **not** satisfy the required gate.
 
@@ -196,7 +198,7 @@ Expected authoritative result:
 - command 3 passes, not skips;
 - both JSON reports contain the exact candidate `source_sha`;
 - all required checks are true;
-- transcript includes the four expected words;
+- transcript canonicalizes to ordered `1,2,3,4` (word, digit or mixed forms are acceptable);
 - three frame hashes are present and distinct;
 - temporary cleanup is true.
 
@@ -204,7 +206,7 @@ Evidence to return: the two JSON files and the final pytest summary. Personal pa
 
 ## Current gate state
 
-**NOT READY / NOT SATISFIED until the implementation PR exact head passes hosted CI.** The manual commands above are finalized, but must not be used as R7.7 acceptance evidence for an earlier or moving head.
+**NOT READY / NOT SATISFIED until the corrected implementation PR exact head passes hosted CI.** The local FAIL from head `80610cfa8e029e0b611c0b38d9e48388953651d6` is retained as rejected evidence because it exposed two implementation compatibility defects: digit-form STT normalization and use of post-2022 FFmpeg `-fps_mode` with FFmpeg 4.2.3.
 
 ## Rollback
 

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/research-report-v1.schema.json",
+  "title": "Kodepoia Research Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "request", "artifacts", "findings", "status", "generated_at", "digest_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "request": {"type": "object"},
+    "artifacts": {"type": "array", "items": {"type": "object"}},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_id", "kind", "claim", "citations", "confidence"],
+        "properties": {
+          "finding_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "kind": {"enum": ["source_fact", "inference"]},
+          "claim": {"type": "string", "minLength": 1},
+          "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+          "citations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["citation_id", "artifact_id", "locator", "anchor_start", "anchor_end", "label"],
+              "properties": {
+                "citation_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "artifact_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "locator": {"type": "string", "minLength": 1},
+                "anchor_start": {"type": "string"},
+                "anchor_end": {"type": "string"},
+                "label": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "status": {"enum": ["unknown", "ready", "unavailable", "not_applicable", "blocked", "stale"]},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "digest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

@@ -52,9 +52,9 @@ R6.11 is COMPLETE only after its exact final implementation head passes required
 | stable R6.3 BOM/license cases | yes | IMPLEMENTED |
 | secret redaction in component details | yes | IMPLEMENTED |
 | no shell/installer/scanner/arbitrary remote fetch path | yes | IMPLEMENTED |
-| R0 exact final head Windows+Ubuntu | yes | PASS — #873 |
-| Python Core exact final head, all jobs | yes | PASS — #847 5/5 |
-| KodeStudio UI Smoke exact final head | yes | PASS — #814 |
+| R0 exact final head Windows+Ubuntu | yes | PASS — #875 |
+| Python Core exact final head, all jobs | yes | PASS — #849 5/5 |
+| KodeStudio UI Smoke exact final head | yes | PASS — #816 |
 | implementation PR merge | yes | PENDING |
 | post-merge normalization | yes | PENDING |
 
@@ -111,14 +111,16 @@ The contract was hardened before final acceptance:
 
 Hardened diagnostic head `ad19f69d1d706db657be809698395a2340ec779c` passed R0 #869, Python Core #843 with all five jobs and UI Smoke #810.
 
+The acceptance-document evidence commit produced a new branch head after `62873b90...`; therefore exact-head discipline required another full hosted run instead of reusing the prior green evidence.
+
 ## Final exact-head evidence
 
-Final implementation candidate head before merge: `62873b90b4eed90328691068c948fb778efe4f1d`.
+Final implementation candidate head before merge: `daf2425e6930c907329fa0b59395a437c3835bda`.
 
-- R0 Repository Guard #873 — SUCCESS Windows + Ubuntu;
-- Python Core #847 — SUCCESS all five jobs: core Ubuntu, core Windows with PowerShell validation, integrated Windows UI, package-build Ubuntu, package-build Windows;
-- KodeStudio UI Smoke #814 — SUCCESS Windows;
-- PR #54 remained on exact head `62873b90b4eed90328691068c948fb778efe4f1d` during acceptance.
+- R0 Repository Guard #875 — SUCCESS Windows + Ubuntu;
+- Python Core #849 — SUCCESS all five jobs: core Ubuntu, core Windows with PowerShell validation, integrated Windows UI, package-build Ubuntu, package-build Windows;
+- KodeStudio UI Smoke #816 — SUCCESS Windows;
+- PR #54 remained on exact head `daf2425e6930c907329fa0b59395a437c3835bda` during final acceptance.
 
 No blocker, provenance, unknown-state or architecture boundary was weakened.
 
@@ -155,4 +157,4 @@ No user action is currently required. Foundation acceptance intentionally includ
 
 ## Completion record
 
-Hosted exact-head acceptance PASS on `62873b90b4eed90328691068c948fb778efe4f1d`; implementation merge and post-merge normalization remain pending.
+Hosted exact-head acceptance PASS on `daf2425e6930c907329fa0b59395a437c3835bda`; implementation merge and post-merge normalization remain pending.

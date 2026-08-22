@@ -23,6 +23,7 @@ _SCHEMA_VERSION = 1
 _SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9_.:-]{1,191}$")
+_WINDOWS_DRIVE_RE = re.compile(r"^[A-Za-z]:/")
 _FIXTURE_MARKER = ".kodepoia-r6-rollback-fixture"
 
 
@@ -73,7 +74,13 @@ def _stable_id(value: str, *, field_name: str) -> str:
 def _safe_relative_path(value: str) -> str:
     raw = value.strip().replace("\\", "/")
     path = PurePosixPath(raw)
-    if not raw or raw in {".", ".."} or path.is_absolute() or ".." in path.parts:
+    if (
+        not raw
+        or raw in {".", ".."}
+        or path.is_absolute()
+        or ".." in path.parts
+        or _WINDOWS_DRIVE_RE.match(raw)
+    ):
         raise ValueError("patch path must be a safe non-empty project-relative path")
     return path.as_posix()
 
@@ -258,6 +265,15 @@ class GateEvidence:
     def __post_init__(self) -> None:
         if not self.source.strip():
             raise ValueError("gate evidence requires source")
+        measured = self.status in {
+            GateEvidenceStatus.PASS,
+            GateEvidenceStatus.WARN,
+            GateEvidenceStatus.FAIL,
+        }
+        if measured and not self.evidence_sha256:
+            raise ValueError("measured gate evidence requires evidence_sha256")
+        if measured and not self.source_sha:
+            raise ValueError("measured gate evidence requires source_sha")
         if self.evidence_sha256:
             object.__setattr__(self, "evidence_sha256", _sha256(self.evidence_sha256, field_name="evidence_sha256"))
         if self.source_sha:
@@ -459,8 +475,9 @@ class KodePatchGate:
         rehearsal: RollbackRehearsalEvidence | None,
     ) -> PatchGateStatus:
         required = {item.gate for item in requirements}
-        evidence_map = {item.gate: item for item in evidence}
-        if len(evidence_map) != len(tuple(evidence)):
+        evidence_values = tuple(evidence)
+        evidence_map = {item.gate: item for item in evidence_values}
+        if len(evidence_map) != len(evidence_values):
             raise ValueError("gate evidence must be unique by gate")
         if not required and classification.classification is PatchClassification.MINOR:
             return PatchGateStatus.UNKNOWN
@@ -477,6 +494,8 @@ class KodePatchGate:
                 return PatchGateStatus.FAIL
         if classification.classification is PatchClassification.MAJOR:
             if rollback is None or rehearsal is None or rehearsal.status is not RehearsalStatus.PASS:
+                return PatchGateStatus.FAIL
+            if not (rollback.snapshot_required and rollback.audit_required and rollback.verification_required):
                 return PatchGateStatus.FAIL
         if any(evidence_map[gate].status is GateEvidenceStatus.WARN for gate in required):
             return PatchGateStatus.WARN
@@ -578,6 +597,12 @@ class PatchGateReport:
         if self.classification.classification is PatchClassification.MAJOR:
             if self.rollback is None:
                 blockers.append("rollback:strategy:missing")
+            elif not (
+                self.rollback.snapshot_required
+                and self.rollback.audit_required
+                and self.rollback.verification_required
+            ):
+                blockers.append("rollback:strategy:verification-incomplete")
             if self.rehearsal is None:
                 blockers.append("rollback:rehearsal:missing")
             elif self.rehearsal.status is not RehearsalStatus.PASS:
@@ -622,9 +647,19 @@ class PatchGateReport:
         gates = [item.gate for item in self.evidence]
         if len(gates) != len(set(gates)):
             raise ValueError("patch gate evidence must be unique")
+        required = {item.gate for item in self.requirements}
         for item in self.evidence:
             if item.source_sha and item.source_sha != self.head_sha:
                 raise ValueError("gate evidence source_sha does not match patch head_sha")
+            if item.gate in required and item.status in {
+                GateEvidenceStatus.PASS,
+                GateEvidenceStatus.WARN,
+                GateEvidenceStatus.FAIL,
+            }:
+                if not item.source_sha:
+                    raise ValueError("required measured gate evidence requires source_sha")
+                if not item.evidence_sha256:
+                    raise ValueError("required measured gate evidence requires evidence_sha256")
         expected_status = KodePatchGate.status_for(
             classification=self.classification,
             requirements=self.requirements,
@@ -682,7 +717,6 @@ class PatchGateReport:
             status,
             "",
         )
-        report = cls(*provisional.__dict__.values()) if hasattr(provisional, "__dict__") else None
         digest = _sha256_payload(provisional._payload())
         final = cls(
             provisional.generated_at,
@@ -743,6 +777,8 @@ class R6SubdivisionEvidence:
         if not self.source.strip():
             raise ValueError("R6 subdivision evidence requires source")
         object.__setattr__(self, "evidence_sha256", _sha256(self.evidence_sha256, field_name="evidence_sha256"))
+        if self.status is IntegrationEvidenceStatus.PASS and not self.accepted_head:
+            raise ValueError("PASS R6 subdivision evidence requires accepted_head")
         if self.accepted_head:
             object.__setattr__(self, "accepted_head", _git_sha(self.accepted_head, field_name="accepted_head"))
 
@@ -790,6 +826,8 @@ class R6IntegrationReport:
                 blockers.append(f"{key}:{item.status.value}")
             elif not item.manual_satisfied:
                 blockers.append(f"{key}:manual-pending")
+            elif key == "R6.12" and item.accepted_head != self.source_sha:
+                blockers.append("R6.12:source-sha-mismatch")
         return tuple(blockers)
 
     def _payload(self) -> dict[str, Any]:
@@ -810,6 +848,13 @@ class R6IntegrationReport:
         keys = [item.subdivision for item in self.subdivisions]
         if len(keys) != len(set(keys)):
             raise ValueError("R6 subdivision evidence must be unique")
+        r6_12 = next((item for item in self.subdivisions if item.subdivision == "R6.12"), None)
+        if (
+            r6_12 is not None
+            and r6_12.status is IntegrationEvidenceStatus.PASS
+            and r6_12.accepted_head != self.source_sha
+        ):
+            raise ValueError("R6.12 accepted_head must match integration source_sha")
         expected = IntegrationEvidenceStatus.PASS if not self.blockers else IntegrationEvidenceStatus.FAIL
         if self.status is not expected:
             raise ValueError("R6 integration status does not match subdivision evidence")

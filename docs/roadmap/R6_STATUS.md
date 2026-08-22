@@ -17,16 +17,15 @@ Accepted planning evidence:
 - R0 Repository Guard `32563057993` / #639 — SUCCESS Windows + Ubuntu;
 - Python Core `32563057956` / #613 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
 - KodeStudio UI Smoke `32563057903` / #580 — SUCCESS Windows;
-- planning PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`.
-
-The plan records already accepted R6.1–R6.3 without reopening them and freezes R6.4–R6.12. **R6.4 is now NEXT / NOT STARTED and may begin only from normalized `main` after this post-merge normalization is merged.**
+- planning PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`;
+- post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 
 ## Complete subdivision structure
 
 1. **R6.1 — KodeHealth foundation** — COMPLETE — manual `NONE` — PR #30 merge `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
 2. **R6.2 — KodeBudget foundation** — COMPLETE — manual `NONE` — PR #32 merge `65510a9b116d9c48b185a0edb51d99e5b951200a`.
 3. **R6.3 — KodeTests + KodeRegression foundation** — COMPLETE — manual `NONE` — PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`.
-4. **R6.4 — KodeVisualQA foundation** — NEXT / NOT STARTED — manual `REQUIRED`.
+4. **R6.4 — KodeVisualQA foundation** — IN PROGRESS — manual `REQUIRED` — branch `feature/r6-4-visualqa` from normalized `main` `e96e7c3b168975869c911f880044b7ef8e322157`.
 5. **R6.5 — KodeAccessibility foundation** — PLANNED — manual `REQUIRED`.
 6. **R6.6 — KodeLocalization + pseudo-localization foundation** — PLANNED — manual `NONE`.
 7. **R6.7 — KodeTechnicalDebt foundation** — PLANNED — manual `NONE`.
@@ -65,11 +64,32 @@ Accepted head `7150237c263dd3ac96af4662d74909e05f3cf991`.
 - Python Core `32562032998` / #596 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
 - KodeStudio UI Smoke `32562032982` / #563 — SUCCESS Windows.
 
-**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE. R6 remains IN PROGRESS.**
+## R6.4 implementation state
+
+R6.4 started only after the accepted R6 plan and PR #38 normalization were present on `main`.
+
+Current implementation scope on `feature/r6-4-visualqa`:
+
+- deterministic `KodeVisualQA` with `unknown/pass/warn/fail`;
+- content-addressed immutable baseline approval and SHA-256 provenance;
+- exact-file, pixel, mean-error and deterministic dHash perceptual evidence;
+- policy-declared rectangular masks hash-bound into evidence;
+- explicit format/mode/resolution mismatch failures;
+- missing baseline/current evidence remains UNKNOWN, never PASS;
+- PNG diff artifacts and validated `visual-report-v1` serialization;
+- R6.3 stable test hook `visual:<case-id>`;
+- `.kodepoia/visual_tests/{baselines,runs,diffs}` persistence through `WorkspaceBoundary`;
+- separate structured KodeGodot real-render PNG sequence tool while preserving the accepted R5 AVI path;
+- hardware-local acceptance runner and PowerShell wrapper;
+- focused R6.4 fixtures plus design/acceptance documentation.
+
+**R6.4 is NOT COMPLETE.** Required final-head CI and the mandatory Windows/Godot real-render acceptance are still authoritative gates. The implementation PR must not merge and R6.5 must not start before both are accepted.
+
+**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE. R6.4 = IN PROGRESS. R6 remains IN PROGRESS.**
 
 ## Manual-intervention forecast
 
-- R6.4 `REQUIRED`: real Windows/Godot rendered visual-regression acceptance on the accepted workstation.
+- R6.4 `REQUIRED`: real Windows/Godot rendered visual-regression acceptance on the accepted workstation after final-head CI is green.
 - R6.5 `REQUIRED`: real interactive Windows keyboard-only + Narrator accessibility checklist.
 - R6.8 `CONDITIONAL`: local Windows build evidence only if hosted CI cannot satisfy build/reproducibility DoD.
 - R6.11 `CONDITIONAL`: provenance/license evidence only if an acceptance-critical component remains ambiguous.

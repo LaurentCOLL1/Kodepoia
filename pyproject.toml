@@ -13,6 +13,7 @@ authors = [{name = "LaurentCOLL1"}]
 dependencies = [
   "PyYAML>=6.0.2,<7",
   "keyring>=25.7,<26",
+  "Pillow>=12.3,<12.4",
 ]
 
 [project.optional-dependencies]

@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/visual-report-v1.schema.json",
+  "title": "Kodepoia VisualQA Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "case_id",
+    "status",
+    "baseline",
+    "baseline_approval_sha256",
+    "current",
+    "policy",
+    "policy_sha256",
+    "metrics",
+    "diff",
+    "reasons",
+    "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "case_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+    "baseline": {"anyOf": [{"$ref": "#/$defs/image"}, {"type": "null"}]},
+    "baseline_approval_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+    "current": {"anyOf": [{"$ref": "#/$defs/image"}, {"type": "null"}]},
+    "policy": {"$ref": "#/$defs/policy"},
+    "policy_sha256": {"$ref": "#/$defs/sha256"},
+    "metrics": {"$ref": "#/$defs/metrics"},
+    "diff": {"anyOf": [{"$ref": "#/$defs/image"}, {"type": "null"}]},
+    "reasons": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "evidence_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "bytes", "format", "mode", "width", "height"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "format": {"type": "string", "minLength": 1},
+        "mode": {"type": "string", "minLength": 1},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1}
+      }
+    },
+    "mask": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": {"type": "integer", "minimum": 0},
+        "y": {"type": "integer", "minimum": 0},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pixel_delta_threshold",
+        "warn_changed_ratio",
+        "fail_changed_ratio",
+        "warn_perceptual_ratio",
+        "fail_perceptual_ratio",
+        "masks"
+      ],
+      "properties": {
+        "pixel_delta_threshold": {"type": "integer", "minimum": 0, "maximum": 255},
+        "warn_changed_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "fail_changed_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "warn_perceptual_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "fail_perceptual_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "masks": {"type": "array", "items": {"$ref": "#/$defs/mask"}}
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comparable",
+        "exact_file_match",
+        "pixel_identical",
+        "changed_pixels",
+        "compared_pixels",
+        "masked_pixels",
+        "changed_ratio",
+        "mean_absolute_error",
+        "max_channel_delta",
+        "perceptual_distance_ratio"
+      ],
+      "properties": {
+        "comparable": {"type": "boolean"},
+        "exact_file_match": {"type": "boolean"},
+        "pixel_identical": {"type": "boolean"},
+        "changed_pixels": {"type": "integer", "minimum": 0},
+        "compared_pixels": {"type": "integer", "minimum": 0},
+        "masked_pixels": {"type": "integer", "minimum": 0},
+        "changed_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "mean_absolute_error": {"type": "number", "minimum": 0, "maximum": 1},
+        "max_channel_delta": {"type": "integer", "minimum": 0, "maximum": 255},
+        "perceptual_distance_ratio": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    }
+  }
+}

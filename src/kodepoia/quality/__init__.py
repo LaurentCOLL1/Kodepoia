@@ -1,4 +1,4 @@
-"""Quality, health, budget, test and regression primitives."""
+"""Quality, health, budget, test, regression and visual QA primitives."""
 
 from kodepoia.quality.budget import (
     BudgetConstraint,
@@ -37,6 +37,17 @@ from kodepoia.quality.tests import (
     TestRunStatus,
     TestRunStore,
 )
+from kodepoia.quality.visual import (
+    KodeVisualQA,
+    VisualBaselineApproval,
+    VisualImage,
+    VisualMask,
+    VisualMetrics,
+    VisualPolicy,
+    VisualReport,
+    VisualStatus,
+    VisualStore,
+)
 
 __all__ = [
     "BudgetConstraint",
@@ -57,6 +68,7 @@ __all__ = [
     "KodeHealth",
     "KodeRegression",
     "KodeTests",
+    "KodeVisualQA",
     "PlatformBudgetSpec",
     "RegressionChange",
     "RegressionEntry",
@@ -68,4 +80,12 @@ __all__ = [
     "TestRunReport",
     "TestRunStatus",
     "TestRunStore",
+    "VisualBaselineApproval",
+    "VisualImage",
+    "VisualMask",
+    "VisualMetrics",
+    "VisualPolicy",
+    "VisualReport",
+    "VisualStatus",
+    "VisualStore",
 ]

@@ -178,10 +178,14 @@ class GodotRuntime:
         output_dir = self.boundary.root / ".kodepoia" / "captures"
         output_dir.mkdir(parents=True, exist_ok=True)
         relative = (output_dir / output_name).relative_to(self.boundary.root).as_posix()
+        # Movie Maker requires an actual renderer. Godot's --headless mode uses a
+        # dummy RenderingServer, which cannot provide the frame textures required
+        # by --write-movie and can crash in texture_2d_get(). Keep the command
+        # sandboxed, but allow the platform display/render driver for capture.
         return self._invoke(
             "capture-movie",
             [
-                "--headless", "--path", ".", "--write-movie", relative,
+                "--path", ".", "--write-movie", relative,
                 "--fixed-fps", str(fps), "--quit-after", str(frames), "--scene", self._scene_uri(scene),
             ],
             timeout=timeout,

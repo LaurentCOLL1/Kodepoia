@@ -52,15 +52,15 @@ R6.11 is COMPLETE only after its exact final implementation head passes required
 | stable R6.3 BOM/license cases | yes | IMPLEMENTED |
 | secret redaction in component details | yes | IMPLEMENTED |
 | no shell/installer/scanner/arbitrary remote fetch path | yes | IMPLEMENTED |
-| R0 exact final head Windows+Ubuntu | yes | PENDING FINAL HEAD |
-| Python Core exact final head, all jobs | yes | PENDING FINAL HEAD |
-| KodeStudio UI Smoke exact final head | yes | PENDING FINAL HEAD |
+| R0 exact final head Windows+Ubuntu | yes | PASS — #873 |
+| Python Core exact final head, all jobs | yes | PASS — #847 5/5 |
+| KodeStudio UI Smoke exact final head | yes | PASS — #814 |
 | implementation PR merge | yes | PENDING |
 | post-merge normalization | yes | PENDING |
 
 ## Required behavioral acceptance
 
-The final suite must demonstrate at minimum:
+The final suite demonstrates:
 
 1. SPDX expression normalization accepts ordinary expressions and `LicenseRef-*` while rejecting malformed characters/parentheses;
 2. `NOASSERTION` and `NONE` remain distinct explicit known-unknown/none states and require provenance+rationale;
@@ -109,7 +109,18 @@ The contract was hardened before final acceptance:
 - custom license-text hash requires one standalone `LicenseRef-*`;
 - schemas and tests enforce the same rules.
 
-Hardened diagnostic head `ad19f69d1d706db657be809698395a2340ec779c` passed R0 #869, Python Core #843 with all five jobs and UI Smoke #810. No blocker, provenance, unknown-state or architecture boundary was weakened.
+Hardened diagnostic head `ad19f69d1d706db657be809698395a2340ec779c` passed R0 #869, Python Core #843 with all five jobs and UI Smoke #810.
+
+## Final exact-head evidence
+
+Final implementation candidate head before merge: `62873b90b4eed90328691068c948fb778efe4f1d`.
+
+- R0 Repository Guard #873 — SUCCESS Windows + Ubuntu;
+- Python Core #847 — SUCCESS all five jobs: core Ubuntu, core Windows with PowerShell validation, integrated Windows UI, package-build Ubuntu, package-build Windows;
+- KodeStudio UI Smoke #814 — SUCCESS Windows;
+- PR #54 remained on exact head `62873b90b4eed90328691068c948fb778efe4f1d` during acceptance.
+
+No blocker, provenance, unknown-state or architecture boundary was weakened.
 
 ## Standards interpretation
 
@@ -144,4 +155,4 @@ No user action is currently required. Foundation acceptance intentionally includ
 
 ## Completion record
 
-PENDING exact-final-head CI, implementation merge and post-merge normalization.
+Hosted exact-head acceptance PASS on `62873b90b4eed90328691068c948fb778efe4f1d`; implementation merge and post-merge normalization remain pending.

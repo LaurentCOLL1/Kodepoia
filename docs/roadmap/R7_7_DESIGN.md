@@ -19,7 +19,7 @@ The supported baseline helper is `ffmpeg`, discovered from `PATH` and version-pr
 
 R7.7 uses FFmpeg only for:
 
-- decoding the validated fixture/source into mono 16-bit PCM WAV at 16 kHz;
+- decoding a validated local source into mono 16-bit PCM WAV at 16 kHz;
 - extracting one PNG frame at each deterministic requested timestamp;
 - scaling frames to a bounded width before Pillow validation.
 
@@ -52,7 +52,18 @@ Upstream references used for the contract:
 
 ## Fixture and provenance
 
-The repository stores only `tests/fixtures/research/r7_7_media_fixture.mp4.b64`. It is a tiny generated 4-second MP4 containing synthetic test video and the spoken words:
+The repository stores the generated acceptance MP4 as four strict Base64 fragments:
+
+```text
+tests/fixtures/research/r7_7_media_fixture.mp4.b64.001
+tests/fixtures/research/r7_7_media_fixture.mp4.b64.002
+tests/fixtures/research/r7_7_media_fixture.mp4.b64.003
+tests/fixtures/research/r7_7_media_fixture.mp4.b64.004
+```
+
+The first three fragments are 4,096 ASCII characters and the final fragment is 3,864 characters. Each fragment is Base64-aligned. The acceptance-only materializer concatenates the fragments in numeric order, applies strict `base64(validate=True)`, enforces the media byte budget, and writes the decoded MP4 only under `.kodepoia/research/tmp/`.
+
+The decoded media is a tiny generated 4-second MP4 containing synthetic test video and the spoken words:
 
 ```text
 one two three four
@@ -64,7 +75,7 @@ The logical fixture used by the CLI remains:
 tests/fixtures/research/r7_7_media_fixture.mp4
 ```
 
-If the binary file is absent, the adapter decodes the `.b64` payload **only inside** `.kodepoia/research/tmp/`. The decoded fixture is bounded by the media input budget, validated against the frozen SHA-256 below, processed, then removed with the rest of the temporary run directory.
+If an actual project-relative file with that logical name exists, normal local-media processing uses it directly. Otherwise the acceptance fixture materializer uses the four repository fragments, processes the temporary decoded file, then removes the outer fixture directory and the inner processing directory. Multipart assembly is deliberately separated from the generic `LocalMediaAcceptance` implementation so production local-media processing does not depend on test-fixture packaging.
 
 Expected decoded fixture SHA-256:
 
@@ -72,7 +83,9 @@ Expected decoded fixture SHA-256:
 8b3ed015526fd4584309a3c661b9e267ac464315e2d1c9aeed5bea19f28bdcf7
 ```
 
-The fixture is 12,112 bytes. It is generated test material, not third-party copyrighted media.
+The decoded fixture is 12,112 bytes. It is generated test material, not third-party copyrighted media.
+
+The first PR candidate used one monolithic Base64 file and was rejected by hosted Python Core because the stored payload was three characters short. That candidate is not acceptance evidence. The multipart representation preserves strict decoding instead of weakening validation.
 
 ## Process and security boundary
 
@@ -129,7 +142,7 @@ reason = no_accepted_local_vision_provider_configured
 
 ## Failure and cleanup semantics
 
-Timeout, cancellation, non-zero helper exit, malformed whisper JSON, missing model/tool, fixture hash mismatch, malformed image, size-budget overflow or temporary-disk overflow fails closed. A failed run still attempts to delete only its own `.kodepoia/research/tmp/r7_7_*` directory.
+Timeout, cancellation, non-zero helper exit, malformed whisper JSON, missing model/tool, malformed or incomplete Base64 fixture parts, fixture hash mismatch, malformed image, size-budget overflow or temporary-disk overflow fails closed. A failed run still attempts to delete only its own `.kodepoia/research/tmp/r7_7_*` and `r7_7_fixture_*` directories.
 
 No source media, model, helper binary or unrelated workspace content is deleted or modified.
 

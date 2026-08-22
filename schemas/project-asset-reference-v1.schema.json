@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/project-asset-reference-v1.schema.json",
+  "type": "object",
+  "required": ["schema", "version", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "kodepoia.project-asset-reference"},
+    "version": {"const": 1},
+    "payload": {
+      "type": "object",
+      "required": ["project_id", "asset_id", "revision_id", "target_path", "metadata"],
+      "additionalProperties": false,
+      "properties": {
+        "project_id": {"type": "string", "minLength": 1},
+        "asset_id": {"type": "string", "pattern": "^asset_[0-9a-f]{32}$"},
+        "revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"},
+        "target_path": {"type": ["string", "null"]},
+        "metadata": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    }
+  }
+}

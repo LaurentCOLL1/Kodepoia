@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/security-report-v1.schema.json",
+  "title": "Kodepoia Security Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "project_name",
+    "status",
+    "counts",
+    "blockers",
+    "threat_model",
+    "requirements",
+    "dependencies",
+    "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "project_name": {"type": "string"},
+    "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirements_total", "applicable", "not_applicable", "pass", "warn", "fail", "unknown",
+        "dependencies_total", "dependencies_clear", "dependencies_affected", "dependencies_unknown",
+        "threats_total", "blocking_threats"
+      ],
+      "properties": {
+        "requirements_total": {"type": "integer", "minimum": 0},
+        "applicable": {"type": "integer", "minimum": 0},
+        "not_applicable": {"type": "integer", "minimum": 0},
+        "pass": {"type": "integer", "minimum": 0},
+        "warn": {"type": "integer", "minimum": 0},
+        "fail": {"type": "integer", "minimum": 0},
+        "unknown": {"type": "integer", "minimum": 0},
+        "dependencies_total": {"type": "integer", "minimum": 0},
+        "dependencies_clear": {"type": "integer", "minimum": 0},
+        "dependencies_affected": {"type": "integer", "minimum": 0},
+        "dependencies_unknown": {"type": "integer", "minimum": 0},
+        "threats_total": {"type": "integer", "minimum": 0},
+        "blocking_threats": {"type": "integer", "minimum": 0}
+      }
+    },
+    "threat_model": {"$ref": "#/$defs/threat_model"},
+    "requirements": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/requirement"}
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/dependency"}
+    }
+  },
+  "$defs": {
+    "stable_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.:-]{1,127}$"},
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "description", "sensitivity"],
+      "properties": {
+        "id": {"$ref": "#/$defs/stable_id"},
+        "name": {"type": "string", "minLength": 1},
+        "description": {"type": "string"},
+        "sensitivity": {"type": "string", "minLength": 1}
+      }
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "source_zone", "target_zone", "description"],
+      "properties": {
+        "id": {"$ref": "#/$defs/stable_id"},
+        "name": {"type": "string", "minLength": 1},
+        "source_zone": {"type": "string", "minLength": 1},
+        "target_zone": {"type": "string", "minLength": 1},
+        "description": {"type": "string"}
+      }
+    },
+    "entry_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind", "boundary_id", "description"],
+      "properties": {
+        "id": {"$ref": "#/$defs/stable_id"},
+        "name": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "boundary_id": {
+          "oneOf": [{"type": "null"}, {"$ref": "#/$defs/stable_id"}]
+        },
+        "description": {"type": "string"}
+      }
+    },
+    "threat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "title", "scenario", "asset_ids", "entry_point_ids", "boundary_ids", "mitigations",
+        "residual_risk", "blocking"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/stable_id"},
+        "title": {"type": "string", "minLength": 1},
+        "scenario": {"type": "string", "minLength": 1},
+        "asset_ids": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/stable_id"}},
+        "entry_point_ids": {"type": "array", "items": {"$ref": "#/$defs/stable_id"}},
+        "boundary_ids": {"type": "array", "items": {"$ref": "#/$defs/stable_id"}},
+        "mitigations": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "residual_risk": {"enum": ["unknown", "low", "medium", "high", "critical"]},
+        "blocking": {"type": "boolean"}
+      }
+    },
+    "threat_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assets", "trust_boundaries", "entry_points", "threats"],
+      "properties": {
+        "assets": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/asset"}},
+        "trust_boundaries": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/boundary"}},
+        "entry_points": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/entry_point"}},
+        "threats": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/threat"}}
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "category", "title", "applicability", "status", "severity", "reference", "rationale",
+        "evidence_source", "blocking", "details"
+      ],
+      "properties": {
+        "id": {"$ref": "#/$defs/stable_id"},
+        "category": {
+          "enum": ["path", "input", "network", "auth", "session", "secret_storage", "dependency", "execution", "governance", "other"]
+        },
+        "title": {"type": "string", "minLength": 1},
+        "applicability": {"enum": ["applicable", "not_applicable"]},
+        "status": {"enum": ["pass", "warn", "fail", "unknown", "not_applicable"]},
+        "severity": {"enum": ["info", "low", "medium", "high", "critical"]},
+        "reference": {
+          "type": "string",
+          "pattern": "^$|^v5\\.0\\.0-[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "rationale": {"type": "string"},
+        "evidence_source": {"type": "string"},
+        "blocking": {"type": "boolean"},
+        "details": {"type": "object"}
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component", "version", "status", "checked_at", "source", "advisory_ids", "severity", "blocking", "details"
+      ],
+      "properties": {
+        "component": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "status": {"enum": ["clear", "affected", "unknown"]},
+        "checked_at": {"type": "string", "format": "date-time"},
+        "source": {"type": "string", "minLength": 1},
+        "advisory_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "severity": {"enum": ["info", "low", "medium", "high", "critical"]},
+        "blocking": {"type": "boolean"},
+        "details": {"type": "object"}
+      }
+    }
+  }
+}

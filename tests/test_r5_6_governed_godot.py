@@ -33,7 +33,7 @@ class FakeSandbox:
     def __init__(self) -> None:
         self.calls: list[tuple[list[str], Path]] = []
 
-    def spawn_piped(self, argv: list[str], *, cwd: Path, env: object = None) -> FakeProcess:
+    def spawn_background(self, argv: list[str], *, cwd: Path, env: object = None) -> FakeProcess:
         del env
         self.calls.append((list(argv), cwd))
         return FakeProcess()
@@ -113,8 +113,10 @@ def test_services_build_loopback_debug_server_command(tmp_path: Path, monkeypatc
     result = services.start(GodotServicePorts(), timeout=5)
     assert result["lsp_initialized"] is True
     assert result["dap_initialized"] is True
+    assert result["log"] == ".kodepoia/logs/godot-services.log"
     assert sandbox.calls[0][0] == [
         "godot", "--headless", "--editor", "--path", ".",
+        "--log-file", ".kodepoia/logs/godot-services.log",
         "--lsp-port", "6005", "--dap-port", "6006",
         "--debug-server", "tcp://127.0.0.1:6007",
     ]

@@ -19,5 +19,6 @@ from kodepoia.assets.search import (
 from kodepoia.assets.serialization import canonical_json, load_asset_record, load_asset_revision, load_project_reference, manifest_digest, verify_content
 from kodepoia.assets.store import DeletionPlan, RebuildReport, VaultStore
 from kodepoia.assets.transforms import CacheState, DeterminismState, DeterministicTextTransform, ToolIdentity, TransformRecipe, TransformRegistry, TransformResult, TransformService
+from kodepoia.assets.vcs import AssetVcsEvidence, AssetVcsService, BinaryDiffStat, VcsFileState, VcsFileStatus, VcsRepositoryStatus
 
 __all__ = [name for name in globals() if not name.startswith("_")]

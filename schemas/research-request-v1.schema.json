@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/research-request-v1.schema.json",
+  "title": "Kodepoia Research Request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "request_id", "query", "source_kinds", "created_at", "project_scope", "max_results"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "request_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "query": {"type": "string", "minLength": 1},
+    "source_kinds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["local", "official_docs", "web", "github", "community", "youtube"]}
+    },
+    "created_at": {"type": "string", "format": "date-time"},
+    "project_scope": {"type": "string"},
+    "max_results": {"type": "integer", "minimum": 1, "maximum": 100}
+  }
+}

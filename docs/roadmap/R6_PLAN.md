@@ -29,7 +29,7 @@ R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE wi
 - PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`;
 - post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 
-**Planning gate result: PASS. R6.1–R6.6 are COMPLETE. R6.7 is NEXT / NOT STARTED until the R6.6 post-merge normalization is accepted.**
+**Planning gate result: PASS. R6.1–R6.7 are COMPLETE. R6.8 is NEXT / NOT STARTED until R6.7 post-merge normalization is accepted.**
 
 ## Frozen-roadmap objective
 
@@ -78,7 +78,7 @@ Persistent R6 evidence belongs under initialized `.kodepoia/` roots and must be 
 
 - **Accessibility:** WCAG 2.2 source criteria where applicable; W3C WCAG2ICT 2.2 is the preferred informative interpretation for non-Web desktop software. No universal WCAG certification claim.
 - **Localization:** Unicode CLDR stable releases are reference context for locale-data conventions only. R6.6 does not vendor CLDR or claim full locale-formatting coverage.
-- **CI/Build provenance:** SLSA v1.2 is reference context for artifact digest/source/build provenance concepts in R6.8. Kodepoia must not claim a SLSA level unless all applicable requirements are separately proven.
+- **CI/Build provenance:** SLSA v1.2 is reference context for artifact digest/source/build provenance concepts in R6.8. Kodepoia must not claim a SLSA level unless all applicable requirements are separately proven. GitHub artifact attestations may be used later as supplementary provenance, but an attestation by itself is not a security guarantee and is not automatically required for R6.8 completion.
 - **Application security:** OWASP ASVS 5.0.0 stable baseline, only for applicable web/API/auth/session/security surfaces.
 - **Software BOM:** SPDX 3.0 stable baseline. Pre-release SPDX versions are not authoritative without an explicit later decision.
 
@@ -94,8 +94,8 @@ If a versioned reference materially changes before a future subdivision is imple
 | R6.4 | KodeVisualQA foundation | COMPLETE | REQUIRED — SATISFIED | R6.1–R6.3 + accepted R5 Godot automation |
 | R6.5 | KodeAccessibility foundation | COMPLETE | REQUIRED — SATISFIED | R6.3–R6.4 |
 | R6.6 | KodeLocalization + pseudo-localization foundation | COMPLETE | NONE | R6.3 + R6.5 |
-| R6.7 | KodeTechnicalDebt foundation | NEXT / NOT STARTED | NONE | R6.1–R6.6 |
-| R6.8 | KodeCI + KodeBuild foundation | PLANNED | CONDITIONAL | R6.1–R6.7 |
+| R6.7 | KodeTechnicalDebt foundation | COMPLETE | NONE | R6.1–R6.6 |
+| R6.8 | KodeCI + KodeBuild foundation | NEXT / NOT STARTED | CONDITIONAL | R6.1–R6.7 |
 | R6.9 | KodeAppSecurity baseline | PLANNED | NONE | R6.3 + R6.7–R6.8 |
 | R6.10 | KodePrivacy baseline | PLANNED | NONE | R6.7–R6.9 |
 | R6.11 | KodeLicense + KodeBOM foundation | PLANNED | CONDITIONAL | R6.7–R6.10 |
@@ -266,63 +266,66 @@ Rollback/risk: pseudo-locale must never become production default; stable IDs sh
 
 ---
 
-# R6.7 — KodeTechnicalDebt foundation — NEXT / NOT STARTED
+# R6.7 — KodeTechnicalDebt foundation — COMPLETE
 
-## Objective
+## Objective and accepted scope
 
-Create a persistent structured technical-debt register so debt is observable, prioritized and linked to code/requirements/tests instead of informal comments.
+R6.7 created a persistent structured technical-debt register so debt is observable, prioritized and linked to code/requirements/tests rather than informal comments.
 
-## In scope / expected deliverables
+Accepted scope:
 
 - stable debt IDs;
 - category/severity/impact/probability/effort;
 - owner/scope/source/provenance;
-- file/symbol/test/requirement references;
-- first-seen/last-seen/resolved lifecycle;
-- explicit states separating open, accepted and resolved debt;
-- accepted-debt rationale with optional review/expiry;
-- deterministic ranking;
-- duplicate fingerprinting based on stable debt identity rather than volatile timestamps;
-- project-confined persistence under `.kodepoia/diagnostics/technical_debt/`;
-- structured report/schema and anti-tamper validation;
+- structured file/symbol/test/requirement/issue references;
+- timezone-aware first-seen/last-seen/review/expiry/resolution evidence;
+- explicit `OPEN`, `ACCEPTED`, `RESOLVED` lifecycle;
+- accepted debt requires rationale and remains visible/penalized rather than becoming resolved;
+- resolved debt remains historical and requires `resolved_at`;
+- accepted/resolved debt cannot remain blocking;
+- deterministic priority `severity_weight × impact × probability ÷ effort`, bounded to 100;
+- stable duplicate fingerprinting based on debt identity rather than volatile timestamps/state;
+- duplicate IDs/fingerprints rejected;
+- derived counts, blockers, ranking and debt penalty;
+- canonical SHA-256 anti-tamper evidence;
+- `.kodepoia/diagnostics/technical_debt/` persistence through `WorkspaceBoundary`;
 - Health `technical_debt` adapter;
-- stable R6.3 regression evidence for newly introduced blocking debt;
+- stable R6.3 `technical-debt:<id>` cases;
+- newly introduced blocking debt becomes an added FAIL and therefore a regression;
+- repository-observed debt can be recorded with actual provenance without claiming an unexecuted scanner.
+
+## Accepted deliverables
+
 - `src/kodepoia/quality/technical_debt.py`;
 - `schemas/technical-debt-report-v1.schema.json`;
 - `tests/test_r6_7_technical_debt.py`;
-- design/acceptance docs.
+- quality exports;
+- `docs/roadmap/R6_7_DESIGN.md`;
+- `docs/roadmap/R6_7_ACCEPTANCE.md`;
+- `docs/roadmap/R6_7_KNOWN_DEBT.md`.
 
-## Out of scope
+## Accepted evidence
 
-Automatic code rewriting, License/BOM, foundation architecture changes without ADR, arbitrary static-analysis commands supplied by a model and treating accepted debt as resolved.
+- starting normalized main `c5edd3c80ad9afec25997f1372d5f98ac861becc`;
+- implementation branch `feature/r6-7-technical-debt`;
+- accepted head `0da49c7526b54f562827d63477b7ce8f1865de43`;
+- implementation PR #45;
+- implementation merge `3986b056654b25a73e45e5135ca3110a920c4bf5`;
+- R0 Repository Guard `32570711736` / #756 — SUCCESS Windows + Ubuntu;
+- Python Core `32570711738` / #730 — SUCCESS Windows + Ubuntu, PowerShell syntax, full pytest and integrated KodeStudio UI smoke;
+- KodeStudio UI Smoke `32570711732` / #697 — SUCCESS Windows.
 
-## Acceptance gates
+Development CI found one incorrect test expectation: critical severity with impact 4, probability 3 and effort 2 evaluates to `4 × 4 × 3 ÷ 2 = 24`, not 30. The fixture expectation was corrected; the deterministic formula was unchanged.
 
-1. stable unique IDs and fingerprints;
-2. deterministic category/severity/risk/effort ranking;
-3. lifecycle invariants and timezone-aware first/last/resolved timestamps;
-4. accepted debt requires rationale and remains visible;
-5. resolved debt is distinct from accepted debt;
-6. duplicate fingerprints detected rather than silently double-counted;
-7. report counts/ranking/blockers canonical and tamper-resistant;
-8. project/symlink confinement;
-9. Health `technical_debt` metric derived from evidence;
-10. new blocking debt creates stable R6.3 failure evidence;
-11. repository-observed debt can be represented with provenance without claiming an unexecuted scanner;
-12. Windows + Ubuntu Python Core and KodeStudio smoke remain green;
-13. merge + post-merge normalization.
+The same hosted logs reproduced non-blocking debt candidates with actual provenance: imported quality classes named `Test*` causing `PytestCollectionWarning`, and Pillow `Image.Image.getdata()` deprecation warnings in VisualQA. R6.5 Qt font/size-hint notices remain environment-specific candidate debt. These observations are not fabricated scanner results and are not falsely marked remediated.
 
-## Manual intervention
+Manual intervention: **NONE — COMPLETE**.
 
-**NONE.** Deterministic repository fixtures/evidence suffice for foundation acceptance.
-
-## Rollback / risks
-
-Never treat accepted debt as resolved. Preserve rationale/history. Fingerprints must exclude volatile timestamps/state changes to avoid duplicate records on every scan. Blocking status must not disappear merely because a report is regenerated.
+Rollback/risk: never treat accepted debt as resolved, never change fingerprints merely to avoid duplicate detection, preserve rationale/history, keep blocking debt visible to R6.3, keep derived fields/hash validation and `WorkspaceBoundary` confinement intact.
 
 ---
 
-# R6.8 — KodeCI + KodeBuild foundation
+# R6.8 — KodeCI + KodeBuild foundation — NEXT / NOT STARTED
 
 ## Objective
 
@@ -508,8 +511,8 @@ Risk: avoid circular validation where patch gate trusts its own summary without 
 - **R6.4 — REQUIRED:** SATISFIED and accepted; no further action unless regression.
 - **R6.5 — REQUIRED:** SATISFIED and accepted; no further action unless regression.
 - **R6.6 — NONE:** COMPLETE; no user action required.
-- **R6.7 — NONE:** no user-side acceptance planned.
-- **R6.8 — CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet build/provenance DoD.
+- **R6.7 — NONE:** COMPLETE; no user action required.
+- **R6.8 — CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet build/provenance DoD. If hosted Windows builds and validates the required artifacts with exact source/artifact hashes, this condition is NOT TRIGGERED.
 - **R6.11 — CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved.
 - **R6.12 — CONDITIONAL:** local integration/approval only if final selected gates require hardware-local execution or explicit approval.
 - **R6.9, R6.10 — NONE** currently planned.
@@ -535,4 +538,5 @@ R6 is COMPLETE only when:
 - 2026-08-22: post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 - 2026-08-22: R6.4 accepted on head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`; PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`; PR #40 normalized main to `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
 - 2026-08-22: R6.5 accepted on head `06fd66af4b3a85da24b98ea2a5fbb2685358c540` after R0 #710, Python Core #684, UI Smoke #651 and required Windows keyboard/focus/Narrator `15 PASS / 0 FAIL / 15`; PR #41 merged as `db1a1ab78eb2ac7d90f75ab294074dec0238268c`; PR #42 normalized main to `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
-- 2026-08-22: R6.6 accepted on head `6890b9d37722c74703e8b86f7de11dbfe66821ed` after R0 #733, Python Core #707 and UI Smoke #674; PR #43 merged as `f677cb34eade0549edc951fe11955de2bc0b270d`. R6.6 COMPLETE; R6.7 NEXT / NOT STARTED pending this post-merge normalization.
+- 2026-08-22: R6.6 accepted on head `6890b9d37722c74703e8b86f7de11dbfe66821ed` after R0 #733, Python Core #707 and UI Smoke #674; PR #43 merged as `f677cb34eade0549edc951fe11955de2bc0b270d`; PR #44 normalized main to `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
+- 2026-08-22: R6.7 accepted on head `0da49c7526b54f562827d63477b7ce8f1865de43` after R0 #756, Python Core #730 and UI Smoke #697; PR #45 merged as `3986b056654b25a73e45e5135ca3110a920c4bf5`. R6.7 COMPLETE; R6.8 NEXT / NOT STARTED pending this post-merge normalization.

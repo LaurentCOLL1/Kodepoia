@@ -10,7 +10,9 @@
 - implementation branch: `feature/r6-8-ci-build`;
 - accepted implementation head: `d632669b93fda7b8397b9c3de43d78ca8726323f`;
 - implementation PR: #47;
-- implementation merge: `d570a3930ee63802882b8682e4532004d4fd81d6`.
+- implementation merge: `d570a3930ee63802882b8682e4532004d4fd81d6`;
+- post-merge normalization PR: #48;
+- normalized main merge: `92effbde1e432a8fcb6c794038d77367d034bcb0`.
 
 ## Acceptance matrix
 
@@ -46,7 +48,7 @@
 | Python Core final head Windows+Ubuntu | yes | PASS |
 | KodeStudio UI Smoke final head | yes | PASS |
 | implementation PR merge | yes | PASS |
-| post-merge normalization | yes | IN THIS NORMALIZATION PR |
+| post-merge normalization | yes | PASS — PR #48 merge `92effbde1e432a8fcb6c794038d77367d034bcb0` |
 
 ## Final hosted CI evidence — exact implementation head
 
@@ -138,6 +140,15 @@ There is therefore no acceptance-critical Windows behavior left unproven by host
 - The package collector must not expose arbitrary model-supplied commands, executables, cwd or output paths.
 - Package-build checkout must remain bound to the same source SHA recorded in build/CI evidence.
 
+## Post-merge normalization evidence
+
+PR #48 head `0580f930d6dfaa387c1eda1cf8ad56de79cc42b9` passed:
+
+- R0 #790 `32572054011` — SUCCESS;
+- Python Core #764 `32572054001` — SUCCESS including both core OS jobs, integrated UI and both package-build jobs;
+- KodeStudio UI Smoke #731 `32572054015` — SUCCESS;
+- merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`.
+
 ## Completion record
 
-R6.8 implementation accepted and merged as PR #47 / `d570a3930ee63802882b8682e4532004d4fd81d6`. This post-merge normalization records R6.8 COMPLETE and promotes R6.9 to NEXT / NOT STARTED after its own CI is green and merged.
+R6.8 implementation accepted and merged as PR #47 / `d570a3930ee63802882b8682e4532004d4fd81d6`. Post-merge normalization PR #48 is also accepted and merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`. **R6.8 is COMPLETE and R6.9 is NEXT / NOT STARTED.**

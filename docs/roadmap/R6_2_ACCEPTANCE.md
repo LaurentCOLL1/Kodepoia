@@ -1,10 +1,14 @@
 # R6.2 — KodeBudget foundation — Acceptance
 
-**Status:** PENDING CI / PR MERGE
+**Status:** COMPLETE  
+**Accepted:** 2026-08-22  
+**Accepted implementation head:** `8ac3772e98c70260c320519a214bb25b6cedbb38`  
+**Merged by:** PR #32  
+**Merge commit:** `65510a9b116d9c48b185a0edb51d99e5b951200a`
 
 ## Acceptance gates
 
-R6.2 is accepted only when all of the following pass on the final PR head:
+R6.2 required all of the following:
 
 1. Python compilation passes on Windows and Ubuntu.
 2. Existing full pytest suite remains green.
@@ -22,8 +26,40 @@ R6.2 is accepted only when all of the following pass on the final PR head:
 14. `budget-report-v1` JSON schema is present.
 15. No R1–R6.1 governance boundary is bypassed or weakened.
 
-## Pre-CI isolated evidence
+## Isolated pre-CI evidence
 
-An isolated core smoke exercised Project DNA derivation, full PASS evaluation, blocking FAIL evaluation and persistent round-trip successfully.
+Project DNA derivation, full PASS evaluation, blocking FAIL evaluation and persistence round-trip all passed in an isolated core smoke.
 
-This evidence is not sufficient to mark R6.2 COMPLETE. Authoritative GitHub CI and merge evidence are still required.
+## Authoritative GitHub CI evidence
+
+Final accepted PR #32 head: `8ac3772e98c70260c320519a214bb25b6cedbb38`.
+
+- R0 Repository Guard — run `32561719921` / #603 — **SUCCESS** Windows + Ubuntu.
+- Python Core — run `32561719925` / #577 — **SUCCESS**:
+  - `python-core-ubuntu-latest` — SUCCESS;
+  - `python-core-windows-latest` — SUCCESS, including PowerShell acceptance-runner syntax validation;
+  - integrated `kodestudio-ui-windows` — SUCCESS.
+- KodeStudio UI Smoke — run `32561720008` / #544 — **SUCCESS** Windows.
+
+## Merge evidence
+
+PR #32 was merged to `main` as `65510a9b116d9c48b185a0edb51d99e5b951200a` only after all final-head gates were successful.
+
+## Acceptance result
+
+| Gate | Result |
+| --- | --- |
+| Target-platform budget derivation | PASS |
+| Target vs hard-limit semantics | PASS |
+| Explicit unknown coverage | PASS |
+| Blocking failures | PASS |
+| Invalid observation rejection | PASS |
+| Report validation / round-trip | PASS |
+| WorkspaceBoundary persistence | PASS |
+| Budget report schema v1 | PASS |
+| R0 Windows + Ubuntu | PASS |
+| Python Core Windows + Ubuntu | PASS |
+| KodeStudio smoke | PASS |
+| PR #32 merged | PASS |
+
+**R6.2 = COMPLETE.**

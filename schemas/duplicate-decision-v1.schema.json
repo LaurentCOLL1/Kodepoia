@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/duplicate-decision-v1.schema.json",
+  "type": "object",
+  "required": ["schema_version", "decision_id", "revisions", "decision", "reason"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "decision_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "revisions": {"type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true, "items": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"}},
+    "decision": {"enum": ["keep_separate", "supersede_logical"]},
+    "reason": {"type": "string", "minLength": 1}
+  }
+}

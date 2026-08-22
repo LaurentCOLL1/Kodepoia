@@ -25,8 +25,8 @@ Accepted planning evidence:
 1. **R6.1 — KodeHealth foundation** — COMPLETE — manual `NONE` — PR #30 merge `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
 2. **R6.2 — KodeBudget foundation** — COMPLETE — manual `NONE` — PR #32 merge `65510a9b116d9c48b185a0edb51d99e5b951200a`.
 3. **R6.3 — KodeTests + KodeRegression foundation** — COMPLETE — manual `NONE` — PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`.
-4. **R6.4 — KodeVisualQA foundation** — IN PROGRESS — manual `REQUIRED` — branch `feature/r6-4-visualqa` from normalized `main` `e96e7c3b168975869c911f880044b7ef8e322157`.
-5. **R6.5 — KodeAccessibility foundation** — PLANNED — manual `REQUIRED`.
+4. **R6.4 — KodeVisualQA foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`.
+5. **R6.5 — KodeAccessibility foundation** — NEXT / NOT STARTED — manual `REQUIRED`.
 6. **R6.6 — KodeLocalization + pseudo-localization foundation** — PLANNED — manual `NONE`.
 7. **R6.7 — KodeTechnicalDebt foundation** — PLANNED — manual `NONE`.
 8. **R6.8 — KodeCI + KodeBuild foundation** — PLANNED — manual `CONDITIONAL`.
@@ -64,33 +64,43 @@ Accepted head `7150237c263dd3ac96af4662d74909e05f3cf991`.
 - Python Core `32562032998` / #596 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
 - KodeStudio UI Smoke `32562032982` / #563 — SUCCESS Windows.
 
-## R6.4 implementation state
+## Accepted R6.4 evidence
 
-R6.4 started only after the accepted R6 plan and PR #38 normalization were present on `main`.
+Accepted implementation head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`.
 
-Current implementation scope on `feature/r6-4-visualqa`:
+Hosted final-head evidence:
 
-- deterministic `KodeVisualQA` with `unknown/pass/warn/fail`;
-- content-addressed immutable baseline approval and SHA-256 provenance;
-- exact-file, pixel, mean-error and deterministic dHash perceptual evidence;
-- policy-declared rectangular masks hash-bound into evidence;
-- explicit format/mode/resolution mismatch failures;
-- missing baseline/current evidence remains UNKNOWN, never PASS;
-- PNG diff artifacts and validated `visual-report-v1` serialization;
-- R6.3 stable test hook `visual:<case-id>`;
-- `.kodepoia/visual_tests/{baselines,runs,diffs}` persistence through `WorkspaceBoundary`;
-- separate structured KodeGodot real-render PNG sequence tool while preserving the accepted R5 AVI path;
-- hardware-local acceptance runner and PowerShell wrapper;
-- focused R6.4 fixtures plus design/acceptance documentation.
+- R0 Repository Guard `32564304755` / #666 — SUCCESS Windows + Ubuntu;
+- Python Core `32564304757` / #640 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
+- KodeStudio UI Smoke `32564304798` / #607 — SUCCESS Windows.
 
-**R6.4 is NOT COMPLETE.** Required final-head CI and the mandatory Windows/Godot real-render acceptance are still authoritative gates. The implementation PR must not merge and R6.5 must not start before both are accepted.
+Required hardware-local evidence on the exact same head:
 
-**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE. R6.4 = IN PROGRESS. R6 remains IN PROGRESS.**
+- Windows `Windows-11-10.0.26220-SP0`;
+- Python `3.12.4`;
+- Godot `4.7.2.stable.steam.ed1daf0bf`;
+- rendering method `gl_compatibility`;
+- rendering driver `opengl3`;
+- video adapter `AMD Radeon RX 6750 XT`;
+- baseline/current SHA-256 both `98dca538d872e8f883b4de4e9b92b741091365f15d193bac1127801277ca567a`;
+- changed ratio `0.0`, perceptual distance ratio `0.0`;
+- policy SHA-256 `a2dbb4532c50e522639a1b1a264420d2f491d17e7b2350d500ddf415bd70014e`;
+- evidence SHA-256 `4c0375391d8f0e1b54c8c949b264ec70d6c9a18f10798a52a72d79ac18daab56`;
+- VisualQA PASS;
+- R6.3 hook `visual:godot-real-render` PASS;
+- AuditLog chain valid;
+- summary `8 PASS / 0 FAIL / 8`, `acceptance_completed=true`.
+
+PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f` after the local evidence was reviewed, without changing the tested head.
+
+Accepted R6.4 scope includes deterministic VisualQA, immutable content-addressed baselines, hash-bound masks/policy, PNG diff artifacts, anti-tamper report validation, R6.3 regression hooks, WorkspaceBoundary confinement and a separate governed real-render PNG capture path that preserves the accepted R5 AVI behavior.
+
+**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE. R6.4 = COMPLETE. R6 remains IN PROGRESS. R6.5 is NEXT / NOT STARTED.**
 
 ## Manual-intervention forecast
 
-- R6.4 `REQUIRED`: real Windows/Godot rendered visual-regression acceptance on the accepted workstation after final-head CI is green.
-- R6.5 `REQUIRED`: real interactive Windows keyboard-only + Narrator accessibility checklist.
+- R6.4 `REQUIRED`: SATISFIED and accepted; no further user action required unless a regression is demonstrated.
+- R6.5 `REQUIRED`: real interactive Windows keyboard-only + Narrator accessibility checklist when R6.5 reaches its final-head gate.
 - R6.8 `CONDITIONAL`: local Windows build evidence only if hosted CI cannot satisfy build/reproducibility DoD.
 - R6.11 `CONDITIONAL`: provenance/license evidence only if an acceptance-critical component remains ambiguous.
 - R6.12 `CONDITIONAL`: local integration/user approval only if final selected gates require it.

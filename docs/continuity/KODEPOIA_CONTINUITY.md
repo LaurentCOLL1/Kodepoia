@@ -4,16 +4,13 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS. R6.1 KodeHealth, R6.2 KodeBudget et R6.3 KodeTests + KodeRegression sont COMPLETE. Le plan exhaustif `docs/roadmap/R6_PLAN.md` est ACCEPTED et fige R6.1–R6.12. R6.4 — KodeVisualQA foundation est IN PROGRESS sur `feature/r6-4-visualqa`, PR #39, depuis le main normalisé `e96e7c3b168975869c911f880044b7ef8e322157`.** R6.4 implémente le comparateur visuel déterministe, baseline immuable/hashée, masques hashés, diff PNG, schéma/report anti-tamper, hook R6.3, et une capture PNG Godot Movie Maker structurée/gouvernée séparée du contrat AVI R5. La PR #39 NE DOIT PAS être fusionnée et R6.5 NE DOIT PAS commencer avant CI verte sur le head final ET acceptation hardware-local Windows/Godot réelle. Lire `R6_PLAN.md`, `R6_STATUS.md`, `R6_4_DESIGN.md`, `R6_4_ACCEPTANCE.md`, les acceptances R6.1–R6.3, l'architecture gelée et ce fichier avant reprise. Ne pas rouvrir R1–R6.3 sans régression démontrée/ADR, ne pas renuméroter R6 sans mise à jour gouvernée, et ne pas passer à R7 avant R6 COMPLETE.
+> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS. R6.1 KodeHealth, R6.2 KodeBudget, R6.3 KodeTests + KodeRegression et R6.4 KodeVisualQA sont COMPLETE. Le plan exhaustif `docs/roadmap/R6_PLAN.md` est ACCEPTED et fige R6.1–R6.12.** R6.4 a été accepté sur le head exact `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`, avec R0 #666, Python Core #640, UI Smoke #607 SUCCESS et un gate hardware-local Windows/Godot réel 8/8 PASS sur RX 6750 XT, puis PR #39 a été fusionnée en `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`. **R6.5 — KodeAccessibility foundation est NEXT / NOT STARTED et nécessite une intervention manuelle REQUIRED lorsque son futur head final sera prêt.** Lire `R6_PLAN.md`, `R6_STATUS.md`, `R6_4_ACCEPTANCE.md`, l'architecture gelée et ce fichier avant reprise. Ne pas rouvrir R1–R6.4 sans régression démontrée/ADR, ne pas renuméroter R6 sans mise à jour gouvernée, et ne pas passer à R7 avant R6 COMPLETE.
 
 ## Source de vérité et état
 
 - Dépôt : `LaurentCOLL1/Kodepoia` — PUBLIC volontairement.
 - Architecture : v1.0 gelée le 21 août 2026.
-- Source de vérité fusionnée : normalized current `main`.
-- Base exacte de démarrage R6.4 : `e96e7c3b168975869c911f880044b7ef8e322157`.
-- Branche active R6.4 : `feature/r6-4-visualqa`.
-- PR active R6.4 : #39 — DO NOT MERGE until final-head CI + REQUIRED local acceptance.
+- Source de vérité fusionnée : normalized current `main` après normalisation post-merge.
 - R1 : COMPLETE.
 - R2 : COMPLETE.
 - R3 : COMPLETE — hardware-local model acceptance passed.
@@ -25,8 +22,9 @@
 - R6.3 : COMPLETE — PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`.
 - R6 detailed plan : ACCEPTED — PR #37 merge `0a91064608507966a47921df8fb36e5f25477141`.
 - R6 plan post-merge normalization : PR #38 merge `e96e7c3b168975869c911f880044b7ef8e322157`.
-- R6.4 : IN PROGRESS — PR #39 — manual `REQUIRED`, currently pending final-head CI then hardware-local evidence.
-- R6.5–R6.12 : PLANNED in `docs/roadmap/R6_PLAN.md`.
+- R6.4 : COMPLETE — PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f` — manual `REQUIRED` SATISFIED.
+- R6.5 : NEXT / NOT STARTED — manual `REQUIRED`.
+- R6.6–R6.12 : PLANNED in `docs/roadmap/R6_PLAN.md`.
 - R7–R16 : PENDING.
 
 ## Accepted model roles
@@ -49,7 +47,7 @@ All later work must preserve:
 - AuditLog hash-chain evidence;
 - secrets redaction and exclusion from LLM context/persistent memory;
 - Schema/DataGovernance discipline;
-- structured Health/Budget/Test/Regression evidence;
+- structured Health/Budget/Test/Regression/VisualQA evidence;
 - platform-aware behavior: non-target platforms must not impose requirements/dependencies/inputs/budgets/tests;
 - architecture-foundation changes require ADR.
 
@@ -96,8 +94,8 @@ The plan freezes this structure:
 1. R6.1 — KodeHealth foundation — COMPLETE — manual `NONE`.
 2. R6.2 — KodeBudget foundation — COMPLETE — manual `NONE`.
 3. R6.3 — KodeTests + KodeRegression foundation — COMPLETE — manual `NONE`.
-4. R6.4 — KodeVisualQA foundation — IN PROGRESS — manual `REQUIRED`.
-5. R6.5 — KodeAccessibility foundation — PLANNED — manual `REQUIRED`.
+4. R6.4 — KodeVisualQA foundation — COMPLETE — manual `REQUIRED` SATISFIED.
+5. R6.5 — KodeAccessibility foundation — NEXT / NOT STARTED — manual `REQUIRED`.
 6. R6.6 — KodeLocalization + pseudo-localization — PLANNED — manual `NONE`.
 7. R6.7 — KodeTechnicalDebt — PLANNED — manual `NONE`.
 8. R6.8 — KodeCI + KodeBuild — PLANNED — manual `CONDITIONAL`.
@@ -129,50 +127,64 @@ Do not silently add/remove/merge/split/renumber any R6.N. Update plan + continui
 - baseline/current comparison + persistence smoke PASS;
 - R0 `32562032986`/#622, Python Core `32562032998`/#596, UI Smoke `32562032982`/#563 — SUCCESS.
 
-## R6.4 — KodeVisualQA — IN PROGRESS
+## R6.4 — KodeVisualQA — COMPLETE
 
-Implementation branch/PR:
+Accepted implementation identity:
 
 - base normalized `main`: `e96e7c3b168975869c911f880044b7ef8e322157`;
 - branch: `feature/r6-4-visualqa`;
 - PR: #39;
-- authoritative final implementation head: **NOT YET FROZEN** until all final-head documentation/code updates and CI are complete;
-- manual acceptance: **REQUIRED and PENDING**.
+- accepted final implementation head: `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`;
+- merge: `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`;
+- manual classification: `REQUIRED` — SATISFIED.
 
-Current implementation scope:
+Accepted hosted evidence on the exact final head:
 
-- `src/kodepoia/quality/visual.py`: deterministic engine-neutral VisualQA evidence model/evaluator;
-- immutable content-addressed baseline approval, approval provenance and artifact mutation checks;
-- current image metadata, exact-file identity, changed pixel ratio, normalized mean error, max delta and deterministic dHash perceptual distance;
-- rectangular masks declared in policy and included in canonical policy SHA-256;
-- explicit `UNKNOWN` for missing evidence and `FAIL` for incompatible format/mode/resolution;
-- diff PNG artifacts + validated `visual-report-v1` + report evidence SHA-256;
-- R6.3 adapter with stable `visual:<case-id>` test IDs;
-- `WorkspaceBoundary` persistence under `.kodepoia/visual_tests/{baselines,runs,diffs}` and path/symlink escape fixtures;
-- Pillow constrained to `>=12.3,<12.4`;
-- separate structured KodeGodot tool `kodegodot_capture_png_sequence`, fixed output under `.kodepoia/visual_tests/runs`, explicit Executor policy, no arbitrary executable/argv/command/cwd/host/output path;
-- accepted R5 `kodegodot_capture_movie` AVI behavior remains unchanged;
-- hardware-local acceptance module `kodepoia.quality.visual_acceptance` + `scripts/r6_4_accept_local.ps1`;
-- real-render fixture requires non-empty Godot rendering method, rendering driver and video adapter and rejects `dummy/headless` evidence;
-- acceptance chain requires VisualQA PASS, stable R6.3 hook PASS and AuditLog hash-chain PASS;
-- `docs/roadmap/R6_4_DESIGN.md` and `R6_4_ACCEPTANCE.md` describe implementation, rollback, exact manual contract and failure recovery.
+- R0 Repository Guard run `32564304755` / #666 — SUCCESS Windows + Ubuntu;
+- Python Core run `32564304757` / #640 — SUCCESS Windows + Ubuntu, PowerShell validation, pytest and integrated KodeStudio smoke;
+- KodeStudio UI Smoke run `32564304798` / #607 — SUCCESS Windows.
 
-R6.4 completion constraints:
+Accepted hardware-local evidence on that same head:
 
-1. all implementation/fixture tests green on final-head Windows + Ubuntu CI;
-2. R0/Python Core/KodeStudio UI Smoke green on that exact final head;
-3. user checks out that exact final head and runs the required real Windows/Godot acceptance;
-4. local JSON has `acceptance_completed=true`, non-empty real-render evidence, VisualQA PASS, R6.3 hook PASS, AuditLog PASS and `summary.failed=0`;
-5. evidence is reviewed before merge;
-6. only then may PR #39 merge and post-merge plan/status/continuity normalization mark R6.4 COMPLETE;
-7. R6.5 must not start earlier.
+- Windows `Windows-11-10.0.26220-SP0`;
+- Python `3.12.4`;
+- Godot `4.7.2.stable.steam.ed1daf0bf`;
+- rendering method `gl_compatibility`;
+- rendering driver `opengl3`;
+- video adapter `AMD Radeon RX 6750 XT`;
+- baseline/current SHA-256 `98dca538d872e8f883b4de4e9b92b741091365f15d193bac1127801277ca567a`;
+- changed ratio `0.0`;
+- perceptual distance ratio `0.0`;
+- policy SHA-256 `a2dbb4532c50e522639a1b1a264420d2f491d17e7b2350d500ddf415bd70014e`;
+- evidence SHA-256 `4c0375391d8f0e1b54c8c949b264ec70d6c9a18f10798a52a72d79ac18daab56`;
+- VisualQA PASS;
+- R6.3 hook `visual:godot-real-render` PASS;
+- AuditLog PASS;
+- `8 PASS / 0 FAIL / 8`, `acceptance_completed=true`.
+
+Accepted implementation scope:
+
+- deterministic engine-neutral `KodeVisualQA`;
+- immutable content-addressed baseline approval and SHA-256 provenance;
+- exact-file identity, pixel statistics, normalized mean error and deterministic dHash perceptual evidence;
+- masks declared by policy and included in canonical policy hashing;
+- explicit UNKNOWN for missing evidence and FAIL for incompatible format/mode/resolution;
+- PNG diff artifacts and validated anti-tamper `visual-report-v1` evidence;
+- stable R6.3 `visual:<case-id>` adapter;
+- `.kodepoia/visual_tests/{baselines,runs,diffs}` confinement through `WorkspaceBoundary`;
+- Pillow `>=12.3,<12.4` dependency control;
+- separate governed `kodegodot_capture_png_sequence` real-render path with fixed output root and no arbitrary executable/argv/command/cwd/host/output-path input;
+- accepted R5 `kodegodot_capture_movie` AVI behavior preserved;
+- real-render acceptance rejects empty/dummy/headless renderer evidence.
+
+R6.4 must not be reopened without a demonstrated regression or architecture-changing ADR.
 
 ## Manual-intervention forecast — remaining R6
 
 The user must receive exact commands/actions, expected output, recovery, evidence and do-not-do-yet instructions when each gate is reached.
 
-- **R6.4 REQUIRED:** real Windows/Godot rendered visual-regression acceptance on the accepted workstation. Never substitute headless/dummy capture. This gate is currently pending final-head CI.
-- **R6.5 REQUIRED:** real interactive Windows keyboard-only + Narrator accessibility checklist.
+- **R6.4 REQUIRED:** SATISFIED; no further action unless a regression is demonstrated.
+- **R6.5 REQUIRED:** real interactive Windows keyboard-only + Narrator accessibility checklist when its final implementation head is ready.
 - **R6.8 CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet the build/reproducibility DoD.
 - **R6.11 CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved after trusted metadata/source inspection.
 - **R6.12 CONDITIONAL:** local integration/user approval only if final selected gates require hardware-local execution or explicit approval.
@@ -201,7 +213,9 @@ Adopted via PR #36 merge `56f12eb3eba1adc40a1cf4c58970ed40156360b9`. For every n
 
 ## Next action
 
-Continue only **R6.4 PR #39** until its exact final head is CI-green. Then give the user the exact final SHA and commands from `R6_4_ACCEPTANCE.md` for the REQUIRED Windows/Godot hardware-local acceptance. Do not merge PR #39 before that local evidence is reviewed. Do not start R6.5 and do not start R7.
+After this R6.4 post-merge normalization passes final-head CI and merges, **R6.5 — KodeAccessibility foundation becomes the next authorized implementation subdivision, but remains NOT STARTED until explicitly begun.** Follow the detailed R6.5 section of `R6_PLAN.md`. R6.5 has a REQUIRED manual interactive Windows keyboard/Narrator gate; do not request it until R6.5 reaches its exact final implementation head and its hosted CI is green.
+
+Do not start R7.
 
 ## Permanent process rules
 

@@ -29,7 +29,7 @@ R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE wi
 - PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`;
 - post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 
-**Planning gate result: PASS. R6.1–R6.8 are COMPLETE. R6.9 is NEXT / NOT STARTED after this R6.8 post-merge normalization is CI-green and merged.**
+**Planning gate result: PASS. R6.1–R6.8 are COMPLETE. R6.9 is NEXT / NOT STARTED.**
 
 ## Frozen-roadmap objective
 
@@ -377,6 +377,7 @@ Out of scope: store publishing, signing certificates, installers/update channels
 - accepted implementation head `d632669b93fda7b8397b9c3de43d78ca8726323f`;
 - implementation PR #47;
 - implementation merge `d570a3930ee63802882b8682e4532004d4fd81d6`;
+- post-merge normalization PR #48 merge `92effbde1e432a8fcb6c794038d77367d034bcb0`;
 - R0 Repository Guard `32571710663` / #783 — SUCCESS Windows + Ubuntu;
 - Python Core `32571710718` / #757 — SUCCESS for `python-core-ubuntu-latest`, `python-core-windows-latest`, integrated `kodestudio-ui-windows`, `package-build-ubuntu-latest`, `package-build-windows-latest`;
 - KodeStudio UI Smoke `32571710650` / #724 — SUCCESS Windows.
@@ -414,6 +415,10 @@ SLSA provenance concepts were used as reference context only. No SLSA level is c
 **CONDITIONAL — NOT TRIGGERED.**
 
 Hosted Windows on the exact final implementation head successfully checked out the correct SHA, built wheel+sdist, structurally validated both, recorded source/dependency/artifact hashes, emitted PASS/no-blocker CI/build evidence, uploaded the bundle and allowed independent bundle inspection. No acceptance-critical Windows behavior remained unproven; a user-local run would therefore add no required evidence.
+
+## Post-merge normalization evidence
+
+PR #48 head `0580f930d6dfaa387c1eda1cf8ad56de79cc42b9` passed R0 #790 `32572054011`, Python Core #764 `32572054001` including both package-build jobs, and KodeStudio UI Smoke #731 `32572054015`, then merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`.
 
 ## Rollback / anti-regression
 
@@ -553,7 +558,7 @@ Risk: avoid circular validation where patch gate trusts its own summary without 
 - **R6.6 — NONE:** COMPLETE; no user action required.
 - **R6.7 — NONE:** COMPLETE; no user action required.
 - **R6.8 — CONDITIONAL:** NOT TRIGGERED; hosted Windows proved the final acceptance-critical package build/provenance behavior, so no user action is required.
-- **R6.9 — NONE:** NEXT / NOT STARTED after normalization merge.
+- **R6.9 — NONE:** NEXT / NOT STARTED.
 - **R6.10 — NONE:** PLANNED.
 - **R6.11 — CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved.
 - **R6.12 — CONDITIONAL:** local integration/approval only if final selected gates require hardware-local execution or explicit approval.
@@ -581,4 +586,4 @@ R6 is COMPLETE only when:
 - 2026-08-22: R6.5 accepted on head `06fd66af4b3a85da24b98ea2a5fbb2685358c540` after R0 #710, Python Core #684, UI Smoke #651 and required Windows keyboard/focus/Narrator `15 PASS / 0 FAIL / 15`; PR #41 merged as `db1a1ab78eb2ac7d90f75ab294074dec0238268c`; PR #42 normalized main to `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
 - 2026-08-22: R6.6 accepted on head `6890b9d37722c74703e8b86f7de11dbfe66821ed` after R0 #733, Python Core #707 and UI Smoke #674; PR #43 merged as `f677cb34eade0549edc951fe11955de2bc0b270d`; PR #44 normalized main to `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
 - 2026-08-22: R6.7 accepted on head `0da49c7526b54f562827d63477b7ce8f1865de43` after R0 #756, Python Core #730 and UI Smoke #697; PR #45 merged as `3986b056654b25a73e45e5135ca3110a920c4bf5`; PR #46 normalized main to `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
-- 2026-08-22: R6.8 accepted on head `d632669b93fda7b8397b9c3de43d78ca8726323f` after R0 #783, Python Core #757 including Ubuntu+Windows package builds, UI Smoke #724 and downloaded artifact inspection; manual CONDITIONAL gate NOT TRIGGERED; PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`. R6.8 COMPLETE; R6.9 NEXT / NOT STARTED pending this post-merge normalization.
+- 2026-08-22: R6.8 accepted on head `d632669b93fda7b8397b9c3de43d78ca8726323f` after R0 #783, Python Core #757 including Ubuntu+Windows package builds, UI Smoke #724 and downloaded artifact inspection; manual CONDITIONAL gate NOT TRIGGERED; PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`; post-merge normalization PR #48 passed R0 #790, Python Core #764 and UI Smoke #731 then merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`. R6.8 COMPLETE; R6.9 NEXT / NOT STARTED.

@@ -1,229 +1,161 @@
 # R6.5 — KodeAccessibility foundation — Acceptance
 
-**Status:** IN PROGRESS — FINAL-HEAD CI AND REQUIRED MANUAL WINDOWS/NARRATOR EVIDENCE PENDING  
+**Status:** COMPLETE  
 **Parent plan:** `docs/roadmap/R6_PLAN.md`  
-**Manual intervention:** REQUIRED
+**Manual intervention:** REQUIRED — SATISFIED  
+**Accepted implementation head:** `06fd66af4b3a85da24b98ea2a5fbb2685358c540`  
+**Implementation PR:** #41  
+**Implementation merge:** `db1a1ab78eb2ac7d90f75ab294074dec0238268c`
 
-R6.5 MUST NOT be marked COMPLETE or merged until both the final-head hosted CI and the required real interactive Windows keyboard/focus/Narrator evidence pass on the exact same implementation head.
+R6.5 is accepted. The exact implementation head passed all hosted gates and the required real interactive Windows keyboard/focus/Narrator gate before PR #41 was merged. No implementation commit was added after the local acceptance evidence was produced.
 
 ## Acceptance matrix
 
-| Gate | Required | Current state |
-| --- | --- | --- |
-| Stable rule/target IDs and duplicate rejection | yes | IMPLEMENTED — PENDING FINAL CI |
-| PASS/WARN/FAIL/UNKNOWN/NOT_APPLICABLE semantics | yes | IMPLEMENTED — PENDING FINAL CI |
-| `not_applicable` requires an explicit reason | yes | IMPLEMENTED — PENDING FINAL CI |
-| Blocking state allowed only for FAIL | yes | IMPLEMENTED — PENDING FINAL CI |
-| Aggregate status/counts/blockers deterministic | yes | IMPLEMENTED — PENDING FINAL CI |
-| Report evidence SHA-256 and tamper rejection | yes | IMPLEMENTED — PENDING FINAL CI |
-| `accessibility-report-v1` JSON Schema | yes | IMPLEMENTED — PENDING FINAL CI |
-| Workspace and symlink escape protection | yes | IMPLEMENTED — PENDING FINAL CI |
-| R6.3 stable accessibility test hooks | yes | IMPLEMENTED — PENDING FINAL CI |
-| Explicit sRGB contrast helper | yes | IMPLEMENTED — PENDING FINAL CI |
-| Explicit direct-rectangle target-size helper | yes | IMPLEMENTED — PENDING FINAL CI |
-| KodeStudio explicit accessible metadata | yes | IMPLEMENTED — PENDING FINAL CI |
-| Project Wizard explicit accessible metadata | yes | IMPLEMENTED — PENDING FINAL CI |
-| Dynamic budget/requirement controls registered | yes | IMPLEMENTED — PENDING FINAL CI |
-| QAccessible interface/name/role/state audit | yes | IMPLEMENTED — PENDING FINAL CI |
-| Visible enabled registered controls are tab-focusable | yes | IMPLEMENTED — PENDING FINAL CI |
-| Hidden/disabled adaptive controls are explicit N/A | yes | IMPLEMENTED — PENDING FINAL CI |
-| Named application controls cannot silently bypass registration | yes | IMPLEMENTED — PENDING FINAL CI |
-| Qt-owned tab-scroll internals excluded narrowly | yes | IMPLEMENTED — PENDING FINAL CI |
-| R0 Repository Guard final head | yes | PENDING |
-| Python Core Windows + Ubuntu final head | yes | PENDING |
-| PowerShell acceptance-runner syntax final head | yes | PENDING |
-| Integrated KodeStudio UI accessibility smoke | yes | PENDING |
-| Separate KodeStudio UI Smoke final head | yes | PENDING |
-| Real keyboard-only navigation on Windows | yes | PENDING USER |
-| Real visible focus check | yes | PENDING USER |
-| Real focus-not-obscured check | yes | PENDING USER |
-| Real Windows Narrator names/roles/states | yes | PENDING USER |
-| Narrator table/action checks | yes | PENDING USER |
-| Manual evidence tied to exact final source head | yes | PENDING USER |
-| Final local result `acceptance_completed=true` | yes | PENDING USER |
+| Gate | Result |
+| --- | --- |
+| Stable rule/target IDs and duplicate rejection | PASS |
+| PASS/WARN/FAIL/UNKNOWN/NOT_APPLICABLE semantics | PASS |
+| `not_applicable` requires an explicit reason | PASS |
+| Blocking state allowed only for FAIL | PASS |
+| Aggregate status/counts/blockers deterministic | PASS |
+| Report evidence SHA-256 and tamper rejection | PASS |
+| `accessibility-report-v1` JSON Schema | PASS |
+| Workspace and symlink escape protection | PASS |
+| R6.3 stable accessibility test hooks | PASS |
+| Explicit sRGB contrast helper | PASS |
+| Explicit direct-rectangle target-size helper | PASS |
+| KodeStudio explicit accessible metadata | PASS |
+| Project Wizard explicit accessible metadata | PASS |
+| Dynamic budget/requirement controls registered | PASS |
+| QAccessible interface/name/role/state audit | PASS |
+| Visible enabled registered controls are tab-focusable | PASS |
+| Hidden/disabled adaptive controls are explicit N/A | PASS |
+| Named application controls cannot silently bypass registration | PASS |
+| Qt-owned tab-scroll internals excluded narrowly | PASS |
+| R0 Repository Guard final head | PASS |
+| Python Core Windows + Ubuntu final head | PASS |
+| PowerShell acceptance-runner syntax final head | PASS |
+| Integrated KodeStudio UI accessibility smoke | PASS |
+| Separate KodeStudio UI Smoke final head | PASS |
+| Real keyboard-only navigation on Windows | PASS |
+| Real visible focus check | PASS |
+| Real focus-not-obscured check | PASS |
+| Real Windows Narrator names/roles/states | PASS |
+| Narrator table/action checks | PASS |
+| Manual evidence tied to exact final source head | PASS |
+| Final local result `acceptance_completed=true` | PASS |
 
-## Why manual intervention is mandatory
+## Hosted final-head evidence
 
-Qt metadata and offscreen CI can prove structural accessibility evidence, but they cannot authoritatively prove the human-observable behavior of the real Windows desktop session.
+All hosted acceptance workflows completed successfully on the exact accepted implementation head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`:
 
-The required local gate checks:
+- R0 Repository Guard `32567824374` / #710 — SUCCESS Windows + Ubuntu;
+- Python Core `32567824373` / #684 — SUCCESS Windows + Ubuntu, compilation, PowerShell acceptance-runner syntax, full pytest and integrated KodeStudio accessibility UI smoke;
+- KodeStudio UI Smoke `32567824370` / #651 — SUCCESS Windows.
 
-- actual keyboard-only operation;
-- actual visible focus;
-- actual focus not being obscured/clipped;
-- actual Narrator speech for KodeStudio controls;
-- actual Narrator table context and action names.
+## Required Windows interactive evidence — SATISFIED
 
-This boundary follows the R6 plan and is informed by W3C WCAG2ICT guidance for non-Web software and Microsoft's Narrator documentation.
+The user executed `scripts/r6_5_accept_local.ps1` on the exact accepted head.
 
-## Exact final-head rule
+Environment:
 
-Do **not** run the manual gate until ChatGPT supplies the exact final R6.5 PR head after all final-head hosted workflows are green.
+- Windows `Windows-11-10.0.26220-SP0`;
+- Python `3.12.4`;
+- source head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`.
 
-The user must test exactly that SHA. Any later code/documentation commit that changes the implementation PR head requires final-hosted-CI reevaluation and, if it can affect the acceptance behavior or evidence contract, a new manual run.
+Automated KodeStudio surface:
 
-## Local prerequisites
+- status `pass`;
+- applicable `343`;
+- passed `343`;
+- failed `0`;
+- warnings `0`;
+- unknown `0`;
+- not applicable `98`;
+- blocking failures `0`;
+- evidence SHA-256 `9244424a8addb921822bae80de2d7c1a95733a10f04775dc7ec8b55194041920`;
+- persisted path `.kodepoia/diagnostics/accessibility/kodestudio-main-latest.json`.
 
-- the Windows workstation used for prior Kodepoia hardware-local acceptance;
-- Python 3.12.x;
-- active Kodepoia virtual environment or ability to create/activate one;
-- PySide6 via `.[dev,ui]`;
-- exact final R6.5 implementation head supplied by ChatGPT;
-- existing project-local `.kodepoia/` directory preserved;
-- Windows Narrator available;
-- no edits to R6.5 accessibility metadata, checklist, report files or response JSON before acceptance.
+Automated Project Wizard surface:
 
-## Planned commands
+- status `pass`;
+- applicable `318`;
+- passed `318`;
+- failed `0`;
+- warnings `0`;
+- unknown `0`;
+- not applicable `95`;
+- blocking failures `0`;
+- evidence SHA-256 `e824358a8068d871f59fdbcc55092b300b572d34548d76b0c379973002ea2d91`;
+- persisted path `.kodepoia/diagnostics/accessibility/kodestudio-project-wizard-latest.json`.
 
-The final `<R6_5_FINAL_HEAD>` placeholder will be replaced in the user-facing instructions after final-head CI is green.
+Manual observations:
 
-```powershell
-git fetch origin
-git checkout <R6_5_FINAL_HEAD>
-.\.venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev,ui]"
-powershell -ExecutionPolicy Bypass -File .\scripts\r6_5_accept_local.ps1
-```
+- keyboard checks: 5/5 PASS;
+- focus checks: 2/2 PASS;
+- Narrator checks: 6/6 PASS;
+- manual total: 13/13 PASS;
+- manual failed: 0;
+- manual blocking failures: 0.
 
-If no suitable virtual environment is active:
+Integrated local result:
 
-```powershell
-python -m venv .venv
-Set-ExecutionPolicy -Scope Process Bypass
-.\.venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev,ui]"
-```
+- automated passed: true;
+- summary `15 PASS / 0 FAIL / 15`;
+- `metadata.acceptance_completed=true`;
+- output `.kodepoia/diagnostics/accessibility/r6-5-local-acceptance.json`.
 
-## What the script does
+The observed `QFontDatabase` missing-font-directory and Qt `propagateSizeHints()` console notices did not create accessibility warnings/failures in either structured report. They are not acceptance blockers for R6.5; future quality/technical-debt work may track them separately if they remain relevant.
 
-1. resolves the exact current Git head;
-2. builds deterministic offscreen KodeStudio + Project Wizard accessibility reports;
-3. requires both automated reports to PASS with zero blocking failures;
-4. stores hashed evidence under `.kodepoia/diagnostics/accessibility/`;
-5. launches KodeStudio as a real interactive Windows process;
-6. presents 13 stable keyboard/focus/Narrator checklist items one by one;
-7. records the user's actual PASS/FAIL observation for every item;
-8. writes responses under the confined accessibility evidence directory;
-9. finalizes only if the source head and automated hashes still match and every required check passes;
-10. emits the final machine-readable acceptance JSON.
+## Reference boundary
 
-The script does **not** simulate Narrator and does **not** activate the emergency KillSwitch.
+R6.5 uses WCAG 2.2 criteria where applicable and W3C WCAG2ICT guidance to interpret those criteria for non-Web desktop software. WCAG2ICT is informative guidance, not a claim that KodeStudio has received external WCAG certification.
 
-## Manual checklist categories
+Qt accessibility metadata/QAccessible evidence is used for deterministic structural verification. The manual Windows gate exists because hosted/offscreen CI cannot authoritatively prove human-observable focus and Narrator behavior.
 
-### Keyboard
+## Accepted implementation scope
 
-- `keyboard.main_navigation`
-- `keyboard.project_wizard_open`
-- `keyboard.wizard_general`
-- `keyboard.wizard_sections`
-- `keyboard.wizard_actions`
+R6.5 includes:
 
-### Focus
+- structured accessibility result/report evidence with stable IDs, severity, applicability and blockers;
+- canonical SHA-256 evidence and derived-field tamper validation;
+- project-confined `AccessibilityStore` under `.kodepoia/diagnostics/accessibility/` through `WorkspaceBoundary`;
+- stable R6.3 accessibility test hooks;
+- deterministic explicit contrast and target-size helpers where source values exist;
+- explicit Qt accessible names/descriptions for KodeStudio and Project Wizard controls;
+- stable required-control manifests including dynamic budget and requirement controls;
+- QAccessible interface/name/role/state inspection;
+- tab-focus checks for visible enabled registered controls;
+- explicit N/A for hidden/disabled adaptive controls;
+- blocking discovery of named application-owned interactive controls that bypass accessibility registration;
+- narrow exclusion of Qt-owned QTabBar `ScrollLeftButton` / `ScrollRightButton` implementation children;
+- Windows UI CI coverage;
+- source-head-bound 13-item keyboard/focus/Narrator acceptance contract;
+- rejection of wrong-SHA, incomplete, failing, tampered or out-of-workspace manual acceptance evidence.
 
-- `focus.visible`
-- `focus.not_obscured`
+## Anti-regression rules
 
-### Narrator
+Later changes must not:
 
-- `narrator.enabled`
-- `narrator.main_navigation`
-- `narrator.security_actions`
-- `narrator.wizard_fields`
-- `narrator.wizard_tables`
-- `narrator.wizard_actions`
+- convert missing accessibility evidence to PASS;
+- treat `not_applicable` as PASS or omit its reason;
+- weaken evidence hashing/tamper validation;
+- allow application-owned controls to bypass the accessibility registry silently;
+- broaden the Qt-internal control exemption beyond identified Qt-owned implementation children without evidence;
+- treat offscreen QAccessible success as a substitute for a required real assistive-technology gate;
+- accept incomplete/manual evidence from a different source SHA;
+- manufacture a PASS by editing manual response/report files.
 
-Every check is blocking for R6.5 acceptance.
-
-## Narrator commands used
-
-Microsoft's current Narrator documentation identifies:
-
-- `Win+Ctrl+Enter` — start/stop Narrator;
-- `Narrator+Alt+X` — open Speech Recap / live transcription.
-
-Speech Recap is optional support for reviewing what was actually spoken; it does not replace listening/observing the real interaction.
-
-## Safety rule for the emergency stop
-
-The checklist may focus the Security buttons so Narrator can announce their names/roles/descriptions.
-
-**Do not activate `STOP ALL PROTECTED PROCESSES` during this acceptance.**
-
-The test is about accessibility metadata and focus, not KillSwitch execution.
-
-## Expected successful output
-
-Successful finalization must include at minimum:
-
-- `metadata.phase = "R6.5-local-acceptance"`;
-- `metadata.source_head = <exact final head>`;
-- `metadata.acceptance_completed = true`;
-- `automated.passed = true`;
-- two automated report entries;
-- both automated reports status `pass`;
-- both automated report `blocking_failures = 0`;
-- non-empty automated `evidence_sha256` values;
-- `manual.total = 13`;
-- `manual.passed = 13`;
-- `manual.failed = 0`;
-- `manual.blocking_failures = 0`;
-- `summary.failed = 0`;
-- `summary.passed = 15`;
-- `summary.total = 15`;
-- output path `.kodepoia/diagnostics/accessibility/r6-5-local-acceptance.json`.
-
-## Evidence to send back
-
-After the final-head run, send ChatGPT:
-
-1. the complete final JSON printed by the script;
-2. if requested for investigation, `.kodepoia/diagnostics/accessibility/r6-5-local-acceptance.json`;
-3. if a check fails, preserve the generated manifest, responses and automated reports and provide the failure note/output needed for diagnosis.
-
-Do not send passwords, API tokens, private keys or unrelated personal files.
-
-## Failure recovery
-
-If automated preparation fails:
-
-- preserve the printed JSON/output;
-- do not manually edit the generated accessibility report to make it PASS;
-- do not disable a rule or mark it N/A without an implementation rationale;
-- send the exact error/result to ChatGPT.
-
-If a keyboard/focus/Narrator manual check fails:
-
-- answer `FAIL` truthfully;
-- enter a short note describing what was unreachable, invisible, obscured, unnamed, incorrectly announced or otherwise wrong;
-- preserve the final failed JSON and generated evidence;
-- do not edit the response JSON afterward to manufacture PASS;
-- do not repeatedly reinterpret a failed observation as success.
-
-If Narrator does not start with `Win+Ctrl+Enter`, stop and report that environmental failure rather than marking the Narrator checks PASS.
-
-If KodeStudio exits unexpectedly, preserve terminal output and report the failure.
-
-## What must not happen yet
-
-Until final hosted CI and the required manual evidence have both been reviewed:
-
-- do not merge PR #41;
-- do not mark R6.5 COMPLETE;
-- do not start R6.6;
-- do not edit checklist answers to manufacture PASS;
-- do not activate the KillSwitch merely to test its accessible name;
-- do not delete `.kodepoia/diagnostics/accessibility/` evidence.
+R6.5 must not be reopened without a demonstrated regression or architecture-changing ADR.
 
 ## Completion record
 
-PENDING. After authoritative final-head CI + user manual acceptance + PR merge, this section will be normalized with:
-
-- exact accepted implementation head;
-- PR number and merge SHA;
-- exact R0/Python Core/KodeStudio run IDs;
-- automated accessibility report hashes/counts;
-- final manual 13/13 result;
-- final 15/15 integrated local result;
-- evidence path(s);
-- R6.5 COMPLETE and R6.6 NEXT / NOT STARTED.
+- accepted head: `06fd66af4b3a85da24b98ea2a5fbb2685358c540`;
+- PR #41;
+- merge: `db1a1ab78eb2ac7d90f75ab294074dec0238268c`;
+- hosted CI: R0 #710, Python Core #684, UI Smoke #651 — all SUCCESS;
+- automated surfaces: 2/2 PASS, zero blocking failures;
+- manual checks: 13/13 PASS;
+- integrated local result: `15 PASS / 0 FAIL / 15`, `acceptance_completed=true`;
+- R6.5: COMPLETE;
+- R6.6: NEXT / NOT STARTED pending post-merge normalization acceptance.

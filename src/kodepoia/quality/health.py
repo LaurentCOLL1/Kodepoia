@@ -8,6 +8,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
+from kodepoia.kodecode.workspace import WorkspaceBoundary
+
 
 class HealthDimension(StrEnum):
     BUILD = "build"
@@ -160,7 +162,7 @@ class HealthReport:
         )
         coverage = float(payload["coverage"])
         overall = payload.get("overall_score")
-        return cls(
+        report = cls(
             schema_version=1,
             generated_at=str(payload["generated_at"]),
             project_name=str(payload.get("project_name", "")),
@@ -169,6 +171,19 @@ class HealthReport:
             status=HealthStatus(payload["status"]),
             metrics=metrics,
         )
+        if "blockers" in payload:
+            blockers = payload["blockers"]
+            if not isinstance(blockers, list) or set(blockers) != {
+                dimension.value for dimension in report.blockers
+            }:
+                raise ValueError("Health report blockers do not match metric evidence")
+        if "unknown_dimensions" in payload:
+            unknown = payload["unknown_dimensions"]
+            if not isinstance(unknown, list) or set(unknown) != {
+                dimension.value for dimension in report.unknown_dimensions
+            }:
+                raise ValueError("Health report unknown dimensions do not match metric evidence")
+        return report
 
     @classmethod
     def load(cls, path: Path) -> HealthReport:
@@ -246,17 +261,20 @@ class KodeHealth:
 @dataclass(frozen=True, slots=True)
 class HealthStore:
     project_root: Path
+    _boundary: WorkspaceBoundary = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "project_root", self.project_root.resolve(strict=False))
+        root = self.project_root.resolve(strict=False)
+        object.__setattr__(self, "project_root", root)
+        object.__setattr__(self, "_boundary", WorkspaceBoundary(root))
 
     @property
     def metadata_root(self) -> Path:
-        return self.project_root / ".kodepoia"
+        return self._boundary.resolve(".kodepoia")
 
     @property
     def health_root(self) -> Path:
-        return self.metadata_root / "health"
+        return self._boundary.resolve(".kodepoia/health")
 
     def _require_initialized_project(self) -> None:
         if not self.metadata_root.is_dir():
@@ -280,13 +298,14 @@ class HealthStore:
 
     def save(self, report: HealthReport, *, snapshot: bool = True) -> tuple[Path, Path | None]:
         self._require_initialized_project()
-        self.health_root.mkdir(exist_ok=True)
+        health_root = self.health_root
+        health_root.mkdir(exist_ok=True)
         payload = report.to_dict()
-        latest = self.health_root / "latest.json"
+        latest = health_root / "latest.json"
         self._write_json(latest, payload)
         snapshot_path: Path | None = None
         if snapshot:
-            snapshot_path = self.health_root / self._snapshot_name(report.generated_at)
+            snapshot_path = health_root / self._snapshot_name(report.generated_at)
             self._write_json(snapshot_path, payload)
         return latest, snapshot_path
 

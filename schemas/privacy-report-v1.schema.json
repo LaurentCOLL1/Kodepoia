@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/privacy-report-v1.schema.json",
+  "title": "Kodepoia Privacy Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "generated_at", "project_name", "target_platforms",
+    "inventory_complete", "inventory_review_source", "status", "counts", "blockers",
+    "inventory", "issues", "declarations", "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "project_name": {"type": "string"},
+    "target_platforms": {
+      "type": "array", "minItems": 1, "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]{0,63}$"}
+    },
+    "inventory_complete": {"type": "boolean"},
+    "inventory_review_source": {"type": "string"},
+    "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+    "counts": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "inventory_total", "collected", "none", "not_applicable", "basis_unspecified",
+        "sensitivity_unknown", "issues_total", "issues_pass", "issues_warn", "issues_fail",
+        "issues_unknown", "declarations_total", "declarations_ready", "declarations_pending"
+      ],
+      "properties": {
+        "inventory_total": {"type": "integer", "minimum": 0},
+        "collected": {"type": "integer", "minimum": 0},
+        "none": {"type": "integer", "minimum": 0},
+        "not_applicable": {"type": "integer", "minimum": 0},
+        "basis_unspecified": {"type": "integer", "minimum": 0},
+        "sensitivity_unknown": {"type": "integer", "minimum": 0},
+        "issues_total": {"type": "integer", "minimum": 0},
+        "issues_pass": {"type": "integer", "minimum": 0},
+        "issues_warn": {"type": "integer", "minimum": 0},
+        "issues_fail": {"type": "integer", "minimum": 0},
+        "issues_unknown": {"type": "integer", "minimum": 0},
+        "declarations_total": {"type": "integer", "minimum": 0},
+        "declarations_ready": {"type": "integer", "minimum": 0},
+        "declarations_pending": {"type": "integer", "minimum": 0}
+      }
+    },
+    "blockers": {
+      "type": "array", "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^issue:[a-z0-9][a-z0-9_.:-]{1,127}$"}
+    },
+    "inventory": {"type": "array", "items": {"$ref": "#/$defs/privacyDataItem"}},
+    "issues": {"type": "array", "items": {"$ref": "#/$defs/privacyIssue"}},
+    "declarations": {"type": "array", "items": {"$ref": "#/$defs/storeDeclaration"}},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "details": {"type": "object"},
+    "privacyDataItem": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "id", "category", "disposition", "platform_scope", "evidence_source", "data_source",
+        "purpose", "storage", "recipients", "retention", "deletion", "sensitivity",
+        "basis_state", "legal_basis", "consent_basis", "basis_source", "rationale",
+        "basis_rationale", "details"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.:-]{1,127}$"},
+        "category": {"type": "string", "minLength": 1},
+        "disposition": {"enum": ["collected", "none", "not_applicable"]},
+        "platform_scope": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]{0,63}$"}
+        },
+        "evidence_source": {"type": "string", "minLength": 1},
+        "data_source": {"type": "string"}, "purpose": {"type": "string"},
+        "storage": {"type": "array", "items": {"type": "string"}},
+        "recipients": {"type": "array", "items": {"type": "string"}},
+        "retention": {"type": "string"}, "deletion": {"type": "string"},
+        "sensitivity": {"enum": ["unknown", "non_personal", "personal", "sensitive"]},
+        "basis_state": {"enum": ["unspecified", "declared", "not_applicable"]},
+        "legal_basis": {"type": "string"}, "consent_basis": {"type": "string"},
+        "basis_source": {"type": "string"}, "rationale": {"type": "string"},
+        "basis_rationale": {"type": "string"}, "details": {"$ref": "#/$defs/details"}
+      }
+    },
+    "privacyIssue": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "title", "applicability", "status", "severity", "rationale",
+                   "evidence_source", "blocking", "details"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.:-]{1,127}$"},
+        "title": {"type": "string", "minLength": 1},
+        "applicability": {"enum": ["applicable", "not_applicable"]},
+        "status": {"enum": ["pass", "warn", "fail", "unknown", "not_applicable"]},
+        "severity": {"enum": ["info", "low", "medium", "high", "critical"]},
+        "rationale": {"type": "string"}, "evidence_source": {"type": "string"},
+        "blocking": {"type": "boolean"}, "details": {"$ref": "#/$defs/details"}
+      }
+    },
+    "storeDeclaration": {
+      "type": "object", "additionalProperties": false,
+      "required": ["platform", "store", "data_category_id", "collected", "shared", "linked_to_user",
+                   "tracking", "optional_collection", "purposes", "source", "ready", "details"],
+      "properties": {
+        "platform": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]{0,63}$"},
+        "store": {"enum": ["apple_app_store", "google_play", "other"]},
+        "data_category_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.:-]{1,127}$"},
+        "collected": {"$ref": "#/$defs/declarationValue"},
+        "shared": {"$ref": "#/$defs/declarationValue"},
+        "linked_to_user": {"$ref": "#/$defs/declarationValue"},
+        "tracking": {"$ref": "#/$defs/declarationValue"},
+        "optional_collection": {"$ref": "#/$defs/declarationValue"},
+        "purposes": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "source": {"type": "string", "minLength": 1}, "ready": {"type": "boolean"},
+        "details": {"$ref": "#/$defs/details"}
+      }
+    },
+    "declarationValue": {"enum": ["yes", "no", "unknown", "not_applicable"]}
+  }
+}

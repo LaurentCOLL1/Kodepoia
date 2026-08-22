@@ -218,6 +218,12 @@ class GodotEditorServices:
                 )
             try:
                 sock = socket.create_connection(("127.0.0.1", port), timeout=min(0.5, max(0.1, deadline - time.monotonic())))
+                # The short timeout above bounds only the connection attempt. Once
+                # connected, the protocol reader runs in its own thread and the
+                # FramedMessageChannel provides the request-level timeout. Leaving
+                # the socket timeout at ~0.5 s would close an otherwise healthy
+                # idle LSP/DAP channel between messages.
+                sock.settimeout(None)
                 return _SocketChannelOwner(sock)
             except OSError as exc:
                 last_error = exc

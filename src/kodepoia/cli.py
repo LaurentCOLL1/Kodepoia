@@ -9,6 +9,13 @@ from urllib.parse import urlparse
 
 from kodepoia.bench.baseline import BaselineBench, BenchmarkRole
 from kodepoia.brain.ollama import OllamaClient
+from kodepoia.intelligence.research.media import (
+    AcceptanceStatus,
+    LocalMediaAcceptance,
+    MediaDoctor,
+    build_governed_media_runner,
+    write_json_report,
+)
 from kodepoia.project.dna import ApprovalPolicy, Dimension, Platform, ProjectType
 from kodepoia.project.initializer import ProjectInitializer
 from kodepoia.project.wizard import ProjectWizardState
@@ -193,6 +200,27 @@ def _r3_accept(args: argparse.Namespace) -> int:
     return 0
 
 
+def _research_media_doctor(args: argparse.Namespace) -> int:
+    root = Path.cwd().resolve(strict=False)
+    runner = build_governed_media_runner(root)
+    report = MediaDoctor(root, runner).run()
+    payload = report.to_dict()
+    destination = write_json_report(root, args.json, payload)
+    print(json.dumps({"output": str(destination), **payload}, ensure_ascii=False, indent=2))
+    return 0 if report.ready else 2
+
+
+def _research_media_acceptance(args: argparse.Namespace) -> int:
+    root = Path.cwd().resolve(strict=False)
+    runner = build_governed_media_runner(root)
+    doctor = MediaDoctor(root, runner)
+    report = LocalMediaAcceptance(root, runner, doctor).run(args.fixture)
+    payload = report.to_dict()
+    destination = write_json_report(root, args.output, payload)
+    print(json.dumps({"output": str(destination), **payload}, ensure_ascii=False, indent=2))
+    return 0 if report.status is AcceptanceStatus.PASS else 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="kodepoia")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -254,6 +282,23 @@ def build_parser() -> argparse.ArgumentParser:
     r3.add_argument("--url", default="http://127.0.0.1:11434")
     r3.add_argument("--output", default=".kodepoia/benchmarks/r3-local-acceptance.json")
     r3.set_defaults(func=_r3_accept)
+
+    media_doctor = commands.add_parser("research-media-doctor")
+    media_doctor.add_argument(
+        "--json",
+        default=".kodepoia/research/r7_7_media_doctor.json",
+        help="project-relative output path for the redacted capability report",
+    )
+    media_doctor.set_defaults(func=_research_media_doctor)
+
+    media_accept = commands.add_parser("research-media-acceptance")
+    media_accept.add_argument("--fixture", required=True)
+    media_accept.add_argument(
+        "--output",
+        default=".kodepoia/research/r7_7_local_acceptance.json",
+        help="project-relative output path for the local acceptance report",
+    )
+    media_accept.set_defaults(func=_research_media_acceptance)
     return parser
 
 

@@ -49,6 +49,25 @@ def test_kill_switch_terminates_active_sandbox_process(tmp_path: Path) -> None:
     assert not switch.triggered
 
 
+def test_sandbox_drains_stdout_and_stderr_while_process_runs(tmp_path: Path) -> None:
+    switch = KillSwitch()
+    sandbox = ProcessSandbox(tmp_path, {Path(sys.executable).name}, switch)
+    payload_size = 512 * 1024
+    script = (
+        "import sys;"
+        f"sys.stdout.write('x'*{payload_size});sys.stdout.flush();"
+        f"sys.stderr.write('y'*{payload_size});sys.stderr.flush()"
+    )
+
+    result = sandbox.run([sys.executable, "-c", script], timeout=5)
+
+    assert result.returncode == 0
+    assert not result.timed_out
+    assert not result.cancelled
+    assert len(result.stdout) == payload_size
+    assert len(result.stderr) == payload_size
+
+
 def test_backup_verifies_and_restores(tmp_path: Path) -> None:
     project = tmp_path / "project"
     project.mkdir()

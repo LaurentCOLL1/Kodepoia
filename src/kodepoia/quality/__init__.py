@@ -1,4 +1,4 @@
-"""Quality, health, budget, test, regression, visual QA, accessibility and localization primitives."""
+"""Quality, health, budget, test, regression, visual QA, accessibility, localization and technical-debt primitives."""
 
 from kodepoia.quality.accessibility import (
     AccessibilityReport,
@@ -50,6 +50,18 @@ from kodepoia.quality.regression import (
     RegressionStatus,
     RegressionStore,
 )
+from kodepoia.quality.technical_debt import (
+    DebtCategory,
+    DebtReference,
+    DebtReferenceKind,
+    DebtSeverity,
+    DebtState,
+    KodeTechnicalDebt,
+    TechnicalDebtItem,
+    TechnicalDebtReport,
+    TechnicalDebtStatus,
+    TechnicalDebtStore,
+)
 from kodepoia.quality.tests import (
     KodeTests,
     TestCaseResult,
@@ -85,6 +97,11 @@ __all__ = [
     "BudgetReport",
     "BudgetStatus",
     "BudgetStore",
+    "DebtCategory",
+    "DebtReference",
+    "DebtReferenceKind",
+    "DebtSeverity",
+    "DebtState",
     "HealthDimension",
     "HealthMetric",
     "HealthPolicy",
@@ -96,6 +113,7 @@ __all__ = [
     "KodeHealth",
     "KodeLocalization",
     "KodeRegression",
+    "KodeTechnicalDebt",
     "KodeTests",
     "KodeVisualQA",
     "LocaleCatalog",
@@ -111,6 +129,10 @@ __all__ = [
     "RegressionReport",
     "RegressionStatus",
     "RegressionStore",
+    "TechnicalDebtItem",
+    "TechnicalDebtReport",
+    "TechnicalDebtStatus",
+    "TechnicalDebtStore",
     "TestCaseResult",
     "TestCaseStatus",
     "TestRunReport",

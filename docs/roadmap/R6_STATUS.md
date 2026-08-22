@@ -27,8 +27,8 @@ Accepted planning evidence:
 3. **R6.3 — KodeTests + KodeRegression foundation** — COMPLETE — manual `NONE` — PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`.
 4. **R6.4 — KodeVisualQA foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`.
 5. **R6.5 — KodeAccessibility foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`.
-6. **R6.6 — KodeLocalization + pseudo-localization foundation** — COMPLETE — manual `NONE` — PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`.
-7. **R6.7 — KodeTechnicalDebt foundation** — NEXT / NOT STARTED — manual `NONE`.
+6. **R6.6 — KodeLocalization + pseudo-localization foundation** — COMPLETE — manual `NONE` — PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`, normalization #44 merge `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
+7. **R6.7 — KodeTechnicalDebt foundation** — IN PROGRESS — manual `NONE` — branch `feature/r6-7-technical-debt`, PR #45, base `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
 8. **R6.8 — KodeCI + KodeBuild foundation** — PLANNED — manual `CONDITIONAL`.
 9. **R6.9 — KodeAppSecurity baseline** — PLANNED — manual `NONE`.
 10. **R6.10 — KodePrivacy baseline** — PLANNED — manual `NONE`.
@@ -37,98 +37,60 @@ Accepted planning evidence:
 
 The exact objective, implementation contract, acceptance gates, rollback/recovery, risks and manual procedures remain authoritative in `R6_PLAN.md`.
 
-## Accepted R6.1 evidence
+## Accepted R6.1–R6.6 evidence
 
-Accepted head `802de4ba3110ace657c4e16306a0ca29850ce2bd`.
+R6.1 accepted head `802de4ba3110ace657c4e16306a0ca29850ce2bd`; R0 `32561211168`, Python Core `32561211156`, UI Smoke `32561211167` SUCCESS.
 
-- hardened focused tests: 9 PASS;
-- R0 `32561211168` — SUCCESS Windows + Ubuntu;
-- Python Core `32561211156` — SUCCESS Windows + Ubuntu;
-- KodeStudio UI Smoke `32561211167` — SUCCESS Windows.
+R6.2 accepted head `8ac3772e98c70260c320519a214bb25b6cedbb38`; R0 #603 `32561719921`, Python Core #577 `32561719925`, UI Smoke #544 `32561720008` SUCCESS.
 
-## Accepted R6.2 evidence
+R6.3 accepted head `7150237c263dd3ac96af4662d74909e05f3cf991`; R0 #622 `32562032986`, Python Core #596 `32562032998`, UI Smoke #563 `32562032982` SUCCESS.
 
-Accepted head `8ac3772e98c70260c320519a214bb25b6cedbb38`.
+R6.4 accepted head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`; R0 #666, Python Core #640, UI Smoke #607 SUCCESS; required real Windows/Godot/Radeon gate `8 PASS / 0 FAIL / 8`; PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`; normalization #40 `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
 
-- isolated derivation/evaluation/persistence smoke: PASS;
-- R0 `32561719921` / #603 — SUCCESS Windows + Ubuntu;
-- Python Core `32561719925` / #577 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
-- KodeStudio UI Smoke `32561720008` / #544 — SUCCESS Windows.
+R6.5 accepted head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`; R0 #710, Python Core #684, UI Smoke #651 SUCCESS; required Windows accessibility `15 PASS / 0 FAIL / 15`; PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`; normalization #42 `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
 
-## Accepted R6.3 evidence
+R6.6 accepted head `6890b9d37722c74703e8b86f7de11dbfe66821ed`; R0 #733 `32570001461`, Python Core #707 `32570001514`, UI Smoke #674 `32570001491` SUCCESS; PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`; normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`; manual NONE.
 
-Accepted head `7150237c263dd3ac96af4662d74909e05f3cf991`.
+## R6.7 implementation state
 
-- isolated baseline/current comparison and persistence smoke: PASS;
-- R0 `32562032986` / #622 — SUCCESS Windows + Ubuntu;
-- Python Core `32562032998` / #596 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
-- KodeStudio UI Smoke `32562032982` / #563 — SUCCESS Windows.
+R6.7 is active on PR #45 from normalized main `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
 
-## Accepted R6.4 evidence
+Implemented scope:
 
-Accepted implementation head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`.
+- stable debt IDs and SHA-256 duplicate fingerprints based on category/summary/scope/references;
+- `OPEN`, `ACCEPTED`, `RESOLVED` lifecycle invariants;
+- accepted debt requires rationale and remains visible/penalized rather than becoming resolved;
+- structured category/severity/impact/probability/effort/owner/scope/source/provenance;
+- structured file/symbol/test/requirement/issue references;
+- timezone-aware first/last/review/expiry/resolution evidence;
+- deterministic priority `severity_weight × impact × probability ÷ effort`, max 100;
+- report PASS/WARN/FAIL, derived counts/blockers/ranking/debt penalty;
+- canonical SHA-256 anti-tamper evidence;
+- `technical-debt-report-v1` schema;
+- `.kodepoia/diagnostics/technical_debt/` confinement through `WorkspaceBoundary`;
+- KodeHealth `technical_debt` adapter;
+- stable R6.3 `technical-debt:<id>` cases where newly added blocking debt becomes an added FAIL/regression;
+- known-debt observations documented with actual provenance rather than pretending an unexecuted scanner ran.
 
-- R0 `32564304755` / #666 — SUCCESS Windows + Ubuntu;
-- Python Core `32564304757` / #640 — SUCCESS Windows + Ubuntu;
-- KodeStudio UI Smoke `32564304798` / #607 — SUCCESS Windows;
-- required Windows/Godot/Radeon real-render acceptance: `8 PASS / 0 FAIL / 8`, `acceptance_completed=true`;
-- PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`;
-- post-merge normalization PR #40 merge `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
+Initial CI found one incorrect test expectation: critical severity with impact 4, probability 3 and effort 2 evaluates to `4×4×3÷2 = 24`, not 30. The fixture was corrected; the deterministic formula was not changed.
 
-Detailed hashes/renderer evidence remain in `R6_4_ACCEPTANCE.md` and continuity.
+The same CI logs reproduced existing non-blocking candidates for later register population: pytest collection warnings around imported `Test*` symbols and Pillow `Image.getdata()` deprecation warnings. They are observations, not fabricated scanner results.
 
-## Accepted R6.5 evidence
+A corrected implementation head `ea6b5f478d8e0e01ff61c24f2c3a05f58a97f29d` already passed Python Core Ubuntu+Windows and integrated KodeStudio smoke in diagnostic CI; final authoritative evidence will be taken only from the later head that also includes this status/plan/continuity synchronization.
 
-Accepted implementation head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`.
-
-- R0 `32567824374` / #710 — SUCCESS Windows + Ubuntu;
-- Python Core `32567824373` / #684 — SUCCESS Windows + Ubuntu;
-- KodeStudio UI Smoke `32567824370` / #651 — SUCCESS Windows;
-- required Windows keyboard/focus/Narrator evidence: two automated reports PASS, `13/13` manual PASS, integrated `15 PASS / 0 FAIL / 15`, `acceptance_completed=true`;
-- PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`;
-- post-merge normalization PR #42 merge `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
-
-Detailed accessibility evidence hashes/counts remain in `R6_5_ACCEPTANCE.md` and continuity.
-
-## Accepted R6.6 evidence
-
-Accepted implementation head `6890b9d37722c74703e8b86f7de11dbfe66821ed`.
-
-Final hosted evidence:
-
-- R0 Repository Guard `32570001461` / #733 — SUCCESS Windows + Ubuntu;
-- Python Core `32570001514` / #707 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio UI smoke;
-- KodeStudio UI Smoke `32570001491` / #674 — SUCCESS Windows.
-
-Accepted scope:
-
-- stable locale/message IDs and duplicate rejection;
-- exact message-form and placeholder parity;
-- explicit source fallback and target-only-key warnings;
-- deterministic `qps-ploc` pseudo-localization preserving placeholders/markup/entities;
-- canonical evidence hashing and tamper checks;
-- `.kodepoia/diagnostics/localization/` confinement through `WorkspaceBoundary`;
-- R6.3 localization hooks;
-- KodeStudio stable source-message registry with English production default;
-- pseudo-localized Windows long-string/navigation smoke while retaining R6.5 accessibility smoke.
-
-Development CI initially exposed two Python object-equality assertions caused by canonical `details={}` versus in-memory `details=None`. Tests were corrected to compare the canonical serialized evidence used for hashing/persistence; no validation or security rule was weakened.
-
-PR #43 merged as `f677cb34eade0549edc951fe11955de2bc0b270d` after final-head CI passed. Manual intervention was `NONE`.
-
-**R6.1–R6.6 = COMPLETE. R6 remains IN PROGRESS. R6.7 = NEXT / NOT STARTED until this post-merge normalization is merged.**
+**R6.7 remains IN PROGRESS and must not merge until final-head R0, Python Core and UI Smoke all succeed. R6.8 must not start earlier.**
 
 ## Manual-intervention forecast
 
-- R6.4 `REQUIRED`: SATISFIED and accepted.
-- R6.5 `REQUIRED`: SATISFIED and accepted.
-- R6.6 `NONE`: COMPLETE; no user action required.
-- R6.7 `NONE`: no user-side acceptance currently planned.
+- R6.4 `REQUIRED`: SATISFIED.
+- R6.5 `REQUIRED`: SATISFIED.
+- R6.6 `NONE`: COMPLETE.
+- R6.7 `NONE`: no user-side acceptance required.
 - R6.8 `CONDITIONAL`: local Windows build evidence only if hosted CI cannot authoritatively satisfy its build/provenance DoD.
-- R6.11 `CONDITIONAL`: provenance/license evidence only if an acceptance-critical component remains ambiguous.
-- R6.12 `CONDITIONAL`: local integration/user approval only if final selected gates require it.
-- R6.9 and R6.10 currently require no user-side acceptance execution.
+- R6.11 `CONDITIONAL`: provenance/license evidence only if acceptance-critical ambiguity remains.
+- R6.12 `CONDITIONAL`: local integration/user approval only if selected final gates require it.
+- R6.9 and R6.10 currently require no user-side execution.
 
 ## Completion rule
 
-R6 cannot be COMPLETE until R6.1–R6.12 are COMPLETE with all required CI/manual evidence, R6.12 integrated acceptance passes, and `R6_PLAN.md`, this file and continuity are synchronized on normalized `main`. Do not start R7 before that.
+R6 cannot be COMPLETE until R6.1–R6.12 are COMPLETE with all required evidence, R6.12 integrated acceptance passes, and `R6_PLAN.md`, this file and continuity are synchronized on normalized `main`. Do not start R7 before that.

@@ -14,7 +14,6 @@ from kodepoia.quality.build import redact_sensitive
 from kodepoia.quality.health import HealthDimension, HealthMetric, HealthStatus
 from kodepoia.quality.tests import TestCaseResult, TestCaseStatus
 
-
 _SCHEMA_VERSION = 1
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9_.:-]{1,127}$")
 _PLATFORM_RE = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,63}$")
@@ -60,7 +59,6 @@ def _stable_platform(value: str) -> str:
 
 def _sanitize_privacy_value(value: Any, *, key: str = "") -> Any:
     """Persist privacy evidence as metadata, never raw personal-data samples."""
-
     value = redact_sensitive(value, key=key)
     if key and _PERSONAL_VALUE_KEY_RE.search(key):
         if value not in (None, "", [], {}, ()):
@@ -74,9 +72,8 @@ def _sanitize_privacy_value(value: Any, *, key: str = "") -> Any:
     if isinstance(value, (list, tuple)):
         return [_sanitize_privacy_value(item, key=key) for item in value]
     if isinstance(value, str):
-        redacted = _EMAIL_RE.sub("<redacted-email>", value)
-        redacted = _IPV4_RE.sub("<redacted-ip>", redacted)
-        return redacted
+        value = _EMAIL_RE.sub("<redacted-email>", value)
+        return _IPV4_RE.sub("<redacted-ip>", value)
     return value
 
 
@@ -178,7 +175,6 @@ class PrivacyDataItem:
         object.__setattr__(self, "platform_scope", platforms)
         if not self.evidence_source.strip():
             raise ValueError("privacy data item requires evidence_source")
-
         storage = tuple(item.strip() for item in self.storage if item.strip())
         recipients = tuple(item.strip() for item in self.recipients if item.strip())
         object.__setattr__(self, "storage", storage)
@@ -198,16 +194,8 @@ class PrivacyDataItem:
         else:
             if not self.rationale.strip():
                 raise ValueError("none/not_applicable privacy data requires rationale")
-            if any(
-                (
-                    self.data_source.strip(),
-                    self.purpose.strip(),
-                    storage,
-                    recipients,
-                    self.retention.strip(),
-                    self.deletion.strip(),
-                )
-            ):
+            if any((self.data_source.strip(), self.purpose.strip(), storage, recipients,
+                    self.retention.strip(), self.deletion.strip())):
                 raise ValueError("none/not_applicable privacy data cannot carry collection lifecycle fields")
 
         if self.basis_state is PrivacyBasisState.DECLARED:
@@ -220,57 +208,37 @@ class PrivacyDataItem:
                 raise ValueError("not-applicable privacy basis cannot carry declared basis fields")
             if not self.basis_rationale.strip():
                 raise ValueError("not-applicable privacy basis requires rationale")
-        else:
-            if self.legal_basis.strip() or self.consent_basis.strip() or self.basis_source.strip():
-                raise ValueError("unspecified privacy basis cannot carry declared basis fields")
-
+        elif self.legal_basis.strip() or self.consent_basis.strip() or self.basis_source.strip():
+            raise ValueError("unspecified privacy basis cannot carry declared basis fields")
         object.__setattr__(self, "details", dict(redact_privacy_evidence(self.details)))
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "id": self.id,
-            "category": self.category,
-            "disposition": self.disposition.value,
-            "platform_scope": list(self.platform_scope),
-            "evidence_source": self.evidence_source,
-            "data_source": self.data_source,
-            "purpose": self.purpose,
-            "storage": list(self.storage),
-            "recipients": list(self.recipients),
-            "retention": self.retention,
-            "deletion": self.deletion,
-            "sensitivity": self.sensitivity.value,
-            "basis_state": self.basis_state.value,
-            "legal_basis": self.legal_basis,
-            "consent_basis": self.consent_basis,
-            "basis_source": self.basis_source,
-            "rationale": self.rationale,
-            "basis_rationale": self.basis_rationale,
-            "details": redact_privacy_evidence(self.details),
+            "id": self.id, "category": self.category, "disposition": self.disposition.value,
+            "platform_scope": list(self.platform_scope), "evidence_source": self.evidence_source,
+            "data_source": self.data_source, "purpose": self.purpose, "storage": list(self.storage),
+            "recipients": list(self.recipients), "retention": self.retention, "deletion": self.deletion,
+            "sensitivity": self.sensitivity.value, "basis_state": self.basis_state.value,
+            "legal_basis": self.legal_basis, "consent_basis": self.consent_basis,
+            "basis_source": self.basis_source, "rationale": self.rationale,
+            "basis_rationale": self.basis_rationale, "details": redact_privacy_evidence(self.details),
         }
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "PrivacyDataItem":
         return cls(
-            id=str(payload["id"]),
-            category=str(payload["category"]),
+            id=str(payload["id"]), category=str(payload["category"]),
             disposition=PrivacyDisposition(str(payload["disposition"])),
             platform_scope=tuple(str(item) for item in payload.get("platform_scope", [])),
-            evidence_source=str(payload["evidence_source"]),
-            data_source=str(payload.get("data_source", "")),
-            purpose=str(payload.get("purpose", "")),
-            storage=tuple(str(item) for item in payload.get("storage", [])),
+            evidence_source=str(payload["evidence_source"]), data_source=str(payload.get("data_source", "")),
+            purpose=str(payload.get("purpose", "")), storage=tuple(str(item) for item in payload.get("storage", [])),
             recipients=tuple(str(item) for item in payload.get("recipients", [])),
-            retention=str(payload.get("retention", "")),
-            deletion=str(payload.get("deletion", "")),
+            retention=str(payload.get("retention", "")), deletion=str(payload.get("deletion", "")),
             sensitivity=PrivacySensitivity(str(payload.get("sensitivity", "unknown"))),
             basis_state=PrivacyBasisState(str(payload.get("basis_state", "unspecified"))),
-            legal_basis=str(payload.get("legal_basis", "")),
-            consent_basis=str(payload.get("consent_basis", "")),
-            basis_source=str(payload.get("basis_source", "")),
-            rationale=str(payload.get("rationale", "")),
-            basis_rationale=str(payload.get("basis_rationale", "")),
-            details=dict(payload.get("details") or {}),
+            legal_basis=str(payload.get("legal_basis", "")), consent_basis=str(payload.get("consent_basis", "")),
+            basis_source=str(payload.get("basis_source", "")), rationale=str(payload.get("rationale", "")),
+            basis_rationale=str(payload.get("basis_rationale", "")), details=dict(payload.get("details") or {}),
         )
 
 
@@ -300,11 +268,8 @@ class PrivacyIssue:
         else:
             if self.status is PrivacyCheckStatus.NOT_APPLICABLE:
                 raise ValueError("applicable privacy issue cannot use NOT_APPLICABLE status")
-            if self.status in {
-                PrivacyCheckStatus.PASS,
-                PrivacyCheckStatus.WARN,
-                PrivacyCheckStatus.FAIL,
-            } and not self.evidence_source.strip():
+            if self.status in {PrivacyCheckStatus.PASS, PrivacyCheckStatus.WARN, PrivacyCheckStatus.FAIL} \
+                    and not self.evidence_source.strip():
                 raise ValueError("measured privacy issue requires evidence_source")
             if self.blocking and self.status is not PrivacyCheckStatus.FAIL:
                 raise ValueError("only failed privacy issues can block")
@@ -312,29 +277,21 @@ class PrivacyIssue:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "id": self.id,
-            "title": self.title,
-            "applicability": self.applicability.value,
-            "status": self.status.value,
-            "severity": self.severity.value,
-            "rationale": self.rationale,
-            "evidence_source": self.evidence_source,
-            "blocking": self.blocking,
+            "id": self.id, "title": self.title, "applicability": self.applicability.value,
+            "status": self.status.value, "severity": self.severity.value, "rationale": self.rationale,
+            "evidence_source": self.evidence_source, "blocking": self.blocking,
             "details": redact_privacy_evidence(self.details),
         }
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "PrivacyIssue":
         return cls(
-            id=str(payload["id"]),
-            title=str(payload["title"]),
+            id=str(payload["id"]), title=str(payload["title"]),
             applicability=PrivacyApplicability(str(payload["applicability"])),
             status=PrivacyCheckStatus(str(payload["status"])),
             severity=PrivacySeverity(str(payload.get("severity", "medium"))),
-            rationale=str(payload.get("rationale", "")),
-            evidence_source=str(payload.get("evidence_source", "")),
-            blocking=bool(payload.get("blocking", False)),
-            details=dict(payload.get("details") or {}),
+            rationale=str(payload.get("rationale", "")), evidence_source=str(payload.get("evidence_source", "")),
+            blocking=bool(payload.get("blocking", False)), details=dict(payload.get("details") or {}),
         )
 
 
@@ -354,11 +311,8 @@ class StorePrivacyDeclaration:
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "platform", _stable_platform(self.platform))
-        object.__setattr__(
-            self,
-            "data_category_id",
-            _stable_id(self.data_category_id, field_name="store declaration data category id"),
-        )
+        object.__setattr__(self, "data_category_id",
+                           _stable_id(self.data_category_id, field_name="store declaration data category id"))
         purposes = tuple(sorted({item.strip() for item in self.purposes if item.strip()}))
         object.__setattr__(self, "purposes", purposes)
         if not self.source.strip():
@@ -383,45 +337,33 @@ class StorePrivacyDeclaration:
 
     @property
     def ready(self) -> bool:
-        if self.collected in {DeclarationValue.UNKNOWN, DeclarationValue.NOT_APPLICABLE}:
-            return self.collected is DeclarationValue.NOT_APPLICABLE
+        if self.collected is DeclarationValue.NOT_APPLICABLE:
+            return True
+        if self.collected is DeclarationValue.UNKNOWN:
+            return False
         if self.collected is DeclarationValue.NO:
             return True
         if self.store is StoreKind.APPLE_APP_STORE:
-            return (
-                self.linked_to_user in {DeclarationValue.YES, DeclarationValue.NO}
-                and self.tracking in {DeclarationValue.YES, DeclarationValue.NO}
-                and bool(self.purposes)
-            )
+            return self.linked_to_user in {DeclarationValue.YES, DeclarationValue.NO} \
+                and self.tracking in {DeclarationValue.YES, DeclarationValue.NO} and bool(self.purposes)
         if self.store is StoreKind.GOOGLE_PLAY:
-            return (
-                self.shared in {DeclarationValue.YES, DeclarationValue.NO}
-                and self.optional_collection in {DeclarationValue.YES, DeclarationValue.NO}
-                and bool(self.purposes)
-            )
+            return self.shared in {DeclarationValue.YES, DeclarationValue.NO} \
+                and self.optional_collection in {DeclarationValue.YES, DeclarationValue.NO} and bool(self.purposes)
         return bool(self.purposes)
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "platform": self.platform,
-            "store": self.store.value,
-            "data_category_id": self.data_category_id,
-            "collected": self.collected.value,
-            "shared": self.shared.value,
-            "linked_to_user": self.linked_to_user.value,
-            "tracking": self.tracking.value,
-            "optional_collection": self.optional_collection.value,
-            "purposes": list(self.purposes),
-            "source": self.source,
-            "ready": self.ready,
-            "details": redact_privacy_evidence(self.details),
+            "platform": self.platform, "store": self.store.value, "data_category_id": self.data_category_id,
+            "collected": self.collected.value, "shared": self.shared.value,
+            "linked_to_user": self.linked_to_user.value, "tracking": self.tracking.value,
+            "optional_collection": self.optional_collection.value, "purposes": list(self.purposes),
+            "source": self.source, "ready": self.ready, "details": redact_privacy_evidence(self.details),
         }
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "StorePrivacyDeclaration":
         declaration = cls(
-            platform=str(payload["platform"]),
-            store=StoreKind(str(payload["store"])),
+            platform=str(payload["platform"]), store=StoreKind(str(payload["store"])),
             data_category_id=str(payload["data_category_id"]),
             collected=DeclarationValue(str(payload["collected"])),
             shared=DeclarationValue(str(payload.get("shared", "unknown"))),
@@ -429,8 +371,7 @@ class StorePrivacyDeclaration:
             tracking=DeclarationValue(str(payload.get("tracking", "unknown"))),
             optional_collection=DeclarationValue(str(payload.get("optional_collection", "unknown"))),
             purposes=tuple(str(item) for item in payload.get("purposes", [])),
-            source=str(payload.get("source", "")),
-            details=dict(payload.get("details") or {}),
+            source=str(payload.get("source", "")), details=dict(payload.get("details") or {}),
         )
         if "ready" in payload and bool(payload["ready"]) is not declaration.ready:
             raise ValueError("serialized store declaration readiness does not match evidence")
@@ -442,6 +383,8 @@ class PrivacyReport:
     generated_at: str
     project_name: str
     target_platforms: tuple[str, ...]
+    inventory_complete: bool
+    inventory_review_source: str
     inventory: tuple[PrivacyDataItem, ...]
     issues: tuple[PrivacyIssue, ...]
     declarations: tuple[StorePrivacyDeclaration, ...]
@@ -455,19 +398,11 @@ class PrivacyReport:
             "inventory_total": len(self.inventory),
             "collected": sum(item.disposition is PrivacyDisposition.COLLECTED for item in self.inventory),
             "none": sum(item.disposition is PrivacyDisposition.NONE for item in self.inventory),
-            "not_applicable": sum(
-                item.disposition is PrivacyDisposition.NOT_APPLICABLE for item in self.inventory
-            ),
-            "basis_unspecified": sum(
-                item.disposition is PrivacyDisposition.COLLECTED
-                and item.basis_state is PrivacyBasisState.UNSPECIFIED
-                for item in self.inventory
-            ),
-            "sensitivity_unknown": sum(
-                item.disposition is PrivacyDisposition.COLLECTED
-                and item.sensitivity is PrivacySensitivity.UNKNOWN
-                for item in self.inventory
-            ),
+            "not_applicable": sum(item.disposition is PrivacyDisposition.NOT_APPLICABLE for item in self.inventory),
+            "basis_unspecified": sum(item.disposition is PrivacyDisposition.COLLECTED and
+                                     item.basis_state is PrivacyBasisState.UNSPECIFIED for item in self.inventory),
+            "sensitivity_unknown": sum(item.disposition is PrivacyDisposition.COLLECTED and
+                                       item.sensitivity is PrivacySensitivity.UNKNOWN for item in self.inventory),
             "issues_total": len(self.issues),
             "issues_pass": sum(item.status is PrivacyCheckStatus.PASS for item in self.issues),
             "issues_warn": sum(item.status is PrivacyCheckStatus.WARN for item in self.issues),
@@ -484,13 +419,11 @@ class PrivacyReport:
 
     def _payload(self) -> dict[str, Any]:
         return {
-            "schema_version": self.schema_version,
-            "generated_at": self.generated_at,
-            "project_name": self.project_name,
-            "target_platforms": list(self.target_platforms),
-            "status": self.status.value,
-            "counts": self.counts,
-            "blockers": list(self.blockers),
+            "schema_version": self.schema_version, "generated_at": self.generated_at,
+            "project_name": self.project_name, "target_platforms": list(self.target_platforms),
+            "inventory_complete": self.inventory_complete,
+            "inventory_review_source": self.inventory_review_source,
+            "status": self.status.value, "counts": self.counts, "blockers": list(self.blockers),
             "inventory": [item.to_dict() for item in self.inventory],
             "issues": [item.to_dict() for item in self.issues],
             "declarations": [item.to_dict() for item in self.declarations],
@@ -503,6 +436,8 @@ class PrivacyReport:
         platforms = tuple(sorted({_stable_platform(item) for item in self.target_platforms}))
         if not platforms or platforms != self.target_platforms:
             raise ValueError("target_platforms must be unique, sorted and non-empty")
+        if self.inventory_complete and not self.inventory_review_source.strip():
+            raise ValueError("complete privacy inventory requires inventory_review_source")
         inventory_ids = [item.id for item in self.inventory]
         issue_ids = [item.id for item in self.issues]
         declaration_ids = [item.id for item in self.declarations]
@@ -525,14 +460,17 @@ class PrivacyReport:
                 raise ValueError("store declaration references unknown data category")
             if declaration.platform not in item.platform_scope:
                 raise ValueError("store declaration platform is outside data-category scope")
-            expected_collection = {
+            expected = {
                 PrivacyDisposition.COLLECTED: DeclarationValue.YES,
                 PrivacyDisposition.NONE: DeclarationValue.NO,
                 PrivacyDisposition.NOT_APPLICABLE: DeclarationValue.NOT_APPLICABLE,
             }[item.disposition]
-            if declaration.collected is not expected_collection:
+            if declaration.collected is not expected:
                 raise ValueError("store declaration collection state contradicts inventory")
-        expected_status = KodePrivacy.status_for(self.inventory, self.issues, self.declarations)
+        expected_status = KodePrivacy.status_for(
+            self.inventory, self.issues, self.declarations,
+            inventory_complete=self.inventory_complete,
+        )
         if self.status is not expected_status:
             raise ValueError("privacy report status does not match evidence")
         if self.evidence_sha256 != _sha256(self._payload()):
@@ -553,35 +491,20 @@ class PrivacyReport:
         issues: Iterable[PrivacyIssue] = (),
         declarations: Iterable[StorePrivacyDeclaration] = (),
         *,
+        inventory_complete: bool = False,
+        inventory_review_source: str = "",
         generated_at: str | None = None,
     ) -> "PrivacyReport":
         platforms = tuple(sorted({_stable_platform(item) for item in target_platforms}))
-        inventory_tuple = tuple(inventory)
-        issue_tuple = tuple(issues)
-        declaration_tuple = tuple(declarations)
+        inventory_tuple, issue_tuple, declaration_tuple = tuple(inventory), tuple(issues), tuple(declarations)
         timestamp = generated_at or datetime.now(UTC).isoformat().replace("+00:00", "Z")
-        status = KodePrivacy.status_for(inventory_tuple, issue_tuple, declaration_tuple)
-        provisional = cls(
-            timestamp,
-            project_name,
-            platforms,
-            inventory_tuple,
-            issue_tuple,
-            declaration_tuple,
-            status,
-            "",
+        status = KodePrivacy.status_for(
+            inventory_tuple, issue_tuple, declaration_tuple, inventory_complete=inventory_complete
         )
-        digest = _sha256(provisional._payload())
-        report = cls(
-            timestamp,
-            project_name,
-            platforms,
-            inventory_tuple,
-            issue_tuple,
-            declaration_tuple,
-            status,
-            digest,
-        )
+        provisional = cls(timestamp, project_name, platforms, inventory_complete, inventory_review_source,
+                          inventory_tuple, issue_tuple, declaration_tuple, status, "")
+        report = cls(timestamp, project_name, platforms, inventory_complete, inventory_review_source,
+                     inventory_tuple, issue_tuple, declaration_tuple, status, _sha256(provisional._payload()))
         report.validate()
         return report
 
@@ -590,17 +513,14 @@ class PrivacyReport:
         if int(payload.get("schema_version", 0)) != _SCHEMA_VERSION:
             raise ValueError("unsupported privacy report schema version")
         report = cls(
-            generated_at=str(payload["generated_at"]),
-            project_name=str(payload.get("project_name", "")),
+            generated_at=str(payload["generated_at"]), project_name=str(payload.get("project_name", "")),
             target_platforms=tuple(str(item) for item in payload.get("target_platforms", [])),
+            inventory_complete=bool(payload.get("inventory_complete", False)),
+            inventory_review_source=str(payload.get("inventory_review_source", "")),
             inventory=tuple(PrivacyDataItem.from_dict(item) for item in payload.get("inventory", [])),
             issues=tuple(PrivacyIssue.from_dict(item) for item in payload.get("issues", [])),
-            declarations=tuple(
-                StorePrivacyDeclaration.from_dict(item)
-                for item in payload.get("declarations", [])
-            ),
-            status=PrivacyReportStatus(str(payload["status"])),
-            evidence_sha256=str(payload["evidence_sha256"]),
+            declarations=tuple(StorePrivacyDeclaration.from_dict(item) for item in payload.get("declarations", [])),
+            status=PrivacyReportStatus(str(payload["status"])), evidence_sha256=str(payload["evidence_sha256"]),
         )
         if dict(payload.get("counts") or {}) != report.counts:
             raise ValueError("serialized privacy counts do not match evidence")
@@ -616,20 +536,29 @@ class KodePrivacy:
         inventory: Iterable[PrivacyDataItem],
         issues: Iterable[PrivacyIssue],
         declarations: Iterable[StorePrivacyDeclaration],
+        *,
+        inventory_complete: bool = False,
     ) -> PrivacyReportStatus:
-        inventory_values = tuple(inventory)
-        issue_values = tuple(issues)
-        declaration_values = tuple(declarations)
+        inventory_values, issue_values, declaration_values = tuple(inventory), tuple(issues), tuple(declarations)
         if any(item.blocking or item.status is PrivacyCheckStatus.FAIL for item in issue_values):
             return PrivacyReportStatus.FAIL
         if not inventory_values:
             return PrivacyReportStatus.UNKNOWN
-        collected = [item for item in inventory_values if item.disposition is PrivacyDisposition.COLLECTED]
+        applicable_inventory = [item for item in inventory_values
+                                if item.disposition is not PrivacyDisposition.NOT_APPLICABLE]
+        applicable_issues = [item for item in issue_values
+                             if item.applicability is PrivacyApplicability.APPLICABLE]
+        applicable_declarations = [item for item in declaration_values
+                                   if item.collected is not DeclarationValue.NOT_APPLICABLE]
+        if not applicable_inventory and not applicable_issues and not applicable_declarations:
+            return PrivacyReportStatus.UNKNOWN
+        collected = [item for item in applicable_inventory if item.disposition is PrivacyDisposition.COLLECTED]
         if (
-            any(item.status in {PrivacyCheckStatus.WARN, PrivacyCheckStatus.UNKNOWN} for item in issue_values)
+            not inventory_complete
+            or any(item.status in {PrivacyCheckStatus.WARN, PrivacyCheckStatus.UNKNOWN} for item in applicable_issues)
             or any(item.basis_state is PrivacyBasisState.UNSPECIFIED for item in collected)
             or any(item.sensitivity is PrivacySensitivity.UNKNOWN for item in collected)
-            or any(not item.ready for item in declaration_values)
+            or any(not item.ready for item in applicable_declarations)
         ):
             return PrivacyReportStatus.WARN
         return PrivacyReportStatus.PASS
@@ -637,11 +566,11 @@ class KodePrivacy:
     @staticmethod
     def score_for(report: PrivacyReport) -> float | None:
         report.validate()
-        if not report.inventory and not report.issues and not report.declarations:
-            return None
         values: list[float] = []
         for item in report.inventory:
-            if item.disposition is not PrivacyDisposition.COLLECTED:
+            if item.disposition is PrivacyDisposition.NOT_APPLICABLE:
+                continue
+            if item.disposition is PrivacyDisposition.NONE:
                 values.append(100.0)
                 continue
             score = 100.0
@@ -651,32 +580,28 @@ class KodePrivacy:
                 score -= 15.0
             values.append(max(0.0, score))
         issue_scores = {
-            PrivacyCheckStatus.PASS: 100.0,
-            PrivacyCheckStatus.WARN: 70.0,
-            PrivacyCheckStatus.UNKNOWN: 40.0,
-            PrivacyCheckStatus.FAIL: 0.0,
-            PrivacyCheckStatus.NOT_APPLICABLE: 100.0,
+            PrivacyCheckStatus.PASS: 100.0, PrivacyCheckStatus.WARN: 70.0,
+            PrivacyCheckStatus.UNKNOWN: 40.0, PrivacyCheckStatus.FAIL: 0.0,
         }
-        values.extend(issue_scores[item.status] for item in report.issues)
-        values.extend(100.0 if item.ready else 60.0 for item in report.declarations)
+        values.extend(issue_scores[item.status] for item in report.issues
+                      if item.applicability is PrivacyApplicability.APPLICABLE)
+        values.extend(100.0 if item.ready else 60.0 for item in report.declarations
+                      if item.collected is not DeclarationValue.NOT_APPLICABLE)
         if not values:
             return None
-        return round(sum(values) / len(values), 2)
+        completeness_factor = 1.0 if report.inventory_complete else 0.8
+        return round((sum(values) / len(values)) * completeness_factor, 2)
 
     @staticmethod
     def to_health_metric(report: PrivacyReport) -> HealthMetric:
         report.validate()
         if report.status is PrivacyReportStatus.UNKNOWN:
             return HealthMetric(
-                dimension=HealthDimension.PRIVACY,
-                status=HealthStatus.UNKNOWN,
-                summary="Privacy inventory evidence is not yet sufficient for a measured result",
-                source="KodePrivacy",
-                details={
-                    "counts": report.counts,
-                    "blockers": list(report.blockers),
-                    "evidence_sha256": report.evidence_sha256,
-                },
+                dimension=HealthDimension.PRIVACY, status=HealthStatus.UNKNOWN,
+                summary="Privacy evidence has no applicable measured inventory yet", source="KodePrivacy",
+                details={"counts": report.counts, "blockers": list(report.blockers),
+                         "inventory_complete": report.inventory_complete,
+                         "evidence_sha256": report.evidence_sha256},
             )
         status_map = {
             PrivacyReportStatus.PASS: HealthStatus.PASS,
@@ -687,85 +612,63 @@ class KodePrivacy:
         if score is None:
             raise ValueError("measured privacy report requires a score")
         return HealthMetric(
-            dimension=HealthDimension.PRIVACY,
-            status=status_map[report.status],
-            score=score,
-            summary=(
-                f"{report.counts['inventory_total']} data categor(y/ies), "
-                f"{report.counts['issues_total']} issue(s), "
-                f"{report.counts['declarations_total']} store declaration(s)"
-            ),
-            source="KodePrivacy",
-            blocking=bool(report.blockers),
-            details={
-                "counts": report.counts,
-                "blockers": list(report.blockers),
-                "target_platforms": list(report.target_platforms),
-                "evidence_sha256": report.evidence_sha256,
-            },
+            dimension=HealthDimension.PRIVACY, status=status_map[report.status], score=score,
+            summary=(f"{report.counts['inventory_total']} data categor(y/ies), "
+                     f"{report.counts['issues_total']} issue(s), "
+                     f"{report.counts['declarations_total']} store declaration(s)"),
+            source="KodePrivacy", blocking=bool(report.blockers),
+            details={"counts": report.counts, "blockers": list(report.blockers),
+                     "target_platforms": list(report.target_platforms),
+                     "inventory_complete": report.inventory_complete,
+                     "inventory_review_source": report.inventory_review_source,
+                     "evidence_sha256": report.evidence_sha256},
         )
 
     @staticmethod
     def to_test_cases(report: PrivacyReport) -> tuple[TestCaseResult, ...]:
         report.validate()
-        cases: list[TestCaseResult] = []
+        cases: list[TestCaseResult] = [
+            TestCaseResult(
+                id="privacy:inventory-completeness",
+                status=TestCaseStatus.PASS if report.inventory_complete else TestCaseStatus.SKIP,
+                duration_s=0.0, message="Privacy inventory completeness review", source="KodePrivacy",
+                details={"complete": report.inventory_complete,
+                         "source": report.inventory_review_source},
+            )
+        ]
         for item in report.inventory:
             if item.disposition is PrivacyDisposition.COLLECTED:
-                complete = (
-                    item.basis_state is not PrivacyBasisState.UNSPECIFIED
+                complete = item.basis_state is not PrivacyBasisState.UNSPECIFIED \
                     and item.sensitivity is not PrivacySensitivity.UNKNOWN
-                )
                 status = TestCaseStatus.PASS if complete else TestCaseStatus.SKIP
             else:
                 status = TestCaseStatus.SKIP
-            cases.append(
-                TestCaseResult(
-                    id=f"privacy:data:{item.id}",
-                    status=status,
-                    duration_s=0.0,
-                    message=f"Privacy inventory: {item.category}",
-                    source="KodePrivacy",
-                    details={
-                        "disposition": item.disposition.value,
-                        "basis_state": item.basis_state.value,
-                        "sensitivity": item.sensitivity.value,
-                        "platform_scope": list(item.platform_scope),
-                    },
-                )
-            )
+            cases.append(TestCaseResult(
+                id=f"privacy:data:{item.id}", status=status, duration_s=0.0,
+                message=f"Privacy inventory: {item.category}", source="KodePrivacy",
+                details={"disposition": item.disposition.value, "basis_state": item.basis_state.value,
+                         "sensitivity": item.sensitivity.value, "platform_scope": list(item.platform_scope)},
+            ))
         issue_status = {
-            PrivacyCheckStatus.PASS: TestCaseStatus.PASS,
-            PrivacyCheckStatus.FAIL: TestCaseStatus.FAIL,
-            PrivacyCheckStatus.WARN: TestCaseStatus.SKIP,
-            PrivacyCheckStatus.UNKNOWN: TestCaseStatus.SKIP,
+            PrivacyCheckStatus.PASS: TestCaseStatus.PASS, PrivacyCheckStatus.FAIL: TestCaseStatus.FAIL,
+            PrivacyCheckStatus.WARN: TestCaseStatus.SKIP, PrivacyCheckStatus.UNKNOWN: TestCaseStatus.SKIP,
             PrivacyCheckStatus.NOT_APPLICABLE: TestCaseStatus.SKIP,
         }
         for item in report.issues:
-            cases.append(
-                TestCaseResult(
-                    id=f"privacy:issue:{item.id}",
-                    status=issue_status[item.status],
-                    duration_s=0.0,
-                    message=item.title,
-                    source="KodePrivacy",
-                    details={
-                        "applicability": item.applicability.value,
-                        "severity": item.severity.value,
-                        "blocking": item.blocking,
-                    },
-                )
-            )
+            cases.append(TestCaseResult(
+                id=f"privacy:issue:{item.id}", status=issue_status[item.status], duration_s=0.0,
+                message=item.title, source="KodePrivacy",
+                details={"applicability": item.applicability.value, "severity": item.severity.value,
+                         "blocking": item.blocking},
+            ))
         for item in report.declarations:
-            cases.append(
-                TestCaseResult(
-                    id=f"privacy:store:{item.id}",
-                    status=TestCaseStatus.PASS if item.ready else TestCaseStatus.SKIP,
-                    duration_s=0.0,
-                    message=f"Store privacy declaration: {item.id}",
-                    source="KodePrivacy",
-                    details={"ready": item.ready, "collected": item.collected.value},
-                )
-            )
+            status = TestCaseStatus.SKIP if item.collected is DeclarationValue.NOT_APPLICABLE \
+                else (TestCaseStatus.PASS if item.ready else TestCaseStatus.SKIP)
+            cases.append(TestCaseResult(
+                id=f"privacy:store:{item.id}", status=status, duration_s=0.0,
+                message=f"Store privacy declaration: {item.id}", source="KodePrivacy",
+                details={"ready": item.ready, "collected": item.collected.value},
+            ))
         return tuple(cases)
 
 

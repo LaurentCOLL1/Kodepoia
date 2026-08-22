@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TypeVar
 
+from kodepoia.kodestudio.accessibility import mark_accessible
+
 
 EnumT = TypeVar("EnumT")
 
@@ -69,11 +71,21 @@ def create_project_dialog(parent=None):
         def __init__(self, parent=None):
             super().__init__(parent)
             self.setObjectName("kodepoiaProjectWizard")
+            self.setAccessibleName("New Kodepoia project")
+            self.setAccessibleDescription(
+                "Create Project DNA and product requirements for a new Kodepoia project."
+            )
             self.setWindowTitle("New Kodepoia Project")
             self.resize(900, 720)
 
             self.tabs = QTabWidget()
-            self.tabs.setObjectName("wizardTabs")
+            mark_accessible(
+                self.tabs,
+                object_name="wizardTabs",
+                name="Project wizard sections",
+                description="Switch between general, platform, feature and product sections.",
+                description_required=True,
+            )
             self._build_general_tab()
             self._build_platform_tab()
             self._build_tools_tab()
@@ -81,6 +93,22 @@ def create_project_dialog(parent=None):
 
             buttons = QDialogButtonBox(
                 QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok
+            )
+            buttons.setObjectName("wizardButtons")
+            buttons.setAccessibleName("Project wizard actions")
+            ok_button = buttons.button(QDialogButtonBox.StandardButton.Ok)
+            cancel_button = buttons.button(QDialogButtonBox.StandardButton.Cancel)
+            mark_accessible(
+                ok_button,
+                object_name="createProjectButton",
+                name="Create project",
+                description="Validate the project definition and create the project.",
+                description_required=True,
+            )
+            mark_accessible(
+                cancel_button,
+                object_name="cancelProjectButton",
+                name="Cancel project creation",
             )
             buttons.rejected.connect(self.reject)
             buttons.accepted.connect(self._create)
@@ -123,10 +151,25 @@ def create_project_dialog(parent=None):
             form = QFormLayout(tab)
 
             self.name = QLineEdit()
-            self.name.setObjectName("projectName")
+            mark_accessible(
+                self.name,
+                object_name="projectName",
+                name="Project name",
+            )
             self.directory = QLineEdit()
-            self.directory.setObjectName("projectDirectory")
+            mark_accessible(
+                self.directory,
+                object_name="projectDirectory",
+                name="Project directory",
+                description="Filesystem directory where the new project will be initialized.",
+                description_required=True,
+            )
             browse = QPushButton("Browse…")
+            mark_accessible(
+                browse,
+                object_name="browseProjectDirectoryButton",
+                name="Browse project directory",
+            )
             browse.clicked.connect(self._browse)
             path_row = QWidget()
             path_layout = QHBoxLayout(path_row)
@@ -135,38 +178,78 @@ def create_project_dialog(parent=None):
             path_layout.addWidget(browse)
 
             self.project_type = QComboBox()
-            self.project_type.setObjectName("projectType")
+            mark_accessible(
+                self.project_type,
+                object_name="projectType",
+                name="Project type",
+            )
             self._add_enum_items(self.project_type, ProjectType)
             self._set_enum(self.project_type, ProjectType.GAME)
 
             self.engine = QLineEdit("Godot")
-            self.engine.setObjectName("engine")
+            mark_accessible(
+                self.engine,
+                object_name="engine",
+                name="Game engine",
+            )
             self.engine_version = QLineEdit("4.7")
-            self.engine_version.setObjectName("engineVersion")
+            mark_accessible(
+                self.engine_version,
+                object_name="engineVersion",
+                name="Game engine version",
+            )
             self.dimension = QComboBox()
-            self.dimension.setObjectName("dimension")
+            mark_accessible(
+                self.dimension,
+                object_name="dimension",
+                name="Game dimension",
+            )
             self._add_enum_items(self.dimension, Dimension)
             self._set_enum(self.dimension, Dimension.D3)
 
             self.genres = QLineEdit()
             self.genres.setPlaceholderText("RPG; simulation; strategy")
-            self.genres.setObjectName("genres")
+            mark_accessible(
+                self.genres,
+                object_name="genres",
+                name="Game genres",
+                description="Enter semicolon-separated genres.",
+            )
             self.graphics_style = QLineEdit()
             self.graphics_style.setPlaceholderText("realistic, pixel art, isometric…")
-            self.graphics_style.setObjectName("graphicsStyle")
+            mark_accessible(
+                self.graphics_style,
+                object_name="graphicsStyle",
+                name="Graphics style",
+            )
 
             input_box = QGroupBox("Inputs")
+            input_box.setAccessibleName("Input methods")
             input_layout = QVBoxLayout(input_box)
             self.input_checks = {}
             for name in self.INPUT_NAMES:
                 check = QCheckBox(name)
-                check.setObjectName(f"input_{name}")
+                mark_accessible(
+                    check,
+                    object_name=f"input_{name}",
+                    name=f"Input method {name.replace('_', ' ')}",
+                )
                 check.setChecked(name in {"keyboard", "mouse"})
                 self.input_checks[name] = check
                 input_layout.addWidget(check)
 
             self.online = self._decision_combo("online")
+            mark_accessible(
+                self.online,
+                object_name="online",
+                name="Online support",
+            )
             self.multiplayer = self._decision_combo("multiplayer")
+            mark_accessible(
+                self.multiplayer,
+                object_name="multiplayer",
+                name="Multiplayer support",
+            )
 
             form.addRow("Name", self.name)
             form.addRow("Directory", path_row)
@@ -189,18 +272,31 @@ def create_project_dialog(parent=None):
             )
 
             platform_box = QGroupBox("Target platforms")
+            platform_box.setAccessibleName("Target platforms")
             platform_layout = QHBoxLayout(platform_box)
             self.platform_checks = {}
             for platform in Platform:
                 check = QCheckBox(platform.value)
-                check.setObjectName(f"platform_{platform.value}")
+                mark_accessible(
+                    check,
+                    object_name=f"platform_{platform.value}",
+                    name=f"Target platform {platform.value.replace('_', ' ')}",
+                )
                 check.setChecked(platform is Platform.WINDOWS)
                 self.platform_checks[platform] = check
                 platform_layout.addWidget(check)
             layout.addWidget(platform_box)
 
             self.budget_table = QTableWidget(0, 6)
-            self.budget_table.setObjectName("performanceBudgets")
+            mark_accessible(
+                self.budget_table,
+                object_name="performanceBudgets",
+                name="Performance budgets",
+                description=(
+                    "Per-platform target FPS, minimum FPS, VRAM, RAM and build size budgets."
+                ),
+                description_required=True,
+            )
             self.budget_table.setHorizontalHeaderLabels(
                 ["Platform", "Target FPS", "Min FPS", "VRAM MB", "RAM MB", "Build MB"]
             )
@@ -215,41 +311,76 @@ def create_project_dialog(parent=None):
             layout = QVBoxLayout(tab)
 
             tool_box = QGroupBox("Local AI / creation tools")
+            tool_box.setAccessibleName("Local AI and creation tools")
             tool_layout = QVBoxLayout(tool_box)
             self.tool_checks = {}
             for name in self.TOOL_NAMES:
                 check = QCheckBox(name)
-                check.setObjectName(f"tool_{name}")
+                mark_accessible(
+                    check,
+                    object_name=f"tool_{name}",
+                    name=f"Enable tool {name}",
+                )
                 check.setChecked(name == "ollama")
                 self.tool_checks[name] = check
                 tool_layout.addWidget(check)
             layout.addWidget(tool_box)
 
             policy_box = QGroupBox("Download / install policy")
+            policy_box.setAccessibleName("Download and install policy")
             policy_form = QFormLayout(policy_box)
             self.download_policy = self._policy_combo("downloadPolicy")
+            mark_accessible(
+                self.download_policy,
+                object_name="downloadPolicy",
+                name="Download approval policy",
+            )
             self.install_policy = self._policy_combo("installPolicy")
+            mark_accessible(
+                self.install_policy,
+                object_name="installPolicy",
+                name="Install approval policy",
+            )
             policy_form.addRow("Downloads", self.download_policy)
             policy_form.addRow("Installs", self.install_policy)
             layout.addWidget(policy_box)
 
             capability_box = QGroupBox("Feature decisions")
+            capability_box.setAccessibleName("Feature decisions")
             capability_form = QFormLayout(capability_box)
             self.capability_combos = {}
             for name in self.CAPABILITY_NAMES:
                 combo = self._decision_combo(f"capability_{name}")
+                mark_accessible(
+                    combo,
+                    object_name=f"capability_{name}",
+                    name=f"Feature {name.replace('_', ' ')}",
+                )
                 self.capability_combos[name] = combo
                 capability_form.addRow(name, combo)
             layout.addWidget(capability_box)
 
             lineage_box = QGroupBox("Lineage")
+            lineage_box.setAccessibleName("Project lineage")
             lineage_form = QFormLayout(lineage_box)
             self.lineage_parent = QLineEdit()
-            self.lineage_parent.setObjectName("lineageParent")
+            mark_accessible(
+                self.lineage_parent,
+                object_name="lineageParent",
+                name="Parent project",
+            )
             self.lineage_franchise = QLineEdit()
-            self.lineage_franchise.setObjectName("lineageFranchise")
+            mark_accessible(
+                self.lineage_franchise,
+                object_name="lineageFranchise",
+                name="Franchise",
+            )
             self.lineage_template = QLineEdit()
-            self.lineage_template.setObjectName("lineageTemplate")
+            mark_accessible(
+                self.lineage_template,
+                object_name="lineageTemplate",
+                name="Template",
+            )
             lineage_form.addRow("Parent project", self.lineage_parent)
             lineage_form.addRow("Franchise", self.lineage_franchise)
             lineage_form.addRow("Template", self.lineage_template)
@@ -263,23 +394,68 @@ def create_project_dialog(parent=None):
             form = QFormLayout()
 
             self.document_type = QComboBox()
-            self.document_type.setObjectName("productDocumentType")
+            mark_accessible(
+                self.document_type,
+                object_name="productDocumentType",
+                name="Product document type",
+            )
             self._add_enum_items(self.document_type, ProductDocumentType)
             self._set_enum(self.document_type, ProductDocumentType.GDD)
 
             self.vision = QPlainTextEdit()
-            self.vision.setObjectName("productVision")
             self.vision.setPlaceholderText("What product/game are we building and why?")
+            mark_accessible(
+                self.vision,
+                object_name="productVision",
+                name="Product vision",
+                description="Required explanation of what is being built and why.",
+                description_required=True,
+            )
             self.summary = QLineEdit()
+            mark_accessible(
+                self.summary,
+                object_name="productSummary",
+                name="Product summary",
+            )
             self.goals = QLineEdit()
             self.goals.setPlaceholderText("goal one; goal two")
+            mark_accessible(
+                self.goals,
+                object_name="productGoals",
+                name="Product goals",
+                description="Enter semicolon-separated product goals.",
+            )
             self.metrics = QLineEdit()
             self.metrics.setPlaceholderText("60 FPS; zero P0 crashes")
+            mark_accessible(
+                self.metrics,
+                object_name="successMetrics",
+                name="Success metrics",
+                description="Enter semicolon-separated measurable success criteria.",
+            )
             self.constraints = QLineEdit()
             self.constraints.setPlaceholderText("local-first; Windows-only…")
+            mark_accessible(
+                self.constraints,
+                object_name="productConstraints",
+                name="Product constraints",
+                description="Enter semicolon-separated constraints.",
+            )
             self.mvp = QLineEdit()
             self.mvp.setPlaceholderText("MVP capability one; MVP capability two")
+            mark_accessible(
+                self.mvp,
+                object_name="productMvp",
+                name="Minimum viable product capabilities",
+                description="Enter semicolon-separated MVP capabilities.",
+            )
             self.out_of_scope = QLineEdit()
+            mark_accessible(
+                self.out_of_scope,
+                object_name="productOutOfScope",
+                name="Out of scope items",
+                description="Enter semicolon-separated out-of-scope items.",
+            )
 
             form.addRow("Document", self.document_type)
             form.addRow("Vision (required)", self.vision)
@@ -293,7 +469,15 @@ def create_project_dialog(parent=None):
 
             layout.addWidget(QLabel("Requirements and acceptance criteria"))
             self.requirements = QTableWidget(0, 5)
-            self.requirements.setObjectName("productRequirements")
+            mark_accessible(
+                self.requirements,
+                object_name="productRequirements",
+                name="Product requirements",
+                description=(
+                    "Editable requirement table with ID, priority, title, description and acceptance criteria."
+                ),
+                description_required=True,
+            )
             self.requirements.setHorizontalHeaderLabels(
                 ["ID", "Priority", "Title", "Description", "Acceptance criteria (; separated)"]
             )
@@ -304,8 +488,19 @@ def create_project_dialog(parent=None):
 
             row_buttons = QHBoxLayout()
             add_requirement = QPushButton("Add requirement")
+            mark_accessible(
+                add_requirement,
+                object_name="addRequirementButton",
+                name="Add requirement",
+            )
             add_requirement.clicked.connect(self._add_requirement)
             remove_requirement = QPushButton("Remove selected")
+            mark_accessible(
+                remove_requirement,
+                object_name="removeRequirementButton",
+                name="Remove selected requirements",
+                description="Remove the currently selected requirement rows.",
+            )
             remove_requirement.clicked.connect(self._remove_requirement)
             row_buttons.addWidget(add_requirement)
             row_buttons.addWidget(remove_requirement)
@@ -374,19 +569,24 @@ def create_project_dialog(parent=None):
             for row, platform in enumerate(selected):
                 self.budget_table.setItem(row, 0, QTableWidgetItem(platform.value))
                 budget = previous.get(platform.value, PerformanceBudget())
-                values = [
-                    budget.target_fps,
-                    budget.min_fps,
-                    budget.max_vram_mb or 0,
-                    budget.max_ram_mb or 0,
-                    budget.max_build_mb or 0,
+                controls = [
+                    ("target_fps", "Target FPS", budget.target_fps),
+                    ("min_fps", "Minimum FPS", budget.min_fps),
+                    ("vram_mb", "Maximum VRAM MB", budget.max_vram_mb or 0),
+                    ("ram_mb", "Maximum RAM MB", budget.max_ram_mb or 0),
+                    ("build_mb", "Maximum build size MB", budget.max_build_mb or 0),
                 ]
-                for column, value in enumerate(values, start=1):
+                for column, (suffix, accessible_name, value) in enumerate(controls, start=1):
                     spin = QSpinBox()
                     spin.setRange(0 if column >= 3 else 1, 1_000_000)
                     spin.setValue(value)
                     if column >= 3:
                         spin.setSpecialValueText("unlimited")
+                    mark_accessible(
+                        spin,
+                        object_name=f"budget_{platform.value}_{suffix}",
+                        name=f"{platform.value} {accessible_name}",
+                    )
                     self.budget_table.setCellWidget(row, column, spin)
 
         def _refresh_adaptive(self, *_args: object) -> None:
@@ -428,6 +628,11 @@ def create_project_dialog(parent=None):
             for value in ("P0", "P1", "P2", "P3"):
                 priority.addItem(value)
             priority.setCurrentText("P1")
+            mark_accessible(
+                priority,
+                object_name=f"requirement_{row + 1}_priority",
+                name=f"Requirement {row + 1} priority",
+            )
             self.requirements.setCellWidget(row, 1, priority)
             self.requirements.setItem(row, 2, QTableWidgetItem(""))
             self.requirements.setItem(row, 3, QTableWidgetItem(""))

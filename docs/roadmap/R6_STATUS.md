@@ -26,7 +26,7 @@ Accepted planning evidence:
 2. **R6.2 — KodeBudget foundation** — COMPLETE — manual `NONE` — PR #32 merge `65510a9b116d9c48b185a0edb51d99e5b951200a`.
 3. **R6.3 — KodeTests + KodeRegression foundation** — COMPLETE — manual `NONE` — PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`.
 4. **R6.4 — KodeVisualQA foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`.
-5. **R6.5 — KodeAccessibility foundation** — NEXT / NOT STARTED — manual `REQUIRED`.
+5. **R6.5 — KodeAccessibility foundation** — IN PROGRESS — manual `REQUIRED` — branch `feature/r6-5-accessibility`, PR #41, started from normalized `main` `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
 6. **R6.6 — KodeLocalization + pseudo-localization foundation** — PLANNED — manual `NONE`.
 7. **R6.7 — KodeTechnicalDebt foundation** — PLANNED — manual `NONE`.
 8. **R6.8 — KodeCI + KodeBuild foundation** — PLANNED — manual `CONDITIONAL`.
@@ -95,12 +95,45 @@ PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f` after the local evid
 
 Accepted R6.4 scope includes deterministic VisualQA, immutable content-addressed baselines, hash-bound masks/policy, PNG diff artifacts, anti-tamper report validation, R6.3 regression hooks, WorkspaceBoundary confinement and a separate governed real-render PNG capture path that preserves the accepted R5 AVI behavior.
 
-**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE. R6.4 = COMPLETE. R6 remains IN PROGRESS. R6.5 is NEXT / NOT STARTED.**
+## R6.5 implementation state
+
+R6.5 started from normalized `main` `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1` on branch `feature/r6-5-accessibility`; implementation PR #41 is open and remains blocked from merge until final-head hosted CI plus the REQUIRED real interactive Windows keyboard/focus/Narrator acceptance pass.
+
+Implemented scope currently includes:
+
+- structured accessibility evidence with stable rule/target IDs;
+- explicit `unknown/pass/warn/fail/not_applicable` semantics and applicability reasons;
+- severity, blockers, deterministic aggregate counts and canonical SHA-256 anti-tamper evidence;
+- `accessibility-report-v1` JSON Schema;
+- `AccessibilityStore` under `.kodepoia/diagnostics/accessibility/` through `WorkspaceBoundary`;
+- R6.3 stable accessibility test hooks;
+- explicit sRGB contrast and direct-rectangle target-size helpers;
+- KodeStudio and Project Wizard explicit Qt accessible names/descriptions;
+- stable control manifests including dynamic budget and requirement-priority controls;
+- QAccessible interface/name/role/state audit;
+- keyboard tab-focus audit with hidden/disabled adaptive controls explicitly `not_applicable`;
+- blocking discovery of named application controls that bypass accessibility registration;
+- Windows UI CI coverage;
+- structured 13-item Windows keyboard/focus/Narrator manual checklist;
+- source-head and automated-report-hash binding of manual evidence;
+- confined manual evidence under `.kodepoia/diagnostics/accessibility/`;
+- design and acceptance documents.
+
+Initial CI found and drove two non-architectural corrections:
+
+1. the symlink-escape test incorrectly expected `ValueError`; existing `WorkspaceBoundary` correctly raised `WorkspaceViolation`, so the test was corrected without weakening confinement;
+2. Qt creates internal `QTabBar` controls named `ScrollLeftButton` and `ScrollRightButton`; the application-control discovery now excludes only those identified Qt-owned implementation children instead of requiring them as Kodepoia controls.
+
+A PySide focus-policy conversion was also hardened to avoid eager enum conversion. No Guardian/Sandbox/KillSwitch policy was changed.
+
+**R6.5 is NOT COMPLETE.** The implementation head is not yet frozen. Final-head R0/Python Core/KodeStudio workflows and the REQUIRED Windows keyboard/focus/Narrator gate are still pending.
+
+**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE. R6.4 = COMPLETE. R6.5 = IN PROGRESS. R6 remains IN PROGRESS.**
 
 ## Manual-intervention forecast
 
 - R6.4 `REQUIRED`: SATISFIED and accepted; no further user action required unless a regression is demonstrated.
-- R6.5 `REQUIRED`: real interactive Windows keyboard-only + Narrator accessibility checklist when R6.5 reaches its final-head gate.
+- R6.5 `REQUIRED`: real interactive Windows keyboard-only, visible/unobscured focus and Narrator checklist after the exact final PR head is CI-green. Expected local success is 13/13 manual plus 2/2 automated surfaces = `15 PASS / 0 FAIL / 15` and `acceptance_completed=true`.
 - R6.8 `CONDITIONAL`: local Windows build evidence only if hosted CI cannot satisfy build/reproducibility DoD.
 - R6.11 `CONDITIONAL`: provenance/license evidence only if an acceptance-critical component remains ambiguous.
 - R6.12 `CONDITIONAL`: local integration/user approval only if final selected gates require it.

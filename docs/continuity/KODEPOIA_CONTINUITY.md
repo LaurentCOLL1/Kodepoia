@@ -4,13 +4,15 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS. R6.1 KodeHealth, R6.2 KodeBudget, R6.3 KodeTests + KodeRegression et R6.4 KodeVisualQA sont COMPLETE. Le plan exhaustif `docs/roadmap/R6_PLAN.md` est ACCEPTED et fige R6.1–R6.12.** R6.4 a été accepté sur le head exact `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`, avec R0 #666, Python Core #640, UI Smoke #607 SUCCESS et un gate hardware-local Windows/Godot réel 8/8 PASS sur RX 6750 XT, puis PR #39 a été fusionnée en `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`. **R6.5 — KodeAccessibility foundation est NEXT / NOT STARTED et nécessite une intervention manuelle REQUIRED lorsque son futur head final sera prêt.** Lire `R6_PLAN.md`, `R6_STATUS.md`, `R6_4_ACCEPTANCE.md`, l'architecture gelée et ce fichier avant reprise. Ne pas rouvrir R1–R6.4 sans régression démontrée/ADR, ne pas renuméroter R6 sans mise à jour gouvernée, et ne pas passer à R7 avant R6 COMPLETE.
+> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS. R6.1 KodeHealth, R6.2 KodeBudget, R6.3 KodeTests + KodeRegression et R6.4 KodeVisualQA sont COMPLETE. Le plan exhaustif `docs/roadmap/R6_PLAN.md` est ACCEPTED et fige R6.1–R6.12. R6.5 — KodeAccessibility foundation est IN PROGRESS sur `feature/r6-5-accessibility`, PR #41, depuis le main normalisé `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.** R6.5 implémente le modèle de preuve accessibilité, le schéma/report anti-tamper, la persistance WorkspaceBoundary, le hook R6.3, les contrôles Qt `QAccessible`, les métadonnées accessibles KodeStudio/Project Wizard, l'audit clavier et un gate manuel Windows clavier/focus/Narrator de 13 contrôles. La PR #41 NE DOIT PAS être fusionnée et R6.6 NE DOIT PAS commencer avant CI verte sur le head final ET acceptation interactive Windows réelle sur ce même SHA. Lire `R6_PLAN.md`, `R6_STATUS.md`, `R6_5_DESIGN.md`, `R6_5_ACCEPTANCE.md`, `R6_4_ACCEPTANCE.md`, l'architecture gelée et ce fichier avant reprise. Ne pas rouvrir R1–R6.4 sans régression démontrée/ADR, ne pas renuméroter R6 sans mise à jour gouvernée, et ne pas passer à R7 avant R6 COMPLETE.
 
 ## Source de vérité et état
 
 - Dépôt : `LaurentCOLL1/Kodepoia` — PUBLIC volontairement.
 - Architecture : v1.0 gelée le 21 août 2026.
-- Source de vérité fusionnée : normalized current `main` après normalisation post-merge.
+- Source de vérité fusionnée au démarrage R6.5 : normalized `main` `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
+- Branche active R6.5 : `feature/r6-5-accessibility`.
+- PR active R6.5 : #41 — DO NOT MERGE until final-head CI + REQUIRED local acceptance.
 - R1 : COMPLETE.
 - R2 : COMPLETE.
 - R3 : COMPLETE — hardware-local model acceptance passed.
@@ -23,7 +25,8 @@
 - R6 detailed plan : ACCEPTED — PR #37 merge `0a91064608507966a47921df8fb36e5f25477141`.
 - R6 plan post-merge normalization : PR #38 merge `e96e7c3b168975869c911f880044b7ef8e322157`.
 - R6.4 : COMPLETE — PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f` — manual `REQUIRED` SATISFIED.
-- R6.5 : NEXT / NOT STARTED — manual `REQUIRED`.
+- R6.4 post-merge normalization : PR #40 merge `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
+- R6.5 : IN PROGRESS — PR #41 — manual `REQUIRED`, final implementation head not yet frozen.
 - R6.6–R6.12 : PLANNED in `docs/roadmap/R6_PLAN.md`.
 - R7–R16 : PENDING.
 
@@ -47,7 +50,7 @@ All later work must preserve:
 - AuditLog hash-chain evidence;
 - secrets redaction and exclusion from LLM context/persistent memory;
 - Schema/DataGovernance discipline;
-- structured Health/Budget/Test/Regression/VisualQA evidence;
+- structured Health/Budget/Test/Regression/VisualQA/Accessibility evidence;
 - platform-aware behavior: non-target platforms must not impose requirements/dependencies/inputs/budgets/tests;
 - architecture-foundation changes require ADR.
 
@@ -95,7 +98,7 @@ The plan freezes this structure:
 2. R6.2 — KodeBudget foundation — COMPLETE — manual `NONE`.
 3. R6.3 — KodeTests + KodeRegression foundation — COMPLETE — manual `NONE`.
 4. R6.4 — KodeVisualQA foundation — COMPLETE — manual `REQUIRED` SATISFIED.
-5. R6.5 — KodeAccessibility foundation — NEXT / NOT STARTED — manual `REQUIRED`.
+5. R6.5 — KodeAccessibility foundation — IN PROGRESS — manual `REQUIRED`.
 6. R6.6 — KodeLocalization + pseudo-localization — PLANNED — manual `NONE`.
 7. R6.7 — KodeTechnicalDebt — PLANNED — manual `NONE`.
 8. R6.8 — KodeCI + KodeBuild — PLANNED — manual `CONDITIONAL`.
@@ -136,6 +139,7 @@ Accepted implementation identity:
 - PR: #39;
 - accepted final implementation head: `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`;
 - merge: `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`;
+- post-merge normalization: PR #40 merge `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`;
 - manual classification: `REQUIRED` — SATISFIED.
 
 Accepted hosted evidence on the exact final head:
@@ -179,12 +183,72 @@ Accepted implementation scope:
 
 R6.4 must not be reopened without a demonstrated regression or architecture-changing ADR.
 
+## R6.5 — KodeAccessibility — IN PROGRESS
+
+Implementation identity/state:
+
+- base normalized `main`: `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`;
+- branch: `feature/r6-5-accessibility`;
+- PR: #41;
+- final implementation head: **NOT YET FROZEN**;
+- manual classification: `REQUIRED` — PENDING after final-head CI.
+
+Current implementation scope:
+
+- `src/kodepoia/quality/accessibility.py`: stable result/report model with `unknown/pass/warn/fail/not_applicable`, severity, applicability reason, blockers, deterministic aggregate state, canonical evidence SHA-256, anti-tamper round-trip and R6.3 adapter;
+- `schemas/accessibility-report-v1.schema.json`;
+- `AccessibilityStore` confined to `.kodepoia/diagnostics/accessibility/` through `WorkspaceBoundary`;
+- explicit sRGB contrast helper and explicit direct-rectangle target-size helper, without inventing rendered values or ignoring standards exceptions;
+- `src/kodepoia/kodestudio/accessibility.py`: stable KodeStudio control registry/audit with explicit Qt accessible names/descriptions, tab-focus rules and `QAccessibleInterface` name/role/state evidence;
+- KodeStudio main and Project Wizard accessibility metadata, including dynamic performance-budget and requirement-priority controls;
+- hidden/disabled adaptive controls are `not_applicable` for keyboard focus with a reason, never a false PASS;
+- named application-owned interactive controls that bypass registration create blocking failures;
+- identified Qt-owned `QTabBar` internal scroll buttons are excluded narrowly from application-control discovery;
+- `tests/test_r6_5_accessibility.py` core evidence/schema/confinement tests;
+- `tests/test_r6_5_accessibility_ui.py` Windows Qt/QAccessible/keyboard-focus tests;
+- `src/kodepoia/quality/accessibility_acceptance.py` + `scripts/r6_5_accept_local.ps1`: source-head-bound real Windows acceptance with two automated surface reports plus 13 manual keyboard/focus/Narrator checks;
+- manual manifest/responses/final summary confined under `.kodepoia/diagnostics/accessibility/`;
+- `.github/workflows/python-core.yml` and `.github/workflows/ui-smoke.yml` include R6.5 UI tests; Windows PowerShell parser also covers R6.4/R6.5 acceptance scripts;
+- `docs/roadmap/R6_5_DESIGN.md` and `R6_5_ACCEPTANCE.md` define architecture boundary, manual gate, failure recovery and completion criteria.
+
+External accessibility interpretation for R6.5:
+
+- WCAG 2.2 remains the source criteria baseline where applicable;
+- W3C WCAG2ICT 2.2 is the preferred interpretation guidance for non-Web desktop software;
+- Qt `QAccessibleInterface`/widget accessibility metadata is the structural implementation mechanism;
+- Windows Narrator is the required real screen-reader acceptance environment;
+- this is not a universal WCAG certification claim.
+
+Initial CI findings/corrections that must be remembered:
+
+1. Ubuntu showed that symlink escape correctly raises existing `WorkspaceViolation`; the initial R6.5 test incorrectly expected `ValueError`. The test was corrected. Do not weaken `WorkspaceBoundary`.
+2. Windows UI CI showed Qt creates internal tab-scroll controls `ScrollLeftButton` and `ScrollRightButton`; the discovery rule now excludes only those known Qt-owned implementation children. Do not broaden this to arbitrary controls.
+3. PySide focus-policy conversion was hardened to avoid eager `int()` evaluation of enum wrappers.
+
+Required manual acceptance, after exact final-head hosted CI is green:
+
+- five keyboard checks;
+- two focus checks (`visible`, `not_obscured`);
+- six Narrator checks;
+- all 13 manual checks blocking;
+- two automated KodeStudio/Project Wizard reports must also PASS with zero blockers;
+- successful integrated local result must be `15 PASS / 0 FAIL / 15` and `metadata.acceptance_completed=true`.
+
+Narrator commands recorded by the runner:
+
+- `Win+Ctrl+Enter` toggles Narrator;
+- `Narrator+Alt+X` opens Speech Recap/live transcription.
+
+Safety rule: the Narrator test may focus `STOP ALL PROTECTED PROCESSES` but must **not activate the KillSwitch**.
+
+R6.5 must not merge or become COMPLETE before final-head hosted CI + required local evidence are both reviewed on the same final SHA. Do not start R6.6 earlier.
+
 ## Manual-intervention forecast — remaining R6
 
 The user must receive exact commands/actions, expected output, recovery, evidence and do-not-do-yet instructions when each gate is reached.
 
 - **R6.4 REQUIRED:** SATISFIED; no further action unless a regression is demonstrated.
-- **R6.5 REQUIRED:** real interactive Windows keyboard-only + Narrator accessibility checklist when its final implementation head is ready.
+- **R6.5 REQUIRED:** real interactive Windows keyboard-only + visible/unobscured focus + Narrator accessibility checklist after final-head CI. Expected successful integrated local result: 15/15 PASS.
 - **R6.8 CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet the build/reproducibility DoD.
 - **R6.11 CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved after trusted metadata/source inspection.
 - **R6.12 CONDITIONAL:** local integration/user approval only if final selected gates require hardware-local execution or explicit approval.
@@ -194,7 +258,7 @@ The exact planned procedures are in `R6_PLAN.md`. Before requesting manual execu
 
 ## Current external baselines used by the R6 plan
 
-- accessibility: W3C WCAG 2.2 current Recommendation baseline, only where applicable;
+- accessibility: W3C WCAG 2.2 source criteria, with WCAG2ICT 2.2 guidance for non-Web software where applicable;
 - application security: OWASP ASVS 5.0.0 current stable baseline, only for applicable surfaces;
 - BOM: SPDX 3.0 current stable baseline; SPDX 3.1 RC1 is not an authoritative stable R6 baseline.
 
@@ -213,9 +277,7 @@ Adopted via PR #36 merge `56f12eb3eba1adc40a1cf4c58970ed40156360b9`. For every n
 
 ## Next action
 
-After this R6.4 post-merge normalization passes final-head CI and merges, **R6.5 — KodeAccessibility foundation becomes the next authorized implementation subdivision, but remains NOT STARTED until explicitly begun.** Follow the detailed R6.5 section of `R6_PLAN.md`. R6.5 has a REQUIRED manual interactive Windows keyboard/Narrator gate; do not request it until R6.5 reaches its exact final implementation head and its hosted CI is green.
-
-Do not start R7.
+Continue only **R6.5 PR #41** until its exact final implementation head is CI-green. Then give the user the exact final SHA and commands from `R6_5_ACCEPTANCE.md` for the REQUIRED Windows keyboard/focus/Narrator acceptance. Do not merge PR #41 before that local evidence is reviewed. Do not start R6.6 and do not start R7.
 
 ## Permanent process rules
 

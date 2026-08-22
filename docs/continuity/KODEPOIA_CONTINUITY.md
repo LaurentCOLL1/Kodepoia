@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R6 sont COMPLETE. Le plan exhaustif R7 a été accepté et fusionné par PR #58 ; R7.1 est NOT STARTED.** R6.12 — Major-patch validation + rollback gate and R6 integration acceptance — a été accepté sur le head exact `f57d1c43cfa12a8f9918b80065f4ffa3502046de`, avec R0 #934 / `32580881005`, Python Core #908 / `32580881007` cinq jobs et UI Smoke #875 / `32580881010` SUCCESS, puis PR #56 fusionnée avec verrou exact-head en `e557979ef818d03bc7602a0b96644b0b5863a73e`. La normalisation finale R6 #57 contient `R6_INTEGRATED_ACCEPTANCE.json`. Pour R7, le planning head exact `f86825ffd84c1c814afb5865be95b278c4291314` a obtenu R0 #955 / `32584324751`, Python Core #929 / `32584324757` 5/5 et UI Smoke #896 / `32584324760` SUCCESS, puis PR #58 a été fusionnée avec verrou exact-head en `9315d801f3a2d13a5441bd87babd2abeb9305995`. `docs/roadmap/R7_PLANNING_ACCEPTANCE.md` enregistre ces preuves. **La prochaine implémentation autorisée est R7.1 — KodeResearch contracts + ResearchGuard hardening.** Lire l'architecture gelée, `R6_PLAN.md`, `R6_STATUS.md`, `R6_12_DESIGN.md`, `R6_12_ACCEPTANCE.md`, `R6_INTEGRATED_ACCEPTANCE.json`, `R7_PLAN.md`, `R7_PLANNING_ACCEPTANCE.md` et ce fichier avant toute suite.
+> Kodepoia, architecture v1.0 gelée. **R1–R6 sont COMPLETE. Le planning R7 est ACCEPTED. R7.1 est COMPLETE ; R7.2 est NOT STARTED.** Le planning head exact R7 `f86825ffd84c1c814afb5865be95b278c4291314` a obtenu R0 #955 / `32584324751`, Python Core #929 / `32584324757` 5/5 et UI Smoke #896 / `32584324760` SUCCESS, puis PR #58 a été fusionnée avec verrou exact-head en `9315d801f3a2d13a5441bd87babd2abeb9305995` et normalisée par PR #59 merge `7279412ae751bce739317763462c4a48d7832122`. R7.1 a été accepté sur le head exact `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca` avec R0 #959 / `32584754313`, Python Core #933 / `32584754311` cinq jobs SUCCESS (Ubuntu full suite 310 passed / 3 skipped / 46 warnings), et UI Smoke #900 / `32584754325` SUCCESS; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; manual R7.1 = NONE. `R7_1_ACCEPTANCE.md` et `R7_STATUS.md` enregistrent les preuves. **La prochaine implémentation autorisée est R7.2 — Local + official documentation research.** Lire l'architecture gelée, `R6_PLAN.md`, `R6_STATUS.md`, `R6_12_DESIGN.md`, `R6_12_ACCEPTANCE.md`, `R6_INTEGRATED_ACCEPTANCE.json`, `R7_PLAN.md`, `R7_PLANNING_ACCEPTANCE.md`, `R7_STATUS.md`, `R7_1_DESIGN.md`, `R7_1_ACCEPTANCE.md` et ce fichier avant toute suite.
 
 ## Source de vérité et état
 
@@ -26,9 +26,10 @@
 - R6.10 : COMPLETE — accepted head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; normalization #53 `36524978a963d8c759d36902bc1ab00989da0549`; manual NONE.
 - R6.11 : COMPLETE — accepted head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; normalization #55 merge `264f129d3e32e38c8867871fc4dcf9a03ef2b5b9`; manual CONDITIONAL NOT TRIGGERED.
 - R6.12 : COMPLETE — accepted head `f57d1c43cfa12a8f9918b80065f4ffa3502046de`; R0 #934, Python Core #908 5/5, UI #875 SUCCESS; PR #56 merge `e557979ef818d03bc7602a0b96644b0b5863a73e`; manual CONDITIONAL NOT TRIGGERED.
-- R7 planning : ACCEPTED — accepted planning head `f86825ffd84c1c814afb5865be95b278c4291314`; R0 #955 / `32584324751`; Python Core #929 / `32584324757` 5/5; UI Smoke #896 / `32584324760`; PR #58 merge `9315d801f3a2d13a5441bd87babd2abeb9305995`; manual NONE.
+- R7 planning : ACCEPTED — accepted planning head `f86825ffd84c1c814afb5865be95b278c4291314`; R0 #955 / `32584324751`; Python Core #929 / `32584324757` 5/5; UI Smoke #896 / `32584324760`; PR #58 merge `9315d801f3a2d13a5441bd87babd2abeb9305995`; planning normalization PR #59 merge `7279412ae751bce739317763462c4a48d7832122`; manual NONE.
 - R7 plan : `docs/roadmap/R7_PLAN.md` — structure R7.1–R7.11 frozen.
-- R7.1–R7.11 : PLANNED; **R7.1 NOT STARTED**.
+- R7.1 : COMPLETE — accepted head `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca`; R0 #959 / `32584754313`; Python Core #933 / `32584754311` 5/5; UI Smoke #900 / `32584754325`; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; manual NONE.
+- R7.2–R7.11 : NOT STARTED; next = R7.2.
 - R8–R16 : PENDING / NOT STARTED.
 
 ## R7 frozen planning structure
@@ -57,8 +58,24 @@ No subdivision may be silently added, removed, merged, split or renumbered. Any 
 - Python Core #929 / `32584324757`: SUCCESS, 5/5 jobs.
 - KodeStudio UI Smoke #896 / `32584324760`: SUCCESS on Windows.
 - Planning PR #58 merged with exact-head lock as `9315d801f3a2d13a5441bd87babd2abeb9305995`.
+- Planning normalization PR #59 merged as `7279412ae751bce739317763462c4a48d7832122`.
 - Manual planning gate: NONE.
 - `docs/roadmap/R7_PLANNING_ACCEPTANCE.md` is the durable planning evidence record.
+
+## R7.1 accepted research-contract baseline
+
+- External research material is data, never agent instruction.
+- `ResearchGuard` remains the single content trust boundary and now carries deterministic guard version 1.
+- `guarded` means inspected/wrapped, not trusted for tool authorization or policy changes.
+- Source classes are local, official_docs, web, github, community and youtube.
+- Research status/freshness remains explicit; `ready` is availability, not factual correctness or compliance PASS.
+- Request/source/artifact/citation/finding IDs and report digests are canonical SHA-256 values recomputed on round-trip.
+- Artifact content SHA-256 and serialized guard evidence are recomputed; tampering fails closed.
+- Source facts require citations; reports reject references to absent artifacts.
+- Persistent research state is confined under `.kodepoia/research/` through `WorkspaceBoundary` with atomic replacement writes.
+- R7.1 introduced no live network, provider, subprocess or UI execution surface.
+- Accepted implementation head `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca`; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; manual NONE.
+- Hosted authoritative suite on Ubuntu: 310 passed / 3 skipped / 46 warnings; workflow successful.
 
 ## Accepted model roles
 
@@ -161,4 +178,4 @@ PR #36 merge `56f12eb3eba1adc40a1cf4c58970ed40156360b9` impose à toute nouvelle
 
 ## Next action
 
-**Le planning R7 est accepté et R7.1 n'est pas commencé.** Après fusion de la normalisation de planning qui ajoute `R7_PLANNING_ACCEPTANCE.md` et cette continuité, la prochaine action autorisée est de démarrer **R7.1 — KodeResearch contracts + ResearchGuard hardening** depuis le `main` normalisé. R7.1 doit suivre `R7_PLAN.md`, conserver manual `NONE`, produire design + implementation + tests + acceptance exact-head et ne créer aucun accès réseau/processus externe.
+**R7.1 est COMPLETE. R7.2 n'est pas commencé.** Après fusion de la normalisation R7.1 qui ajoute `R7_1_ACCEPTANCE.md`, `R7_STATUS.md` et cette continuité, la prochaine action autorisée est de démarrer **R7.2 — Local + official documentation research** depuis le `main` normalisé. R7.2 doit rester offline-first/local/official-doc, préserver les citations/versions/provenance R7.1 et ne pas introduire le transport Web général réservé à R7.3.

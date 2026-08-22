@@ -20,8 +20,8 @@ R1–R5 remain COMPLETE. R6 remains active and must not be marked COMPLETE befor
 8. **R6.8 — KodeCI + KodeBuild foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording #49 `616899291fc3b4dc40695415a5008d6fdd599230`.
 9. **R6.9 — KodeAppSecurity baseline** — COMPLETE — manual `NONE` — head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 `4df229e431d2d54e4268607f38bac4045ac590d1`.
 10. **R6.10 — KodePrivacy baseline** — COMPLETE — manual `NONE` — head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; normalization #53 `36524978a963d8c759d36902bc1ab00989da0549`.
-11. **R6.11 — KodeLicense + KodeBOM foundation** — IN PROGRESS — manual `CONDITIONAL — NOT TRIGGERED` — branch `feature/r6-11-license-bom`, starting normalized main `36524978a963d8c759d36902bc1ab00989da0549`.
-12. **R6.12 — Major-patch validation + rollback gate and R6 integration acceptance** — PLANNED — manual `CONDITIONAL`.
+11. **R6.11 — KodeLicense + KodeBOM foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — accepted head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`.
+12. **R6.12 — Major-patch validation + rollback gate and R6 integration acceptance** — NEXT / NOT STARTED — manual `CONDITIONAL`.
 
 No subdivision may be silently added, removed, merged, split or renumbered.
 
@@ -36,38 +36,14 @@ No subdivision may be silently added, removed, merged, split or renumbered.
 - R6.7 head `0da49c7526b54f562827d63477b7ce8f1865de43`; R0 #756, Python Core #730, UI Smoke #697 SUCCESS.
 - R6.8 head `d632669b93fda7b8397b9c3de43d78ca8726323f`; R0 #783, Python Core #757 five jobs, UI Smoke #724 SUCCESS; manual conditional NOT TRIGGERED.
 - R6.9 head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; R0 #812, Python Core #786 five jobs, UI Smoke #753 SUCCESS; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 `4df229e431d2d54e4268607f38bac4045ac590d1`.
-- R6.10 head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; R0 #844 `32575111465`, Python Core #818 `32575111540` all five jobs, UI Smoke #785 `32575111597` SUCCESS; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; normalization #53 head `03d1c75547e667ceaa1842b1f39b12500e3ee103` passed R0 #851, Python Core #825 five jobs and UI #792, merged as `36524978a963d8c759d36902bc1ab00989da0549`.
+- R6.10 head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; R0 #844, Python Core #818 five jobs, UI Smoke #785 SUCCESS; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; normalization #53 `36524978a963d8c759d36902bc1ab00989da0549`.
+- R6.11 final net-clean head `d0590ed3eda663ad713fc36d962c8dac1df109eb`; R0 #885 / `32578903951`, Python Core #859 / `32578903981` five jobs, UI Smoke #826 / `32578903942` SUCCESS; PR #54 merge `248b1331fe2b26229b932c36aefb83c70065c52a`; manual conditional NOT TRIGGERED.
 
-## R6.11 implementation state
+## R6.11 accepted scope / anti-regression
 
-R6.11 started only after R6.10 normalized main `36524978a963d8c759d36902bc1ab00989da0549`.
+R6.11 provides structured BOM/license evidence with explicit unresolved and N/A semantics, deterministic pyproject inventory, provenance/hashes, declared/concluded license assertions, NOASSERTION/NONE/LicenseRef, policy allow/warn/deny/unknown, canonical tamper-resistant reports, Health/R6.3 adapters and WorkspaceBoundary stores. Dependency version ranges remain unresolved and cannot inherit a current web license. N/A remains neutral/UNKNOWN/SKIP. Recorded hashes are not called verified. The compact SPDX view is interoperability evidence, not official conformance or legal analysis.
 
-Current implementation contract:
-
-- `BomComponent` with stable ID, project/package/asset kind, resolved/unresolved/N/A state, exact version only when resolved, purl, provenance, SHA-256 evidence and requirements/groups;
-- `IntegrityEvidence` distinguishes recorded digest, mismatch, unknown and N/A; recorded never claims independent verification; mismatch blocks;
-- optional declared-license assertion plus mandatory concluded-license assertion;
-- `LicenseAssertion` distinguishes SPDX expression, NOASSERTION and NONE; NOASSERTION/NONE require rationale+provenance;
-- `LicenseRef-*` can carry a custom license-text SHA-256 without pretending to be an SPDX-listed license;
-- no free-text license→SPDX inference;
-- `KodeBOM.from_pyproject()` inventories build-system, runtime and every optional dependency group through `WorkspaceBoundary` + stdlib `tomllib`;
-- duplicate normalized Python packages across groups merge deterministically while retaining each requirement;
-- dependency ranges remain unresolved and NOASSERTION; current package-page metadata is not copied onto unresolved ranges;
-- explicit inventory completeness/review provenance;
-- canonical BOM report with deterministic counts/blockers/status and SHA-256 anti-tamper evidence;
-- exact-expression license policy with allow/warn/deny/unknown; unmatched/NOASSERTION remains unknown and default ALLOW is forbidden;
-- license report bound to BOM evidence SHA-256 and policy fingerprint;
-- SPDX baseline remains 3.0; current serialization reference is 3.0.1 with current JSON-LD context;
-- compact SPDX compatibility view explicitly declares `conformance_claim=false`;
-- Health `dependencies` and `licenses` adapters;
-- stable R6.3 `bom:<id>` / `license:<id>` cases;
-- `.kodepoia/bom/` and `.kodepoia/licenses/` atomic stores via `WorkspaceBoundary`;
-- schemas `bom-report-v1` and `license-report-v1` plus focused tests, including the current real Kodepoia pyproject;
-- no shell, installer, scanner, arbitrary network fetch or publisher path.
-
-Standards recheck on 2026-08-22: SPDX current specification is 3.0.1 while frozen R6 baseline remains the 3.0 family; SPDX explicitly distinguishes `NoAssertionLicense` from missing license information and supports `LicenseRef-*`; CycloneDX 1.7 remains optional current-stable interoperability context and does not replace SPDX.
-
-**R6.1–R6.10 = COMPLETE. R6.11 = IN PROGRESS. R6 remains IN PROGRESS.**
+The first green diagnostic was intentionally hardened after a review found possible N/A false-green behavior. The accepted implementation therefore excludes N/A from applicable scoring/license decisions/SPDX packages and requires strict N/A integrity coupling.
 
 ## Manual-intervention forecast
 
@@ -78,9 +54,11 @@ Standards recheck on 2026-08-22: SPDX current specification is 3.0.1 while froze
 - R6.8 `CONDITIONAL`: NOT TRIGGERED.
 - R6.9 `NONE`: COMPLETE.
 - R6.10 `NONE`: COMPLETE.
-- R6.11 `CONDITIONAL`: NOT TRIGGERED; only needed if an acceptance-critical real component needs a specific license conclusion and trusted evidence remains ambiguous.
-- R6.12 `CONDITIONAL`: only if selected final gates require local hardware execution or explicit approval.
+- R6.11 `CONDITIONAL`: NOT TRIGGERED.
+- R6.12 `CONDITIONAL`: only if selected final gates genuinely require hardware-local execution or explicit Guardian/user approval. Hosted/temp-fixture validation should be preferred when it proves the same property.
+
+**R6.1–R6.11 = COMPLETE. R6.12 = NEXT / NOT STARTED until this normalization is CI-green and merged. R6 remains IN PROGRESS.**
 
 ## Completion rule
 
-R6 cannot be COMPLETE until R6.1–R6.12 are COMPLETE with all required evidence, R6.12 integrated acceptance passes, and `R6_PLAN.md`, this file and continuity are synchronized on normalized `main`. Do not start R7 before that.
+R6 cannot be COMPLETE until R6.12 implementation and integrated acceptance are accepted, all triggered manual gates are satisfied, the implementation and final normalization are CI-green and merged, and `R6_PLAN.md`, this file and continuity agree on normalized `main`. R7 must not start before that. When R7 starts, its exhaustive `R7_PLAN.md` must be created and merged before R7.1 under the permanent phase-start planning rule.

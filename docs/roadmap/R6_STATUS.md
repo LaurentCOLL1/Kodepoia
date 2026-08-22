@@ -27,8 +27,8 @@ Accepted planning evidence:
 3. **R6.3 — KodeTests + KodeRegression foundation** — COMPLETE — manual `NONE` — PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`.
 4. **R6.4 — KodeVisualQA foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`.
 5. **R6.5 — KodeAccessibility foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`.
-6. **R6.6 — KodeLocalization + pseudo-localization foundation** — NEXT / NOT STARTED — manual `NONE`.
-7. **R6.7 — KodeTechnicalDebt foundation** — PLANNED — manual `NONE`.
+6. **R6.6 — KodeLocalization + pseudo-localization foundation** — COMPLETE — manual `NONE` — PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`.
+7. **R6.7 — KodeTechnicalDebt foundation** — NEXT / NOT STARTED — manual `NONE`.
 8. **R6.8 — KodeCI + KodeBuild foundation** — PLANNED — manual `CONDITIONAL`.
 9. **R6.9 — KodeAppSecurity baseline** — PLANNED — manual `NONE`.
 10. **R6.10 — KodePrivacy baseline** — PLANNED — manual `NONE`.
@@ -68,71 +68,66 @@ Accepted head `7150237c263dd3ac96af4662d74909e05f3cf991`.
 
 Accepted implementation head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`.
 
-Hosted final-head evidence:
+- R0 `32564304755` / #666 — SUCCESS Windows + Ubuntu;
+- Python Core `32564304757` / #640 — SUCCESS Windows + Ubuntu;
+- KodeStudio UI Smoke `32564304798` / #607 — SUCCESS Windows;
+- required Windows/Godot/Radeon real-render acceptance: `8 PASS / 0 FAIL / 8`, `acceptance_completed=true`;
+- PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`;
+- post-merge normalization PR #40 merge `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
 
-- R0 Repository Guard `32564304755` / #666 — SUCCESS Windows + Ubuntu;
-- Python Core `32564304757` / #640 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
-- KodeStudio UI Smoke `32564304798` / #607 — SUCCESS Windows.
-
-Required hardware-local evidence on the exact same head:
-
-- Windows `Windows-11-10.0.26220-SP0`;
-- Python `3.12.4`;
-- Godot `4.7.2.stable.steam.ed1daf0bf`;
-- rendering method `gl_compatibility`;
-- rendering driver `opengl3`;
-- video adapter `AMD Radeon RX 6750 XT`;
-- baseline/current SHA-256 both `98dca538d872e8f883b4de4e9b92b741091365f15d193bac1127801277ca567a`;
-- changed ratio `0.0`, perceptual distance ratio `0.0`;
-- policy SHA-256 `a2dbb4532c50e522639a1b1a264420d2f491d17e7b2350d500ddf415bd70014e`;
-- evidence SHA-256 `4c0375391d8f0e1b54c8c949b264ec70d6c9a18f10798a52a72d79ac18daab56`;
-- VisualQA PASS;
-- R6.3 hook `visual:godot-real-render` PASS;
-- AuditLog chain valid;
-- summary `8 PASS / 0 FAIL / 8`, `acceptance_completed=true`.
-
-PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`; post-merge normalization PR #40 merged as `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
+Detailed hashes/renderer evidence remain in `R6_4_ACCEPTANCE.md` and continuity.
 
 ## Accepted R6.5 evidence
 
 Accepted implementation head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`.
 
-Hosted final-head evidence:
+- R0 `32567824374` / #710 — SUCCESS Windows + Ubuntu;
+- Python Core `32567824373` / #684 — SUCCESS Windows + Ubuntu;
+- KodeStudio UI Smoke `32567824370` / #651 — SUCCESS Windows;
+- required Windows keyboard/focus/Narrator evidence: two automated reports PASS, `13/13` manual PASS, integrated `15 PASS / 0 FAIL / 15`, `acceptance_completed=true`;
+- PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`;
+- post-merge normalization PR #42 merge `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
 
-- R0 Repository Guard `32567824374` / #710 — SUCCESS Windows + Ubuntu;
-- Python Core `32567824373` / #684 — SUCCESS Windows + Ubuntu, compilation, PowerShell runner syntax, full pytest and integrated KodeStudio accessibility UI smoke;
-- KodeStudio UI Smoke `32567824370` / #651 — SUCCESS Windows.
+Detailed accessibility evidence hashes/counts remain in `R6_5_ACCEPTANCE.md` and continuity.
 
-Required interactive Windows evidence on the exact same head:
+## Accepted R6.6 evidence
 
-- Windows `Windows-11-10.0.26220-SP0`;
-- Python `3.12.4`;
-- KodeStudio main automated report: `343/343` applicable checks PASS, `0` failed, `0` warnings, `0` unknown, `0` blockers, evidence SHA-256 `9244424a8addb921822bae80de2d7c1a95733a10f04775dc7ec8b55194041920`;
-- Project Wizard automated report: `318/318` applicable checks PASS, `0` failed, `0` warnings, `0` unknown, `0` blockers, evidence SHA-256 `e824358a8068d871f59fdbcc55092b300b572d34548d76b0c379973002ea2d91`;
-- keyboard manual checks `5/5` PASS;
-- visible/unobscured focus checks `2/2` PASS;
-- Windows Narrator checks `6/6` PASS;
-- manual total `13/13` PASS, `0` blocking failures;
-- integrated summary `15 PASS / 0 FAIL / 15`;
-- `metadata.acceptance_completed=true`;
-- final local evidence `.kodepoia/diagnostics/accessibility/r6-5-local-acceptance.json`.
+Accepted implementation head `6890b9d37722c74703e8b86f7de11dbfe66821ed`.
 
-PR #41 merged as `db1a1ab78eb2ac7d90f75ab294074dec0238268c` after the hosted and required local evidence were reviewed, without changing the tested implementation head.
+Final hosted evidence:
 
-Accepted R6.5 scope includes structured accessibility evidence, explicit applicability/N/A semantics, anti-tamper report hashing, `WorkspaceBoundary` confinement, R6.3 hooks, deterministic contrast/target-size helpers, KodeStudio/Project Wizard accessible metadata, QAccessible name/role/state inspection, keyboard-focus audit, dynamic-control registration, Windows UI CI and a source-head-bound real keyboard/focus/Narrator acceptance contract.
+- R0 Repository Guard `32570001461` / #733 — SUCCESS Windows + Ubuntu;
+- Python Core `32570001514` / #707 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio UI smoke;
+- KodeStudio UI Smoke `32570001491` / #674 — SUCCESS Windows.
 
-The local run emitted non-blocking Qt font-directory / `propagateSizeHints()` notices, but both structured accessibility reports contained zero warnings, zero unknowns and zero blockers. They do not reopen R6.5; if still relevant they may be tracked later as technical debt.
+Accepted scope:
 
-**R6.1 = COMPLETE. R6.2 = COMPLETE. R6.3 = COMPLETE. R6.4 = COMPLETE. R6.5 = COMPLETE. R6 remains IN PROGRESS. R6.6 is NEXT / NOT STARTED.**
+- stable locale/message IDs and duplicate rejection;
+- exact message-form and placeholder parity;
+- explicit source fallback and target-only-key warnings;
+- deterministic `qps-ploc` pseudo-localization preserving placeholders/markup/entities;
+- canonical evidence hashing and tamper checks;
+- `.kodepoia/diagnostics/localization/` confinement through `WorkspaceBoundary`;
+- R6.3 localization hooks;
+- KodeStudio stable source-message registry with English production default;
+- pseudo-localized Windows long-string/navigation smoke while retaining R6.5 accessibility smoke.
+
+Development CI initially exposed two Python object-equality assertions caused by canonical `details={}` versus in-memory `details=None`. Tests were corrected to compare the canonical serialized evidence used for hashing/persistence; no validation or security rule was weakened.
+
+PR #43 merged as `f677cb34eade0549edc951fe11955de2bc0b270d` after final-head CI passed. Manual intervention was `NONE`.
+
+**R6.1–R6.6 = COMPLETE. R6 remains IN PROGRESS. R6.7 = NEXT / NOT STARTED until this post-merge normalization is merged.**
 
 ## Manual-intervention forecast
 
-- R6.4 `REQUIRED`: SATISFIED and accepted; no further user action required unless a regression is demonstrated.
-- R6.5 `REQUIRED`: SATISFIED and accepted; no further user action required unless a regression is demonstrated.
-- R6.8 `CONDITIONAL`: local Windows build evidence only if hosted CI cannot satisfy build/reproducibility DoD.
+- R6.4 `REQUIRED`: SATISFIED and accepted.
+- R6.5 `REQUIRED`: SATISFIED and accepted.
+- R6.6 `NONE`: COMPLETE; no user action required.
+- R6.7 `NONE`: no user-side acceptance currently planned.
+- R6.8 `CONDITIONAL`: local Windows build evidence only if hosted CI cannot authoritatively satisfy its build/provenance DoD.
 - R6.11 `CONDITIONAL`: provenance/license evidence only if an acceptance-critical component remains ambiguous.
 - R6.12 `CONDITIONAL`: local integration/user approval only if final selected gates require it.
-- R6.6, R6.7, R6.9 and R6.10 currently require no user-side acceptance execution.
+- R6.9 and R6.10 currently require no user-side acceptance execution.
 
 ## Completion rule
 

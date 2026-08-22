@@ -16,7 +16,7 @@
 
 This is the exhaustive execution/recovery plan for R6. It is a retroactive exception to the normal phase-start planning rule because R6.1–R6.3 were already complete when the permanent `RX_PLAN.md` rule was introduced. The user explicitly requested that R6 be brought under the same discipline before R6.4.
 
-The plan freezes the R6.1–R6.12 subdivision structure and defines objective, scope, acceptance, rollback and manual-intervention contracts for every subdivision. It remains authoritative together with `R6_STATUS.md`, subdivision acceptance documents and `KODEPOIA_CONTINUITY.md`.
+The plan freezes the R6.1–R6.12 subdivision structure and defines objective, scope, deliverables, acceptance, evidence, rollback and manual-intervention contracts for every subdivision. It remains authoritative together with `R6_STATUS.md`, subdivision acceptance documents and `KODEPOIA_CONTINUITY.md`.
 
 R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE with required evidence, or a later recorded roadmap/architecture decision explicitly removes a subdivision from scope.
 
@@ -29,7 +29,7 @@ R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE wi
 - PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`;
 - post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 
-**Planning gate result: PASS. R6.1–R6.5 are COMPLETE. R6.6 is NEXT / NOT STARTED.**
+**Planning gate result: PASS. R6.1–R6.6 are COMPLETE. R6.7 is NEXT / NOT STARTED until the R6.6 post-merge normalization is accepted.**
 
 ## Frozen-roadmap objective
 
@@ -77,6 +77,8 @@ Persistent R6 evidence belongs under initialized `.kodepoia/` roots and must be 
 ## External-reference baselines
 
 - **Accessibility:** WCAG 2.2 source criteria where applicable; W3C WCAG2ICT 2.2 is the preferred informative interpretation for non-Web desktop software. No universal WCAG certification claim.
+- **Localization:** Unicode CLDR stable releases are reference context for locale-data conventions only. R6.6 does not vendor CLDR or claim full locale-formatting coverage.
+- **CI/Build provenance:** SLSA v1.2 is reference context for artifact digest/source/build provenance concepts in R6.8. Kodepoia must not claim a SLSA level unless all applicable requirements are separately proven.
 - **Application security:** OWASP ASVS 5.0.0 stable baseline, only for applicable web/API/auth/session/security surfaces.
 - **Software BOM:** SPDX 3.0 stable baseline. Pre-release SPDX versions are not authoritative without an explicit later decision.
 
@@ -91,8 +93,8 @@ If a versioned reference materially changes before a future subdivision is imple
 | R6.3 | KodeTests + KodeRegression foundation | COMPLETE | NONE | R6.1–R6.2 |
 | R6.4 | KodeVisualQA foundation | COMPLETE | REQUIRED — SATISFIED | R6.1–R6.3 + accepted R5 Godot automation |
 | R6.5 | KodeAccessibility foundation | COMPLETE | REQUIRED — SATISFIED | R6.3–R6.4 |
-| R6.6 | KodeLocalization + pseudo-localization foundation | NEXT / NOT STARTED | NONE | R6.3 + R6.5 |
-| R6.7 | KodeTechnicalDebt foundation | PLANNED | NONE | R6.1–R6.6 |
+| R6.6 | KodeLocalization + pseudo-localization foundation | COMPLETE | NONE | R6.3 + R6.5 |
+| R6.7 | KodeTechnicalDebt foundation | NEXT / NOT STARTED | NONE | R6.1–R6.6 |
 | R6.8 | KodeCI + KodeBuild foundation | PLANNED | CONDITIONAL | R6.1–R6.7 |
 | R6.9 | KodeAppSecurity baseline | PLANNED | NONE | R6.3 + R6.7–R6.8 |
 | R6.10 | KodePrivacy baseline | PLANNED | NONE | R6.7–R6.9 |
@@ -184,140 +186,139 @@ Anti-regression: no auto-baseline replacement, no missing-evidence PASS, no weak
 
 # R6.5 — KodeAccessibility foundation — COMPLETE
 
-## Objective and accepted scope
+## Accepted scope
 
-R6.5 established structured accessibility evidence and deterministic baseline checks for KodeStudio-supported UI surfaces, plus a real Windows interactive keyboard/focus/Narrator validation path for behavior hosted/offscreen CI cannot authoritatively prove.
+Structured accessibility evidence and deterministic KodeStudio/Project Wizard checks, explicit applicability/N/A semantics, canonical evidence hashing, `WorkspaceBoundary` confinement, R6.3 hooks, explicit contrast/target-size helpers, Qt accessible metadata/QAccessible inspection, keyboard focus audit, dynamic-control registration and a source-head/hash-bound real Windows keyboard/focus/Narrator gate.
 
-Accepted scope includes:
+## Accepted evidence
 
-- stable accessibility rule/target IDs;
-- severity, status, evidence and applicability;
-- explicit `not_applicable` with reason rather than false PASS;
-- deterministic aggregate state/counts/blockers;
-- canonical evidence SHA-256 and anti-tamper validation;
-- project-confined persistence under `.kodepoia/diagnostics/accessibility/` through `WorkspaceBoundary`;
-- R6.3 stable accessibility hooks;
-- deterministic explicit sRGB contrast and direct-rectangle target-size helpers when source data exists;
-- KodeStudio and Project Wizard accessible names/descriptions;
-- dynamic budget/requirement control registration;
-- QAccessible interface/name/role/state evidence;
-- tab-focus audit for visible enabled registered controls;
-- explicit N/A for hidden/disabled adaptive controls;
-- blocking detection of named application-owned controls bypassing registration;
-- narrow exclusion of Qt-owned `QTabBar` internal `ScrollLeftButton`/`ScrollRightButton` children;
-- Windows accessibility UI CI;
-- source-head/hash-bound 13-item real keyboard/focus/Narrator acceptance contract;
-- rejection of wrong-SHA, incomplete, failing, tampered or out-of-workspace manual evidence.
-
-Out of scope: universal WCAG/legal certification, future generated-app certification, mobile/console reader certification, cognitive user research, OCR-based reader emulation and game-specific accessibility feature design beyond this foundation.
-
-## Accepted implementation identity
-
-- starting normalized main `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`;
-- implementation branch `feature/r6-5-accessibility`;
-- accepted head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`;
-- PR #41;
-- merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`.
-
-## Hosted final-head evidence
-
-- R0 Repository Guard `32567824374` / #710 — SUCCESS Windows + Ubuntu;
-- Python Core `32567824373` / #684 — SUCCESS Windows + Ubuntu, compilation, PowerShell runner syntax, full pytest and integrated accessibility UI smoke;
-- KodeStudio UI Smoke `32567824370` / #651 — SUCCESS Windows.
-
-## Required real Windows evidence — SATISFIED
-
-Environment:
-
-- Windows `Windows-11-10.0.26220-SP0`;
-- Python `3.12.4`;
-- exact source head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`.
-
-Automated reports:
-
-- KodeStudio main: 343 applicable PASS, 0 failed/warnings/unknown/blockers; evidence SHA-256 `9244424a8addb921822bae80de2d7c1a95733a10f04775dc7ec8b55194041920`;
-- Project Wizard: 318 applicable PASS, 0 failed/warnings/unknown/blockers; evidence SHA-256 `e824358a8068d871f59fdbcc55092b300b572d34548d76b0c379973002ea2d91`.
-
-Human observations:
-
-- keyboard 5/5 PASS;
-- focus visible/not obscured 2/2 PASS;
-- Windows Narrator 6/6 PASS;
-- manual 13/13 PASS, 0 blocking failures;
-- integrated `15 PASS / 0 FAIL / 15`;
-- `metadata.acceptance_completed=true`;
-- evidence `.kodepoia/diagnostics/accessibility/r6-5-local-acceptance.json`.
-
-The local run emitted Qt font-directory and `propagateSizeHints()` notices, but both structured accessibility reports contained zero warnings, zero unknowns and zero blockers. They are not R6.5 acceptance failures; if still relevant they may be tracked as later technical debt.
+- base normalized main `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`;
+- head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`;
+- PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`;
+- post-merge normalization PR #42 merge `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`;
+- R0 `32567824374`/#710, Python Core `32567824373`/#684, UI Smoke `32567824370`/#651 — SUCCESS;
+- required Windows automated accessibility reports: main 343 applicable PASS; wizard 318 applicable PASS; zero failures/warnings/unknown/blockers;
+- human keyboard 5/5, focus 2/2, Narrator 6/6;
+- integrated `15 PASS / 0 FAIL / 15`, `acceptance_completed=true`.
 
 Manual intervention: **REQUIRED — SATISFIED**.
 
-Anti-regression: do not convert missing evidence/N/A to PASS, weaken evidence hashing, broaden framework-internal exemptions without evidence, bypass the accessibility registry, substitute offscreen structural checks for a required real assistive-technology gate, or accept incomplete/manual evidence from another SHA.
-
-R6.5 must not be reopened without demonstrated regression or architecture-changing ADR.
+Anti-regression: no missing/N/A evidence to PASS, no weakened hashes, no broad framework exemptions, no registry bypass, no offscreen substitute for a required assistive-technology gate, no wrong-SHA manual evidence.
 
 ---
 
-# R6.6 — KodeLocalization + pseudo-localization foundation — NEXT / NOT STARTED
+# R6.6 — KodeLocalization + pseudo-localization foundation — COMPLETE
 
-## Objective
+## Objective and accepted scope
 
-Establish deterministic localization contracts before later phases multiply UI surfaces: stable message IDs, catalogs, placeholder integrity, fallback and pseudo-localization. Human-quality translation certification is deliberately not part of this foundation.
+R6.6 established deterministic localization contracts before later phases multiply UI surfaces. The foundation is structural rather than a professional translation/cultural-certification effort.
 
-## In scope / deliverables
+Accepted scope:
 
-- stable locale/message IDs and source locale;
-- missing/extra/duplicate key detection;
-- placeholder/token parity;
-- plural/select validation where supported;
-- pseudo-localization that expands text without corrupting placeholders/markup;
-- hard-coded user-visible string detection on registered surfaces where feasible;
-- explicit locale fallback;
+- stable locale/message IDs independent of visible copy;
+- duplicate message-ID rejection;
+- mandatory `other` message form;
+- missing/extra-key evidence;
+- exact source/target message-form parity;
+- Python-format placeholder parity per form;
+- explicit source-locale fallback semantics;
+- deterministic `qps-ploc` pseudo-localization;
+- protection of `{placeholder}`, `<markup>` and `&entity;` tokens;
+- deterministic visible expansion and `⟦...⟧` markers;
+- canonical report/status/count/blocker SHA-256 evidence with tamper rejection;
+- `.kodepoia/diagnostics/localization/` persistence through `WorkspaceBoundary`;
+- R6.3 stable `localization:<rule>:<target>` hooks;
+- KodeStudio English source-message registry for the registered main surface;
+- English remains production default;
+- pseudo-localized KodeStudio navigation/button/window smoke and adaptive navigation width for expanded strings;
+- preservation of R6.5 accessibility smoke after visible text routing changes.
+
+Out of scope: professional translation, cultural certification, voice localization, universal font/script certification, store metadata translation and a claim that every future Project Wizard/user-facing string has already been migrated.
+
+## Accepted deliverables
+
 - `src/kodepoia/quality/localization.py`;
+- `src/kodepoia/kodestudio/localization.py`;
+- localization integration in `src/kodepoia/kodestudio/app.py`;
 - `schemas/localization-report-v1.schema.json`;
 - `tests/test_r6_6_localization.py`;
-- pseudo-locale fixtures/catalogs;
-- KodeStudio long-string/truncation smoke;
-- project-confined localization evidence and R6.3 integration.
+- `tests/test_r6_6_localization_ui.py`;
+- `docs/roadmap/R6_6_DESIGN.md`;
+- `docs/roadmap/R6_6_ACCEPTANCE.md`;
+- Windows UI workflow coverage in Python Core and KodeStudio UI Smoke.
 
-Out of scope: professional translation, cultural certification, voice localization, universal font/script certification and store metadata translation.
+## Accepted evidence
 
-Acceptance: stable IDs/serialization, missing placeholders FAIL, pseudo-localization preserves placeholders, fallback explicit, no platform pollution, report tamper validation, Windows + Ubuntu tests and KodeStudio smoke, merge + normalization.
+- starting normalized main `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`;
+- implementation branch `feature/r6-6-localization`;
+- accepted head `6890b9d37722c74703e8b86f7de11dbfe66821ed`;
+- implementation PR #43;
+- implementation merge `f677cb34eade0549edc951fe11955de2bc0b270d`;
+- R0 Repository Guard `32570001461` / #733 — SUCCESS Windows + Ubuntu;
+- Python Core `32570001514` / #707 — SUCCESS Windows + Ubuntu, PowerShell syntax and integrated KodeStudio UI smoke;
+- KodeStudio UI Smoke `32570001491` / #674 — SUCCESS Windows.
 
-Manual intervention: **NONE**.
+The first draft head produced two round-trip test assertion failures because Python object equality distinguished `details=None` from canonical serialized `details={}`. Tests were corrected to compare the canonical persisted/hashed representation. No localization rule, blocker, fallback/placeholder check or `WorkspaceBoundary` protection was weakened.
 
-Rollback/risk: do not destabilize existing strings without migration; pseudo-locale must never become production default.
+Manual intervention: **NONE — COMPLETE**.
+
+Rollback/risk: pseudo-locale must never become production default; stable IDs should survive copy changes; missing keys/forms/placeholders remain explicit; rollback restores accepted English UI without touching R6.1–R6.5 evidence.
 
 ---
 
-# R6.7 — KodeTechnicalDebt foundation
+# R6.7 — KodeTechnicalDebt foundation — NEXT / NOT STARTED
 
 ## Objective
 
 Create a persistent structured technical-debt register so debt is observable, prioritized and linked to code/requirements/tests instead of informal comments.
 
-## In scope / deliverables
+## In scope / expected deliverables
 
 - stable debt IDs;
 - category/severity/impact/probability/effort;
 - owner/scope/source/provenance;
 - file/symbol/test/requirement references;
 - first-seen/last-seen/resolved lifecycle;
+- explicit states separating open, accepted and resolved debt;
 - accepted-debt rationale with optional review/expiry;
-- deterministic ranking and duplicate fingerprinting;
-- project-confined persistence under diagnostics;
-- report/schema;
+- deterministic ranking;
+- duplicate fingerprinting based on stable debt identity rather than volatile timestamps;
+- project-confined persistence under `.kodepoia/diagnostics/technical_debt/`;
+- structured report/schema and anti-tamper validation;
 - Health `technical_debt` adapter;
-- regression semantics for newly introduced blocking debt;
-- `src/kodepoia/quality/technical_debt.py`, schema, tests and docs.
+- stable R6.3 regression evidence for newly introduced blocking debt;
+- `src/kodepoia/quality/technical_debt.py`;
+- `schemas/technical-debt-report-v1.schema.json`;
+- `tests/test_r6_7_technical_debt.py`;
+- design/acceptance docs.
 
-Out of scope: automatic code rewriting, License/BOM, architecture changes without ADR and arbitrary static-analysis shell commands supplied by a model.
+## Out of scope
 
-Acceptance: stable lifecycle/ranking, accepted debt distinct from resolved debt, confinement, Health integration, tamper checks, CI green, merge + normalization.
+Automatic code rewriting, License/BOM, foundation architecture changes without ADR, arbitrary static-analysis commands supplied by a model and treating accepted debt as resolved.
 
-Manual intervention: **NONE**.
+## Acceptance gates
 
-Risk: never treat accepted debt as resolved; preserve rationale/history and avoid unstable fingerprints.
+1. stable unique IDs and fingerprints;
+2. deterministic category/severity/risk/effort ranking;
+3. lifecycle invariants and timezone-aware first/last/resolved timestamps;
+4. accepted debt requires rationale and remains visible;
+5. resolved debt is distinct from accepted debt;
+6. duplicate fingerprints detected rather than silently double-counted;
+7. report counts/ranking/blockers canonical and tamper-resistant;
+8. project/symlink confinement;
+9. Health `technical_debt` metric derived from evidence;
+10. new blocking debt creates stable R6.3 failure evidence;
+11. repository-observed debt can be represented with provenance without claiming an unexecuted scanner;
+12. Windows + Ubuntu Python Core and KodeStudio smoke remain green;
+13. merge + post-merge normalization.
+
+## Manual intervention
+
+**NONE.** Deterministic repository fixtures/evidence suffice for foundation acceptance.
+
+## Rollback / risks
+
+Never treat accepted debt as resolved. Preserve rationale/history. Fingerprints must exclude volatile timestamps/state changes to avoid duplicate records on every scan. Blocking status must not disappear merely because a report is regenerated.
 
 ---
 
@@ -327,25 +328,53 @@ Risk: never treat accepted debt as resolved; preserve rationale/history and avoi
 
 Convert repository workflows/builds into structured evidence consumable by Health, Tests, Regression, VisualQA and later release tooling.
 
-## In scope
+## In scope / expected deliverables
 
 - normalized CI check IDs/statuses;
-- build manifest tied to source SHA, Python version, platform, dependency inputs and artifact hashes;
-- Python package build validation;
+- explicit queued/in-progress/pass/fail/cancelled/skipped/unknown semantics;
+- skipped/cancelled never count as PASS;
+- build manifest tied to exact source SHA, Python version, platform, dependency inputs and artifact hashes;
+- Python package wheel/sdist build validation;
 - Windows + Ubuntu build/test matrix;
-- failed/cancelled/skipped distinction;
+- artifact names/sizes/SHA-256 digests;
+- source/dependency-input digests;
+- clear documentation of unavoidable non-byte-reproducible metadata rather than false cross-platform byte identity;
 - available lint/compile/tests/regression/security/visual hooks;
-- secrets-free logs/manifests;
-- `.kodepoia/workflows/` and `.kodepoia/releases/` evidence where applicable;
-- workflow updates without weakening R0/Python/UI gates.
+- recursive secret-redaction rules for manifests/log-like evidence;
+- `.kodepoia/workflows/` and `.kodepoia/releases/` persistence through `WorkspaceBoundary`;
+- Health `build` integration and R6.3 stable hooks;
+- workflow updates without weakening R0/Python/UI gates;
+- provenance concepts informed by current SLSA v1.2, without claiming a SLSA level unless independently proven.
 
-Out of scope: store publishing, signing certificates, installers/update channels, unsupported macOS/iOS claims and generated-app framework builds belonging to later phases.
+## Out of scope
 
-Acceptance: structured CI/build modules/schema, source/artifact hashes, deterministic package-build tests, documented unavoidable non-byte-reproducible fields, Windows+Ubuntu success, skipped/cancelled never PASS, secret redaction, merge + normalization.
+Store publishing, signing certificates, installers/update channels, unsupported macOS/iOS claims, generated-app framework builds belonging to later phases and any arbitrary model-supplied build command.
 
-Manual intervention: **CONDITIONAL** only if hosted Windows cannot authoritatively prove an acceptance-critical Windows build behavior/artifact.
+## Acceptance gates
 
-If triggered, the implemented runner must bind evidence to the exact source SHA, preserve artifacts/hashes, emit zero blockers and `acceptance_completed=true`; failed evidence must not be edited or reused from another SHA.
+1. structured CI/build report schemas and round-trip/tamper checks;
+2. exact source-SHA binding;
+3. artifact name/size/SHA-256 evidence;
+4. deterministic source/dependency-input hashing;
+5. failed/cancelled/skipped distinction and no false PASS;
+6. secret-field/token redaction from persisted evidence;
+7. Python wheel + sdist built and validated on Windows and Ubuntu;
+8. platform-specific artifact evidence recorded without false cross-platform byte-reproducibility claims;
+9. `.kodepoia/workflows/` / `.kodepoia/releases/` confinement;
+10. Health/Test integration;
+11. existing R0/Python/UI gates preserved;
+12. conditional local Windows gate evaluated explicitly;
+13. merge + post-merge normalization.
+
+## Manual intervention
+
+**CONDITIONAL** only if GitHub-hosted Windows cannot authoritatively prove an acceptance-critical Windows build behavior/artifact.
+
+If triggered, the implemented runner must bind evidence to the exact source SHA, preserve artifacts/hashes, emit zero blockers and `acceptance_completed=true`; failed evidence must not be edited or reused from another SHA. The final exact commands, prerequisites, expected output, recovery and do-not-do-yet instructions will be supplied only after the final R6.8 implementation head is frozen and hosted CI has shown why the local gate is necessary.
+
+## Rollback / risks
+
+Do not remove or narrow existing checks. Build evidence must remain tied to the exact source SHA. Never equate `skipped` or `cancelled` with success. Do not persist secrets. Do not add an unrestricted process execution path to generate builds; workflow/build commands remain fixed and governed.
 
 ---
 
@@ -478,10 +507,12 @@ Risk: avoid circular validation where patch gate trusts its own summary without 
 
 - **R6.4 — REQUIRED:** SATISFIED and accepted; no further action unless regression.
 - **R6.5 — REQUIRED:** SATISFIED and accepted; no further action unless regression.
-- **R6.8 — CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet build/reproducibility DoD.
+- **R6.6 — NONE:** COMPLETE; no user action required.
+- **R6.7 — NONE:** no user-side acceptance planned.
+- **R6.8 — CONDITIONAL:** local Windows build evidence only if hosted CI cannot authoritatively meet build/provenance DoD.
 - **R6.11 — CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved.
 - **R6.12 — CONDITIONAL:** local integration/approval only if final selected gates require hardware-local execution or explicit approval.
-- **R6.6, R6.7, R6.9, R6.10 — NONE** currently planned.
+- **R6.9, R6.10 — NONE** currently planned.
 
 Before any future manual gate, its acceptance document and user-facing instructions must identify the exact final implementation head and confirm final implementation-specific commands/actions, expected output, recovery and evidence requirements.
 
@@ -501,6 +532,7 @@ R6 is COMPLETE only when:
 
 - 2026-08-22: retroactive plan created by explicit user request before R6.4; R6.1–R6.3 recorded from already accepted evidence; R6.4–R6.12 structure frozen.
 - 2026-08-22: planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a` passed R0 #639, Python Core #613 and UI Smoke #580; PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`.
-- 2026-08-22: post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`; R6.4 started from that normalized main.
-- 2026-08-22: R6.4 accepted on head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41` after final hosted and required Windows/Godot/Radeon evidence; PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`; PR #40 normalized main to `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
-- 2026-08-22: R6.5 accepted on head `06fd66af4b3a85da24b98ea2a5fbb2685358c540` after R0 #710, Python Core #684, UI Smoke #651 and required Windows keyboard/focus/Narrator `15 PASS / 0 FAIL / 15`; PR #41 merged as `db1a1ab78eb2ac7d90f75ab294074dec0238268c`. R6.5 COMPLETE; R6.6 NEXT / NOT STARTED pending post-merge normalization.
+- 2026-08-22: post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
+- 2026-08-22: R6.4 accepted on head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`; PR #39 merged as `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`; PR #40 normalized main to `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
+- 2026-08-22: R6.5 accepted on head `06fd66af4b3a85da24b98ea2a5fbb2685358c540` after R0 #710, Python Core #684, UI Smoke #651 and required Windows keyboard/focus/Narrator `15 PASS / 0 FAIL / 15`; PR #41 merged as `db1a1ab78eb2ac7d90f75ab294074dec0238268c`; PR #42 normalized main to `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
+- 2026-08-22: R6.6 accepted on head `6890b9d37722c74703e8b86f7de11dbfe66821ed` after R0 #733, Python Core #707 and UI Smoke #674; PR #43 merged as `f677cb34eade0549edc951fe11955de2bc0b270d`. R6.6 COMPLETE; R6.7 NEXT / NOT STARTED pending this post-merge normalization.

@@ -41,6 +41,7 @@ class GodotToolAPI:
             "kodegodot_export_presets": self._export_presets,
             "kodegodot_export_project": self._export_project,
             "kodegodot_capture_movie": self._capture_movie,
+            "kodegodot_capture_png_sequence": self._capture_png_sequence,
             "kodegodot_benchmark_scene": self._benchmark_scene,
             "kodegodot_services_start": self._services_start,
             "kodegodot_services_stop": self._services_stop,
@@ -90,6 +91,12 @@ class GodotToolAPI:
                 "fps": {"type": "integer", "minimum": 1, "maximum": 240},
                 "timeout": {"type": "number", "minimum": 1, "maximum": 900},
             }, ["scene", "output_name"]),
+            self._schema("kodegodot_capture_png_sequence", "Record bounded real-render PNG frames into .kodepoia/visual_tests/runs", {
+                "scene": {"type": "string"}, "output_name": {"type": "string"},
+                "frames": {"type": "integer", "minimum": 1, "maximum": 600},
+                "fps": {"type": "integer", "minimum": 1, "maximum": 240},
+                "timeout": {"type": "number", "minimum": 1, "maximum": 900},
+            }, ["scene", "output_name"]),
             self._schema("kodegodot_benchmark_scene", "Measure bounded headless scene execution throughput", {
                 "scene": {"type": ["string", "null"]}, "frames": {"type": "integer", "minimum": 1, "maximum": 3600},
                 "timeout": {"type": "number", "minimum": 1, "maximum": 900},
@@ -134,6 +141,7 @@ class GodotToolAPI:
     def _export_presets(self, _args: dict[str, Any]) -> list[dict[str, Any]]: return [asdict(item) for item in self.exports.presets()]
     def _export_project(self, args: dict[str, Any]) -> dict[str, Any]: return asdict(self.runtime.export_project(preset=str(args["preset"]), output_name=str(args["output_name"]), mode=str(args.get("mode", "release")), timeout=self._bounded_timeout(args, 900.0)))
     def _capture_movie(self, args: dict[str, Any]) -> dict[str, Any]: return asdict(self.runtime.capture_movie(scene=str(args["scene"]), output_name=str(args["output_name"]), frames=int(args.get("frames", 60)), fps=int(args.get("fps", 30)), timeout=self._bounded_timeout(args, 900.0)))
+    def _capture_png_sequence(self, args: dict[str, Any]) -> dict[str, Any]: return asdict(self.runtime.capture_png_sequence(scene=str(args["scene"]), output_name=str(args["output_name"]), frames=int(args.get("frames", 3)), fps=int(args.get("fps", 30)), timeout=self._bounded_timeout(args, 900.0)))
     def _benchmark_scene(self, args: dict[str, Any]) -> dict[str, Any]: return asdict(self.runtime.benchmark_scene(scene=str(args["scene"]) if args.get("scene") is not None else None, frames=int(args.get("frames", 120)), timeout=self._bounded_timeout(args, 300.0)))
     def _services_start(self, args: dict[str, Any]) -> dict[str, Any]:
         ports = GodotServicePorts(int(args.get("lsp_port", 6005)), int(args.get("dap_port", 6006)), int(args.get("debug_port", 6007)))

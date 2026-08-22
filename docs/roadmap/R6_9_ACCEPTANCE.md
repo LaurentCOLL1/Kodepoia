@@ -63,6 +63,20 @@ The final test suite must demonstrate at minimum:
 16. the JSON Schema accepts the canonical report;
 17. deterministic malformed payload variants fail closed.
 
+## Development diagnostic evidence
+
+Initial draft head `85742e808dfb68dbe6e1f5f64c2b4fee5d63b0f3` compiled and built packages successfully, but Python Core Ubuntu found exactly one R6.9 test failure: the test expected a blocking Health SECURITY metric score of `0.0`, while the implemented deterministic aggregate score was `75.0` because one failing requirement scored 0 and five measured LOW residual-risk threats scored 90 each. The metric was already `FAIL` and `blocking=true`; the blocker independently forces failure regardless of the aggregate numeric score.
+
+Only the incorrect test expectation was corrected. No security status, blocker, scoring formula, applicability rule, provenance requirement, redaction rule, threat risk or `WorkspaceBoundary` behavior changed.
+
+Diagnostic head `0251a62c92230a486abfdd8b151e59a1adb98bb3` then passed:
+
+- R0 Repository Guard #810 `32573142662` — SUCCESS Windows + Ubuntu;
+- Python Core #784 `32573142620` — SUCCESS for all five jobs: core Ubuntu, core Windows, integrated Windows UI, package-build Ubuntu and package-build Windows;
+- KodeStudio UI Smoke #751 `32573142653` — SUCCESS Windows.
+
+This is diagnostic evidence only. Final acceptance will use a later exact head after this acceptance record is synchronized.
+
 ## External-reference interpretation
 
 OWASP ASVS 5.0.0 is used as a reference catalogue only where Kodepoia has an applicable surface. This phase does not claim ASVS certification or full Web-application applicability.

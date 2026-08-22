@@ -22,7 +22,11 @@
     "counts": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["components_total", "projects", "packages", "assets", "resolved", "unresolved", "integrity_recorded", "integrity_unknown", "integrity_mismatch"],
+      "required": [
+        "components_total", "projects", "packages", "assets", "resolved", "unresolved",
+        "not_applicable", "integrity_recorded", "integrity_unknown", "integrity_mismatch",
+        "integrity_not_applicable"
+      ],
       "properties": {
         "components_total": {"type": "integer", "minimum": 0},
         "projects": {"type": "integer", "minimum": 0},
@@ -30,9 +34,11 @@
         "assets": {"type": "integer", "minimum": 0},
         "resolved": {"type": "integer", "minimum": 0},
         "unresolved": {"type": "integer", "minimum": 0},
+        "not_applicable": {"type": "integer", "minimum": 0},
         "integrity_recorded": {"type": "integer", "minimum": 0},
         "integrity_unknown": {"type": "integer", "minimum": 0},
-        "integrity_mismatch": {"type": "integer", "minimum": 0}
+        "integrity_mismatch": {"type": "integer", "minimum": 0},
+        "integrity_not_applicable": {"type": "integer", "minimum": 0}
       }
     },
     "blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
@@ -41,7 +47,8 @@
   },
   "$defs": {
     "licenseAssertion": {
-      "type": "object", "additionalProperties": false,
+      "type": "object",
+      "additionalProperties": false,
       "required": ["state", "evidence_source", "expression", "rationale", "custom_text_sha256", "spdx_token"],
       "properties": {
         "state": {"enum": ["spdx_expression", "noassertion", "none"]},
@@ -50,10 +57,17 @@
         "rationale": {"type": "string"},
         "custom_text_sha256": {"type": "string", "pattern": "^$|^[0-9a-f]{64}$"},
         "spdx_token": {"type": "string", "minLength": 1}
-      }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"custom_text_sha256": {"pattern": "^[0-9a-f]{64}$"}}, "required": ["custom_text_sha256"]},
+          "then": {"properties": {"expression": {"pattern": "^LicenseRef-[A-Za-z0-9.-]+$"}}}
+        }
+      ]
     },
     "integrity": {
-      "type": "object", "additionalProperties": false,
+      "type": "object",
+      "additionalProperties": false,
       "required": ["status", "source", "algorithm", "digest", "expected_digest"],
       "properties": {
         "status": {"enum": ["recorded", "mismatch", "unknown", "not_applicable"]},
@@ -64,7 +78,8 @@
       }
     },
     "requirement": {
-      "type": "object", "additionalProperties": false,
+      "type": "object",
+      "additionalProperties": false,
       "required": ["group", "requirement", "source"],
       "properties": {
         "group": {"type": "string", "minLength": 1},
@@ -73,8 +88,13 @@
       }
     },
     "component": {
-      "type": "object", "additionalProperties": false,
-      "required": ["id", "name", "kind", "resolution", "version", "purl", "source_locator", "provenance_source", "source_sha256", "integrity", "declared_license", "concluded_license", "requirements", "details"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "name", "kind", "resolution", "version", "purl", "source_locator",
+        "provenance_source", "source_sha256", "integrity", "declared_license",
+        "concluded_license", "requirements", "details"
+      ],
       "properties": {
         "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.:-]{1,191}$"},
         "name": {"type": "string", "minLength": 1},
@@ -90,7 +110,19 @@
         "concluded_license": {"$ref": "#/$defs/licenseAssertion"},
         "requirements": {"type": "array", "items": {"$ref": "#/$defs/requirement"}},
         "details": {"type": "object"}
-      }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"resolution": {"const": "resolved"}}, "required": ["resolution"]},
+          "then": {"properties": {"version": {"minLength": 1}}},
+          "else": {"properties": {"version": {"const": ""}}}
+        },
+        {
+          "if": {"properties": {"resolution": {"const": "not_applicable"}}, "required": ["resolution"]},
+          "then": {"properties": {"integrity": {"properties": {"status": {"const": "not_applicable"}}}}},
+          "else": {"properties": {"integrity": {"properties": {"status": {"not": {"const": "not_applicable"}}}}}}
+        }
+      ]
     }
   }
 }

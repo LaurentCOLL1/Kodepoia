@@ -91,16 +91,24 @@ def _artifact_version_fingerprint(
     artifact: ResearchArtifact,
     observation: VersionObservation | None,
 ) -> str:
-    """Fingerprint the strongest available version evidence for one artifact.
+    """Hash all available version identity evidence for one artifact.
 
-    R7.8 observations take precedence. When no normalized observation exists yet,
-    a source-declared version remains identity-relevant evidence instead of being
-    collapsed into the generic unknown-version bucket.
+    R7.1 artifact IDs intentionally predate R7.8 version awareness and therefore
+    can collide when one locator/content pair is observed under two declared
+    versions. A normalized R7.8 observation is authoritative evidence, but it does
+    not erase the source-declared version: retaining both makes ambiguity visible
+    and prevents deduplication from silently merging distinct version evidence.
     """
 
-    if observation is not None:
-        return version_fingerprint(observation)
     declared = artifact.source.version.strip()
+    if observation is not None:
+        return _sha256_payload(
+            {
+                "kind": "normalized_and_source_declared",
+                "normalized": _version_evidence_payload(observation),
+                "source_declared": declared,
+            }
+        )
     if declared:
         return _sha256_payload({"kind": "source_declared", "value": declared})
     return version_fingerprint(None)

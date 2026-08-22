@@ -52,6 +52,19 @@ Accepted implementation head `52330ca576fe294956a8fb601bdfda1d72dc3f92`:
 
 The rejected candidate `b35a6dcd330c7cc3cb582d775ce0275d7a9b2f87` remains evidence only: R0 #1029 correctly rejected a literal GitHub-token-shaped test fixture. The scanner was not weakened; the final candidate reconstructed the fake token at runtime and passed R0 #1030.
 
+## Final normalization evidence
+
+R7 final normalization was accepted on exact head `d2278b1ee31d7d4a7b8570836edc3082e9fe30c4`:
+
+- R0 Repository Guard #1035 / `32599397013` — SUCCESS;
+- Python Core #1009 / `32599397057` — SUCCESS, 5/5 jobs;
+- authoritative Ubuntu suite — **515 passed / 5 skipped / 46 warnings**;
+- integrated acceptance regeneration/check — **PASS** (`R7 integrated acceptance: PASS`);
+- KodeStudio UI Smoke #976 / `32599397003` — SUCCESS;
+- final normalization PR #81 merge `24dc403b329fd748a8aadac9d6760a2fb73a9730`.
+
+The move from 514/6 on the R7.11 implementation head to 515/5 on final normalization is expected: the checked-in integrated-report repository test is no longer skipped because `R7_INTEGRATED_ACCEPTANCE.json` now exists and validates.
+
 ## R7 accepted security/trust baseline
 
 - External research content is always evidence/data, never agent instructions. `ResearchGuard` remains the single content trust boundary.
@@ -79,8 +92,8 @@ The rejected candidate `b35a6dcd330c7cc3cb582d775ce0275d7a9b2f87` remains eviden
 
 ## Phase completion decision
 
-**R7 is COMPLETE when this final normalization PR (#81) passes exact-head R0 Repository Guard, Python Core and KodeStudio UI Smoke and is merged to `main`.** The checked-in integrated report already validates against the canonical R7.1–R7.11 acceptance blobs; the final normalization gates provide the last repository-level proof.
+**PASS / COMPLETE.** R7.1–R7.11 are accepted, the REQUIRED R7.7 local gate is satisfied, all conditional gates are explicitly resolved, the integrated report validates against canonical acceptance blobs, final exact-head R0/Python/UI gates succeeded, and PR #81 is merged to `main` as `24dc403b329fd748a8aadac9d6760a2fb73a9730`.
 
 ## Next authorized action
 
-After #81 is merged, do **not** start R8.1 directly. Apply the permanent phase-start rule first: create an exhaustive `R8_PLAN.md`, synchronize continuity in the same work cycle, pass planning acceptance on the exact planning head, and merge that plan before any R8.1 implementation. R8–R16 remain NOT STARTED until their own accepted plans authorize work.
+Do **not** start R8.1 directly. Apply the permanent phase-start rule first: create an exhaustive `R8_PLAN.md`, synchronize continuity in the same work cycle, pass planning acceptance on the exact planning head, and merge that plan before any R8.1 implementation. R8–R16 remain NOT STARTED until their own accepted plans authorize work.

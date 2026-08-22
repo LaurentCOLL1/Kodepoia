@@ -64,6 +64,7 @@ class GodotEditorServices:
         self._dap_owner: _SocketChannelOwner | None = None
         self.lsp: LspSession | None = None
         self.dap: DapSession | None = None
+        self.log_path = self.boundary.root / ".kodepoia" / "logs" / "godot-services.log"
 
     def start(self, ports: GodotServicePorts | None = None, *, timeout: float = 30.0) -> dict[str, Any]:
         if self.process is not None:
@@ -80,12 +81,20 @@ class GodotEditorServices:
         if not project.is_file():
             raise FileNotFoundError("project.godot is not a file")
         selected = ports or GodotServicePorts()
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            self.log_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+        log_relative = self.log_path.relative_to(self.boundary.root).as_posix()
         argv = [
             self.executable,
             "--headless",
             "--editor",
             "--path",
             ".",
+            "--log-file",
+            log_relative,
             "--lsp-port",
             str(selected.lsp),
             "--dap-port",
@@ -96,22 +105,25 @@ class GodotEditorServices:
         # Godot LSP/DAP communicate over loopback sockets, not stdio. Using
         # stdout/stderr PIPE here risks blocking a verbose editor before it opens
         # the ports. Keep the process sandboxed and kill-switch registered, but
-        # discard unused stdio streams.
+        # discard unused stdio streams. Godot itself writes a confined log file.
         self.process = self.sandbox.spawn_background(argv, cwd=self.boundary.root)
         self.ports = selected
         deadline = time.monotonic() + timeout
         try:
             self.connect_lsp(timeout=self._remaining(deadline))
             self.connect_dap(timeout=self._remaining(deadline))
-        except Exception:
+        except Exception as exc:
+            log_tail = self._log_tail()
             self.close()
-            raise
+            detail = f"; Godot log tail: {log_tail}" if log_tail else ""
+            raise RuntimeError(f"Godot editor services failed: {exc}{detail}") from exc
         return {
             "started": True,
             "already_running": False,
             "ports": self._ports_dict(),
             "lsp_initialized": True,
             "dap_initialized": True,
+            "log": log_relative,
         }
 
     def connect_lsp(self, *, timeout: float = 10.0) -> LspSession:
@@ -211,6 +223,13 @@ class GodotEditorServices:
                 last_error = exc
                 time.sleep(0.05)
         raise TimeoutError(f"Godot loopback service on port {port} did not become ready: {last_error}")
+
+    def _log_tail(self, max_chars: int = 4000) -> str:
+        try:
+            text = self.log_path.read_text(encoding="utf-8", errors="replace")
+        except (OSError, UnicodeError):
+            return ""
+        return text[-max_chars:].strip()
 
     @staticmethod
     def _remaining(deadline: float) -> float:

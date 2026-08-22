@@ -4,50 +4,45 @@
 **Status:** IN PROGRESS  
 **Started:** 2026-08-22
 
-R1–R5 remain COMPLETE. R6 is now active on dedicated short-lived branches under the frozen architecture v1.0.
+R1–R5 remain COMPLETE. R6 is active under the frozen architecture v1.0.
 
-## Current subdivision
+## Accepted subdivisions
 
-1. **R6.1 — KodeHealth foundation** — IMPLEMENTED / ACCEPTANCE PENDING — PR #30 OPEN.
+1. **R6.1 — KodeHealth foundation** — COMPLETE — PR #30 merged as `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
 
-R6.1 establishes the structured KodeHealth report, scoring/coverage policy, persistence contract, JSON schema, and acceptance tests. It does not yet claim real measurements for every health domain; later R6 work must supply those collectors and gates.
+## R6.1 accepted scope
 
-## R6.1 implementation
+R6.1 established the structured KodeHealth contract required by the frozen architecture:
 
-Branch: `feature/r6-1-kodehealth`.  
-Pull request: **#30 — OPEN** against `main`.
-
-Delivered:
-
-- `src/kodepoia/quality/health.py`;
-- `src/kodepoia/quality/__init__.py`;
+- the 14 health dimensions: build, tests, warnings, security, dependencies, performance, memory, assets, audio, accessibility, localization, technical debt, licenses, and privacy;
+- explicit `unknown`, `pass`, `warn`, and `fail` states;
+- deterministic score and coverage aggregation;
+- explicit blocking failures;
+- exhaustive normalized reports and validated JSON round-trip;
+- derived-field consistency checks for `blockers` and `unknown_dimensions`;
+- persistence under `.kodepoia/health/` with atomic `latest.json` plus timestamped snapshots;
+- reuse of the existing `WorkspaceBoundary`, including rejection of a `.kodepoia` symlink escaping the project;
 - `schemas/health-report-v1.schema.json`;
-- `tests/test_r6_1_health.py`;
-- `docs/roadmap/R6_1_DESIGN.md`;
-- `docs/roadmap/R6_1_ACCEPTANCE.md`.
+- focused R6.1 tests and documented rollback.
 
-Security hardening performed during PR review:
+## R6.1 acceptance evidence
 
-- `HealthStore` now routes `.kodepoia` and `.kodepoia/health` through the existing `WorkspaceBoundary`;
-- a `.kodepoia` symlink escaping the project is rejected;
-- serialized `blockers` and `unknown_dimensions` are checked against the underlying metric evidence during load.
+Accepted implementation head: `802de4ba3110ace657c4e16306a0ca29850ce2bd`.
 
-## R6.1 acceptance state
+Local focused evidence after security hardening: **9 passed**.
 
-Local isolated unit evidence after hardening: **9 passed**.
+Final GitHub CI on the accepted head:
 
-PR #30 is open so the repository `pull_request` gates can provide authoritative CI evidence. R6.1 remains ACCEPTANCE PENDING until the final stabilized head is green.
+- R0 Repository Guard `32561211168` — SUCCESS Windows + Ubuntu;
+- Python Core `32561211156` — SUCCESS Windows + Ubuntu, including PowerShell validation and the integrated KodeStudio smoke job;
+- KodeStudio UI Smoke `32561211167` — SUCCESS Windows.
 
-Still required before R6.1 can be marked COMPLETE:
+PR #30 was then merged to `main` as `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
 
-- GitHub Python Core on Windows and Ubuntu;
-- KodeStudio UI smoke on Windows;
-- repository guard checks;
-- PR #30 merge to `main`;
-- continuity normalization after merge.
+**R6.1 = COMPLETE.**
 
 ## Remaining R6 scope
 
-The frozen roadmap still requires Health, Budget, Tests, Regression, VisualQA, Accessibility, Localization, TechnicalDebt, CI/Build, AppSecurity baseline, Privacy baseline, and License/BOM. Major patches must ultimately have validation and rollback.
+The frozen roadmap still requires Budget, Tests, Regression, VisualQA, Accessibility, Localization, TechnicalDebt, CI/Build, AppSecurity baseline, Privacy baseline, License/BOM, and the rule that major patches have validation and rollback.
 
-Do not mark R6 COMPLETE from R6.1 alone.
+R6 itself remains **IN PROGRESS**. Do not mark R6 COMPLETE from R6.1 alone, and do not skip directly to a later roadmap phase.

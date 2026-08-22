@@ -45,6 +45,14 @@ class FakeSandbox:
         return self.process
 
 
+class FakeConnectedSocket:
+    def __init__(self) -> None:
+        self.timeout: float | None = 0.5
+
+    def settimeout(self, value: float | None) -> None:
+        self.timeout = value
+
+
 def test_gdscript_inspector_reports_structure_and_typing(tmp_path: Path) -> None:
     (tmp_path / "player.gd").write_text(SCRIPT, encoding="utf-8")
     info = GDScriptInspector(tmp_path).inspect("player.gd")
@@ -107,6 +115,29 @@ def test_services_construct_only_managed_loopback_godot_command(tmp_path: Path, 
     ]
     services.close()
     assert sandbox.process.closed is True
+
+
+def test_loopback_connect_timeout_does_not_become_protocol_read_timeout(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    services = GodotEditorServices(tmp_path, executable="godot", sandbox=FakeSandbox())  # type: ignore[arg-type]
+    services.process = FakeProcess()  # type: ignore[assignment]
+    sock = FakeConnectedSocket()
+
+    def fake_create_connection(address, timeout):
+        assert address == ("127.0.0.1", 6005)
+        assert 0.1 <= timeout <= 0.5
+        return sock
+
+    monkeypatch.setattr("kodepoia.kodegodot.services.socket.create_connection", fake_create_connection)
+    monkeypatch.setattr(
+        "kodepoia.kodegodot.services._SocketChannelOwner",
+        lambda connected: SimpleNamespace(sock=connected),
+    )
+
+    owner = services._connect_retry(6005, 1.0)
+    assert owner.sock is sock
+    assert sock.timeout is None
 
 
 def test_godot_tool_catalog_never_exposes_remote_host_or_arbitrary_launch_fields(tmp_path: Path) -> None:

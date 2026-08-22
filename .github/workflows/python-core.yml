@@ -93,8 +93,10 @@ jobs:
       KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       KODEPOIA_BUILD_PLATFORM: ${{ matrix.os }}
     steps:
-      - name: Checkout
+      - name: Checkout exact evidence source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

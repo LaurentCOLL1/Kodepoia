@@ -1,9 +1,22 @@
-# R8.7 — Asset-aware Git/VCS integration — Candidate acceptance
+# R8.7 — Asset-aware Git/VCS integration — Acceptance
 
-**Status:** CANDIDATE / PENDING EXACT-HEAD CI  
+**Status:** COMPLETE / ACCEPTED  
 **Manual intervention:** NONE
 
-## Implemented scope
+## Accepted implementation
+
+- Exact implementation head: `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3`.
+- PR: #93.
+- Merge SHA: `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9`.
+
+## Authoritative CI on the exact head
+
+- R0 Repository Guard #1061 / `32603884834`: SUCCESS.
+- Python Core #1035 / `32603884762`: SUCCESS 5/5.
+- Ubuntu authoritative suite: `552 passed / 5 skipped / 46 warnings`.
+- KodeStudio UI Smoke #1002 / `32603884719`: SUCCESS.
+
+## Accepted scope
 
 - Reuses `ProcessSandbox` and the existing R4 Git execution boundary; the product API exposes only fixed structured Git operations.
 - Repository status returns exact HEAD, branch/detached state and typed tracked-worktree states including untracked, ignored and conflicted conditions.
@@ -14,6 +27,6 @@
 - Vault revision ↔ repository path/last-commit evidence binds working bytes to the exact Vault revision digest/length.
 - No remote push, arbitrary Git subcommand, flags, refspec, config key or history rewrite is exposed.
 
-## Acceptance gates
+## Manual gate outcome
 
-R0 Repository Guard, full Python Core and KodeStudio UI Smoke must all succeed on one exact implementation head before merge. Post-merge normalization must complete before R8.8 begins.
+R8.7 manual state is **NONE**. No user-side command, credentials or remote Git mutation was required for authoritative acceptance.

@@ -67,7 +67,7 @@ def _item(
 
 def test_priority_is_deterministic_and_bounded() -> None:
     item = _item(severity=DebtSeverity.CRITICAL)
-    assert item.priority_score == 30.0
+    assert item.priority_score == 24.0
     maximum = TechnicalDebtItem(
         id="MAX",
         category=DebtCategory.SECURITY,

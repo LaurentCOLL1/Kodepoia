@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. R5.1 à R5.5 sont **ACCEPTED AND MERGED**. **R5.6 est IN PROGRESS sur PR #28, branche `agent/r5-6-governed-acceptance`. Le probe matériel post-fix est ACCEPTED 5/5. Le premier full hardware acceptance a donné 12/19, mais les 7 échecs se réduisent à deux causes indépendantes : (A) `capture_movie` utilisait `--headless` avec `--write-movie`, ce qui a crashé dans le RenderingServer dummy; correction : Movie Maker utilise maintenant un renderer réel. (B) `services_start` lançait le Godot editor persistant avec des stdout/stderr PIPE non drainés alors que LSP/DAP passent par sockets; correction : nouveau `ProcessSandbox.spawn_background()` avec DEVNULL, même sandbox/kill switch, plus `--log-file .kodepoia/logs/godot-services.log`. Les 5 échecs LSP/DAP suivants étaient des cascades du seul échec `services_start`. Le head fonctionnel `6b968d284a5f10195cbe465d5c94208f65c3a94e` est entièrement vert Windows+Ubuntu. Toujours `git pull` le head courant, ne jamais reset vers un checkpoint. Prochaine action locale, uniquement après CI verte du head documentaire courant : relancer le full acceptance sans `-ProbeOnly` avec le Godot Steam connu. Si `services_start` échoue encore, fournir aussi `.kodepoia/r5-acceptance/project/.kodepoia/logs/godot-services.log`.** Ne pas fusionner PR #28 et ne pas commencer R6 avant revue d'un full report 19/19, CI final, merge et vérification de `main`.
+> Kodepoia, architecture v1.0 gelée. R1/R2/R3/R4 sont **COMPLETE**. R5.1 à R5.5 sont **ACCEPTED AND MERGED**. **R5.6 est IN PROGRESS sur PR #28, branche `agent/r5-6-governed-acceptance`. Le probe matériel post-fix est ACCEPTED 5/5. Le premier full hardware acceptance a donné 12/19, mais les 7 échecs se réduisent à deux causes indépendantes : (A) `capture_movie` utilisait `--headless` avec `--write-movie`, ce qui a crashé dans le RenderingServer dummy; correction : Movie Maker utilise maintenant un renderer réel. (B) `services_start` lançait le Godot editor persistant avec des stdout/stderr PIPE non drainés alors que LSP/DAP passent par sockets; correction : nouveau `ProcessSandbox.spawn_background()` avec DEVNULL, même sandbox/kill switch, plus `--log-file .kodepoia/logs/godot-services.log`. Les 5 échecs LSP/DAP suivants étaient des cascades du seul échec `services_start`. Le head final de retest `b12c0511cdab1d3c73826afaa402259b26824a33` est entièrement vert : Guard `32543664412`, Python Core `32543664439` Windows+Ubuntu, UI Smoke `32543664411`. Prochaine et seule action locale autorisée : `git pull` puis relancer le full acceptance sans `-ProbeOnly` avec le Godot Steam connu. Si `services_start` échoue encore, fournir aussi `.kodepoia/r5-acceptance/project/.kodepoia/logs/godot-services.log`.** Ne pas fusionner PR #28 et ne pas commencer R6 avant revue d'un full report 19/19, CI final, merge et vérification de `main`.
 
 ## Source de vérité
 
@@ -21,9 +21,10 @@
 - R5.3 : ACCEPTED AND MERGED, PR #25, merge `d2641862b98a969b9adfc905f818e01b3d7e4730`.
 - R5.4 : ACCEPTED AND MERGED, PR #26, merge `b81cf430249e341219dcb759cb49f67697c27782`.
 - R5.5 : ACCEPTED AND MERGED, PR #27, merge `c4409c78eacfa1777d22d7e0995d4db7dbdaa5a2`.
-- R5.6 : IMPLEMENTED / CI ACCEPTED / HARDWARE PROBE 5/5 ACCEPTED / FULL ACCEPTANCE ATTEMPT #1 = 12/19 / TWO ROOT CAUSES FIXED / FULL RETEST PENDING.
+- R5.6 : IMPLEMENTED / CI ACCEPTED / HARDWARE PROBE 5/5 ACCEPTED / FULL ACCEPTANCE ATTEMPT #1 = 12/19 / TWO ROOT CAUSES FIXED / FULL RETEST AUTHORIZED.
 - Active branch: `agent/r5-6-governed-acceptance`.
 - Active PR: #28, OPEN, DO NOT MERGE YET.
+- Final green retest head: `b12c0511cdab1d3c73826afaa402259b26824a33`.
 - R6 : NOT STARTED.
 
 ## Accepted model roles
@@ -92,7 +93,7 @@ Observed:
 - `services_start` timed out after ~120.5 s waiting for port 6005;
 - `lsp_symbols`, `lsp_diagnostics`, `dap_initialize`, `dap_launch_project`, `dap_threads` then failed only because services were not running.
 
-Cause candidate confirmed architecturally: `GodotEditorServices` used `spawn_piped()` for a process whose protocol is socket-based and never drained stdout/stderr. A verbose editor could therefore block on pipe backpressure before opening LSP/DAP ports.
+Cause: `GodotEditorServices` used `spawn_piped()` for a process whose protocol is socket-based and never drained stdout/stderr. A verbose editor could block on pipe backpressure before opening LSP/DAP ports.
 
 Fix:
 1. add `ProcessSandbox.spawn_background()`;
@@ -105,18 +106,16 @@ Fix:
 
 Regression test launches a background child that writes 2 MiB to stdout and 2 MiB to stderr; it must terminate without backpressure and remain kill-switch managed.
 
-## Functional checkpoint after both fixes
+## Final CI before hardware retest
 
-`6b968d284a5f10195cbe465d5c94208f65c3a94e`:
-- Repository Guard `32543313597` SUCCESS;
-- Python Core `32543313587` SUCCESS Windows + Ubuntu, including PowerShell syntax and background-process regression;
-- KodeStudio UI Smoke `32543313595` SUCCESS Windows.
+Head `b12c0511cdab1d3c73826afaa402259b26824a33`:
+- Repository Guard `32543664412` SUCCESS;
+- Python Core `32543664439` SUCCESS Windows + Ubuntu, including PowerShell syntax and embedded UI smoke;
+- KodeStudio UI Smoke `32543664411` SUCCESS Windows.
 
-Documentation commits may make the current branch head newer. Always pull current head; never reset backward to this checkpoint.
+Do not modify or reset the branch before the hardware retest. Pull this current head.
 
 ## Next manual operation — full acceptance retest
-
-Only after current documentation head is fully CI-green:
 
 ```powershell
 cd M:\Kodepoia
@@ -127,6 +126,8 @@ git branch --show-current
 git status
 git log -1 --oneline
 ```
+
+Expected commit prefix: `b12c051`.
 
 If needed:
 

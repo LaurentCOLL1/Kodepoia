@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/build-manifest-v1.schema.json",
+  "title": "Kodepoia Build Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "source_sha", "platform", "python_version", "build_backend", "source_digest_sha256", "dependency_inputs", "artifacts", "metadata", "status", "artifact_counts", "blockers", "evidence_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "platform": {"type": "string", "minLength": 1},
+    "python_version": {"type": "string", "minLength": 1},
+    "build_backend": {"type": "string", "minLength": 1},
+    "source_digest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "dependency_inputs": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "kind", "size_bytes", "sha256", "validated", "validation"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["wheel", "sdist", "other"]},
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "validated": {"type": "boolean"},
+          "validation": {"type": "string"}
+        }
+      }
+    },
+    "metadata": {"type": "object"},
+    "status": {"enum": ["pass", "fail", "unknown"]},
+    "artifact_counts": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+    "blockers": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

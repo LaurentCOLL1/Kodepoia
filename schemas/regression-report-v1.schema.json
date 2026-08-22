@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/regression-report-v1.schema.json",
+  "title": "Kodepoia Regression Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "suite",
+    "baseline_generated_at",
+    "current_generated_at",
+    "status",
+    "regressions",
+    "fixed",
+    "added",
+    "removed",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "suite": {"type": "string", "minLength": 1},
+    "baseline_generated_at": {"type": "string", "format": "date-time"},
+    "current_generated_at": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+    "regressions": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "fixed": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "added": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "removed": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "entries": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/entry"}
+    }
+  },
+  "$defs": {
+    "case_status": {"enum": ["pass", "fail", "error", "skip", null]},
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "change", "baseline_status", "current_status"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "change": {"enum": ["unchanged", "regressed", "fixed", "added", "removed"]},
+        "baseline_status": {"$ref": "#/$defs/case_status"},
+        "current_status": {"$ref": "#/$defs/case_status"}
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/test-run-report-v1.schema.json",
+  "title": "Kodepoia Test Run Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "suite",
+    "platform",
+    "status",
+    "counts",
+    "duration_s",
+    "results"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "suite": {"type": "string", "minLength": 1},
+    "platform": {"type": "string"},
+    "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "passed", "failed", "errors", "skipped"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "errors": {"type": "integer", "minimum": 0},
+        "skipped": {"type": "integer", "minimum": 0}
+      }
+    },
+    "duration_s": {"type": "number", "minimum": 0},
+    "results": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/result"}
+    }
+  },
+  "$defs": {
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "duration_s", "message", "source", "details"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "status": {"enum": ["pass", "fail", "error", "skip"]},
+        "duration_s": {"type": "number", "minimum": 0},
+        "message": {"type": "string"},
+        "source": {"type": "string"},
+        "details": {"type": "object"}
+      }
+    }
+  }
+}

@@ -21,6 +21,22 @@ from kodepoia.quality.health import (
     HealthStore,
     KodeHealth,
 )
+from kodepoia.quality.regression import (
+    KodeRegression,
+    RegressionChange,
+    RegressionEntry,
+    RegressionReport,
+    RegressionStatus,
+    RegressionStore,
+)
+from kodepoia.quality.tests import (
+    KodeTests,
+    TestCaseResult,
+    TestCaseStatus,
+    TestRunReport,
+    TestRunStatus,
+    TestRunStore,
+)
 
 __all__ = [
     "BudgetConstraint",
@@ -39,5 +55,17 @@ __all__ = [
     "HealthStore",
     "KodeBudget",
     "KodeHealth",
+    "KodeRegression",
+    "KodeTests",
     "PlatformBudgetSpec",
+    "RegressionChange",
+    "RegressionEntry",
+    "RegressionReport",
+    "RegressionStatus",
+    "RegressionStore",
+    "TestCaseResult",
+    "TestCaseStatus",
+    "TestRunReport",
+    "TestRunStatus",
+    "TestRunStore",
 ]

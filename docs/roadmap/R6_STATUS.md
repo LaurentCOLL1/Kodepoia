@@ -11,48 +11,42 @@ R1–R5 remain COMPLETE. R6 is active under the frozen architecture v1.0.
 1. **R6.1 — KodeHealth foundation** — COMPLETE — PR #30 merged as `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
 2. **R6.2 — KodeBudget foundation** — COMPLETE — PR #32 merged as `65510a9b116d9c48b185a0edb51d99e5b951200a`.
 
+## Current subdivision
+
+3. **R6.3 — KodeTests + KodeRegression foundation** — IMPLEMENTED / ACCEPTANCE PENDING on `feature/r6-3-tests-regression`.
+
 ## R6.1 accepted scope
 
-R6.1 established the structured KodeHealth contract required by the frozen architecture, including the 14 health dimensions, explicit unknown coverage, blocking failures, validated reports, atomic persistence under `.kodepoia/health/`, WorkspaceBoundary confinement and schema v1.
+R6.1 established KodeHealth with the 14 frozen health dimensions, explicit unknown coverage, blocking failures, validated reports, atomic `.kodepoia/health/` persistence, WorkspaceBoundary confinement and schema v1.
 
-Accepted implementation head: `802de4ba3110ace657c4e16306a0ca29850ce2bd`.
-
-Final R6.1 CI:
-
-- R0 Repository Guard `32561211168` — SUCCESS Windows + Ubuntu;
-- Python Core `32561211156` — SUCCESS Windows + Ubuntu;
-- KodeStudio UI Smoke `32561211167` — SUCCESS Windows.
+Accepted head `802de4ba3110ace657c4e16306a0ca29850ce2bd`; R0 `32561211168`, Python Core `32561211156` and UI Smoke `32561211167` all SUCCESS.
 
 ## R6.2 accepted scope
 
-R6.2 established the per-platform KodeBudget contract without modifying Project DNA or frozen architecture:
+R6.2 established per-platform KodeBudget with 16 architecture-aligned metrics, target/hard-limit semantics, Project DNA derivation for FPS/frame time/RAM/VRAM/build size, explicit observation coverage, blocking failures, validated reports and WorkspaceBoundary persistence under `.kodepoia/budgets/`.
 
-- 16 architecture-aligned budget metrics;
-- per-platform constraints with target and hard-limit semantics;
-- deterministic `pass/warn/fail/unknown` evaluation;
-- Project DNA derivation for FPS/frame time/RAM/VRAM/build size;
-- explicit observation coverage and unconfigured-metric rejection;
-- blocking hard-limit failures;
-- validated report round-trip and derived-field tamper detection;
-- persistence under `.kodepoia/budgets/` using `WorkspaceBoundary`;
-- `schemas/budget-report-v1.schema.json`;
-- focused R6.2 tests and documented rollback.
+Accepted head `8ac3772e98c70260c320519a214bb25b6cedbb38`; R0 `32561719921`, Python Core `32561719925` and UI Smoke `32561720008` all SUCCESS. PR #32 merged as `65510a9b116d9c48b185a0edb51d99e5b951200a`.
 
-Accepted implementation head: `8ac3772e98c70260c320519a214bb25b6cedbb38`.
+## R6.3 delivered scope pending acceptance
 
-Final R6.2 CI:
+R6.3 implements the adjacent roadmap pair Tests + Regression:
 
-- R0 Repository Guard `32561719921` / #603 — SUCCESS Windows + Ubuntu;
-- Python Core `32561719925` / #577 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
-- KodeStudio UI Smoke `32561720008` / #544 — SUCCESS Windows.
+- stable test case IDs and `pass/fail/error/skip` observations;
+- deterministic test-run `unknown/pass/warn/fail` aggregation;
+- validated derived counts and total duration;
+- atomic test-run evidence under `.kodepoia/tests/runs/`;
+- baseline/current comparison by stable test ID;
+- explicit `unchanged/regressed/fixed/added/removed` changes;
+- regression detection for failures/errors, skipped formerly-passing/failing tests, removed cases and added failing tests;
+- validated derived regression lists;
+- atomic regression evidence under `.kodepoia/tests/regression/`;
+- `test-run-report-v1` and `regression-report-v1` schemas;
+- focused R6.3 acceptance tests and documented rollback;
+- no new arbitrary command execution path.
 
-PR #32 merged as `65510a9b116d9c48b185a0edb51d99e5b951200a`.
+Pre-CI isolated core smoke: PASS.
 
-**R6.1 = COMPLETE. R6.2 = COMPLETE.**
-
-## Next subdivision
-
-R6.3 is authorized next and will implement the adjacent frozen-roadmap pair **KodeTests + KodeRegression foundation** from normalized `main`.
+R6.3 remains **ACCEPTANCE PENDING** until final-head R0 Repository Guard, Python Core Windows + Ubuntu, KodeStudio UI Smoke and PR merge all pass.
 
 ## Remaining R6 scope after R6.3
 

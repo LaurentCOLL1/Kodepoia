@@ -26,7 +26,15 @@
       "type": "object", "additionalProperties": false,
       "required": ["path", "domain", "operation", "risk", "platforms", "destructive"],
       "properties": {
-        "path": {"type": "string", "minLength": 1},
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "allOf": [
+            {"not": {"pattern": "^/"}},
+            {"not": {"pattern": "^[A-Za-z]:/"}},
+            {"not": {"pattern": "(^|/)\\.\\.(/|$)"}}
+          ]
+        },
         "domain": {"enum": ["core", "governance", "security", "schema", "public_api", "build", "dependencies", "ui", "visual", "accessibility", "localization", "privacy", "licenses", "performance", "assets", "tests", "documentation", "other"]},
         "operation": {"enum": ["add", "modify", "delete", "rename"]},
         "risk": {"enum": ["low", "medium", "high", "critical"]},
@@ -61,7 +69,22 @@
         "source_sha": {"type": "string", "pattern": "^$|^[0-9a-f]{40}$"},
         "rationale": {"type": "string"},
         "details": {"type": "object"}
-      }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"enum": ["pass", "warn", "fail"]}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "evidence_sha256": {"pattern": "^[0-9a-f]{64}$"},
+              "source_sha": {"pattern": "^[0-9a-f]{40}$"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"status": {"const": "not_applicable"}}, "required": ["status"]},
+          "then": {"properties": {"rationale": {"minLength": 1}}}
+        }
+      ]
     },
     "rollback": {
       "type": "object", "additionalProperties": false,

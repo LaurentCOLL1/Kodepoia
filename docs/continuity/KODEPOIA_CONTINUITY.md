@@ -51,7 +51,7 @@ Accepted and merged subdivisions:
 
 - R5.1 Engine/project foundation — PR #22.
 - R5.2 Scene/resource intelligence — PR #24, merge `7720bfc90951e2180b909004b7fa8320d93a6e27`.
-- R5.3 GDScript + Godot LSP/DAP — PR #25, merge `d2641862b98e5419adfc905f818e01b3d7e4730`.
+- R5.3 GDScript + Godot LSP/DAP — PR #25, merge `d2641862b98a969b9adfc905f818e01b3d7e4730`.
 - R5.4 2D/3D intelligence + safe edits — PR #26, merge `b81cf430249e341219dcb759cb49f67697c27782`.
 - R5.5 automation/import/export/capture/benchmark — PR #27, merge `c4409c78eacfa1777d22d7e0995d4db7dbdaa5a2`.
 - R5.6 governed orchestration + real Godot acceptance — PR #28, merge `ecb0455d179c8c0b2de0a5d1d8a496a0f8f980e8`.

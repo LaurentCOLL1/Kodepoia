@@ -191,6 +191,41 @@ class GodotRuntime:
             timeout=timeout,
         )
 
+    def capture_png_sequence(
+        self,
+        *,
+        scene: str,
+        output_name: str,
+        frames: int = 3,
+        fps: int = 30,
+        timeout: float = 900.0,
+    ) -> GodotInvocationResult:
+        """Capture bounded lossless Movie Maker PNG frames for VisualQA.
+
+        This is deliberately separate from the accepted R5 AVI contract. It
+        keeps real rendering enabled and writes only below the VisualQA runs
+        directory. Godot appends the zero-padded frame index to output_name.
+        """
+        self._require_project()
+        if not 1 <= frames <= 600:
+            raise ValueError("VisualQA capture frames must be between 1 and 600")
+        if not 1 <= fps <= 240:
+            raise ValueError("fps must be between 1 and 240")
+        output_name = self._safe_output_name(output_name)
+        if not output_name.lower().endswith(".png"):
+            raise ValueError("R6.4 visual capture output must use .png")
+        output_dir = self.boundary.root / ".kodepoia" / "visual_tests" / "runs"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        relative = (output_dir / output_name).relative_to(self.boundary.root).as_posix()
+        return self._invoke(
+            "capture-png-sequence",
+            [
+                "--path", ".", "--write-movie", relative,
+                "--fixed-fps", str(fps), "--quit-after", str(frames), "--scene", self._scene_uri(scene),
+            ],
+            timeout=timeout,
+        )
+
     def benchmark_scene(self, *, scene: str | None = None, frames: int = 120, timeout: float = 300.0) -> GodotBenchmarkResult:
         if not 1 <= frames <= 3600:
             raise ValueError("benchmark frames must be between 1 and 3600")

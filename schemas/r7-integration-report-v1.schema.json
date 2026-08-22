@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r7-integration-report-v1.schema.json",
+  "title": "Kodepoia R7 Integration Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "source_sha",
+    "subdivisions",
+    "status",
+    "blockers",
+    "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "subdivisions": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "items": {"$ref": "#/$defs/subdivision"}
+    },
+    "status": {"enum": ["unknown", "pass", "fail"]},
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "subdivision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subdivision",
+        "status",
+        "source",
+        "evidence_sha256",
+        "evidence_bytes",
+        "accepted_head",
+        "manual_state",
+        "manual_satisfied"
+      ],
+      "properties": {
+        "subdivision": {
+          "enum": [
+            "R7.1", "R7.2", "R7.3", "R7.4", "R7.5", "R7.6",
+            "R7.7", "R7.8", "R7.9", "R7.10", "R7.11"
+          ]
+        },
+        "status": {"enum": ["unknown", "pass", "fail"]},
+        "source": {
+          "type": "string",
+          "pattern": "^docs/roadmap/R7_(?:[1-9]|10|11)_ACCEPTANCE\\.md$"
+        },
+        "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "evidence_bytes": {"type": "integer", "minimum": 1},
+        "accepted_head": {"type": "string", "pattern": "^$|^[0-9a-f]{40}$"},
+        "manual_state": {
+          "enum": [
+            "none",
+            "required_satisfied",
+            "conditional_not_triggered",
+            "conditional_satisfied",
+            "required_unsatisfied",
+            "conditional_triggered_unsatisfied"
+          ]
+        },
+        "manual_satisfied": {"type": "boolean"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]},
+          "then": {"properties": {"accepted_head": {"pattern": "^[0-9a-f]{40}$"}}}
+        }
+      ]
+    }
+  }
+}

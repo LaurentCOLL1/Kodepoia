@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE.** R5 — KodeGodot 4.7.x a passé sa vraie acceptation matérielle Windows avec Godot `4.7.2.stable.steam.ed1daf0bf`: `probe_only=false`, `acceptance_completed=true`, **19/19 PASS**, puis PR #28 a été fusionnée en `ecb0455d179c8c0b2de0a5d1d8a496a0f8f980e8`. La source de vérité fusionnée reste `main`. **R6 est IN PROGRESS. R6.1 — KodeHealth foundation est IMPLEMENTED / ACCEPTANCE PENDING sur `feature/r6-1-kodehealth`.** Ne pas marquer R6.1 COMPLETE avant CI verte et merge de la PR. Ne pas rouvrir R5 sans régression démontrée ou changement d'architecture nécessitant un ADR. Lire architecture, ADR, roadmap, `R5_STATUS.md`, `R6_STATUS.md`, puis ce fichier avant de reprendre.
+> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE.** R5 — KodeGodot 4.7.x a passé sa vraie acceptation matérielle Windows avec Godot `4.7.2.stable.steam.ed1daf0bf`: `probe_only=false`, `acceptance_completed=true`, **19/19 PASS**, puis PR #28 a été fusionnée en `ecb0455d179c8c0b2de0a5d1d8a496a0f8f980e8`. La source de vérité fusionnée reste `main`. **R6 est IN PROGRESS. R6.1 — KodeHealth foundation est IMPLEMENTED / ACCEPTANCE PENDING sur `feature/r6-1-kodehealth`; PR #30 est OPEN vers `main`.** Ne pas marquer R6.1 COMPLETE avant CI verte et merge de la PR. Ne pas rouvrir R5 sans régression démontrée ou changement d'architecture nécessitant un ADR. Lire architecture, ADR, roadmap, `R5_STATUS.md`, `R6_STATUS.md`, puis ce fichier avant de reprendre.
 
 ## Source de vérité et état des phases
 
@@ -13,6 +13,7 @@
 - Architecture : v1.0 gelée.
 - Source de vérité fusionnée : `main`.
 - Branche de travail R6.1 : `feature/r6-1-kodehealth`.
+- PR active R6.1 : **#30 — OPEN** contre `main`.
 - R1 : COMPLETE.
 - R2 : COMPLETE.
 - R3 : COMPLETE — hardware-local model acceptance passed.
@@ -109,7 +110,8 @@ PR #28 head `8e9f01d785a691ce03d3b589367b724b073c8cec`:
 
 ### R6.1 — KodeHealth foundation — IMPLEMENTED / ACCEPTANCE PENDING
 
-Working branch: `feature/r6-1-kodehealth`.
+Working branch: `feature/r6-1-kodehealth`.  
+Pull request: **#30 — OPEN** against `main`.
 
 Delivered so far:
 
@@ -124,7 +126,7 @@ Delivered so far:
 
 Local isolated R6.1 test evidence before GitHub CI: **7 passed**.
 
-R6.1 must remain ACCEPTANCE PENDING until repository guard, Python Core Windows + Ubuntu, KodeStudio UI smoke, PR review, merge to `main`, and continuity normalization are complete.
+PR #30 was opened to trigger the authoritative `pull_request` CI gates. R6.1 must remain ACCEPTANCE PENDING until repository guard, Python Core Windows + Ubuntu, KodeStudio UI smoke, PR merge to `main`, and continuity normalization are complete.
 
 ## Next phase action
 

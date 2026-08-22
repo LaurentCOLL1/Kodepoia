@@ -25,6 +25,9 @@ _ID_RE = re.compile(r"^[a-z0-9][a-z0-9_.:-]{1,191}$")
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _DEPENDENCY_NAME_RE = re.compile(r"^\s*([A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?)")
 _SPDX_ALLOWED_RE = re.compile(r"^[A-Za-z0-9.()+:\- ]+$")
+_LICENSE_REF_ONLY_RE = re.compile(
+    r"^(?:DocumentRef-[A-Za-z0-9.-]+:)?LicenseRef-[A-Za-z0-9.-]+$"
+)
 
 
 def _parse_timestamp(value: str, *, field_name: str) -> datetime:
@@ -204,8 +207,10 @@ class LicenseAssertion:
                     "custom_text_sha256",
                     _require_sha256(self.custom_text_sha256, field_name="custom_text_sha256"),
                 )
-                if "LicenseRef-" not in self.expression:
-                    raise ValueError("custom license text hash requires a LicenseRef expression")
+                if not _LICENSE_REF_ONLY_RE.fullmatch(self.expression):
+                    raise ValueError(
+                        "custom license text hash requires one unambiguous LicenseRef expression"
+                    )
         else:
             if self.expression.strip() or self.custom_text_sha256:
                 raise ValueError("NOASSERTION/NONE license assertion cannot carry expression data")
@@ -291,14 +296,23 @@ class BomComponent:
             )
         if self.resolution is ComponentResolution.RESOLVED and not self.version.strip():
             raise ValueError("resolved component requires exact version")
-        if self.resolution is ComponentResolution.UNRESOLVED and self.version.strip():
-            raise ValueError("unresolved component cannot claim an exact version")
+        if self.resolution in {ComponentResolution.UNRESOLVED, ComponentResolution.NOT_APPLICABLE} and self.version.strip():
+            raise ValueError("unresolved/not-applicable component cannot claim an exact version")
+        if self.resolution is ComponentResolution.NOT_APPLICABLE:
+            if self.integrity.status is not IntegrityStatus.NOT_APPLICABLE:
+                raise ValueError("not-applicable component requires not-applicable integrity evidence")
+        elif self.integrity.status is IntegrityStatus.NOT_APPLICABLE:
+            raise ValueError("applicable component cannot use not-applicable integrity evidence")
         if self.purl and not self.purl.startswith("pkg:"):
             raise ValueError("component purl must start with pkg:")
         requirement_keys = [(item.group, item.requirement, item.source) for item in self.requirements]
         if len(requirement_keys) != len(set(requirement_keys)):
             raise ValueError("component requirements must be unique")
-        object.__setattr__(self, "requirements", tuple(sorted(self.requirements, key=lambda x: (x.group, x.requirement))))
+        object.__setattr__(
+            self,
+            "requirements",
+            tuple(sorted(self.requirements, key=lambda x: (x.group, x.requirement))),
+        )
         object.__setattr__(self, "details", dict(redact_sensitive(self.details)))
 
     def to_dict(self) -> dict[str, Any]:
@@ -365,9 +379,21 @@ class BomReport:
             "assets": sum(item.kind is ComponentKind.ASSET for item in self.components),
             "resolved": sum(item.resolution is ComponentResolution.RESOLVED for item in self.components),
             "unresolved": sum(item.resolution is ComponentResolution.UNRESOLVED for item in self.components),
-            "integrity_recorded": sum(item.integrity.status is IntegrityStatus.RECORDED for item in self.components),
-            "integrity_unknown": sum(item.integrity.status is IntegrityStatus.UNKNOWN for item in self.components),
-            "integrity_mismatch": sum(item.integrity.status is IntegrityStatus.MISMATCH for item in self.components),
+            "not_applicable": sum(
+                item.resolution is ComponentResolution.NOT_APPLICABLE for item in self.components
+            ),
+            "integrity_recorded": sum(
+                item.integrity.status is IntegrityStatus.RECORDED for item in self.components
+            ),
+            "integrity_unknown": sum(
+                item.integrity.status is IntegrityStatus.UNKNOWN for item in self.components
+            ),
+            "integrity_mismatch": sum(
+                item.integrity.status is IntegrityStatus.MISMATCH for item in self.components
+            ),
+            "integrity_not_applicable": sum(
+                item.integrity.status is IntegrityStatus.NOT_APPLICABLE for item in self.components
+            ),
         }
 
     @property
@@ -375,7 +401,8 @@ class BomReport:
         return tuple(
             f"integrity:{item.id}"
             for item in self.components
-            if item.integrity.status is IntegrityStatus.MISMATCH
+            if item.resolution is not ComponentResolution.NOT_APPLICABLE
+            and item.integrity.status is IntegrityStatus.MISMATCH
         )
 
     def _payload(self) -> dict[str, Any]:
@@ -554,7 +581,11 @@ class LicenseDecision:
     evidence_source: str
 
     def __post_init__(self) -> None:
-        object.__setattr__(self, "component_id", _stable_id(self.component_id, field_name="decision component id"))
+        object.__setattr__(
+            self,
+            "component_id",
+            _stable_id(self.component_id, field_name="decision component id"),
+        )
         if not self.license_token.strip() or not self.policy_source.strip() or not self.evidence_source.strip():
             raise ValueError("license decision token/policy_source/evidence_source cannot be empty")
 
@@ -678,18 +709,23 @@ class LicenseReport:
         generated_at: str | None = None,
     ) -> "LicenseReport":
         bom.validate()
-        decisions = tuple(
-            LicenseDecision(
-                component_id=item.id,
-                license_token=item.concluded_license.spdx_token,
-                action=policy.evaluate(item.concluded_license)[0],
-                policy_source=policy.evaluate(item.concluded_license)[1],
-                evidence_source=item.concluded_license.evidence_source,
+        decisions: list[LicenseDecision] = []
+        for item in bom.components:
+            if item.resolution is ComponentResolution.NOT_APPLICABLE:
+                continue
+            action, policy_source = policy.evaluate(item.concluded_license)
+            decisions.append(
+                LicenseDecision(
+                    component_id=item.id,
+                    license_token=item.concluded_license.spdx_token,
+                    action=action,
+                    policy_source=policy_source,
+                    evidence_source=item.concluded_license.evidence_source,
+                )
             )
-            for item in bom.components
-        )
+        decision_tuple = tuple(decisions)
         timestamp = generated_at or datetime.now(UTC).isoformat().replace("+00:00", "Z")
-        status = KodeLicense.status_for(decisions, inventory_complete=bom.inventory_complete)
+        status = KodeLicense.status_for(decision_tuple, inventory_complete=bom.inventory_complete)
         provisional = cls(
             timestamp,
             bom.project_name,
@@ -698,7 +734,7 @@ class LicenseReport:
             bom.inventory_review_source,
             policy.name,
             policy.fingerprint,
-            decisions,
+            decision_tuple,
             status,
             "",
         )
@@ -710,7 +746,7 @@ class LicenseReport:
             bom.inventory_review_source,
             policy.name,
             policy.fingerprint,
-            decisions,
+            decision_tuple,
             status,
             _sha256(provisional._payload()),
         )
@@ -748,16 +784,19 @@ class KodeBOM:
         components: Iterable[BomComponent], *, inventory_complete: bool
     ) -> BomStatus:
         values = tuple(components)
-        if not values:
+        applicable = tuple(
+            item for item in values if item.resolution is not ComponentResolution.NOT_APPLICABLE
+        )
+        if not applicable:
             return BomStatus.UNKNOWN
-        if any(item.integrity.status is IntegrityStatus.MISMATCH for item in values):
+        if any(item.integrity.status is IntegrityStatus.MISMATCH for item in applicable):
             return BomStatus.FAIL
         if not inventory_complete:
             return BomStatus.WARN
         if any(
             item.resolution is ComponentResolution.UNRESOLVED
-            or item.integrity.status is IntegrityStatus.UNKNOWN
-            for item in values
+            or item.integrity.status is not IntegrityStatus.RECORDED
+            for item in applicable
         ):
             return BomStatus.WARN
         return BomStatus.PASS
@@ -863,6 +902,9 @@ class KodeBOM:
         """Return an SPDX 3.0-family normalization view, not a conformance claim."""
 
         report.validate()
+        applicable = [
+            item for item in report.components if item.resolution is not ComponentResolution.NOT_APPLICABLE
+        ]
         return {
             "spdx_baseline": report.spdx_baseline,
             "spdx_serialization_version": report.spdx_serialization_version,
@@ -881,7 +923,12 @@ class KodeBOM:
                     "concluded_license": item.concluded_license.spdx_token,
                     "integrity": item.integrity.to_dict(),
                 }
+                for item in applicable
+            ],
+            "not_applicable_component_ids": [
+                item.id
                 for item in report.components
+                if item.resolution is ComponentResolution.NOT_APPLICABLE
             ],
             "conformance_claim": False,
         }
@@ -889,22 +936,28 @@ class KodeBOM:
     @staticmethod
     def to_dependencies_health_metric(report: BomReport) -> HealthMetric:
         report.validate()
-        packages = [item for item in report.components if item.kind is ComponentKind.PACKAGE]
+        packages = [
+            item
+            for item in report.components
+            if item.kind is ComponentKind.PACKAGE
+            and item.resolution is not ComponentResolution.NOT_APPLICABLE
+        ]
         if not packages:
             return HealthMetric(
                 dimension=HealthDimension.DEPENDENCIES,
                 status=HealthStatus.UNKNOWN,
-                summary="No package dependency evidence is available",
+                summary="No applicable package dependency evidence is available",
                 source="KodeBOM",
                 details={"bom_evidence_sha256": report.evidence_sha256},
             )
+        package_status = KodeBOM.status_for(packages, inventory_complete=report.inventory_complete)
         status_map = {
             BomStatus.PASS: HealthStatus.PASS,
             BomStatus.WARN: HealthStatus.WARN,
             BomStatus.FAIL: HealthStatus.FAIL,
             BomStatus.UNKNOWN: HealthStatus.UNKNOWN,
         }
-        status = status_map[report.status]
+        status = status_map[package_status]
         if status is HealthStatus.UNKNOWN:
             return HealthMetric(
                 dimension=HealthDimension.DEPENDENCIES,
@@ -917,7 +970,10 @@ class KodeBOM:
         for item in packages:
             if item.integrity.status is IntegrityStatus.MISMATCH:
                 weights.append(0.0)
-            elif item.resolution is ComponentResolution.RESOLVED and item.integrity.status is IntegrityStatus.RECORDED:
+            elif (
+                item.resolution is ComponentResolution.RESOLVED
+                and item.integrity.status is IntegrityStatus.RECORDED
+            ):
                 weights.append(100.0)
             elif item.resolution is ComponentResolution.RESOLVED:
                 weights.append(70.0)
@@ -931,11 +987,12 @@ class KodeBOM:
             status=status,
             score=round(score, 2),
             summary=(
-                f"{report.counts['resolved']} resolved and {report.counts['unresolved']} unresolved "
-                "BOM component(s)"
+                f"{sum(item.resolution is ComponentResolution.RESOLVED for item in packages)} resolved "
+                f"and {sum(item.resolution is ComponentResolution.UNRESOLVED for item in packages)} "
+                "unresolved applicable package dependency component(s)"
             ),
             source="KodeBOM",
-            blocking=bool(report.blockers),
+            blocking=any(item.integrity.status is IntegrityStatus.MISMATCH for item in packages),
             details={
                 "counts": report.counts,
                 "blockers": list(report.blockers),
@@ -949,11 +1006,13 @@ class KodeBOM:
         report.validate()
         cases: list[TestCaseResult] = []
         for item in report.components:
-            if item.integrity.status is IntegrityStatus.MISMATCH:
+            if item.resolution is ComponentResolution.NOT_APPLICABLE:
+                status = TestCaseStatus.SKIP
+            elif item.integrity.status is IntegrityStatus.MISMATCH:
                 status = TestCaseStatus.FAIL
             elif (
                 item.resolution is ComponentResolution.RESOLVED
-                and item.integrity.status in {IntegrityStatus.RECORDED, IntegrityStatus.NOT_APPLICABLE}
+                and item.integrity.status is IntegrityStatus.RECORDED
             ):
                 status = TestCaseStatus.PASS
             else:

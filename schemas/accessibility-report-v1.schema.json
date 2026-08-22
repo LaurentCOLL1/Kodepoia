@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/accessibility-report-v1.schema.json",
+  "title": "Kodepoia Accessibility Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "surface",
+    "status",
+    "results",
+    "counts",
+    "blockers",
+    "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "minLength": 1},
+    "surface": {"type": "string", "minLength": 1},
+    "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule_id",
+          "target_id",
+          "status",
+          "severity",
+          "summary",
+          "evidence",
+          "applicability_reason",
+          "blocking"
+        ],
+        "properties": {
+          "rule_id": {"type": "string", "minLength": 1},
+          "target_id": {"type": "string", "minLength": 1},
+          "status": {"enum": ["unknown", "pass", "warn", "fail", "not_applicable"]},
+          "severity": {"enum": ["info", "minor", "major", "critical"]},
+          "summary": {"type": "string"},
+          "evidence": {"type": "object"},
+          "applicability_reason": {"type": "string"},
+          "blocking": {"type": "boolean"}
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "applicable",
+        "passed",
+        "warnings",
+        "failed",
+        "unknown",
+        "not_applicable",
+        "blocking_failures"
+      ],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "applicable": {"type": "integer", "minimum": 0},
+        "passed": {"type": "integer", "minimum": 0},
+        "warnings": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "unknown": {"type": "integer", "minimum": 0},
+        "not_applicable": {"type": "integer", "minimum": 0},
+        "blocking_failures": {"type": "integer", "minimum": 0}
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule_id", "target_id"],
+        "properties": {
+          "rule_id": {"type": "string", "minLength": 1},
+          "target_id": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "evidence_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

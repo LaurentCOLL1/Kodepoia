@@ -1,4 +1,4 @@
-"""Secure, typed KodeResearch contracts and project-local persistence."""
+"""Secure, typed KodeResearch contracts and governed research adapters."""
 
 from kodepoia.intelligence.research.contracts import (
     ResearchArtifact,
@@ -13,9 +13,25 @@ from kodepoia.intelligence.research.contracts import (
     ResearchStatus,
     ResearchTrust,
 )
+from kodepoia.intelligence.research.documents import (
+    DocumentChunk,
+    DocumentFormat,
+    DocumentResearchResult,
+    LocalDocumentAdapter,
+    OfficialDocEntry,
+    OfficialDocsAdapter,
+    OfficialDocsManifest,
+)
 from kodepoia.intelligence.research.store import ResearchStore
 
 __all__ = [
+    "DocumentChunk",
+    "DocumentFormat",
+    "DocumentResearchResult",
+    "LocalDocumentAdapter",
+    "OfficialDocEntry",
+    "OfficialDocsAdapter",
+    "OfficialDocsManifest",
     "ResearchArtifact",
     "ResearchCitation",
     "ResearchFinding",

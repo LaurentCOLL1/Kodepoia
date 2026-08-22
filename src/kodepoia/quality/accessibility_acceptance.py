@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from kodepoia.kodecode.workspace import WorkspaceBoundary
+from kodepoia.kodecode.workspace import WorkspaceBoundary, WorkspaceViolation
 from kodepoia.quality.accessibility import AccessibilityReportStatus, AccessibilityStore
 
 
@@ -90,7 +90,7 @@ MANUAL_CHECKS = (
         "narrator.security_actions",
         "narrator",
         "Navigate to Security and focus Stop all protected processes and Reset emergency stop without activating the emergency stop.",
-        "Narrator announces both action names, button roles, and enough description to distinguish the dangerous stop action from reset.",
+        "Narrator announces meaningful names and button roles for both actions so they can be distinguished without activating either control.",
     ),
     ManualAccessibilityCheck(
         "narrator.wizard_fields",
@@ -354,7 +354,13 @@ def main(argv: list[str] | None = None) -> int:
                 source_head=args.head,
                 responses_path=Path(args.responses).resolve(strict=True),
             )
-    except (FileNotFoundError, RuntimeError, ValueError, json.JSONDecodeError) as exc:
+    except (
+        FileNotFoundError,
+        RuntimeError,
+        ValueError,
+        WorkspaceViolation,
+        json.JSONDecodeError,
+    ) as exc:
         print(json.dumps({"error": str(exc), "acceptance_completed": False}, indent=2))
         return 1
     print(json.dumps(payload, indent=2, sort_keys=True))

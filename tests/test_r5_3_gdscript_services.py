@@ -39,7 +39,7 @@ class FakeSandbox:
         self.calls: list[tuple[list[str], Path | None]] = []
         self.process = FakeProcess()
 
-    def spawn_piped(self, argv: list[str], *, cwd: Path | None = None, env=None):
+    def spawn_background(self, argv: list[str], *, cwd: Path | None = None, env=None):
         del env
         self.calls.append((list(argv), cwd))
         return self.process

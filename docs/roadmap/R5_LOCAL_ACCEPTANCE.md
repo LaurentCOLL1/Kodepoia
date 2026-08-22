@@ -12,18 +12,7 @@ R5.6 is not complete until the target Windows workstation passes the governed Go
 
 ## Accepted probe
 
-After correcting the original foreground `ProcessSandbox.run()` pipe-draining defect, the fresh probe passed **5/5**:
-
-```text
-engine_version      PASS  ~0.094 s
-project_inspect     PASS
-scene_parse         PASS
-gdscript_inspect    PASS
-export_presets      PASS
-summary             5/5 PASS, failed=0
-```
-
-The probe report correctly had `probe_only=true` and `acceptance_completed=false`.
+After correcting the original foreground `ProcessSandbox.run()` pipe-draining defect, the fresh probe passed **5/5**. The probe report correctly had `probe_only=true` and `acceptance_completed=false`.
 
 ## Full acceptance attempt #1 — 12/19
 
@@ -44,22 +33,15 @@ The seven failures reduce to exactly two independent root causes.
 
 ### A. Movie capture used headless/dummy rendering — fixed
 
-Observed failure:
-- `capture_movie` returned Windows code `3221225477`;
-- Godot crashed in `dummy/storage/texture_storage.h::texture_2d_get`.
+Observed failure: `capture_movie` returned Windows code `3221225477` and Godot crashed in `dummy/storage/texture_storage.h::texture_2d_get`.
 
-Cause: Kodepoia combined `--headless` with `--write-movie`. Godot's headless mode disables normal rendering, while Movie Maker requires actual rendered frames.
+Cause: Kodepoia combined `--headless` with `--write-movie`. Godot headless disables normal rendering, while Movie Maker requires rendered frames.
 
-Fix:
-- remove `--headless` from Movie Maker only;
-- retain ProcessSandbox governance, project path, confined output name, bounded frames/FPS/timeout and scene validation;
-- continue using headless mode for import, smoke and export where appropriate.
+Fix: remove `--headless` from Movie Maker only; retain ProcessSandbox governance, project path, confined output, bounded frames/FPS/timeout and scene validation.
 
 ### B. Persistent socket services used unread PIPEs — fixed
 
-Observed failure:
-- `services_start` timed out waiting for LSP port 6005;
-- the five later LSP/DAP checks failed only because services had not started.
+Observed failure: `services_start` timed out waiting for LSP port 6005; the five later LSP/DAP checks failed only because services had not started.
 
 Cause: the long-lived Godot editor used `spawn_piped()` even though LSP/DAP communicate over loopback sockets. Its stdout/stderr were never drained, creating the same pipe-backpressure class previously fixed for foreground `run()`.
 
@@ -72,19 +54,19 @@ Fix:
 - add `--log-file .kodepoia/logs/godot-services.log` so startup remains diagnosable;
 - include a bounded log tail in service-start errors.
 
-## CI checkpoints
+## CI proof
 
-Functional head after both fixes: `6b968d284a5f10195cbe465d5c94208f65c3a94e`:
+Functional correction checkpoint `6b968d284a5f10195cbe465d5c94208f65c3a94e`:
 - Repository Guard `32543313597` — SUCCESS;
 - Python Core `32543313587` — SUCCESS Windows + Ubuntu;
 - KodeStudio UI Smoke `32543313595` — SUCCESS.
 
-Documentation/continuity head `c6b04c8b79b6566db535e792b0c14745fd48cbb2`:
-- Repository Guard `32543456882` — SUCCESS;
-- Python Core `32543456800` — SUCCESS Windows + Ubuntu, PowerShell syntax and embedded UI smoke;
-- KodeStudio UI Smoke `32543456787` — SUCCESS.
+Retest-gate checkpoint `b12c0511cdab1d3c73826afaa402259b26824a33`:
+- Repository Guard `32543664412` — SUCCESS;
+- Python Core `32543664439` — SUCCESS Windows + Ubuntu;
+- KodeStudio UI Smoke `32543664411` — SUCCESS.
 
-A later documentation commit may make the branch head newer. Always pull the current remote head; never reset backward to a checkpoint.
+A later documentation commit may make the current branch head newer. These are proof checkpoints only. **Always pull the current remote head; never reset backward to a checkpoint.**
 
 ## Full acceptance retest — authorized
 
@@ -105,21 +87,13 @@ git status
 git log -1 --oneline
 ```
 
-Expected branch:
-
-```text
-agent/r5-6-governed-acceptance
-```
-
-If `git pull` is blocked by tracked local changes, do not use `git reset --hard`; send `git status` for review.
+Expected branch: `agent/r5-6-governed-acceptance`. It must be current with origin and clean. Do not require or reset to an old checkpoint SHA.
 
 ### 2. Activate Python if necessary
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
-
-Do not change machine-wide PowerShell execution policy.
 
 ### 3. Run the complete acceptance
 
@@ -130,13 +104,7 @@ Run **without `-ProbeOnly`**:
   -GodotPath "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
 ```
 
-The runner recreates the disposable fixture below:
-
-```text
-.kodepoia/r5-acceptance/project
-```
-
-and writes evidence to:
+Evidence is written to:
 
 ```text
 .kodepoia/benchmarks/r5-local-acceptance.json
@@ -151,7 +119,7 @@ summary.failed=0
 Passed 19/19
 ```
 
-The corrected steps that specifically need confirmation are:
+Corrected checks that specifically need confirmation:
 - `capture_movie` PASS and non-empty AVI;
 - `services_start` PASS with LSP/DAP initialized;
 - `lsp_symbols` PASS;
@@ -160,7 +128,7 @@ The corrected steps that specifically need confirmation are:
 - `dap_launch_project` PASS;
 - `dap_threads` PASS.
 
-The previously passing checks must remain passing, including real Windows export and audit verification.
+Previously passing checks must remain passing, including real Windows export and audit verification.
 
 ## If services still fail
 
@@ -170,7 +138,7 @@ Always send the JSON report and PowerShell summary. Also attach:
 M:\Kodepoia\.kodepoia\r5-acceptance\project\.kodepoia\logs\godot-services.log
 ```
 
-The runner's error should also contain a bounded tail of this file.
+The startup error should also contain a bounded tail of this file.
 
 ## What not to do
 

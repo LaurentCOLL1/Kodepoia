@@ -89,7 +89,7 @@ def test_research_page_exposes_keyboard_accessible_controls(tmp_path: Path) -> N
         expected_ids=MAIN_REQUIRED_CONTROL_IDS,
         generated_at="2026-08-22T20:00:00Z",
     )
-    assert not report.blocked
+    assert not report.blockers
     window.close()
 
 

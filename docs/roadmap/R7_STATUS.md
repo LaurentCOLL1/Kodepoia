@@ -3,7 +3,7 @@
 **Phase:** R7 — Research sécurisé  
 **Overall status:** IN PROGRESS  
 **Planning:** ACCEPTED  
-**Current subdivision:** R7.3 NOT STARTED  
+**Current subdivision:** R7.4 NOT STARTED  
 **Manual blocker:** NONE
 
 ## Subdivision status
@@ -12,7 +12,7 @@
 | --- | --- | --- | --- | --- |
 | R7.1 | KodeResearch contracts + ResearchGuard hardening | COMPLETE | `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca` | NONE |
 | R7.2 | Local + official documentation research | COMPLETE | `9101e686a32b24bb33a23d7ac578bf25570e115e` | NONE |
-| R7.3 | Governed Web fetch + extraction | NOT STARTED | — | NONE |
+| R7.3 | Governed Web fetch + extraction | COMPLETE | `4efd2cb016e774fa3ef06590ffda377606d875e9` | NONE |
 | R7.4 | GitHub research adapter | NOT STARTED | — | CONDITIONAL |
 | R7.5 | Community/forums research normalization | NOT STARTED | — | NONE |
 | R7.6 | YouTube metadata + transcript ingestion | NOT STARTED | — | CONDITIONAL |
@@ -50,6 +50,16 @@
 - preceding head `61eb6fbaf73066274249b3e490695bb0d4ff122c` was rejected after Python Core #937 exposed one Windows-only POSIX-root path-validation regression; final head fixes it with native + POSIX + Windows path semantics;
 - acceptance source: `docs/roadmap/R7_2_ACCEPTANCE.md`.
 
+## R7.3 acceptance
+
+- implementation head `4efd2cb016e774fa3ef06590ffda377606d875e9`;
+- implementation PR #64 merge `cde4f7fd727c6940c6a434f85fabc2ced27f04c5`;
+- R0 #968 / `32586392901` SUCCESS;
+- Python Core #942 / `32586392898` SUCCESS, 5/5 jobs; Ubuntu authoritative suite: 369 passed / 3 skipped / 46 warnings;
+- KodeStudio UI Smoke #909 / `32586392883` SUCCESS;
+- manual NONE;
+- acceptance source: `docs/roadmap/R7_3_ACCEPTANCE.md`.
+
 ## Next authorized action
 
-Start **R7.3 — Governed Web fetch + extraction** only after this R7.2 normalization PR is accepted and merged. R7.3 may add a bounded read-only HTTP(S) research transport, but must preserve the frozen trust boundary: typed requests only, redirect/SSRF/size/MIME/time/rate limits, deterministic fake transport for CI, and all extracted external text routed through the existing `ResearchGuard`.
+Start **R7.4 — GitHub research adapter** only after this R7.3 normalization PR is accepted and merged. R7.4 must remain read-only, typed and provenance-preserving; prefer immutable commit-SHA locators, pass README/issue/PR/comment content through `ResearchGuard`, preserve pagination/rate-limit evidence, expose no GitHub write operation or arbitrary GraphQL, and resolve optional credentials only outside model context through the existing secret boundary.

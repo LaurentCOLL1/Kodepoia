@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import subprocess
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import BinaryIO, Mapping, Sequence
@@ -179,21 +178,15 @@ class ProcessSandbox:
             shell=False,
         )
         self.kill_switch.register(process)
-        start = time.monotonic()
         timed_out = False
         cancelled = False
         try:
-            while process.poll() is None:
-                if self.kill_switch.triggered:
-                    cancelled = True
-                    self.kill_switch._stop_process(process)
-                    break
-                if timeout >= 0 and time.monotonic() - start >= timeout:
-                    timed_out = True
-                    self.kill_switch._stop_process(process)
-                    break
-                time.sleep(0.02)
-            stdout, stderr = process.communicate()
+            try:
+                stdout, stderr = process.communicate(timeout=None if timeout < 0 else timeout)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                self.kill_switch._stop_process(process)
+                stdout, stderr = process.communicate()
             if self.kill_switch.triggered and not timed_out and process.returncode != 0:
                 cancelled = True
         finally:

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R6 COMPLETE. Planning R7 ACCEPTED. R7.1–R7.8 COMPLETE ; R7.9 NOT STARTED.** R7.8 a été accepté sur le head exact `deb5de415541004fb07bfbc6d955e9d76d717533` avec R0 #1001 / `32595358745`, Python Core #975 / `32595358772` cinq jobs SUCCESS, suite Ubuntu `460 passed / 4 skipped / 46 warnings`, UI Smoke #942 / `32595358734` SUCCESS; PR #74 merge `f0de53379d6a8eb1883137946db4f2731cb9830a`; manual R7.8 = NONE. **La prochaine implémentation autorisée est R7.9 — Research cache + Context/Memory orchestration**, uniquement après fusion de la normalisation R7.8. R7.9 manual = NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R6 COMPLETE. Planning R7 ACCEPTED. R7.1–R7.9 COMPLETE ; R7.10 NOT STARTED.** R7.9 a été accepté sur le head exact `80390f95a11e5b3d4353b16eada26f10204bb4fa` avec R0 #1018 / `32596697106`, Python Core #992 / `32596697107` cinq jobs SUCCESS, suite Ubuntu `483 passed / 4 skipped / 46 warnings`, UI Smoke #959 / `32596697121` SUCCESS; PR #76 merge `5406887055117e7fea5cdd27579fb27b41051ed1`; manual R7.9 = NONE. **La prochaine implémentation autorisée est R7.10 — CLI + KodeStudio Research UX**, uniquement après fusion de la normalisation R7.9. R7.10 manual = NONE.
 
 ## Source de vérité et état
 
@@ -21,7 +21,8 @@
 - R7.6 : COMPLETE — head `b623836b8f5bd39fce101eca7fe4653a996a9562`; R0 #980, Python #954 5/5 (`432 passed / 3 skipped / 46 warnings` Ubuntu), UI #921; PR #70 merge `15216b59e14d692ff1e850812d572632bad5a88b`; manual CONDITIONAL NOT TRIGGERED.
 - R7.7 : COMPLETE — head `04cef94c82fdacafe7313d27c8cf516e8e765295`; R0 #997, Python #971 5/5 (`443 passed / 4 skipped / 46 warnings` Ubuntu), UI #938; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual REQUIRED SATISFIED.
 - R7.8 : COMPLETE — head `deb5de415541004fb07bfbc6d955e9d76d717533`; R0 #1001 / `32595358745`; Python #975 / `32595358772` 5/5 (`460 passed / 4 skipped / 46 warnings` Ubuntu); UI #942 / `32595358734`; PR #74 merge `f0de53379d6a8eb1883137946db4f2731cb9830a`; manual NONE.
-- R7.9–R7.11 : NOT STARTED; next = R7.9.
+- R7.9 : COMPLETE — head `80390f95a11e5b3d4353b16eada26f10204bb4fa`; R0 #1018 / `32596697106`; Python #992 / `32596697107` 5/5 (`483 passed / 4 skipped / 46 warnings` Ubuntu); UI #959 / `32596697121`; PR #76 merge `5406887055117e7fea5cdd27579fb27b41051ed1`; manual NONE.
+- R7.10–R7.11 : NOT STARTED; next = R7.10.
 - R8–R16 : PENDING / NOT STARTED.
 
 ## R7 frozen structure
@@ -53,6 +54,8 @@ Aucune subdivision ne peut être ajoutée, supprimée, fusionnée, scindée ou r
 - R7.5 Community préserve auteur/thread/parent/timestamps/états/quotes; `authority_class=community`; popularité n'est jamais autorité.
 - R7.6 YouTube sépare metadata/transcript, respecte les restrictions OAuth captions, préserve timing/provenance et n'ajoute aucun téléchargement audiovisuel ou contournement.
 - R7.7 local-media réutilise WorkspaceBoundary/Guardian/ProcessSandbox/KillSwitch; FFmpeg/whisper.cpp/model sont hashés; STT/frames/cleanup ont passé le gate Windows exact-head; vision reste UNAVAILABLE sans provider réel.
+- R7.8 ajoute la version/provenance explicite sans inventer d'exact match ni de fraîcheur.
+- R7.9 cache et orchestre les preuves sans transformer cache hit, résumé ou Memory en nouvelle autorité.
 
 ## R7.7 accepted local-media baseline
 
@@ -85,19 +88,38 @@ Aucune subdivision ne peut être ajoutée, supprimée, fusionnée, scindée ou r
 - Report/schema : IDs/groupes/digest recalculés au load, tampering/missing refs fail closed.
 - Aucun nouveau network/process/secret/UI surface; rollback supprime seulement la couche dérivée.
 
-## R7.9 execution contract
+## R7.9 accepted cache/context/memory baseline
 
-R7.9 est la prochaine subdivision autorisée après fusion de cette normalisation. Exigences gelées :
+- Accepted head `80390f95a11e5b3d4353b16eada26f10204bb4fa`.
+- Cache key : normalized query + scope hash + source selectors + target constraint + version evidence + cache policy; `request_id` est conservé comme provenance mais ne sépare pas deux requêtes équivalentes.
+- Query manifest ne persiste ni query brute ni nom de scope brut.
+- Cache TTL/freshness est un état de réutilisation dérivé, jamais une preuve que la source est `CURRENT`.
+- Mutable source = TTL court; STALE exige revalidation explicite avant de faire avancer l'âge du cache.
+- Revalidation échoue si source identity, version evidence ou content identity change.
+- L'empreinte version d'un artefact conserve la version source déclarée avec l'observation R7.8 normalisée afin qu'une collision d'ancien `artifact_id` ne fusionne pas silencieusement deux versions.
+- Dedupe = source identity + version evidence + content hash; provenance conservée.
+- Cache reload repasse par `ResearchStore` et les validations typed/hash/ResearchGuard; tampering fail closed.
+- Context summary = extractif, borné, citations + artifact IDs, fraîcheur/version/guard indicators, secret redaction et trust `external_guarded_untrusted`.
+- Une finding trop longue est tronquée de façon déterministe à la plus grande taille qui tient réellement dans le rendu; le budget ne dépend plus d'un overhead approximatif.
+- Suspicious ResearchGuard evidence survit au Context roundtrip.
+- Memory bridge = opt-in explicite, scope `project:*`, kind `research_summary_untrusted`, `allow_global_memory=false`, `allow_training_dataset=false`.
+- Aucun LLM summary/cache hit/memory index n'est promu automatiquement en Experience globale validée.
+- Le head rejeté `2a092335ca3dc7d7fb39fc9e1ef177f0c9d16251` et ses deux échecs Ubuntu restent documentés dans `R7_9_ACCEPTANCE.md`; aucun faux PASS n'a été fabriqué.
 
-- cache et manifests sous `.kodepoia/research/` via WorkspaceBoundary;
-- query/result manifests déterministes, versionnés et hashés;
-- TTL/revalidation explicites selon source/mutability/freshness; aucun cache hit ne fabrique CURRENT;
-- déduplication par source/version/content hash avec provenance conservée;
-- invalidation par source identity, version evidence, content hash et policy/version du cache;
-- synthèses de contexte bornées avec citations et evidence IDs, sans perdre le statut untrusted/guarded;
-- injection d'un résumé de recherche dans Context/Memory ne transforme jamais celui-ci en expérience globale validée;
-- les artefacts/citations originaux restent la preuve autoritaire et peuvent être rechargés/recalculés;
-- aucune donnée secrète ne doit entrer dans les manifests/context summaries;
+## R7.10 execution contract
+
+R7.10 est la prochaine subdivision autorisée après fusion de cette normalisation. Exigences gelées :
+
+- exposer des commandes CLI structurées pour query/fetch/show/cache/status/media capability en réutilisant les mêmes services Research acceptés, sans créer une seconde logique de confiance;
+- ajouter la surface KodeStudio Research avec filtres de sources, badges version/freshness, citations, avertissement contenu suspect, états blocked/unavailable/unknown/stale et action cancel;
+- UI et CLI doivent appeler les mêmes APIs de service; aucune commande terminal arbitraire, aucun navigateur général et aucun argv/host/cwd fourni directement par le modèle;
+- toute action network/media continue à passer par Guardian/PermissionSet et les primitives R7.3–R7.7; cancellation doit être effective et ne pas laisser de processus ou cache partiel présenté comme succès;
+- les résultats affichent source class, locator, retrieved/published/version/freshness/trust/provenance pertinents et distinguent explicitement UNKNOWN/BLOCKED/UNAVAILABLE/STALE de PASS/CURRENT;
+- copy/export conserve citations, source identity et provenance plutôt que du texte détaché de sa preuve;
+- aucun secret ou valeur d'authentification ne doit être affiché, copié ou persisté dans l'UX;
+- navigation clavier/focus, hooks accessibilité/localisation et pseudo-localisation doivent rester compatibles avec les gates R6;
+- le UI Smoke Windows doit exercer la surface sans dépendre d'Internet public ni de provider live;
+- aucun travail R7.11 d'acceptance intégrée/adversarial final ne doit être avancé silencieusement dans R7.10;
 - manual = NONE.
 
 ## Permanent architecture/security boundaries
@@ -113,4 +135,4 @@ Preserve without reinterpretation: `WorkspaceBoundary`; ProcessSandbox + global 
 
 ## Next action
 
-**R7.1–R7.8 COMPLETE. R7.9 NOT STARTED.** Après fusion de la normalisation R7.8, commencer **R7.9 — Research cache + Context/Memory orchestration**. Manual gate = NONE.
+**R7.1–R7.9 COMPLETE. R7.10 NOT STARTED.** Après fusion de la normalisation R7.9, commencer **R7.10 — CLI + KodeStudio Research UX**. Manual gate = NONE.

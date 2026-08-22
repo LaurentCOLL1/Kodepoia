@@ -3,7 +3,7 @@
 **Phase:** R7 — Research sécurisé  
 **Overall status:** IN PROGRESS  
 **Planning:** ACCEPTED  
-**Current subdivision:** R7.5 NOT STARTED  
+**Current subdivision:** R7.6 NOT STARTED  
 **Manual blocker:** NONE
 
 ## Subdivision status
@@ -14,7 +14,7 @@
 | R7.2 | Local + official documentation research | COMPLETE | `9101e686a32b24bb33a23d7ac578bf25570e115e` | NONE |
 | R7.3 | Governed Web fetch + extraction | COMPLETE | `4efd2cb016e774fa3ef06590ffda377606d875e9` | NONE |
 | R7.4 | GitHub research adapter | COMPLETE | `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be` | CONDITIONAL NOT TRIGGERED |
-| R7.5 | Community/forums research normalization | NOT STARTED | — | NONE |
+| R7.5 | Community/forums research normalization | COMPLETE | `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5` | NONE |
 | R7.6 | YouTube metadata + transcript ingestion | NOT STARTED | — | CONDITIONAL |
 | R7.7 | Local STT + frame extraction/analysis hooks | NOT STARTED | — | REQUIRED |
 | R7.8 | Version-awareness + provenance/conflict model | NOT STARTED | — | NONE |
@@ -22,55 +22,29 @@
 | R7.10 | CLI + KodeStudio Research UX | NOT STARTED | — | NONE |
 | R7.11 | Adversarial hardening + R7 integrated acceptance | NOT STARTED | — | CONDITIONAL |
 
-## Planning acceptance
+## Accepted evidence summary
 
-- planning head `f86825ffd84c1c814afb5865be95b278c4291314`;
-- planning PR #58 merge `9315d801f3a2d13a5441bd87babd2abeb9305995`;
-- planning normalization PR #59 merge `7279412ae751bce739317763462c4a48d7832122`;
-- R0 #955, Python Core #929 5/5, UI Smoke #896 SUCCESS on the accepted planning head.
+- R7 planning: head `f86825ffd84c1c814afb5865be95b278c4291314`; PR #58 merge `9315d801f3a2d13a5441bd87babd2abeb9305995`; normalization #59 `7279412ae751bce739317763462c4a48d7832122`.
+- R7.1: head `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca`; R0 #959, Python #933 5/5, UI #900; PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`; manual NONE.
+- R7.2: head `9101e686a32b24bb33a23d7ac578bf25570e115e`; R0 #964, Python #938 5/5, UI #905; PR #62 merge `25741ab9c39300483b62eb2cc07b9d2c9fcfb20c`; manual NONE.
+- R7.3: head `4efd2cb016e774fa3ef06590ffda377606d875e9`; R0 #968, Python #942 5/5 (`369 passed / 3 skipped / 46 warnings` Ubuntu), UI #909; PR #64 merge `cde4f7fd727c6940c6a434f85fabc2ced27f04c5`; manual NONE.
+- R7.4: head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`; R0 #972, Python #946 5/5 (`388 passed / 3 skipped / 46 warnings` Ubuntu), UI #913; PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`; manual CONDITIONAL NOT TRIGGERED.
+- R7.5: head `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5`; R0 #976 / `32590366852`; Python Core #950 / `32590366851` 5/5 (`400 passed / 3 skipped / 46 warnings` Ubuntu); UI Smoke #917 / `32590366853`; PR #68 merge `b02dfba4b6a6a4c0a6ec19d552e569b56845a4ea`; manual NONE.
 
-## R7.1 acceptance
+Detailed evidence remains in the corresponding `R7_X_ACCEPTANCE.md` files.
 
-- implementation head `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca`;
-- implementation PR #60 merge `86a5453b2fd8ce414e73277199fdd55bd210aeba`;
-- R0 #959 / `32584754313` SUCCESS;
-- Python Core #933 / `32584754311` SUCCESS, 5/5 jobs; Ubuntu authoritative suite: 310 passed / 3 skipped / 46 warnings;
-- KodeStudio UI Smoke #900 / `32584754325` SUCCESS;
-- manual NONE;
-- acceptance source: `docs/roadmap/R7_1_ACCEPTANCE.md`.
+## R7.5 accepted invariants
 
-## R7.2 acceptance
-
-- implementation head `9101e686a32b24bb33a23d7ac578bf25570e115e`;
-- implementation PR #62 merge `25741ab9c39300483b62eb2cc07b9d2c9fcfb20c`;
-- R0 #964 / `32585721455` SUCCESS;
-- Python Core #938 / `32585721645` SUCCESS, 5/5 jobs;
-- KodeStudio UI Smoke #905 / `32585721536` SUCCESS;
-- manual NONE;
-- preceding head `61eb6fbaf73066274249b3e490695bb0d4ff122c` was rejected after Python Core #937 exposed one Windows-only POSIX-root path-validation regression; final head fixes it with native + POSIX + Windows path semantics;
-- acceptance source: `docs/roadmap/R7_2_ACCEPTANCE.md`.
-
-## R7.3 acceptance
-
-- implementation head `4efd2cb016e774fa3ef06590ffda377606d875e9`;
-- implementation PR #64 merge `cde4f7fd727c6940c6a434f85fabc2ced27f04c5`;
-- R0 #968 / `32586392901` SUCCESS;
-- Python Core #942 / `32586392898` SUCCESS, 5/5 jobs; Ubuntu authoritative suite: 369 passed / 3 skipped / 46 warnings;
-- KodeStudio UI Smoke #909 / `32586392883` SUCCESS;
-- manual NONE;
-- acceptance source: `docs/roadmap/R7_3_ACCEPTANCE.md`.
-
-## R7.4 acceptance
-
-- implementation head `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be`;
-- implementation PR #66 merge `d17746b03fe4a8db47ec2c55ef11715fdd820f73`;
-- R0 #972 / `32589899654` SUCCESS;
-- Python Core #946 / `32589899648` SUCCESS, 5/5 jobs; Ubuntu authoritative suite: 388 passed / 3 skipped / 46 warnings;
-- KodeStudio UI Smoke #913 / `32589899651` SUCCESS;
-- manual CONDITIONAL NOT TRIGGERED;
-- public unauthenticated acceptance was sufficient; no real token/private repository was required;
-- acceptance source: `docs/roadmap/R7_4_ACCEPTANCE.md`.
+- community/forum evidence remains `ResearchSourceKind.COMMUNITY` and `authority_class=community`;
+- score/reaction/popularity metadata is descriptive only and never authority;
+- vendor-staff/moderator is an author-role observation, not automatic official evidence;
+- post/thread/parent/timestamps/permalinks/states remain explicit;
+- quoted material is separated from current-author text; nested quotes preserve depth/source evidence;
+- deleted/removed placeholders do not become authored evidence;
+- hidden script/style/noscript/template text is excluded;
+- visible hostile instructions remain evidence but are guarded by the existing ResearchGuard;
+- no posting/voting/moderation/account automation or second network stack exists.
 
 ## Next authorized action
 
-Start **R7.5 — Community/forums research normalization** only after this R7.4 normalization PR is accepted and merged. R7.5 must preserve community evidence as community evidence: retain author/time/thread/parent/quote provenance, distinguish quoted text from post-author text, keep edited/deleted states explicit, and never promote popularity or consensus into official-document authority. All community text remains untrusted data routed through the existing `ResearchGuard`; no posting, voting, moderation or account automation is permitted.
+Start **R7.6 — YouTube metadata + transcript ingestion** only after this R7.5 normalization PR is accepted and merged. R7.6 must validate video IDs/URLs, preserve video/track/language/timestamp provenance, route transcript text through ResearchGuard, represent unavailable/blocked transcript access explicitly, and expose no media download, playback, login automation, DRM bypass or arbitrary helper arguments. Official YouTube caption access must follow the provider's actual authorization contract rather than assuming arbitrary public caption download is available.

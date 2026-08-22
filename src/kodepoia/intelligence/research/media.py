@@ -28,8 +28,11 @@ MEDIA_SCHEMA_VERSION = 1
 DEFAULT_WHISPER_MODEL = ".kodepoia/models/stt/ggml-base.en.bin"
 EXPECTED_FIXTURE_SHA256 = "8b3ed015526fd4584309a3c661b9e267ac464315e2d1c9aeed5bea19f28bdcf7"
 EXPECTED_FIXTURE_TOKENS = ("one", "two", "three", "four")
+_EXPECTED_FIXTURE_CANONICAL = ("1", "2", "3", "4")
+_NUMBER_CANONICAL = {"one": "1", "two": "2", "three": "3", "four": "4"}
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _GIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+_TRANSCRIPT_TOKEN_RE = re.compile(r"[a-z]+|\d+")
 
 
 class MediaProcessingError(RuntimeError):
@@ -520,6 +523,18 @@ def parse_whisper_json(payload: object) -> tuple[TranscriptSegment, ...]:
     return tuple(segments)
 
 
+def _fixture_transcript_matches_expected(text: str) -> bool:
+    canonical = tuple(
+        _NUMBER_CANONICAL.get(token, token)
+        for token in _TRANSCRIPT_TOKEN_RE.findall(text.lower())
+    )
+    width = len(_EXPECTED_FIXTURE_CANONICAL)
+    return any(
+        canonical[index:index + width] == _EXPECTED_FIXTURE_CANONICAL
+        for index in range(max(0, len(canonical) - width + 1))
+    )
+
+
 def _materialize_fixture(
     boundary: WorkspaceBoundary,
     requested: str | Path,
@@ -638,7 +653,7 @@ class LocalMediaAcceptance:
                     timeout_seconds=self.policy.stt_timeout_seconds,
                 ).transcribe(audio_path, temp_dir / "transcript")
                 normalized = " ".join(segment.text.lower() for segment in transcripts)
-                checks.append(AcceptanceCheck("transcript_tokens", all(token in normalized for token in EXPECTED_FIXTURE_TOKENS), normalized[:256]))
+                checks.append(AcceptanceCheck("transcript_tokens", _fixture_transcript_matches_expected(normalized), normalized[:256]))
                 checks.append(AcceptanceCheck("transcript_timestamps", all(s.start_ms >= 0 and s.end_ms >= s.start_ms for s in transcripts), str(len(transcripts))))
                 temporary_peak = max(temporary_peak, _directory_bytes(temp_dir))
 
@@ -651,7 +666,7 @@ class LocalMediaAcceptance:
                             str(ffmpeg), "-hide_banner", "-loglevel", "error", "-nostdin", "-y",
                             "-ss", f"{timestamp_ms / 1000:.3f}", "-i", str(fixture_path),
                             "-an", "-frames:v", "1", "-vf", f"scale={self.policy.frame_width}:-2",
-                            "-fps_mode", "vfr", str(frame_path),
+                            str(frame_path),
                         ),
                         cwd=self.project_root,
                         timeout=self.policy.ffmpeg_timeout_seconds,

@@ -1,7 +1,7 @@
 # R5 — KodeGodot 4.7.x — Status
 
 **Phase:** R5  
-**Status:** IN PROGRESS — R5.1–R5.5 ACCEPTED AND MERGED; R5.6 IMPLEMENTED / CI ACCEPTED / HARDWARE PROBE 5/5 ACCEPTED / FULL ACCEPTANCE RETEST PENDING AFTER TWO ROOT-CAUSE FIXES  
+**Status:** IN PROGRESS — R5.1–R5.5 ACCEPTED AND MERGED; R5.6 IMPLEMENTED / CI ACCEPTED / HARDWARE PROBE 5/5 ACCEPTED / FULL ACCEPTANCE RETEST AUTHORIZED AFTER TWO ROOT-CAUSE FIXES  
 **Started:** 2026-08-21
 
 R4 remains COMPLETE and is not reopened. R6 is NOT STARTED and must not begin before R5 hardware-local full acceptance is reviewed, PR #28 is merged and `main` is verified.
@@ -13,7 +13,7 @@ R4 remains COMPLETE and is not reopened. R6 is NOT STARTED and must not begin be
 3. **R5.3 — GDScript + Godot LSP/DAP specialization** — ACCEPTED AND MERGED (PR #25, merge `d2641862b98a969b9adfc905f818e01b3d7e4730`).
 4. **R5.4 — 2D/3D domain intelligence and safe edits** — ACCEPTED AND MERGED (PR #26, merge `b81cf430249e341219dcb759cb49f67697c27782`).
 5. **R5.5 — Headless automation/import/export/capture/benchmarks** — ACCEPTED AND MERGED (PR #27, merge `c4409c78eacfa1777d22d7e0995d4db7dbdaa5a2`).
-6. **R5.6 — Governed orchestration + real Godot acceptance** — IMPLEMENTED; CI accepted; ProcessSandbox `run()` blocker fixed; hardware probe 5/5 accepted; first full acceptance reached 12/19 with two root causes; both fixes are implemented and CI accepted; full hardware-local retest pending.
+6. **R5.6 — Governed orchestration + real Godot acceptance** — IMPLEMENTED; CI accepted; ProcessSandbox foreground blocker fixed; hardware probe 5/5 accepted; first full acceptance reached 12/19 with two root causes; both fixes are implemented and CI accepted; full hardware-local retest authorized.
 
 ## R5.6 scope
 
@@ -103,12 +103,17 @@ Fix:
 - add official `--log-file .kodepoia/logs/godot-services.log` so service startup remains diagnosable despite DEVNULL;
 - on startup failure, include a bounded tail of that log in the raised error.
 
-## Post-attempt functional CI
+## CI proof after both fixes
 
 Functional correction head `6b968d284a5f10195cbe465d5c94208f65c3a94e`:
 - Repository Guard `32543313597` — SUCCESS;
-- Python Core `32543313587` — SUCCESS Windows + Ubuntu, including PowerShell validation and background-process backpressure regression;
+- Python Core `32543313587` — SUCCESS Windows + Ubuntu;
 - KodeStudio UI Smoke `32543313595` — SUCCESS Windows.
+
+Final retest-gate head `5295729b23187652b47b2fc94487f9213bcf3830`:
+- Repository Guard `32543573230` — SUCCESS;
+- Python Core `32543573250` — SUCCESS Windows + Ubuntu, PowerShell syntax and embedded UI smoke;
+- KodeStudio UI Smoke `32543573253` — SUCCESS Windows.
 
 Regression coverage includes:
 - foreground process: 512 KiB stdout + 512 KiB stderr must drain without deadlock;
@@ -116,11 +121,11 @@ Regression coverage includes:
 - Movie Maker command must not include `--headless`;
 - Godot network services must use `spawn_background()`, loopback-only ports and confined service log.
 
-Current documentation/continuity commits may be newer than this functional checkpoint. Always pull the current branch head; never reset backward to a checkpoint.
+Current branch head may later advance only for reviewed acceptance evidence/documentation; always pull the current head and never reset backward to a checkpoint.
 
 ## Next gate — full hardware-local acceptance retest
 
-After the current documentation head is CI-green, the next authorized local action is to rerun the full acceptance, without `-ProbeOnly`:
+The next and only authorized local action is to rerun the full acceptance, without `-ProbeOnly`:
 
 ```powershell
 .\scripts\r5_accept_local.ps1 `

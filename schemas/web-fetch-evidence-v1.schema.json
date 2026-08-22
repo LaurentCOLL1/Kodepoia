@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/web-fetch-evidence-v1.schema.json",
+  "title": "Kodepoia R7.3 Web fetch evidence metadata v1",
+  "type": "object",
+  "required": [
+    "web_schema_version",
+    "content_type",
+    "charset",
+    "raw_sha256",
+    "http_status",
+    "redirect_chain"
+  ],
+  "properties": {
+    "web_schema_version": {"const": 1},
+    "content_type": {
+      "enum": [
+        "text/html",
+        "text/plain",
+        "application/json",
+        "application/xml",
+        "text/xml",
+        "application/xhtml+xml"
+      ]
+    },
+    "charset": {"type": "string", "minLength": 1, "maxLength": 64},
+    "raw_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "http_status": {"type": "integer", "minimum": 200, "maximum": 299},
+    "redirect_chain": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {"type": "string", "pattern": "^https?://"}
+    },
+    "etag": {"type": "string"},
+    "last_modified": {"type": "string"},
+    "canonical_url": {"type": "string", "pattern": "^https?://"},
+    "canonical_url_rejected": {"type": "boolean"},
+    "robots": {"type": "string"},
+    "x_robots_tag": {"type": "string"},
+    "published_at_raw": {"type": "string"},
+    "updated_at_raw": {"type": "string"}
+  },
+  "additionalProperties": true
+}

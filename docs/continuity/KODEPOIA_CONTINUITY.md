@@ -4,20 +4,22 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE.** R5 — KodeGodot 4.7.x a passé sa vraie acceptation matérielle Windows avec Godot `4.7.2.stable.steam.ed1daf0bf`: `probe_only=false`, `acceptance_completed=true`, **19/19 PASS**, puis PR #28 a été fusionnée en `ecb0455d179c8c0b2de0a5d1d8a496a0f8f980e8`. La source de vérité est `main`. **R6 est AUTHORIZED / NOT STARTED.** Ne pas rouvrir R5 sans régression démontrée ou changement d'architecture nécessitant un ADR. Lire architecture, ADR, roadmap, `R5_STATUS.md`, puis ce fichier avant de reprendre.
+> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE.** R5 — KodeGodot 4.7.x a passé sa vraie acceptation matérielle Windows avec Godot `4.7.2.stable.steam.ed1daf0bf`: `probe_only=false`, `acceptance_completed=true`, **19/19 PASS**, puis PR #28 a été fusionnée en `ecb0455d179c8c0b2de0a5d1d8a496a0f8f980e8`. La source de vérité fusionnée reste `main`. **R6 est IN PROGRESS. R6.1 — KodeHealth foundation est IMPLEMENTED / ACCEPTANCE PENDING sur `feature/r6-1-kodehealth`; PR #30 est OPEN vers `main`.** Ne pas marquer R6.1 COMPLETE avant CI verte sur le head final et merge de la PR. Ne pas rouvrir R5 sans régression démontrée ou changement d'architecture nécessitant un ADR. Lire architecture, ADR, roadmap, `R5_STATUS.md`, `R6_STATUS.md`, puis ce fichier avant de reprendre.
 
 ## Source de vérité et état des phases
 
 - Dépôt : `LaurentCOLL1/Kodepoia`.
 - Visibilité GitHub : PUBLIC volontairement.
 - Architecture : v1.0 gelée.
-- Source de vérité : `main`.
+- Source de vérité fusionnée : `main`.
+- Branche de travail R6.1 : `feature/r6-1-kodehealth`.
+- PR active R6.1 : **#30 — OPEN** contre `main`.
 - R1 : COMPLETE.
 - R2 : COMPLETE.
 - R3 : COMPLETE — hardware-local model acceptance passed.
 - R4 : COMPLETE — governed KodeCode acceptance passed.
 - R5 : COMPLETE — KodeGodot 4.7.x hardware-local acceptance passed and PR #28 merged.
-- R6 : AUTHORIZED / NOT STARTED.
+- R6 : IN PROGRESS — R6.1 IMPLEMENTED / ACCEPTANCE PENDING.
 - R7–R16 : PENDING according to the frozen roadmap.
 
 ## Accepted model roles
@@ -104,9 +106,33 @@ PR #28 head `8e9f01d785a691ce03d3b589367b724b073c8cec`:
 - Python Core `32557370829` — SUCCESS Windows + Ubuntu and PowerShell validation;
 - KodeStudio UI Smoke `32557370915` — SUCCESS Windows.
 
-## Next phase
+## R6 — Quality / Health / Budget / CI — IN PROGRESS
 
-**R6 is AUTHORIZED / NOT STARTED.** Start it only from current normalized `main`, on a dedicated branch, following the frozen roadmap and the same acceptance discipline. Do not skip directly to later phases.
+### R6.1 — KodeHealth foundation — IMPLEMENTED / ACCEPTANCE PENDING
+
+Working branch: `feature/r6-1-kodehealth`.  
+Pull request: **#30 — OPEN** against `main`.
+
+Delivered so far:
+
+- `src/kodepoia/quality/health.py` with the 14 frozen-architecture health dimensions;
+- explicit `unknown/pass/warn/fail` states, score and coverage calculation, blocking failures and deterministic thresholds;
+- exhaustive report validation and JSON round-trip;
+- `HealthStore` writing only to `.kodepoia/health/`, with atomic `latest.json` and timestamped snapshots;
+- `HealthStore` reuses `WorkspaceBoundary`, so a `.kodepoia` symlink cannot redirect health writes outside the project;
+- serialized `blockers` and `unknown_dimensions` must match their metric evidence during load;
+- `schemas/health-report-v1.schema.json`;
+- `tests/test_r6_1_health.py`;
+- `docs/roadmap/R6_1_DESIGN.md` and `docs/roadmap/R6_1_ACCEPTANCE.md`;
+- `docs/roadmap/R6_STATUS.md`.
+
+Local isolated R6.1 test evidence after security hardening: **9 passed**.
+
+PR #30 is open to run the authoritative `pull_request` CI gates on the stabilized implementation. R6.1 must remain ACCEPTANCE PENDING until repository guard, Python Core Windows + Ubuntu, KodeStudio UI smoke, PR merge to `main`, and continuity normalization are complete.
+
+## Next phase action
+
+Finish R6.1 acceptance and merge first. Only then start the next R6 subdivision from normalized `main`; do not skip directly to later phases.
 
 ## User operational preference — permanent
 

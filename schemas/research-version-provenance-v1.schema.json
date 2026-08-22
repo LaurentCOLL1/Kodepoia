@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/research-version-provenance-v1.schema.json",
+  "title": "Kodepoia Research Version Provenance v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "target",
+    "observations",
+    "identities",
+    "claims",
+    "supersession_links",
+    "groups",
+    "generated_at",
+    "digest_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "target": {"$ref": "#/$defs/target"},
+    "observations": {"type": "array", "items": {"$ref": "#/$defs/observation"}},
+    "identities": {"type": "array", "items": {"$ref": "#/$defs/identity"}},
+    "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+    "supersession_links": {"type": "array", "items": {"$ref": "#/$defs/supersession"}},
+    "groups": {"type": "array", "items": {"$ref": "#/$defs/group"}},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "digest_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "version_kind": {"enum": ["exact", "range", "inferred", "unknown"]},
+    "target_kind": {"enum": ["exact", "range", "unknown"]},
+    "scheme": {"enum": ["opaque", "semver", "pep440"]},
+    "mutability": {"enum": ["unknown", "mutable", "immutable"]},
+    "freshness": {"enum": ["unknown", "current", "stale", "not_applicable"]},
+    "relation": {"enum": ["exact_match", "range_match", "inferred_match", "mismatch", "unknown"]},
+    "interval": {
+      "type": "object",
+      "required": ["lower", "upper", "include_lower", "include_upper"],
+      "properties": {
+        "lower": {"type": ["string", "null"]},
+        "upper": {"type": ["string", "null"]},
+        "include_lower": {"type": "boolean"},
+        "include_upper": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "required": ["constraint_id", "product", "kind", "scheme", "value", "interval", "evidence_refs"],
+      "properties": {
+        "constraint_id": {"$ref": "#/$defs/sha256"},
+        "product": {"type": "string", "minLength": 1},
+        "kind": {"$ref": "#/$defs/target_kind"},
+        "scheme": {"$ref": "#/$defs/scheme"},
+        "value": {"type": "string"},
+        "interval": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/interval"}]},
+        "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      },
+      "additionalProperties": false
+    },
+    "observation": {
+      "type": "object",
+      "required": [
+        "observation_id", "product", "kind", "scheme", "value", "interval", "channel",
+        "observed_at", "evidence_refs", "inference_reason"
+      ],
+      "properties": {
+        "observation_id": {"$ref": "#/$defs/sha256"},
+        "product": {"type": "string", "minLength": 1},
+        "kind": {"$ref": "#/$defs/version_kind"},
+        "scheme": {"$ref": "#/$defs/scheme"},
+        "value": {"type": "string"},
+        "interval": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/interval"}]},
+        "channel": {"type": "string"},
+        "observed_at": {"type": ["string", "null"]},
+        "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "inference_reason": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "identity": {
+      "type": "object",
+      "required": [
+        "identity_id", "locator", "mutability", "source_id", "revision", "snapshot_sha256", "evidence_refs"
+      ],
+      "properties": {
+        "identity_id": {"$ref": "#/$defs/sha256"},
+        "locator": {"type": "string", "minLength": 1},
+        "mutability": {"$ref": "#/$defs/mutability"},
+        "source_id": {"type": "string", "pattern": "^$|^[0-9a-f]{64}$"},
+        "revision": {"type": "string"},
+        "snapshot_sha256": {"type": "string", "pattern": "^$|^[0-9a-f]{64}$"},
+        "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      },
+      "additionalProperties": false
+    },
+    "claim": {
+      "type": "object",
+      "required": [
+        "claim_id", "finding_id", "finding_kind", "claim_key", "claim_value", "observation_id",
+        "identity_id", "citation_ids", "freshness", "version_relation", "authority_rank"
+      ],
+      "properties": {
+        "claim_id": {"$ref": "#/$defs/sha256"},
+        "finding_id": {"$ref": "#/$defs/sha256"},
+        "finding_kind": {"enum": ["source_fact", "inference"]},
+        "claim_key": {"type": "string", "minLength": 1},
+        "claim_value": {"type": "string", "minLength": 1},
+        "observation_id": {"$ref": "#/$defs/sha256"},
+        "identity_id": {"$ref": "#/$defs/sha256"},
+        "citation_ids": {"type": "array", "items": {"$ref": "#/$defs/sha256"}, "uniqueItems": true},
+        "freshness": {"$ref": "#/$defs/freshness"},
+        "version_relation": {"$ref": "#/$defs/relation"},
+        "authority_rank": {"type": ["integer", "null"], "minimum": 0, "maximum": 100}
+      },
+      "additionalProperties": false
+    },
+    "supersession": {
+      "type": "object",
+      "required": ["link_id", "older_claim_id", "newer_claim_id", "reason", "evidence_refs"],
+      "properties": {
+        "link_id": {"$ref": "#/$defs/sha256"},
+        "older_claim_id": {"$ref": "#/$defs/sha256"},
+        "newer_claim_id": {"$ref": "#/$defs/sha256"},
+        "reason": {"type": "string", "minLength": 1},
+        "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      },
+      "additionalProperties": false
+    },
+    "group": {
+      "type": "object",
+      "required": ["group_id", "claim_key", "claim_ids", "state", "distinct_values", "supersession_link_ids"],
+      "properties": {
+        "group_id": {"$ref": "#/$defs/sha256"},
+        "claim_key": {"type": "string", "minLength": 1},
+        "claim_ids": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sha256"}, "uniqueItems": true},
+        "state": {"enum": ["agreement", "conflict", "unresolved"]},
+        "distinct_values": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "supersession_link_ids": {"type": "array", "items": {"$ref": "#/$defs/sha256"}, "uniqueItems": true}
+      },
+      "additionalProperties": false
+    }
+  }
+}

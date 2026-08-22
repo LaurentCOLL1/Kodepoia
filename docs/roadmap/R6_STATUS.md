@@ -8,17 +8,6 @@
 
 R1–R5 remain COMPLETE. R6 remains active and must not be marked COMPLETE before R6.12 integrated acceptance and final normalization.
 
-## Detailed R6 plan acceptance
-
-The exhaustive R6 plan was reconstructed and accepted before R6.4 because R6.1–R6.3 predated the permanent `RX_PLAN.md` rule.
-
-- planning head `8fbad7c13dd65f9dcd49a03b33a3174fcf28d18a`;
-- R0 #639 `32563057993` — SUCCESS Windows + Ubuntu;
-- Python Core #613 `32563057956` — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
-- UI Smoke #580 `32563057903` — SUCCESS Windows;
-- planning PR #37 merge `0a91064608507966a47921df8fb36e5f25477141`;
-- planning normalization PR #38 merge `e96e7c3b168975869c911f880044b7ef8e322157`.
-
 ## Frozen subdivision structure
 
 1. **R6.1 — KodeHealth foundation** — COMPLETE — manual `NONE` — PR #30 merge `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
@@ -27,8 +16,8 @@ The exhaustive R6 plan was reconstructed and accepted before R6.4 because R6.1�
 4. **R6.4 — KodeVisualQA foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #39 merge `27c634cc60e1c00e5d0c7ed8731668cf07ae008f`.
 5. **R6.5 — KodeAccessibility foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`.
 6. **R6.6 — KodeLocalization + pseudo-localization foundation** — COMPLETE — manual `NONE` — PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`; normalization #44 merge `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
-7. **R6.7 — KodeTechnicalDebt foundation** — COMPLETE — manual `NONE` — accepted head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`.
-8. **R6.8 — KodeCI + KodeBuild foundation** — NEXT / NOT STARTED — manual `CONDITIONAL`.
+7. **R6.7 — KodeTechnicalDebt foundation** — COMPLETE — manual `NONE` — accepted head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 merge `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
+8. **R6.8 — KodeCI + KodeBuild foundation** — IN PROGRESS — manual `CONDITIONAL` — branch `feature/r6-8-ci-build`, PR #47, base `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
 9. **R6.9 — KodeAppSecurity baseline** — PLANNED — manual `NONE`.
 10. **R6.10 — KodePrivacy baseline** — PLANNED — manual `NONE`.
 11. **R6.11 — KodeLicense + KodeBOM foundation** — PLANNED — manual `CONDITIONAL`.
@@ -36,49 +25,47 @@ The exhaustive R6 plan was reconstructed and accepted before R6.4 because R6.1�
 
 No subdivision may be silently added, removed, merged, split or renumbered.
 
-## Accepted evidence summary
+## Accepted evidence through R6.7
 
-### R6.1
+- R6.1 accepted head `802de4ba3110ace657c4e16306a0ca29850ce2bd`; R0 `32561211168`, Python Core `32561211156`, UI Smoke `32561211167` SUCCESS.
+- R6.2 accepted head `8ac3772e98c70260c320519a214bb25b6cedbb38`; R0 #603 `32561719921`, Python Core #577 `32561719925`, UI Smoke #544 `32561720008` SUCCESS.
+- R6.3 accepted head `7150237c263dd3ac96af4662d74909e05f3cf991`; R0 #622 `32562032986`, Python Core #596 `32562032998`, UI Smoke #563 `32562032982` SUCCESS.
+- R6.4 accepted head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`; hosted gates SUCCESS; required real Windows/Godot/Radeon gate `8 PASS / 0 FAIL / 8`; normalization #40 `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
+- R6.5 accepted head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`; hosted gates SUCCESS; required Windows accessibility gate `15 PASS / 0 FAIL / 15`; normalization #42 `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
+- R6.6 accepted head `6890b9d37722c74703e8b86f7de11dbfe66821ed`; R0 #733, Python Core #707, UI Smoke #674 SUCCESS; normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
+- R6.7 accepted head `0da49c7526b54f562827d63477b7ce8f1865de43`; R0 #756 `32570711736`, Python Core #730 `32570711738`, UI Smoke #697 `32570711732` SUCCESS; implementation merge #45 `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
 
-Accepted head `802de4ba3110ace657c4e16306a0ca29850ce2bd`; R0 `32561211168`, Python Core `32561211156`, UI Smoke `32561211167` SUCCESS.
+## R6.8 implementation state
 
-### R6.2
+R6.8 is active on PR #47 from normalized main `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
 
-Accepted head `8ac3772e98c70260c320519a214bb25b6cedbb38`; R0 #603 `32561719921`, Python Core #577 `32561719925`, UI Smoke #544 `32561720008` SUCCESS.
+Implemented scope:
 
-### R6.3
+- `KodeCI` with stable check IDs and explicit `queued`, `in_progress`, `pass`, `fail`, `cancelled`, `skipped`, `unknown` states;
+- required FAIL/CANCELLED/SKIPPED never become PASS; required incomplete evidence remains UNKNOWN;
+- CI reports bound to exact source Git SHA with canonical SHA-256 evidence and derived-count/blocker tamper checks;
+- `.kodepoia/workflows/` persistence through `WorkspaceBoundary` and stable R6.3 CI hooks;
+- `KodeBuild` manifests bound to source SHA, platform, Python version and Hatchling backend;
+- deterministic source-input digest and explicit dependency-input digest;
+- wheel/sdist artifact name, byte size, SHA-256 and archive-structure validation;
+- missing/invalid wheel or sdist becomes blocking build failure;
+- recursive secret-field/token redaction before persisted metadata;
+- `.kodepoia/releases/` persistence through `WorkspaceBoundary`;
+- Health `build` adapter and stable R6.3 build hooks;
+- JSON Schemas `ci-report-v1` and `build-manifest-v1`;
+- fixed `scripts/r6_8_collect_build.py` collector with no arbitrary command/path surface;
+- additive `package-build` matrix in Python Core for Ubuntu and Windows using fixed `python -m build` and `actions/upload-artifact@v4`;
+- package-build checkout explicitly pinned to the same PR head/source SHA carried by the manifests, avoiding synthetic merge-commit/source-evidence mismatch.
 
-Accepted head `7150237c263dd3ac96af4662d74909e05f3cf991`; R0 #622 `32562032986`, Python Core #596 `32562032998`, UI Smoke #563 `32562032982` SUCCESS.
+Diagnostic head `fe084cfbe8f3bafddbf6075ad4c8596ba3998b5a` passed:
 
-### R6.4
+- R0 #779 `32571588986` — SUCCESS Windows + Ubuntu;
+- Python Core #753 `32571588989` — SUCCESS, including `python-core-ubuntu-latest`, `python-core-windows-latest`, integrated Windows UI smoke, `package-build-ubuntu-latest`, and `package-build-windows-latest`;
+- KodeStudio UI Smoke #720 `32571588982` — SUCCESS Windows.
 
-Accepted head `72f8a13f68eb8c2e11069fe8e489858cbf2edd41`; R0 #666, Python Core #640 and UI Smoke #607 SUCCESS; required real Windows/Godot/Radeon gate `8 PASS / 0 FAIL / 8`; normalization #40 `39ecfef80f17cac1d5a0722866f5b1e046e9d5e1`.
+On that diagnostic head, both package-build jobs checked out exactly `fe084cfbe8f3bafddbf6075ad4c8596ba3998b5a`, built wheel+sdist, structurally validated both, emitted PASS build/CI evidence and uploaded package/evidence artifacts. This diagnostic demonstrates hosted Windows capability, but final acceptance will use only the later exact head after plan/status/continuity synchronization.
 
-### R6.5
-
-Accepted head `06fd66af4b3a85da24b98ea2a5fbb2685358c540`; R0 #710, Python Core #684 and UI Smoke #651 SUCCESS; required Windows accessibility gate `15 PASS / 0 FAIL / 15`; normalization #42 `3c5b871a9f977c2647f13cc7858beb26be1a2ed6`.
-
-### R6.6
-
-Accepted head `6890b9d37722c74703e8b86f7de11dbfe66821ed`; R0 #733 `32570001461`, Python Core #707 `32570001514`, UI Smoke #674 `32570001491` SUCCESS; PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`; normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`; manual NONE.
-
-### R6.7
-
-Accepted implementation head `0da49c7526b54f562827d63477b7ce8f1865de43`.
-
-Final hosted evidence on that exact head:
-
-- R0 Repository Guard #756 `32570711736` — SUCCESS Windows + Ubuntu;
-- Python Core #730 `32570711738` — SUCCESS Windows + Ubuntu, PowerShell syntax, full pytest and integrated KodeStudio UI smoke;
-- KodeStudio UI Smoke #697 `32570711732` — SUCCESS Windows.
-
-Accepted scope includes stable debt IDs/fingerprints, OPEN/ACCEPTED/RESOLVED lifecycle, deterministic priority, structured provenance/references, anti-tamper evidence, `WorkspaceBoundary` confinement, Health `technical_debt` adapter and stable R6.3 cases where newly introduced blocking debt becomes a regression.
-
-Development CI found one fixture expectation error: `4 × 4 × 3 ÷ 2 = 24`, not 30. Only the test expectation changed; the deterministic formula did not. Hosted logs also reproduced non-blocking debt candidates (`PytestCollectionWarning` on imported `Test*` symbols and Pillow `Image.getdata()` deprecation); these are provenance-backed observations, not fabricated scanner results.
-
-PR #45 merged as `3986b056654b25a73e45e5135ca3110a920c4bf5`. Manual intervention: **NONE**.
-
-**R6.1–R6.7 = COMPLETE. R6.8 = NEXT / NOT STARTED until this post-merge normalization is CI-green and merged. R6 remains IN PROGRESS.**
+**R6.8 remains IN PROGRESS. PR #47 must not merge until final-head R0/Python/UI/package-build gates and artifact inspection succeed and the conditional manual decision is recorded. R6.9 must not start earlier.**
 
 ## Manual-intervention forecast
 
@@ -86,7 +73,7 @@ PR #45 merged as `3986b056654b25a73e45e5135ca3110a920c4bf5`. Manual intervention
 - R6.5 `REQUIRED`: SATISFIED.
 - R6.6 `NONE`: COMPLETE.
 - R6.7 `NONE`: COMPLETE.
-- R6.8 `CONDITIONAL`: trigger a local Windows build gate only if hosted Windows cannot authoritatively satisfy an acceptance-critical build/provenance requirement. If hosted Windows builds and validates the required artifacts with exact source/artifact hashes, the condition is **NOT TRIGGERED**.
+- R6.8 `CONDITIONAL`: current diagnostic evidence indicates hosted Windows can authoritatively build, validate, hash and upload the required package artifacts. The condition is therefore **expected NOT TRIGGERED**, but it will be finalized only after the final R6.8 head repeats this proof.
 - R6.9 and R6.10: `NONE` currently planned.
 - R6.11 `CONDITIONAL`: only for unresolved acceptance-critical license/provenance ambiguity.
 - R6.12 `CONDITIONAL`: only if selected final gates require local hardware execution or explicit approval.

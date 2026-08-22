@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/localization-report-v1.schema.json",
+  "title": "Kodepoia Localization Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "source_locale",
+    "locale",
+    "fallback_locale",
+    "status",
+    "results",
+    "counts",
+    "blockers",
+    "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "source_locale": {"type": "string", "minLength": 1},
+    "locale": {"type": "string", "minLength": 1},
+    "fallback_locale": {"type": ["string", "null"]},
+    "status": {"enum": ["pass", "warn", "fail", "unknown"]},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "blockers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "passed", "warnings", "failed", "unknown", "blocking_failures"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "passed": {"type": "integer", "minimum": 0},
+        "warnings": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "unknown": {"type": "integer", "minimum": 0},
+        "blocking_failures": {"type": "integer", "minimum": 0}
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule_id", "target_id", "status", "severity", "message", "blocking", "details"],
+        "properties": {
+          "rule_id": {"type": "string", "minLength": 1},
+          "target_id": {"type": "string", "minLength": 1},
+          "status": {"enum": ["pass", "warn", "fail", "unknown"]},
+          "severity": {"enum": ["info", "warning", "error"]},
+          "message": {"type": "string"},
+          "blocking": {"type": "boolean"},
+          "details": {"type": "object"}
+        }
+      }
+    }
+  }
+}

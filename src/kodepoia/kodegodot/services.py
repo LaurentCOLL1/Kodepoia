@@ -93,7 +93,11 @@ class GodotEditorServices:
             "--debug-server",
             f"tcp://127.0.0.1:{selected.debug}",
         ]
-        self.process = self.sandbox.spawn_piped(argv, cwd=self.boundary.root)
+        # Godot LSP/DAP communicate over loopback sockets, not stdio. Using
+        # stdout/stderr PIPE here risks blocking a verbose editor before it opens
+        # the ports. Keep the process sandboxed and kill-switch registered, but
+        # discard unused stdio streams.
+        self.process = self.sandbox.spawn_background(argv, cwd=self.boundary.root)
         self.ports = selected
         deadline = time.monotonic() + timeout
         try:

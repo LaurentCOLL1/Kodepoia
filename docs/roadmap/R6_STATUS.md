@@ -17,8 +17,8 @@ R1–R5 remain COMPLETE. R6 remains active and must not be marked COMPLETE befor
 5. **R6.5 — KodeAccessibility foundation** — COMPLETE — manual `REQUIRED` SATISFIED — PR #41 merge `db1a1ab78eb2ac7d90f75ab294074dec0238268c`.
 6. **R6.6 — KodeLocalization + pseudo-localization foundation** — COMPLETE — manual `NONE` — PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`; normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
 7. **R6.7 — KodeTechnicalDebt foundation** — COMPLETE — manual `NONE` — head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
-8. **R6.8 — KodeCI + KodeBuild foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`.
-9. **R6.9 — KodeAppSecurity baseline** — NEXT / NOT STARTED — manual `NONE`.
+8. **R6.8 — KodeCI + KodeBuild foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording #49 merge `616899291fc3b4dc40695415a5008d6fdd599230`.
+9. **R6.9 — KodeAppSecurity baseline** — IN PROGRESS — manual `NONE` — branch `feature/r6-9-appsecurity`, starting main `616899291fc3b4dc40695415a5008d6fdd599230`.
 10. **R6.10 — KodePrivacy baseline** — PLANNED — manual `NONE`.
 11. **R6.11 — KodeLicense + KodeBOM foundation** — PLANNED — manual `CONDITIONAL`.
 12. **R6.12 — Major-patch validation + rollback gate and R6 integration acceptance** — PLANNED — manual `CONDITIONAL`.
@@ -50,20 +50,34 @@ Final hosted evidence on that exact head:
 - Python Core #757 `32571710718` — SUCCESS for all five jobs: core Ubuntu, core Windows, integrated Windows UI, package-build Ubuntu, package-build Windows;
 - KodeStudio UI Smoke #724 `32571710650` — SUCCESS Windows.
 
-Accepted R6.8 scope includes structured CI states/source-SHA evidence, hash-protected CI/build manifests, wheel+sdist structural validation, source/dependency/artifact SHA-256 evidence, recursive secret redaction, `WorkspaceBoundary` confinement, Health `build`, R6.3 hooks, a fixed collector with no arbitrary build-command/path surface, and additive Windows+Ubuntu package builds bound to the same exact source SHA recorded in manifests.
+Final package evidence remained exact-source-SHA-bound and zero-blocker on both hosted OSes. Manual R6.8 was `CONDITIONAL — NOT TRIGGERED`. PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 passed R0 #790, Python Core #764 and UI Smoke #731 then merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording PR #49 passed R0 #797, Python Core #771 and UI Smoke #738 then merged as `616899291fc3b4dc40695415a5008d6fdd599230`.
 
-Final artifact inspection:
+## R6.9 implementation state
 
-- Ubuntu artifact ID `9475481332`, ZIP SHA-256 `cdeef82ace3e0ca2ef0275b3111bf6d2c8f50213b20e777ddb436477e48261d8`; wheel SHA-256 `35489ed602a9ade3816a4562f5cd751fbfb8924cd8ad780fba5bc7aa26a2a095`; sdist SHA-256 `b803d3f316f46ea461af853240ba8ab8bf3f867e0cff8e88e70f87bf678c1a78`; build/CI PASS, zero blockers.
-- Windows artifact ID `9475485133`, ZIP SHA-256 `aae159bd0d8a04ee4cec6c65f7a20f104c4679a9081432640419c4a6e74ccbe5`; wheel SHA-256 `1406f5a2f180b56c611fb3a0cd8a9d23436682903405f52dadc26257c5b676fb`; sdist SHA-256 `42e63403069e61235cefa71ebbc4099b5e717e1528a6eae54ef0673f20e69edd`; build/CI PASS, zero blockers.
+R6.9 started only after normalized main `616899291fc3b4dc40695415a5008d6fdd599230`.
 
-Both downloaded bundles contained the expected wheel, sdist, build manifest and CI report; both manifests were bound to `d632669b93fda7b8397b9c3de43d78ca8726323f`.
+Current implemented scope on `feature/r6-9-appsecurity`:
 
-Manual intervention R6.8: **CONDITIONAL — NOT TRIGGERED.** Hosted Windows fully proved the acceptance-critical package build/validation/hash/upload behavior, so no local user-side run is necessary.
+- structured assets, trust boundaries, entry points and threats with duplicate/cross-reference validation;
+- initial Kodepoia threat model for workspace paths, governed child processes, delegated secrets/model context, loopback services and external-network/download boundaries;
+- residual risk defaults UNKNOWN so architectural mitigation text never manufactures a LOW/PASS result;
+- stable requirement IDs with explicit `applicable` / `not_applicable` distinction;
+- N/A requires rationale and can never count as PASS or block;
+- measured PASS/WARN/FAIL requirements require an evidence source;
+- optional ASVS references must use version-qualified `v5.0.0-x.y.z` syntax;
+- dependency-vulnerability observations require exact component/version, timezone-aware check time and provenance; AFFECTED requires advisory IDs;
+- affected dependency or failed/blocking security requirement fails the aggregate report;
+- recursive secret redaction reuses the accepted R6.8 redaction contract;
+- canonical SHA-256 with derived count/blocker/status tamper rejection;
+- `.kodepoia/diagnostics/security/` persistence via `WorkspaceBoundary`;
+- Health `security` adapter and stable R6.3 requirement/dependency/threat cases;
+- fixed semantics ensure N/A/UNKNOWN/WARN map to SKIP rather than fake PASS;
+- JSON Schema `security-report-v1` and focused R6.9 tests;
+- no arbitrary scanner command/executable/cwd/URL/network path added.
 
-Implementation PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`. Post-merge normalization PR #48 passed R0 #790, Python Core #764 (including both package-build jobs) and UI Smoke #731, then merged as `92effbde1e432a8fcb6c794038d77367d034bcb0`.
+External reference baseline rechecked on 2026-08-22: OWASP ASVS stable release remains 5.0.0. Kodepoia uses it only as an applicable-control catalogue, not as a desktop-IDE certification claim.
 
-**R6.1–R6.8 = COMPLETE. R6 remains IN PROGRESS. R6.9 = NEXT / NOT STARTED.**
+**R6.1–R6.8 = COMPLETE. R6.9 = IN PROGRESS. R6 remains IN PROGRESS. R6.10 must not start before R6.9 is accepted, merged and normalized.**
 
 ## Manual-intervention forecast
 
@@ -72,7 +86,8 @@ Implementation PR #47 merged as `d570a3930ee63802882b8682e4532004d4fd81d6`. Post
 - R6.6 `NONE`: COMPLETE.
 - R6.7 `NONE`: COMPLETE.
 - R6.8 `CONDITIONAL`: NOT TRIGGERED; no user action required.
-- R6.9 and R6.10: `NONE` currently planned.
+- R6.9 `NONE`: no local user action planned or required by its contract.
+- R6.10 `NONE`: PLANNED.
 - R6.11 `CONDITIONAL`: only for unresolved acceptance-critical license/provenance ambiguity.
 - R6.12 `CONDITIONAL`: only if selected final gates require local hardware execution or explicit approval.
 

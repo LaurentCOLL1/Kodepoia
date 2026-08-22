@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS. R6.1 — KodeHealth et R6.2 — KodeBudget sont COMPLETE.** R6.2 a été acceptée sur le head `8ac3772e98c70260c320519a214bb25b6cedbb38` après CI finale verte, puis PR #32 a été fusionnée dans `main` en `65510a9b116d9c48b185a0edb51d99e5b951200a`. Après normalisation, reprendre par **R6.3 — KodeTests + KodeRegression foundation** depuis le `main` courant. Ne pas rouvrir une phase complète sans régression démontrée ou changement d'architecture nécessitant un ADR.
+> Kodepoia, architecture v1.0 gelée. **R1/R2/R3/R4/R5 sont COMPLETE. R6 est IN PROGRESS. R6.1 — KodeHealth, R6.2 — KodeBudget et R6.3 — KodeTests + KodeRegression sont COMPLETE.** R6.3 a été acceptée sur le head `7150237c263dd3ac96af4662d74909e05f3cf991` après CI finale verte, puis PR #34 a été fusionnée dans `main` en `6657b258f2396b3d6a3850153b1ffaae1951104d`. Après normalisation, reprendre uniquement le reste de R6 depuis le `main` courant. Ne pas rouvrir une phase complète sans régression démontrée ou changement d'architecture nécessitant un ADR, et ne pas passer à R7 avant achèvement de R6.
 
 ## Source de vérité et état des phases
 
@@ -20,7 +20,7 @@
 - R6 : IN PROGRESS.
 - R6.1 : COMPLETE — PR #30 merge `55c7394d0afc6b4b24653bdbee9b0e234b0ffea1`.
 - R6.2 : COMPLETE — PR #32 merge `65510a9b116d9c48b185a0edb51d99e5b951200a`.
-- R6.3 : NEXT — KodeTests + KodeRegression foundation.
+- R6.3 : COMPLETE — PR #34 merge `6657b258f2396b3d6a3850153b1ffaae1951104d`.
 - R7–R16 : PENDING according to the frozen roadmap.
 
 ## Accepted model roles
@@ -122,9 +122,37 @@ Final evidence:
 - KodeStudio UI Smoke `32561720008` / #544 — SUCCESS Windows;
 - PR #32 merged only after final-head gates were green.
 
+### R6.3 — KodeTests + KodeRegression foundation — COMPLETE
+
+Accepted implementation head `7150237c263dd3ac96af4662d74909e05f3cf991`, merged by PR #34 as `6657b258f2396b3d6a3850153b1ffaae1951104d`.
+
+Accepted scope:
+
+- stable unique test case IDs and `pass/fail/error/skip` observations;
+- deterministic test-run `unknown/pass/warn/fail` aggregation;
+- validated serialized counts and total duration;
+- atomic `.kodepoia/tests/runs/` persistence through `WorkspaceBoundary`;
+- baseline/current comparison by stable test ID and matching suite identity;
+- `unchanged/regressed/fixed/added/removed` classifications;
+- detection of PASS→FAIL/ERROR, PASS→SKIP, FAIL→ERROR, removed tests and new failing/error tests as regressions;
+- FAIL/ERROR→SKIP remains a regression so skipping cannot hide a known failure;
+- separately enumerable regressions, fixes, additions and removals;
+- derived-field tamper detection;
+- atomic `.kodepoia/tests/regression/` persistence through `WorkspaceBoundary`;
+- test-run-report-v1 and regression-report-v1 schemas;
+- no new arbitrary command-execution path.
+
+Final evidence:
+
+- isolated baseline/current comparison and persistence smoke: PASS;
+- R0 Repository Guard `32562032986` / #622 — SUCCESS Windows + Ubuntu;
+- Python Core `32562032998` / #596 — SUCCESS Windows + Ubuntu, PowerShell validation and integrated KodeStudio smoke;
+- KodeStudio UI Smoke `32562032982` / #563 — SUCCESS Windows;
+- PR #34 merged only after final-head gates were green.
+
 ## Next phase action
 
-Start **R6.3 — KodeTests + KodeRegression foundation** only from normalized current `main`, on a dedicated branch. R6 remains IN PROGRESS after R6.3; later scope still includes VisualQA, Accessibility, Localization, TechnicalDebt, CI/Build, AppSecurity baseline, Privacy baseline, License/BOM and major-patch validation/rollback.
+Stop after R6.3 unless the user explicitly asks to continue. The remaining R6 scope is VisualQA, Accessibility, Localization, TechnicalDebt, CI/Build, AppSecurity baseline, Privacy baseline, License/BOM and the requirement that every major patch has validation and rollback. Do not skip directly to R7.
 
 ## User operational preference — permanent
 

@@ -88,6 +88,7 @@ class DapSession:
         self.process = process
         self.request_timeout = request_timeout
         self._seq = 0
+        self._pending_responses: dict[int, dict[str, Any]] = {}
         self.capabilities: dict[str, Any] = {}
         self.events: list[dict[str, Any]] = []
         self.initialized = False
@@ -111,16 +112,26 @@ class DapSession:
         return self.capabilities
 
     def request(self, command: str, arguments: Mapping[str, Any] | None = None) -> Any:
-        self._seq += 1
-        request_seq = self._seq
-        message: dict[str, Any] = {
-            "seq": request_seq,
-            "type": "request",
-            "command": command,
-        }
-        if arguments is not None:
-            message["arguments"] = dict(arguments)
-        self.channel.send(message)
+        request_seq = self._send_request(command, arguments)
+        return self.wait_for_response(request_seq, command)
+
+    def begin_configuration(self, config: DebugConfigurationSpec) -> int:
+        """Send launch/attach without waiting for its response.
+
+        DAP permits adapters to delay the launch/attach response until after the
+        client has received ``initialized`` and sent ``configurationDone``.
+        Callers that need that sequencing can use this method together with
+        :meth:`wait_for_event`, :meth:`configuration_done` and
+        :meth:`wait_for_response`.
+        """
+        if not self.initialized:
+            raise DapError("Debug adapter is not initialized")
+        return self._send_request(config.mode, config.arguments)
+
+    def wait_for_response(self, request_seq: int, command: str) -> Any:
+        pending = self._pending_responses.pop(request_seq, None)
+        if pending is not None:
+            return self._response_body(pending, command)
 
         while True:
             incoming = self.channel.receive(self.request_timeout)
@@ -131,16 +142,39 @@ class DapSession:
             if msg_type == "request":
                 self._reject_adapter_request(incoming)
                 continue
-            if msg_type != "response" or incoming.get("request_seq") != request_seq:
+            if msg_type != "response":
                 continue
-            if not bool(incoming.get("success", False)):
-                raise DapError(str(incoming.get("message", f"DAP request failed: {command}")))
-            return incoming.get("body")
+            incoming_seq = incoming.get("request_seq")
+            if incoming_seq != request_seq:
+                if isinstance(incoming_seq, int):
+                    self._pending_responses[incoming_seq] = incoming
+                continue
+            return self._response_body(incoming, command)
+
+    def wait_for_event(self, event_name: str) -> dict[str, Any]:
+        for event in reversed(self.events):
+            if event.get("event") == event_name:
+                return event
+
+        while True:
+            incoming = self.channel.receive(self.request_timeout)
+            msg_type = incoming.get("type")
+            if msg_type == "event":
+                self.events.append(incoming)
+                if incoming.get("event") == event_name:
+                    return incoming
+                continue
+            if msg_type == "request":
+                self._reject_adapter_request(incoming)
+                continue
+            if msg_type == "response":
+                incoming_seq = incoming.get("request_seq")
+                if isinstance(incoming_seq, int):
+                    self._pending_responses[incoming_seq] = incoming
 
     def start_configuration(self, config: DebugConfigurationSpec) -> Any:
-        if not self.initialized:
-            raise DapError("Debug adapter is not initialized")
-        return self.request(config.mode, config.arguments)
+        request_seq = self.begin_configuration(config)
+        return self.wait_for_response(request_seq, config.mode)
 
     def set_breakpoints(self, source: Path, lines: Iterable[int]) -> Any:
         target = source.resolve(strict=True)
@@ -195,6 +229,25 @@ class DapSession:
             self.channel.close()
             if self.process is not None:
                 self.process.close()
+
+    def _send_request(self, command: str, arguments: Mapping[str, Any] | None = None) -> int:
+        self._seq += 1
+        request_seq = self._seq
+        message: dict[str, Any] = {
+            "seq": request_seq,
+            "type": "request",
+            "command": command,
+        }
+        if arguments is not None:
+            message["arguments"] = dict(arguments)
+        self.channel.send(message)
+        return request_seq
+
+    @staticmethod
+    def _response_body(incoming: dict[str, Any], command: str) -> Any:
+        if not bool(incoming.get("success", False)):
+            raise DapError(str(incoming.get("message", f"DAP request failed: {command}")))
+        return incoming.get("body")
 
     def _reject_adapter_request(self, request: dict[str, Any]) -> None:
         self._seq += 1

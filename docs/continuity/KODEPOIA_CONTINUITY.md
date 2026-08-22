@@ -4,19 +4,19 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.5 COMPLETE. R8.6 AUTHORIZED / NOT STARTED.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. Les acceptances R8.1–R8.5 sont exact-head et fusionnées. R8.5 manual = CONDITIONAL NOT TRIGGERED. La prochaine action autorisée est **R8.6 — Provenance, license/BOM + governed reuse/export**, sur une branche dédiée depuis le `main` normalisé après l'acceptance R8.1–R8.5. Ne pas commencer R8.7 directement. Toute modification de structure R8 synchronise plan + continuité; tout changement de fondation exige un ADR.
+> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.6 COMPLETE. R8.7 AUTHORIZED / NOT STARTED.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. Les acceptances R8.1–R8.6 sont exact-head et fusionnées; R8.5 manual = CONDITIONAL NOT TRIGGERED; R8.6 manual = NONE. La prochaine action autorisée est **R8.7 — Asset-aware Git/VCS integration**, uniquement après fusion de la normalisation R8.6. Ne pas commencer R8.8 directement. Toute modification de structure R8 synchronise plan + continuité; tout changement de fondation exige un ADR.
 
 ## Source de vérité et état
 
 - Dépôt : `LaurentCOLL1/Kodepoia` — PUBLIC volontairement.
 - Architecture v1.0 : gelée le 21 août 2026.
-- `main` : source de vérité après chaque fusion acceptée.
+- `main` : source de vérité après chaque fusion acceptée et sa normalisation requise.
 - R1–R6 : COMPLETE.
 - R7 : COMPLETE.
 - R8 planning : ACCEPTED.
-- R8.1–R8.5 : COMPLETE.
-- R8.6 : AUTHORIZED / NOT STARTED.
-- R8.7–R8.11 : PLANNED / NOT STARTED.
+- R8.1–R8.6 : COMPLETE.
+- R8.7 : AUTHORIZED / NOT STARTED après fusion de la normalisation R8.6.
+- R8.8–R8.11 : PLANNED / NOT STARTED.
 - R9–R16 : PENDING / NOT STARTED.
 
 ## R8 planning acceptance
@@ -38,7 +38,7 @@
 | R8.3 | Source/derived lineage + reproducible transform cache/rebuild | `a1b0b6b4e07b15521acdd3a86dd963ebe4acc9c8` | R0 #1047; Python #1021; UI #988 | NONE |
 | R8.4 | Duplicate + near-duplicate detection | `4bf9cbd4892208084cd8ce6554edfd96a971bc04` | R0 #1050; Python #1024; UI #991 | NONE |
 | R8.5 | Semantic asset search + hybrid ranking | `08c90bd8d52a7dd2dfc8da6ce94f6731701469f6` | R0 #1052; Python #1026; UI #993 | CONDITIONAL NOT TRIGGERED |
-| R8.6 | Provenance, license/BOM + governed reuse/export | NOT STARTED | — | NONE planned |
+| R8.6 | Provenance, license/BOM + governed reuse/export | `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe` | R0 #1057; Python #1031; UI #998 | NONE |
 | R8.7 | Asset-aware Git/VCS integration | NOT STARTED | — | NONE planned |
 | R8.8 | Git LFS tracking, pointer/object integrity + diagnostics | NOT STARTED | — | CONDITIONAL planned |
 | R8.9 | Godot 4.7 source/import bridge + rebuild verification | NOT STARTED | — | CONDITIONAL planned |
@@ -87,6 +87,17 @@
 - `OllamaEmbeddingProvider` reuses the accepted R3 `OllamaClient.embed` API; no second arbitrary network/model-download surface was created.
 - Manual CONDITIONAL was NOT TRIGGERED because no EMBED contract change/new authoritative hardware-local model was required.
 
+### R8.6 accepted baseline
+
+- Canonical R8 Vault revisions bridge into the existing R6 BOM/license policy engine; no second legal engine exists.
+- Missing or conflicting license evidence is explicit and blocks export rather than becoming unrestricted reuse.
+- Provenance, creator/publisher, attribution and notice evidence are preserved; local filesystem locators are hashed/redacted from exported reports.
+- Derived asset BOM components retain explicit source-revision lineage requirements, so transformation never invents or erases rights.
+- Project BOM contribution is derived from canonical Vault project references.
+- Export performs policy/reuse-scope preflight before writes, stages inside the authorized boundary, emits notices plus BOM/license evidence, and promotes atomically; blocked/failed export leaves no promoted partial target.
+- Exact accepted head `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe`; R0 #1057 / `32603562499`; Python Core #1031 / `32603562511` 5/5 with Ubuntu `547 passed / 5 skipped / 46 warnings`; UI Smoke #998 / `32603562503`; PR #91 merge `57c2aa010f438b95a3d753040f1565ae4b68e262`; manual NONE.
+- Rejected precursor `85b6c0a550297934194a58122b735a9d0808c5c6` failed only newly added fixture tests because the fixture misused frozen `ProjectAssetReference`/R8.3 transform contracts; the accepted correction changed the fixture and did not weaken production safeguards.
+
 ## R8 exact merge chain
 
 - R8.1 PR #85 merge `7001d9042dda5611f4dbcf7dacb7cd29110e6735`.
@@ -94,6 +105,7 @@
 - R8.3 PR #87 merge `ec83fba0e664387ec4abccf047721d1ab77d4a8e`.
 - R8.4 PR #88 merge `a35502e0f5f09e07f3ddfd7f929f6d4d4bb490f7`.
 - R8.5 PR #89 merge `9bb1f169d7f1534b0068ad43691accf1b6a5e14a`.
+- R8.6 PR #91 merge `57c2aa010f438b95a3d753040f1565ae4b68e262`.
 
 ## R7 source of truth retained
 
@@ -154,10 +166,10 @@ For R8 and every later phase:
 1. exhaustive phase plan is merged before the first subdivision;
 2. subdivision structure/manual states are not silently reinterpreted;
 3. implementation acceptance is exact-head and requires the documented gates;
-4. continuity is synchronized with accepted evidence;
+4. continuity is synchronized with accepted evidence before the next subdivision starts;
 5. scope/structure changes synchronize plan + continuity in the same work cycle;
 6. foundation changes require an ADR.
 
 ## Next action
 
-**R1–R7 COMPLETE. R8.1–R8.5 COMPLETE. R8.6 AUTHORIZED / NOT STARTED.** The next allowed implementation is only **R8.6 — Provenance, license/BOM + governed reuse/export** from normalized `main`. Do not start R8.7 first.
+**R1–R7 COMPLETE. R8.1–R8.6 COMPLETE. R8.7 AUTHORIZED / NOT STARTED.** Après fusion de cette normalisation R8.6, la prochaine implémentation autorisée est uniquement **R8.7 — Asset-aware Git/VCS integration** depuis le `main` normalisé. Ne pas commencer R8.8 d'abord.

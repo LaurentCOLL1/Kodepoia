@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/vault-rebuild-report-v1.schema.json",
+  "type": "object",
+  "required": ["schema_version", "asset_count", "revision_count", "project_reference_count", "corrupt_manifests"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "asset_count": {"type": "integer", "minimum": 0},
+    "revision_count": {"type": "integer", "minimum": 0},
+    "project_reference_count": {"type": "integer", "minimum": 0},
+    "corrupt_manifests": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

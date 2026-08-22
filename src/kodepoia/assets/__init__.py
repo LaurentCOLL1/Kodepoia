@@ -21,6 +21,7 @@ from kodepoia.assets.serialization import (
     manifest_digest,
     verify_content,
 )
+from kodepoia.assets.store import DeletionPlan, RebuildReport, VaultStore
 
 __all__ = [
     "AssetId",
@@ -30,12 +31,15 @@ __all__ = [
     "AssetRevisionId",
     "AssetRole",
     "AssetStatus",
+    "DeletionPlan",
     "LineageRef",
     "PreservationPolicy",
     "ProjectAssetReference",
     "ProvenanceRef",
+    "RebuildReport",
     "ReuseScope",
     "VaultBoundary",
+    "VaultStore",
     "VaultViolation",
     "canonical_json",
     "load_asset_record",

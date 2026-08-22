@@ -3,8 +3,8 @@
 **Phase:** R7 — Research sécurisé  
 **Overall status:** IN PROGRESS  
 **Planning:** ACCEPTED  
-**Current subdivision:** R7.9 NOT STARTED  
-**Manual blocker:** NONE for R7.9
+**Current subdivision:** R7.10 NOT STARTED  
+**Manual blocker:** NONE for R7.10
 
 ## Subdivision status
 
@@ -18,7 +18,7 @@
 | R7.6 | YouTube metadata + transcript ingestion | COMPLETE | `b623836b8f5bd39fce101eca7fe4653a996a9562` | CONDITIONAL NOT TRIGGERED |
 | R7.7 | Local STT + frame extraction/analysis hooks | COMPLETE | `04cef94c82fdacafe7313d27c8cf516e8e765295` | REQUIRED SATISFIED |
 | R7.8 | Version-awareness + provenance/conflict model | COMPLETE | `deb5de415541004fb07bfbc6d955e9d76d717533` | NONE |
-| R7.9 | Research cache + Context/Memory orchestration | NOT STARTED | — | NONE |
+| R7.9 | Research cache + Context/Memory orchestration | COMPLETE | `80390f95a11e5b3d4353b16eada26f10204bb4fa` | NONE |
 | R7.10 | CLI + KodeStudio Research UX | NOT STARTED | — | NONE |
 | R7.11 | Adversarial hardening + R7 integrated acceptance | NOT STARTED | — | CONDITIONAL |
 
@@ -33,6 +33,7 @@
 - R7.6: head `b623836b8f5bd39fce101eca7fe4653a996a9562`; R0 #980 / `32590863193`; Python Core #954 / `32590863199` 5/5 (`432 passed / 3 skipped / 46 warnings` Ubuntu); UI Smoke #921 / `32590863191`; PR #70 merge `15216b59e14d692ff1e850812d572632bad5a88b`; manual CONDITIONAL NOT TRIGGERED.
 - R7.7: head `04cef94c82fdacafe7313d27c8cf516e8e765295`; R0 #997 / `32594549119`; Python Core #971 / `32594549136` 5/5 (`443 passed / 4 skipped / 46 warnings` Ubuntu); UI Smoke #938 / `32594549125`; PR #72 merge `8f296c383a28be0055a72a67587422318257aefc`; manual REQUIRED SATISFIED.
 - R7.8: head `deb5de415541004fb07bfbc6d955e9d76d717533`; R0 #1001 / `32595358745`; Python Core #975 / `32595358772` 5/5 (`460 passed / 4 skipped / 46 warnings` Ubuntu); UI Smoke #942 / `32595358734`; PR #74 merge `f0de53379d6a8eb1883137946db4f2731cb9830a`; manual NONE.
+- R7.9: head `80390f95a11e5b3d4353b16eada26f10204bb4fa`; R0 #1018 / `32596697106`; Python Core #992 / `32596697107` 5/5 (`483 passed / 4 skipped / 46 warnings` Ubuntu); UI Smoke #959 / `32596697121`; PR #76 merge `5406887055117e7fea5cdd27579fb27b41051ed1`; manual NONE.
 
 Detailed evidence remains in the corresponding `R7_X_ACCEPTANCE.md` files.
 
@@ -78,6 +79,22 @@ Detailed evidence remains in the corresponding `R7_X_ACCEPTANCE.md` files.
 - canonical IDs/report digest fail closed on tampering or missing references;
 - R7.8 adds no network/process/UI surface and does not mutate R7.1–R7.7 artifacts.
 
+## R7.9 accepted cache/context/memory invariants
+
+- cache selection uses normalized query/scope/source/target/version/policy dimensions; invocation `request_id` is provenance, not a cache-key dimension;
+- raw query/scope text is absent from query manifests;
+- cache freshness is distinct from source freshness and never fabricates `CURRENT`;
+- mutable sources use the shorter TTL; stale cache requires explicit revalidation;
+- revalidation is rejected when source/version/content identity changes;
+- declared source version is retained alongside normalized R7.8 version evidence so historical artifact-ID collisions cannot silently collapse distinct versions;
+- deduplication preserves source/version/content provenance;
+- cached reports re-enter through typed `ResearchStore` validation and tampering fails closed;
+- context summaries are extractive, bounded, cited, secret-redacted and remain external/untrusted/guarded;
+- oversized findings are deterministically trimmed to their actual rendered budget instead of being dropped because of a guessed overhead;
+- Research Memory write is explicit, project-scoped, `allow_global_memory=false`, `allow_training_dataset=false`;
+- no summary automatically becomes validated global Experience;
+- R7.9 adds no network/process/tool surface.
+
 ## Next authorized action
 
-After this R7.8 normalization PR is accepted and merged, the next authorized subdivision is **R7.9 — Research cache + Context/Memory orchestration**. Manual intervention is **NONE**. R7.9 must add `.kodepoia/research` query/result manifests, TTL/revalidation, dedupe, bounded context/citation summaries and source/version/hash invalidation while preserving untrusted status through context/memory and never turning an LLM research summary into validated global experience.
+After this R7.9 normalization PR is accepted and merged, the next authorized subdivision is **R7.10 — CLI + KodeStudio Research UX**. Manual intervention is **NONE**. R7.10 must expose the already accepted research APIs through structured CLI commands and the frozen KodeStudio Research surface, while preserving permissions, cancellation, provenance, uncertainty, accessibility/localization and secret non-disclosure.

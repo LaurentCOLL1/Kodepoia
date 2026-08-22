@@ -35,7 +35,7 @@ No subdivision may be silently added, removed, merged, split or renumbered.
 - R6.6 head `6890b9d37722c74703e8b86f7de11dbfe66821ed`; R0 #733, Python Core #707, UI Smoke #674 SUCCESS.
 - R6.7 head `0da49c7526b54f562827d63477b7ce8f1865de43`; R0 #756, Python Core #730, UI Smoke #697 SUCCESS.
 - R6.8 head `d632669b93fda7b8397b9c3de43d78ca8726323f`; R0 #783, Python Core #757 five jobs, UI Smoke #724 SUCCESS; manual conditional NOT TRIGGERED.
-- R6.9 head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; R0 #812 `32573265598`, Python Core #786 `32573265793` five jobs, UI Smoke #753 `32573265579` SUCCESS; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 head `f42e2d2027c3a3601f22446cbbeee9f702e8458f` passed R0 #819, Python Core #793 five jobs and UI Smoke #760, then merged as `4df229e431d2d54e4268607f38bac4045ac590d1`.
+- R6.9 head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; R0 #812, Python Core #786 five jobs, UI Smoke #753 SUCCESS; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 head `f42e2d2027c3a3601f22446cbbeee9f702e8458f` passed R0 #819, Python Core #793 five jobs and UI Smoke #760, merged as `4df229e431d2d54e4268607f38bac4045ac590d1`.
 
 ## R6.10 implementation state
 
@@ -43,23 +43,32 @@ R6.10 started only after normalized main `4df229e431d2d54e4268607f38bac4045ac590
 
 Current implementation contract:
 
-- stable privacy data IDs and platform scope;
+- stable privacy data IDs, provenance and platform scope;
 - disposition `collected`, `none`, `not_applicable`;
 - collected source/purpose/storage/recipients/retention/deletion metadata;
 - explicit sensitivity including `unknown`;
-- legal/consent-basis placeholders with `unspecified`, `declared`, `not_applicable`; no basis inferred;
+- legal/consent basis `unspecified/declared/not_applicable`; no basis inferred;
+- explicit `inventory_complete` evidence; `true` requires `inventory_review_source`;
+- incomplete inventory cannot PASS and is deterministically penalized in Health score;
+- all-N/A evidence remains UNKNOWN; N/A inventory/issues/declarations are score-neutral;
 - privacy issue applicability/status/severity; N/A never PASS; measured outcomes require provenance;
-- Apple declaration-preparation fields for collection, linked-to-user, tracking and purposes;
-- Google Play preparation fields for collection, sharing, optionality and purposes;
+- Apple preparation fields: collection, linked-to-user, tracking, purposes;
+- Google Play preparation fields: collection, sharing, optionality, purposes;
 - declaration/inventory/platform cross-validation and derived readiness;
+- N/A store declaration remains R6.3 SKIP even when structurally ready;
 - metadata-only personal/secret evidence redaction;
-- canonical SHA-256 report with derived count/blocker/status/readiness tamper rejection;
+- canonical SHA-256 report with count/blocker/status/readiness tamper rejection;
 - `.kodepoia/diagnostics/privacy/` through `WorkspaceBoundary`;
 - Health `privacy` adapter and stable R6.3 privacy cases;
 - `privacy-report-v1.schema.json` and focused R6.10 tests;
 - no scanner, remote privacy SaaS, analytics implementation, network collector or store-submission path.
 
-External references are context only: GDPR-style purpose/minimisation/storage principles and Apple/Google store declaration models do not become automatic legal/compliance conclusions.
+Development evidence:
+
+- first diagnostic head `935d6b4fc7a29ad832df501f605c3648cde05988` was green (R0 #830, Python Core #804, UI Smoke #771), but independent review found a potential N/A/completeness false-green path;
+- hardened head `48daa4f82194e1875211f205b99ba19089f42d92` added explicit completeness provenance and N/A score neutrality and passed R0 #836, Python Core #810 five jobs, UI Smoke #777.
+
+External references are context only: GDPR-style purpose/minimisation/storage/security/accountability principles and Apple/Google store declaration models do not become automatic legal/compliance conclusions.
 
 **R6.1–R6.9 = COMPLETE. R6.10 = IN PROGRESS. R6 remains IN PROGRESS.**
 
@@ -71,7 +80,7 @@ External references are context only: GDPR-style purpose/minimisation/storage pr
 - R6.7 `NONE`: COMPLETE.
 - R6.8 `CONDITIONAL`: NOT TRIGGERED.
 - R6.9 `NONE`: COMPLETE.
-- R6.10 `NONE`: no user action required by the current contract.
+- R6.10 `NONE`: no user action or personal data required.
 - R6.11 `CONDITIONAL`: only for unresolved acceptance-critical license/provenance ambiguity.
 - R6.12 `CONDITIONAL`: only if selected final gates require local hardware execution or explicit approval.
 

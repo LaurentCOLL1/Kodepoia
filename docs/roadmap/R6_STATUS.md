@@ -19,8 +19,8 @@ R1–R5 remain COMPLETE. R6 remains active and must not be marked COMPLETE befor
 7. **R6.7 — KodeTechnicalDebt foundation** — COMPLETE — manual `NONE` — head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
 8. **R6.8 — KodeCI + KodeBuild foundation** — COMPLETE — manual `CONDITIONAL — NOT TRIGGERED` — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording #49 `616899291fc3b4dc40695415a5008d6fdd599230`.
 9. **R6.9 — KodeAppSecurity baseline** — COMPLETE — manual `NONE` — head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 `4df229e431d2d54e4268607f38bac4045ac590d1`.
-10. **R6.10 — KodePrivacy baseline** — IN PROGRESS — manual `NONE` — branch `feature/r6-10-privacy`, starting normalized main `4df229e431d2d54e4268607f38bac4045ac590d1`.
-11. **R6.11 — KodeLicense + KodeBOM foundation** — PLANNED — manual `CONDITIONAL`.
+10. **R6.10 — KodePrivacy baseline** — COMPLETE — manual `NONE` — head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`.
+11. **R6.11 — KodeLicense + KodeBOM foundation** — NEXT / NOT STARTED — manual `CONDITIONAL`.
 12. **R6.12 — Major-patch validation + rollback gate and R6 integration acceptance** — PLANNED — manual `CONDITIONAL`.
 
 No subdivision may be silently added, removed, merged, split or renumbered.
@@ -36,12 +36,13 @@ No subdivision may be silently added, removed, merged, split or renumbered.
 - R6.7 head `0da49c7526b54f562827d63477b7ce8f1865de43`; R0 #756, Python Core #730, UI Smoke #697 SUCCESS.
 - R6.8 head `d632669b93fda7b8397b9c3de43d78ca8726323f`; R0 #783, Python Core #757 five jobs, UI Smoke #724 SUCCESS; manual conditional NOT TRIGGERED.
 - R6.9 head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; R0 #812, Python Core #786 five jobs, UI Smoke #753 SUCCESS; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 head `f42e2d2027c3a3601f22446cbbeee9f702e8458f` passed R0 #819, Python Core #793 five jobs and UI Smoke #760, merged as `4df229e431d2d54e4268607f38bac4045ac590d1`.
+- R6.10 head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; R0 #844 `32575111465`, Python Core #818 `32575111540` all five jobs, UI Smoke #785 `32575111597` SUCCESS; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; manual NONE.
 
-## R6.10 implementation state
+## R6.10 accepted scope
 
-R6.10 started only after normalized main `4df229e431d2d54e4268607f38bac4045ac590d1`.
+R6.10 started only after normalized main `4df229e431d2d54e4268607f38bac4045ac590d1` and is accepted on exact head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`.
 
-Current implementation contract:
+Accepted contract:
 
 - stable privacy data IDs, provenance and platform scope;
 - disposition `collected`, `none`, `not_applicable`;
@@ -66,11 +67,12 @@ Current implementation contract:
 Development evidence:
 
 - first diagnostic head `935d6b4fc7a29ad832df501f605c3648cde05988` was green (R0 #830, Python Core #804, UI Smoke #771), but independent review found a potential N/A/completeness false-green path;
-- hardened head `48daa4f82194e1875211f205b99ba19089f42d92` added explicit completeness provenance and N/A score neutrality and passed R0 #836, Python Core #810 five jobs, UI Smoke #777.
+- hardened head `48daa4f82194e1875211f205b99ba19089f42d92` added explicit completeness provenance and N/A score neutrality and passed R0 #836, Python Core #810 five jobs, UI Smoke #777;
+- exact final head `e9363e0e00f592b39a7a094b7520b3d515fb02f0` passed R0 #844, Python Core #818 five jobs and UI Smoke #785 before PR #52 merged as `cefc60266cb191cf0ee5a099e0d8923a2f14745a`.
 
 External references are context only: GDPR-style purpose/minimisation/storage/security/accountability principles and Apple/Google store declaration models do not become automatic legal/compliance conclusions.
 
-**R6.1–R6.9 = COMPLETE. R6.10 = IN PROGRESS. R6 remains IN PROGRESS.**
+**R6.1–R6.10 = COMPLETE. R6.11 = NEXT / NOT STARTED until this post-merge normalization is CI-green and merged. R6 remains IN PROGRESS.**
 
 ## Manual-intervention forecast
 
@@ -80,7 +82,7 @@ External references are context only: GDPR-style purpose/minimisation/storage/se
 - R6.7 `NONE`: COMPLETE.
 - R6.8 `CONDITIONAL`: NOT TRIGGERED.
 - R6.9 `NONE`: COMPLETE.
-- R6.10 `NONE`: no user action or personal data required.
+- R6.10 `NONE`: COMPLETE; no user action or personal data required.
 - R6.11 `CONDITIONAL`: only for unresolved acceptance-critical license/provenance ambiguity.
 - R6.12 `CONDITIONAL`: only if selected final gates require local hardware execution or explicit approval.
 

@@ -1,59 +1,62 @@
 # R6.10 — KodePrivacy baseline — Acceptance
 
-**Status:** IN PROGRESS  
+**Status:** COMPLETE  
 **Parent plan:** `docs/roadmap/R6_PLAN.md`  
 **Starting normalized main:** `4df229e431d2d54e4268607f38bac4045ac590d1`  
+**Accepted implementation head:** `e9363e0e00f592b39a7a094b7520b3d515fb02f0`  
+**Implementation PR:** #52  
+**Implementation merge:** `cefc60266cb191cf0ee5a099e0d8923a2f14745a`  
 **Manual intervention:** NONE
 
-R6.10 is COMPLETE only after the exact final implementation head passes required hosted gates, the implementation PR merges, and post-merge plan/status/continuity normalization is CI-green and merged.
+R6.10 implementation is accepted on the exact final head above. This post-merge normalization records the accepted evidence and promotes R6.11 only after this documentation-only branch is itself CI-green and merged.
 
 ## Acceptance matrix
 
-| Gate | Required | Current |
+| Gate | Required | Result |
 | --- | --- | --- |
-| stable privacy data-category IDs | yes | IMPLEMENTED |
-| explicit `collected` / `none` / `not_applicable` | yes | IMPLEMENTED |
-| collected source/purpose/storage/retention/deletion required | yes | IMPLEMENTED |
-| `none/not_applicable` rationale required | yes | IMPLEMENTED |
-| collection lifecycle forbidden on none/N/A | yes | IMPLEMENTED |
-| sensitivity explicit, unknown preserved | yes | IMPLEMENTED |
-| legal/consent basis remains declared/unspecified/N/A | yes | IMPLEMENTED |
-| no legal basis inferred from silence | yes | IMPLEMENTED |
-| declared basis requires provenance | yes | IMPLEMENTED |
-| explicit inventory-completeness evidence | yes | IMPLEMENTED |
-| complete inventory requires review provenance | yes | IMPLEMENTED |
-| incomplete inventory cannot PASS | yes | IMPLEMENTED |
-| privacy issue applicability/status/severity | yes | IMPLEMENTED |
-| privacy N/A never PASS | yes | IMPLEMENTED |
-| N/A neutral in aggregate score | yes | IMPLEMENTED |
-| all-N/A evidence remains UNKNOWN | yes | IMPLEMENTED |
-| measured privacy issue requires evidence provenance | yes | IMPLEMENTED |
-| only FAIL can block | yes | IMPLEMENTED |
-| Apple declaration preparation fields | yes | IMPLEMENTED |
-| Google Play Data safety preparation fields | yes | IMPLEMENTED |
-| explicit declaration yes/no/unknown/N/A | yes | IMPLEMENTED |
-| store/platform mismatch fails closed | yes | IMPLEMENTED |
-| declaration cannot contradict inventory | yes | IMPLEMENTED |
-| declaration readiness derived and tamper checked | yes | IMPLEMENTED |
-| N/A declaration is R6.3 SKIP even when structurally ready | yes | IMPLEMENTED |
-| recursive secret/personal evidence redaction | yes | IMPLEMENTED |
-| canonical report SHA-256 | yes | IMPLEMENTED |
-| counts/blockers/status/readiness/hash tamper rejection | yes | IMPLEMENTED |
-| `privacy-report-v1` JSON Schema | yes | IMPLEMENTED |
-| `.kodepoia/diagnostics/privacy/` confinement | yes | IMPLEMENTED |
-| Health `privacy` adapter | yes | IMPLEMENTED |
-| stable R6.3 privacy cases | yes | IMPLEMENTED |
-| unknown/N/A/pending evidence never manufactures PASS | yes | IMPLEMENTED |
-| no scanner/network/store-submission execution path | yes | IMPLEMENTED |
-| R0 exact final head Windows+Ubuntu | yes | PENDING FINAL HEAD |
-| Python Core exact final head, all jobs | yes | PENDING FINAL HEAD |
-| KodeStudio UI Smoke exact final head | yes | PENDING FINAL HEAD |
-| implementation PR merge | yes | PENDING |
-| post-merge normalization | yes | PENDING |
+| stable privacy data-category IDs | yes | PASS |
+| explicit `collected` / `none` / `not_applicable` | yes | PASS |
+| collected source/purpose/storage/retention/deletion required | yes | PASS |
+| `none/not_applicable` rationale required | yes | PASS |
+| collection lifecycle forbidden on none/N/A | yes | PASS |
+| sensitivity explicit, unknown preserved | yes | PASS |
+| legal/consent basis remains declared/unspecified/N/A | yes | PASS |
+| no legal basis inferred from silence | yes | PASS |
+| declared basis requires provenance | yes | PASS |
+| explicit inventory-completeness evidence | yes | PASS |
+| complete inventory requires review provenance | yes | PASS |
+| incomplete inventory cannot PASS | yes | PASS |
+| privacy issue applicability/status/severity | yes | PASS |
+| privacy N/A never PASS | yes | PASS |
+| N/A neutral in aggregate score | yes | PASS |
+| all-N/A evidence remains UNKNOWN | yes | PASS |
+| measured privacy issue requires evidence provenance | yes | PASS |
+| only FAIL can block | yes | PASS |
+| Apple declaration preparation fields | yes | PASS |
+| Google Play Data safety preparation fields | yes | PASS |
+| explicit declaration yes/no/unknown/N/A | yes | PASS |
+| store/platform mismatch fails closed | yes | PASS |
+| declaration cannot contradict inventory | yes | PASS |
+| declaration readiness derived and tamper checked | yes | PASS |
+| N/A declaration is R6.3 SKIP even when structurally ready | yes | PASS |
+| recursive secret/personal evidence redaction | yes | PASS |
+| canonical report SHA-256 | yes | PASS |
+| counts/blockers/status/readiness/hash tamper rejection | yes | PASS |
+| `privacy-report-v1` JSON Schema | yes | PASS |
+| `.kodepoia/diagnostics/privacy/` confinement | yes | PASS |
+| Health `privacy` adapter | yes | PASS |
+| stable R6.3 privacy cases | yes | PASS |
+| unknown/N/A/pending evidence never manufactures PASS | yes | PASS |
+| no scanner/network/store-submission execution path | yes | PASS |
+| R0 exact final head Windows+Ubuntu | yes | PASS — #844 / `32575111465` |
+| Python Core exact final head, all jobs | yes | PASS — #818 / `32575111540` |
+| KodeStudio UI Smoke exact final head | yes | PASS — #785 / `32575111597` |
+| implementation PR merge | yes | PASS — PR #52 / `cefc60266cb191cf0ee5a099e0d8923a2f14745a` |
+| post-merge normalization | yes | THIS PR — must be CI-green before merge |
 
 ## Required behavioral acceptance
 
-The final suite must demonstrate at minimum:
+The final suite demonstrates:
 
 1. collected inventory items fail closed when purpose/storage/retention/deletion is missing;
 2. `none` and `not_applicable` are explicit, require rationale, and cannot carry collection lifecycle fields;
@@ -82,7 +85,7 @@ The final suite must demonstrate at minimum:
 
 ## Development diagnostic / design review
 
-The first implementation head `935d6b4fc7a29ad832df501f605c3648cde05988` was already CI-green (R0 #830, Python Core #804, UI Smoke #771). Independent contract review nevertheless found a potential false-green path: N/A values could contribute 100 points and a non-empty/all-N/A inventory did not require explicit completeness evidence.
+The first implementation head `935d6b4fc7a29ad832df501f605c3648cde05988` was already CI-green: R0 #830, Python Core #804 and UI Smoke #771. Independent contract review nevertheless found a potential false-green path: N/A values could contribute 100 points and a non-empty/all-N/A inventory did not require explicit completeness evidence.
 
 This was hardened rather than accepted as-is:
 
@@ -94,6 +97,15 @@ This was hardened rather than accepted as-is:
 - incomplete inventory remains WARN and receives a deterministic score completeness factor.
 
 Hardened diagnostic head `48daa4f82194e1875211f205b99ba19089f42d92` passed R0 #836, Python Core #810 with all five jobs and UI Smoke #777. No architecture boundary or legal/compliance claim was weakened.
+
+## Exact final hosted evidence
+
+Accepted final implementation head: `e9363e0e00f592b39a7a094b7520b3d515fb02f0`.
+
+- R0 Repository Guard #844 / `32575111465` — SUCCESS Windows + Ubuntu.
+- Python Core #818 / `32575111540` — SUCCESS for all five jobs: core Ubuntu, core Windows including PowerShell syntax validation, integrated Windows KodeStudio UI, package-build Ubuntu and package-build Windows.
+- KodeStudio UI Smoke #785 / `32575111597` — SUCCESS Windows.
+- PR #52 was marked ready only after those exact-head gates passed and was merged with `expected_head_sha=e9363e0e00f592b39a7a094b7520b3d515fb02f0` as `cefc60266cb191cf0ee5a099e0d8923a2f14745a`.
 
 ## External-reference interpretation
 
@@ -126,4 +138,4 @@ R6.10 does not require local GPU/Godot/hardware evidence. Hosted Windows + Ubunt
 
 ## Completion record
 
-PENDING exact-final-head CI, implementation merge and post-merge normalization.
+R6.10 implementation: **COMPLETE** on accepted head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`, PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`, manual intervention NONE. R6.11 remains blocked until this post-merge normalization is CI-green and merged.

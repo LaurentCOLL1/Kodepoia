@@ -4,13 +4,13 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R5 sont COMPLETE. R6 est IN PROGRESS. R6.1–R6.9 sont COMPLETE. R6.10 — KodePrivacy baseline est IN PROGRESS sur `feature/r6-10-privacy` depuis le main normalisé `4df229e431d2d54e4268607f38bac4045ac590d1`; PR draft #52 est ouverte.** R6.9 a été accepté sur `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`, PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`, puis normalisé par PR #51 head `f42e2d2027c3a3601f22446cbbeee9f702e8458f` après R0 #819, Python Core #793 cinq jobs et UI Smoke #760 SUCCESS, merge `4df229e431d2d54e4268607f38bac4045ac590d1`. R6.10 implémente un inventaire de données structuré, lifecycle source/purpose/storage/recipients/retention/deletion, sensibilité, base légale/consentement explicitement `unspecified/declared/not_applicable`, preuve explicite de complétude d'inventaire, issues privacy, préparation Apple/Google, redaction des secrets et valeurs personnelles, SHA-256 anti-tamper, Health PRIVACY et cas R6.3. Un inventaire incomplet reste WARN; un ensemble uniquement N/A reste UNKNOWN; N/A est neutre dans le score et reste SKIP dans R6.3. Aucun fondement légal n'est inféré, aucune donnée personnelle réelle n'est nécessaire dans les preuves/tests, aucun envoi store ou service privacy distant n'est ajouté. Manual R6.10 = NONE. Le premier diagnostic `935d6b4fc7a29ad832df501f605c3648cde05988` était vert (R0 #830, Python Core #804, UI #771), puis une revue indépendante a durci la neutralité N/A et la complétude; le head durci `48daa4f82194e1875211f205b99ba19089f42d92` a passé R0 #836, Python Core #810 cinq jobs et UI #777. Lire `R6_PLAN.md`, `R6_STATUS.md`, `R6_10_DESIGN.md`, `R6_10_ACCEPTANCE.md`, l'architecture gelée et ce fichier avant reprise. Ne pas commencer R6.11 avant acceptation/fusion/normalisation R6.10 et ne pas commencer R7 avant R6 COMPLETE.
+> Kodepoia, architecture v1.0 gelée. **R1–R5 sont COMPLETE. R6 est IN PROGRESS. R6.1–R6.10 sont COMPLETE. R6.11 — KodeLicense + KodeBOM est NEXT / NOT STARTED après fusion de la normalisation post-R6.10.** R6.10 a démarré depuis le main normalisé `4df229e431d2d54e4268607f38bac4045ac590d1`, a été accepté sur le head exact `e9363e0e00f592b39a7a094b7520b3d515fb02f0`, avec R0 #844 `32575111465`, Python Core #818 `32575111540` cinq jobs et UI Smoke #785 `32575111597` SUCCESS, puis PR #52 fusionnée avec verrou `expected_head_sha` en `cefc60266cb191cf0ee5a099e0d8923a2f14745a`. R6.10 conserve inventaire `collected/none/not_applicable`, lifecycle source/purpose/storage/recipients/retention/deletion, sensibilité, base légale/consentement `unspecified/declared/not_applicable`, preuve explicite `inventory_complete` + `inventory_review_source`, issues privacy, préparation Apple/Google, redaction des secrets/valeurs personnelles, SHA-256 anti-tamper, Health PRIVACY et cas R6.3. Un inventaire incomplet reste WARN; un ensemble uniquement N/A reste UNKNOWN; N/A est neutre dans le score et reste SKIP dans R6.3. Aucun fondement légal n'est inféré, aucune donnée personnelle réelle n'est nécessaire, aucun envoi store/service privacy distant n'est ajouté. Manual R6.10 = NONE. Lire `R6_PLAN.md`, `R6_STATUS.md`, `R6_10_DESIGN.md`, `R6_10_ACCEPTANCE.md`, l'architecture gelée et ce fichier avant reprise. Ne pas commencer R6.11 avant fusion de la normalisation post-R6.10; ne pas commencer R7 avant R6 COMPLETE.
 
 ## Source de vérité et état
 
 - Dépôt : `LaurentCOLL1/Kodepoia` — PUBLIC volontairement.
 - Architecture : v1.0 gelée le 21 août 2026.
-- Source de vérité avant R6.10 : normalized `main` `4df229e431d2d54e4268607f38bac4045ac590d1`.
+- Source de vérité de départ R6.10 : normalized `main` `4df229e431d2d54e4268607f38bac4045ac590d1`.
 - R1–R5 : COMPLETE.
 - R6 : IN PROGRESS.
 - R6 plan : ACCEPTED — PR #37 merge `0a91064608507966a47921df8fb36e5f25477141`; normalization #38 `e96e7c3b168975869c911f880044b7ef8e322157`.
@@ -23,8 +23,9 @@
 - R6.7 : COMPLETE — head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`; manual NONE.
 - R6.8 : COMPLETE — head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`; wording #49 `616899291fc3b4dc40695415a5008d6fdd599230`; manual CONDITIONAL NOT TRIGGERED.
 - R6.9 : COMPLETE — head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`; PR #50 merge `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 `4df229e431d2d54e4268607f38bac4045ac590d1`; manual NONE.
-- R6.10 : IN PROGRESS — branch `feature/r6-10-privacy`, PR #52 draft — manual NONE.
-- R6.11–R6.12 : PLANNED.
+- R6.10 : COMPLETE — head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`; PR #52 merge `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; manual NONE; post-merge normalization in progress.
+- R6.11 : NEXT / NOT STARTED — manual CONDITIONAL.
+- R6.12 : PLANNED.
 - R7–R16 : PENDING.
 
 ## Accepted model roles
@@ -59,8 +60,8 @@ Préserver `WorkspaceBoundary`, `ProcessSandbox` + KillSwitch, Guardian + `Permi
 7. R6.7 KodeTechnicalDebt — COMPLETE — NONE.
 8. R6.8 KodeCI + KodeBuild — COMPLETE — CONDITIONAL NOT TRIGGERED.
 9. R6.9 KodeAppSecurity — COMPLETE — NONE.
-10. R6.10 KodePrivacy — IN PROGRESS — NONE.
-11. R6.11 KodeLicense + KodeBOM — PLANNED — CONDITIONAL.
+10. R6.10 KodePrivacy — COMPLETE — NONE.
+11. R6.11 KodeLicense + KodeBOM — NEXT / NOT STARTED — CONDITIONAL.
 12. R6.12 major-patch validation/rollback + integrated R6 acceptance — PLANNED — CONDITIONAL.
 
 Ne pas ajouter/supprimer/fusionner/scinder/renuméroter silencieusement un R6.N.
@@ -76,7 +77,17 @@ Accepted final implementation head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351`:
 - normalization #51 head `f42e2d2027c3a3601f22446cbbeee9f702e8458f`: R0 #819, Python Core #793 cinq jobs, UI Smoke #760 SUCCESS; merge `4df229e431d2d54e4268607f38bac4045ac590d1`;
 - manual NONE.
 
-## R6.10 current implementation contract
+## R6.10 accepted evidence
+
+Accepted final implementation head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`:
+
+- R0 #844 `32575111465` SUCCESS Windows+Ubuntu;
+- Python Core #818 `32575111540` SUCCESS pour les cinq jobs: core Ubuntu, core Windows avec validation PowerShell, KodeStudio UI intégré Windows, package-build Ubuntu, package-build Windows;
+- UI Smoke #785 `32575111597` SUCCESS Windows;
+- implementation PR #52 fusionnée avec `expected_head_sha=e9363e0e00f592b39a7a094b7520b3d515fb02f0` en `cefc60266cb191cf0ee5a099e0d8923a2f14745a`;
+- manual NONE.
+
+## R6.10 accepted contract
 
 R6.10 construit une fondation de preuve et non un moteur de conclusion juridique:
 
@@ -95,13 +106,23 @@ R6.10 construit une fondation de preuve et non un moteur de conclusion juridique
 - schéma `privacy-report-v1.schema.json` et tests ciblés;
 - aucun scanner, remote privacy SaaS, analytics collector ni store submission.
 
-## R6.10 diagnostic evidence
+## R6.10 design hardening record
 
 - First diagnostic head `935d6b4fc7a29ad832df501f605c3648cde05988`: R0 #830, Python Core #804 cinq jobs et UI Smoke #771 SUCCESS.
 - Independent design review found a potential false-green path around N/A scoring and unproven inventory completeness; this was hardened instead of accepted.
 - Hardened head `48daa4f82194e1875211f205b99ba19089f42d92`: R0 #836 `32574885601`, Python Core #810 `32574885605` all five jobs, UI Smoke #777 `32574885624` SUCCESS.
+- Final head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`: R0 #844, Python Core #818 cinq jobs, UI Smoke #785 SUCCESS.
 
 Références externes utilisées uniquement comme contexte de modèle: principes GDPR (purpose limitation, minimisation, storage limitation, integrity/confidentiality/accountability), Google Play Data safety et Apple App Privacy/privacy manifests. Un PASS KodePrivacy signifie seulement que les preuves structurées sont complètes selon ce contrat, pas une conformité juridique.
+
+## R6.11 reference baseline recheck
+
+Au 22 août 2026, les références officielles revalidées pour R6.11 sont:
+
+- SPDX: version courante 3.0, standard international ISO/IEC 5962:2021;
+- CycloneDX: version stable 1.7 (ECMA-424, 2nd Edition); CycloneDX 2.0 est annoncé pour 2026 mais n'est pas encore la baseline stable.
+
+R6.11 doit conserver SPDX 3.0 comme baseline gelée du plan. CycloneDX 1.7 peut servir de format d'interopérabilité/validation additionnel sans remplacer silencieusement la baseline SPDX. Aucun changement de standard ne doit être adopté sans décision explicite et mise à jour de la continuité.
 
 ## Manual forecast
 
@@ -111,8 +132,8 @@ Références externes utilisées uniquement comme contexte de modèle: principes
 - R6.7 NONE COMPLETE.
 - R6.8 CONDITIONAL NOT TRIGGERED.
 - R6.9 NONE COMPLETE.
-- R6.10 NONE IN PROGRESS — aucune donnée personnelle ni exécution locale utilisateur requise.
-- R6.11 CONDITIONAL seulement si une ambiguïté provenance/licence critique reste non résolue.
+- R6.10 NONE COMPLETE.
+- R6.11 CONDITIONAL seulement si une ambiguïté provenance/licence critique reste non résolue après inspection des sources de confiance.
 - R6.12 CONDITIONAL seulement si les gates finaux sélectionnés requièrent hardware local ou approbation explicite.
 
 ## Permanent phase-start planning rule
@@ -121,4 +142,4 @@ PR #36 merge `56f12eb3eba1adc40a1cf4c58970ed40156360b9` impose à chaque phase m
 
 ## Next action
 
-Le prochain commit documentaire après ce fichier devient le candidat final R6.10. Sur ce SHA exact, exiger R0 + Python Core cinq jobs + UI Smoke SUCCESS. Si green, mettre à jour la PR #52 avec les preuves, la rendre ready, la fusionner avec `expected_head_sha`, puis créer `feature/r6-10-post-merge-normalization` et normaliser `R6_10_ACCEPTANCE.md`, `R6_STATUS.md`, `R6_PLAN.md` et ce fichier. R6.11 ne peut commencer qu'après le merge de cette normalisation. R7 reste interdit avant R6.12.
+Finir et fusionner la normalisation post-R6.10. Une fois son CI exact-head vert et son merge effectué, R6.11 — KodeLicense + KodeBOM peut démarrer depuis le nouveau `main` normalisé. R7 reste interdit avant R6.12.

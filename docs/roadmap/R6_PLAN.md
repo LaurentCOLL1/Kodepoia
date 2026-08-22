@@ -29,7 +29,7 @@ R6 may not be marked COMPLETE until every subdivision listed here is COMPLETE wi
 - PR #37 merged as `0a91064608507966a47921df8fb36e5f25477141`;
 - post-plan normalization PR #38 merged as `e96e7c3b168975869c911f880044b7ef8e322157`.
 
-**Planning gate result: PASS. R6.1–R6.9 are COMPLETE. R6.10 is NEXT / NOT STARTED after the R6.9 normalization PR is CI-green and merged.**
+**Planning gate result: PASS. R6.1–R6.10 are COMPLETE. R6.11 is NEXT / NOT STARTED after the R6.10 post-merge normalization PR is CI-green and merged.**
 
 ## Frozen-roadmap objective
 
@@ -81,7 +81,7 @@ Persistent R6 evidence belongs under initialized `.kodepoia/` roots and must be 
 - **CI/Build provenance:** SLSA v1.2 is reference context for artifact digest/source/build provenance. No SLSA level is claimed.
 - **Application security:** OWASP ASVS 5.0.0 is used only as an applicable-control catalogue; references are version-qualified and no global ASVS certification claim is made.
 - **Privacy:** GDPR principles and platform store declarations are reference context for explicit purpose/minimisation/retention/deletion and declaration-preparation fields. R6.10 must not make legal conclusions.
-- **Software BOM:** SPDX 3.0 is the stable R6 BOM baseline. Pre-release SPDX versions are not authoritative without an explicit later decision.
+- **Software BOM:** SPDX 3.0 is the stable R6 BOM baseline. CycloneDX 1.7 is the current stable CycloneDX line and may be used for optional interoperability/validation; CycloneDX 2.0 is announced for 2026 but is not silently adopted as the R6 baseline.
 
 If a versioned reference materially changes before a future subdivision is implemented, recheck it and record any acceptance-impacting change before coding.
 
@@ -98,8 +98,8 @@ If a versioned reference materially changes before a future subdivision is imple
 | R6.7 | KodeTechnicalDebt foundation | COMPLETE | NONE | R6.1–R6.6 |
 | R6.8 | KodeCI + KodeBuild foundation | COMPLETE | CONDITIONAL — NOT TRIGGERED | R6.1–R6.7 |
 | R6.9 | KodeAppSecurity baseline | COMPLETE | NONE | R6.3 + R6.7–R6.8 |
-| R6.10 | KodePrivacy baseline | NEXT / NOT STARTED | NONE | R6.7–R6.9 |
-| R6.11 | KodeLicense + KodeBOM foundation | PLANNED | CONDITIONAL | R6.7–R6.10 |
+| R6.10 | KodePrivacy baseline | COMPLETE | NONE | R6.7–R6.9 |
+| R6.11 | KodeLicense + KodeBOM foundation | NEXT / NOT STARTED | CONDITIONAL | R6.7–R6.10 |
 | R6.12 | Major-patch validation + rollback gate and R6 integration acceptance | PLANNED | CONDITIONAL | R6.1–R6.11 |
 
 No subdivision may be silently added, removed, merged, split or renumbered. Scope changes update this plan and continuity in the same work cycle; architecture-changing scope requires an ADR.
@@ -290,40 +290,61 @@ Manual intervention: **NONE — COMPLETE**.
 
 Anti-regression: never weaken N/A semantics, provenance, residual-risk UNKNOWN defaults, secret redaction or `WorkspaceBoundary`; never add arbitrary scanner commands/executables/cwd/URLs/model-provided process arguments.
 
-Post-merge normalization: this normalization records R6.9 COMPLETE and promotes R6.10 to NEXT / NOT STARTED only after its own CI is green and merged.
+Post-merge normalization: PR #51 head `f42e2d2027c3a3601f22446cbbeee9f702e8458f` passed R0 #819, Python Core #793 five jobs and UI Smoke #760, then merged as `4df229e431d2d54e4268607f38bac4045ac590d1`.
 
 ---
 
-# R6.10 — KodePrivacy baseline — NEXT / NOT STARTED
+# R6.10 — KodePrivacy baseline — COMPLETE
 
-## Objective
+## Objective achieved
 
-Establish structured data inventory/lifecycle evidence: what data exists, source, purpose, storage, recipient, retention, deletion and declaration needs.
+Established structured, local-first privacy evidence covering what data exists, source, purpose, storage, recipients, retention, deletion, sensitivity, basis placeholders and store-declaration preparation without making legal conclusions.
 
-## In scope / deliverables
+## Accepted scope
 
-- stable data-category IDs;
-- purpose and applicable legal/consent-basis placeholder fields without making legal conclusions;
-- storage, recipients, retention, deletion, sensitivity and platform scope;
-- explicit `none/not_applicable` semantics;
-- privacy issue severity/status;
-- report/schema + Health `privacy` adapter;
-- store-declaration preparation fields without submission claims;
-- retention/deletion fixtures;
-- governed diagnostic persistence;
-- no raw personal data copied into evidence.
+- stable data-category IDs and provenance;
+- explicit disposition `collected`, `none`, `not_applicable`;
+- collected source, purpose, storage, recipients, retention and deletion metadata;
+- explicit sensitivity including `unknown`;
+- `PrivacyBasisState` `unspecified/declared/not_applicable`, with no legal/consent basis inferred from silence;
+- declared basis requires provenance;
+- explicit `inventory_complete` and `inventory_review_source`; incomplete inventory cannot PASS;
+- all-N/A evidence remains UNKNOWN and N/A is score-neutral;
+- privacy issue applicability/status/severity; N/A never PASS; measured results require provenance;
+- Apple preparation fields for collected/link-to-user/tracking/purposes;
+- Google Play preparation fields for collected/shared/optionality/purposes;
+- store/platform/data-category/inventory cross-validation;
+- N/A store declaration remains R6.3 SKIP even when structurally ready;
+- recursive secret/personal-value redaction; no raw personal-data samples required;
+- canonical SHA-256 report, derived count/blocker/status/readiness validation and tamper rejection;
+- `privacy-report-v1.schema.json`;
+- `.kodepoia/diagnostics/privacy/` through `WorkspaceBoundary`;
+- Health `privacy` adapter and stable R6.3 cases;
+- no remote privacy SaaS, scanner, analytics collector, network collector or store-submission path.
 
-Out of scope: legal advice, automatic GDPR/CCPA/etc. compliance claims, store submission and remote analytics implementation.
+## Accepted evidence
 
-Acceptance: inventory completeness, explicit purpose/retention/deletion, no raw secrets/personal data in evidence, platform-aware declarations, Health integration, exact-head CI green, merge + normalization.
+- starting normalized main `4df229e431d2d54e4268607f38bac4045ac590d1`;
+- implementation branch `feature/r6-10-privacy`;
+- accepted final implementation head `e9363e0e00f592b39a7a094b7520b3d515fb02f0`;
+- R0 Repository Guard #844 `32575111465` — SUCCESS Windows + Ubuntu;
+- Python Core #818 `32575111540` — SUCCESS for all five jobs: core Ubuntu, core Windows including PowerShell syntax validation, integrated Windows UI, package-build Ubuntu and package-build Windows;
+- KodeStudio UI Smoke #785 `32575111597` — SUCCESS Windows;
+- implementation PR #52 merged with `expected_head_sha=e9363e0e00f592b39a7a094b7520b3d515fb02f0` as `cefc60266cb191cf0ee5a099e0d8923a2f14745a`.
 
-Manual intervention: **NONE**.
+Development review: first diagnostic head `935d6b4fc7a29ad832df501f605c3648cde05988` passed R0 #830, Python Core #804 and UI #771, but independent review found a potential false-green path around N/A scoring and unproven inventory completeness. The contract was hardened rather than accepted: `inventory_complete=true` now requires review provenance, incomplete inventory remains WARN, N/A inventory/issues/declarations are score-neutral, all-N/A remains UNKNOWN, and N/A store declarations remain R6.3 SKIP. Hardened head `48daa4f82194e1875211f205b99ba19089f42d92` then passed R0 #836, Python Core #810 five jobs and UI #777 before the exact final head was frozen.
 
-Risk: never infer consent/legal basis from silence. Purpose/minimisation/retention/deletion are evidence fields, not automatic legal conclusions.
+External-reference interpretation: GDPR principles and Apple/Google store declarations are reference context only. KodePrivacy does not infer lawful basis, consent requirements, legal compliance, store approval or certification.
+
+Manual intervention: **NONE — COMPLETE**.
+
+Anti-regression: never invent legal/consent basis, never mark inventory complete without provenance, never let N/A inflate score or become PASS, never copy raw personal data into evidence, and never weaken `WorkspaceBoundary`, redaction or declaration/inventory cross-validation.
+
+Post-merge normalization: this documentation-only branch records R6.10 COMPLETE and promotes R6.11 to NEXT / NOT STARTED only after its own exact-head CI is green and merged.
 
 ---
 
-# R6.11 — KodeLicense + KodeBOM foundation
+# R6.11 — KodeLicense + KodeBOM foundation — NEXT / NOT STARTED
 
 ## Objective
 
@@ -347,6 +368,8 @@ Out of scope: legal determination of ambiguous licenses, automatically granting 
 Acceptance: cohesive license/BOM modules, SPDX 3.0-compatible normalization sufficient for R6, schemas/tests, provenance/tamper checks, known fixture mapping, unresolved licenses remain unresolved, hashes retained, deterministic duplicates, no path escape, Health integration, CI green, merge + normalization.
 
 Manual intervention: **CONDITIONAL** only if an acceptance-critical component/asset remains ambiguous after trusted repository/package/authoritative-source inspection. Never invent an SPDX ID; unresolved ambiguity remains unknown/blocking until governed resolution or removal.
+
+Reference recheck on 2026-08-22: SPDX 3.0 remains the current SPDX version and the R6 baseline. CycloneDX 1.7 is the current stable CycloneDX specification (ECMA-424, 2nd Edition) and may be used as an additional interoperability/validation target. CycloneDX 2.0 is announced for 2026 but is not adopted as the R6 baseline without an explicit decision.
 
 ---
 
@@ -399,7 +422,7 @@ Risk: avoid circular validation where patch gate trusts its own summary without 
 - **R6.7 — NONE:** COMPLETE.
 - **R6.8 — CONDITIONAL:** NOT TRIGGERED; COMPLETE.
 - **R6.9 — NONE:** COMPLETE; no user action required.
-- **R6.10 — NONE:** NEXT / NOT STARTED.
+- **R6.10 — NONE:** COMPLETE; no user action required.
 - **R6.11 — CONDITIONAL:** provenance/license evidence only if an acceptance-critical component remains unresolved.
 - **R6.12 — CONDITIONAL:** local integration/approval only if final selected gates require hardware-local execution or explicit approval.
 
@@ -425,4 +448,5 @@ R6 is COMPLETE only when:
 - 2026-08-22: R6.6 accepted head `6890b9d37722c74703e8b86f7de11dbfe66821ed`; PR #43 merge `f677cb34eade0549edc951fe11955de2bc0b270d`; normalization #44 `c5edd3c80ad9afec25997f1372d5f98ac861becc`.
 - 2026-08-22: R6.7 accepted head `0da49c7526b54f562827d63477b7ce8f1865de43`; PR #45 merge `3986b056654b25a73e45e5135ca3110a920c4bf5`; normalization #46 `fc7bd4d5803c451b4d343d08bcc212868ad24412`.
 - 2026-08-22: R6.8 accepted head `d632669b93fda7b8397b9c3de43d78ca8726323f`; PR #47 merge `d570a3930ee63802882b8682e4532004d4fd81d6`; normalization #48 `92effbde1e432a8fcb6c794038d77367d034bcb0`; final wording #49 `616899291fc3b4dc40695415a5008d6fdd599230`.
-- 2026-08-22: R6.9 accepted head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351` after R0 #812, Python Core #786 and UI Smoke #753; PR #50 merged as `f5c135edf0be464a02b4b46d67c14e665f236009`; post-merge normalization records R6.9 COMPLETE and R6.10 NEXT / NOT STARTED.
+- 2026-08-22: R6.9 accepted head `1f24b0160cc28a03efdcbbc0aeb841125a1c5351` after R0 #812, Python Core #786 and UI Smoke #753; PR #50 merged as `f5c135edf0be464a02b4b46d67c14e665f236009`; normalization #51 head `f42e2d2027c3a3601f22446cbbeee9f702e8458f` passed R0 #819, Python Core #793 five jobs and UI #760, then merged as `4df229e431d2d54e4268607f38bac4045ac590d1`.
+- 2026-08-22: R6.10 accepted head `e9363e0e00f592b39a7a094b7520b3d515fb02f0` after R0 #844, Python Core #818 five jobs and UI Smoke #785; PR #52 merged as `cefc60266cb191cf0ee5a099e0d8923a2f14745a`; post-merge normalization records R6.10 COMPLETE and R6.11 NEXT / NOT STARTED.

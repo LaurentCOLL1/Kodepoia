@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/budget-report-v1.schema.json",
+  "title": "Kodepoia Budget Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "project_name",
+    "platform",
+    "status",
+    "coverage",
+    "blockers",
+    "unknown_metrics",
+    "results"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "project_name": {"type": "string"},
+    "platform": {
+      "enum": ["windows", "linux", "macos", "android", "ios", "web", "steam_deck", "xr"]
+    },
+    "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+    "coverage": {"type": "number", "minimum": 0, "maximum": 1},
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/metric_name"}
+    },
+    "unknown_metrics": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/metric_name"}
+    },
+    "results": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/result"}
+    }
+  },
+  "$defs": {
+    "metric_name": {
+      "enum": [
+        "fps",
+        "frame_time_ms",
+        "cpu_ms",
+        "gpu_ms",
+        "ram_mb",
+        "vram_mb",
+        "storage_mb",
+        "draw_calls",
+        "polygons",
+        "texture_mb",
+        "audio_memory_mb",
+        "audio_voices",
+        "build_size_mb",
+        "battery_percent_per_hour",
+        "thermal_level",
+        "network_kbps"
+      ]
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric",
+        "status",
+        "value",
+        "limit",
+        "target",
+        "direction",
+        "unit",
+        "blocking",
+        "source",
+        "details"
+      ],
+      "properties": {
+        "metric": {"$ref": "#/$defs/metric_name"},
+        "status": {"enum": ["unknown", "pass", "warn", "fail"]},
+        "value": {"type": ["number", "null"], "minimum": 0},
+        "limit": {"type": "number", "minimum": 0},
+        "target": {"type": ["number", "null"], "minimum": 0},
+        "direction": {"enum": ["at_least", "at_most"]},
+        "unit": {"type": "string"},
+        "blocking": {"type": "boolean"},
+        "source": {"type": "string"},
+        "details": {"type": "object"}
+      }
+    }
+  }
+}

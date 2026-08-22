@@ -13,6 +13,7 @@ from kodepoia.quality.accessibility import (
 
 ACCESSIBILITY_REQUIRED_PROPERTY = "kodepoiaAccessibilityRequired"
 DESCRIPTION_REQUIRED_PROPERTY = "kodepoiaAccessibilityDescriptionRequired"
+QT_INTERNAL_CONTROL_IDS = frozenset({"ScrollLeftButton", "ScrollRightButton"})
 
 MAIN_REQUIRED_CONTROL_IDS = (
     "mainNavigation",
@@ -169,7 +170,11 @@ def _discover_unregistered_owned_controls(root) -> list:
         if not isinstance(widget, interactive_types):
             continue
         object_name = widget.objectName().strip()
-        if not object_name or object_name.startswith("qt_"):
+        if (
+            not object_name
+            or object_name.startswith("qt_")
+            or object_name in QT_INTERNAL_CONTROL_IDS
+        ):
             continue
         if bool(widget.property(ACCESSIBILITY_REQUIRED_PROPERTY)):
             continue

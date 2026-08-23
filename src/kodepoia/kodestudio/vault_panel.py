@@ -180,7 +180,18 @@ def create_vault_page(
     )
     cancel_button.setEnabled(False)
 
-    for widget in (query, kind, role, reuse, include_blocked, search_button, refresh_button, duplicate_button, rebuild_button, cancel_button):
+    for widget in (
+        query,
+        kind,
+        role,
+        reuse,
+        include_blocked,
+        search_button,
+        refresh_button,
+        duplicate_button,
+        rebuild_button,
+        cancel_button,
+    ):
         controls.addWidget(widget)
     layout.addLayout(controls)
 
@@ -213,6 +224,19 @@ def create_vault_page(
     warning.setWordWrap(True)
     layout.addWidget(warning)
 
+    lineage_view = QPlainTextEdit()
+    lineage_view.setReadOnly(True)
+    lineage_view.setMaximumBlockCount(200)
+    mark_accessible(
+        lineage_view,
+        object_name="vaultLineageView",
+        name="Asset lineage graph",
+        description="Read-only source and derived revision relationships rendered as directional revision edges.",
+        description_required=True,
+    )
+    lineage_view.setPlaceholderText("Select an exact asset revision to inspect source → derived lineage.")
+    layout.addWidget(lineage_view, 1)
+
     details = QPlainTextEdit()
     details.setReadOnly(True)
     mark_accessible(
@@ -224,12 +248,15 @@ def create_vault_page(
     )
     layout.addWidget(details, 1)
 
-    operation = QLabel(translator.text("vault.operation.idle"))
-    operation.setObjectName("vaultOperationStatus")
-    layout.addWidget(operation)
+    progress = QLabel(translator.text("vault.operation.idle"))
+    progress.setObjectName("vaultOperationStatus")
+    budget = QLabel("Budget: IDLE")
+    budget.setObjectName("vaultOperationBudget")
+    layout.addWidget(progress)
+    layout.addWidget(budget)
 
     def set_status(text: str) -> None:
-        operation.setText(text)
+        progress.setText(text)
         if status_bar is not None:
             status_bar.showMessage(text)
 
@@ -239,10 +266,16 @@ def create_vault_page(
             page._kodepoia_workers.remove(worker)
         page._kodepoia_cancel_token = None
 
-    def start_worker(action: Callable[[AssetService, AssetCancellationToken], Any], on_result: Callable[[Any], None]) -> None:
+    def start_worker(
+        action: Callable[[AssetService, AssetCancellationToken], Any],
+        on_result: Callable[[Any], None],
+        *,
+        budget_text: str,
+    ) -> None:
         token = AssetCancellationToken()
         page._kodepoia_cancel_token = token
         cancel_button.setEnabled(True)
+        budget.setText(f"Budget: {budget_text}")
         set_status(translator.text("vault.operation.running"))
 
         def isolated() -> Any:
@@ -313,7 +346,11 @@ def create_vault_page(
             apply_status(payload["status"])
             fill_rows(payload["assets"])
 
-        start_worker(action, done)
+        start_worker(
+            action,
+            done,
+            budget_text="1 health snapshot + canonical asset rows; local-only VCS/LFS probes",
+        )
 
     def run_search() -> None:
         text = query.text().strip()
@@ -327,20 +364,27 @@ def create_vault_page(
             include_blocked=include_blocked.isChecked(),
         )
         start_worker(
-            lambda worker_service, token: worker_service.search(text, filters=filters, token=token),
+            lambda worker_service, token: worker_service.search(text, filters=filters, limit=50, token=token),
             fill_rows,
+            budget_text="≤50 ranked results; exact facets before ranking",
         )
 
     def run_duplicates() -> None:
         start_worker(
-            lambda worker_service, token: worker_service.duplicate_candidates(token=token),
-            lambda payload: details.setPlainText(json.dumps(jsonable(payload), ensure_ascii=False, indent=2, sort_keys=True)),
+            lambda worker_service, token: worker_service.duplicate_candidates(threshold=0.90, token=token),
+            lambda payload: details.setPlainText(
+                json.dumps(jsonable(payload), ensure_ascii=False, indent=2, sort_keys=True)
+            ),
+            budget_text="all canonical revisions; near-duplicate threshold 0.90; no auto-merge",
         )
 
     def run_rebuild() -> None:
         start_worker(
             lambda worker_service, token: worker_service.rebuild(token=token),
-            lambda payload: details.setPlainText(json.dumps(jsonable(payload), ensure_ascii=False, indent=2, sort_keys=True)),
+            lambda payload: details.setPlainText(
+                json.dumps(jsonable(payload), ensure_ascii=False, indent=2, sort_keys=True)
+            ),
+            budget_text="canonical manifest scan + one search document per revision; cancellable between stages",
         )
 
     def cancel() -> None:
@@ -348,6 +392,22 @@ def create_vault_page(
         if token is not None:
             token.cancel()
             set_status(translator.text("vault.operation.cancelling"))
+
+    def render_lineage(revision_id: str, payload: dict[str, Any]) -> None:
+        lines: list[str] = []
+        for edge in payload.get("inputs", []):
+            source = str(edge.get("input_revision_id", "UNKNOWN"))
+            relation = str(edge.get("relation", "input"))
+            transform = edge.get("transform_id") or "direct"
+            lines.append(f"{source} --[{relation}; {transform}]--> {revision_id}")
+        for edge in payload.get("outputs", []):
+            target = str(edge.get("revision_id", "UNKNOWN"))
+            relation = str(edge.get("relation", "input"))
+            transform = edge.get("transform_id") or "direct"
+            lines.append(f"{revision_id} --[{relation}; {transform}]--> {target}")
+        if not lines:
+            lines.append(f"{revision_id} — no recorded lineage edges")
+        lineage_view.setPlainText("\n".join(lines))
 
     def select_row() -> None:
         row = table.currentRow()
@@ -364,6 +424,7 @@ def create_vault_page(
             return
         payload = jsonable(detail)
         details.setPlainText(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+        lineage_view.setPlainText(f"Loading lineage for {revision_id}…")
         if detail.summary.license_state in {"unknown", "block"}:
             warning.setText(translator.text("vault.license.warning", state=detail.summary.license_state))
         else:
@@ -371,12 +432,18 @@ def create_vault_page(
 
         def repository_done(evidence: Any) -> None:
             current = json.loads(details.toPlainText())
-            current["repository_evidence"] = jsonable(evidence)
+            current["repository_evidence"] = jsonable(evidence["repository_evidence"])
+            current["lineage"] = jsonable(evidence["lineage"])
             details.setPlainText(json.dumps(current, ensure_ascii=False, indent=2, sort_keys=True))
+            render_lineage(revision_id, evidence["lineage"])
 
         start_worker(
-            lambda worker_service, token: worker_service.repository_evidence(revision_id),
+            lambda worker_service, token: {
+                "repository_evidence": worker_service.repository_evidence(revision_id),
+                "lineage": worker_service.lineage(revision_id),
+            },
             repository_done,
+            budget_text="1 exact revision + local VCS/LFS evidence + full lineage edge scan",
         )
 
     search_button.clicked.connect(run_search)

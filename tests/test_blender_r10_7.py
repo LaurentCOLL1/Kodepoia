@@ -89,7 +89,7 @@ def test_r10_7_clip_normalizes_quaternion_and_rejects_bad_frames() -> None:
     quaternion = next(channel for channel in parsed.clip.channels if channel.path.value == "rotation_quaternion")
     assert quaternion.keys[0].value == (1.0, 0.0, 0.0, 0.0)
     bad = recipe("a" * 64)
-    bad["clip"]["channels"][0]["keys"][0]["frame"] = 11.0  # type: ignore[index]
+    bad["clip"]["channels"][0]["keys"][1]["frame"] = 11.0  # type: ignore[index]
     with pytest.raises(BlenderBoundaryError, match="outside clip frame range"):
         RetargetRecipe.from_dict(bad)
 

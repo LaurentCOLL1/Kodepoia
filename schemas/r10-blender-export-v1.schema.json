@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-blender-export-v1.schema.json",
+  "title": "Kodepoia R10 Blender export manifest root v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "payload"],
+  "properties": {
+    "schema": {"const": "kodepoia.blender.export"},
+    "version": {"const": 1},
+    "payload": {"type": "object"}
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r8-integration-report-v1.schema.json",
+  "title": "Kodepoia R8 Integrated Acceptance Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "source_sha",
+    "subdivisions",
+    "status",
+    "blockers",
+    "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "minLength": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "subdivisions": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "prefixItems": [
+        {"$ref": "#/$defs/subdivision1"},
+        {"$ref": "#/$defs/subdivision2"},
+        {"$ref": "#/$defs/subdivision3"},
+        {"$ref": "#/$defs/subdivision4"},
+        {"$ref": "#/$defs/subdivision5"},
+        {"$ref": "#/$defs/subdivision6"},
+        {"$ref": "#/$defs/subdivision7"},
+        {"$ref": "#/$defs/subdivision8"},
+        {"$ref": "#/$defs/subdivision9"},
+        {"$ref": "#/$defs/subdivision10"},
+        {"$ref": "#/$defs/subdivision11"}
+      ],
+      "items": false
+    },
+    "status": {"enum": ["unknown", "pass", "fail"]},
+    "blockers": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "manualState": {
+      "enum": [
+        "none",
+        "required_satisfied",
+        "conditional_not_triggered",
+        "conditional_satisfied",
+        "required_unsatisfied",
+        "conditional_triggered_unsatisfied"
+      ]
+    },
+    "baseSubdivision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subdivision",
+        "status",
+        "source",
+        "evidence_sha256",
+        "evidence_bytes",
+        "accepted_head",
+        "manual_state",
+        "manual_reason",
+        "manual_satisfied"
+      ],
+      "properties": {
+        "subdivision": {"type": "string"},
+        "status": {"enum": ["unknown", "pass", "fail"]},
+        "source": {"type": "string"},
+        "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "evidence_bytes": {"type": "integer", "minimum": 1},
+        "accepted_head": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "manual_state": {"$ref": "#/$defs/manualState"},
+        "manual_reason": {"type": "string", "minLength": 1},
+        "manual_satisfied": {"type": "boolean"}
+      }
+    },
+    "subdivision1": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.1"}, "source": {"const": "docs/roadmap/R8_1_ACCEPTANCE.md"}}}]},
+    "subdivision2": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.2"}, "source": {"const": "docs/roadmap/R8_2_ACCEPTANCE.md"}}}]},
+    "subdivision3": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.3"}, "source": {"const": "docs/roadmap/R8_3_ACCEPTANCE.md"}}}]},
+    "subdivision4": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.4"}, "source": {"const": "docs/roadmap/R8_4_ACCEPTANCE.md"}}}]},
+    "subdivision5": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.5"}, "source": {"const": "docs/roadmap/R8_5_ACCEPTANCE.md"}}}]},
+    "subdivision6": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.6"}, "source": {"const": "docs/roadmap/R8_6_ACCEPTANCE.md"}}}]},
+    "subdivision7": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.7"}, "source": {"const": "docs/roadmap/R8_7_ACCEPTANCE.md"}}}]},
+    "subdivision8": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.8"}, "source": {"const": "docs/roadmap/R8_8_ACCEPTANCE.md"}}}]},
+    "subdivision9": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.9"}, "source": {"const": "docs/roadmap/R8_9_ACCEPTANCE.md"}}}]},
+    "subdivision10": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.10"}, "source": {"const": "docs/roadmap/R8_10_ACCEPTANCE.md"}}}]},
+    "subdivision11": {"allOf": [{"$ref": "#/$defs/baseSubdivision"}, {"properties": {"subdivision": {"const": "R8.11"}, "source": {"const": "docs/roadmap/R8_11_ACCEPTANCE.md"}}}]}
+  }
+}

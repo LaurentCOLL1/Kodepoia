@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.7 COMPLETE. R8.8 AUTHORIZED / NOT STARTED.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. Les acceptances R8.1–R8.7 sont exact-head et fusionnées; R8.5 manual = CONDITIONAL NOT TRIGGERED; R8.6/R8.7 manual = NONE. La prochaine action autorisée est **R8.8 — Git LFS tracking, pointer/object integrity + diagnostics**, uniquement après fusion de la normalisation R8.7. Ne pas commencer R8.9 directement. Toute modification de structure R8 synchronise plan + continuité; tout changement de fondation exige un ADR.
+> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.8 COMPLETE. R8.9 AUTHORIZED / NOT STARTED.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. Les acceptances R8.1–R8.8 sont exact-head et fusionnées; R8.5/R8.8 manual = CONDITIONAL NOT TRIGGERED; R8.6/R8.7 manual = NONE. La prochaine action autorisée est **R8.9 — Godot 4.7 source/import bridge + rebuild verification**, uniquement après fusion de la normalisation R8.8. Ne pas commencer R8.10 directement. Si le gate manuel R8.9 devient REQUIRED, arrêter avant R8.10 et fournir la procédure locale exacte. Toute modification de structure R8 synchronise plan + continuité; tout changement de fondation exige un ADR.
 
 ## Source de vérité et état
 
@@ -14,9 +14,9 @@
 - R1–R6 : COMPLETE.
 - R7 : COMPLETE.
 - R8 planning : ACCEPTED.
-- R8.1–R8.7 : COMPLETE.
-- R8.8 : AUTHORIZED / NOT STARTED après fusion de la normalisation R8.7.
-- R8.9–R8.11 : PLANNED / NOT STARTED.
+- R8.1–R8.8 : COMPLETE.
+- R8.9 : AUTHORIZED / NOT STARTED après fusion de la normalisation R8.8.
+- R8.10–R8.11 : PLANNED / NOT STARTED.
 - R9–R16 : PENDING / NOT STARTED.
 
 ## R8 planning acceptance
@@ -40,7 +40,7 @@
 | R8.5 | Semantic asset search + hybrid ranking | `08c90bd8d52a7dd2dfc8da6ce94f6731701469f6` | R0 #1052; Python #1026; UI #993 | CONDITIONAL NOT TRIGGERED |
 | R8.6 | Provenance, license/BOM + governed reuse/export | `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe` | R0 #1057; Python #1031; UI #998 | NONE |
 | R8.7 | Asset-aware Git/VCS integration | `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3` | R0 #1061; Python #1035; UI #1002 | NONE |
-| R8.8 | Git LFS tracking, pointer/object integrity + diagnostics | NOT STARTED | — | CONDITIONAL planned |
+| R8.8 | Git LFS tracking, pointer/object integrity + diagnostics | `32e5ace263546d85ee662c5ba333caaaefaa8bcc` | R0 #1066; Python #1040; UI #1007 | CONDITIONAL NOT TRIGGERED |
 | R8.9 | Godot 4.7 source/import bridge + rebuild verification | NOT STARTED | — | CONDITIONAL planned |
 | R8.10 | CLI + KodeStudio Vault/Asset/VCS UX | NOT STARTED | — | NONE planned |
 | R8.11 | Adversarial hardening + R8 integrated acceptance | NOT STARTED | — | CONDITIONAL planned |
@@ -109,6 +109,16 @@
 - No remote push, arbitrary flags/refspecs/config keys, merge/rebase automation or history rewrite is exposed.
 - Exact accepted head `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3`; R0 #1061 / `32603884834`; Python Core #1035 / `32603884762` 5/5 with Ubuntu `552 passed / 5 skipped / 46 warnings`; UI Smoke #1002 / `32603884719`; PR #93 merge `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9`; manual NONE.
 
+### R8.8 accepted baseline
+
+- Git LFS pointer v1 parsing is independent, strict and canonical: version URL, SHA-256 OID, exact size and ordered extension evidence are validated without invoking a remote.
+- Git LFS capability/list/fsck operations use a fixed local ProcessSandbox surface; fetch/pull/push and migration/history rewrite are not exposed.
+- `.gitattributes` heavy-asset policy and path-effective attributes are inspectable; updates are restricted to the frozen policy set, explicitly confirmed, SafeChange-snapshotted, atomic and audited.
+- Pointer, invalid pointer, missing/mismatched local LFS object, hydrated match/mismatch and pointer-only working tree are distinct states.
+- Local object probing is confined to the authorized Git common directory; an external storage location is explicit `UNAVAILABLE`.
+- Exact accepted head `32e5ace263546d85ee662c5ba333caaaefaa8bcc`; R0 #1066 / `32604356727`; Python Core #1040 / `32604356661` 5/5 with Ubuntu `558 passed / 5 skipped / 46 warnings`; UI Smoke #1007 / `32604356692`; PR #95 merge `8923f6aa75656033887dd93551fc7b2651d78f04`; manual CONDITIONAL NOT TRIGGERED.
+- Rejected precursor `6b02a22fb4c526a53579a96e81ade3a3088a5e88` failed one new fixture because the active LFS clean filter rewrote the malformed test case; accepted fixture now stages exact raw blobs and production safeguards were not weakened.
+
 ## R8 exact merge chain
 
 - R8.1 PR #85 merge `7001d9042dda5611f4dbcf7dacb7cd29110e6735`.
@@ -118,6 +128,7 @@
 - R8.5 PR #89 merge `9bb1f169d7f1534b0068ad43691accf1b6a5e14a`.
 - R8.6 PR #91 merge `57c2aa010f438b95a3d753040f1565ae4b68e262`.
 - R8.7 PR #93 merge `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9`.
+- R8.8 PR #95 merge `8923f6aa75656033887dd93551fc7b2651d78f04`.
 
 ## R7 source of truth retained
 
@@ -184,4 +195,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R7 COMPLETE. R8.1–R8.7 COMPLETE. R8.8 AUTHORIZED / NOT STARTED.** Après fusion de cette normalisation R8.7, la prochaine implémentation autorisée est uniquement **R8.8 — Git LFS tracking, pointer/object integrity + diagnostics** depuis le `main` normalisé. Si son gate manuel CONDITIONAL devient REQUIRED, arrêter avant R8.9 et fournir uniquement la procédure manuelle documentée.
+**R1–R7 COMPLETE. R8.1–R8.8 COMPLETE. R8.9 AUTHORIZED / NOT STARTED.** Après fusion de cette normalisation R8.8, la prochaine implémentation autorisée est uniquement **R8.9 — Godot 4.7 source/import bridge + rebuild verification** depuis le `main` normalisé. Si son gate manuel CONDITIONAL devient REQUIRED, arrêter avant R8.10 et fournir uniquement la procédure manuelle documentée.

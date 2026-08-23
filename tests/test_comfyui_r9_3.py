@@ -22,7 +22,7 @@ from kodepoia.comfyui.inventory import (
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_PATH = ROOT / "tests" / "fixtures" / "comfyui" / "r9_3_inventory.json"
-SCHEMA_PATH = ROOT / "schemas" / "comfy-capability-snapshot-v1.schema.json"
+PAYLOAD_SCHEMA_PATH = ROOT / "schemas" / "comfy-capability-snapshot-payload-v1.schema.json"
 
 
 class _Handler(BaseHTTPRequestHandler):
@@ -89,8 +89,10 @@ def _capture(fixture: dict[str, Any], when: datetime):
 def test_inventory_capture_is_deterministic_and_timestamp_is_evidence_only(
     inventory_fixture: dict[str, Any],
 ) -> None:
-    first = _capture(inventory_fixture, datetime(2026, 8, 23, 8, 0, tzinfo=timezone.utc))
-    second = _capture(inventory_fixture, datetime(2026, 8, 23, 9, 0, tzinfo=timezone.utc))
+    with _server(inventory_fixture) as endpoint:
+        inventory = ComfyCapabilityInventory(ComfyUIClient(endpoint))
+        first = inventory.capture(captured_at=datetime(2026, 8, 23, 8, 0, tzinfo=timezone.utc))
+        second = inventory.capture(captured_at=datetime(2026, 8, 23, 9, 0, tzinfo=timezone.utc))
     assert first.state.value == "current"
     assert first.identity_sha256 == second.identity_sha256
     assert first.captured_at != second.captured_at
@@ -128,7 +130,7 @@ def test_snapshot_diff_marks_inventory_change_stale(inventory_fixture: dict[str,
     assert diff.changed_model_types == ("checkpoints",)
 
 
-def test_missing_inventory_route_is_unavailable_not_empty_success(inventory_fixture: dict[str, Any]) -> None:
+def test_missing_inventory_route_never_becomes_empty_success(inventory_fixture: dict[str, Any]) -> None:
     class MissingModels(_Handler):
         fixture = inventory_fixture
 
@@ -144,7 +146,6 @@ def test_missing_inventory_route_is_unavailable_not_empty_success(inventory_fixt
     try:
         host, port = server.server_address
         with pytest.raises(ComfyProtocolError):
-            # HTTP 503 is a protocol response, not an authoritative empty inventory.
             ComfyCapabilityInventory(ComfyUIClient(f"http://{host}:{port}")).capture()
     finally:
         server.shutdown()
@@ -174,10 +175,10 @@ def test_snapshot_store_roundtrips_and_detects_tampering(tmp_path: Path, invento
         store.load("current")
 
 
-def test_snapshot_schema_accepts_canonical_document(inventory_fixture: dict[str, Any]) -> None:
+def test_snapshot_payload_schema_accepts_canonical_payload(inventory_fixture: dict[str, Any]) -> None:
     snapshot = _capture(inventory_fixture, datetime(2026, 8, 23, 8, 0, tzinfo=timezone.utc))
-    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
-    Draft202012Validator(schema).validate(snapshot.envelope())
+    schema = json.loads(PAYLOAD_SCHEMA_PATH.read_text(encoding="utf-8"))
+    Draft202012Validator(schema).validate(snapshot.payload())
 
 
 def test_transport_accepts_bounded_json_list_for_models(inventory_fixture: dict[str, Any]) -> None:

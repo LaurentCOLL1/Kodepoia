@@ -6,6 +6,7 @@ import json
 import re
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from kodepoia.blender3d import BlenderExecutableBoundary, BlenderRunner, GeometryRunner, RigRunner, default_known_candidates
 from kodepoia.core.sandbox import ProcessSandbox
@@ -16,6 +17,29 @@ SOURCE_RE = re.compile(r"^[0-9a-f]{40}$")
 def digest_document(payload: dict[str, object]) -> str:
     raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
+
+
+def runtime_evidence(probe: dict[str, Any]) -> tuple[dict[str, object], list[str]]:
+    runtime = probe.get("runtime") if isinstance(probe.get("runtime"), dict) else {}
+    probe_facts = probe.get("probe") if isinstance(probe.get("probe"), dict) else {}
+    evidence: dict[str, object] = {
+        "blender_version": runtime.get("version"),
+        "platform": runtime.get("platform"),
+        "background": probe_facts.get("background"),
+        "online_access": probe_facts.get("online_access"),
+    }
+    blockers: list[str] = []
+    version = evidence["blender_version"]
+    platform = evidence["platform"]
+    if not isinstance(version, str) or not version.startswith("5.2."):
+        blockers.append("runtime_version_missing_or_invalid")
+    if not isinstance(platform, str) or not platform:
+        blockers.append("runtime_platform_missing")
+    if evidence["background"] is not True:
+        blockers.append("runtime_background_not_confirmed")
+    if evidence["online_access"] is not False:
+        blockers.append("runtime_offline_not_confirmed")
+    return evidence, blockers
 
 
 def make_runner(blender: Path, staging: Path) -> BlenderRunner:
@@ -57,6 +81,8 @@ def main() -> int:
         probe_dir, geometry_dir, rig_dir = root / "probe", root / "geometry", root / "rig"
         probe = make_runner(blender, probe_dir).run_capability_probe(blender, source_sha=args.source_sha)
         if probe.get("status") != "pass": blockers.append("runtime_probe_failed")
+        runtime, runtime_blockers = runtime_evidence(probe)
+        blockers.extend(runtime_blockers)
         geometry_runner = GeometryRunner(make_runner(blender, geometry_dir))
         geometry = geometry_runner.run(blender, geometry_recipe(), source_sha=args.source_sha)
         if geometry.get("status") != "pass" or not isinstance(geometry.get("artifact"), dict): blockers.append("geometry_fixture_failed")
@@ -73,8 +99,7 @@ def main() -> int:
             else:
                 probe_rule = next((item for item in report.get("rules", []) if isinstance(item, dict) and item.get("rule_id") == "deformation_probe"), None)
                 if not isinstance(probe_rule, dict) or probe_rule.get("state") != "PASS": blockers.append("deformation_probe_failed")
-        runtime_facts = probe.get("facts", {}) if isinstance(probe.get("facts"), dict) else {}
-        evidence: dict[str, object] = {"schema":"kodepoia.r10_6_local_acceptance","version":1,"source_sha":args.source_sha,"status":"pass" if not blockers else "fail","blockers":sorted(set(blockers)),"runtime":{"blender_version":runtime_facts.get("blender_version"),"platform":runtime_facts.get("platform"),"background":runtime_facts.get("background"),"online_access":runtime_facts.get("online_access")},"fixture":{"recipe_id":"r10.6.local.body","blend_sha256":input_sha,"geometry_status":geometry.get("status")},"rig":{"rig_id":"r10.6.local.rig","status":rig_manifest.get("status"),"profile_digest":rig_manifest.get("profile_digest"),"report_digest":rig_manifest.get("report_digest"),"artifact":rig_manifest.get("artifact")}}
+        evidence: dict[str, object] = {"schema":"kodepoia.r10_6_local_acceptance","version":1,"source_sha":args.source_sha,"status":"pass" if not blockers else "fail","blockers":sorted(set(blockers)),"runtime":runtime,"fixture":{"recipe_id":"r10.6.local.body","blend_sha256":input_sha,"geometry_status":geometry.get("status")},"rig":{"rig_id":"r10.6.local.rig","status":rig_manifest.get("status"),"profile_digest":rig_manifest.get("profile_digest"),"report_digest":rig_manifest.get("report_digest"),"artifact":rig_manifest.get("artifact")}}
         evidence["evidence_digest"] = digest_document(evidence)
         output.write_text(json.dumps(evidence, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n", encoding="utf-8")
         print(json.dumps(evidence, indent=2, sort_keys=True))

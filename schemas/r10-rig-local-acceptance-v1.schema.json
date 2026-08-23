@@ -5,8 +5,23 @@
   "type":"object","additionalProperties":false,
   "required":["schema","version","source_sha","status","blockers","runtime","fixture","rig","evidence_digest"],
   "properties":{
-    "schema":{"const":"kodepoia.r10_6_local_acceptance"},"version":{"const":1},"source_sha":{"type":"string","pattern":"^[0-9a-f]{40}$"},
-    "status":{"enum":["pass","fail"]},"blockers":{"type":"array","items":{"type":"string"}},
-    "runtime":{"type":"object"},"fixture":{"type":"object"},"rig":{"type":"object"},"evidence_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"}
+    "schema":{"const":"kodepoia.r10_6_local_acceptance"},
+    "version":{"const":1},
+    "source_sha":{"type":"string","pattern":"^[0-9a-f]{40}$"},
+    "status":{"enum":["pass","fail"]},
+    "blockers":{"type":"array","items":{"type":"string"}},
+    "runtime":{
+      "type":"object","additionalProperties":false,
+      "required":["blender_version","platform","background","online_access"],
+      "properties":{
+        "blender_version":{"type":"string","pattern":"^5\\.2\\.[0-9]+$"},
+        "platform":{"type":"string","minLength":1},
+        "background":{"const":true},
+        "online_access":{"const":false}
+      }
+    },
+    "fixture":{"type":"object"},
+    "rig":{"type":"object"},
+    "evidence_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"}
   }
 }

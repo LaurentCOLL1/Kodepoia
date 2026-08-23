@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.9 COMPLETE. R8.10 ACCEPTED / PENDING MERGE.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. Les acceptances R8.1–R8.10 sont exact-head; R8.5/R8.8 manual = CONDITIONAL NOT TRIGGERED; R8.6/R8.7/R8.10 manual = NONE; R8.9 manual = REQUIRED SATISFIED. R8.10 est accepté sur l'implementation head exact `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`, avec R0 #1083 / `32614391934`, Python Core #1057 / `32614392022` 5/5 et Ubuntu `571 passed / 6 skipped / 46 warnings`, UI Smoke #1024 / `32614391930`, et smoke KodeStudio intégré Windows SUCCESS. PR #99 reste ouverte; son merge SHA est encore PENDING. Les commits `docs/roadmap/R8_10_DESIGN.md`, `docs/roadmap/R8_10_ACCEPTANCE.md` et cette continuité sont documentation-only après l'implementation head et doivent repasser R0 + Python Core + UI Smoke sur leur head exact avant merge. **Ne pas démarrer R8.11** avant merge de PR #99 puis normalisation R8.10 acceptée. Toute modification de structure R8 synchronise plan + continuité; tout changement de fondation exige un ADR.
+> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.10 COMPLETE; R8.10 post-merge normalization PENDING ACCEPTANCE.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. Les acceptances R8.1–R8.10 sont exact-head; R8.5/R8.8 manual = CONDITIONAL NOT TRIGGERED; R8.6/R8.7/R8.10 manual = NONE; R8.9 manual = REQUIRED SATISFIED. R8.10 est accepté sur l'implementation head exact `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`, avec R0 #1083 / `32614391934`, Python Core #1057 / `32614392022` 5/5 et Ubuntu `571 passed / 6 skipped / 46 warnings`, UI Smoke #1024 / `32614391930`; final documentation head `29928598224aa8df74a768984928733b1d52ef94` avec R0 #1086 / `32620855929`, Python #1060 / `32620855945`, UI #1027 / `32620855926`; PR #99 merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`. Cette branche de normalisation part exactement de ce merge et ne modifie que l'acceptance/continuité. **Ne pas démarrer R8.11** avant R0 + Python Core + UI Smoke SUCCESS sur le head exact de cette normalisation puis merge de sa PR. Toute modification de structure R8 synchronise plan + continuité; tout changement de fondation exige un ADR.
 
 ## Source de vérité et état
 
@@ -14,9 +14,9 @@
 - R1–R6 : COMPLETE.
 - R7 : COMPLETE.
 - R8 planning : ACCEPTED.
-- R8.1–R8.9 : COMPLETE.
-- R8.10 : ACCEPTED / PENDING MERGE sur implementation head exact `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`.
-- R8.11 : PLANNED / NOT STARTED, BLOCKED jusqu'au merge + normalisation R8.10.
+- R8.1–R8.10 : COMPLETE.
+- R8.10 post-merge normalization : PENDING ACCEPTANCE sur branche issue de `a72da6be019f2b1771ab42d04b37c44b0d7464d3`.
+- R8.11 : PLANNED / NOT STARTED, BLOCKED jusqu'au merge de cette normalisation.
 - R9–R16 : PENDING / NOT STARTED.
 
 ## R8 planning acceptance
@@ -135,12 +135,14 @@
 - Final acceptance/continuity documentation head `5db05258e666f1ed77a0ef349becc965f7105b43`; R0 #1073 / `32613557555`; Python #1047 / `32613557563`; UI #1014 / `32613557610`; all SUCCESS.
 - PR #97 merged as `af371bf07c56aa60a91ae3e39b14cc60c3307151`.
 
-### R8.10 accepted implementation baseline — pending merge
+### R8.10 accepted baseline
 
 - Exact accepted implementation head `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`; base normalized R8.9 main `8ca2eec6192b3d82495309b1c5bc2e6e8e49132a`.
 - R0 Repository Guard #1083 / `32614391934`: SUCCESS Ubuntu + Windows.
 - Python Core #1057 / `32614392022`: SUCCESS 5/5; Ubuntu `571 passed / 6 skipped / 46 warnings`; package builds Ubuntu + Windows SUCCESS.
 - KodeStudio UI Smoke #1024 / `32614391930`: SUCCESS; Python Core integrated Windows UI smoke SUCCESS.
+- Final pre-merge documentation/continuity head `29928598224aa8df74a768984928733b1d52ef94`; R0 #1086 / `32620855929`, Python Core #1060 / `32620855945`, UI Smoke #1027 / `32620855926`; all SUCCESS.
+- PR #99 merged as `a72da6be019f2b1771ab42d04b37c44b0d7464d3`.
 - `AssetService` is the single façade used by CLI and KodeStudio over Vault/search/duplicates/governance/VCS/LFS. KodeStudio contains no second direct Git/LFS/process/socket/secret path.
 - Unknown/missing license evidence remains `NOASSERTION`/blocked; governed export still uses R8.6/R6 and cannot be silently allowed.
 - Materialize overwrite, Vault deletion and asset export require explicit confirmation; duplicates remain non-destructive evidence.
@@ -148,9 +150,8 @@
 - Long operations run via `QThreadPool`/`QRunnable`; each worker uses `AssetService.fork()` with independent SQLite connections instead of sharing the UI service across threads.
 - R6.5 accessibility and R6.6 pseudo-localization contracts were extended for Vault; both UI workflows execute the R8.10 smoke.
 - First candidate `7bb5c9b95b191d7dc97ca76ca81f175d5f424730` was correctly rejected by Windows UI smoke because new Vault controls were not registered in accessibility and navigation still expected six items; tests were not weakened. `66f9e1c1d3fb528ed3fc2fedc3934d342c20fb93` became green, then the final candidate added explicit lineage + budget UX and reran all gates.
-- `docs/roadmap/R8_10_DESIGN.md` and `docs/roadmap/R8_10_ACCEPTANCE.md` now document the accepted implementation. Their final documentation head plus this continuity must pass the three standard gates before PR #99 can merge.
+- `docs/roadmap/R8_10_DESIGN.md` and `docs/roadmap/R8_10_ACCEPTANCE.md` document the accepted implementation and merge evidence.
 - Manual intervention: NONE.
-- PR #99 merge SHA: PENDING. R8.11 remains BLOCKED until merge + post-merge normalization.
 
 ## R8 exact merge chain
 
@@ -163,7 +164,7 @@
 - R8.7 PR #93 merge `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9`.
 - R8.8 PR #95 merge `8923f6aa75656033887dd93551fc7b2651d78f04`.
 - R8.9 PR #97 merge `af371bf07c56aa60a91ae3e39b14cc60c3307151`.
-- R8.10 PR #99: PENDING MERGE.
+- R8.10 PR #99 merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`.
 
 ## R7 source of truth retained
 
@@ -230,4 +231,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R7 COMPLETE. R8.1–R8.9 COMPLETE. R8.10 ACCEPTED / PENDING MERGE.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact contenant `R8_10_DESIGN.md`, `R8_10_ACCEPTANCE.md` et cette continuité. Si les trois sont SUCCESS, fusionner PR #99. Créer ensuite une normalisation R8.10 depuis ce merge, enregistrer le merge SHA, marquer R8.10 COMPLETE, repasser les trois gates et fusionner la normalisation. Ce n'est qu'après ce merge de normalisation que **R8.11 — Adversarial hardening + R8 integrated acceptance** devient autorisée. Ne pas démarrer R8.11 avant cela.
+**R1–R7 COMPLETE. R8.1–R8.10 COMPLETE. R8.10 normalization PENDING ACCEPTANCE.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact de cette normalisation issue de merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`. Si les trois sont SUCCESS, fusionner la normalisation. Après ce merge et seulement après celui-ci, la prochaine implémentation autorisée est **R8.11 — Adversarial hardening + R8 integrated acceptance**. Ne pas commencer R9 directement.

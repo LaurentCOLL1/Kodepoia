@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from kodepoia.assets.asset_cli import register_asset_commands
 from kodepoia.bench.baseline import BaselineBench, BenchmarkRole
 from kodepoia.brain.ollama import OllamaClient
+from kodepoia.comfyui.comfy_cli import register_comfy_commands
 from kodepoia.intelligence.research.media import (
     AcceptanceStatus,
     LocalMediaAcceptance,
@@ -306,6 +307,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     register_research_commands(commands)
     register_asset_commands(commands)
+    register_comfy_commands(commands)
     return parser
 
 

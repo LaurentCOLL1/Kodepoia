@@ -37,6 +37,30 @@ _MAX_EVIDENCE_BYTES = 16 * 1024 * 1024
 _MIB = 1024 * 1024
 
 
+class _R98WorkflowCapabilityInventory(ComfyCapabilityInventory):
+    """Strict R9.3 inventory scoped to node classes used by one governed R9.4 graph.
+
+    ComfyUI /object_info is global and custom nodes outside the selected workflow may
+    expose malformed metadata. R9.8 must not let unrelated metadata block an
+    authoritative run, while metadata for every node that the governed graph actually
+    uses must still pass the unchanged strict R9.3 normalizer.
+    """
+
+    def __init__(self, client: ComfyUIClient, node_classes: tuple[str, ...]) -> None:
+        super().__init__(client)
+        if not node_classes:
+            raise ComfyGovernanceError("R9.8 workflow must contain at least one node class")
+        self._node_classes = frozenset(node_classes)
+
+    def _object_info(self) -> dict[str, Any]:
+        raw = super()._object_info()
+        return {
+            class_type: raw[class_type]
+            for class_type in sorted(self._node_classes)
+            if class_type in raw
+        }
+
+
 @dataclass(frozen=True, slots=True)
 class R98LocalAcceptanceEvidence:
     candidate_head: str
@@ -151,18 +175,29 @@ class R98LocalAcceptance:
         workflow_root = self._confined_existing_dir(request.workflow_root)
         profile = request.profile()
 
-        client = ComfyUIClient(request.endpoint)
-        capability = ComfyCapabilityInventory(client).capture()
-        if capability.state is not ComfyCapabilityState.CURRENT:
-            raise ComfyGovernanceError(
-                f"R9.8 requires a CURRENT ComfyUI capability snapshot, got {capability.state.value}"
-            )
-
         catalog = WorkflowCatalog.load_files(workflow_root, (request.workflow_file,))
         definitions = catalog.definitions()
         if len(definitions) != 1:
             raise ComfyGovernanceError("R9.8 local acceptance requires exactly one explicit workflow")
         definition = definitions[0]
+        node_classes = tuple(
+            sorted(
+                {
+                    node["class_type"]
+                    for node in definition.graph().values()
+                    if isinstance(node, dict) and isinstance(node.get("class_type"), str)
+                }
+            )
+        )
+        if len(node_classes) != len({node.get("class_type") for node in definition.graph().values()}):
+            raise ComfyGovernanceError("R9.8 governed workflow contains invalid node class metadata")
+
+        client = ComfyUIClient(request.endpoint)
+        capability = _R98WorkflowCapabilityInventory(client, node_classes).capture()
+        if capability.state is not ComfyCapabilityState.CURRENT:
+            raise ComfyGovernanceError(
+                f"R9.8 requires a CURRENT ComfyUI capability snapshot, got {capability.state.value}"
+            )
 
         selections = _unique_pairs(request.model_selections, "model selection")
         parameters = _unique_pairs(request.parameters, "parameter")

@@ -4,13 +4,13 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1–R9.10 COMPLETE + NORMALIZED. R9.11 implementation ACCEPTED; canonical R9 integrated evidence checked in; final documentation/evidence gates pending.** `docs/roadmap/R9_PLAN.md` reste l’autorité structurelle exhaustive de R9.1–R9.11. R9.8 REQUIRED reste SATISFIED par l’evidence locale canonique SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967` (5744 octets). R9.10 est définitivement COMPLETE + NORMALIZED après documentation hardening et final normalization PR #126 merge `8cd01c5f5d1ae667602d2e13c1d86219d86748cf`. R9.11 accepted implementation head = `e8e7e83c107bdb8bcb29882936720bc9eeb1c246`; R0 #1207 / `32658452681`, Python Core #1181 / `32658452650` 5/5 avec Ubuntu `745 passed / 7 skipped / 46 warnings`, UI Smoke #1148 / `32658452730`, tous SUCCESS; manual = **CONDITIONAL NOT TRIGGERED**. `docs/roadmap/R9_INTEGRATED_ACCEPTANCE.json` est canonique, `status=pass`, `blockers=[]`, `source_sha=e8e7e83c107bdb8bcb29882936720bc9eeb1c246`, digest `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`. Faire passer R0 + full Python Core + UI Smoke sur le head exact final documentation/evidence de PR #127; Python Linux doit afficher `R9 integrated acceptance: PASS`. Fusionner #127 uniquement si les trois gates sont SUCCESS, puis effectuer une normalisation continuity-only exacte-head avant de marquer R9 COMPLETE + NORMALIZED.
+> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1–R9.10 COMPLETE + NORMALIZED. R9.11 implementation + final integrated documentation ACCEPTED and merged; final continuity normalization is the only remaining R9 completion condition.** `docs/roadmap/R9_PLAN.md` reste l’autorité structurelle exhaustive de R9.1–R9.11. R9.8 REQUIRED reste SATISFIED par l’evidence locale canonique SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967` (5744 octets). R9.11 accepted implementation head = `e8e7e83c107bdb8bcb29882936720bc9eeb1c246`; implementation gates R0 #1207 / `32658452681`, Python #1181 / `32658452650`, UI #1148 / `32658452730`, Ubuntu `745 passed / 7 skipped / 46 warnings`; manual **CONDITIONAL NOT TRIGGERED**. Canonical R9 integrated report: `status=pass`, `blockers=[]`, `source_sha=e8e7e83c107bdb8bcb29882936720bc9eeb1c246`, digest `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`. Final documentation/evidence head `bcc5eafebf01fddf740c6bee99186ad281285e8d` passed R0 #1212 / `32658810381`, Python #1186 / `32658810412` 5/5 with Linux `R7 PASS`, `R8 PASS`, `R9 PASS`, Ubuntu `745 passed / 7 skipped / 46 warnings`, and UI #1153 / `32658810385`; all SUCCESS. PR #127 merged as `6bddb255437b4ef4756f6cbcb6d33ff78c906271`. The current branch `r9/11-final-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and its PR is merged into `main`, then by the frozen phase-completion rule **R9 is COMPLETE + NORMALIZED** and R10 planning becomes authorized. No extra manual R9 intervention is required.
 
 ## Source de vérité et état
 
 - Dépôt : `LaurentCOLL1/Kodepoia` — PUBLIC volontairement.
 - Architecture v1.0 : gelée le 21 août 2026.
-- `main` : source de vérité après chaque fusion acceptée et sa normalisation requise.
+- `main` : source de vérité after each accepted merge and required normalization.
 - R1–R6 : COMPLETE.
 - R7 : COMPLETE.
 - R8 : COMPLETE.
@@ -25,9 +25,9 @@
 - R9.8 : COMPLETE + NORMALIZED; REQUIRED SATISFIED.
 - R9.9 : COMPLETE + NORMALIZED; CONDITIONAL NOT TRIGGERED.
 - R9.10 : COMPLETE + NORMALIZED; manual NONE.
-- R9.11 : IMPLEMENTATION ACCEPTED; integrated report PASS checked in; final documentation/evidence gates + PR merge + final continuity normalization pending; CONDITIONAL NOT TRIGGERED.
-- R9 phase : IN PROGRESS until R9.11 merge and final post-merge normalization.
-- R10–R16 : PENDING / NOT STARTED.
+- R9.11 : implementation ACCEPTED; final documentation/evidence ACCEPTED; PR #127 MERGED; CONDITIONAL NOT TRIGGERED; final continuity normalization pending.
+- R9 phase : **COMPLETE + NORMALIZED iff this exact final continuity-normalization commit is merged to `main`; otherwise IN PROGRESS solely for that normalization.**
+- R10–R16 : PENDING / NOT STARTED; R10 is authorized only after the final R9 normalization merge.
 
 ## R9 planning acceptance
 
@@ -36,9 +36,9 @@
 - Planning normalization head `51a6bb7d04d8aacd47e621b15a747f6e9d08781c`; R0 #1106 / `32623679409`, Python #1080 / `32623679387`, UI #1047 / `32623679382`, all SUCCESS; PR #104 merge `e3f7bf6039cee918a5d505fb47ed536cde087e0e`.
 - Frozen manual states : R9.1 NONE; R9.2 CONDITIONAL; R9.3 NONE; R9.4 NONE; R9.5 CONDITIONAL; R9.6 NONE; R9.7 NONE; R9.8 REQUIRED; R9.9 CONDITIONAL; R9.10 NONE; R9.11 CONDITIONAL.
 
-## R9 accepted structure and evidence
+## R9 accepted implementation heads and manual states
 
-| ID | Title | Accepted implementation evidence | Manual final |
+| ID | Title | Accepted implementation head | Manual final |
 | --- | --- | --- | --- |
 | R9.1 | ComfyUI contracts, local endpoint boundary + capability schema | `dfde39746f0ec909a865a9f0ef75b6856e77c88f` | NONE |
 | R9.2 | Typed HTTP/WebSocket client, health, queue/history + protocol state | `15186ced206f05d8baf764738615e6625aa6d459` | CONDITIONAL NOT TRIGGERED |
@@ -60,62 +60,56 @@
 - Total VRAM `12868124672`, admission-time free `12461146112` bytes.
 - Resource profile estimate `8589934592`, reserve `536870912`, headroom `536870912`; scheduler `admit`.
 - Real workflow `wf_3aa2ac5225d8a3d88bcf8b3b7aee7205`; output SHA-256 `a18b2eae0fd90f36382e92638bef7984cd591cfd8d9d2466941f66e65f488e92`; OOM false.
-- `/free` acknowledgement followed by remeasurement; `reclaimed_bytes` reste null.
-- Ollama coexistence = `n/a`; aucun modèle/custom node n’a été téléchargé uniquement pour l’acceptance.
+- `/free` acknowledgement followed by remeasurement; `reclaimed_bytes` remains null.
+- Ollama coexistence = `n/a`; no model/custom node was downloaded solely for acceptance.
 - Final docs head `935c977926a11a7ba93f77c49a20b0eebe568b6d`: R0 #1181, Python #1155, UI #1122; PR #119 merge `647039ad4cb6a0fa0c369ba5eeb97c153b561637`.
 - Normalization head `586097a25d6027b2c7a86d44c8876a6728cbf2d6`: R0 #1183 / `32643425656`, Python #1157 / `32643425619`, UI #1124 / `32643425675`; PR #120 merge `bc5d4687e0ef6d91901a8b04103907aad8bb48f8`.
 
 ## R9.9 retained baseline
 
 - Base normalized R9.8 `main`: `bc5d4687e0ef6d91901a8b04103907aad8bb48f8`.
-- Rejected first candidate `a8913dd1c46730babec7ac123e65de4bb6c8ca52`: Python Core #1159 exposed two R9.9 defects; gates not weakened.
+- Rejected candidate `a8913dd1c46730babec7ac123e65de4bb6c8ca52`: Python Core #1159 exposed two newly introduced R9.9 defects; gates were not weakened.
 - Accepted implementation `85f8aacf8baf0f8dba6d28ba07fcfc0dbc37a324`: R0 #1188 / `32644669495`, Python #1162 / `32644669572` 5/5, UI #1129 / `32644669558`; Ubuntu `724 passed / 6 skipped / 46 warnings`.
 - Four mandatory families: `concept`, `ui_illustration`, `material_source`, `sprite_2d`; core nodes only; explicit resolver-driven checkpoint selection; bounded typed parameters and aggregate pixel/VRAM budgets.
 - No arbitrary graph/custom-node/model installer, model download, process or URL surface. Missing/ambiguous models remain BLOCKED.
-- `material_source` is source-only and does not claim validated production-ready PBR semantics.
+- `material_source` is source-only and does not claim production-ready PBR semantics.
 - Final synchronized docs head `deb796991d3758c748c7777bd11cdf0c8cc40c4d`: R0 #1190, Python #1164, UI #1131; PR #121 merge `3c4d98177e887dad5adbff2f29f7c985c7929015`.
-- Post-merge normalization head `95f9b21a3a542eea7cb339434397dc4f65429b52`: R0 #1192 / `32645877353`, Python #1166 / `32645877369`, UI #1133 / `32645877346`; PR #122 merge `5831e958c45ac63f6d2bcfd7da0a7934330c7586`.
+- Post-merge normalization `95f9b21a3a542eea7cb339434397dc4f65429b52`: R0 #1192 / `32645877353`, Python #1166 / `32645877369`, UI #1133 / `32645877346`; PR #122 merge `5831e958c45ac63f6d2bcfd7da0a7934330c7586`.
 
 ## R9.10 retained baseline and recovered documentation defect
 
 - Base normalized R9.9 main `5831e958c45ac63f6d2bcfd7da0a7934330c7586`.
-- Rejected candidate `d62a688092ceec9a90b4d78fb4e8feac8fddd24e`: accessibility registration + pseudo-locale regression exposed by UI gates; service/package paths remained green.
-- Rejected candidate `4394401510e34f3050040ebedd8799b91e3c0f51`: remaining `comfyEvidenceView` accessibility registration defect; UI workflow strengthened to include dedicated R9.10 smoke.
+- Rejected `d62a688092ceec9a90b4d78fb4e8feac8fddd24e`: accessibility registration + pseudo-locale regression exposed by UI gates; service/package paths remained green.
+- Rejected `4394401510e34f3050040ebedd8799b91e3c0f51`: remaining `comfyEvidenceView` registration defect; UI workflow strengthened to include dedicated R9.10 smoke.
 - Accepted implementation `dda09a1728ba63640f68a979af57d70f12b4c603`: R0 #1199 / `32657273588`, Python #1173 / `32657273603`, UI #1140 / `32657273614`; Ubuntu `729 passed / 7 skipped / 46 warnings`.
-- `ComfyService` is the single governed façade shared by CLI and KodeStudio; worker `fork()` avoids shared transport state.
-- CLI bounded operations: `status`, `inventory`, `workflows`, `validate`, `run`, `run-status`, `cancel`, `vram`, `free-memory`, `evidence`.
-- No arbitrary endpoint/URL/graph/process/custom-node/model installer/model download surface.
+- `ComfyService` is the single governed façade shared by CLI and KodeStudio; no arbitrary endpoint/URL/graph/process/custom-node/model installer/model download surface.
 - PR #123 merge `4372fa9067acf6aabf242f178be0d9f7ac041fc7`.
 - Initial continuity normalization `7515b2bdec0d9eaec32820feb4563869f050be00`: R0 #1201 / `32657536700`, Python #1175 / `32657536745`, UI #1142 / `32657536723`; PR #124 merge `4df1217cde078812af6882b812f640310aa45b61`.
-- R9.11 preparation discovered missing planned `R9_10_DESIGN.md` + `R9_10_ACCEPTANCE.md`; R9.11 stopped rather than fabricating integrated evidence.
-- Documentation hardening `10150bb3b810f6158029231edb7604b03fdb4ebb`: R0 #1203 / `32657855298`, Python #1177 / `32657855302`, UI #1144 / `32657855311`; Ubuntu `729 passed / 7 skipped / 46 warnings`; PR #125 merge `c3eb519d55abb5e6d1007ef4bc96e185df8061c7`.
-- Final docs-hardening normalization head `f1f590ae0b5fa178934b11313d8b546abe6e86c1`: R0 #1205 / `32658034662`, Python #1179 / `32658034624`, UI #1146 / `32658034628`, tous SUCCESS; PR #126 merge `8cd01c5f5d1ae667602d2e13c1d86219d86748cf`.
-- R9.10 est donc COMPLETE + NORMALIZED, manual NONE.
+- R9.11 preparation found missing planned `R9_10_DESIGN.md` + `R9_10_ACCEPTANCE.md`; R9.11 stopped rather than manufacturing evidence.
+- Documentation hardening `10150bb3b810f6158029231edb7604b03fdb4ebb`: R0 #1203 / `32657855298`, Python #1177 / `32657855302`, UI #1144 / `32657855311`; PR #125 merge `c3eb519d55abb5e6d1007ef4bc96e185df8061c7`.
+- Final hardening normalization `f1f590ae0b5fa178934b11313d8b546abe6e86c1`: R0 #1205 / `32658034662`, Python #1179 / `32658034624`, UI #1146 / `32658034628`; PR #126 merge `8cd01c5f5d1ae667602d2e13c1d86219d86748cf`.
+- R9.10 COMPLETE + NORMALIZED, manual NONE.
 
-## R9.11 accepted implementation and integrated evidence
+## R9.11 accepted implementation, integrated report and final merge
 
 - Base fully normalized R9.10 main: `8cd01c5f5d1ae667602d2e13c1d86219d86748cf`.
-- Branch/PR: `r9/11-adversarial-integrated-acceptance`, PR #127.
+- PR #127 branch: `r9/11-adversarial-integrated-acceptance`.
 - Accepted immutable implementation head: `e8e7e83c107bdb8bcb29882936720bc9eeb1c246`.
-- Exact implementation gates:
-  - R0 Repository Guard #1207 / `32658452681`: SUCCESS.
-  - Python Core #1181 / `32658452650`: SUCCESS 5/5.
-  - Ubuntu: **745 passed / 7 skipped / 46 warnings**; R7 PASS; R8 PASS; package builds Ubuntu+Windows SUCCESS; Windows Python SUCCESS; embedded UI smoke SUCCESS.
-  - KodeStudio UI Smoke #1148 / `32658452730`: SUCCESS.
-- Manual: **CONDITIONAL NOT TRIGGERED**; no hardware-facing ComfyUI/GPU/node/model/output semantics changed, so accepted R9.8 local evidence remains authoritative.
-- New R9.11 layer includes `kodepoia.comfyui.acceptance`, `schemas/r9-integration-report-v1.schema.json`, adversarial seam tests, schema/tamper/manual-state tests, and `R9_11_DESIGN.md`.
-- Full suite re-executes detailed hostile R9.1–R9.10 cases; R9.11 adds cross-layer assertions for no arbitrary transport/process/install/graph escape, CLI endpoint rejection, request-field injection, model-selection seam, cross-run output identity, free-memory known-run binding, bounded many-run enumeration, and VRAM bound enforcement.
-- `R9_11_ACCEPTANCE.md` freezes the implementation head before report generation, preventing circular self-attestation.
-- `scripts/r9_integrated_acceptance.py` reads canonical acceptance documents through `git show HEAD:<path>` and fails closed on hash/length/head/manual mismatches.
-- Python #1184 on pre-report head `0a4919f477ad53a6e024e6bbf38f947189956a85` successfully emitted the canonical report candidate while JSON was absent; Ubuntu remained **745 passed / 7 skipped / 46 warnings**.
-- Canonical checked-in report: `docs/roadmap/R9_INTEGRATED_ACCEPTANCE.json`.
-- Integrated report status: `pass`.
-- Integrated report blockers: `[]`.
-- Integrated report source SHA: `e8e7e83c107bdb8bcb29882936720bc9eeb1c246`.
-- Integrated report SHA-256: `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`.
-- The report binds all eleven R9 acceptance Git blobs and explicitly retains R9.8 reviewed local evidence `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967`, 5744 bytes.
-- The current final documentation/evidence head must independently pass R0 + full Python + UI. The Linux Python hook must validate the checked-in bytes and print `R9 integrated acceptance: PASS` rather than re-emitting a candidate.
-- PR #127 must not merge before those final exact-head gates succeed.
+- Implementation gates:
+  - R0 #1207 / `32658452681`: SUCCESS.
+  - Python #1181 / `32658452650`: SUCCESS 5/5; Ubuntu **745 passed / 7 skipped / 46 warnings**; R7 PASS; R8 PASS; package builds and Windows tests/UI SUCCESS.
+  - UI #1148 / `32658452730`: SUCCESS.
+- Manual **CONDITIONAL NOT TRIGGERED** because R9.11 changed no authoritative hardware-facing ComfyUI/GPU/node/model/output semantics and inherited manual gates were already resolved.
+- R9.11 added R9-specific integrated acceptance contracts/schema, adversarial cross-subsystem seam tests, deterministic Git-blob verifier and anti-circular documentation sequence without modifying frozen R7/R8 integrated reports.
+- Canonical report `docs/roadmap/R9_INTEGRATED_ACCEPTANCE.json`: `status=pass`, `blockers=[]`, `source_sha=e8e7e83c107bdb8bcb29882936720bc9eeb1c246`, SHA-256 `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`.
+- Report binds all R9.1–R9.11 acceptance blobs plus R9.8 reviewed local evidence SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967`, 5744 bytes.
+- Final synchronized documentation/evidence head: `bcc5eafebf01fddf740c6bee99186ad281285e8d`.
+- Exact final gates on that head:
+  - R0 Repository Guard #1212 / `32658810381`: SUCCESS Ubuntu + Windows.
+  - Python Core #1186 / `32658810412`: SUCCESS 5/5; Linux printed `R7 integrated acceptance: PASS`, `R8 integrated acceptance: PASS`, `R9 integrated acceptance: PASS`; Ubuntu **745 passed / 7 skipped / 46 warnings**; package builds Ubuntu+Windows SUCCESS; Windows Python and embedded UI SUCCESS.
+  - KodeStudio UI Smoke #1153 / `32658810385`: SUCCESS.
+- PR #127 merged as `6bddb255437b4ef4756f6cbcb6d33ff78c906271`.
+- This final continuity-normalization branch changes only `docs/continuity/KODEPOIA_CONTINUITY.md`; no canonical R9 acceptance blob/report is modified.
 
 ## R8 retained source of truth
 
@@ -158,6 +152,8 @@ Preserve without reinterpretation:
 5. Scope/structure changes synchronize plan + continuity in the same work cycle.
 6. Foundation changes require an ADR.
 
-## Next action
+## Final R9 normalization rule / next action
 
-**R1–R8 COMPLETE. R9.1–R9.10 COMPLETE + NORMALIZED. R9.11 implementation ACCEPTED; integrated report PASS checked in; R9 phase still IN PROGRESS.** Freeze the current PR #127 head after this continuity synchronization. Require exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke; Linux must report `R7 integrated acceptance: PASS`, `R8 integrated acceptance: PASS`, and `R9 integrated acceptance: PASS`, with the R9 report still `blockers=[]`. If all three gates succeed, merge PR #127. Then create one continuity-only post-merge normalization from the merge SHA, pass the same three exact-head gates, and merge it. **Only after that normalization merge may R9 be marked COMPLETE + NORMALIZED and R10 work be authorized.**
+The current branch `r9/11-final-continuity-normalization` is the **single final R9 normalization**. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA. Linux Python must still report R7 PASS, R8 PASS and R9 PASS with `blockers=[]` and unchanged integrated digest `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`.
+
+If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization satisfies the last frozen R9 phase-completion condition; at that point R9 is COMPLETE + NORMALIZED and R10 planning/work is authorized.** Do not create another recursive continuity update solely to record the normalization's own run IDs; those exact-head IDs belong in the normalization PR body/merge record, as established by prior R9 normalizations.

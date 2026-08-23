@@ -14,6 +14,7 @@ def build_window(
     locale: str = "en",
     project_root: Path | None = None,
     research_service=None,
+    asset_service=None,
 ):
     from PySide6.QtWidgets import (
         QLabel,
@@ -139,10 +140,21 @@ def build_window(
             status_bar=status,
         )
 
+    def vault_page() -> QWidget:
+        from kodepoia.kodestudio.vault_panel import create_vault_page
+
+        return create_vault_page(
+            root,
+            translator=tr,
+            service=asset_service,
+            status_bar=status,
+        )
+
     sections = (
         ("app.nav.chat", None),
         ("app.nav.projects", projects_page),
         ("app.nav.research", research_page),
+        ("app.nav.vault", vault_page),
         ("app.nav.security", security_page),
         ("app.nav.audit", None),
         ("app.nav.settings", None),

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-geometry-recipe-v1.schema.json",
+  "title": "Kodepoia R10.3 geometry recipe v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "recipe_id", "units", "forward_axis", "up_axis", "steps"],
+  "properties": {
+    "version": {"const": 1},
+    "recipe_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+    "units": {"const": "METERS"},
+    "forward_axis": {"const": "-Z"},
+    "up_axis": {"const": "Y"},
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["operation", "params"],
+        "properties": {
+          "operation": {"enum": ["reset_scene", "create_primitive", "transform", "apply_transform", "triangulate", "recalculate_normals", "add_modifier", "apply_modifier", "join", "separate_loose", "set_origin"]},
+          "params": {"type": "object"}
+        }
+      }
+    }
+  }
+}

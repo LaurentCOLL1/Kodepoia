@@ -8,7 +8,16 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QApplication, QCheckBox, QLineEdit, QPushButton, QTableWidget, QWidget
+from PySide6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QLabel,
+    QLineEdit,
+    QPlainTextEdit,
+    QPushButton,
+    QTableWidget,
+    QWidget,
+)
 
 from kodepoia.kodestudio.app import build_window
 
@@ -33,6 +42,11 @@ def test_kodestudio_exposes_service_backed_vault_panel(tmp_path: Path) -> None:
     assert page.findChild(QPushButton, "vaultRebuildButton") is not None
     assert page.findChild(QPushButton, "vaultCancelButton") is not None
     assert page.findChild(QTableWidget, "vaultAssetTable") is not None
+    assert page.findChild(QPlainTextEdit, "vaultLineageView") is not None
+    progress = page.findChild(QLabel, "vaultOperationStatus")
+    budget = page.findChild(QLabel, "vaultOperationBudget")
+    assert progress is not None and progress.text().strip()
+    assert budget is not None and budget.text().startswith("Budget:")
     assert hasattr(page, "_kodepoia_asset_service")
 
     window.close()

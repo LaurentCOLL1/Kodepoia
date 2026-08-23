@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-blender-probe-result-v1.schema.json",
+  "title": "Kodepoia R10.2 Blender probe result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "status", "blockers", "facts", "artifacts"],
+  "properties": {
+    "schema": {"const": "kodepoia.blender.probe_result"},
+    "version": {"const": 1},
+    "status": {"enum": ["pass", "fail"]},
+    "blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "facts": {"type": "object"},
+    "artifacts": {"type": "object"}
+  }
+}

@@ -18,6 +18,7 @@ from .contracts import (
     is_terminal_job_state,
 )
 from .errors import BlenderBoundaryError, BlenderError, BlenderProtocolError, BlenderVersionError
+from .runner import BlenderRunner, RunnerProcessResult, write_local_evidence
 from .serialization import canonical_json_bytes, canonical_sha256, make_envelope, parse_envelope
 
 __all__ = [
@@ -31,10 +32,12 @@ __all__ = [
     "BlenderProcessLimits",
     "BlenderProtocolError",
     "BlenderRunManifest",
+    "BlenderRunner",
     "BlenderRuntimeIdentity",
     "BlenderRuntimePolicy",
     "BlenderVersion",
     "BlenderVersionError",
+    "RunnerProcessResult",
     "can_transition_job_state",
     "canonical_json_bytes",
     "canonical_sha256",
@@ -44,4 +47,5 @@ __all__ = [
     "make_envelope",
     "parse_envelope",
     "validate_environment_overrides",
+    "write_local_evidence",
 ]

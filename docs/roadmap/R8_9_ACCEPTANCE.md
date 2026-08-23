@@ -1,14 +1,15 @@
 # R8.9 — Godot 4.7 source/import bridge + rebuild verification — Acceptance
 
-**Status:** ACCEPTED / MANUAL REQUIRED SATISFIED / PENDING MERGE  
+**Status:** COMPLETE / ACCEPTED  
 **Manual intervention:** REQUIRED SATISFIED
 
-## Accepted implementation
+## Accepted implementation and merge
 
 - Exact accepted implementation head: `da8b4aedd280dadffcf4099bfa2b902cb70d81a7`.
-- PR: #97 — open pending final documentation/continuity gates and merge.
 - Base normalized R8.8 main: `ccde847c160d47fdff3fbbd27e82969c0c6b4d90`.
-- The implementation head is frozen. Later commits in PR #97 may only record acceptance/continuity evidence unless a demonstrated defect requires a new implementation candidate and a new exact-head local gate.
+- Final acceptance/continuity documentation head before merge: `5db05258e666f1ed77a0ef349becc965f7105b43`.
+- PR: #97.
+- Merge SHA: `af371bf07c56aa60a91ae3e39b14cc60c3307151`.
 
 ## Authoritative automated CI on the exact implementation head
 
@@ -56,6 +57,16 @@ Rebuild identity/evidence:
 
 The evidence contains no credential, private project file or user asset. The local runner used only its disposable fixture under `.kodepoia/acceptance/r8-9/project`.
 
+## Final documentation gate before merge
+
+The documentation/continuity-only head `5db05258e666f1ed77a0ef349becc965f7105b43` passed:
+
+- R0 Repository Guard #1073 / `32613557555`: SUCCESS Ubuntu + Windows;
+- Python Core #1047 / `32613557563`: SUCCESS 5/5;
+- KodeStudio UI Smoke #1014 / `32613557610`: SUCCESS.
+
+No implementation code changed after the exact head proven by the real-Godot acceptance; therefore the manual hardware gate was not repeated for documentation-only commits.
+
 ## Accepted scope
 
 - Typed source/import/cache classification with `.godot/**` and legacy `.import/**` excluded from source authority.
@@ -71,13 +82,6 @@ The evidence contains no credential, private project file or user asset. The loc
 
 Godot 4.7 documents `--import` as starting the editor, waiting until resources are imported, then quitting. Godot's import process also treats `<asset>.import` as important versioned import metadata while generated imported resources live under `.godot/imported/`. R8.9's accepted source/sidecar/cache model follows those engine semantics without making generated cache bytes authoritative.
 
-## Merge gate
+## Result
 
-R8.9 is accepted functionally, but it is not COMPLETE until:
-
-1. this acceptance/continuity evidence is on one final documentation head;
-2. R0 Repository Guard, full Python Core and KodeStudio UI Smoke are SUCCESS on that documentation head;
-3. PR #97 is merged;
-4. post-merge continuity normalization records the merge SHA and final `main` state.
-
-Do not start R8.10 before those steps complete.
+R8.9 is **COMPLETE**. The post-merge normalization must synchronize `docs/continuity/KODEPOIA_CONTINUITY.md` with the accepted implementation head, manual evidence, PR #97 merge SHA and final authorization state before R8.10 implementation begins.

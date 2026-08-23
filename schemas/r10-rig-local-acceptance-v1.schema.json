@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.local/schemas/r10-rig-local-acceptance-v1.schema.json",
+  "title":"Kodepoia R10.6 Local Rig Acceptance v1",
+  "type":"object","additionalProperties":false,
+  "required":["schema","version","source_sha","status","blockers","runtime","fixture","rig","evidence_digest"],
+  "properties":{
+    "schema":{"const":"kodepoia.r10_6_local_acceptance"},"version":{"const":1},"source_sha":{"type":"string","pattern":"^[0-9a-f]{40}$"},
+    "status":{"enum":["pass","fail"]},"blockers":{"type":"array","items":{"type":"string"}},
+    "runtime":{"type":"object"},"fixture":{"type":"object"},"rig":{"type":"object"},"evidence_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"}
+  }
+}

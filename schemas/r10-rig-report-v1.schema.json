@@ -1,0 +1,15 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.local/schemas/r10-rig-report-v1.schema.json",
+  "title":"Kodepoia R10.6 Rig Report v1",
+  "type":"object","additionalProperties":false,
+  "required":["schema","version","rig_id","profile_digest","input_blend_sha256","status","summary","rules","armature","meshes","report_digest"],
+  "properties":{
+    "schema":{"const":"kodepoia.blender.rig_report"},"version":{"const":1},"rig_id":{"type":"string"},
+    "profile_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},"input_blend_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "status":{"enum":["pass","warn","block"]},
+    "summary":{"type":"object","additionalProperties":false,"required":["pass","warn","block"],"properties":{"pass":{"type":"integer","minimum":0},"warn":{"type":"integer","minimum":0},"block":{"type":"integer","minimum":0}}},
+    "rules":{"type":"array","minItems":1,"items":{"type":"object","additionalProperties":false,"required":["rule_id","state","applicable","value","limit","reason"],"properties":{"rule_id":{"type":"string"},"state":{"enum":["PASS","WARN","BLOCK"]},"applicable":{"type":"boolean"},"value":{},"limit":{},"reason":{"type":"string","minLength":1}}}},
+    "armature":{"type":"object"},"meshes":{"type":"object"},"report_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"}
+  }
+}

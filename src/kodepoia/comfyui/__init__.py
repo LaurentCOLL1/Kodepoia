@@ -28,10 +28,26 @@ from .errors import (
     ComfyVersionError,
 )
 from .events import ComfyEventSequence, ComfyEventType, ComfyProtocolEvent, parse_event_frame
+from .inventory import (
+    CapabilitySnapshotStore,
+    ComfyCapabilityDiff,
+    ComfyCapabilityInventory,
+    ComfyCapabilitySnapshot,
+    ComfyModelInventory,
+    ComfyNodeDefinition,
+    ComfyNodeInputSpec,
+    capability_snapshot_from_payload,
+    diff_capability_snapshots,
+    normalize_node_inventory,
+)
 from .serialization import canonical_json_bytes, canonical_sha256, make_envelope, parse_envelope
 
 __all__ = [
+    "CapabilitySnapshotStore",
     "ComfyBoundaryError",
+    "ComfyCapabilityDiff",
+    "ComfyCapabilityInventory",
+    "ComfyCapabilitySnapshot",
     "ComfyCapabilityState",
     "ComfyEndpoint",
     "ComfyError",
@@ -40,6 +56,9 @@ __all__ = [
     "ComfyGovernanceError",
     "ComfyHistoryReference",
     "ComfyHistorySnapshot",
+    "ComfyModelInventory",
+    "ComfyNodeDefinition",
+    "ComfyNodeInputSpec",
     "ComfyOutputReference",
     "ComfyProbeSnapshot",
     "ComfyPromptReference",
@@ -58,8 +77,11 @@ __all__ = [
     "can_transition_run_state",
     "canonical_json_bytes",
     "canonical_sha256",
+    "capability_snapshot_from_payload",
+    "diff_capability_snapshots",
     "is_terminal_run_state",
     "make_envelope",
+    "normalize_node_inventory",
     "parse_envelope",
     "parse_event_frame",
 ]

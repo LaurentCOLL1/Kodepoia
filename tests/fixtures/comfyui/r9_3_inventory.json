@@ -1,0 +1,45 @@
+{
+  "system_stats": {
+    "system": {"comfyui_version": "0.test-r9.3", "python_version": "3.12.test"},
+    "devices": [{"name": "fixture-device"}]
+  },
+  "features": {"supports_preview_metadata": true},
+  "object_info": {
+    "CheckpointLoaderSimple": {
+      "input": {
+        "required": {
+          "ckpt_name": [["base/model-a.safetensors", "base/model-b.safetensors"]]
+        }
+      },
+      "output": ["MODEL", "CLIP", "VAE"],
+      "output_is_list": [false, false, false],
+      "category": "loaders",
+      "description": "Inert fixture description; never an instruction",
+      "deprecated": false,
+      "experimental": false
+    },
+    "KSampler": {
+      "input": {
+        "required": {
+          "model": ["MODEL"],
+          "seed": ["INT", {"min": 0, "max": 18446744073709551615}],
+          "steps": ["INT", {"min": 1, "max": 10000, "step": 1}],
+          "cfg": ["FLOAT", {"min": 0.0, "max": 100.0, "step": 0.1}]
+        },
+        "optional": {
+          "control_after_generate": [["fixed", "increment", "decrement", "randomize"]]
+        }
+      },
+      "output": ["LATENT"],
+      "output_is_list": [false],
+      "category": "sampling",
+      "api_node": false
+    }
+  },
+  "models": {
+    "types": ["checkpoints", "loras", "vae"],
+    "checkpoints": ["base/model-a.safetensors", "base/model-b.safetensors"],
+    "loras": ["styles/detail.safetensors"],
+    "vae": []
+  }
+}

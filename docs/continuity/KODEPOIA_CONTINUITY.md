@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1 COMPLETE + NORMALIZED. R10.2 implementation, REQUIRED real Blender 5.2.x acceptance, final documented evidence and PR merge are ACCEPTED; post-merge continuity normalization is the only remaining R10.2 completion condition.** `docs/roadmap/R10_PLAN.md` is the exhaustive authority for R10.1–R10.12. R10.2 hosted implementation head `b107c565e0df628eb3308543acd998f94b0b6942` passed R0 #1225 / `32662882198`, Python #1199 / `32662882146`, UI #1166 / `32662882152`. Manual candidate `0a2da2334cc6ebe116819110ba80ad1729e22057` passed R0 #1226 / `32663068270`, Python #1200 / `32663068251`, UI #1167 / `32663068243`; REQUIRED local Blender 5.2.0 evidence then passed with canonical JSON SHA-256 `3b65790c4f553640f6d3c14bc141940bca73695a911a343a4ad78449445f243a`, 1141 bytes. Final documented evidence head `7755afacd4e434d8ab50207b24aadd5423b1b7bf` passed R0 #1227 / `32664160175`, Python #1201 / `32664160218`, UI #1168 / `32664160163`; PR #133 merged as `28c5cda03f0ff291b9b9dd6a6d95a21b6b7d2545`. The current branch `r10/2-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10.2 becomes COMPLETE + NORMALIZED and R10.3 is authorized.** No further manual action is required for R10.2.
+> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1–R10.2 COMPLETE + NORMALIZED. R10.3 implementation + final documented acceptance ACCEPTED and merged; post-merge continuity normalization is the only remaining R10.3 completion condition.** `docs/roadmap/R10_PLAN.md` is the exhaustive authority for R10.1–R10.12. R10.3 immutable implementation head `5a3042ae4d7214fb8cfe5d2790eae229563d9fc6` passed R0 #1231 / `32664784120`, Python Core #1205 / `32664784136`, UI Smoke #1172 / `32664784085`; Ubuntu reported 772 passed / 7 skipped / 46 warnings with R7/R8/R9 integrated acceptance PASS. Final documented head `da215a245ea45cd470fbedf16202c64ceedb1db0` passed R0 #1232 / `32664886435`, Python Core #1206 / `32664886275`, UI Smoke #1173 / `32664886288`. Manual state NONE. PR #135 merged as `71964f1d4aa54428050f2c57ff0c9c3e50a4abd8`. The current branch `r10/3-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10.3 becomes COMPLETE + NORMALIZED and R10.4 is authorized.** R10.4 manual state is CONDITIONAL; it is triggered only if an accepted hosted/CPU validation cannot authoritatively cover a planned bake/backend-specific path.
 
 ## Source de vérité et état
 
@@ -19,9 +19,10 @@
 - R9 phase : **COMPLETE + NORMALIZED**.
 - R10 planning : **ACCEPTED + NORMALIZED**.
 - R10.1 : **COMPLETE + NORMALIZED**; manual NONE.
-- R10.2 : implementation ACCEPTED; REQUIRED local gate SATISFIED; final evidence ACCEPTED; PR #133 MERGED; post-merge continuity normalization pending.
-- R10.3 : PLANNED; manual NONE; NOT STARTED until R10.2 normalization merges.
-- R10.4–R10.12 : PLANNED only; implementation NOT STARTED.
+- R10.2 : **COMPLETE + NORMALIZED**; manual REQUIRED SATISFIED.
+- R10.3 : implementation ACCEPTED; final documented acceptance ACCEPTED; PR #135 MERGED; manual NONE; post-merge continuity normalization pending.
+- R10.4 : PLANNED; manual CONDITIONAL; NOT STARTED until R10.3 normalization merges.
+- R10.5–R10.12 : PLANNED only; implementation NOT STARTED.
 - R11–R16 : PENDING / NOT STARTED.
 
 ## R9 planning acceptance
@@ -161,7 +162,7 @@
 - R10.1 normalization head `ab25a5e74c2bd4a4f4e4be2f917c3d4f5e05c0e5` passed R0 #1223 / `32662515164`, Python Core #1197 / `32662515183`, UI #1164 / `32662515217`, all SUCCESS.
 - PR #132 merged as `1ceb7b3528ca09943a542da2a1b0c0f86174ae10`, making R10.1 **COMPLETE + NORMALIZED** and authorizing R10.2.
 
-## R10.2 accepted implementation, real-runtime evidence and merge
+## R10.2 accepted implementation, real-runtime evidence and normalization closure
 
 - Base normalized R10.1 `main`: `1ceb7b3528ca09943a542da2a1b0c0f86174ae10`.
 - Branch: `r10/2-headless-bpy-runner`; PR #133.
@@ -177,7 +178,23 @@
 - Final documented evidence head: `7755afacd4e434d8ab50207b24aadd5423b1b7bf`.
 - Final exact-head gates: R0 #1227 / `32664160175` SUCCESS; Python Core #1201 / `32664160218` SUCCESS; UI #1168 / `32664160163` SUCCESS.
 - PR #133 merged as `28c5cda03f0ff291b9b9dd6a6d95a21b6b7d2545`.
-- Post-merge normalization branch: `r10/2-continuity-normalization`; this branch changes continuity only.
+- R10.2 normalization head `c8647e7ae65e109590268bfb4d215064bd7eb46a` passed R0 #1229 / `32664367853`, Python Core #1203 / `32664367848`, UI #1170 / `32664367863`, all SUCCESS.
+- PR #134 merged as `397749b6d1ea7b0d904446ebfef2e6b6c22780ce`, making R10.2 **COMPLETE + NORMALIZED** and authorizing R10.3.
+
+## R10.3 accepted implementation and merge
+
+- Base normalized R10.2 `main`: `397749b6d1ea7b0d904446ebfef2e6b6c22780ce`.
+- Branch: `r10/3-geometry-authoring`; PR #135.
+- Accepted immutable implementation head: `5a3042ae4d7214fb8cfe5d2790eae229563d9fc6`.
+- Implementation gates: R0 #1231 / `32664784120` SUCCESS; Python Core #1205 / `32664784136` SUCCESS; UI #1172 / `32664784085` SUCCESS.
+- Python Core Ubuntu: **772 passed / 7 skipped / 46 warnings**; R7/R8/R9 integrated acceptance PASS; package builds Ubuntu/Windows + Windows tests/UI SUCCESS.
+- Manual state: **NONE**.
+- Accepted scope: canonical geometry recipes, stable machine object IDs, bounded primitive/transform/modifier catalog, BMesh triangulation + normal recalculation, context-governed join/separate/origin operations, source/evaluated topology statistics, staging-only derived `.blend`, recipe-digest binding and hostile/tamper tests.
+- Recipe-level arbitrary filesystem paths remain unavailable; direct R8 append is fail-closed until a trusted lineage-backed staged binding exists, preserving source immutability and WorkspaceBoundary.
+- Final documented acceptance head: `da215a245ea45cd470fbedf16202c64ceedb1db0`.
+- Final exact-head gates: R0 #1232 / `32664886435` SUCCESS; Python Core #1206 / `32664886275` SUCCESS; UI #1173 / `32664886288` SUCCESS.
+- PR #135 merged as `71964f1d4aa54428050f2c57ff0c9c3e50a4abd8`.
+- Post-merge normalization branch: `r10/3-continuity-normalization`; this branch changes continuity only.
 
 ## R8 retained source of truth
 
@@ -220,10 +237,10 @@ Preserve without reinterpretation:
 5. Scope/structure changes synchronize plan + continuity in the same work cycle.
 6. Foundation changes require an ADR.
 
-## R10.2 normalization rule / next action
+## R10.3 normalization rule / next action
 
-The current branch `r10/2-continuity-normalization` is the **single post-merge continuity normalization** after accepted R10.2 PR #133. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with prior R7/R8/R9 integrated acceptance still PASS.
+The current branch `r10/3-continuity-normalization` is the **single post-merge continuity normalization** after accepted R10.3 PR #135. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with prior R7/R8/R9 integrated acceptance still PASS.
 
-If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10.2 COMPLETE + NORMALIZED and authorizes R10.3.** Do not create another recursive R10.2 continuity commit solely to record the normalization's own run IDs; record those exact-head IDs in the normalization PR body/merge record.
+If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10.3 COMPLETE + NORMALIZED and authorizes R10.4.** Do not create another recursive R10.3 continuity commit solely to record the normalization's own run IDs; record those exact-head IDs in the normalization PR body/merge record.
 
-R10.3 must start from the resulting normalized `main`. R10.3 manual state is **NONE**. Follow the frozen subdivision scope exactly and do not reinterpret R10.4 or later manual states.
+R10.4 must start from the resulting normalized `main`. Its manual state is **CONDITIONAL**. Prefer deterministic hosted/CPU fixtures and do not introduce a bake path merely to exercise the conditional gate. If a planned bake/backend-specific behavior cannot be authoritatively validated without a real local runtime, stop before R10.5 and provide exact local command/evidence requirements. Otherwise record **CONDITIONAL NOT TRIGGERED** and continue normally.

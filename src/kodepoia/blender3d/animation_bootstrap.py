@@ -108,21 +108,38 @@ def main() -> int:
 
     mapping_list = [dict(item) for item in recipe["mappings"]]
     mappings = {str(item["source_bone_id"]): item for item in mapping_list}
+    mapped_sources = set(mappings)
     mapped_targets = {str(item["target_bone_id"]) for item in mapping_list}
     required = {str(item) for item in recipe["required_target_bones"]}
     missing_required = sorted(required - mapped_targets)
     ambiguous: list[str] = []
+    source_deform = {str(item["bone_id"]) for item in source_profile["bones"] if bool(item["deform"])}
+    target_deform = {str(item["bone_id"]) for item in target_profile["bones"] if bool(item["deform"])}
+    unmapped_source_deform = sorted(source_deform - mapped_sources)
+    unmapped_target_deform = sorted(target_deform - mapped_targets)
     translation_scale = float(recipe["translation_scale"])
     rest_pose = rest_compatibility(source_armature, target_armature, source_actual, target_actual, mapping_list, translation_scale)
 
-    clip = dict(recipe["clip"])
     if target_armature.animation_data is None:
         target_armature.animation_data_create()
     animation_data = target_armature.animation_data
     if animation_data is None:
         raise RuntimeError("animation_data_creation_failed")
+    constraint_count = sum(len(pose_bone.constraints) for pose_bone in target_armature.pose.bones)
+    driver_count = len(animation_data.drivers)
+    if constraint_count:
+        raise RuntimeError("target_constraints_require_explicit_bake_policy")
+    if driver_count:
+        raise RuntimeError("target_drivers_not_allowed")
     if animation_data.action is not None or len(animation_data.nla_tracks) != 0:
         raise RuntimeError("target_animation_not_empty")
+
+    clip = dict(recipe["clip"])
+    requested_fps = float(clip["fps"])
+    integer_fps = max(1, min(32767, int(round(requested_fps))))
+    bpy.context.scene.render.fps = integer_fps
+    bpy.context.scene.render.fps_base = integer_fps / requested_fps
+    actual_fps = float(bpy.context.scene.render.fps) / float(bpy.context.scene.render.fps_base)
 
     action_name = "kdp_action_" + str(clip["clip_id"])
     if bpy.data.actions.get(action_name) is not None:
@@ -198,6 +215,8 @@ def main() -> int:
     strip.repeat = 1.0
     strip.use_sync_length = True
     animation_data.action = None
+    action_identity_bound = strip.action == action and action.get("kodepoia_clip_id") == str(clip["clip_id"])
+    active_action_cleared = animation_data.action is None
 
     bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT_BLEND))
     if not OUTPUT_BLEND.is_file():
@@ -207,6 +226,7 @@ def main() -> int:
         root_delta = 0.0
     else:
         root_delta = math.sqrt(sum((root_last[i] - root_first[i]) ** 2 for i in range(3)))
+    duration_seconds = (float(clip["frame_end"]) - float(clip["frame_start"])) / actual_fps
 
     result = {
         "schema": "kodepoia.blender.animation_measurements",
@@ -216,10 +236,19 @@ def main() -> int:
         "recipe_digest": str(job["recipe_digest"]),
         "input_blend_sha256": str(recipe["input_blend_sha256"]),
         "input_file_sha256": sha256_file(INPUT_BLEND),
-        "mapping": {"mapped_bones": len(mappings), "missing_required": missing_required, "ambiguous": ambiguous, "source_bone_count": len(source_actual), "target_bone_count": len(target_actual)},
+        "mapping": {
+            "mapped_bones": len(mappings),
+            "missing_required": missing_required,
+            "ambiguous": ambiguous,
+            "source_bone_count": len(source_actual),
+            "target_bone_count": len(target_actual),
+            "unmapped_source_deform": unmapped_source_deform,
+            "unmapped_target_deform": unmapped_target_deform,
+        },
         "rest_pose": rest_pose,
-        "clip": {"clip_id": str(clip["clip_id"]), "fps": float(clip["fps"]), "frame_start": float(clip["frame_start"]), "frame_end": float(clip["frame_end"]), "loop": bool(clip["loop"]), "key_count": key_count},
-        "nla": {"track_count": len(animation_data.nla_tracks), "strip_count": sum(len(item.strips) for item in animation_data.nla_tracks)},
+        "sampling": {"policy": "explicit_keys_only", "constraint_count": constraint_count, "driver_count": driver_count},
+        "clip": {"clip_id": str(clip["clip_id"]), "fps": actual_fps, "frame_start": float(clip["frame_start"]), "frame_end": float(clip["frame_end"]), "duration_seconds": duration_seconds, "loop": bool(clip["loop"]), "key_count": key_count},
+        "nla": {"track_count": len(animation_data.nla_tracks), "strip_count": sum(len(item.strips) for item in animation_data.nla_tracks), "action_identity_bound": action_identity_bound, "active_action_cleared": active_action_cleared},
         "root_motion": {"policy": str(clip["root_motion"]), "translation_delta": root_delta},
         "artifact": {"filename": "animation_output.blend", "bytes": OUTPUT_BLEND.stat().st_size, "sha256": sha256_file(OUTPUT_BLEND)},
     }
@@ -231,7 +260,7 @@ def main() -> int:
 try:
     raise SystemExit(main())
 except Exception as exc:
-    payload = {"schema": "kodepoia.blender.animation_measurements", "version": 1, "status": "fail", "blockers": [str(exc)[:256]], "mapping": {}, "rest_pose": {}, "clip": {}, "nla": {}, "root_motion": {}, "artifact": {}}
+    payload = {"schema": "kodepoia.blender.animation_measurements", "version": 1, "status": "fail", "blockers": [str(exc)[:256]], "mapping": {}, "rest_pose": {}, "sampling": {}, "clip": {}, "nla": {}, "root_motion": {}, "artifact": {}}
     write_result(payload)
     print("KODEPOIA_R10_7_RESULT=fail")
     raise SystemExit(17)

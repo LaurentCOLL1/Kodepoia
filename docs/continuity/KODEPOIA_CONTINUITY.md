@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive de R8.1–R8.11. R8.11 est accepté sur l'implementation head exact `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, puis sur le final documentation head exact `456c072108917a93176454adaa68234f4c087e57` avec R0 #1098 / `32621787439`, Python Core #1072 / `32621787435` 5/5, `R8 integrated acceptance: PASS` et Ubuntu `588 passed / 6 skipped / 46 warnings`, UI Smoke #1039 / `32621787433`. Manual R8.11 = CONDITIONAL NOT TRIGGERED. PR #101 est fusionnée en `main` sous `2a3a0b7da3803fb4d59158b94b9219aded201f17`. `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json` est check-in avec `status=pass`, `blockers=[]`, digest `6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`. La normalisation finale R8 est continuity-only via PR #102; son premier head `f2004ffbfada8ee7e6cdb942efc19d2aa7aecb6d` a passé R0 #1100 / `32622694931`, Python Core #1074 / `32622694930` 5/5 avec verifier R8 PASS, et UI Smoke #1041 / `32622694936`. **Ne pas commencer R9.1 directement.** La prochaine action autorisée après fusion de cette normalisation est uniquement la planification exhaustive R9 (`R9_PLAN.md`), à accepter et fusionner avant toute R9.1.
+> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning IN PROGRESS.** R8 final normalization est acceptée sur le head exact `023014143c06379b7aad0b0698567c4818c172d3` avec R0 #1101 / `32622805643`, Python Core #1075 / `32622805684` 5/5 avec `R8 integrated acceptance: PASS` et Ubuntu `588 passed / 6 skipped / 46 warnings`, UI Smoke #1042 / `32622805735`; PR #102 est fusionnée en `main` sous `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`. R9 planning part de ce `main` exact sur `r9/planning`. `docs/roadmap/R9_PLAN.md` définit exhaustivement R9.1–R9.11 : contrats/boundary ComfyUI, client HTTP/WebSocket, inventaire/capabilities, workflows + model resolver, exécution/queue/progress, bridge outputs→R8 Vault, cancellation/recovery/free-memory, VRAM scheduler + coexistence Ollama, workflow packs 2D/UI/textures/concepts, CLI/KodeStudio, hardening + integrated acceptance. Manual R9.8 = REQUIRED real local GPU/ComfyUI; R9.2/R9.5/R9.9/R9.11 = CONDITIONAL. **Ne pas commencer R9.1 avant merge du plan après R0 + full Python Core + KodeStudio UI Smoke sur un head exact contenant plan + continuité.**
 
 ## Source de vérité et état
 
@@ -17,9 +17,10 @@
 - R8 planning : ACCEPTED.
 - R8.1–R8.11 : COMPLETE.
 - R8.11 : MERGED via PR #101 sous `2a3a0b7da3803fb4d59158b94b9219aded201f17`.
-- R8 final continuity-only normalization : PR #102; ce document constitue l'état final R8 COMPLETE et doit passer les trois gates exact-head avant merge.
-- R9 planning : NOT STARTED.
-- R9.1–R16 : PENDING / NOT STARTED.
+- R8 final continuity-only normalization : ACCEPTED sur `023014143c06379b7aad0b0698567c4818c172d3`; R0 #1101 / `32622805643`; Python Core #1075 / `32622805684`; UI Smoke #1042 / `32622805735`; PR #102 merge `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`.
+- R9 planning : IN PROGRESS sur branche `r9/planning`, branch point `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`.
+- R9.1–R9.11 : PLANNED / NOT STARTED; structure figée seulement après merge du plan.
+- R10–R16 : PENDING / NOT STARTED.
 
 ## R8 planning acceptance
 
@@ -30,6 +31,18 @@
 - KodeStudio UI Smoke #980 / `32600268680` : SUCCESS.
 - PR #83 merge : `60412afac35678b2a25547a7f0c937891a8a1004`.
 - Planning normalization PR #84 merge : `dfc07ee3dbb746b66c2dabd945b4015979f374d3`.
+
+## R9 planning state
+
+- Frozen-roadmap title: **ComfyUI + VRAM**.
+- Planning branch point / normalized R8 `main`: `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`.
+- Planning branch: `r9/planning`.
+- Plan authority under review: `docs/roadmap/R9_PLAN.md`.
+- Planned subdivision count: 11 (`R9.1`–`R9.11`).
+- Planned manual states: R9.1 NONE; R9.2 CONDITIONAL; R9.3 NONE; R9.4 NONE; R9.5 CONDITIONAL; R9.6 NONE; R9.7 NONE; R9.8 REQUIRED; R9.9 CONDITIONAL; R9.10 NONE; R9.11 CONDITIONAL.
+- R9.8 REQUIRED reason: hosted CI cannot authoritatively validate real GPU VRAM allocation/release/backend behavior; acceptance requires real local ComfyUI/GPU evidence on the exact R9.8 head.
+- Planning acceptance requires R0 Repository Guard, full Python Core and KodeStudio UI Smoke SUCCESS on one exact head containing both plan and synchronized continuity.
+- R9.1 remains BLOCKED until the planning PR is accepted and merged.
 
 ## R8 accepted structure and evidence
 
@@ -184,7 +197,7 @@
 - R8.9 PR #97 merge `af371bf07c56aa60a91ae3e39b14cc60c3307151`.
 - R8.10 PR #99 merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`; normalization PR #100 merge `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`.
 - R8.11 PR #101 merge `2a3a0b7da3803fb4d59158b94b9219aded201f17`.
-- R8 final normalization: PR #102, continuity-only.
+- R8 final normalization PR #102 merge `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`; accepted planning branch point for R9.
 
 ## R7 source of truth retained
 
@@ -251,4 +264,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R8 COMPLETE.** La prochaine et seule action autorisée est **planifier R9 avec un `R9_PLAN.md` exhaustif** : figer subdivisions, dépendances, architecture, plan d'implémentation, livrables, acceptance/evidence, rollback, risques et états manuels; synchroniser cette continuité dans le même cycle; faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact du plan; fusionner le plan avant toute implémentation. **Ne pas commencer R9.1 directement.**
+**R1–R8 COMPLETE. R9 planning IN PROGRESS.** Finaliser `docs/roadmap/R9_PLAN.md` + cette continuité sur `r9/planning`, faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le même head exact, puis fusionner la PR de planification. **R9.1 reste interdit avant cette fusion.** Après merge du plan, normaliser la continuité si nécessaire, puis seulement commencer R9.1 sur une branche dédiée.

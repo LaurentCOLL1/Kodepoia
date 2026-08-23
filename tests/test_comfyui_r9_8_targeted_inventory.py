@@ -36,6 +36,20 @@ class _HTTP:
             },
         }
 
+    def get_json_value(self, path: str) -> Any:
+        if path == "/models":
+            return ["diffusion_models", "embeddings", "vae"]
+        if path == "/models/diffusion_models":
+            return [
+                "wanted.safetensors",
+                "nested\\unrelated.safetensors",
+            ]
+        if path == "/models/embeddings":
+            return ["nested\\bad.pt"]
+        if path == "/models/vae":
+            return ["nested\\wanted-vae.safetensors"]
+        raise AssertionError(path)
+
 
 class _Client:
     def __init__(self) -> None:
@@ -56,3 +70,34 @@ def test_r98_targeted_inventory_keeps_strict_failure_for_required_malformed_node
     assert set(selected) == {"TextToLowercase"}
     with pytest.raises(ComfyProtocolError, match="output_is_list must contain booleans"):
         normalize_node_inventory(selected)
+
+
+def test_r98_targeted_model_inventory_ignores_unrelated_windows_style_tokens() -> None:
+    inventory = _R98WorkflowCapabilityInventory(
+        _Client(),
+        ("GoodNode",),
+        {"diffusion_models": ("wanted.safetensors",)},
+    )
+    assert inventory._model_types() == ("diffusion_models",)
+    assert inventory._models("diffusion_models") == ("wanted.safetensors",)
+
+
+def test_r98_targeted_model_inventory_does_not_rewrite_required_windows_separator() -> None:
+    inventory = _R98WorkflowCapabilityInventory(
+        _Client(),
+        ("GoodNode",),
+        {"vae": ("nested/wanted-vae.safetensors",)},
+    )
+    assert inventory._model_types() == ("vae",)
+    # The upstream Windows-style token does not equal the canonical governed token.
+    # R9.8 must surface it as missing later rather than silently rewriting identity.
+    assert inventory._models("vae") == ()
+
+
+def test_r98_targeted_model_inventory_skips_unrelated_model_categories() -> None:
+    inventory = _R98WorkflowCapabilityInventory(
+        _Client(),
+        ("GoodNode",),
+        {"diffusion_models": ("wanted.safetensors",)},
+    )
+    assert "embeddings" not in inventory._model_types()

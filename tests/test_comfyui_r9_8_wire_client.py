@@ -62,9 +62,9 @@ def _client() -> R98WireComfyUIClient:
     return client
 
 
-def _submit(client: R98WireComfyUIClient) -> None:
+def _submit(client: R98WireComfyUIClient, prompt: dict[str, Any] = BASE_PROMPT) -> None:
     client.submit_prompt(
-        BASE_PROMPT,
+        prompt,
         prompt_id=LOGICAL,
         client_id="kc_" + "b" * 32,
         correlation={"run_id": "run_" + "a" * 32},
@@ -123,6 +123,43 @@ def test_history_metadata_only_rewrite_preserves_frozen_prompt_digest() -> None:
     }
     history = client.execution_history(LOGICAL)
     assert history.prompt_digest_sha256 == canonical_sha256(BASE_PROMPT)
+
+
+def test_history_value_preserving_int_to_float_coercion_preserves_frozen_prompt_digest() -> None:
+    prompt = {"12": {"class_type": "KSampler", "inputs": {"cfg": 1, "steps": 20}}}
+    client = _client()
+    _submit(client, prompt)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "12": {"class_type": "KSampler", "inputs": {"cfg": 1.0, "steps": 20}}
+    }
+    history = client.execution_history(LOGICAL)
+    assert history.prompt_digest_sha256 == canonical_sha256(prompt)
+
+
+def test_history_numeric_value_change_remains_rejected() -> None:
+    prompt = {"12": {"class_type": "KSampler", "inputs": {"cfg": 1, "steps": 20}}}
+    client = _client()
+    _submit(client, prompt)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "12": {"class_type": "KSampler", "inputs": {"cfg": 1.1, "steps": 20}}
+    }
+    with pytest.raises(ComfyProtocolError) as exc_info:
+        client.execution_history(LOGICAL)
+    message = str(exc_info.value)
+    assert "input_values_changed=['12']" in message
+    assert "changed_inputs=['12:cfg']" in message
+    assert "1.1" not in message
+
+
+def test_history_bool_to_number_is_not_treated_as_numeric_equivalence() -> None:
+    prompt = {"1": {"class_type": "Fixture", "inputs": {"flag": True}}}
+    client = _client()
+    _submit(client, prompt)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "1": {"class_type": "Fixture", "inputs": {"flag": 1}}
+    }
+    with pytest.raises(ComfyProtocolError, match=r"changed_inputs=\['1:flag'\]"):
+        client.execution_history(LOGICAL)
 
 
 def test_history_semantic_input_rewrite_is_rejected_with_value_free_summary() -> None:

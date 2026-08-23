@@ -321,6 +321,7 @@ class ComfyExecutionService:
         *,
         required_output_node_ids: tuple[str, ...] | None = None,
     ) -> ComfyRunManifest:
+        self._verify_snapshot_origin(snapshot)
         self._verify_preflight(definition, snapshot, resolutions, instance)
         required = _required_output_nodes(
             tuple(sorted({item.node_id for item in definition.output_slots}))
@@ -380,6 +381,8 @@ class ComfyExecutionService:
     ) -> ComfyRunManifest:
         limits = budget or ComfyExecutionBudget()
         manifest = self.store.load(run_id)
+        self._verify_snapshot_origin(snapshot)
+        self._verify_manifest_origin(manifest)
         self._verify_manifest_bindings(manifest, definition, snapshot, resolutions, instance)
         if manifest.terminal or manifest.state is not ComfyRunState.PREPARED:
             return manifest
@@ -426,6 +429,7 @@ class ComfyExecutionService:
 
     def reconcile_once(self, run_id: str, instance: WorkflowInstance) -> ComfyRunManifest:
         manifest = self.store.load(run_id)
+        self._verify_manifest_origin(manifest)
         self._verify_instance_binding(manifest, instance)
         if manifest.terminal:
             return manifest
@@ -468,6 +472,7 @@ class ComfyExecutionService:
         limits = budget or ComfyExecutionBudget()
         started = time.monotonic()
         current = self.store.load(run_id)
+        self._verify_manifest_origin(current)
         for _ in range(limits.max_poll_attempts):
             if current.terminal:
                 return current
@@ -488,6 +493,7 @@ class ComfyExecutionService:
 
     def observe_event(self, run_id: str, event: ComfyProtocolEvent) -> ComfyRunManifest:
         manifest = self.store.load(run_id)
+        self._verify_manifest_origin(manifest)
         if event.prompt_id is not None and event.prompt_id != manifest.prompt_id:
             raise ComfyProtocolError("WebSocket event prompt_id does not match run manifest")
         if manifest.terminal:
@@ -598,6 +604,18 @@ class ComfyExecutionService:
         updated = _evolve(manifest, state=state)
         self.store.save(updated)
         return updated
+
+    def _verify_snapshot_origin(self, snapshot: ComfyCapabilitySnapshot) -> None:
+        if snapshot.endpoint != self.client.endpoint.origin:
+            raise ComfyGovernanceError(
+                "Capability snapshot endpoint does not match the execution client origin"
+            )
+
+    def _verify_manifest_origin(self, manifest: ComfyRunManifest) -> None:
+        if manifest.capability_endpoint != self.client.endpoint.origin:
+            raise ComfyGovernanceError(
+                "Run manifest capability endpoint does not match the execution client origin"
+            )
 
     @staticmethod
     def _verify_preflight(

@@ -423,7 +423,7 @@ def test_append_only_revision_chain_and_current_pointer_recovery(tmp_path: Path)
         revisions = store.revisions(prepared.run_id)
         assert revisions[0].revision == 0
         assert revisions[-1].revision >= 2
-        for previous, current in zip(revisions, revisions[1:], strict=True):
+        for previous, current in zip(revisions, revisions[1:]):
             assert current.revision == previous.revision + 1
             assert current.previous_manifest_digest_sha256 == previous.manifest_digest_sha256
         latest = revisions[-1]

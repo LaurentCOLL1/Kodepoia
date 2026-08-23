@@ -14,7 +14,12 @@ from urllib.parse import SplitResult, urlencode, urlsplit
 
 from .boundary import ComfyEndpoint
 from .contracts import ComfyTransportLimits
-from .errors import ComfyProtocolError, ComfyResourceError, ComfyUnavailableError
+from .errors import (
+    ComfyProtocolError,
+    ComfyResourceError,
+    ComfySubmissionAmbiguousError,
+    ComfyUnavailableError,
+)
 
 _WS_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 _MAX_HTTP_REDIRECTS = 3
@@ -36,10 +41,7 @@ class _FixedHTTPTransport:
 
     def get_json_value(self, path: str, *, query: dict[str, str] | None = None) -> Any:
         payload = self._get(path, query=query, max_bytes=self.limits.max_json_bytes)
-        try:
-            return json.loads(payload.body.decode("utf-8"))
-        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-            raise ComfyProtocolError("ComfyUI returned malformed UTF-8 JSON") from exc
+        return self._decode_json(payload.body)
 
     def get_json(self, path: str, *, query: dict[str, str] | None = None) -> dict[str, Any]:
         decoded = self.get_json_value(path, query=query)
@@ -47,8 +49,37 @@ class _FixedHTTPTransport:
             raise ComfyProtocolError("ComfyUI JSON response must be an object")
         return decoded
 
+    def post_json(self, path: str, document: dict[str, Any]) -> dict[str, Any]:
+        """POST one fixed typed JSON request. Redirects are rejected to avoid duplicate side effects."""
+        if not path.startswith("/") or "?" in path or "#" in path:
+            raise ComfyProtocolError("Internal ComfyUI route is invalid")
+        try:
+            body = json.dumps(
+                document,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+        except (TypeError, ValueError) as exc:
+            raise ComfyProtocolError("ComfyUI POST document is not serializable JSON") from exc
+        if len(body) > self.limits.max_json_bytes:
+            raise ComfyResourceError("ComfyUI POST body exceeds the accepted byte bound")
+        payload = self._post_target(path, body=body, max_bytes=self.limits.max_json_bytes)
+        decoded = self._decode_json(payload.body)
+        if not isinstance(decoded, dict):
+            raise ComfyProtocolError("ComfyUI JSON response must be an object")
+        return decoded
+
     def get_bytes(self, path: str, *, query: dict[str, str]) -> bytes:
         return self._get(path, query=query, max_bytes=self.limits.max_binary_bytes).body
+
+    @staticmethod
+    def _decode_json(body: bytes) -> Any:
+        try:
+            return json.loads(body.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise ComfyProtocolError("ComfyUI returned malformed UTF-8 JSON") from exc
 
     def _get(
         self,
@@ -77,6 +108,52 @@ class _FixedHTTPTransport:
             self.endpoint.port,
             timeout=self.limits.connect_timeout_seconds,
         )
+
+    def _post_target(self, target: str, *, body: bytes, max_bytes: int) -> _HTTPPayload:
+        connection = self._connection()
+        request_started = False
+        try:
+            request_started = True
+            connection.request(
+                "POST",
+                target,
+                body=body,
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Content-Length": str(len(body)),
+                },
+            )
+            if connection.sock is not None:
+                connection.sock.settimeout(self.limits.read_timeout_seconds)
+            response = connection.getresponse()
+            if 300 <= response.status < 400:
+                response.read(_MAX_DISCARDED_ERROR_BYTES + 1)
+                raise ComfyProtocolError("ComfyUI POST redirect is not accepted")
+            headers = tuple((str(key), str(value)) for key, value in response.getheaders())
+            if not 200 <= response.status < 300:
+                response.read(_MAX_DISCARDED_ERROR_BYTES + 1)
+                raise ComfyProtocolError(f"ComfyUI HTTP POST failed with status {response.status}")
+            declared_length = response.getheader("Content-Length")
+            if declared_length is not None:
+                try:
+                    declared = int(declared_length)
+                except ValueError as exc:
+                    raise ComfyProtocolError("ComfyUI returned an invalid Content-Length") from exc
+                if declared < 0 or declared > max_bytes:
+                    raise ComfyResourceError("ComfyUI response exceeds the accepted byte bound")
+            response_body = response.read(max_bytes + 1)
+            if len(response_body) > max_bytes:
+                raise ComfyResourceError("ComfyUI response exceeds the accepted byte bound")
+            return _HTTPPayload(status=response.status, headers=headers, body=response_body)
+        except (TimeoutError, socket.timeout, ConnectionError, OSError) as exc:
+            if request_started:
+                raise ComfySubmissionAmbiguousError(
+                    f"ComfyUI prompt submission outcome is ambiguous at {self.endpoint.origin}: {exc}"
+                ) from exc
+            raise ComfyUnavailableError(f"ComfyUI unavailable at {self.endpoint.origin}: {exc}") from exc
+        finally:
+            connection.close()
 
     def _request_target(self, target: str, *, max_bytes: int, redirects: int) -> _HTTPPayload:
         connection = self._connection()

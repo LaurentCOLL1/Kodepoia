@@ -3,7 +3,6 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
-import socket
 import struct
 import threading
 import time
@@ -16,6 +15,7 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 
 from kodepoia.comfyui import (
+    ComfyBoundaryError,
     ComfyEventSequence,
     ComfyEventType,
     ComfyOutputReference,
@@ -31,6 +31,7 @@ from kodepoia.comfyui import (
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_PATH = ROOT / "tests" / "fixtures" / "comfyui" / "r9_2_protocol.json"
 _WS_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+_FIXTURE_SHA256 = "1b5b6947e6af1440f59ffc1d6a9d3ed3502fdc057e1bd08a5680300cb42fd656"
 
 
 class _Scenario:
@@ -41,6 +42,7 @@ class _Scenario:
         self.ws_connections: list[list[str | bytes | tuple[str, int]]] = []
         self.ws_connection_count = 0
         self.output_bytes = b"fixture-output-bytes"
+        self.request_targets: list[str] = []
 
 
 class _Handler(BaseHTTPRequestHandler):
@@ -50,6 +52,7 @@ class _Handler(BaseHTTPRequestHandler):
         del format, args
 
     def do_GET(self) -> None:  # noqa: N802
+        self.scenario.request_targets.append(self.path)
         parts = urlsplit(self.path)
         if parts.path == "/ws":
             self._websocket(parts.query)
@@ -195,6 +198,7 @@ def test_fixed_http_operations_probe_and_output(protocol_fixture: dict[str, Any]
 
         probe = client.probe()
         assert probe.endpoint == endpoint
+        assert probe.ready is True
         assert all(
             value.value == "current"
             for value in (probe.system, probe.features, probe.prompt_metadata, probe.queue, probe.history)
@@ -212,6 +216,18 @@ def test_poll_reconciliation_never_manufactures_success(protocol_fixture: dict[s
         assert client.reconcile_prompt_state("prompt-missing") is ComfyRunState.UNKNOWN
 
 
+def test_history_prompt_id_is_percent_encoded(protocol_fixture: dict[str, Any]) -> None:
+    scenario = _Scenario(protocol_fixture)
+    with _server(scenario) as endpoint:
+        client = ComfyUIClient(endpoint)
+        snapshot = client.history("../queue?clear=true")
+        assert snapshot.present is False
+        assert any(
+            target.startswith("/history/..%2Fqueue%3Fclear%3Dtrue") for target in scenario.request_targets
+        )
+        assert "/queue?clear=true" not in scenario.request_targets
+
+
 def test_http_redirect_error_malformed_timeout_and_size_bounds(protocol_fixture: dict[str, Any]) -> None:
     scenario = _Scenario(protocol_fixture)
     with _server(scenario) as endpoint:
@@ -227,7 +243,7 @@ def test_http_redirect_error_malformed_timeout_and_size_bounds(protocol_fixture:
             {"Location": f"{host}:{port + 1}/system_stats"},
             b"",
         )
-        with pytest.raises(Exception, match="origin|loopback"):
+        with pytest.raises(ComfyBoundaryError, match="origin|loopback"):
             client.system_stats()
 
         scenario.overrides["/system_stats"] = (500, {}, b"server error")
@@ -248,6 +264,17 @@ def test_http_redirect_error_malformed_timeout_and_size_bounds(protocol_fixture:
         scenario.delays["/system_stats"] = 0.2
         with pytest.raises(ComfyUnavailableError, match="unavailable"):
             client.system_stats()
+
+
+def test_probe_surfaces_unavailable_without_fabricating_ready(protocol_fixture: dict[str, Any]) -> None:
+    scenario = _Scenario(protocol_fixture)
+    scenario.delays["/features"] = 0.2
+    with _server(scenario) as endpoint:
+        client = ComfyUIClient(endpoint, limits=ComfyTransportLimits(read_timeout_seconds=0.05))
+        probe = client.probe()
+        assert probe.features.value == "unavailable"
+        assert probe.feature_digest_sha256 is None
+        assert probe.ready is False
 
 
 def test_event_parser_and_sequence_reject_mismatch_and_terminal_regression(
@@ -278,7 +305,12 @@ def test_event_parser_and_sequence_reject_mismatch_and_terminal_regression(
         sequence.observe(mismatch)
 
     regression = parse_event_frame(
-        json.dumps({"type": "progress", "data": {"prompt_id": "prompt-running", "value": 1, "max": 2}}),
+        json.dumps(
+            {
+                "type": "progress",
+                "data": {"prompt_id": "prompt-running", "value": 1, "max": 2},
+            }
+        ),
         max_bytes=4096,
     )
     with pytest.raises(ComfyProtocolError, match="transition"):
@@ -289,7 +321,10 @@ def test_websocket_reconnect_binary_skip_and_bounded_retry(protocol_fixture: dic
     scenario = _Scenario(protocol_fixture)
     start = json.dumps({"type": "execution_start", "data": {"prompt_id": "prompt-running"}})
     progress = json.dumps(
-        {"type": "progress", "data": {"prompt_id": "prompt-running", "node": "2", "value": 2, "max": 4}}
+        {
+            "type": "progress",
+            "data": {"prompt_id": "prompt-running", "node": "2", "value": 2, "max": 4},
+        }
     )
     success = json.dumps({"type": "execution_success", "data": {"prompt_id": "prompt-running"}})
     scenario.ws_connections = [[start], [b"preview", progress, success]]
@@ -359,4 +394,4 @@ def test_client_has_no_public_arbitrary_request_surface() -> None:
 def test_fixture_digest_is_stable(protocol_fixture: dict[str, Any]) -> None:
     raw = FIXTURE_PATH.read_bytes()
     assert protocol_fixture["fixture_version"] == 1
-    assert hashlib.sha256(raw).hexdigest() == "TO_BE_FILLED"
+    assert hashlib.sha256(raw).hexdigest() == _FIXTURE_SHA256

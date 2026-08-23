@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/comfy-protocol-probe-v1.schema.json",
+  "type": "object",
+  "required": ["schema", "version", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "kodepoia.comfy-protocol-probe"},
+    "version": {"const": 1},
+    "payload": {
+      "type": "object",
+      "required": [
+        "endpoint",
+        "system",
+        "features",
+        "prompt_metadata",
+        "queue",
+        "history",
+        "system_digest_sha256",
+        "feature_digest_sha256",
+        "prompt_digest_sha256",
+        "queue_digest_sha256",
+        "history_digest_sha256",
+        "ready"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "endpoint": {"type": "string", "minLength": 1, "maxLength": 256},
+        "system": {"enum": ["current", "unavailable"]},
+        "features": {"enum": ["current", "unavailable"]},
+        "prompt_metadata": {"enum": ["current", "unavailable"]},
+        "queue": {"enum": ["current", "unavailable"]},
+        "history": {"enum": ["current", "unavailable"]},
+        "system_digest_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "feature_digest_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "prompt_digest_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "queue_digest_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "history_digest_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "ready": {"type": "boolean"}
+      }
+    }
+  }
+}

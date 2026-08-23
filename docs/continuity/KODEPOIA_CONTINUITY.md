@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE.** `docs/roadmap/R9_PLAN.md` est l’autorité structurelle exhaustive de R9.1–R9.11. Le planning R9 est accepté sur `fc73a3c96cecb78820f9e94738ace2c280dc4251`, puis normalisé via PR #104. R9.1 est accepté sur le head documentaire exact `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58` avec R0 #1109 / `32624132192`, Python Core #1083 / `32624132167`, UI Smoke #1050 / `32624132173`, tous SUCCESS; PR #105 est fusionnée sous `2eeadafb7cf12328a2c502684187a24ae82a82b7`. Manual R9.1 = NONE. Manual R9.2 = CONDITIONAL; ne le déclencher que si les fixtures déterministes + contrat upstream courant ne suffisent pas ou si une dérive API est détectée. Cette normalisation continuity-only doit être fusionnée avant le démarrage de R9.2. Après cette fusion, la prochaine action autorisée est R9.2 sur une branche dédiée.
+> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE + NORMALIZED. R9.2 IMPLEMENTATION ACCEPTED; final documentation gates pending.** `docs/roadmap/R9_PLAN.md` est l’autorité structurelle exhaustive de R9.1–R9.11. R9.1 est fusionnée via PR #105 puis normalisée via PR #106 sous `2d646a08412b18709b5a1d3aa0c9a4bfed30ea05`. R9.2 est accepté côté implémentation sur `15186ced206f05d8baf764738615e6625aa6d459` avec R0 #1114 / `32625248672`, Python Core #1088 / `32625248645`, UI Smoke #1055 / `32625248725`, tous SUCCESS. Manual R9.2 = CONDITIONAL NOT TRIGGERED. Le premier candidat `9b9a79f69ef7c304bd743b74bf0379f5d3688588` est rejeté uniquement pour une normalisation CRLF du fixture sous Windows; le correctif accepté pince `tests/fixtures/comfyui/*.json` à LF sans affaiblir le protocole. Faire passer les trois gates sur le head documentaire final de PR #107, fusionner #107 uniquement si tous sont SUCCESS, puis effectuer une normalisation continuity-only avec le merge SHA avant toute R9.3.
 
 ## Source de vérité et état
 
@@ -20,8 +20,9 @@
 - R8 final continuity-only normalization : ACCEPTED sur `023014143c06379b7aad0b0698567c4818c172d3`; R0 #1101 / `32622805643`; Python Core #1075 / `32622805684`; UI Smoke #1042 / `32622805735`; PR #102 merge `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`.
 - R9 planning : ACCEPTED sur head exact `fc73a3c96cecb78820f9e94738ace2c280dc4251`; R0 #1103 / `32623437662`; Python Core #1077 / `32623437659`; UI Smoke #1044 / `32623437660`; PR #103 merge `1d5daab6168ee6aceab3de089d8cc46ea7dc2145`.
 - R9 planning normalization : ACCEPTED sur `51a6bb7d04d8aacd47e621b15a747f6e9d08781c`; R0 #1106 / `32623679409`; Python Core #1080 / `32623679387`; UI Smoke #1047 / `32623679382`; PR #104 merge `e3f7bf6039cee918a5d505fb47ed536cde087e0e`.
-- R9.1 : COMPLETE; implementation head `dfde39746f0ec909a865a9f0ef75b6856e77c88f`, final documentation head `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58`; PR #105 merge `2eeadafb7cf12328a2c502684187a24ae82a82b7`.
-- R9.2–R9.11 : PLANNED / NOT STARTED; structure R9.1–R9.11 figée par le plan fusionné.
+- R9.1 : COMPLETE; implementation head `dfde39746f0ec909a865a9f0ef75b6856e77c88f`, final documentation head `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58`; PR #105 merge `2eeadafb7cf12328a2c502684187a24ae82a82b7`; normalization head `1bd7dafa0307bc1985ef6811e529393c508680f8`; R0 #1111 / `32624628174`, Python #1085 / `32624628215`, UI #1052 / `32624628266`, all SUCCESS; PR #106 merge `2d646a08412b18709b5a1d3aa0c9a4bfed30ea05`.
+- R9.2 : IMPLEMENTATION ACCEPTED on `15186ced206f05d8baf764738615e6625aa6d459`; R0 #1114 / `32625248672`, Python Core #1088 / `32625248645`, UI Smoke #1055 / `32625248725`, all SUCCESS; manual CONDITIONAL NOT TRIGGERED; final documentation gates / PR #107 merge pending.
+- R9.3–R9.11 : PLANNED / NOT STARTED; structure R9.1–R9.11 figée par le plan fusionné.
 - R10–R16 : PENDING / NOT STARTED.
 
 ## R8 planning acceptance
@@ -56,7 +57,7 @@
 | ID | Title | Exact accepted head | CI | Manual final |
 | --- | --- | --- | --- | --- |
 | R9.1 | ComfyUI contracts, local endpoint boundary + capability schema | `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58` | R0 #1109; Python #1083; UI #1050 | NONE |
-| R9.2 | Typed HTTP/WebSocket client, health, queue/history + protocol state | — | — | CONDITIONAL |
+| R9.2 | Typed HTTP/WebSocket client, health, queue/history + protocol state | `15186ced206f05d8baf764738615e6625aa6d459` (implementation) | R0 #1114; Python #1088; UI #1055 | CONDITIONAL NOT TRIGGERED |
 | R9.3 | Node/model inventory + capability snapshots | — | — | NONE |
 | R9.4 | Validated workflow catalog + governed model resolver | — | — | NONE |
 | R9.5 | Execution engine, queue/progress/reconciliation + run manifests | — | — | CONDITIONAL |
@@ -74,10 +75,28 @@
 - Python Ubuntu on implementation head: `612 passed / 6 skipped / 46 warnings`; R7 and R8 integrated acceptance PASS; package builds Ubuntu + Windows SUCCESS.
 - Final documentation head `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58`: R0 #1109 / `32624132192`, Python Core #1083 / `32624132167`, UI Smoke #1050 / `32624132173`, all SUCCESS.
 - PR #105 merged as `2eeadafb7cf12328a2c502684187a24ae82a82b7`.
+- Post-merge continuity normalization head `1bd7dafa0307bc1985ef6811e529393c508680f8`: R0 #1111 / `32624628174`, Python #1085 / `32624628215`, UI #1052 / `32624628266`, all SUCCESS; PR #106 merged as `2d646a08412b18709b5a1d3aa0c9a4bfed30ea05`.
 - `ComfyEndpoint` accepts only explicit loopback literals `127.0.0.1` / `::1` with explicit port, rejects credentials/non-root origin paths/query/fragment/non-loopback and validates redirects against the exact origin without DNS resolution.
 - R9.1 adds immutable capability/queue/run/resource contracts, inert prompt/history/output references, bounded transport limits, deterministic canonical JSON/SHA-256 envelopes, explicit exception taxonomy, and four strict versioned root schemas.
 - R9.1 performs no HTTP/WebSocket/socket/subprocess/model/GPU action; network behavior starts only in R9.2.
 - Manual intervention: NONE.
+
+### R9.2 accepted implementation baseline
+
+- Base normalized R9.1 `main`: `2d646a08412b18709b5a1d3aa0c9a4bfed30ea05`.
+- Exact accepted implementation head: `15186ced206f05d8baf764738615e6625aa6d459`.
+- R0 Repository Guard #1114 / `32625248672`: SUCCESS Ubuntu + Windows.
+- Python Core #1088 / `32625248645`: SUCCESS 5/5; Ubuntu `626 passed / 6 skipped / 46 warnings`; Windows `623 passed / 9 skipped / 46 warnings`; package builds Ubuntu + Windows SUCCESS; R7/R8 integrated acceptance PASS.
+- KodeStudio UI Smoke #1055 / `32625248725`: SUCCESS; integrated Windows UI smoke inside Python Core also SUCCESS.
+- Fixed `ComfyUIClient` exposes health/system/features/prompt metadata, queue/history, bounded output retrieval, queue/history reconciliation, WebSocket event iteration and narrow probe; it exposes no public arbitrary HTTP method/path surface.
+- HTTP redirects remain exact-origin loopback only, prompt IDs are percent-encoded before path use, `/view` metadata is query-encoded, response bodies and WebSocket frames are bounded, and connection failures become explicit `UNAVAILABLE` rather than fabricated readiness.
+- WebSocket parser supports the required bounded RFC6455 subset and checks announced payload size before payload read; reconnect/backoff/cancellation are bounded.
+- WebSocket is telemetry only; pollable queue/history remains final execution-state authority because upstream can stall WS delivery while HTTP/execution continue and success events can precede durable history persistence.
+- Deterministic fixture `tests/fixtures/comfyui/r9_2_protocol.json`: version 1, SHA-256 `1b5b6947e6af1440f59ffc1d6a9d3ed3502fdc057e1bd08a5680300cb42fd656`; `.gitattributes` pins only this fixture family to LF for cross-platform byte identity.
+- Rejected precursor `9b9a79f69ef7c304bd743b74bf0379f5d3688588`: R0 #1113 and UI #1054 SUCCESS; Python #1087 failed only the Windows raw fixture digest because Git converted LF→CRLF; Ubuntu remained fully green. Accepted correction changed line-ending policy only and did not weaken production safeguards.
+- `comfy-probe` exists solely for the frozen conditional diagnostic and writes strict versioned evidence inside the current workspace atomically; no real-local probe is needed for this acceptance.
+- Manual intervention: **CONDITIONAL NOT TRIGGERED** because deterministic loopback CI on both platforms plus current upstream ComfyUI source/tests establish every R9.2 acceptance property; no property depends on GPU, models, custom nodes or a user-specific ComfyUI deployment.
+- `docs/roadmap/R9_2_ACCEPTANCE.md` pins the implementation evidence. Final documentation/continuity head must pass the three exact-head gates before PR #107 merge.
 
 ## R8 accepted structure and evidence
 
@@ -299,4 +318,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact de `r9/1-continuity-normalization`, puis fusionner cette normalisation continuity-only. **R9.2 reste interdit avant cette fusion.** Une fois la normalisation fusionnée, commencer R9.2 sur une branche dédiée depuis le `main` normalisé.
+**R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE + NORMALIZED. R9.2 IMPLEMENTATION ACCEPTED.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head documentaire final de PR #107. Si les trois sont SUCCESS sur ce SHA exact, fusionner #107 avec verrou exact-head. Ensuite créer une normalisation continuity-only enregistrant le final documentation head, les trois runs finaux et le merge SHA de #107; gate et fusionner cette normalisation avant toute R9.3. Aucun probe ComfyUI réel n’est requis sauf si un nouveau comportement drift-sensitive apparaît avant le merge.

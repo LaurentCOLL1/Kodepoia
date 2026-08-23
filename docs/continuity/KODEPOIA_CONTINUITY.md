@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE + NORMALIZED. R9.2 COMPLETE + NORMALIZED. R9.3 COMPLETE + NORMALIZED. R9.4 COMPLETE + NORMALIZED. R9.5 COMPLETE + NORMALIZED. R9.6 COMPLETE + NORMALIZED. R9.7 COMPLETE + NORMALIZED. R9.8 COMPLETE; post-merge continuity normalization in progress.** `docs/roadmap/R9_PLAN.md` est l’autorité structurelle exhaustive de R9.1–R9.11. R9.8 est acceptée côté implémentation sur `86777ddc7a87ad6041ddc599e20e93af38512a19` avec le gate GPU REQUIRED SATISFIED par l'evidence canonique `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967`. Le head documentaire/continuité exact `935c977926a11a7ba93f77c49a20b0eebe568b6d` a passé R0 #1181 / `32643022172`, Python Core #1155 / `32643022212` 5/5 avec Ubuntu `719 passed / 6 skipped / 46 warnings`, et UI Smoke #1122 / `32643022181`, tous SUCCESS. PR #119 est fusionnée sous `647039ad4cb6a0fa0c369ba5eeb97c153b561637`. Faire passer les trois gates sur le head exact de `r9/8-continuity-normalization`, puis fusionner cette normalisation avant toute R9.9.
+> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1–R9.8 COMPLETE + NORMALIZED. R9.9 implementation ACCEPTED; final documentation/continuity gates pending.** `docs/roadmap/R9_PLAN.md` reste l’autorité structurelle exhaustive de R9.1–R9.11. R9.8 REQUIRED est SATISFIED sur l’implementation head `86777ddc7a87ad6041ddc599e20e93af38512a19` par l’evidence locale canonique SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967` (5744 octets). R9.8 final documentation/continuity head `935c977926a11a7ba93f77c49a20b0eebe568b6d` a passé R0 #1181 / `32643022172`, Python Core #1155 / `32643022212` 5/5 avec Ubuntu `719 passed / 6 skipped / 46 warnings`, et UI Smoke #1122 / `32643022181`; PR #119 a fusionné sous `647039ad4cb6a0fa0c369ba5eeb97c153b561637`. Sa normalisation continuity-only head `586097a25d6027b2c7a86d44c8876a6728cbf2d6` a passé R0 #1183 / `32643425656`, Python Core #1157 / `32643425619`, UI Smoke #1124 / `32643425675`; PR #120 a fusionné sous `bc5d4687e0ef6d91901a8b04103907aad8bb48f8`. R9.9 est acceptée côté implémentation sur `85f8aacf8baf0f8dba6d28ba07fcfc0dbc37a324` avec R0 #1188 / `32644669495`, Python Core #1162 / `32644669572` 5/5 et Ubuntu `724 passed / 6 skipped / 46 warnings`, UI Smoke #1129 / `32644669558`, tous SUCCESS. Le premier candidat `a8913dd1c46730babec7ac123e65de4bb6c8ca52` est REJECTED : Python Core #1159 a découvert deux défauts R9.9, corrigés sans affaiblir les gates. Manual R9.9 = **CONDITIONAL NOT TRIGGERED**. Le head documentaire antérieur `1b2172f29d0e51909c33e161e7748e2e64f41948` a passé R0 #1189 / `32644989683`, Python #1163 / `32644989676`, UI #1130 / `32644989677`, mais ce commit de continuité crée un nouveau head qui doit repasser les trois gates avant merge PR #121. **Ne pas commencer R9.10 avant merge + normalisation post-merge de R9.9.**
 
 ## Source de vérité et état
 
@@ -14,53 +14,34 @@
 - R1–R6 : COMPLETE.
 - R7 : COMPLETE.
 - R8 : COMPLETE.
-- R8 planning : ACCEPTED.
-- R8.1–R8.11 : COMPLETE.
-- R8.11 : MERGED via PR #101 sous `2a3a0b7da3803fb4d59158b94b9219aded201f17`.
-- R8 final continuity-only normalization : ACCEPTED sur `023014143c06379b7aad0b0698567c4818c172d3`; R0 #1101 / `32622805643`; Python Core #1075 / `32622805684`; UI Smoke #1042 / `32622805735`; PR #102 merge `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`.
-- R9 planning : ACCEPTED sur head exact `fc73a3c96cecb78820f9e94738ace2c280dc4251`; R0 #1103 / `32623437662`; Python Core #1077 / `32623437659`; UI Smoke #1044 / `32623437660`; PR #103 merge `1d5daab6168ee6aceab3de089d8cc46ea7dc2145`.
-- R9 planning normalization : ACCEPTED sur `51a6bb7d04d8aacd47e621b15a747f6e9d08781c`; R0 #1106 / `32623679409`; Python Core #1080 / `32623679387`; UI Smoke #1047 / `32623679382`; PR #104 merge `e3f7bf6039cee918a5d505fb47ed536cde087e0e`.
-- R9.1 : COMPLETE; implementation head `dfde39746f0ec909a865a9f0ef75b6856e77c88f`, final documentation head `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58`; PR #105 merge `2eeadafb7cf12328a2c502684187a24ae82a82b7`; normalization head `1bd7dafa0307bc1985ef6811e529393c508680f8`; R0 #1111 / `32624628174`, Python #1085 / `32624628215`, UI #1052 / `32624628266`, all SUCCESS; PR #106 merge `2d646a08412b18709b5a1d3aa0c9a4bfed30ea05`.
-- R9.2 : COMPLETE + NORMALIZED; implementation head `15186ced206f05d8baf764738615e6625aa6d459`, final documentation head `89ea9d90ffab6db3563164e629f192caca91ed79`; R0 #1117 / `32625547484`, Python Core #1091 / `32625547536`, UI Smoke #1058 / `32625547485`, all SUCCESS; manual CONDITIONAL NOT TRIGGERED; PR #107 merge `549c1d6f0adc622d92997240bb2e6df2a654b3ee`; normalization head `3fd267d6f5901f0da3a41f85325cf7e58a9ded9f`; R0 #1119 / `32625925666`, Python #1093 / `32625925669`, UI #1060 / `32625925742`, all SUCCESS; PR #108 merge `9c18a0dc88f311c6aab469cdd6c9a02ca453805b`.
-- R9.3 : COMPLETE + NORMALIZED; implementation head `915075149fa81b31308c3eedcfa35e74f8a9b7a4`, final documentation head `97e47799f6efe30eed58d73abf509d9d34ed862d`; R0 #1127 / `32626703651`, Python Core #1101 / `32626703557`, UI Smoke #1068 / `32626703574`, all SUCCESS; manual NONE; PR #109 merge `fdd054fa93a91b9e9bb017fe2df982f364c4ecfc`; normalization head `6da529ca8a2aa20d7c2d13e69e21c9579173a1fb`; R0 #1130 / `32626924944`, Python #1104 / `32626924986`, UI #1071 / `32626924952`, all SUCCESS; PR #110 merge `e9152cbe15ba9da2b383e2e6577251ca7c424e41`.
-- R9.4 : COMPLETE + NORMALIZED; implementation head `e158fd643ecf55a1ed9022193a48d2d1ee1716ed`, final documentation head `45c2fbd3125d654cbac843e1f90133d81da12395`; R0 #1134 / `32627572953`, Python Core #1108 / `32627572958`, UI Smoke #1075 / `32627572965`, all SUCCESS; manual NONE; PR #111 merge `5f9c0ddf0a0f1835a172c30b287eba1a6ee79921`; normalization head `7c9ea55f531c919fe8d843dc84166a20db663a19`; R0 #1138 / `32627915880`, Python #1112 / `32627915886`, UI #1079 / `32627915883`, all SUCCESS; PR #112 merge `920267d9096d340e50379f28c0f9506b9347f9f0`.
-- R9.5 : COMPLETE + NORMALIZED; implementation head `525a4c48ae0ff714fe4b3ee7bca34b2e8c62c112`, final documentation head `ee927d50e2af9045dc80c3183aa122b1f87a30c3`; R0 #1144 / `32629424560`, Python Core #1118 / `32629424566`, UI Smoke #1085 / `32629424562`, all SUCCESS; manual CONDITIONAL NOT TRIGGERED; PR #113 merge `e239eab3a31ef6d89c69d818d8fc157d9b948927`; normalization head `d7e6173fad14b74773e638338f37ce94bf4e3bfe`; R0 #1146 / `32629848328`, Python #1120 / `32629848014`, UI #1087 / `32629848010`, all SUCCESS; PR #114 merge `d42d273c7d8a9eb53718bcb64271b5be05058d35`.
-- R9.6 : COMPLETE + NORMALIZED; implementation head `f453db0c5ec5705b4dea8ae00a5937583f466fa1`, final documentation head `ccc2d5f440322c433a9853e9642bff7efb5d0d0e`; R0 #1150 / `32630578643`, Python Core #1124 / `32630578640`, UI Smoke #1091 / `32630578668`, all SUCCESS; Ubuntu `669 passed / 6 skipped / 46 warnings`; manual NONE; PR #115 merge `0b0dfa6bc92cb9ebdb10fd3aff086ee3be3c3853`; normalization head `ef21e101eb200379828fc09a5673155bc48151db`; R0 #1152 / `32630757571`, Python #1126 / `32630757587`, UI #1093 / `32630757598`, all SUCCESS; PR #116 merge `c94bca7c71ad9fea1782130eecd2079dbd710570`.
-- R9.7 : COMPLETE + NORMALIZED; implementation head `20cc4bbc93e547fac9fee28d7be44268358d29e4`, final documentation head `c38a6c3d9a8e60acdc6fc46e38f46f1402ccb696`; R0 #1156 / `32632164294`, Python Core #1130 / `32632164267`, UI Smoke #1097 / `32632164259`, all SUCCESS; Ubuntu `680 passed / 6 skipped / 46 warnings`; manual NONE; PR #117 merge `dc46ad8306ca02240feb0805171bed7b61f47b3e`; normalization head `5be9b8e2ff9666ad98de1b5764ea1c93acc707d2`; R0 #1158 / `32632725521`, Python #1132 / `32632725574`, UI #1099 / `32632725470`, all SUCCESS; PR #118 merge `5cfea5053ef0e32b055aa85309e0ff849ef827e2`.
-- R9.8 : COMPLETE; accepted implementation head `86777ddc7a87ad6041ddc599e20e93af38512a19`, final documentation/continuity head `935c977926a11a7ba93f77c49a20b0eebe568b6d`; R0 #1181 / `32643022172`, Python Core #1155 / `32643022212`, UI Smoke #1122 / `32643022181`, all SUCCESS; Ubuntu `719 passed / 6 skipped / 46 warnings`; local evidence digest `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967`, 5744 bytes; manual REQUIRED SATISFIED; PR #119 merge `647039ad4cb6a0fa0c369ba5eeb97c153b561637`; post-merge continuity normalization in progress.
-- R9.9–R9.11 : PLANNED / NOT STARTED; structure R9.1–R9.11 figée par le plan fusionné.
+- R9 planning : ACCEPTED + NORMALIZED.
+- R9.1 : COMPLETE + NORMALIZED.
+- R9.2 : COMPLETE + NORMALIZED; manual CONDITIONAL NOT TRIGGERED.
+- R9.3 : COMPLETE + NORMALIZED.
+- R9.4 : COMPLETE + NORMALIZED.
+- R9.5 : COMPLETE + NORMALIZED; manual CONDITIONAL NOT TRIGGERED.
+- R9.6 : COMPLETE + NORMALIZED.
+- R9.7 : COMPLETE + NORMALIZED.
+- R9.8 : COMPLETE + NORMALIZED; manual REQUIRED SATISFIED.
+- R9.9 : implementation ACCEPTED; final documentation/continuity exact-head gates pending on this synchronized head; manual CONDITIONAL NOT TRIGGERED.
+- R9.10 : PLANNED / NOT STARTED.
+- R9.11 : PLANNED / NOT STARTED.
 - R10–R16 : PENDING / NOT STARTED.
-
-## R8 planning acceptance
-
-- Branch point : `b98832b339902527bce8a5ea95b5a08a19839a40`.
-- Planning head exact : `08844fc09501ed8a4974909eca4595021bc73bf4`.
-- R0 Repository Guard #1039 / `32600268817` : SUCCESS Ubuntu + Windows.
-- Python Core #1013 / `32600268710` : SUCCESS 5/5.
-- KodeStudio UI Smoke #980 / `32600268680` : SUCCESS.
-- PR #83 merge : `60412afac35678b2a25547a7f0c937891a8a1004`.
-- Planning normalization PR #84 merge : `dfc07ee3dbb746b66c2dabd945b4015979f374d3`.
 
 ## R9 planning acceptance
 
-- Frozen-roadmap title: **ComfyUI + VRAM**.
-- Planning branch point / normalized R8 `main`: `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`.
-- Planning branch: `r9/planning`.
-- Exact accepted planning head: `fc73a3c96cecb78820f9e94738ace2c280dc4251`.
-- R0 Repository Guard #1103 / `32623437662`: SUCCESS.
-- Python Core #1077 / `32623437659`: SUCCESS.
-- KodeStudio UI Smoke #1044 / `32623437660`: SUCCESS.
+- Frozen-roadmap title : **ComfyUI + VRAM**.
+- Planning branch point / normalized R8 `main` : `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`.
+- Exact accepted planning head : `fc73a3c96cecb78820f9e94738ace2c280dc4251`.
+- R0 #1103 / `32623437662`, Python Core #1077 / `32623437659`, UI Smoke #1044 / `32623437660` : SUCCESS.
 - Planning PR #103 merged as `1d5daab6168ee6aceab3de089d8cc46ea7dc2145`.
-- Planning normalization head `51a6bb7d04d8aacd47e621b15a747f6e9d08781c`: R0 #1106 / `32623679409`, Python #1080 / `32623679387`, UI #1047 / `32623679382`, all SUCCESS; PR #104 merge `e3f7bf6039cee918a5d505fb47ed536cde087e0e`.
-- Plan authority: `docs/roadmap/R9_PLAN.md`.
-- Frozen subdivision count: 11 (`R9.1`–`R9.11`).
-- Frozen manual states: R9.1 NONE; R9.2 CONDITIONAL; R9.3 NONE; R9.4 NONE; R9.5 CONDITIONAL; R9.6 NONE; R9.7 NONE; R9.8 REQUIRED; R9.9 CONDITIONAL; R9.10 NONE; R9.11 CONDITIONAL.
-- R9.8 REQUIRED reason: hosted CI cannot authoritatively validate real GPU VRAM allocation/release/backend behavior; acceptance requires real local ComfyUI/GPU evidence on the exact R9.8 head.
-- Planning acceptance and normalization are complete.
+- Planning normalization head `51a6bb7d04d8aacd47e621b15a747f6e9d08781c` : R0 #1106 / `32623679409`, Python #1080 / `32623679387`, UI #1047 / `32623679382`, all SUCCESS; PR #104 merge `e3f7bf6039cee918a5d505fb47ed536cde087e0e`.
+- Frozen subdivision count : 11 (`R9.1`–`R9.11`).
+- Frozen manual states : R9.1 NONE; R9.2 CONDITIONAL; R9.3 NONE; R9.4 NONE; R9.5 CONDITIONAL; R9.6 NONE; R9.7 NONE; R9.8 REQUIRED; R9.9 CONDITIONAL; R9.10 NONE; R9.11 CONDITIONAL.
 
 ## R9 accepted structure and evidence
 
-| ID | Title | Exact accepted head | CI | Manual final |
+| ID | Title | Exact accepted implementation/final head | Hosted acceptance | Manual final |
 | --- | --- | --- | --- | --- |
 | R9.1 | ComfyUI contracts, local endpoint boundary + capability schema | `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58` | R0 #1109; Python #1083; UI #1050 | NONE |
 | R9.2 | Typed HTTP/WebSocket client, health, queue/history + protocol state | `89ea9d90ffab6db3563164e629f192caca91ed79` | R0 #1117; Python #1091; UI #1058 | CONDITIONAL NOT TRIGGERED |
@@ -69,347 +50,98 @@
 | R9.5 | Execution engine, queue/progress/reconciliation + run manifests | `ee927d50e2af9045dc80c3183aa122b1f87a30c3` | R0 #1144; Python #1118; UI #1085 | CONDITIONAL NOT TRIGGERED |
 | R9.6 | Generated-output capture + R8 Vault/AssetPipeline lineage bridge | `ccc2d5f440322c433a9853e9642bff7efb5d0d0e` | R0 #1150; Python #1124; UI #1091 | NONE |
 | R9.7 | Cancellation, interruption, crash recovery + free-memory semantics | `c38a6c3d9a8e60acdc6fc46e38f46f1402ccb696` | R0 #1156; Python #1130; UI #1097 | NONE |
-| R9.8 | VRAM telemetry, admission scheduler + Ollama coexistence | `935c977926a11a7ba93f77c49a20b0eebe568b6d` | R0 #1181; Python #1155; UI #1122 | REQUIRED SATISFIED |
-| R9.9 | Production 2D/UI/texture/concept workflow packs | — | — | CONDITIONAL |
+| R9.8 | VRAM telemetry, admission scheduler + Ollama coexistence | impl `86777ddc7a87ad6041ddc599e20e93af38512a19`; docs `935c977926a11a7ba93f77c49a20b0eebe568b6d` | R0 #1181; Python #1155; UI #1122 | REQUIRED SATISFIED |
+| R9.9 | Production 2D/UI/texture/concept workflow packs | impl `85f8aacf8baf0f8dba6d28ba07fcfc0dbc37a324` | R0 #1188; Python #1162; UI #1129 | CONDITIONAL NOT TRIGGERED |
 | R9.10 | CLI + KodeStudio ComfyUI/VRAM UX | — | — | NONE |
 | R9.11 | Adversarial hardening + R9 integrated acceptance | — | — | CONDITIONAL |
 
-### R9.1 accepted baseline
+### R9.1–R9.4 retained baseline
 
-- Base normalized R9 planning `main`: `e3f7bf6039cee918a5d505fb47ed536cde087e0e`.
-- Accepted implementation head `dfde39746f0ec909a865a9f0ef75b6856e77c88f`: R0 #1108 / `32624052368`, Python Core #1082 / `32624052364`, UI Smoke #1049 / `32624052378`, all SUCCESS.
-- Python Ubuntu on implementation head: `612 passed / 6 skipped / 46 warnings`; R7 and R8 integrated acceptance PASS; package builds Ubuntu + Windows SUCCESS.
-- Final documentation head `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58`: R0 #1109 / `32624132192`, Python Core #1083 / `32624132167`, UI Smoke #1050 / `32624132173`, all SUCCESS.
-- PR #105 merged as `2eeadafb7cf12328a2c502684187a24ae82a82b7`.
-- Post-merge continuity normalization head `1bd7dafa0307bc1985ef6811e529393c508680f8`: R0 #1111 / `32624628174`, Python #1085 / `32624628215`, UI #1052 / `32624628266`, all SUCCESS; PR #106 merged as `2d646a08412b18709b5a1d3aa0c9a4bfed30ea05`.
-- `ComfyEndpoint` accepts only explicit loopback literals `127.0.0.1` / `::1` with explicit port, rejects credentials/non-root origin paths/query/fragment/non-loopback and validates redirects against the exact origin without DNS resolution.
-- R9.1 adds immutable capability/queue/run/resource contracts, inert prompt/history/output references, bounded transport limits, deterministic canonical JSON/SHA-256 envelopes, explicit exception taxonomy, and four strict versioned root schemas.
-- R9.1 performs no HTTP/WebSocket/socket/subprocess/model/GPU action; network behavior starts only in R9.2.
-- Manual intervention: NONE.
+- `ComfyEndpoint` accepts only explicit loopback literals `127.0.0.1` / `::1` with explicit port and rejects credentials, non-root origin paths/query/fragment, non-loopback and redirect origin changes.
+- `ComfyUIClient` exposes a fixed typed surface only; response bodies/WebSocket frames are bounded, HTTP redirects stay exact-origin loopback, and queue/history remain terminal execution authority.
+- R9.3 capability identity binds endpoint/system/features/nodes/models/unavailable evidence while timestamp does not change identity; capability drift is explicit `STALE`.
+- R9.4 `WorkflowDefinition` binds canonical graph/revision/allowlisted classes/parameters/model requirements; only declared `$param`, `$input`, `$model` markers are substitutable and arbitrary graph fragments are rejected.
+- `GovernedModelResolver` resolves only discovered inventory tokens. Ambiguity requires explicit selection; external-local models without R8 evidence remain `NOASSERTION` and non-exportable.
 
-### R9.2 accepted baseline
+### R9.5–R9.7 retained baseline
 
-- Base normalized R9.1 `main`: `2d646a08412b18709b5a1d3aa0c9a4bfed30ea05`.
-- Exact accepted implementation head: `15186ced206f05d8baf764738615e6625aa6d459`.
-- Implementation gates: R0 Repository Guard #1114 / `32625248672`: SUCCESS Ubuntu + Windows; Python Core #1088 / `32625248645`: SUCCESS 5/5 with Ubuntu `626 passed / 6 skipped / 46 warnings` and Windows `623 passed / 9 skipped / 46 warnings`; KodeStudio UI Smoke #1055 / `32625248725`: SUCCESS.
-- Final documentation/continuity head `89ea9d90ffab6db3563164e629f192caca91ed79`: R0 #1117 / `32625547484`, Python Core #1091 / `32625547536`, UI Smoke #1058 / `32625547485`, all SUCCESS.
-- PR #107 merged as `549c1d6f0adc622d92997240bb2e6df2a654b3ee`.
-- Post-merge continuity normalization head `3fd267d6f5901f0da3a41f85325cf7e58a9ded9f`: R0 #1119 / `32625925666`, Python #1093 / `32625925669`, UI #1060 / `32625925742`, all SUCCESS; PR #108 merged as `9c18a0dc88f311c6aab469cdd6c9a02ca453805b`.
-- Fixed `ComfyUIClient` exposes health/system/features/prompt metadata, queue/history, bounded output retrieval, queue/history reconciliation, WebSocket event iteration and narrow probe; it exposes no public arbitrary HTTP method/path surface.
-- HTTP redirects remain exact-origin loopback only, prompt IDs are percent-encoded before path use, `/view` metadata is query-encoded, response bodies and WebSocket frames are bounded, and connection failures become explicit `UNAVAILABLE` rather than fabricated readiness.
-- WebSocket parser supports the required bounded RFC6455 subset and checks announced payload size before payload read; reconnect/backoff/cancellation are bounded.
-- WebSocket is telemetry only; pollable queue/history remains final execution-state authority because upstream can stall WS delivery while HTTP/execution continue and success events can precede durable history persistence.
-- Deterministic fixture `tests/fixtures/comfyui/r9_2_protocol.json`: version 1, SHA-256 `1b5b6947e6af1440f59ffc1d6a9d3ed3502fdc057e1bd08a5680300cb42fd656`; `.gitattributes` pins only this fixture family to LF for cross-platform byte identity.
-- Rejected precursor `9b9a79f69ef7c304bd743b74bf0379f5d3688588`: R0 #1113 and UI #1054 SUCCESS; Python #1087 failed only the Windows raw fixture digest because Git converted LF→CRLF; Ubuntu remained fully green. Accepted correction changed line-ending policy only and did not weaken production safeguards.
-- `comfy-probe` exists solely for the frozen conditional diagnostic and writes strict versioned evidence inside the current workspace atomically.
-- Manual intervention: **CONDITIONAL NOT TRIGGERED** because deterministic loopback CI on both platforms plus current upstream ComfyUI source/tests establish every R9.2 acceptance property; no property depends on GPU, models, custom nodes or a user-specific ComfyUI deployment.
-
-### R9.3 accepted baseline
-
-- Base normalized R9.2 `main`: `9c18a0dc88f311c6aab469cdd6c9a02ca453805b`.
-- Exact accepted implementation head: `915075149fa81b31308c3eedcfa35e74f8a9b7a4`.
-- Implementation gates: R0 #1125 / `32626438121`, Python #1099 / `32626438098`, UI #1066 / `32626438104`, all SUCCESS; Ubuntu `634 passed / 6 skipped / 46 warnings`; Windows tests and Ubuntu/Windows package builds SUCCESS; R7/R8 integrated acceptance PASS.
-- Final documentation/continuity head `97e47799f6efe30eed58d73abf509d9d34ed862d`: R0 #1127 / `32626703651`, Python #1101 / `32626703557`, UI #1068 / `32626703574`, all SUCCESS.
-- PR #109 merged as `fdd054fa93a91b9e9bb017fe2df982f364c4ecfc`.
-- Post-merge continuity normalization head `6da529ca8a2aa20d7c2d13e69e21c9579173a1fb`: R0 #1130 / `32626924944`, Python #1104 / `32626924986`, UI #1071 / `32626924952`, all SUCCESS; PR #110 merged as `e9152cbe15ba9da2b383e2e6577251ca7c424e41`.
-- `ComfyCapabilityInventory` discovers only the fixed accepted loopback routes and never scans Kodepoia model directories or executes/downloads nodes/models.
-- Snapshot identity binds endpoint/system/features/nodes/models/unavailable evidence but excludes `captured_at`; unchanged recapture at the same endpoint is deterministic.
-- Unknown node-extension metadata is inert but SHA-256-bound so drift is visible; model tokens are relative logical identifiers only and cannot manufacture Vault/provenance/license truth.
-- Capability drift yields explicit `STALE` evidence; the root-confined atomic snapshot cache is rebuildable and tamper-checked.
-- Frozen R9.1 `comfy-capability-snapshot-v1` envelope remains unchanged; R9.3 adds a separate strict payload schema.
-- Rejected precursor `5c714d49d775dd04d04bca95ec341289cc59a515`: R0 #1121 and UI #1062 SUCCESS, Python #1095 FAILURE with two newly introduced failures (illegal tightening of the R9.1 root schema and a determinism fixture that changed endpoint as well as timestamp). Both were corrected without weakening gates.
-- Manual intervention: NONE.
-
-### R9.4 accepted baseline
-
-- Base normalized R9.3 `main`: `e9152cbe15ba9da2b383e2e6577251ca7c424e41`.
-- Exact accepted implementation head: `e158fd643ecf55a1ed9022193a48d2d1ee1716ed`.
-- Implementation gates: R0 #1132 / `32627342083`, Python #1106 / `32627342056`, UI #1073 / `32627342058`, all SUCCESS; Ubuntu `643 passed / 6 skipped / 46 warnings`; Windows tests and Ubuntu/Windows package builds SUCCESS; R7/R8 integrated acceptance PASS.
-- Final documentation/continuity head `45c2fbd3125d654cbac843e1f90133d81da12395`: R0 #1134 / `32627572953`, Python #1108 / `32627572958`, UI #1075 / `32627572965`, all SUCCESS.
-- PR #111 merged as `5f9c0ddf0a0f1835a172c30b287eba1a6ee79921`.
-- Post-merge continuity normalization head `7c9ea55f531c919fe8d843dc84166a20db663a19`: R0 #1138 / `32627915880`, Python #1112 / `32627915886`, UI #1079 / `32627915883`, all SUCCESS; PR #112 merged as `920267d9096d340e50379f28c0f9506b9347f9f0`.
-- `WorkflowDefinition` binds the canonical Kodepoia-owned API graph, revision, allowlisted classes, scalar/input/output slots and model requirements into a SHA-256 definition identity; node IDs/classes/connections cannot be parameter-mutated.
-- Only declared `$param`, `$input` and `$model` markers can be substituted. Parameters are bounded JSON scalars, so a parameter cannot inject an arbitrary mapping/graph fragment.
-- Validation requires a `CURRENT` R9.3 snapshot and checks node presence, allowlist, required/unknown inputs, scalar constraints, link type compatibility and output-slot types against that exact capability evidence.
-- Seeds are explicit typed parameters; R9.4 does not manufacture hidden randomness.
-- `GovernedModelResolver` resolves only discovered inventory tokens and exposes `RESOLVED`, `MISSING`, `AMBIGUOUS` and `BLOCKED`. Multiple candidates require explicit deterministic selection; no filename is guessed or downloaded.
-- Optional `VaultModelEvidence` reuses R8 `AssetRevisionId`, exact digest, `ReuseScope`, `AssetGovernanceOutcome` and license evidence. External-local models without R8 evidence remain `NOASSERTION` and non-exportable.
-- `WorkflowCatalog` loads only explicitly named, root-confined, non-symlink JSON files and recomputes canonical definition identity. There is no recursive workflow discovery.
-- Frozen R9.1 root workflow envelope remains unchanged; strict R9.4 payload validation lives in `comfy-workflow-definition-payload-v1.schema.json`.
-- Manual intervention: NONE.
-
-### R9.5 accepted baseline
-
-- Base normalized R9.4 `main`: `920267d9096d340e50379f28c0f9506b9347f9f0`.
-- Exact accepted implementation head: `525a4c48ae0ff714fe4b3ee7bca34b2e8c62c112`.
-- Implementation gates: R0 #1142 / `32629125994`, Python #1116 / `32629126032`, UI #1083 / `32629125952`, all SUCCESS; Python Core 5/5; Ubuntu `654 passed / 6 skipped / 46 warnings`; Windows tests and Ubuntu/Windows package builds SUCCESS; R7/R8 integrated acceptance PASS.
-- Final documentation/continuity head `ee927d50e2af9045dc80c3183aa122b1f87a30c3`: R0 #1144 / `32629424560`, Python #1118 / `32629424566`, UI #1085 / `32629424562`, all SUCCESS.
-- PR #113 merged as `e239eab3a31ef6d89c69d818d8fc157d9b948927`.
-- Post-merge continuity normalization head `d7e6173fad14b74773e638338f37ce94bf4e3bfe`: R0 #1146 / `32629848328`, Python #1120 / `32629848014`, UI #1087 / `32629848010`, all SUCCESS; PR #114 merged as `d42d273c7d8a9eb53718bcb64271b5be05058d35`.
-- A run persists `PREPARED` before its first and only prompt POST; immediately before the side effect, append-only evidence records `ATTEMPTING` and `submission_attempts=1`.
-- Lost/ambiguous POST responses never trigger an automatic second POST. Recovery uses only bounded idempotent queue/history reads keyed by the exact persisted `prompt_id`; unresolved ambiguity remains explicit and blocks resubmission even on a later `submit()` call.
-- WebSocket messages are telemetry only. Progress is accumulated monotonically, while terminal state is derived only from coherent queue/history evidence.
-- Terminal history must match the persisted prompt digest and Kodepoia correlation. `SUCCEEDED` additionally requires every explicitly required output-node reference.
-- Execution is bound to the exact R9.3 capability endpoint: snapshot and persisted manifest origins must equal the fixed `ComfyUIClient` origin for preparation, submission, polling/waiting and WebSocket observation.
-- `ComfyRunManifest` records explicit workflow, capability/environment, model-resolution, parameters, input bindings, seeds, submission, queue/history, progress and output-reference evidence.
-- `ComfyRunStore` preserves immutable digest-named revisions linked by `previous_manifest_digest_sha256`, plus an atomic current pointer that can be recovered from the validated append-only chain.
-- Frozen R9.1 root run-manifest envelope remains unchanged; strict R9.5 payload validation is separate in `schemas/comfy-run-manifest-payload-v1.schema.json`.
-- Deterministic fixture `tests/fixtures/comfyui/r9_5_execution.json`: version 1, SHA-256 `549eab22a20f34ad367baf8f46d5c1a5166cd9fb8cbb90fdb983b9bd1129d50a`, 542 bytes.
-- Rejected precursor `4d0a5e0f66603387893d1633ba283c0e5d5d5078`: R0 #1140 and UI #1081 SUCCESS, Python #1114 / `32628835669` FAILURE with Ubuntu `652 passed / 2 failed / 6 skipped / 46 warnings`. One failure exposed the real missing snapshot/executor-origin binding; the other was a fixture-only `zip(..., strict=True)` assertion mismatch. The accepted correction strengthened production confinement and fixed only the test mechanism.
-- Manual intervention: **CONDITIONAL NOT TRIGGERED** because deterministic loopback CI on both hosted platforms establishes the frozen R9.5 execution/recovery/duplicate-prevention properties, while current upstream ComfyUI evidence confirms that queue/history must remain the durable authority when WebSocket delivery stalls or success precedes output persistence. No required property depends on GPU, model/custom-node installation or a user-specific deployment.
-
-### R9.6 accepted baseline
-
-- Base normalized R9.5 `main`: `d42d273c7d8a9eb53718bcb64271b5be05058d35`.
-- Exact accepted implementation head: `f453db0c5ec5705b4dea8ae00a5937583f466fa1`.
-- Implementation gates: R0 #1148 / `32630355165`, Python #1122 / `32630355159`, UI #1089 / `32630355166`, all SUCCESS; Python Core 5/5; Ubuntu `669 passed / 6 skipped / 46 warnings`; Windows tests and Ubuntu/Windows package builds SUCCESS; R7/R8 integrated acceptance PASS.
-- Final documentation/continuity head `ccc2d5f440322c433a9853e9642bff7efb5d0d0e`: R0 #1150 / `32630578643`, Python #1124 / `32630578640`, UI #1091 / `32630578668`, all SUCCESS.
-- PR #115 merged as `0b0dfa6bc92cb9ebdb10fd3aff086ee3be3c3853`.
-- Post-merge continuity normalization head `ef21e101eb200379828fc09a5673155bc48151db`: R0 #1152 / `32630757571`, Python #1126 / `32630757587`, UI #1093 / `32630757598`, all SUCCESS; PR #116 merged as `c94bca7c71ad9fea1782130eecd2079dbd710570`.
-- Only explicit output references from a reconciled R9.5 `SUCCEEDED` run are eligible; the capture client must match the exact persisted ComfyUI origin.
-- Cross-prompt references, unsupported storage types, POSIX traversal, nested filenames, Windows drive-qualified tokens and unsafe subfolders fail before retrieval.
-- All requested outputs are retrieved through fixed `ComfyUIClient.retrieve_output()`, hashed, length-checked, type/signature-checked where supported, staged under the project boundary and reverified before any media promotion.
-- Canonical generation evidence is ingested through unchanged R8 `AssetService` as a Vault-local DOCUMENT source revision. Generated media is promoted as R8 `DERIVED` revisions through unchanged R8 `TransformService`.
-- R8 lineage binds the generation-evidence revision plus explicit source/input revisions. The recipe/evidence binds exact run/workflow/model/capability/instance/prompt/settings/seed/output-reference/content evidence.
-- R9.6 performs no arbitrary ComfyUI output-directory scan and never interprets a server filename/subfolder as a local path.
-- Missing legal evidence remains conservative R8 unknown/`NOASSERTION`; R9.6 never manufactures export rights.
-- Multi-output retrieval/validation completes before the first promotion. A rare later promotion failure is represented explicitly as immutable `PARTIAL` evidence and never as a complete logical set; no hidden destructive rollback bypasses R8 deletion/reference rules.
-- Strict adjunct capture schema: `schemas/comfy-output-capture-payload-v1.schema.json`; frozen R9.1/R9.5 root envelopes remain unchanged.
-- Deterministic binary fixture: `tests/fixtures/comfyui/r9_6_output.png`; acceptance covers successful reconstructable lineage, cross-prompt/path/hash/length/type rejection, failed/cancelled/non-terminal no-promotion, multi-output preflight, schema validation and tamper rejection.
-- Manual intervention: **NONE**. All frozen R9.6 properties are deterministic protocol/storage/lineage invariants covered on hosted Ubuntu/Windows and require no authoritative local GPU/model deployment.
-
-### R9.7 accepted baseline
-
-- Base normalized R9.6 `main`: `c94bca7c71ad9fea1782130eecd2079dbd710570`.
-- Exact accepted implementation head: `20cc4bbc93e547fac9fee28d7be44268358d29e4`.
-- Implementation gates: R0 #1154 / `32631945349`, Python #1128 / `32631945259`, UI #1095 / `32631945367`, all SUCCESS; Python Core 5/5; Ubuntu `680 passed / 6 skipped / 46 warnings`; Windows tests and Ubuntu/Windows package builds SUCCESS; R7/R8 integrated acceptance PASS.
-- Final documentation/continuity head `c38a6c3d9a8e60acdc6fc46e38f46f1402ccb696`: R0 #1156 / `32632164294`, Python #1130 / `32632164267`, UI #1097 / `32632164259`, all SUCCESS.
-- PR #117 merged as `dc46ad8306ca02240feb0805171bed7b61f47b3e`.
-- Post-merge continuity normalization head `5be9b8e2ff9666ad98de1b5764ea1c93acc707d2`: R0 #1158 / `32632725521`, Python #1132 / `32632725574`, UI #1099 / `32632725470`, all SUCCESS; PR #118 merged as `5cfea5053ef0e32b055aa85309e0ff849ef827e2`.
-- Current ComfyUI atomic/idempotent job cancellation is used for both pending and running prompts, bound to the exact persisted prompt ID.
-- Cancellation reconciles queue/history before and after the side effect; terminal races become evidence-backed no-ops rather than destructive late cancellation.
-- Legacy pending cancellation may use exact-ID `/queue` deletion. Legacy `/interrupt` is global upstream, so a running legacy job without targeted job cancellation is explicit `UNSUPPORTED`/blocked and no global interrupt is issued.
-- Unknown/disappeared prompts never fabricate `CANCELLED` or `FAILED`.
-- Restart recovery uses the R9.5 append-only manifest chain and can reconstruct a damaged mutable current pointer before reconciliation.
-- Lifecycle actions/outcomes are root-confined and stored in a tamper-evident SHA-256 event chain under strict adjunct schema `schemas/comfy-lifecycle-audit-payload-v1.schema.json`.
-- `/free` is a request only. R9.7 records before/after system evidence digests and deliberately leaves `reclaimed_bytes=None`; authoritative VRAM byte evidence belongs to R9.8.
-- Cleanup is blocked for explicitly known non-terminal runs. FAILED/OOM-style terminal cleanup follows terminal proof -> fixed unload/free request -> system re-read -> audit, with ambiguous/unavailable outcomes preserved explicitly.
-- No process kill, GPU reset, driver/runtime mutation, arbitrary HTTP route/host, model download, custom-node installation, or R8 governance bypass is introduced.
-- Manual intervention: **NONE**. Real GPU allocation/release/backend validation is intentionally deferred to R9.8 REQUIRED.
+- R9.5 persists `PREPARED` before the first and only prompt POST; ambiguous submission never triggers an automatic second POST. Run manifests are append-only and terminal success requires coherent history plus required output references.
+- R9.6 retrieves only reconciled prompt outputs through the fixed client, validates path/hash/length/type before promotion, then routes generated assets through unchanged R8 `AssetService` / `TransformService` lineage and governance.
+- R9.7 cancellation reconciles state before and after the side effect; targeted safe cancellation is preferred and legacy global `/interrupt` is not used as an unsafe substitute. `/free` is a request, never proof of reclaimed bytes.
 
 ### R9.8 accepted baseline
 
-- Base normalized R9.7 `main`: `5cfea5053ef0e32b055aa85309e0ff849ef827e2`.
-- Exact accepted implementation head: `86777ddc7a87ad6041ddc599e20e93af38512a19`.
-- Hosted implementation gates: R0 #1179 / `32642291824`, Python Core #1153 / `32642291811`, UI Smoke #1120 / `32642291850`, all SUCCESS; Python Core 5/5; Ubuntu `719 passed / 6 skipped / 46 warnings`; Windows tests and Ubuntu/Windows package builds SUCCESS; R7/R8 integrated acceptance PASS.
-- Manual REQUIRED gate: **SATISFIED** on the same exact implementation head with canonical local evidence `schema=kodepoia.comfy-vram-evidence`, version 1, digest `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967`, exact evidence length 5744 bytes.
-- Local ComfyUI `0.33.0` on loopback reports device `cuda:0 AMD Radeon RX 6750 XT : native`, backend type `cuda`, total VRAM `12868124672` bytes and admission-time free VRAM `12461146112` bytes.
-- Resource profile: estimate `8589934592` bytes, reserve `536870912`, headroom `536870912`, required free `9663676416`; scheduler initial/final decision `admit` with measured free VRAM satisfying estimate + reserve + headroom.
-- Real generation workflow `wf_3aa2ac5225d8a3d88bcf8b3b7aee7205`, instance digest `7a42edf3db886f8902e78fafe7330fcda1a190de0d2de2ad2aa0cf72c6b6e5bd`, run `run_dccd6ff31d2f45f5add31415f694abf5`, run-manifest digest `b97ebbb54bf96a23726dc98ec41abfac58c8936e9acd2179bbd452d55425095b`.
-- Generated output SHA-256 `a18b2eae0fd90f36382e92638bef7984cd591cfd8d9d2466941f66e65f488e92`, exact length `1029726` bytes.
-- VRAM observation: start `12461146112`, minimum `4410702336`, end `12461146112`, observed peak delta `8050443776` bytes, OOM `false`; the observed peak remains below the configured 8 GiB estimate while separate reserve/headroom remain intact.
-- Terminal cleanup `/free` and unload-model request were acknowledged and followed by a new system measurement. `reclaimed_bytes` remains deliberately `null`; R9.8 does not reinterpret an acknowledgement as fabricated byte reclamation.
-- Resource audit and lifecycle audit validate. Evidence canonical digest independently recomputes exactly. Failure reason is null.
-- Ollama coexistence state is explicit `n/a`: no Ollama model was already loaded and none was loaded/downloaded for the gate.
-- Real acceptance surfaced compatibility conditions that hosted fixtures could not prove: unrelated malformed custom-node metadata and unrelated Windows-native model tokens are scoped out only when outside the governed workflow/model targets; current ComfyUI UUID prompt IDs are mapped at the R9.8 wire boundary while frozen logical R9.5 `kp_<32hex>` identity remains persisted; history reconciliation accepts only metadata-only changes and value-preserving finite INT/FLOAT coercion, while semantic mutations remain rejected.
-- No GPU driver/runtime, ComfyUI, custom-node, model or Ollama installation/update was used to make the gate pass; no process kill, GPU reset, reserve/headroom weakening or arbitrary model selection was introduced.
-- `docs/roadmap/R9_8_ACCEPTANCE.md` records the full reviewed proof. Manual intervention: **REQUIRED SATISFIED**.
-- Final documentation/continuity head `935c977926a11a7ba93f77c49a20b0eebe568b6d`: R0 #1181 / `32643022172`, Python Core #1155 / `32643022212`, UI Smoke #1122 / `32643022181`, all SUCCESS; Ubuntu `719 passed / 6 skipped / 46 warnings`; PR #119 merged as `647039ad4cb6a0fa0c369ba5eeb97c153b561637`.
-- Post-merge continuity normalization is the only remaining R9.8 action before R9.9 may start.
+- Base normalized R9.7 `main` : `5cfea5053ef0e32b055aa85309e0ff849ef827e2`.
+- Accepted implementation head : `86777ddc7a87ad6041ddc599e20e93af38512a19`.
+- Hosted implementation gates : R0 #1179 / `32642291824`, Python Core #1153 / `32642291811`, UI Smoke #1120 / `32642291850`; Ubuntu `719 passed / 6 skipped / 46 warnings`; all SUCCESS.
+- Manual REQUIRED : **SATISFIED** on the same head with evidence `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967`, 5744 bytes.
+- Real loopback ComfyUI `0.33.0` reported device `cuda:0 AMD Radeon RX 6750 XT : native`, total VRAM `12868124672`, admission-time free `12461146112` bytes.
+- Resource profile estimate `8589934592`, reserve `536870912`, headroom `536870912`; scheduler `admit`.
+- Real generation workflow `wf_3aa2ac5225d8a3d88bcf8b3b7aee7205`; output SHA-256 `a18b2eae0fd90f36382e92638bef7984cd591cfd8d9d2466941f66e65f488e92`, length `1029726`; observed peak delta `8050443776`, OOM false.
+- `/free`/unload acknowledgement was followed by remeasurement; `reclaimed_bytes` remains deliberately null.
+- Ollama coexistence = `n/a`; no model was loaded/downloaded solely for acceptance.
+- Final documentation/continuity head `935c977926a11a7ba93f77c49a20b0eebe568b6d`: R0 #1181, Python #1155, UI #1122, all SUCCESS; PR #119 merge `647039ad4cb6a0fa0c369ba5eeb97c153b561637`.
+- Post-merge continuity normalization head `586097a25d6027b2c7a86d44c8876a6728cbf2d6`: R0 #1183 / `32643425656`, Python #1157 / `32643425619`, UI #1124 / `32643425675`, all SUCCESS; PR #120 merge `bc5d4687e0ef6d91901a8b04103907aad8bb48f8`.
 
-## R8 accepted structure and evidence
+### R9.9 accepted implementation baseline
 
-| ID | Title | Exact accepted head | CI | Manual final |
-| --- | --- | --- | --- | --- |
-| R8.1 | Asset/Vault contracts, identity, schemas + boundary | `0e382bcdc82c5d289a9007c40d4a4b6c72120e5c` | R0 #1043; Python #1017; UI #984 | NONE |
-| R8.2 | Inter-project Vault store, revisions, reuse + preservation | `2046b981cb9506999c40e3fee1a22608efecaa80` | R0 #1045; Python #1019; UI #986 | NONE |
-| R8.3 | Source/derived lineage + reproducible transform cache/rebuild | `a1b0b6b4e07b15521acdd3a86dd963ebe4acc9c8` | R0 #1047; Python #1021; UI #988 | NONE |
-| R8.4 | Duplicate + near-duplicate detection | `4bf9cbd4892208084cd8ce6554edfd96a971bc04` | R0 #1050; Python #1024; UI #991 | NONE |
-| R8.5 | Semantic asset search + hybrid ranking | `08c90bd8d52a7dd2dfc8da6ce94f6731701469f6` | R0 #1052; Python #1026; UI #993 | CONDITIONAL NOT TRIGGERED |
-| R8.6 | Provenance, license/BOM + governed reuse/export | `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe` | R0 #1057; Python #1031; UI #998 | NONE |
-| R8.7 | Asset-aware Git/VCS integration | `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3` | R0 #1061; Python #1035; UI #1002 | NONE |
-| R8.8 | Git LFS tracking, pointer/object integrity + diagnostics | `32e5ace263546d85ee662c5ba333caaaefaa8bcc` | R0 #1066; Python #1040; UI #1007 | CONDITIONAL NOT TRIGGERED |
-| R8.9 | Godot 4.7 source/import bridge + rebuild verification | `da8b4aedd280dadffcf4099bfa2b902cb70d81a7` | R0 #1071; Python #1045; UI #1012 | REQUIRED SATISFIED |
-| R8.10 | CLI + KodeStudio Vault/Asset/VCS UX | `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22` | R0 #1083; Python #1057; UI #1024 | NONE |
-| R8.11 | Adversarial hardening + R8 integrated acceptance | `d1589cf94545b854f995e7b6706c4b67e9b7ac1a` | R0 #1092; Python #1066; UI #1033; final doc gates #1098/#1072/#1039 | CONDITIONAL NOT TRIGGERED |
+- Base normalized R9.8 `main` : `bc5d4687e0ef6d91901a8b04103907aad8bb48f8`.
+- Branch : `r9/9-production-workflow-packs`; PR #121.
+- Rejected first candidate : `a8913dd1c46730babec7ac123e65de4bb6c8ca52`. R0 #1185 and UI #1126 succeeded, but Python Core #1159 failed with two newly introduced defects: the aggregate-pixel test did not actually exceed its configured ceiling, and an empty negative prompt contradicted the already-frozen R9.4 scalar-string contract. No gate was weakened.
+- Production correction tightened aggregate pixel budgets to ensure multi-output requests have an effective bound and requires a non-empty bounded negative prompt consistent with R9.4.
+- Exact accepted implementation head : `85f8aacf8baf0f8dba6d28ba07fcfc0dbc37a324`.
+- Implementation gates : R0 #1188 / `32644669495`, Python Core #1162 / `32644669572` 5/5, UI Smoke #1129 / `32644669558`, all SUCCESS; Ubuntu `724 passed / 6 skipped / 46 warnings`; Windows tests and Ubuntu/Windows package builds SUCCESS; R7/R8 integrated acceptance PASS.
+- Four mandatory governed families are present : `concept`, `ui_illustration`, `material_source`, `sprite_2d`.
+- Packs use only governed core-node definitions, explicit resolver-driven checkpoint selection and bounded typed parameters. No custom-node installer, model download, arbitrary graph execution, process surface or URL surface is introduced.
+- Seeds/settings, width/height, output count, aggregate pixels and estimated VRAM are explicit. `material_source` is explicitly source-only and cannot claim production-ready validated PBR semantics.
+- Missing/ambiguous model resolution remains explicit `BLOCKED`; compatibility is bound to a CURRENT capability snapshot.
+- The frozen R9.9 CONDITIONAL trigger is **NOT TRIGGERED** because the mandatory packs introduce no required real node/model family outside the already accepted core checkpoint generation family exercised by R9.8.
+- Acceptance source : `docs/roadmap/R9_9_ACCEPTANCE.md`. The prior documentation-only head `1b2172f29d0e51909c33e161e7748e2e64f41948` passed R0 #1189 / `32644989683`, Python #1163 / `32644989676`, UI #1130 / `32644989677`; this synchronized continuity commit supersedes that head for final exact-head acceptance.
 
-### R8.1 accepted baseline
+## R8 retained source of truth
 
-- Logical `AssetId` is separate from immutable `AssetRevisionId`.
-- Revision identity is bound to canonical content/provenance/lineage semantics, not mutable runtime status or path/display name.
-- SHA-256 + exact byte length verifies immutable content.
-- `VaultBoundary` composes accepted `WorkspaceBoundary` confinement; traversal, absolute and symlink escapes fail closed.
-- Versioned record/revision/project-reference schemas and tamper-checked canonical loading are accepted.
+R8 remains COMPLETE and must not be reinterpreted. Its integrated report remains `status=pass`, `blockers=[]`, `source_sha=d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, digest `6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`.
 
-### R8.2 accepted baseline
+- R8.1 `0e382bcdc82c5d289a9007c40d4a4b6c72120e5c` — NONE.
+- R8.2 `2046b981cb9506999c40e3fee1a22608efecaa80` — NONE.
+- R8.3 `a1b0b6b4e07b15521acdd3a86dd963ebe4acc9c8` — NONE.
+- R8.4 `4bf9cbd4892208084cd8ce6554edfd96a971bc04` — NONE.
+- R8.5 `08c90bd8d52a7dd2dfc8da6ce94f6731701469f6` — CONDITIONAL NOT TRIGGERED.
+- R8.6 `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe` — NONE.
+- R8.7 `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3` — NONE.
+- R8.8 `32e5ace263546d85ee662c5ba333caaaefaa8bcc` — CONDITIONAL NOT TRIGGERED.
+- R8.9 `da8b4aedd280dadffcf4099bfa2b902cb70d81a7` — REQUIRED SATISFIED; local Godot evidence SHA-256 `6579babc829022930e5abe889583e32357fa3d7695b1a2713014e32f86e23b7e`.
+- R8.10 `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22` — NONE.
+- R8.11 `d1589cf94545b854f995e7b6706c4b67e9b7ac1a` — CONDITIONAL NOT TRIGGERED; final documentation head `456c072108917a93176454adaa68234f4c087e57`.
+- Final R8 normalization PR #102 merge `359e9eb8225e4eaf3f518888da0ebf43e4605e9e` established the R9 planning branch point.
 
-- Vault bytes are content-addressed under SHA-256 identity; identical bytes may share storage while logical revisions/provenance remain distinct.
-- Canonical JSON manifests are recovery authority; SQLite is a rebuildable index.
-- Ingest and materialization operate only through explicit authorized project/Vault boundaries and verify staged/target bytes.
-- Project references and pinned-source policy block deletion. Deletion is two-phase and object removal occurs only when no remaining revision requires it.
+## R7 retained source of truth
 
-### R8.3 accepted baseline
+R7 remains COMPLETE and must not be reinterpreted retroactively. Integrated report `status=pass`, `blockers=[]`, digest `2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437`.
 
-- Source and derived revisions remain explicit and linked by exact lineage edges.
-- Transform cache identity includes exact input revisions/digests, versioned recipe, tool/provider identity and relevant environment identity.
-- Callers select a registered transform and typed parameters only; no arbitrary executable/argv/cwd/environment surface is exposed.
-- Transform output is confined to managed staging, verified before promotion, and cancelled work does not become READY.
-- Cache paths alone never imply validity; stale/corrupt/missing output is not a cache hit.
-
-### R8.4 accepted baseline
-
-- Exact duplicate identity is SHA-256 + length; it does not erase logical provenance.
-- Near-duplicate fingerprints are typed/versioned evidence with explicit score/threshold and never semantic truth.
-- Image dHash and deterministic normalized-document fingerprints are accepted for their supported kinds.
-- Duplicate decisions are durable non-destructive records; there is no destructive auto-merge.
-- Precursor `72bfdeddd78df1676addc4e0c4a78e4d9a8e3936` was not accepted because it added two Pillow deprecation warnings; final head restored the baseline to 46 warnings.
-
-### R8.5 accepted baseline
-
-- Search documents and vector indexes are rebuildable and separate from canonical Vault source manifests/bytes.
-- Vector validity is bound to provider + model + provider-contract version + exact search-document digest.
-- Metadata/model/provider changes surface `STALE`; missing/unavailable vectors never become current silently.
-- Ranking policy v1 combines deterministic lexical relevance and cosine semantic similarity; exact facets filter before ranking.
-- Governance `BLOCKED` records are excluded by policy before score ordering, not merely penalized.
-- Lexical fallback remains available when the embedding provider is unavailable.
-- `OllamaEmbeddingProvider` reuses the accepted R3 `OllamaClient.embed` API; no second arbitrary network/model-download surface was created.
-- Manual CONDITIONAL was NOT TRIGGERED because no EMBED contract change/new authoritative hardware-local model was required.
-
-### R8.6 accepted baseline
-
-- Canonical R8 Vault revisions bridge into the existing R6 BOM/license policy engine; no second legal engine exists.
-- Missing or conflicting license evidence is explicit and blocks export rather than becoming unrestricted reuse.
-- Provenance, creator/publisher, attribution and notice evidence are preserved; local filesystem locators are hashed/redacted from exported reports.
-- Derived asset BOM components retain explicit source-revision lineage requirements, so transformation never invents or erases rights.
-- Project BOM contribution is derived from canonical Vault project references.
-- Export performs policy/reuse-scope preflight before writes, stages inside the authorized boundary, emits notices plus BOM/license evidence, and promotes atomically; blocked/failed export leaves no promoted partial target.
-- Exact accepted head `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe`; R0 #1057 / `32603562499`; Python Core #1031 / `32603562511` 5/5 with Ubuntu `547 passed / 5 skipped / 46 warnings`; UI Smoke #998 / `32603562503`; PR #91 merge `57c2aa010f438b95a3d753040f1565ae4b68e262`; manual NONE.
-- Rejected precursor `85b6c0a550297934194a58122b735a9d0808c5c6` failed only newly added fixture tests because the fixture misused frozen `ProjectAssetReference`/R8.3 transform contracts; the accepted correction changed the fixture and did not weaken production safeguards.
-
-### R8.7 accepted baseline
-
-- Asset VCS is a structured local-only adapter over the accepted R4/ProcessSandbox Git boundary; no arbitrary Git command surface was added.
-- Repository evidence exposes exact HEAD, branch/detached state and typed modified/added/deleted/renamed/untracked/ignored/conflicted states parsed from machine-stable porcelain `-z` output.
-- Binary diff metadata uses `--numstat`; binaries remain explicit and never receive fabricated text-line counts.
-- Stage/unstage requires explicit workspace-confined paths, rejects `.git` metadata and traversal, snapshots the index with `SafeChangeManager`, and appends tamper-evident audit events.
-- Git index discovery uses `git rev-parse --git-path index`, retaining compatibility with managed worktrees without assuming `.git` is a directory.
-- Vault revision ↔ working repository evidence records SHA-256, exact length, tracked state and last commit SHA; working bytes cannot silently claim equality with a different Vault revision.
-- No remote push, arbitrary flags/refspecs/config keys, merge/rebase automation or history rewrite is exposed.
-- Exact accepted head `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3`; R0 #1061 / `32603884834`; Python Core #1035 / `32603884762` 5/5 with Ubuntu `552 passed / 5 skipped / 46 warnings`; UI Smoke #1002 / `32603884719`; PR #93 merge `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9`; manual NONE.
-
-### R8.8 accepted baseline
-
-- Git LFS pointer v1 parsing is independent, strict and canonical: version URL, SHA-256 OID, exact size and ordered extension evidence are validated without invoking a remote.
-- Git LFS capability/list/fsck operations use a fixed local ProcessSandbox surface; fetch/pull/push and migration/history rewrite are not exposed.
-- `.gitattributes` heavy-asset policy and path-effective attributes are inspectable; updates are restricted to the frozen policy set, explicitly confirmed, SafeChange-snapshotted, atomic and audited.
-- Pointer, invalid pointer, missing/mismatched local LFS object, hydrated match/mismatch and pointer-only working tree are distinct states.
-- Local object probing is confined to the authorized Git common directory; an external storage location est explicit `UNAVAILABLE`.
-- Exact accepted head `32e5ace263546d85ee662c5ba333caaaefaa8bcc`; R0 #1066 / `32604356727`; Python Core #1040 / `32604356661` 5/5 with Ubuntu `558 passed / 5 skipped / 46 warnings`; UI Smoke #1007 / `32604356692`; PR #95 merge `8923f6aa75656033887dd93551fc7b2651d78f04`; manual CONDITIONAL NOT TRIGGERED.
-- Rejected precursor `6b02a22fb4c526a53579a96e81ade3a3088a5e88` failed one new fixture because the active LFS clean filter rewrote the malformed test case; accepted fixture now stages exact raw blobs and production safeguards were not weakened.
-
-### R8.9 accepted baseline
-
-- Exact accepted implementation head `da8b4aedd280dadffcf4099bfa2b902cb70d81a7`.
-- R0 Repository Guard #1071 / `32613177879`: SUCCESS Ubuntu + Windows.
-- Python Core #1045 / `32613177848`: SUCCESS 5/5; Ubuntu `565 passed / 5 skipped / 46 warnings`.
-- KodeStudio UI Smoke #1012 / `32613177859`: SUCCESS.
-- The frozen CONDITIONAL Godot gate became REQUIRED because hosted CI does not execute the authoritative real Godot 4.7 `--import` rebuild.
-- Required local acceptance is SATISFIED: 4/4 PASS, 0 failed, Godot `4.7.2.stable.steam.ed1daf0bf`, rebuild state `ready`, import return code `0`, 7 generated cache files, audit chain valid.
-- Local evidence SHA-256 `6579babc829022930e5abe889583e32357fa3d7695b1a2713014e32f86e23b7e`, 2969 bytes.
-- Project digest `bac971ef0dc7a0c8898cea3a7e5d788b9d33343690f28ca52c3af98b9022c212`; source digest `d6b791957eb782fbb0b00272b902c025fb4cc3b9d396b850d64a8ffc050c6091`; import sidecar digest `1b70ea13afe340575035099e25ccceeea41e22153d3700449b2f8c2e66dfbd87`; manifest digest `aca5eb8dd2c877a17eadd666c29239a3f95c2674c776f86cc5cabafc6b1f47d8`.
-- `.godot/**` and legacy `.import/**` are generated cache, never source authority; `<asset>.import` is reproducibility metadata bound to the source/Vault identity.
-- Rebuild reuses the accepted R5 KodeGodotExecutor/Guardian/Permissions/ProcessSandbox path; no arbitrary subprocess/argv surface was added.
-- Missing/incompatible Godot is explicit `UNAVAILABLE` before cache purge; cache-root symlinks fail closed; source/project mutation during import fails acceptance.
-- Final acceptance/continuity documentation head `5db05258e666f1ed77a0ef349becc965f7105b43`; R0 #1073 / `32613557555`; Python #1047 / `32613557563`; UI #1014 / `32613557610`; all SUCCESS.
-- PR #97 merged as `af371bf07c56aa60a91ae3e39b14cc60c3307151`.
-
-### R8.10 accepted baseline
-
-- Exact accepted implementation head `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`; base normalized R8.9 main `8ca2eec6192b3d82495309b1c5bc2e6e8e49132a`.
-- R0 Repository Guard #1083 / `32614391934`: SUCCESS Ubuntu + Windows.
-- Python Core #1057 / `32614392022`: SUCCESS 5/5; Ubuntu `571 passed / 6 skipped / 46 warnings`; package builds Ubuntu + Windows SUCCESS.
-- KodeStudio UI Smoke #1024 / `32614391930`: SUCCESS; Python Core integrated Windows UI smoke SUCCESS.
-- Final pre-merge documentation/continuity head `29928598224aa8df74a768984928733b1d52ef94`; R0 #1086 / `32620855929`, Python Core #1060 / `32620855945`, UI Smoke #1027 / `32620855926`; all SUCCESS.
-- PR #99 merged as `a72da6be019f2b1771ab42d04b37c44b0d7464d3`.
-- Post-merge normalization head `ca7a0efe3ec0065199cf8c1a61b7eb9f97e76f13`; R0 #1088 / `32620997813`, Python #1062 / `32620997824`, UI #1029 / `32620997864`; all SUCCESS; PR #100 merge `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`.
-- `AssetService` is the single façade used by CLI and KodeStudio over Vault/search/duplicates/governance/VCS/LFS. KodeStudio contains no second direct Git/LFS/process/socket/secret path.
-- Unknown/missing license evidence remains `NOASSERTION`/blocked; governed export still uses R8.6/R6 and cannot be silently allowed.
-- Materialize overwrite, Vault deletion and asset export require explicit confirmation; duplicates remain non-destructive evidence.
-- KodeStudio Vault UX exposes search filters, explicit blocked-result opt-in, details/license warning, duplicate evidence, rebuild, VCS/LFS health/evidence, lineage source→derived, visible operation budget/progress and cooperative cancellation.
-- Long operations run via `QThreadPool`/`QRunnable`; each worker uses `AssetService.fork()` with independent SQLite connections instead of sharing the UI service across threads.
-- R6.5 accessibility and R6.6 pseudo-localization contracts were extended for Vault; both UI workflows execute the R8.10 smoke.
-- Manual intervention: NONE.
-
-### R8.11 accepted baseline
-
-- Exact accepted implementation head `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`; base normalized R8.10 main `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`.
-- Implementation gates: R0 Repository Guard #1092 / `32621457672`: SUCCESS Ubuntu + Windows; Python Core #1066 / `32621457675`: SUCCESS 5/5 with Ubuntu `587 passed / 7 skipped / 46 warnings`; KodeStudio UI Smoke #1033 / `32621457788`: SUCCESS.
-- Final documentation head `456c072108917a93176454adaa68234f4c087e57`: R0 #1098 / `32621787439` SUCCESS; Python Core #1072 / `32621787435` SUCCESS 5/5 with `R8 integrated acceptance: PASS` and Ubuntu `588 passed / 6 skipped / 46 warnings`; UI Smoke #1039 / `32621787433` SUCCESS.
-- R8-specific integrated model/schema are separate from frozen R7: exactly R8.1–R8.11, canonical acceptance source, SHA-256, exact byte length, accepted head, manual state + explicit reason, derived satisfaction, blockers and deterministic digest.
-- Repository validation uses canonical Git blobs via `git show HEAD:<path>` and fails closed on missing/mismatched bytes, hash, head or manual state.
-- Adversarial suite covers forged manifest, poisoned SQLite rebuildable index, transform staging escape, cross-output cache poisoning, hostile metadata, Git option-shaped filename, malformed LFS pointer, pre-cancel rebuild, failed materialization and bounded many-asset fixture.
-- Rejected first candidate `28fe9610bcdf9d92a4e6aa0367441b342bfd288b`: Python Ubuntu correctly found one real transform-cache cross-output identity defect and one fixture assertion type mismatch. Gates were not weakened.
-- Production hardening commit `781e2cc154b3be8d7f120fbf62da09ad0d8af8ad`: cache HIT now binds inputs, recipe, tool, environment, requested logical output asset, content digest/length, DERIVED role/kind, READY status, lineage and transform provenance. Old cache docs lacking output identity become STALE and rebuild.
-- `docs/roadmap/R8_11_ACCEPTANCE.md` fixes implementation head `d1589cf...`; manual CONDITIONAL resolves to **CONDITIONAL NOT TRIGGERED** because R8.5/R8.8 inherited conditionals remain resolved, R8.9 REQUIRED remains SATISFIED, and hosted CI can execute the integrated path.
-- `scripts/r8_integrated_acceptance.py` emits or validates the canonical report; Linux Python Core executes it before pytest.
-- Canonical report `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json`: `schema_version=1`, `source_sha=d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, `status=pass`, `blockers=[]`, `evidence_sha256=6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`.
-- PR #101 merged as `2a3a0b7da3803fb4d59158b94b9219aded201f17`.
-- Final continuity-only normalization first head `f2004ffbfada8ee7e6cdb942efc19d2aa7aecb6d`: R0 #1100 / `32622694931`, Python Core #1074 / `32622694930` 5/5 with R8 verifier PASS, UI Smoke #1041 / `32622694936`; all SUCCESS.
-- Manual intervention: CONDITIONAL NOT TRIGGERED.
-
-## R8 exact merge chain
-
-- R8.1 PR #85 merge `7001d9042dda5611f4dbcf7dacb7cd29110e6735`.
-- R8.2 PR #86 merge `2d68f918b1058c1dd75be236ad74048eb598a3e6`.
-- R8.3 PR #87 merge `ec83fba0e664387ec4abccf047721d1ab77d4a8e`.
-- R8.4 PR #88 merge `a35502e0f5f09e07f3ddfd7f929f6d4d4bb490f7`.
-- R8.5 PR #89 merge `9bb1f169d7f1534b0068ad43691accf1b6a5e14a`.
-- R8.6 PR #91 merge `57c2aa010f438b95a3d753040f1565ae4b68e262`.
-- R8.7 PR #93 merge `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9`.
-- R8.8 PR #95 merge `8923f6aa75656033887dd93551fc7b2651d78f04`.
-- R8.9 PR #97 merge `af371bf07c56aa60a91ae3e39b14cc60c3307151`.
-- R8.10 PR #99 merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`; normalization PR #100 merge `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`.
-- R8.11 PR #101 merge `2a3a0b7da3803fb4d59158b94b9219aded201f17`.
-- R8 final normalization PR #102 merge `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`; accepted planning branch point for R9.
-
-## R7 source of truth retained
-
-R7 remains COMPLETE and must not be reinterpreted retroactively.
-
-- R7.1 `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca` — manual NONE.
-- R7.2 `9101e686a32b24bb33a23d7ac578bf25570e115e` — manual NONE.
-- R7.3 `4efd2cb016e774fa3ef06590ffda377606d875e9` — manual NONE.
+- R7.1 `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca` — NONE.
+- R7.2 `9101e686a32b24bb33a23d7ac578bf25570e115e` — NONE.
+- R7.3 `4efd2cb016e774fa3ef06590ffda377606d875e9` — NONE.
 - R7.4 `be6f1d5d2f7d9a16c1c295a51905fcd22e9835be` — CONDITIONAL NOT TRIGGERED.
-- R7.5 `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5` — manual NONE.
+- R7.5 `12d5580ff3f8c6d9d0fb211e1688e3ba37dcdce5` — NONE.
 - R7.6 `b623836b8f5bd39fce101eca7fe4653a996a9562` — CONDITIONAL NOT TRIGGERED.
-- R7.7 `04cef94c82fdacafe7313d27c8cf516e8e765295` — REQUIRED SATISFIED.
-- R7.8 `deb5de415541004fb07bfbc6d955e9d76d717533` — manual NONE.
-- R7.9 `80390f95a11e5b3d4353b16eada26f10204bb4fa` — manual NONE.
-- R7.10 `cfd0f7ba02af04b456993f686827f10810b3a61a` — manual NONE.
+- R7.7 `04cef94c82fdacafe7313d27c8cf516e8e765295` — REQUIRED SATISFIED; FFmpeg `b6bd38a97c5f118f30c93a97b5739b5f33dd2616c735f841c2a56074a9f0a9f0`; whisper.cpp `58245314fb73b30fbd0cf0542c5c172e23f02b6eb7cad7b51e792439cf5e1755`; STT model `a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002`.
+- R7.8 `deb5de415541004fb07bfbc6d955e9d76d717533` — NONE.
+- R7.9 `80390f95a11e5b3d4353b16eada26f10204bb4fa` — NONE.
+- R7.10 `cfd0f7ba02af04b456993f686827f10810b3a61a` — NONE.
 - R7.11 `52330ca576fe294956a8fb601bdfda1d72dc3f92` — CONDITIONAL NOT TRIGGERED.
-- R7 integrated report: `status=pass`, `blockers=[]`, digest `2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437`.
-- R7 final normalization accepted on `d2278b1ee31d7d4a7b8570836edc3082e9fe30c4`; R0 #1035 / `32599397013`; Python Core #1009 / `32599397057` 5/5; UI Smoke #976 / `32599397003`; PR #81 merge `24dc403b329fd748a8aadac9d6760a2fb73a9730`.
-- R7 final continuity PR #82 established branch point `b98832b339902527bce8a5ea95b5a08a19839a40` for R8 planning.
-
-## R7.7 REQUIRED local-media retained evidence
-
-- Accepted head `04cef94c82fdacafe7313d27c8cf516e8e765295`.
-- FFmpeg 4.2.3 SHA-256 `b6bd38a97c5f118f30c93a97b5739b5f33dd2616c735f841c2a56074a9f0a9f0`.
-- whisper.cpp 1.9.1 SHA-256 `58245314fb73b30fbd0cf0542c5c172e23f02b6eb7cad7b51e792439cf5e1755`.
-- STT model SHA-256 `a03779c86df3323075f5e796cb2ce5029f00ec8869eee3fdfb897afe36c6d002`.
-- Fixture SHA-256 `8b3ed015526fd4584309a3c661b9e267ac464315e2d1c9aeed5bea19f28bdcf7`.
-- Authoritative local pytest: PASS, non-skipped.
+- Final R7 normalization head `d2278b1ee31d7d4a7b8570836edc3082e9fe30c4`; PR #81 merge `24dc403b329fd748a8aadac9d6760a2fb73a9730`; PR #82 established the R8 planning branch point `b98832b339902527bce8a5ea95b5a08a19839a40`.
 
 ## Permanent architecture/security boundaries
 
-Preserve without reinterpretation:
+Preserve without reinterpretation :
 
-- `WorkspaceBoundary`; R8 Vault confinement may compose but never weaken it.
+- `WorkspaceBoundary`; Vault confinement may compose but never weaken it.
 - `ProcessSandbox` + global KillSwitch for external executables.
 - Guardian + `PermissionSet` for governed actions.
-- Structured tool APIs only; no model-supplied arbitrary executable, argv, cwd, environment, host, refspec, Git config key or filesystem escape.
+- Structured tool APIs only; no model-supplied arbitrary executable, argv, cwd, environment, host, refspec, Git config key, URL route or filesystem escape.
 - SafeChange / Backup / Recovery / Audit when durable or risky mutations require them.
-- OS-backed Secrets + redaction; secrets never enter asset manifests/search documents/evidence.
+- OS-backed Secrets + redaction; secrets never enter manifests/search/evidence.
 - Health / Budget / DataGovernance / Privacy / AppSecurity / License-BOM contracts remain in force.
 - Exact-head acceptance; missing evidence never manufactures PASS.
 - Explicit UNKNOWN / N/A / UNAVAILABLE / BLOCKED / STALE / MISSING / CORRUPT semantics where applicable.
@@ -426,7 +158,7 @@ Preserve without reinterpretation:
 
 ## Permanent phase-start / maintenance rule
 
-For R8 and every later phase:
+For R8 and every later phase :
 
 1. exhaustive phase plan is merged before the first subdivision;
 2. subdivision structure/manual states are not silently reinterpreted;
@@ -437,4 +169,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE + NORMALIZED. R9.2 COMPLETE + NORMALIZED. R9.3 COMPLETE + NORMALIZED. R9.4 COMPLETE + NORMALIZED. R9.5 COMPLETE + NORMALIZED. R9.6 COMPLETE + NORMALIZED. R9.7 COMPLETE + NORMALIZED. R9.8 COMPLETE.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact de `r9/8-continuity-normalization`, puis fusionner cette normalisation continuity-only. **R9.9 reste interdit avant cette fusion.**
+**R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1–R9.8 COMPLETE + NORMALIZED. R9.9 implementation ACCEPTED; manual CONDITIONAL NOT TRIGGERED.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact contenant `R9_9_ACCEPTANCE.md` et cette continuité synchronisée. Si les trois gates sont SUCCESS, fusionner PR #121, créer une branche dédiée `r9/9-continuity-normalization`, faire la normalisation continuity-only post-merge avec ses trois gates, fusionner cette normalisation, puis et seulement puis commencer R9.10. **R9.10 et R9.11 restent interdits avant cette séquence.**

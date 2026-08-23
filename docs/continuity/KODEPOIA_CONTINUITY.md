@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1–R9.10 COMPLETE + NORMALIZED. R9.11 implementation + final integrated documentation ACCEPTED and merged; final continuity normalization is the only remaining R9 completion condition.** `docs/roadmap/R9_PLAN.md` reste l’autorité structurelle exhaustive de R9.1–R9.11. R9.8 REQUIRED reste SATISFIED par l’evidence locale canonique SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967` (5744 octets). R9.11 accepted implementation head = `e8e7e83c107bdb8bcb29882936720bc9eeb1c246`; implementation gates R0 #1207 / `32658452681`, Python #1181 / `32658452650`, UI #1148 / `32658452730`, Ubuntu `745 passed / 7 skipped / 46 warnings`; manual **CONDITIONAL NOT TRIGGERED**. Canonical R9 integrated report: `status=pass`, `blockers=[]`, `source_sha=e8e7e83c107bdb8bcb29882936720bc9eeb1c246`, digest `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`. Final documentation/evidence head `bcc5eafebf01fddf740c6bee99186ad281285e8d` passed R0 #1212 / `32658810381`, Python #1186 / `32658810412` 5/5 with Linux `R7 PASS`, `R8 PASS`, `R9 PASS`, Ubuntu `745 passed / 7 skipped / 46 warnings`, and UI #1153 / `32658810385`; all SUCCESS. PR #127 merged as `6bddb255437b4ef4756f6cbcb6d33ff78c906271`. The current branch `r9/11-final-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and its PR is merged into `main`, then by the frozen phase-completion rule **R9 is COMPLETE + NORMALIZED** and R10 planning becomes authorized. No extra manual R9 intervention is required.
+> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning is now authorized and in progress; no R10.1 implementation is authorized until the exhaustive R10 plan is accepted, merged, and planning continuity is normalized.** `docs/roadmap/R9_PLAN.md` remains the exhaustive authority for completed R9.1–R9.11. Final R9 normalization candidate `e3d4e396bb062bbc97297572d7c90f640c03cea2` passed R0 #1214 / `32658997406`, Python Core #1188 / `32658997391`, and UI Smoke #1155 / `32658997367`, all SUCCESS; PR #128 merged to `main` as `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`. This satisfies the frozen R9 completion condition. Canonical R9 integrated report remains `status=pass`, `blockers=[]`, `source_sha=e8e7e83c107bdb8bcb29882936720bc9eeb1c246`, digest `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`; R9.8 REQUIRED remains SATISFIED by reviewed local evidence SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967` (5744 bytes). R10 frozen-roadmap title is **Blender / 3D**. Current planning branch `r10/planning` starts from normalized `main` `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`; `docs/roadmap/R10_PLAN.md` is the proposed exhaustive R10.1–R10.12 structure. Freeze its exact final planning head, require R0 Repository Guard + full Python Core + KodeStudio UI Smoke, merge the planning PR, then perform one continuity-only planning normalization before R10.1. No user intervention is required for planning.
 
 ## Source de vérité et état
 
@@ -15,19 +15,11 @@
 - R7 : COMPLETE.
 - R8 : COMPLETE.
 - R9 planning : ACCEPTED + NORMALIZED.
-- R9.1 : COMPLETE + NORMALIZED.
-- R9.2 : COMPLETE + NORMALIZED; CONDITIONAL NOT TRIGGERED.
-- R9.3 : COMPLETE + NORMALIZED.
-- R9.4 : COMPLETE + NORMALIZED.
-- R9.5 : COMPLETE + NORMALIZED; CONDITIONAL NOT TRIGGERED.
-- R9.6 : COMPLETE + NORMALIZED.
-- R9.7 : COMPLETE + NORMALIZED.
-- R9.8 : COMPLETE + NORMALIZED; REQUIRED SATISFIED.
-- R9.9 : COMPLETE + NORMALIZED; CONDITIONAL NOT TRIGGERED.
-- R9.10 : COMPLETE + NORMALIZED; manual NONE.
-- R9.11 : implementation ACCEPTED; final documentation/evidence ACCEPTED; PR #127 MERGED; CONDITIONAL NOT TRIGGERED; final continuity normalization pending.
-- R9 phase : **COMPLETE + NORMALIZED iff this exact final continuity-normalization commit is merged to `main`; otherwise IN PROGRESS solely for that normalization.**
-- R10–R16 : PENDING / NOT STARTED; R10 is authorized only after the final R9 normalization merge.
+- R9.1–R9.11 : COMPLETE + NORMALIZED; inherited/required manual gates remain resolved as recorded below.
+- R9 phase : **COMPLETE + NORMALIZED**.
+- R10 planning : **IN PROGRESS** on `r10/planning`; exhaustive plan candidate created; acceptance/merge/normalization pending.
+- R10.1–R10.12 : PLANNED only; implementation NOT STARTED.
+- R11–R16 : PENDING / NOT STARTED.
 
 ## R9 planning acceptance
 
@@ -111,6 +103,44 @@
 - PR #127 merged as `6bddb255437b4ef4756f6cbcb6d33ff78c906271`.
 - This final continuity-normalization branch changes only `docs/continuity/KODEPOIA_CONTINUITY.md`; no canonical R9 acceptance blob/report is modified.
 
+## R9 final continuity normalization closure
+
+- Final normalization branch: `r9/11-final-continuity-normalization`.
+- Exact validated normalization head: `e3d4e396bb062bbc97297572d7c90f640c03cea2`.
+- Exact-head gates:
+  - R0 Repository Guard #1214 / `32658997406`: SUCCESS.
+  - Python Core #1188 / `32658997391`: SUCCESS.
+  - KodeStudio UI Smoke #1155 / `32658997367`: SUCCESS.
+- PR #128 **MERGED**; resulting `main` merge commit `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`.
+- The merge commit explicitly records that the exact-head gates succeeded and that the frozen R9 completion condition is satisfied.
+- Therefore R9 is **COMPLETE + NORMALIZED** and R10 planning is authorized.
+- Per the frozen anti-recursion rule, no extra R9-only continuity commit is required solely to record these run IDs; this R10 planning-cycle synchronization records the closure as historical state.
+
+## R10 planning baseline
+
+- Frozen-roadmap title: **Blender / 3D**.
+- Frozen roadmap scope: `bpy/headless`, geometry, UV/PBR, rigs, animation, retarget, humans/animals, LOD, GLTF, and validation of topology/normals/weights/budgets.
+- Planning branch: `r10/planning`.
+- Planning branch point / normalized R9 `main`: `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`.
+- Exhaustive plan file: `docs/roadmap/R10_PLAN.md`.
+- Initial plan commit: `24b76dbb24d9e52038e0a594b1dae3bdcedb1346`; final planning head will additionally include this continuity synchronization and MUST be frozen before acceptance.
+- Upstream compatibility baseline recorded by planning: Blender 5.2.x LTS, governed headless `bpy`, GLB/glTF 2.0 as the primary exchange contract, and Godot 4.7 interoperability through accepted R5 boundaries. External references are compatibility evidence only and do not override frozen architecture.
+- Proposed frozen subdivision/manual-state structure:
+  - R10.1 Blender contracts, runtime discovery + secure process boundary — NONE.
+  - R10.2 Headless `bpy` runner, capability probe + real-runtime acceptance — REQUIRED.
+  - R10.3 Structured scene/geometry authoring + deterministic transform recipes — NONE.
+  - R10.4 UV + PBR material pipeline + governed texture lineage — CONDITIONAL.
+  - R10.5 Mesh QA: topology, normals, tangents, UV and production budgets — NONE.
+  - R10.6 Armatures, skinning + weight validation — CONDITIONAL.
+  - R10.7 Animation actions/NLA + governed retargeting — CONDITIONAL.
+  - R10.8 Human + animal profile pipelines — CONDITIONAL.
+  - R10.9 LOD generation, preservation checks + variant lineage — NONE.
+  - R10.10 GLB/glTF export + Blender round-trip + Godot 4.7 acceptance — REQUIRED.
+  - R10.11 CLI + KodeStudio Blender/3D UX — NONE.
+  - R10.12 Adversarial hardening + R10 integrated acceptance — CONDITIONAL.
+- R10.2 and R10.10 are the planned REQUIRED local gates because real Blender 5.2.x and final Blender/Godot interoperability cannot be authoritatively certified by hosted stubs alone. Planning itself requires no manual user action.
+- No Blender, add-on, model, rig, texture or external asset download/install is authorized by planning.
+
 ## R8 retained source of truth
 
 R8 remains COMPLETE and its integrated report remains `status=pass`, `blockers=[]`, `source_sha=d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, digest `6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`. R8.5/R8.8 conditionals remain NOT TRIGGERED; R8.9 REQUIRED remains SATISFIED with local Godot evidence SHA-256 `6579babc829022930e5abe889583e32357fa3d7695b1a2713014e32f86e23b7e`; R8.11 accepted implementation head `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`; final R8 normalization PR #102 merge `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`.
@@ -152,8 +182,10 @@ Preserve without reinterpretation:
 5. Scope/structure changes synchronize plan + continuity in the same work cycle.
 6. Foundation changes require an ADR.
 
-## Final R9 normalization rule / next action
+## R10 planning acceptance rule / next action
 
-The current branch `r9/11-final-continuity-normalization` is the **single final R9 normalization**. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA. Linux Python must still report R7 PASS, R8 PASS and R9 PASS with `blockers=[]` and unchanged integrated digest `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`.
+The current branch `r10/planning` is planning-only. It may change `docs/roadmap/R10_PLAN.md` and continuity, but MUST NOT implement R10.1 production/runtime code. Freeze the exact final planning commit after continuity synchronization. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with prior R7/R8/R9 integrated acceptance still PASS and canonical R9 digest unchanged.
 
-If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization satisfies the last frozen R9 phase-completion condition; at that point R9 is COMPLETE + NORMALIZED and R10 planning/work is authorized.** Do not create another recursive continuity update solely to record the normalization's own run IDs; those exact-head IDs belong in the normalization PR body/merge record, as established by prior R9 normalizations.
+If all three gates succeed, merge the R10 planning PR into `main`. Then create one continuity-only R10 planning normalization recording the accepted plan head, exact gate IDs and planning PR merge. Freeze and validate that normalization with R0 + full Python Core + UI Smoke, then merge it. **Only the resulting normalized `main` authorizes R10.1.**
+
+Do not begin R10.1 before both merges. Do not add, remove, merge, split or renumber R10.1–R10.12 silently; any scope/manual-state change must update `R10_PLAN.md` and continuity in the same work cycle, and any frozen-foundation change requires an ADR.

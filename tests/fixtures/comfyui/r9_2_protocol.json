@@ -1,0 +1,67 @@
+{
+  "fixture_version": 1,
+  "system_stats": {
+    "system": {
+      "comfyui_version": "0.test",
+      "python_version": "3.12.test"
+    },
+    "devices": [
+      {
+        "name": "fixture-device",
+        "type": "cpu",
+        "vram_total": 1024,
+        "vram_free": 768
+      }
+    ]
+  },
+  "features": {
+    "fixture_feature": true
+  },
+  "prompt": {
+    "exec_info": {
+      "queue_remaining": 2
+    }
+  },
+  "queue": {
+    "queue_running": [
+      [0, "prompt-running", {}, {}, []]
+    ],
+    "queue_pending": [
+      [1, "prompt-pending", {}, {}, []]
+    ]
+  },
+  "history": {
+    "prompt-success": {
+      "outputs": {
+        "9": {
+          "images": [
+            {
+              "filename": "fixture.png",
+              "subfolder": "",
+              "type": "output"
+            }
+          ]
+        }
+      },
+      "status": {
+        "status_str": "success",
+        "completed": true
+      }
+    },
+    "prompt-failed": {
+      "outputs": {},
+      "status": {
+        "status_str": "error",
+        "completed": true
+      }
+    }
+  },
+  "events": [
+    {"type": "execution_start", "data": {"prompt_id": "prompt-running"}},
+    {"type": "execution_cached", "data": {"prompt_id": "prompt-running", "nodes": ["1"]}},
+    {"type": "executing", "data": {"prompt_id": "prompt-running", "node": "2"}},
+    {"type": "progress", "data": {"prompt_id": "prompt-running", "node": "2", "value": 1, "max": 4}},
+    {"type": "executed", "data": {"prompt_id": "prompt-running", "node": "2"}},
+    {"type": "execution_success", "data": {"prompt_id": "prompt-running"}}
+  ]
+}

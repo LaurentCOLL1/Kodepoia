@@ -1,0 +1,30 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.local/schemas/r10-animation-local-acceptance-v1.schema.json",
+  "title":"Kodepoia R10.7 Local Animation Acceptance v1",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["schema","version","source_sha","status","blockers","runtime","geometry","source_rig","target_rig","animation","evidence_digest"],
+  "properties":{
+    "schema":{"const":"kodepoia.r10_7_local_acceptance"},
+    "version":{"const":1},
+    "source_sha":{"type":"string","pattern":"^[0-9a-f]{40}$"},
+    "status":{"enum":["pass","fail"]},
+    "blockers":{"type":"array","uniqueItems":true,"items":{"type":"string"}},
+    "runtime":{
+      "type":"object","additionalProperties":false,
+      "required":["blender_version","platform","background","online_access"],
+      "properties":{
+        "blender_version":{"type":"string","pattern":"^5\\.2\\.[0-9]+"},
+        "platform":{"type":"string","minLength":1},
+        "background":{"const":true},
+        "online_access":{"const":false}
+      }
+    },
+    "geometry":{"type":"object"},
+    "source_rig":{"type":"object"},
+    "target_rig":{"type":"object"},
+    "animation":{"type":"object"},
+    "evidence_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"}
+  }
+}

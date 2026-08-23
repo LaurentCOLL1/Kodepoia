@@ -5,6 +5,9 @@ from typing import Any
 from .animation_contracts import RetargetRecipe
 from .serialization import canonical_sha256
 
+_REST_DIRECTION_TOLERANCE_DEGREES = 30.0
+_REST_LENGTH_RELATIVE_TOLERANCE = 0.50
+
 
 def evaluate_animation_measurements(recipe: RetargetRecipe, measurements: dict[str, Any]) -> dict[str, Any]:
     rules: list[dict[str, Any]] = []
@@ -19,6 +22,24 @@ def evaluate_animation_measurements(recipe: RetargetRecipe, measurements: dict[s
     add("mapping_coverage", "PASS" if mapped == len(recipe.mappings) else "BLOCK", mapped, len(recipe.mappings), "all explicit mappings must resolve exactly once")
     add("required_target_mapping", "PASS" if required_missing == [] else "BLOCK", required_missing, [], "required target bones must be mapped")
     add("mapping_ambiguity", "PASS" if ambiguous == [] else "BLOCK", ambiguous, [], "retarget mapping must remain unambiguous")
+
+    rest = measurements.get("rest_pose") if isinstance(measurements.get("rest_pose"), dict) else {}
+    angle = rest.get("max_direction_angle_degrees")
+    length_error = rest.get("max_scaled_length_relative_error")
+    add(
+        "rest_direction_compatibility",
+        "PASS" if isinstance(angle, (int, float)) and float(angle) <= _REST_DIRECTION_TOLERANCE_DEGREES else "BLOCK",
+        angle,
+        f"<= {_REST_DIRECTION_TOLERANCE_DEGREES}",
+        "mapped bone rest directions must be compatible after the frozen R10 coordinate basis",
+    )
+    add(
+        "rest_length_compatibility",
+        "PASS" if isinstance(length_error, (int, float)) and float(length_error) <= _REST_LENGTH_RELATIVE_TOLERANCE else "BLOCK",
+        length_error,
+        f"<= {_REST_LENGTH_RELATIVE_TOLERANCE}",
+        "mapped rest lengths must remain compatible after translation_scale normalization",
+    )
 
     clip = measurements.get("clip") if isinstance(measurements.get("clip"), dict) else {}
     key_count = clip.get("key_count")

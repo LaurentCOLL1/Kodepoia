@@ -283,8 +283,25 @@ class OllamaMemoryAdapter:
 
     def __init__(self, client: OllamaClient) -> None:
         parsed = urlparse(client.base_url)
-        if parsed.scheme not in {"http", "https"} or (parsed.hostname or "").lower() not in _LOOPBACK:
-            raise ComfyGovernanceError("R9.8 Ollama coexistence accepts loopback Ollama only")
+        try:
+            port = parsed.port
+        except ValueError as exc:
+            raise ComfyGovernanceError("R9.8 Ollama coexistence requires a valid explicit port") from exc
+        host = (parsed.hostname or "").lower()
+        if (
+            parsed.scheme not in {"http", "https"}
+            or host not in _LOOPBACK
+            or port is None
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path not in {"", "/"}
+            or parsed.params
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ComfyGovernanceError(
+                "R9.8 Ollama coexistence requires a credential-free explicit-port loopback origin"
+            )
         self.client = client
 
     def sample(self) -> OllamaMemorySnapshot:

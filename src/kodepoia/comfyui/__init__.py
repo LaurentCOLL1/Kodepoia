@@ -1,4 +1,11 @@
 from .boundary import ComfyEndpoint
+from .client import (
+    ComfyHistorySnapshot,
+    ComfyProbeSnapshot,
+    ComfyQueueSnapshot,
+    ComfySystemSnapshot,
+    ComfyUIClient,
+)
 from .contracts import (
     ComfyCapabilityState,
     ComfyHistoryReference,
@@ -20,6 +27,7 @@ from .errors import (
     ComfyUnavailableError,
     ComfyVersionError,
 )
+from .events import ComfyEventSequence, ComfyEventType, ComfyProtocolEvent, parse_event_frame
 from .serialization import canonical_json_bytes, canonical_sha256, make_envelope, parse_envelope
 
 __all__ = [
@@ -27,16 +35,24 @@ __all__ = [
     "ComfyCapabilityState",
     "ComfyEndpoint",
     "ComfyError",
+    "ComfyEventSequence",
+    "ComfyEventType",
     "ComfyGovernanceError",
     "ComfyHistoryReference",
+    "ComfyHistorySnapshot",
     "ComfyOutputReference",
+    "ComfyProbeSnapshot",
     "ComfyPromptReference",
     "ComfyProtocolError",
+    "ComfyProtocolEvent",
+    "ComfyQueueSnapshot",
     "ComfyQueueState",
     "ComfyResourceError",
     "ComfyResourceStatus",
     "ComfyRunState",
+    "ComfySystemSnapshot",
     "ComfyTransportLimits",
+    "ComfyUIClient",
     "ComfyUnavailableError",
     "ComfyVersionError",
     "can_transition_run_state",
@@ -45,4 +61,5 @@ __all__ = [
     "is_terminal_run_state",
     "make_envelope",
     "parse_envelope",
+    "parse_event_frame",
 ]

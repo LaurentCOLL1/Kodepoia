@@ -68,6 +68,14 @@ from .outputs import (
     ComfyOutputSpec,
     ComfyPartialCaptureError,
 )
+from .packs import (
+    ProductionWorkflowFamily,
+    ProductionWorkflowPack,
+    ProductionWorkflowPackCatalog,
+    WorkflowPackCompatibilityReport,
+    WorkflowPackCompatibilityState,
+    default_production_workflow_packs,
+)
 from .r9_8_acceptance import (
     R98AcceptanceRequest,
     R98LocalAcceptance,
@@ -94,6 +102,7 @@ from .resources import (
     vram_health_metric,
 )
 from .serialization import canonical_json_bytes, canonical_sha256, make_envelope, parse_envelope
+from .service import ComfyService, ComfyServiceStatus, ComfyWorkflowRunResult
 from .workflow import (
     GovernedModelResolver,
     ModelProvenanceState,
@@ -162,6 +171,8 @@ __all__ = [
     "ComfyRunManifest",
     "ComfyRunState",
     "ComfyRunStore",
+    "ComfyService",
+    "ComfyServiceStatus",
     "ComfySubmissionAmbiguousError",
     "ComfySubmissionOutcome",
     "ComfySystemSnapshot",
@@ -171,6 +182,7 @@ __all__ = [
     "ComfyVersionError",
     "ComfyVramSnapshot",
     "ComfyVramTelemetryAdapter",
+    "ComfyWorkflowRunResult",
     "GovernedModelResolver",
     "GpuAdmissionDecision",
     "GpuAdmissionPolicy",
@@ -187,6 +199,9 @@ __all__ = [
     "OllamaMemoryAdapter",
     "OllamaMemorySnapshot",
     "OllamaRunningModelMemory",
+    "ProductionWorkflowFamily",
+    "ProductionWorkflowPack",
+    "ProductionWorkflowPackCatalog",
     "R98AcceptanceRequest",
     "R98LocalAcceptance",
     "R98LocalAcceptanceEvidence",
@@ -197,6 +212,8 @@ __all__ = [
     "WorkflowInstance",
     "WorkflowMemoryObservation",
     "WorkflowOutputSlot",
+    "WorkflowPackCompatibilityReport",
+    "WorkflowPackCompatibilityState",
     "WorkflowParameterKind",
     "WorkflowParameterSpec",
     "WorkflowValidationEvidence",
@@ -205,6 +222,7 @@ __all__ = [
     "canonical_json_bytes",
     "canonical_sha256",
     "capability_snapshot_from_payload",
+    "default_production_workflow_packs",
     "diff_capability_snapshots",
     "is_terminal_run_state",
     "load_r98_evidence",

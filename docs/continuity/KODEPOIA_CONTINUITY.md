@@ -98,7 +98,7 @@
 - Deterministic fixture `tests/fixtures/comfyui/r9_2_protocol.json`: version 1, SHA-256 `1b5b6947e6af1440f59ffc1d6a9d3ed3502fdc057e1bd08a5680300cb42fd656`; `.gitattributes` pins only this fixture family to LF for cross-platform byte identity.
 - Rejected precursor `9b9a79f69ef7c304bd743b74bf0379f5d3688588`: R0 #1113 and UI #1054 SUCCESS; Python #1087 failed only the Windows raw fixture digest because Git converted LF→CRLF; Ubuntu remained fully green. Accepted correction changed line-ending policy only and did not weaken production safeguards.
 - `comfy-probe` exists solely for the frozen conditional diagnostic and writes strict versioned evidence inside the current workspace atomically.
-- Manual intervention: **CONDITIONAL NOT TRIGGERED** because deterministic loopback CI on both platforms plus current upstream ComfyUI source/tests establish every R9.2 acceptance property; no property depends on GPU, models, custom nodes or a user-specific ComfyUI deployment.
+- Manual intervention: **CONDITIONAL NOT TRIGGERED** because deterministic loopback CI on both platforms plus current upstream ComfyUI source/tests establish every R9.2 acceptance property; no property depends on GPU, models, custom nodes ou a user-specific ComfyUI deployment.
 
 ### R9.3 accepted baseline
 
@@ -290,7 +290,7 @@
 
 ## R7 source of truth retained
 
-R7 remains COMPLETE and must not be reinterpreted retroactivement.
+R7 remains COMPLETE and must not be reinterpreted retroactively.
 
 - R7.1 `a6e9cf9f6db717155c311f4ded1ad5fb744b70ca` — manual NONE.
 - R7.2 `9101e686a32b24bb33a23d7ac578bf25570e115e` — manual NONE.

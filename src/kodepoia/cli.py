@@ -7,6 +7,7 @@ import platform
 from pathlib import Path
 from urllib.parse import urlparse
 
+from kodepoia.assets.asset_cli import register_asset_commands
 from kodepoia.bench.baseline import BaselineBench, BenchmarkRole
 from kodepoia.brain.ollama import OllamaClient
 from kodepoia.intelligence.research.media import (
@@ -304,6 +305,7 @@ def build_parser() -> argparse.ArgumentParser:
     media_accept.set_defaults(func=_research_media_acceptance)
 
     register_research_commands(commands)
+    register_asset_commands(commands)
     return parser
 
 

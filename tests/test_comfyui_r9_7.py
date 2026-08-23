@@ -72,10 +72,6 @@ class _LifecycleHTTP:
             assert document == {"delete": [self.owner.prompt_id]}
             self.owner.pending = False
             self.owner.history_state = ComfyRunState.CANCELLED
-        elif path == "/interrupt":
-            assert document == {"prompt_id": self.owner.prompt_id}
-            self.owner.running = False
-            self.owner.history_state = ComfyRunState.CANCELLED
         elif path == "/free":
             self.owner.free_requests.append(document)
             self.owner.system_counter += 1
@@ -181,7 +177,13 @@ def _run(*, state: ComfyRunState = ComfyRunState.QUEUED) -> ComfyRunManifest:
     return replace(draft, manifest_digest_sha256=canonical_sha256(draft.canonical_without_digest()))
 
 
-def _service(tmp_path: Path, *, queue_state: str, modern: bool = True, run_state: ComfyRunState = ComfyRunState.QUEUED):
+def _service(
+    tmp_path: Path,
+    *,
+    queue_state: str,
+    modern: bool = True,
+    run_state: ComfyRunState = ComfyRunState.QUEUED,
+):
     manifest = _run(state=run_state)
     store = ComfyRunStore(tmp_path / "runs")
     store.save(manifest)
@@ -209,32 +211,52 @@ def test_modern_pending_cancel_uses_atomic_job_endpoint_and_reconciles_cancelled
 
 
 def test_modern_running_cancel_never_calls_global_interrupt(tmp_path: Path) -> None:
-    run, _store, client, service, instance = _service(tmp_path, queue_state="running", run_state=ComfyRunState.RUNNING)
-    result = service.cancel(run.run_id, instance, budget=ComfyExecutionBudget(max_poll_attempts=3, poll_interval_seconds=0))
+    run, _store, client, service, instance = _service(
+        tmp_path,
+        queue_state="running",
+        run_state=ComfyRunState.RUNNING,
+    )
+    result = service.cancel(
+        run.run_id,
+        instance,
+        budget=ComfyExecutionBudget(max_poll_attempts=3, poll_interval_seconds=0),
+    )
     assert result.state is ComfyRunState.CANCELLED
     assert all(path != "/interrupt" for path, _ in client._http.calls)
     assert client._http.calls[0][0] == f"/api/jobs/{run.prompt_id}/cancel"
 
 
-@pytest.mark.parametrize(
-    "queue_state,expected_path,run_state",
-    [
-        ("pending", "/queue", ComfyRunState.QUEUED),
-        ("running", "/interrupt", ComfyRunState.RUNNING),
-    ],
-)
-def test_legacy_fallback_is_state_classified_and_targeted(
-    tmp_path: Path, queue_state: str, expected_path: str, run_state: ComfyRunState
-) -> None:
+def test_legacy_pending_fallback_uses_only_targeted_queue_delete(tmp_path: Path) -> None:
     run, _store, client, service, instance = _service(
-        tmp_path, queue_state=queue_state, modern=False, run_state=run_state
+        tmp_path,
+        queue_state="pending",
+        modern=False,
     )
-    result = service.cancel(run.run_id, instance, budget=ComfyExecutionBudget(max_poll_attempts=3, poll_interval_seconds=0))
+    result = service.cancel(
+        run.run_id,
+        instance,
+        budget=ComfyExecutionBudget(max_poll_attempts=3, poll_interval_seconds=0),
+    )
     assert result.state is ComfyRunState.CANCELLED
-    assert client._http.calls[0][0] == f"/api/jobs/{run.prompt_id}/cancel"
-    assert client._http.calls[1][0] == expected_path
-    if expected_path == "/interrupt":
-        assert client._http.calls[1][1] == {"prompt_id": run.prompt_id}
+    assert client._http.calls == [
+        (f"/api/jobs/{run.prompt_id}/cancel", {}),
+        ("/queue", {"delete": [run.prompt_id]}),
+    ]
+
+
+def test_legacy_running_cancel_is_blocked_instead_of_using_global_interrupt(tmp_path: Path) -> None:
+    run, _store, client, service, instance = _service(
+        tmp_path,
+        queue_state="running",
+        modern=False,
+        run_state=ComfyRunState.RUNNING,
+    )
+    with pytest.raises(ComfyGovernanceError, match="unsupported"):
+        service.cancel(run.run_id, instance)
+    assert client._http.calls == [(f"/api/jobs/{run.prompt_id}/cancel", {})]
+    audit = service.audit.load(run.run_id)
+    assert audit.events[-1].action is ComfyLifecycleAction.TARGETED_INTERRUPT
+    assert audit.events[-1].outcome is ComfyLifecycleOutcome.UNSUPPORTED
 
 
 def test_terminal_race_becomes_noop_without_any_cancel_side_effect(tmp_path: Path) -> None:
@@ -269,8 +291,10 @@ def test_restart_recovery_repairs_current_pointer_then_reconciles(tmp_path: Path
 
 
 def test_free_memory_request_is_ack_only_and_never_fabricates_reclaimed_bytes(tmp_path: Path) -> None:
-    run, store, client, service, _instance = _service(
-        tmp_path, queue_state="none", run_state=ComfyRunState.CANCELLED
+    run, _store, client, service, _instance = _service(
+        tmp_path,
+        queue_state="none",
+        run_state=ComfyRunState.CANCELLED,
     )
     evidence = service.request_free_memory(known_run_ids=(run.run_id,), settle_seconds=0)
     assert isinstance(evidence, ComfyFreeMemoryEvidence)
@@ -278,13 +302,35 @@ def test_free_memory_request_is_ack_only_and_never_fabricates_reclaimed_bytes(tm
     assert evidence.reclaimed_bytes is None
     assert evidence.before_system_digest_sha256 != evidence.after_system_digest_sha256
     assert client.free_requests == [{"free_memory": True, "unload_models": True}]
+    audit = service.audit.load(run.run_id)
+    assert audit.events[-1].action is ComfyLifecycleAction.FREE_REQUEST
+    assert audit.events[-1].outcome is ComfyLifecycleOutcome.RECONCILED
 
 
 def test_free_memory_is_blocked_while_known_run_is_active(tmp_path: Path) -> None:
-    run, _store, client, service, _instance = _service(tmp_path, queue_state="running", run_state=ComfyRunState.RUNNING)
+    run, _store, client, service, _instance = _service(
+        tmp_path,
+        queue_state="running",
+        run_state=ComfyRunState.RUNNING,
+    )
     with pytest.raises(ComfyGovernanceError, match="non-terminal"):
         service.request_free_memory(known_run_ids=(run.run_id,))
     assert client.free_requests == []
+    assert service.audit.load(run.run_id).events[-1].outcome is ComfyLifecycleOutcome.BLOCKED
+
+
+def test_failed_or_oom_terminal_cleanup_is_ordered_and_bounded(tmp_path: Path) -> None:
+    run, _store, client, service, _instance = _service(
+        tmp_path,
+        queue_state="none",
+        run_state=ComfyRunState.FAILED,
+    )
+    evidence = service.cleanup_terminal_run(run.run_id, settle_seconds=0)
+    assert evidence.reclaimed_bytes is None
+    assert client.free_requests == [{"free_memory": True, "unload_models": True}]
+    audit = service.audit.load(run.run_id)
+    assert audit.events[-1].action is ComfyLifecycleAction.FREE_REQUEST
+    assert audit.events[-1].observed_state is ComfyRunState.FAILED
 
 
 def test_lifecycle_audit_tamper_is_rejected(tmp_path: Path) -> None:

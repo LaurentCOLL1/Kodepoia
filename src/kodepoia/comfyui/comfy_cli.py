@@ -9,9 +9,9 @@ from typing import Any
 from .client import ComfyUIClient
 from .r9_8_acceptance import (
     R98AcceptanceRequest,
-    R98LocalAcceptance,
     write_r98_evidence,
 )
+from .r9_8_wire_client import run_r98_wire_compatible_acceptance
 from .serialization import make_envelope
 
 
@@ -109,7 +109,7 @@ def _r9_local_vram_acceptance(args: argparse.Namespace) -> int:
         max_wait_seconds=float(args.max_wait_seconds),
         poll_interval_seconds=float(args.poll_interval_seconds),
     )
-    evidence = R98LocalAcceptance(Path.cwd()).run(request)
+    evidence = run_r98_wire_compatible_acceptance(Path.cwd(), request)
     destination = write_r98_evidence(Path.cwd(), args.output, evidence)
     payload = {
         "R9_8_local_vram_acceptance": evidence.status.upper(),

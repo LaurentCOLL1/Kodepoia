@@ -182,7 +182,15 @@ class TransformService:
     def _cache_path(self, key: str) -> Path:
         return self.store.boundary.resolve(f"cache/transforms/{key}.json")
 
-    def _read_cache(self, key: str) -> TransformResult | None:
+    def _read_cache(
+        self,
+        key: str,
+        *,
+        input_revision_ids: tuple[AssetRevisionId, ...],
+        recipe: TransformRecipe,
+        output_asset_id: AssetId,
+        adapter: TransformAdapter,
+    ) -> TransformResult | None:
         path = self._cache_path(key)
         if not path.exists():
             return None
@@ -190,16 +198,39 @@ class TransformService:
             document = json.loads(path.read_text(encoding="utf-8"))
             if document.get("schema_version") != 1 or document.get("cache_key") != key:
                 return TransformResult(key, CacheState.STALE, ())
+            if document.get("inputs") != [str(item) for item in input_revision_ids]:
+                return TransformResult(key, CacheState.STALE, ())
+            if document.get("recipe") != recipe.canonical():
+                return TransformResult(key, CacheState.STALE, ())
+            if document.get("tool") != adapter.tool_identity.canonical():
+                return TransformResult(key, CacheState.STALE, ())
+            if document.get("environment") != self.environment_identity:
+                return TransformResult(key, CacheState.STALE, ())
+            if document.get("output_asset_id") != str(output_asset_id):
+                return TransformResult(key, CacheState.STALE, ())
+            outputs = document.get("outputs", [])
+            if not isinstance(outputs, list) or len(outputs) != 1:
+                return TransformResult(key, CacheState.STALE, ())
+            expected_lineage = tuple(
+                LineageRef(item, relation="transform_input", transform_id=recipe.transform_id)
+                for item in input_revision_ids
+            )
             output_ids: list[AssetRevisionId] = []
-            for item in document.get("outputs", []):
+            for item in outputs:
                 revision_id = AssetRevisionId(str(item["revision_id"]))
                 revision = self.store._load_revision_manifest(revision_id)
                 if revision.content_sha256 != str(item["content_sha256"]) or revision.content_length != int(item["content_length"]):
                     return TransformResult(key, CacheState.STALE, ())
+                if revision.asset_id != output_asset_id:
+                    return TransformResult(key, CacheState.STALE, ())
+                if revision.role is not AssetRole.DERIVED or revision.kind is not recipe.output_kind:
+                    return TransformResult(key, CacheState.STALE, ())
+                if revision.status is not AssetStatus.READY or revision.lineage != expected_lineage:
+                    return TransformResult(key, CacheState.STALE, ())
+                if revision.provenance != (ProvenanceRef("transform", recipe.transform_id),):
+                    return TransformResult(key, CacheState.STALE, ())
                 self.store.object_path(revision_id)
                 output_ids.append(revision_id)
-            if not output_ids:
-                return TransformResult(key, CacheState.STALE, ())
             return TransformResult(key, CacheState.HIT, tuple(output_ids))
         except (ValueError, KeyError, TypeError, json.JSONDecodeError, FileNotFoundError):
             return TransformResult(key, CacheState.CORRUPT, ())
@@ -301,7 +332,13 @@ class TransformService:
             raise ValueError("Transform adapter identity mismatch")
         self._assert_acyclic(output_asset_id, input_revision_ids)
         key = self.cache_key(input_revision_ids, recipe)
-        cached = self._read_cache(key)
+        cached = self._read_cache(
+            key,
+            input_revision_ids=input_revision_ids,
+            recipe=recipe,
+            output_asset_id=output_asset_id,
+            adapter=adapter,
+        )
         if cached is not None and cached.cache_state is CacheState.HIT:
             return cached
 
@@ -334,6 +371,7 @@ class TransformService:
                 "recipe": recipe.canonical(),
                 "tool": adapter.tool_identity.canonical(),
                 "environment": self.environment_identity,
+                "output_asset_id": str(output_asset_id),
                 "outputs": [
                     {
                         "revision_id": str(revision.revision_id),

@@ -1,0 +1,131 @@
+{
+  "blockers": [],
+  "evidence_sha256": "6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89",
+  "generated_at": "2026-08-23T05:55:00Z",
+  "schema_version": 1,
+  "source_sha": "d1589cf94545b854f995e7b6706c4b67e9b7ac1a",
+  "status": "pass",
+  "subdivisions": [
+    {
+      "accepted_head": "0e382bcdc82c5d289a9007c40d4a4b6c72120e5c",
+      "evidence_bytes": 1011,
+      "evidence_sha256": "e5dbff7c74ff351b42db17d11098720a4d930b70ab6ed5598418c5b485c96ce8",
+      "manual_reason": "No manual intervention is defined for R8.1.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R8_1_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.1"
+    },
+    {
+      "accepted_head": "2046b981cb9506999c40e3fee1a22608efecaa80",
+      "evidence_bytes": 1036,
+      "evidence_sha256": "6c74b4039f9a954d5a9b6b309e0f7ad584f75273ce35ddc011a557890fda1232",
+      "manual_reason": "No manual intervention is defined for R8.2.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R8_2_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.2"
+    },
+    {
+      "accepted_head": "a1b0b6b4e07b15521acdd3a86dd963ebe4acc9c8",
+      "evidence_bytes": 1064,
+      "evidence_sha256": "57a13a7e52cf0caac6a42d63dfb90636d2d0365a2e67b68fd69c1d2298c27512",
+      "manual_reason": "No manual intervention is defined for R8.3.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R8_3_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.3"
+    },
+    {
+      "accepted_head": "4bf9cbd4892208084cd8ce6554edfd96a971bc04",
+      "evidence_bytes": 1329,
+      "evidence_sha256": "5fb8374ce516def219e853df467ebac0869e45f870ebc26c96ec07ec3488a3e8",
+      "manual_reason": "No manual intervention is defined for R8.4.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R8_4_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.4"
+    },
+    {
+      "accepted_head": "08c90bd8d52a7dd2dfc8da6ce94f6731701469f6",
+      "evidence_bytes": 1655,
+      "evidence_sha256": "ecf84a5499476d603da494151f590085785a9632030b5568d46d9836381871d9",
+      "manual_reason": "Embedding conditional was not triggered; no new authoritative embedding contract/model was required.",
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "source": "docs/roadmap/R8_5_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.5"
+    },
+    {
+      "accepted_head": "8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe",
+      "evidence_bytes": 2225,
+      "evidence_sha256": "1ccee0954833083a9abe44a854a75ea41d965fa459969f0385b5403b557237ad",
+      "manual_reason": "No manual intervention is defined for R8.6.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R8_6_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.6"
+    },
+    {
+      "accepted_head": "c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3",
+      "evidence_bytes": 1792,
+      "evidence_sha256": "11bdedffa2267ee290e7ec282dc86f81c56c27a9f2363dc35df0de6624be8ddb",
+      "manual_reason": "No manual intervention is defined for R8.7.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R8_7_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.7"
+    },
+    {
+      "accepted_head": "32e5ace263546d85ee662c5ba333caaaefaa8bcc",
+      "evidence_bytes": 2870,
+      "evidence_sha256": "70d889a74dcd5e73192126be6612d19feeac3e8eb516658810262200efbfaf53",
+      "manual_reason": "Git LFS conditional was not triggered; hosted CI exercised the accepted local LFS surface without an inherited unresolved manual gate.",
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "source": "docs/roadmap/R8_8_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.8"
+    },
+    {
+      "accepted_head": "da8b4aedd280dadffcf4099bfa2b902cb70d81a7",
+      "evidence_bytes": 5286,
+      "evidence_sha256": "9e92b2dce9cbab498f3d23b1b5d7768ab99218c5ec5850ade75e95fcdbeb4243",
+      "manual_reason": "Required Godot 4.7.2 local rebuild acceptance is already authoritative and satisfied.",
+      "manual_satisfied": true,
+      "manual_state": "required_satisfied",
+      "source": "docs/roadmap/R8_9_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.9"
+    },
+    {
+      "accepted_head": "6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22",
+      "evidence_bytes": 7120,
+      "evidence_sha256": "9b682443ee0b8bc0cbf901d8373036ecea4f072d41939fb255fdd1ea04f3b933",
+      "manual_reason": "No manual intervention is defined for R8.10.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "source": "docs/roadmap/R8_10_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.10"
+    },
+    {
+      "accepted_head": "d1589cf94545b854f995e7b6706c4b67e9b7ac1a",
+      "evidence_bytes": 6512,
+      "evidence_sha256": "67c47d1ead729241c1884a55df94a263673fe02413449dc3a86e13ffbe1df1f2",
+      "manual_reason": "R8.11 conditional was not triggered because inherited environment-specific gates are resolved and hosted CI can execute integrated acceptance.",
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "source": "docs/roadmap/R8_11_ACCEPTANCE.md",
+      "status": "pass",
+      "subdivision": "R8.11"
+    }
+  ]
+}

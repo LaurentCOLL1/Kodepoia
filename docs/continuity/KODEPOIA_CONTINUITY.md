@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.10 COMPLETE; R8.10 post-merge normalization PENDING ACCEPTANCE.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. Les acceptances R8.1–R8.10 sont exact-head; R8.5/R8.8 manual = CONDITIONAL NOT TRIGGERED; R8.6/R8.7/R8.10 manual = NONE; R8.9 manual = REQUIRED SATISFIED. R8.10 est accepté sur l'implementation head exact `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`, avec R0 #1083 / `32614391934`, Python Core #1057 / `32614392022` 5/5 et Ubuntu `571 passed / 6 skipped / 46 warnings`, UI Smoke #1024 / `32614391930`; final documentation head `29928598224aa8df74a768984928733b1d52ef94` avec R0 #1086 / `32620855929`, Python #1060 / `32620855945`, UI #1027 / `32620855926`; PR #99 merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`. Cette branche de normalisation part exactement de ce merge et ne modifie que l'acceptance/continuité. **Ne pas démarrer R8.11** avant R0 + Python Core + UI Smoke SUCCESS sur le head exact de cette normalisation puis merge de sa PR. Toute modification de structure R8 synchronise plan + continuité; tout changement de fondation exige un ADR.
+> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.10 COMPLETE. R8.11 implementation ACCEPTED / INTEGRATED REPORT CHECKED IN / FINAL GATES PENDING.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. R8.10 normalization est fusionnée; `main` normalisé avant R8.11 = `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`. R8.11 est accepté sur l'implementation head exact `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, avec R0 #1092 / `32621457672`, Python Core #1066 / `32621457675` 5/5 et Ubuntu `587 passed / 7 skipped / 46 warnings`, UI Smoke #1033 / `32621457788`. Manual R8.11 = CONDITIONAL NOT TRIGGERED. Le premier candidat R8.11 a révélé un vrai défaut de cache transform cross-output; le service a été durci sans affaiblir les gates. `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json` est maintenant check-in avec `status=pass`, `blockers=[]`, digest `6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`, généré depuis les blobs `git show HEAD:<path>`. **Ne pas fusionner PR #101 et ne pas commencer R9** avant R0 + full Python Core avec `R8 integrated acceptance: PASS` + UI Smoke SUCCESS sur le head exact contenant cette continuité. Après merge R8.11, normaliser R8 en continuity-only; R9 commence obligatoirement par un `R9_PLAN.md` exhaustif accepté avant toute R9.1.
 
 ## Source de vérité et état
 
@@ -15,8 +15,7 @@
 - R7 : COMPLETE.
 - R8 planning : ACCEPTED.
 - R8.1–R8.10 : COMPLETE.
-- R8.10 post-merge normalization : PENDING ACCEPTANCE sur branche issue de `a72da6be019f2b1771ab42d04b37c44b0d7464d3`.
-- R8.11 : PLANNED / NOT STARTED, BLOCKED jusqu'au merge de cette normalisation.
+- R8.11 : IMPLEMENTATION ACCEPTED / INTEGRATED REPORT CHECKED IN / FINAL GATES PENDING sur PR #101.
 - R9–R16 : PENDING / NOT STARTED.
 
 ## R8 planning acceptance
@@ -43,7 +42,7 @@
 | R8.8 | Git LFS tracking, pointer/object integrity + diagnostics | `32e5ace263546d85ee662c5ba333caaaefaa8bcc` | R0 #1066; Python #1040; UI #1007 | CONDITIONAL NOT TRIGGERED |
 | R8.9 | Godot 4.7 source/import bridge + rebuild verification | `da8b4aedd280dadffcf4099bfa2b902cb70d81a7` | R0 #1071; Python #1045; UI #1012 | REQUIRED SATISFIED |
 | R8.10 | CLI + KodeStudio Vault/Asset/VCS UX | `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22` | R0 #1083; Python #1057; UI #1024 | NONE |
-| R8.11 | Adversarial hardening + R8 integrated acceptance | NOT STARTED | — | CONDITIONAL planned |
+| R8.11 | Adversarial hardening + R8 integrated acceptance | `d1589cf94545b854f995e7b6706c4b67e9b7ac1a` | R0 #1092; Python #1066; UI #1033 | CONDITIONAL NOT TRIGGERED |
 
 ### R8.1 accepted baseline
 
@@ -115,7 +114,7 @@
 - Git LFS capability/list/fsck operations use a fixed local ProcessSandbox surface; fetch/pull/push and migration/history rewrite are not exposed.
 - `.gitattributes` heavy-asset policy and path-effective attributes are inspectable; updates are restricted to the frozen policy set, explicitly confirmed, SafeChange-snapshotted, atomic and audited.
 - Pointer, invalid pointer, missing/mismatched local LFS object, hydrated match/mismatch and pointer-only working tree are distinct states.
-- Local object probing is confined to the authorized Git common directory; an external storage location is explicit `UNAVAILABLE`.
+- Local object probing is confined to the authorized Git common directory; an external storage location est explicit `UNAVAILABLE`.
 - Exact accepted head `32e5ace263546d85ee662c5ba333caaaefaa8bcc`; R0 #1066 / `32604356727`; Python Core #1040 / `32604356661` 5/5 with Ubuntu `558 passed / 5 skipped / 46 warnings`; UI Smoke #1007 / `32604356692`; PR #95 merge `8923f6aa75656033887dd93551fc7b2651d78f04`; manual CONDITIONAL NOT TRIGGERED.
 - Rejected precursor `6b02a22fb4c526a53579a96e81ade3a3088a5e88` failed one new fixture because the active LFS clean filter rewrote the malformed test case; accepted fixture now stages exact raw blobs and production safeguards were not weakened.
 
@@ -143,15 +142,31 @@
 - KodeStudio UI Smoke #1024 / `32614391930`: SUCCESS; Python Core integrated Windows UI smoke SUCCESS.
 - Final pre-merge documentation/continuity head `29928598224aa8df74a768984928733b1d52ef94`; R0 #1086 / `32620855929`, Python Core #1060 / `32620855945`, UI Smoke #1027 / `32620855926`; all SUCCESS.
 - PR #99 merged as `a72da6be019f2b1771ab42d04b37c44b0d7464d3`.
+- Post-merge normalization head `ca7a0efe3ec0065199cf8c1a61b7eb9f97e76f13`; R0 #1088 / `32620997813`, Python #1062 / `32620997824`, UI #1029 / `32620997864`; all SUCCESS; PR #100 merge `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`.
 - `AssetService` is the single façade used by CLI and KodeStudio over Vault/search/duplicates/governance/VCS/LFS. KodeStudio contains no second direct Git/LFS/process/socket/secret path.
 - Unknown/missing license evidence remains `NOASSERTION`/blocked; governed export still uses R8.6/R6 and cannot be silently allowed.
 - Materialize overwrite, Vault deletion and asset export require explicit confirmation; duplicates remain non-destructive evidence.
 - KodeStudio Vault UX exposes search filters, explicit blocked-result opt-in, details/license warning, duplicate evidence, rebuild, VCS/LFS health/evidence, lineage source→derived, visible operation budget/progress and cooperative cancellation.
 - Long operations run via `QThreadPool`/`QRunnable`; each worker uses `AssetService.fork()` with independent SQLite connections instead of sharing the UI service across threads.
 - R6.5 accessibility and R6.6 pseudo-localization contracts were extended for Vault; both UI workflows execute the R8.10 smoke.
-- First candidate `7bb5c9b95b191d7dc97ca76ca81f175d5f424730` was correctly rejected by Windows UI smoke because new Vault controls were not registered in accessibility and navigation still expected six items; tests were not weakened. `66f9e1c1d3fb528ed3fc2fedc3934d342c20fb93` became green, then the final candidate added explicit lineage + budget UX and reran all gates.
-- `docs/roadmap/R8_10_DESIGN.md` and `docs/roadmap/R8_10_ACCEPTANCE.md` document the accepted implementation and merge evidence.
 - Manual intervention: NONE.
+
+### R8.11 accepted implementation baseline — final gates pending
+
+- Exact accepted implementation head `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`; base normalized R8.10 main `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`.
+- R0 Repository Guard #1092 / `32621457672`: SUCCESS Ubuntu + Windows.
+- Python Core #1066 / `32621457675`: SUCCESS 5/5; Ubuntu `587 passed / 7 skipped / 46 warnings`; package builds Ubuntu + Windows SUCCESS; integrated Windows UI smoke SUCCESS.
+- KodeStudio UI Smoke #1033 / `32621457788`: SUCCESS.
+- R8-specific integrated model/schema are separate from frozen R7: exactly R8.1–R8.11, canonical acceptance source, SHA-256, exact byte length, accepted head, manual state + explicit reason, derived satisfaction, blockers and deterministic digest.
+- Repository validation uses canonical Git blobs via `git show HEAD:<path>` and fails closed on missing/mismatched bytes, hash, head or manual state.
+- Adversarial suite covers forged manifest, poisoned SQLite rebuildable index, transform staging escape, cross-output cache poisoning, hostile metadata, Git option-shaped filename, malformed LFS pointer, pre-cancel rebuild, failed materialization and bounded many-asset fixture.
+- Rejected first candidate `28fe9610bcdf9d92a4e6aa0367441b342bfd288b`: Python Ubuntu correctly found one real transform-cache cross-output identity defect and one fixture assertion type mismatch. Gates were not weakened.
+- Production hardening commit `781e2cc154b3be8d7f120fbf62da09ad0d8af8ad`: cache HIT now binds inputs, recipe, tool, environment, requested logical output asset, content digest/length, DERIVED role/kind, READY status, lineage and transform provenance. Old cache docs lacking output identity become STALE and rebuild.
+- `docs/roadmap/R8_11_ACCEPTANCE.md` fixes implementation head `d1589cf...`; manual CONDITIONAL resolves to **CONDITIONAL NOT TRIGGERED** because R8.5/R8.8 inherited conditionals remain resolved, R8.9 REQUIRED remains SATISFIED, and hosted CI can execute the integrated path.
+- `scripts/r8_integrated_acceptance.py` emits or validates the canonical report; Linux Python Core executes it before pytest.
+- Canonical report `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json`: `schema_version=1`, `source_sha=d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, `status=pass`, `blockers=[]`, `evidence_sha256=6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`.
+- The report was emitted by CI from exact acceptance Git blobs before check-in, then committed without changing any bound acceptance document.
+- PR #101: OPEN / NOT MERGEABLE BY POLICY until final R0 + Python Core (`R8 integrated acceptance: PASS`) + UI Smoke succeed on one exact head containing this continuity.
 
 ## R8 exact merge chain
 
@@ -164,7 +179,8 @@
 - R8.7 PR #93 merge `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9`.
 - R8.8 PR #95 merge `8923f6aa75656033887dd93551fc7b2651d78f04`.
 - R8.9 PR #97 merge `af371bf07c56aa60a91ae3e39b14cc60c3307151`.
-- R8.10 PR #99 merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`.
+- R8.10 PR #99 merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`; normalization PR #100 merge `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`.
+- R8.11 PR #101: PENDING MERGE.
 
 ## R7 source of truth retained
 
@@ -231,4 +247,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R7 COMPLETE. R8.1–R8.10 COMPLETE. R8.10 normalization PENDING ACCEPTANCE.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact de cette normalisation issue de merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`. Si les trois sont SUCCESS, fusionner la normalisation. Après ce merge et seulement après celui-ci, la prochaine implémentation autorisée est **R8.11 — Adversarial hardening + R8 integrated acceptance**. Ne pas commencer R9 directement.
+**R1–R7 COMPLETE. R8.1–R8.10 COMPLETE. R8.11 implementation ACCEPTED; integrated report CHECKED IN; final gates PENDING.** Ne plus modifier le code métier ni les documents `R8_<n>_ACCEPTANCE.md`. Faire passer R0 Repository Guard, full Python Core avec `R8 integrated acceptance: PASS` et KodeStudio UI Smoke sur le head exact contenant cette continuité et le JSON intégré. Si les trois sont SUCCESS, fusionner PR #101. Post-merge, normaliser uniquement `docs/continuity/KODEPOIA_CONTINUITY.md` pour enregistrer le merge R8.11 et **R8 COMPLETE**, repasser les trois gates et fusionner cette normalisation. La prochaine action après R8 COMPLETE est **planifier R9 avec un `R9_PLAN.md` exhaustif**, pas commencer R9.1 directement.

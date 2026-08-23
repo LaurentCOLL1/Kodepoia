@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1–R9.8 COMPLETE + NORMALIZED. R9.9 COMPLETE; post-merge continuity normalization in progress.** `docs/roadmap/R9_PLAN.md` reste l’autorité structurelle exhaustive de R9.1–R9.11. R9.8 REQUIRED est SATISFIED sur `86777ddc7a87ad6041ddc599e20e93af38512a19` par l’evidence locale canonique SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967` (5744 octets), puis normalisée via PR #120 merge `bc5d4687e0ef6d91901a8b04103907aad8bb48f8`. R9.9 accepted implementation head = `85f8aacf8baf0f8dba6d28ba07fcfc0dbc37a324`; R0 #1188 / `32644669495`, Python Core #1162 / `32644669572` 5/5 avec Ubuntu `724 passed / 6 skipped / 46 warnings`, UI #1129 / `32644669558`, tous SUCCESS; manual = **CONDITIONAL NOT TRIGGERED**. Final synchronized documentation/continuity head `deb796991d3758c748c7777bd11cdf0c8cc40c4d` a passé R0 #1190 / `32645671691`, Python Core #1164 / `32645671704` 5/5 et UI Smoke #1131 / `32645671680`, tous SUCCESS. PR #121 a fusionné sous `3c4d98177e887dad5adbff2f29f7c985c7929015`. Faire passer R0 + full Python Core + UI Smoke sur le head exact de `r9/9-continuity-normalization`, puis fusionner cette normalisation avant toute R9.10.
+> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1–R9.9 COMPLETE + NORMALIZED. R9.10 COMPLETE; post-merge continuity normalization in progress.** `docs/roadmap/R9_PLAN.md` reste l’autorité structurelle exhaustive de R9.1–R9.11. R9.8 REQUIRED est SATISFIED sur `86777ddc7a87ad6041ddc599e20e93af38512a19` par l’evidence locale canonique SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967` (5744 octets), puis normalisée via PR #120 merge `bc5d4687e0ef6d91901a8b04103907aad8bb48f8`. R9.9 est COMPLETE + NORMALIZED via normalization head `95f9b21a3a542eea7cb339434397dc4f65429b52`, R0 #1192 / `32645877353`, Python Core #1166 / `32645877369`, UI Smoke #1133 / `32645877346`, tous SUCCESS, PR #122 merge `5831e958c45ac63f6d2bcfd7da0a7934330c7586`. R9.10 accepted implementation head = `dda09a1728ba63640f68a979af57d70f12b4c603`; R0 #1199 / `32657273588`, Python Core #1173 / `32657273603` 5/5 avec Ubuntu `729 passed / 7 skipped / 46 warnings`, UI #1140 / `32657273614`, tous SUCCESS; manual = **NONE**. PR #123 a fusionné sous `4372fa9067acf6aabf242f178be0d9f7ac041fc7`. Faire passer R0 + full Python Core + UI Smoke sur le head exact de `r9/10-continuity-normalization`, puis fusionner cette normalisation avant toute R9.11.
 
 ## Source de vérité et état
 
@@ -23,8 +23,8 @@
 - R9.6 : COMPLETE + NORMALIZED.
 - R9.7 : COMPLETE + NORMALIZED.
 - R9.8 : COMPLETE + NORMALIZED; REQUIRED SATISFIED.
-- R9.9 : COMPLETE; accepted implementation head `85f8aacf8baf0f8dba6d28ba07fcfc0dbc37a324`; final documentation head `deb796991d3758c748c7777bd11cdf0c8cc40c4d`; PR #121 merge `3c4d98177e887dad5adbff2f29f7c985c7929015`; post-merge continuity normalization in progress; CONDITIONAL NOT TRIGGERED.
-- R9.10 : PLANNED / NOT STARTED.
+- R9.9 : COMPLETE + NORMALIZED; accepted implementation head `85f8aacf8baf0f8dba6d28ba07fcfc0dbc37a324`; final documentation head `deb796991d3758c748c7777bd11cdf0c8cc40c4d`; normalization head `95f9b21a3a542eea7cb339434397dc4f65429b52`; PR #122 merge `5831e958c45ac63f6d2bcfd7da0a7934330c7586`; CONDITIONAL NOT TRIGGERED.
+- R9.10 : COMPLETE; accepted implementation head `dda09a1728ba63640f68a979af57d70f12b4c603`; PR #123 merge `4372fa9067acf6aabf242f178be0d9f7ac041fc7`; post-merge continuity normalization in progress; manual NONE.
 - R9.11 : PLANNED / NOT STARTED.
 - R10–R16 : PENDING / NOT STARTED.
 
@@ -47,8 +47,8 @@
 | R9.6 | Generated-output capture + R8 Vault/AssetPipeline lineage bridge | final `ccc2d5f440322c433a9853e9642bff7efb5d0d0e`; R0 #1150; Python #1124; UI #1091 | NONE |
 | R9.7 | Cancellation, interruption, crash recovery + free-memory semantics | final `c38a6c3d9a8e60acdc6fc46e38f46f1402ccb696`; R0 #1156; Python #1130; UI #1097 | NONE |
 | R9.8 | VRAM telemetry, admission scheduler + Ollama coexistence | impl `86777ddc7a87ad6041ddc599e20e93af38512a19`; docs `935c977926a11a7ba93f77c49a20b0eebe568b6d`; normalization `586097a25d6027b2c7a86d44c8876a6728cbf2d6` | REQUIRED SATISFIED |
-| R9.9 | Production 2D/UI/texture/concept workflow packs | impl `85f8aacf8baf0f8dba6d28ba07fcfc0dbc37a324`; docs `deb796991d3758c748c7777bd11cdf0c8cc40c4d`; PR #121 merge `3c4d98177e887dad5adbff2f29f7c985c7929015` | CONDITIONAL NOT TRIGGERED |
-| R9.10 | CLI + KodeStudio ComfyUI/VRAM UX | — | NONE |
+| R9.9 | Production 2D/UI/texture/concept workflow packs | impl `85f8aacf8baf0f8dba6d28ba07fcfc0dbc37a324`; docs `deb796991d3758c748c7777bd11cdf0c8cc40c4d`; normalization `95f9b21a3a542eea7cb339434397dc4f65429b52`; PR #122 merge `5831e958c45ac63f6d2bcfd7da0a7934330c7586` | CONDITIONAL NOT TRIGGERED |
+| R9.10 | CLI + KodeStudio ComfyUI/VRAM UX | impl `dda09a1728ba63640f68a979af57d70f12b4c603`; PR #123 merge `4372fa9067acf6aabf242f178be0d9f7ac041fc7`; normalization in progress | NONE |
 | R9.11 | Adversarial hardening + R9 integrated acceptance | — | CONDITIONAL |
 
 ### R9.8 retained local evidence
@@ -73,6 +73,22 @@
 - Manual CONDITIONAL NOT TRIGGERED because no mandatory new real node/model family was introduced beyond the accepted R9.8 core checkpoint path.
 - Final synchronized docs/continuity head `deb796991d3758c748c7777bd11cdf0c8cc40c4d`: R0 #1190 / `32645671691`, Python #1164 / `32645671704` 5/5, UI #1131 / `32645671680`; all SUCCESS.
 - PR #121 merged as `3c4d98177e887dad5adbff2f29f7c985c7929015`.
+- Post-merge normalization head `95f9b21a3a542eea7cb339434397dc4f65429b52`: R0 #1192 / `32645877353`, Python Core #1166 / `32645877369`, UI Smoke #1133 / `32645877346`; all SUCCESS.
+- PR #122 merged as `5831e958c45ac63f6d2bcfd7da0a7934330c7586`.
+
+### R9.10 accepted baseline
+
+- Base normalized R9.9 `main` : `5831e958c45ac63f6d2bcfd7da0a7934330c7586`.
+- Rejected candidate `d62a688092ceec9a90b4d78fb4e8feac8fddd24e`: R0 passed, but UI Smoke and the Python Core embedded KodeStudio UI job exposed newly introduced accessibility-contract registrations plus stale pseudo-locale navigation expectations. Service/CLI Python jobs and package builds remained green; gates were not weakened.
+- Rejected candidate `4394401510e34f3050040ebedd8799b91e3c0f51`: UI Smoke reduced the remaining defect to the unregistered `comfyEvidenceView` accessibility control. The gate was extended to include the dedicated R9.10 KodeStudio smoke and was not weakened.
+- Accepted implementation head `dda09a1728ba63640f68a979af57d70f12b4c603`: R0 #1199 / `32657273588`, Python Core #1173 / `32657273603` 5/5, UI Smoke #1140 / `32657273614`; Ubuntu `729 passed / 7 skipped / 46 warnings`; all SUCCESS.
+- `ComfyService` is the single governed R9 façade shared by CLI and KodeStudio; worker `fork()` avoids shared transport state across GUI workers.
+- CLI exposes bounded `status`, `inventory`, `workflows`, `validate`, `run`, `run-status`, `cancel`, `vram`, `free-memory`, and `evidence` operations over the fixed accepted loopback boundary.
+- KodeStudio exposes protocol/capability, governed workflow parameters, explicit model-resolution state, live run/progress, targeted cancel/free-memory/evidence, VRAM telemetry/admission and Ollama coexistence through non-blocking workers.
+- No arbitrary endpoint/URL, graph execution, process surface, custom-node/model installer or model download was introduced. KodeStudio has no direct ComfyUI client/transport path.
+- Accessibility and pseudo-localization were extended; the KodeStudio UI Smoke explicitly includes the R9.10 panel smoke.
+- Manual state is **NONE**; no user-side acceptance is required for R9.10.
+- PR #123 merged as `4372fa9067acf6aabf242f178be0d9f7ac041fc7`.
 
 ## R8 retained source of truth
 
@@ -117,4 +133,4 @@ Preserve without reinterpretation :
 
 ## Next action
 
-**R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1–R9.8 COMPLETE + NORMALIZED. R9.9 COMPLETE; post-merge normalization in progress.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact de `r9/9-continuity-normalization`, puis fusionner cette normalisation. **R9.10 reste interdit avant cette fusion.** Après merge, démarrer R9.10 sur une branche dédiée depuis le nouveau `main`, puis suivre implémentation → exact-head acceptance → merge → post-merge normalization avant R9.11.
+**R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1–R9.9 COMPLETE + NORMALIZED. R9.10 COMPLETE; post-merge normalization in progress.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact de `r9/10-continuity-normalization`, puis fusionner cette normalisation. **R9.11 reste interdit avant cette fusion.** Après merge, démarrer R9.11 sur une branche dédiée depuis le nouveau `main`; appliquer l’adversarial hardening et l’acceptance intégrée R9 suivant `R9_PLAN.md`, avec manual **CONDITIONAL** uniquement si les critères de déclenchement documentés sont réellement atteints.

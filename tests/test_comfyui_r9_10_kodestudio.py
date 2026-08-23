@@ -40,16 +40,29 @@ class FakeComfyService:
                     {"vram_free_bytes": 8 * 1024**3, "vram_total_bytes": 12 * 1024**3}
                 ]
             },
+            "admission": {"decision": "admit"},
             "ollama_coexistence": {"state": "n/a", "models": []},
         }
 
     def validate(self, family, **_kwargs):
-        return {"state": "ready", "family": family, "compatibility": {"state": "compatible"}}
+        return {
+            "state": "ready",
+            "family": family,
+            "compatibility": {
+                "state": "compatible",
+                "selected_models": [["checkpoint", "fixture.safetensors"]],
+            },
+        }
 
     def run(self, family, **_kwargs):
         return {
             "state": "queued",
             "family": family,
+            "compatibility": {
+                "state": "compatible",
+                "selected_models": [["checkpoint", "fixture.safetensors"]],
+            },
+            "admission": {"decision": "admit"},
             "run": {"run_id": "run_" + "1" * 32, "state": "queued", "progress_fraction": 0.0},
         }
 
@@ -93,6 +106,8 @@ def test_kodestudio_exposes_service_backed_comfyui_vram_page(tmp_path: Path) -> 
     assert page.findChild(QLabel, "comfyCapabilityStatus") is not None
     assert page.findChild(QLabel, "comfyVramStatus") is not None
     assert page.findChild(QLabel, "comfyOllamaStatus") is not None
+    assert page.findChild(QLabel, "comfyModelStatus") is not None
+    assert page.findChild(QLabel, "comfyAdmissionStatus") is not None
     assert page.findChild(QLabel, "comfyRunStatus") is not None
     assert page.findChild(QPlainTextEdit, "comfyEvidenceView") is not None
     assert getattr(page, "_kodepoia_comfy_service", None) is not None

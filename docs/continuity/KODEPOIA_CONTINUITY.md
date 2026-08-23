@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.11 ACCEPTED; R8.11 MERGED; R8 final continuity-only normalization PENDING ACCEPTANCE.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. R8.11 est accepté sur l'implementation head exact `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, puis sur le final documentation head exact `456c072108917a93176454adaa68234f4c087e57` avec R0 #1098 / `32621787439`, Python Core #1072 / `32621787435` 5/5, `R8 integrated acceptance: PASS` et Ubuntu `588 passed / 6 skipped / 46 warnings`, UI Smoke #1039 / `32621787433`. Manual R8.11 = CONDITIONAL NOT TRIGGERED. PR #101 est fusionnée en `main` sous `2a3a0b7da3803fb4d59158b94b9219aded201f17`. `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json` est check-in avec `status=pass`, `blockers=[]`, digest `6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`. **Ne pas commencer R9.1.** Accepter et fusionner d'abord cette normalisation finale continuity-only; après cela R8 = COMPLETE et la seule prochaine action autorisée est la planification exhaustive R9 (`R9_PLAN.md`) avant toute R9.1.
+> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive de R8.1–R8.11. R8.11 est accepté sur l'implementation head exact `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, puis sur le final documentation head exact `456c072108917a93176454adaa68234f4c087e57` avec R0 #1098 / `32621787439`, Python Core #1072 / `32621787435` 5/5, `R8 integrated acceptance: PASS` et Ubuntu `588 passed / 6 skipped / 46 warnings`, UI Smoke #1039 / `32621787433`. Manual R8.11 = CONDITIONAL NOT TRIGGERED. PR #101 est fusionnée en `main` sous `2a3a0b7da3803fb4d59158b94b9219aded201f17`. `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json` est check-in avec `status=pass`, `blockers=[]`, digest `6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`. La normalisation finale R8 est continuity-only via PR #102; son premier head `f2004ffbfada8ee7e6cdb942efc19d2aa7aecb6d` a passé R0 #1100 / `32622694931`, Python Core #1074 / `32622694930` 5/5 avec verifier R8 PASS, et UI Smoke #1041 / `32622694936`. **Ne pas commencer R9.1 directement.** La prochaine action autorisée après fusion de cette normalisation est uniquement la planification exhaustive R9 (`R9_PLAN.md`), à accepter et fusionner avant toute R9.1.
 
 ## Source de vérité et état
 
@@ -13,11 +13,13 @@
 - `main` : source de vérité après chaque fusion acceptée et sa normalisation requise.
 - R1–R6 : COMPLETE.
 - R7 : COMPLETE.
+- R8 : COMPLETE.
 - R8 planning : ACCEPTED.
-- R8.1–R8.11 : ACCEPTED.
+- R8.1–R8.11 : COMPLETE.
 - R8.11 : MERGED via PR #101 sous `2a3a0b7da3803fb4d59158b94b9219aded201f17`.
-- R8 final continuity-only normalization : PENDING ACCEPTANCE.
-- R9–R16 : PENDING / NOT STARTED.
+- R8 final continuity-only normalization : PR #102; ce document constitue l'état final R8 COMPLETE et doit passer les trois gates exact-head avant merge.
+- R9 planning : NOT STARTED.
+- R9.1–R16 : PENDING / NOT STARTED.
 
 ## R8 planning acceptance
 
@@ -106,7 +108,7 @@
 - Stage/unstage requires explicit workspace-confined paths, rejects `.git` metadata and traversal, snapshots the index with `SafeChangeManager`, and appends tamper-evident audit events.
 - Git index discovery uses `git rev-parse --git-path index`, retaining compatibility with managed worktrees without assuming `.git` is a directory.
 - Vault revision ↔ working repository evidence records SHA-256, exact length, tracked state and last commit SHA; working bytes cannot silently claim equality with a different Vault revision.
-- No remote push, arbitrary flags/refspecs/config keys, merge/rebase automation ou history rewrite is exposed.
+- No remote push, arbitrary flags/refspecs/config keys, merge/rebase automation or history rewrite is exposed.
 - Exact accepted head `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3`; R0 #1061 / `32603884834`; Python Core #1035 / `32603884762` 5/5 with Ubuntu `552 passed / 5 skipped / 46 warnings`; UI Smoke #1002 / `32603884719`; PR #93 merge `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9`; manual NONE.
 
 ### R8.8 accepted baseline
@@ -166,6 +168,7 @@
 - `scripts/r8_integrated_acceptance.py` emits or validates the canonical report; Linux Python Core executes it before pytest.
 - Canonical report `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json`: `schema_version=1`, `source_sha=d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, `status=pass`, `blockers=[]`, `evidence_sha256=6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`.
 - PR #101 merged as `2a3a0b7da3803fb4d59158b94b9219aded201f17`.
+- Final continuity-only normalization first head `f2004ffbfada8ee7e6cdb942efc19d2aa7aecb6d`: R0 #1100 / `32622694931`, Python Core #1074 / `32622694930` 5/5 with R8 verifier PASS, UI Smoke #1041 / `32622694936`; all SUCCESS.
 - Manual intervention: CONDITIONAL NOT TRIGGERED.
 
 ## R8 exact merge chain
@@ -181,6 +184,7 @@
 - R8.9 PR #97 merge `af371bf07c56aa60a91ae3e39b14cc60c3307151`.
 - R8.10 PR #99 merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`; normalization PR #100 merge `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`.
 - R8.11 PR #101 merge `2a3a0b7da3803fb4d59158b94b9219aded201f17`.
+- R8 final normalization: PR #102, continuity-only.
 
 ## R7 source of truth retained
 
@@ -247,4 +251,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R7 COMPLETE. R8.1–R8.11 ACCEPTED; R8.11 MERGED. R8 final continuity-only normalization PENDING ACCEPTANCE.** Ne plus modifier le code métier ni les documents `R8_<n>_ACCEPTANCE.md`. Faire passer R0 Repository Guard, full Python Core avec `R8 integrated acceptance: PASS` et KodeStudio UI Smoke sur le head exact de cette normalisation. Si les trois sont SUCCESS, mettre cette continuité dans son état final **R8 COMPLETE**, repasser les trois gates sur ce dernier head et fusionner la normalisation. Après ce merge, la prochaine action autorisée est **planifier R9 avec un `R9_PLAN.md` exhaustif**, pas commencer R9.1 directement.
+**R1–R8 COMPLETE.** La prochaine et seule action autorisée est **planifier R9 avec un `R9_PLAN.md` exhaustif** : figer subdivisions, dépendances, architecture, plan d'implémentation, livrables, acceptance/evidence, rollback, risques et états manuels; synchroniser cette continuité dans le même cycle; faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact du plan; fusionner le plan avant toute implémentation. **Ne pas commencer R9.1 directement.**

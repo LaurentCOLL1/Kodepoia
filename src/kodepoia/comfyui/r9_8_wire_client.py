@@ -23,6 +23,7 @@ from .serialization import canonical_sha256
 
 _LOGICAL_PROMPT_RE = re.compile(r"^kp_([0-9a-f]{32})$")
 _MAX_DIFF_NODE_IDS = 16
+_MAX_DIFF_INPUTS = 32
 
 
 def logical_prompt_id_to_wire(prompt_id: str) -> str:
@@ -225,6 +226,7 @@ def _prompt_diff_summary(expected: Mapping[str, Any], observed: Mapping[str, Any
     class_changed: list[str] = []
     input_keys_changed: list[str] = []
     input_values_changed: list[str] = []
+    changed_inputs: list[str] = []
     for node_id in shared:
         expected_node = expected[node_id]
         observed_node = observed[node_id]
@@ -234,14 +236,22 @@ def _prompt_diff_summary(expected: Mapping[str, Any], observed: Mapping[str, Any
         observed_inputs = observed_node.get("inputs", {})
         if set(expected_inputs) != set(observed_inputs):
             input_keys_changed.append(node_id)
-        elif canonical_sha256(dict(expected_inputs)) != canonical_sha256(dict(observed_inputs)):
-            input_values_changed.append(node_id)
+        else:
+            node_changed = False
+            for input_name in sorted(expected_inputs):
+                if canonical_sha256(expected_inputs[input_name]) != canonical_sha256(observed_inputs[input_name]):
+                    node_changed = True
+                    if len(changed_inputs) < _MAX_DIFF_INPUTS:
+                        changed_inputs.append(f"{str(node_id)[:64]}:{str(input_name)[:128]}")
+            if node_changed:
+                input_values_changed.append(node_id)
     return (
         f"added_nodes={_bounded_ids(observed_ids - expected_ids)}, "
         f"removed_nodes={_bounded_ids(expected_ids - observed_ids)}, "
         f"class_changed={_bounded_ids(class_changed)}, "
         f"input_keys_changed={_bounded_ids(input_keys_changed)}, "
-        f"input_values_changed={_bounded_ids(input_values_changed)}"
+        f"input_values_changed={_bounded_ids(input_values_changed)}, "
+        f"changed_inputs={changed_inputs}"
     )
 
 

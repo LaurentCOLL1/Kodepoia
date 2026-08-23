@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/comfy-run-manifest-payload-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "revision",
+    "previous_manifest_digest_sha256",
+    "prompt_id",
+    "client_id",
+    "state",
+    "submission_outcome",
+    "definition_id",
+    "definition_digest_sha256",
+    "capability_identity_sha256",
+    "capability_endpoint",
+    "comfyui_version",
+    "python_version",
+    "model_resolution_digest_sha256",
+    "model_resolution_evidence",
+    "instance_digest_sha256",
+    "prompt_digest_sha256",
+    "parameter_values",
+    "input_bindings",
+    "seed_values",
+    "required_output_node_ids",
+    "submission_attempts",
+    "submission_response_digest_sha256",
+    "progress_fraction",
+    "queue_digest_sha256",
+    "history_digest_sha256",
+    "output_references",
+    "manifest_digest_sha256"
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullable_sha256": {
+      "anyOf": [
+        {"$ref": "#/$defs/sha256"},
+        {"type": "null"}
+      ]
+    },
+    "scalar": {
+      "type": ["string", "integer", "number", "boolean", "null"]
+    },
+    "audit_map": {
+      "type": "object",
+      "maxProperties": 4096,
+      "propertyNames": {"minLength": 1, "maxLength": 128},
+      "additionalProperties": {"$ref": "#/$defs/scalar"}
+    },
+    "vault_evidence": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "revision_id",
+        "content_sha256",
+        "reuse_scope",
+        "governance_outcome",
+        "license_token",
+        "exportable"
+      ],
+      "properties": {
+        "revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"},
+        "content_sha256": {"$ref": "#/$defs/sha256"},
+        "reuse_scope": {"enum": ["project_only", "vault_local", "exportable"]},
+        "governance_outcome": {"type": "string", "minLength": 1, "maxLength": 64},
+        "license_token": {"type": "string", "minLength": 1, "maxLength": 512},
+        "exportable": {"type": "boolean"}
+      }
+    },
+    "model_resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requirement_id",
+        "model_type",
+        "state",
+        "candidates",
+        "selected_token",
+        "provenance_state",
+        "vault_evidence",
+        "license_token",
+        "exportable"
+      ],
+      "properties": {
+        "requirement_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "model_type": {"type": "string", "minLength": 1, "maxLength": 128},
+        "state": {"enum": ["resolved", "missing", "ambiguous", "blocked"]},
+        "candidates": {
+          "type": "array",
+          "maxItems": 100000,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 4096}
+        },
+        "selected_token": {
+          "type": ["string", "null"],
+          "maxLength": 4096
+        },
+        "provenance_state": {"enum": ["vault_governed", "external_local_unknown"]},
+        "vault_evidence": {"$ref": "#/$defs/vault_evidence"},
+        "license_token": {"type": "string", "minLength": 1, "maxLength": 512},
+        "exportable": {"type": "boolean"}
+      }
+    },
+    "output_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompt_id",
+        "node_id",
+        "output_index",
+        "server_filename",
+        "server_subfolder",
+        "storage_type"
+      ],
+      "properties": {
+        "prompt_id": {"type": "string", "pattern": "^kp_[0-9a-f]{32}$"},
+        "node_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "output_index": {"type": "integer", "minimum": 0},
+        "server_filename": {"type": "string", "minLength": 1, "maxLength": 512},
+        "server_subfolder": {"type": "string", "maxLength": 512},
+        "storage_type": {"enum": ["output", "temp"]}
+      }
+    }
+  },
+  "properties": {
+    "run_id": {"type": "string", "pattern": "^run_[0-9a-f]{32}$"},
+    "revision": {"type": "integer", "minimum": 0},
+    "previous_manifest_digest_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "prompt_id": {"type": "string", "pattern": "^kp_[0-9a-f]{32}$"},
+    "client_id": {"type": "string", "pattern": "^kc_[0-9a-f]{32}$"},
+    "state": {"enum": ["unknown", "prepared", "queued", "running", "succeeded", "failed", "cancelled"]},
+    "submission_outcome": {"enum": ["not_attempted", "attempting", "accepted", "ambiguous", "recovered"]},
+    "definition_id": {"type": "string", "pattern": "^wf_[0-9a-f]{32}$"},
+    "definition_digest_sha256": {"$ref": "#/$defs/sha256"},
+    "capability_identity_sha256": {"$ref": "#/$defs/sha256"},
+    "capability_endpoint": {"type": "string", "minLength": 1, "maxLength": 2048},
+    "comfyui_version": {"type": ["string", "null"], "maxLength": 256},
+    "python_version": {"type": ["string", "null"], "maxLength": 1024},
+    "model_resolution_digest_sha256": {"$ref": "#/$defs/sha256"},
+    "model_resolution_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability_identity_sha256", "resolutions"],
+      "properties": {
+        "capability_identity_sha256": {"$ref": "#/$defs/sha256"},
+        "resolutions": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {"$ref": "#/$defs/model_resolution"}
+        }
+      }
+    },
+    "instance_digest_sha256": {"$ref": "#/$defs/sha256"},
+    "prompt_digest_sha256": {"$ref": "#/$defs/sha256"},
+    "parameter_values": {"$ref": "#/$defs/audit_map"},
+    "input_bindings": {"$ref": "#/$defs/audit_map"},
+    "seed_values": {
+      "type": "object",
+      "maxProperties": 4096,
+      "propertyNames": {"minLength": 1, "maxLength": 128},
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "required_output_node_ids": {
+      "type": "array",
+      "maxItems": 4096,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 128}
+    },
+    "submission_attempts": {"type": "integer", "minimum": 0, "maximum": 1},
+    "submission_response_digest_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "progress_fraction": {
+      "anyOf": [
+        {"type": "number", "minimum": 0, "maximum": 1},
+        {"type": "null"}
+      ]
+    },
+    "queue_digest_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "history_digest_sha256": {"$ref": "#/$defs/nullable_sha256"},
+    "output_references": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {"$ref": "#/$defs/output_reference"}
+    },
+    "manifest_digest_sha256": {"$ref": "#/$defs/sha256"}
+  }
+}

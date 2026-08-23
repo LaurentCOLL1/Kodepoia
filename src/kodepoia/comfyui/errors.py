@@ -13,6 +13,10 @@ class ComfyUnavailableError(ComfyError):
     """Raised when the accepted local ComfyUI service is unavailable."""
 
 
+class ComfySubmissionAmbiguousError(ComfyUnavailableError):
+    """Raised when a prompt POST may have reached ComfyUI but no response was obtained."""
+
+
 class ComfyProtocolError(ComfyError):
     """Raised when ComfyUI protocol evidence is malformed or contradictory."""
 

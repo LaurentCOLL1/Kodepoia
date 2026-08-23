@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import threading
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
 from typing import Any, TypeVar
 from urllib.parse import quote
@@ -20,6 +20,8 @@ _PROMPT_ID_MAX = 128
 _CLIENT_ID_MAX = 128
 _MAX_QUEUE_ITEMS = 100000
 _MAX_HISTORY_OUTPUT_NODES = 10000
+_MAX_OUTPUT_REFS = 100000
+_MAX_EXTRA_DATA_FIELDS = 64
 _ALLOWED_OUTPUT_STORAGE_TYPES = frozenset({"output", "temp"})
 _T = TypeVar("_T")
 
@@ -46,6 +48,26 @@ class ComfyHistorySnapshot:
     present: bool
     state: ComfyRunState
     output_node_ids: tuple[str, ...]
+    digest_sha256: str
+
+
+@dataclass(frozen=True, slots=True)
+class ComfyPromptSubmission:
+    prompt_id: str
+    queue_number: float
+    node_errors_digest_sha256: str
+    response_digest_sha256: str
+
+
+@dataclass(frozen=True, slots=True)
+class ComfyExecutionHistory:
+    prompt_id: str
+    present: bool
+    state: ComfyRunState
+    prompt_digest_sha256: str | None
+    extra_data_digest_sha256: str | None
+    correlation: tuple[tuple[str, str], ...]
+    output_references: tuple[ComfyOutputReference, ...]
     digest_sha256: str
 
 
@@ -123,6 +145,51 @@ class ComfyUIClient:
     def prompt_metadata(self) -> dict[str, Any]:
         return self._http.get_json("/prompt")
 
+    def submit_prompt(
+        self,
+        prompt: Mapping[str, Any],
+        *,
+        prompt_id: str,
+        client_id: str,
+        correlation: Mapping[str, str],
+    ) -> ComfyPromptSubmission:
+        """Submit only a prevalidated API prompt with caller-persisted correlation identifiers."""
+        normalized_prompt_id = _bounded_identifier(prompt_id, "prompt_id")
+        normalized_client_id = _bounded_identifier(client_id, "client_id", maximum=_CLIENT_ID_MAX)
+        if not isinstance(prompt, Mapping) or not prompt:
+            raise ComfyProtocolError("ComfyUI prompt submission requires a non-empty prompt object")
+        if len(correlation) > _MAX_EXTRA_DATA_FIELDS:
+            raise ComfyProtocolError("ComfyUI correlation metadata exceeds the accepted field bound")
+        normalized_correlation: dict[str, str] = {}
+        for key, value in correlation.items():
+            normalized_key = _bounded_identifier(key, "correlation key", maximum=128)
+            normalized_value = _bounded_identifier(value, f"correlation {normalized_key}", maximum=512)
+            normalized_correlation[normalized_key] = normalized_value
+        document = {
+            "prompt": dict(prompt),
+            "prompt_id": normalized_prompt_id,
+            "client_id": normalized_client_id,
+            "extra_data": {"kodepoia": normalized_correlation},
+        }
+        response = self._http.post_json("/prompt", document)
+        returned_prompt = response.get("prompt_id")
+        if returned_prompt != normalized_prompt_id:
+            raise ComfyProtocolError("ComfyUI submission response prompt_id does not match requested prompt_id")
+        number = response.get("number")
+        if isinstance(number, bool) or not isinstance(number, (int, float)):
+            raise ComfyProtocolError("ComfyUI submission response number must be numeric")
+        node_errors = response.get("node_errors", {})
+        if not isinstance(node_errors, dict):
+            raise ComfyProtocolError("ComfyUI submission response node_errors must be an object")
+        if node_errors:
+            raise ComfyProtocolError("ComfyUI rejected the validated prompt with node_errors")
+        return ComfyPromptSubmission(
+            prompt_id=normalized_prompt_id,
+            queue_number=float(number),
+            node_errors_digest_sha256=canonical_sha256(node_errors),
+            response_digest_sha256=canonical_sha256(response),
+        )
+
     def queue(self) -> ComfyQueueSnapshot:
         queue_data = self._http.get_json("/queue")
         prompt_data = self._http.get_json("/prompt")
@@ -158,6 +225,38 @@ class ComfyUIClient:
             present=True,
             state=state,
             output_node_ids=output_node_ids,
+            digest_sha256=canonical_sha256(data),
+        )
+
+    def execution_history(self, prompt_id: str) -> ComfyExecutionHistory:
+        normalized_prompt = _bounded_identifier(prompt_id, "prompt_id")
+        encoded_prompt = quote(normalized_prompt, safe="")
+        data = self._http.get_json(f"/history/{encoded_prompt}")
+        if normalized_prompt not in data:
+            return ComfyExecutionHistory(
+                prompt_id=normalized_prompt,
+                present=False,
+                state=ComfyRunState.UNKNOWN,
+                prompt_digest_sha256=None,
+                extra_data_digest_sha256=None,
+                correlation=(),
+                output_references=(),
+                digest_sha256=canonical_sha256(data),
+            )
+        item = data[normalized_prompt]
+        if not isinstance(item, dict):
+            raise ComfyProtocolError("ComfyUI history item must be an object")
+        stored_prompt, extra_data = _history_prompt_evidence(item, normalized_prompt)
+        correlation = _history_correlation(extra_data)
+        references = _history_output_references(item, normalized_prompt)
+        return ComfyExecutionHistory(
+            prompt_id=normalized_prompt,
+            present=True,
+            state=_history_state(item),
+            prompt_digest_sha256=canonical_sha256(stored_prompt),
+            extra_data_digest_sha256=canonical_sha256(extra_data),
+            correlation=correlation,
+            output_references=references,
             digest_sha256=canonical_sha256(data),
         )
 
@@ -359,6 +458,89 @@ def _history_output_nodes(item: dict[str, Any]) -> tuple[str, ...]:
             raise ComfyProtocolError("ComfyUI history output node IDs must be strings")
         result.append(_bounded_identifier(node_id, "history output node_id"))
     return tuple(sorted(result))
+
+
+def _history_prompt_evidence(item: dict[str, Any], prompt_id: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    raw = item.get("prompt")
+    if not isinstance(raw, (list, tuple)) or len(raw) < 4:
+        raise ComfyProtocolError("ComfyUI history prompt tuple is missing canonical prompt evidence")
+    stored_id = raw[1]
+    prompt = raw[2]
+    extra_data = raw[3]
+    if stored_id != prompt_id:
+        raise ComfyProtocolError("ComfyUI history prompt tuple ID does not match requested prompt_id")
+    if not isinstance(prompt, dict) or not isinstance(extra_data, dict):
+        raise ComfyProtocolError("ComfyUI history prompt/extra_data evidence has invalid shape")
+    return prompt, extra_data
+
+
+def _history_correlation(extra_data: dict[str, Any]) -> tuple[tuple[str, str], ...]:
+    kodepoia = extra_data.get("kodepoia", {})
+    if not isinstance(kodepoia, dict) or len(kodepoia) > _MAX_EXTRA_DATA_FIELDS:
+        raise ComfyProtocolError("ComfyUI history Kodepoia correlation evidence is invalid")
+    result: list[tuple[str, str]] = []
+    for key, value in kodepoia.items():
+        try:
+            normalized_key = _bounded_identifier(key, "history correlation key", maximum=128)
+            normalized_value = _bounded_identifier(value, "history correlation value", maximum=512)
+        except ValueError as exc:
+            raise ComfyProtocolError("ComfyUI history correlation value is invalid") from exc
+        result.append((normalized_key, normalized_value))
+    return tuple(sorted(result))
+
+
+def _history_output_references(item: dict[str, Any], prompt_id: str) -> tuple[ComfyOutputReference, ...]:
+    outputs = item.get("outputs", {})
+    if not isinstance(outputs, dict) or len(outputs) > _MAX_HISTORY_OUTPUT_NODES:
+        raise ComfyProtocolError("ComfyUI history outputs must be a bounded object")
+    references: list[ComfyOutputReference] = []
+    for raw_node_id, payload in outputs.items():
+        try:
+            node_id = _bounded_identifier(raw_node_id, "history output node_id")
+        except ValueError as exc:
+            raise ComfyProtocolError("ComfyUI history output node ID is invalid") from exc
+        if not isinstance(payload, dict):
+            raise ComfyProtocolError("ComfyUI history output node payload must be an object")
+        for entries in payload.values():
+            if not isinstance(entries, list):
+                continue
+            for item_index, entry in enumerate(entries):
+                if not isinstance(entry, dict) or "filename" not in entry:
+                    continue
+                filename = entry.get("filename")
+                subfolder = entry.get("subfolder", "")
+                storage_type = entry.get("type", "output")
+                if not isinstance(filename, str) or not isinstance(subfolder, str) or not isinstance(storage_type, str):
+                    raise ComfyProtocolError("ComfyUI history output reference fields must be strings")
+                if storage_type not in _ALLOWED_OUTPUT_STORAGE_TYPES:
+                    raise ComfyProtocolError("ComfyUI history output storage type is not accepted")
+                try:
+                    references.append(
+                        ComfyOutputReference(
+                            prompt_id=prompt_id,
+                            node_id=node_id,
+                            output_index=item_index,
+                            server_filename=filename,
+                            server_subfolder=subfolder,
+                            storage_type=storage_type,
+                        )
+                    )
+                except (TypeError, ValueError) as exc:
+                    raise ComfyProtocolError("ComfyUI history output reference is invalid") from exc
+                if len(references) > _MAX_OUTPUT_REFS:
+                    raise ComfyProtocolError("ComfyUI history output reference count exceeds the accepted bound")
+    return tuple(
+        sorted(
+            references,
+            key=lambda item: (
+                item.node_id,
+                item.output_index,
+                item.storage_type,
+                item.server_subfolder,
+                item.server_filename,
+            ),
+        )
+    )
 
 
 def _cancelled(cancel_event: threading.Event | None) -> bool:

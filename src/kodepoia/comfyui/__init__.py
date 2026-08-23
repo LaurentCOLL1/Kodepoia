@@ -1,7 +1,9 @@
 from .boundary import ComfyEndpoint
 from .client import (
+    ComfyExecutionHistory,
     ComfyHistorySnapshot,
     ComfyProbeSnapshot,
+    ComfyPromptSubmission,
     ComfyQueueSnapshot,
     ComfySystemSnapshot,
     ComfyUIClient,
@@ -24,10 +26,18 @@ from .errors import (
     ComfyGovernanceError,
     ComfyProtocolError,
     ComfyResourceError,
+    ComfySubmissionAmbiguousError,
     ComfyUnavailableError,
     ComfyVersionError,
 )
 from .events import ComfyEventSequence, ComfyEventType, ComfyProtocolEvent, parse_event_frame
+from .execution import (
+    ComfyExecutionBudget,
+    ComfyExecutionService,
+    ComfyRunManifest,
+    ComfyRunStore,
+    ComfySubmissionOutcome,
+)
 from .inventory import (
     CapabilitySnapshotStore,
     ComfyCapabilityDiff,
@@ -72,6 +82,9 @@ __all__ = [
     "ComfyError",
     "ComfyEventSequence",
     "ComfyEventType",
+    "ComfyExecutionBudget",
+    "ComfyExecutionHistory",
+    "ComfyExecutionService",
     "ComfyGovernanceError",
     "ComfyHistoryReference",
     "ComfyHistorySnapshot",
@@ -81,13 +94,18 @@ __all__ = [
     "ComfyOutputReference",
     "ComfyProbeSnapshot",
     "ComfyPromptReference",
+    "ComfyPromptSubmission",
     "ComfyProtocolError",
     "ComfyProtocolEvent",
     "ComfyQueueSnapshot",
     "ComfyQueueState",
     "ComfyResourceError",
     "ComfyResourceStatus",
+    "ComfyRunManifest",
     "ComfyRunState",
+    "ComfyRunStore",
+    "ComfySubmissionAmbiguousError",
+    "ComfySubmissionOutcome",
     "ComfySystemSnapshot",
     "ComfyTransportLimits",
     "ComfyUIClient",

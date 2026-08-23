@@ -3,9 +3,10 @@ from __future__ import annotations
 import re
 import threading
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypeVar
+from urllib.parse import quote
 
 from .boundary import ComfyEndpoint
 from .contracts import ComfyCapabilityState, ComfyOutputReference, ComfyRunState, ComfyTransportLimits
@@ -20,6 +21,7 @@ _CLIENT_ID_MAX = 128
 _MAX_QUEUE_ITEMS = 100000
 _MAX_HISTORY_OUTPUT_NODES = 10000
 _ALLOWED_OUTPUT_STORAGE_TYPES = frozenset({"output", "temp"})
+_T = TypeVar("_T")
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,10 +57,18 @@ class ComfyProbeSnapshot:
     prompt_metadata: ComfyCapabilityState
     queue: ComfyCapabilityState
     history: ComfyCapabilityState
-    system_digest_sha256: str
-    feature_digest_sha256: str
-    queue_digest_sha256: str
-    history_digest_sha256: str
+    system_digest_sha256: str | None
+    feature_digest_sha256: str | None
+    prompt_digest_sha256: str | None
+    queue_digest_sha256: str | None
+    history_digest_sha256: str | None
+
+    @property
+    def ready(self) -> bool:
+        return all(
+            state is ComfyCapabilityState.CURRENT
+            for state in (self.system, self.features, self.prompt_metadata, self.queue, self.history)
+        )
 
     def canonical(self) -> dict[str, object]:
         return {
@@ -70,8 +80,10 @@ class ComfyProbeSnapshot:
             "history": self.history.value,
             "system_digest_sha256": self.system_digest_sha256,
             "feature_digest_sha256": self.feature_digest_sha256,
+            "prompt_digest_sha256": self.prompt_digest_sha256,
             "queue_digest_sha256": self.queue_digest_sha256,
             "history_digest_sha256": self.history_digest_sha256,
+            "ready": self.ready,
         }
 
 
@@ -126,7 +138,8 @@ class ComfyUIClient:
 
     def history(self, prompt_id: str) -> ComfyHistorySnapshot:
         normalized_prompt = _bounded_identifier(prompt_id, "prompt_id")
-        data = self._http.get_json(f"/history/{normalized_prompt}")
+        encoded_prompt = quote(normalized_prompt, safe="")
+        data = self._http.get_json(f"/history/{encoded_prompt}")
         if normalized_prompt not in data:
             return ComfyHistorySnapshot(
                 prompt_id=normalized_prompt,
@@ -188,7 +201,11 @@ class ComfyUIClient:
             if expected_prompt_id is not None
             else None
         )
-        if isinstance(max_reconnects, bool) or not isinstance(max_reconnects, int) or not 0 <= max_reconnects <= 8:
+        if (
+            isinstance(max_reconnects, bool)
+            or not isinstance(max_reconnects, int)
+            or not 0 <= max_reconnects <= 8
+        ):
             raise ValueError("max_reconnects must be an integer between 0 and 8")
         if not backoff_seconds or len(backoff_seconds) > 8:
             raise ValueError("backoff_seconds must contain between 1 and 8 entries")
@@ -215,7 +232,7 @@ class ComfyUIClient:
                         return
                     message = connection.recv_message()
                     if isinstance(message, bytes):
-                        # Binary preview frames are bounded by the transport but are not R9.2 protocol events.
+                        # Preview/image binary frames are bounded but are not R9.2 protocol-state events.
                         continue
                     event = parse_event_frame(message, max_bytes=self.limits.max_websocket_frame_bytes)
                     if sequence is not None and event.prompt_id is not None:
@@ -233,23 +250,31 @@ class ComfyUIClient:
                     connection.close()
 
     def probe(self) -> ComfyProbeSnapshot:
-        system = self.system_stats()
-        features = self.features()
-        prompt = self.prompt_metadata()
-        queue = self.queue()
-        history = self.history_index()
+        system_state, system = _probe_call(self.system_stats)
+        features_state, features = _probe_call(self.features)
+        prompt_state, prompt = _probe_call(self.prompt_metadata)
+        queue_state, queue = _probe_call(self.queue)
+        history_state, history = _probe_call(self.history_index)
         return ComfyProbeSnapshot(
             endpoint=self.endpoint.origin,
-            system=ComfyCapabilityState.CURRENT,
-            features=ComfyCapabilityState.CURRENT,
-            prompt_metadata=ComfyCapabilityState.CURRENT,
-            queue=ComfyCapabilityState.CURRENT,
-            history=ComfyCapabilityState.CURRENT,
-            system_digest_sha256=system.digest_sha256,
-            feature_digest_sha256=canonical_sha256(features),
-            queue_digest_sha256=queue.digest_sha256,
-            history_digest_sha256=canonical_sha256(history),
+            system=system_state,
+            features=features_state,
+            prompt_metadata=prompt_state,
+            queue=queue_state,
+            history=history_state,
+            system_digest_sha256=system.digest_sha256 if system is not None else None,
+            feature_digest_sha256=canonical_sha256(features) if features is not None else None,
+            prompt_digest_sha256=canonical_sha256(prompt) if prompt is not None else None,
+            queue_digest_sha256=queue.digest_sha256 if queue is not None else None,
+            history_digest_sha256=canonical_sha256(history) if history is not None else None,
         )
+
+
+def _probe_call(call: Callable[[], _T]) -> tuple[ComfyCapabilityState, _T | None]:
+    try:
+        return ComfyCapabilityState.CURRENT, call()
+    except ComfyUnavailableError:
+        return ComfyCapabilityState.UNAVAILABLE, None
 
 
 def _bounded_identifier(value: str, field_name: str, *, maximum: int = _PROMPT_ID_MAX) -> str:

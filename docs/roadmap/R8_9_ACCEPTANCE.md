@@ -1,7 +1,7 @@
 # R8.9 — Godot 4.7 source/import bridge + rebuild verification — Candidate acceptance
 
-**Status:** CANDIDATE / PENDING EXACT-HEAD CI + CONDITIONAL REAL-GODOT GATE  
-**Manual intervention:** CONDITIONAL — evaluate after exact-head CI
+**Status:** BLOCKED PENDING REQUIRED REAL-GODOT EXACT-HEAD EVIDENCE  
+**Manual intervention:** REQUIRED
 
 ## Implemented scope
 
@@ -14,29 +14,38 @@
 - Cache-root symlinks fail closed.
 - Exact-head local acceptance runner uses the accepted R8.7 VCS status and R5 Guardian/Permissions/KodeGodotExecutor stack against a disposable SVG fixture only.
 
-## Automated acceptance
+## Automated acceptance precursor
 
-Before any merge, R0 Repository Guard, full Python Core and KodeStudio UI Smoke must all succeed on the same implementation head. Focused R8.9 tests must prove classification, unavailable-before-purge, source immutability, cache rebuild semantics, manifest schema validation, portability rejection and symlink refusal while all R5 regression tests remain green.
+Implementation head `eaa7c8baa061e82b5dcf069dc5be63b8e88addeb` passed all automated gates:
 
-## Conditional real-Godot gate
+- R0 Repository Guard #1070 / `32613096619`: SUCCESS;
+- Python Core #1044 / `32613096631`: SUCCESS 5/5;
+- Ubuntu authoritative suite: `565 passed / 5 skipped / 46 warnings`;
+- KodeStudio UI Smoke #1011 / `32613096616`: SUCCESS.
 
-The frozen R8 plan requires an actual Godot 4.7 import/rebuild on the exact implementation head unless hosted CI can authoritatively execute that path. Existing R5 hardware evidence proves the accepted adapter/workstation baseline but does **not** substitute for R8.9 exact-head evidence.
+These workflows compile/test the bridge and regression surface but do not execute a real Godot 4.7 `--import` rebuild. Therefore they cannot satisfy the frozen R8.9 real-engine criterion by themselves.
 
-If hosted CI does not execute Godot 4.7 on this exact head, the gate becomes **REQUIRED** and R8.9 must remain unmerged. On the target workstation, checkout the exact candidate head and run:
+## Required real-Godot gate
+
+The frozen R8 plan requires an actual Godot 4.7 import/rebuild on the exact final candidate head when hosted CI cannot authoritatively execute that path. Existing R5 hardware evidence proves the accepted adapter/workstation baseline but does **not** substitute for R8.9 exact-head evidence.
+
+On the target workstation, checkout the exact final R8.9 candidate head shown in PR #97, then run:
 
 ```powershell
-python scripts/r8_9_local_acceptance.py --repo-root . --godot "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe" --expected-head "<EXACT_R8_9_HEAD>"
+python scripts/r8_9_local_acceptance.py --repo-root . --godot "D:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe" --expected-head "<FINAL_R8_9_HEAD_FROM_PR_97>"
 ```
 
 Required result:
 
 - process exit code `0`;
 - `.kodepoia/acceptance/r8-9-local-acceptance.json` exists;
-- `metadata.expected_head` equals the exact candidate head;
+- `metadata.expected_head` equals the exact final candidate head;
 - `metadata.acceptance_completed=true`;
 - summary has `failed=0`;
 - rebuild report state is `ready` and engine version is Godot `4.7.x`.
 
 Return/upload only that generated JSON (or its complete console JSON). Do **not** send credentials, private project files, unrelated assets or Godot account data.
 
-R8.10 is forbidden until this gate is either authoritatively NOT TRIGGERED or REQUIRED + SATISFIED, R8.9 is merged, and post-merge continuity normalization is accepted.
+## Stop rule
+
+R8.9 remains unmerged. R8.10 and R8.11 are forbidden until this REQUIRED gate is SATISFIED, R8.9 is merged, and post-merge continuity normalization is accepted.

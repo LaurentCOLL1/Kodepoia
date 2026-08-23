@@ -13,6 +13,7 @@ from .r9_8_acceptance import (
 )
 from .r9_8_wire_client import run_r98_wire_compatible_acceptance
 from .serialization import make_envelope
+from .service_cli import register_comfy_service_commands
 
 
 def _confined_output(path_text: str) -> Path:
@@ -200,3 +201,5 @@ def register_comfy_commands(commands: argparse._SubParsersAction[argparse.Argume
         help="workspace-relative R9.8 evidence output",
     )
     r98.set_defaults(func=_r9_local_vram_acceptance)
+
+    register_comfy_service_commands(commands)

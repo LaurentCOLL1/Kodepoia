@@ -94,6 +94,7 @@ from .resources import (
     vram_health_metric,
 )
 from .serialization import canonical_json_bytes, canonical_sha256, make_envelope, parse_envelope
+from .service import ComfyService
 from .workflow import (
     GovernedModelResolver,
     ModelProvenanceState,
@@ -162,6 +163,7 @@ __all__ = [
     "ComfyRunManifest",
     "ComfyRunState",
     "ComfyRunStore",
+    "ComfyService",
     "ComfySubmissionAmbiguousError",
     "ComfySubmissionOutcome",
     "ComfySystemSnapshot",

@@ -71,7 +71,7 @@
 
 ### R9.1 accepted baseline
 
-- Base normalized R9 planning `main`: `e3f7bf6039cee918a5ea95b5a08a19839a40`.
+- Base normalized R9 planning `main`: `e3f7bf6039cee918a5d505fb47ed536cde087e0e`.
 - Accepted implementation head `dfde39746f0ec909a865a9f0ef75b6856e77c88f`: R0 #1108 / `32624052368`, Python Core #1082 / `32624052364`, UI Smoke #1049 / `32624052378`, all SUCCESS.
 - Python Ubuntu on implementation head: `612 passed / 6 skipped / 46 warnings`; R7 and R8 integrated acceptance PASS; package builds Ubuntu + Windows SUCCESS.
 - Final documentation head `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58`: R0 #1109 / `32624132192`, Python Core #1083 / `32624132167`, UI Smoke #1050 / `32624132173`, all SUCCESS.
@@ -95,7 +95,7 @@
 - WebSocket parser supports the required bounded RFC6455 subset and checks announced payload size before payload read; reconnect/backoff/cancellation are bounded.
 - WebSocket is telemetry only; pollable queue/history remains final execution-state authority because upstream can stall WS delivery while HTTP/execution continue and success events can precede durable history persistence.
 - Deterministic fixture `tests/fixtures/comfyui/r9_2_protocol.json`: version 1, SHA-256 `1b5b6947e6af1440f59ffc1d6a9d3ed3502fdc057e1bd08a5680300cb42fd656`; `.gitattributes` pins only this fixture family to LF for cross-platform byte identity.
-- Rejected precursor `9b9a79f69ef7c304bd743b74bf0379f5d3688588`: R0 #1113 and UI #1054 SUCCESS, Python #1087 failed only the Windows raw fixture digest because Git converted LF→CRLF; Ubuntu remained fully green. Accepted correction changed line-ending policy only and did not weaken production safeguards.
+- Rejected precursor `9b9a79f69ef7c304bd743b74bf0379f5d3688588`: R0 #1113 and UI #1054 SUCCESS; Python #1087 failed only the Windows raw fixture digest because Git converted LF→CRLF; Ubuntu remained fully green. Accepted correction changed line-ending policy only and did not weaken production safeguards.
 - `comfy-probe` exists solely for the frozen conditional diagnostic and writes strict versioned evidence inside the current workspace atomically.
 - Manual intervention: **CONDITIONAL NOT TRIGGERED** because deterministic loopback CI on both platforms plus current upstream ComfyUI source/tests establish every R9.2 acceptance property; no property depends on GPU, models, custom nodes or a user-specific ComfyUI deployment.
 

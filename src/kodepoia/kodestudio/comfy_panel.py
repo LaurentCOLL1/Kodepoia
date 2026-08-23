@@ -183,10 +183,14 @@ def create_comfy_page(
     run_state.setObjectName("comfyRunStatus")
     layout.addWidget(run_state)
     details = QPlainTextEdit()
-    details.setObjectName("comfyEvidenceView")
     details.setReadOnly(True)
-    details.setAccessibleName(tr.text("comfy.details.name"))
-    details.setAccessibleDescription(tr.text("comfy.details.description"))
+    mark_accessible(
+        details,
+        object_name="comfyEvidenceView",
+        name=tr.text("comfy.details.name"),
+        description=tr.text("comfy.details.description"),
+        description_required=True,
+    )
     layout.addWidget(details, 1)
 
     for widget, name, description_text in (

@@ -67,6 +67,31 @@ def quat_normalize(values: list[float]) -> tuple[float, float, float, float]:
     return tuple(float(item) / norm for item in values)
 
 
+def rest_compatibility(source_armature: bpy.types.Object, target_armature: bpy.types.Object, source_actual: dict[str, str], target_actual: dict[str, str], mappings: list[dict[str, object]], translation_scale: float) -> dict[str, float]:
+    max_angle = 0.0
+    max_length_error = 0.0
+    for mapping in mappings:
+        source_id = str(mapping["source_bone_id"])
+        target_id = str(mapping["target_bone_id"])
+        source_bone = source_armature.data.bones.get(source_actual[source_id])
+        target_bone = target_armature.data.bones.get(target_actual[target_id])
+        if source_bone is None or target_bone is None:
+            raise RuntimeError("mapped_rest_bone_missing")
+        source_vector = source_bone.tail_local - source_bone.head_local
+        target_vector = target_bone.tail_local - target_bone.head_local
+        source_length = float(source_vector.length)
+        target_length = float(target_vector.length)
+        if source_length <= 1e-12 or target_length <= 1e-12:
+            raise RuntimeError("zero_length_rest_bone")
+        dot = max(-1.0, min(1.0, float(source_vector.normalized().dot(target_vector.normalized()))))
+        angle = math.degrees(math.acos(dot))
+        expected_length = source_length * translation_scale
+        length_error = abs(target_length - expected_length) / max(target_length, expected_length, 1e-12)
+        max_angle = max(max_angle, angle)
+        max_length_error = max(max_length_error, length_error)
+    return {"max_direction_angle_degrees": max_angle, "max_scaled_length_relative_error": max_length_error}
+
+
 def main() -> int:
     job = json.loads(JOB.read_text(encoding="utf-8"))
     recipe = dict(job["recipe"])
@@ -81,11 +106,14 @@ def main() -> int:
     source_actual = validate_profile(source_armature, source_profile)
     target_actual = validate_profile(target_armature, target_profile)
 
-    mappings = {str(item["source_bone_id"]): dict(item) for item in recipe["mappings"]}
-    mapped_targets = {str(item["target_bone_id"]) for item in recipe["mappings"]}
+    mapping_list = [dict(item) for item in recipe["mappings"]]
+    mappings = {str(item["source_bone_id"]): item for item in mapping_list}
+    mapped_targets = {str(item["target_bone_id"]) for item in mapping_list}
     required = {str(item) for item in recipe["required_target_bones"]}
     missing_required = sorted(required - mapped_targets)
     ambiguous: list[str] = []
+    translation_scale = float(recipe["translation_scale"])
+    rest_pose = rest_compatibility(source_armature, target_armature, source_actual, target_actual, mapping_list, translation_scale)
 
     clip = dict(recipe["clip"])
     if target_armature.animation_data is None:
@@ -109,10 +137,8 @@ def main() -> int:
     animation_data.action = action
 
     target_by_semantic = {str(item["bone_id"]): dict(item) for item in target_profile["bones"]}
-    source_by_semantic = {str(item["bone_id"]): dict(item) for item in source_profile["bones"]}
     target_root_ids = sorted(item for item, spec in target_by_semantic.items() if spec["parent_id"] is None)
     target_root = target_root_ids[0] if target_root_ids else None
-    translation_scale = float(recipe["translation_scale"])
     key_count = 0
     root_first: tuple[float, float, float] | None = None
     root_last: tuple[float, float, float] | None = None
@@ -191,6 +217,7 @@ def main() -> int:
         "input_blend_sha256": str(recipe["input_blend_sha256"]),
         "input_file_sha256": sha256_file(INPUT_BLEND),
         "mapping": {"mapped_bones": len(mappings), "missing_required": missing_required, "ambiguous": ambiguous, "source_bone_count": len(source_actual), "target_bone_count": len(target_actual)},
+        "rest_pose": rest_pose,
         "clip": {"clip_id": str(clip["clip_id"]), "fps": float(clip["fps"]), "frame_start": float(clip["frame_start"]), "frame_end": float(clip["frame_end"]), "loop": bool(clip["loop"]), "key_count": key_count},
         "nla": {"track_count": len(animation_data.nla_tracks), "strip_count": sum(len(item.strips) for item in animation_data.nla_tracks)},
         "root_motion": {"policy": str(clip["root_motion"]), "translation_delta": root_delta},
@@ -204,7 +231,7 @@ def main() -> int:
 try:
     raise SystemExit(main())
 except Exception as exc:
-    payload = {"schema": "kodepoia.blender.animation_measurements", "version": 1, "status": "fail", "blockers": [str(exc)[:256]], "mapping": {}, "clip": {}, "nla": {}, "root_motion": {}, "artifact": {}}
+    payload = {"schema": "kodepoia.blender.animation_measurements", "version": 1, "status": "fail", "blockers": [str(exc)[:256]], "mapping": {}, "rest_pose": {}, "clip": {}, "nla": {}, "root_motion": {}, "artifact": {}}
     write_result(payload)
     print("KODEPOIA_R10_7_RESULT=fail")
     raise SystemExit(17)

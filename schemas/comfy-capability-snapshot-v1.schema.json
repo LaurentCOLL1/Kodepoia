@@ -7,6 +7,89 @@
   "properties": {
     "schema": {"const": "kodepoia.comfy-capability-snapshot"},
     "version": {"const": 1},
-    "payload": {"type": "object"}
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state", "endpoint", "captured_at", "comfyui_version", "python_version",
+        "system_digest_sha256", "feature_digest_sha256", "nodes", "models",
+        "unavailable", "identity_sha256"
+      ],
+      "properties": {
+        "state": {"enum": ["unknown", "current", "stale", "unavailable", "blocked", "corrupt"]},
+        "endpoint": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "captured_at": {"type": "string", "minLength": 1, "maxLength": 128},
+        "comfyui_version": {"type": ["string", "null"], "maxLength": 256},
+        "python_version": {"type": ["string", "null"], "maxLength": 1024},
+        "system_digest_sha256": {"$ref": "#/$defs/nullableDigest"},
+        "feature_digest_sha256": {"$ref": "#/$defs/nullableDigest"},
+        "nodes": {
+          "type": "array",
+          "maxItems": 100000,
+          "items": {"$ref": "#/$defs/node"}
+        },
+        "models": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {"$ref": "#/$defs/modelInventory"}
+        },
+        "unavailable": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 256}
+        },
+        "identity_sha256": {"$ref": "#/$defs/digest"}
+      }
+    }
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nullableDigest": {"anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]},
+    "scalarChoice": {"type": ["string", "integer", "number", "boolean"]},
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "section", "type_token", "choices", "minimum", "maximum", "step", "spec_digest_sha256"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 256},
+        "section": {"enum": ["required", "optional"]},
+        "type_token": {"type": ["string", "null"], "maxLength": 256},
+        "choices": {"type": "array", "maxItems": 100000, "items": {"$ref": "#/$defs/scalarChoice"}},
+        "minimum": {"type": ["number", "null"]},
+        "maximum": {"type": ["number", "null"]},
+        "step": {"type": ["number", "null"]},
+        "spec_digest_sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class_type", "category", "required_inputs", "optional_inputs", "output_types",
+        "output_is_list", "deprecated", "experimental", "api_node", "raw_digest_sha256"
+      ],
+      "properties": {
+        "class_type": {"type": "string", "minLength": 1, "maxLength": 256},
+        "category": {"type": ["string", "null"], "maxLength": 512},
+        "required_inputs": {"type": "array", "maxItems": 4096, "items": {"$ref": "#/$defs/input"}},
+        "optional_inputs": {"type": "array", "maxItems": 4096, "items": {"$ref": "#/$defs/input"}},
+        "output_types": {"type": "array", "maxItems": 4096, "items": {"type": "string", "minLength": 1, "maxLength": 256}},
+        "output_is_list": {"type": "array", "maxItems": 4096, "items": {"type": "boolean"}},
+        "deprecated": {"type": "boolean"},
+        "experimental": {"type": "boolean"},
+        "api_node": {"type": "boolean"},
+        "raw_digest_sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "modelInventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model_type", "tokens", "digest_sha256"],
+      "properties": {
+        "model_type": {"type": "string", "minLength": 1, "maxLength": 128},
+        "tokens": {"type": "array", "maxItems": 250000, "items": {"type": "string", "minLength": 1, "maxLength": 1024}},
+        "digest_sha256": {"$ref": "#/$defs/digest"}
+      }
+    }
   }
 }

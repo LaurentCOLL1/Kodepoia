@@ -49,7 +49,7 @@ The full upstream metadata object contributes only a SHA-256 digest. Unknown ext
 - normalized model inventories;
 - explicit unavailable components.
 
-`captured_at` is evidence only and is excluded from identity, so recapturing unchanged capabilities yields the same digest.
+`captured_at` is evidence only and is excluded from identity, so recapturing unchanged capabilities at the same endpoint yields the same digest.
 
 ## State and stale detection
 
@@ -57,11 +57,11 @@ A fully captured snapshot is `CURRENT`. Missing/unavailable discovery components
 
 ## Rebuildable cache
 
-`CapabilitySnapshotStore` is a rebuildable cache only. It writes a strict version-1 envelope atomically beneath a caller-selected root, rejects unsafe cache names/path escapes/symlink entries, and recomputes the snapshot identity on load. Tampered documents fail closed.
+`CapabilitySnapshotStore` is a rebuildable cache only. It writes the accepted version-1 envelope atomically beneath a caller-selected root, rejects unsafe cache names/path escapes/symlink entries, recomputes the snapshot identity on load, and fails closed on tampering.
 
-## Schema
+## Schema compatibility
 
-`schemas/comfy-capability-snapshot-v1.schema.json` now freezes the concrete R9.3 payload that R9.1 reserved with the same schema name/version. It is strict (`additionalProperties: false`) and bounds collection sizes, scalar fields and SHA-256 values.
+R9.1 froze `schemas/comfy-capability-snapshot-v1.schema.json` as the generic version-1 envelope contract. R9.3 deliberately leaves that frozen envelope unchanged and adds `schemas/comfy-capability-snapshot-payload-v1.schema.json` for the concrete strict payload. The payload schema uses `additionalProperties: false` and bounds collection sizes, scalar fields and SHA-256 values. This preserves the accepted R9.1 contract while giving R9.3 a strict validation authority for its newly defined payload.
 
 ## Security invariants
 

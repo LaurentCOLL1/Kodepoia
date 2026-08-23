@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.8 COMPLETE. R8.9 AUTHORIZED / NOT STARTED.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. Les acceptances R8.1–R8.8 sont exact-head et fusionnées; R8.5/R8.8 manual = CONDITIONAL NOT TRIGGERED; R8.6/R8.7 manual = NONE. La prochaine action autorisée est **R8.9 — Godot 4.7 source/import bridge + rebuild verification**, uniquement après fusion de la normalisation R8.8. Ne pas commencer R8.10 directement. Si le gate manuel R8.9 devient REQUIRED, arrêter avant R8.10 et fournir la procédure locale exacte. Toute modification de structure R8 synchronise plan + continuité; tout changement de fondation exige un ADR.
+> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.8 COMPLETE. R8.9 ACCEPTED / REQUIRED SATISFIED / PENDING MERGE.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. Les acceptances R8.1–R8.8 sont exact-head et fusionnées; R8.5/R8.8 manual = CONDITIONAL NOT TRIGGERED; R8.6/R8.7 manual = NONE. R8.9 est fonctionnellement accepté sur l'implementation head exact `da8b4aedd280dadffcf4099bfa2b902cb70d81a7`; R0 #1071, Python #1045 et UI #1012 sont SUCCESS, et le gate Godot 4.7 devenu REQUIRED est SATISFIED par l'acceptance locale 4/4 avec Godot `4.7.2.stable.steam.ed1daf0bf`. La prochaine action autorisée est uniquement de faire passer les gates du head documentaire final de la PR #97, fusionner R8.9, puis normaliser la continuité sur `main`. **Ne pas commencer R8.10 avant cette normalisation.** Toute modification de structure R8 synchronise plan + continuité; tout changement de fondation exige un ADR.
 
 ## Source de vérité et état
 
@@ -15,7 +15,7 @@
 - R7 : COMPLETE.
 - R8 planning : ACCEPTED.
 - R8.1–R8.8 : COMPLETE.
-- R8.9 : AUTHORIZED / NOT STARTED après fusion de la normalisation R8.8.
+- R8.9 : ACCEPTED / REQUIRED SATISFIED / PENDING MERGE dans PR #97.
 - R8.10–R8.11 : PLANNED / NOT STARTED.
 - R9–R16 : PENDING / NOT STARTED.
 
@@ -41,7 +41,7 @@
 | R8.6 | Provenance, license/BOM + governed reuse/export | `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe` | R0 #1057; Python #1031; UI #998 | NONE |
 | R8.7 | Asset-aware Git/VCS integration | `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3` | R0 #1061; Python #1035; UI #1002 | NONE |
 | R8.8 | Git LFS tracking, pointer/object integrity + diagnostics | `32e5ace263546d85ee662c5ba333caaaefaa8bcc` | R0 #1066; Python #1040; UI #1007 | CONDITIONAL NOT TRIGGERED |
-| R8.9 | Godot 4.7 source/import bridge + rebuild verification | NOT STARTED | — | CONDITIONAL planned |
+| R8.9 | Godot 4.7 source/import bridge + rebuild verification | `da8b4aedd280dadffcf4099bfa2b902cb70d81a7` | R0 #1071; Python #1045; UI #1012 | REQUIRED SATISFIED |
 | R8.10 | CLI + KodeStudio Vault/Asset/VCS UX | NOT STARTED | — | NONE planned |
 | R8.11 | Adversarial hardening + R8 integrated acceptance | NOT STARTED | — | CONDITIONAL planned |
 
@@ -119,6 +119,21 @@
 - Exact accepted head `32e5ace263546d85ee662c5ba333caaaefaa8bcc`; R0 #1066 / `32604356727`; Python Core #1040 / `32604356661` 5/5 with Ubuntu `558 passed / 5 skipped / 46 warnings`; UI Smoke #1007 / `32604356692`; PR #95 merge `8923f6aa75656033887dd93551fc7b2651d78f04`; manual CONDITIONAL NOT TRIGGERED.
 - Rejected precursor `6b02a22fb4c526a53579a96e81ade3a3088a5e88` failed one new fixture because the active LFS clean filter rewrote the malformed test case; accepted fixture now stages exact raw blobs and production safeguards were not weakened.
 
+### R8.9 accepted baseline — pending merge
+
+- Exact accepted implementation head `da8b4aedd280dadffcf4099bfa2b902cb70d81a7`.
+- R0 Repository Guard #1071 / `32613177879`: SUCCESS Ubuntu + Windows.
+- Python Core #1045 / `32613177848`: SUCCESS 5/5; Ubuntu `565 passed / 5 skipped / 46 warnings`.
+- KodeStudio UI Smoke #1012 / `32613177859`: SUCCESS.
+- The frozen CONDITIONAL Godot gate became REQUIRED because hosted CI does not execute the authoritative real Godot 4.7 `--import` rebuild.
+- Required local acceptance is SATISFIED: 4/4 PASS, 0 failed, Godot `4.7.2.stable.steam.ed1daf0bf`, rebuild state `ready`, import return code `0`, 7 generated cache files, audit chain valid.
+- Local evidence SHA-256 `6579babc829022930e5abe889583e32357fa3d7695b1a2713014e32f86e23b7e`, 2969 bytes.
+- Project digest `bac971ef0dc7a0c8898cea3a7e5d788b9d33343690f28ca52c3af98b9022c212`; source digest `d6b791957eb782fbb0b00272b902c025fb4cc3b9d396b850d64a8ffc050c6091`; import sidecar digest `1b70ea13afe340575035099e25ccceeea41e22153d3700449b2f8c2e66dfbd87`; manifest digest `aca5eb8dd2c877a17eadd666c29239a3f95c2674c776f86cc5cabafc6b1f47d8`.
+- `.godot/**` and legacy `.import/**` are generated cache, never source authority; `<asset>.import` is reproducibility metadata bound to the source/Vault identity.
+- Rebuild reuses the accepted R5 KodeGodotExecutor/Guardian/Permissions/ProcessSandbox path; no arbitrary subprocess/argv surface was added.
+- Missing/incompatible Godot is explicit `UNAVAILABLE` before cache purge; cache-root symlinks fail closed; source/project mutation during import fails acceptance.
+- PR #97 remains open until the documentation/continuity head itself passes R0/Python/UI. R8.10 remains forbidden until merge and post-merge normalization.
+
 ## R8 exact merge chain
 
 - R8.1 PR #85 merge `7001d9042dda5611f4dbcf7dacb7cd29110e6735`.
@@ -129,6 +144,7 @@
 - R8.6 PR #91 merge `57c2aa010f438b95a3d753040f1565ae4b68e262`.
 - R8.7 PR #93 merge `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9`.
 - R8.8 PR #95 merge `8923f6aa75656033887dd93551fc7b2651d78f04`.
+- R8.9 PR #97: ACCEPTED / PENDING MERGE.
 
 ## R7 source of truth retained
 
@@ -195,4 +211,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R7 COMPLETE. R8.1–R8.8 COMPLETE. R8.9 AUTHORIZED / NOT STARTED.** Après fusion de cette normalisation R8.8, la prochaine implémentation autorisée est uniquement **R8.9 — Godot 4.7 source/import bridge + rebuild verification** depuis le `main` normalisé. Si son gate manuel CONDITIONAL devient REQUIRED, arrêter avant R8.10 et fournir uniquement la procédure manuelle documentée.
+**R1–R7 COMPLETE. R8.1–R8.8 COMPLETE. R8.9 ACCEPTED / REQUIRED SATISFIED / PENDING MERGE.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head documentaire final de PR #97; si les trois sont SUCCESS, fusionner PR #97. Ensuite créer et accepter la normalisation post-merge qui marque R8.9 COMPLETE avec son merge SHA et autorise uniquement **R8.10 — CLI + KodeStudio Vault/Asset/VCS UX**. Ne pas commencer R8.10 avant cette normalisation.

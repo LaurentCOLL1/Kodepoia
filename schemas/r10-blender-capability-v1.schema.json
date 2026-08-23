@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-blender-capability-v1.schema.json",
+  "title": "Kodepoia R10 Blender capability evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "payload"],
+  "properties": {
+    "schema": {"const": "kodepoia.blender.capability"},
+    "version": {"const": 1},
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["executable", "version", "platform", "capabilities"],
+      "properties": {
+        "executable": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "platform": {"type": "string", "minLength": 1, "maxLength": 128},
+        "python_abi": {"type": ["string", "null"], "maxLength": 128},
+        "executable_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "capabilities": {"type": "array", "uniqueItems": true, "items": {"type": "string", "maxLength": 128}}
+      }
+    }
+  }
+}

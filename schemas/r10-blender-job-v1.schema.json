@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-blender-job-v1.schema.json",
+  "title": "Kodepoia R10 Blender job recipe v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "payload"],
+  "properties": {
+    "schema": {"const": "kodepoia.blender.job"},
+    "version": {"const": 1},
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "operation", "parameters", "input_revision_ids"],
+      "properties": {
+        "schema_version": {"const": 1},
+        "operation": {"enum": ["inspect_asset", "build_geometry", "apply_material", "validate_mesh", "rig_asset", "retarget_animation", "build_lod", "export_gltf"]},
+        "parameters": {"type": "object", "maxProperties": 64, "additionalProperties": {"type": ["string", "integer", "number", "boolean", "null"]}},
+        "input_revision_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 256}}
+      }
+    }
+  }
+}

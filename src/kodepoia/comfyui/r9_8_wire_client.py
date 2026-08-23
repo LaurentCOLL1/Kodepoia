@@ -42,7 +42,6 @@ def wire_prompt_id_to_logical(prompt_id: str) -> str:
         raise TypeError("prompt_id must be a string")
     logical_match = _LOGICAL_PROMPT_RE.fullmatch(prompt_id)
     if logical_match is not None:
-        # Legacy ComfyUI accepted the logical token directly; preserve compatibility.
         return prompt_id
     try:
         parsed = uuid.UUID(prompt_id)
@@ -54,18 +53,7 @@ def wire_prompt_id_to_logical(prompt_id: str) -> str:
 
 
 class R98WireComfyUIClient(ComfyUIClient):
-    """R9.8 compatibility facade preserving R9.5 logical IDs while using UUIDs on the wire.
-
-    Current ComfyUI validates caller-provided prompt_id as a canonical UUID. R9.5
-    intentionally froze logical IDs as kp_<32hex>. This facade changes only the wire
-    representation and maps queue/history evidence back before it reaches manifests.
-
-    Current ComfyUI also runs on-prompt handlers and node replacement processing before
-    the queued prompt is persisted into history. The R9.5 prompt digest remains strict:
-    this facade accepts only history changes that are provably limited to per-node
-    non-executable `_meta` dictionaries. Any class, input, node-set or other structural
-    change remains fail-closed with a bounded value-free diagnostic.
-    """
+    """R9.8 compatibility facade preserving R9.5 logical IDs while using UUIDs on the wire."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -122,9 +110,6 @@ class R98WireComfyUIClient(ComfyUIClient):
                             "ComfyUI stored prompt differs structurally from the submitted R9.4 instance: "
                             + _prompt_diff_summary(expected_semantic, stored_semantic)
                         )
-                    # Preserve frozen R9.5 logical prompt identity when ComfyUI changed only
-                    # non-executable node metadata. The raw history digest remains separately
-                    # bound by history.digest_sha256.
                     history = replace(history, prompt_digest_sha256=expected_digest)
         references = tuple(replace(item, prompt_id=prompt_id) for item in history.output_references)
         return replace(history, prompt_id=prompt_id, output_references=references)
@@ -149,8 +134,7 @@ class R98WireComfyUIClient(ComfyUIClient):
             if event.prompt_id is None:
                 yield event
                 continue
-            logical_id = wire_prompt_id_to_logical(event.prompt_id)
-            yield replace(event, prompt_id=logical_id)
+            yield replace(event, prompt_id=wire_prompt_id_to_logical(event.prompt_id))
 
     def _stored_history_prompt(self, wire_id: str) -> dict[str, Any]:
         data = self._http.get_json(f"/history/{quote(wire_id, safe='')}")
@@ -169,7 +153,6 @@ class R98WireComfyUIClient(ComfyUIClient):
 
 @contextmanager
 def r98_wire_client_scope() -> Iterator[None]:
-    """Inject the wire adapter only into the authoritative R9.8 local gate, then restore it."""
     from . import r9_8_acceptance
 
     previous = r9_8_acceptance.ComfyUIClient
@@ -181,7 +164,6 @@ def r98_wire_client_scope() -> Iterator[None]:
 
 
 def run_r98_wire_compatible_acceptance(workspace: Path, request: Any) -> Any:
-    """Run the local gate with scoped UUID-wire compatibility and no persistent monkeypatch."""
     from .r9_8_acceptance import R98LocalAcceptance
 
     with r98_wire_client_scope():
@@ -202,9 +184,7 @@ def _strip_metadata_only(prompt: Mapping[str, Any]) -> dict[str, Any]:
             raise ComfyProtocolError("R9.8 prompt reconciliation requires string-keyed node objects")
         unknown = set(raw_node) - {"class_type", "inputs", "_meta"}
         if unknown:
-            raise ComfyProtocolError(
-                "ComfyUI stored prompt contains unsupported node fields during R9.8 reconciliation"
-            )
+            raise ComfyProtocolError("ComfyUI stored prompt contains unsupported node fields during R9.8 reconciliation")
         class_type = raw_node.get("class_type")
         inputs = raw_node.get("inputs")
         if not isinstance(class_type, str) or not isinstance(inputs, Mapping):
@@ -212,10 +192,7 @@ def _strip_metadata_only(prompt: Mapping[str, Any]) -> dict[str, Any]:
         metadata = raw_node.get("_meta")
         if metadata is not None and not isinstance(metadata, Mapping):
             raise ComfyProtocolError("ComfyUI node _meta must be an object when present")
-        normalized[node_id] = {
-            "class_type": class_type,
-            "inputs": copy.deepcopy(dict(inputs)),
-        }
+        normalized[node_id] = {"class_type": class_type, "inputs": copy.deepcopy(dict(inputs))}
     return normalized
 
 
@@ -239,7 +216,9 @@ def _prompt_diff_summary(expected: Mapping[str, Any], observed: Mapping[str, Any
         else:
             node_changed = False
             for input_name in sorted(expected_inputs):
-                if canonical_sha256(expected_inputs[input_name]) != canonical_sha256(observed_inputs[input_name]):
+                expected_value_digest = canonical_sha256({"value": expected_inputs[input_name]})
+                observed_value_digest = canonical_sha256({"value": observed_inputs[input_name]})
+                if expected_value_digest != observed_value_digest:
                     node_changed = True
                     if len(changed_inputs) < _MAX_DIFF_INPUTS:
                         changed_inputs.append(f"{str(node_id)[:64]}:{str(input_name)[:128]}")

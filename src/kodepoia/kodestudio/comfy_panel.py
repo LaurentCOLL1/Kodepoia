@@ -203,6 +203,27 @@ def create_comfy_page(
             description_required=True,
         )
 
+    for widget, name in (
+        (width, f"{tr.text('comfy.dimensions')} — width"),
+        (height, f"{tr.text('comfy.dimensions')} — height"),
+        (outputs, tr.text("comfy.outputs")),
+        (seed, tr.text("comfy.seed")),
+        (steps, tr.text("comfy.steps")),
+        (cfg, tr.text("comfy.cfg")),
+        (refresh, tr.text("comfy.refresh")),
+        (validate, tr.text("comfy.validate")),
+        (run, tr.text("comfy.run")),
+        (run_refresh, tr.text("comfy.run.refresh")),
+        (cancel, tr.text("comfy.cancel")),
+        (free_memory, tr.text("comfy.free_memory")),
+        (evidence, tr.text("comfy.evidence")),
+    ):
+        mark_accessible(
+            widget,
+            object_name=widget.objectName(),
+            name=name,
+        )
+
     def set_busy(value: bool) -> None:
         page._kodepoia_comfy_busy = value
         for button in (refresh, validate, run, run_refresh, cancel, free_memory, evidence):

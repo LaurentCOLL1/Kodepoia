@@ -115,7 +115,7 @@
 - Derived asset BOM components retain explicit source-revision lineage requirements, so transformation never invents or erases rights.
 - Project BOM contribution is derived from canonical Vault project references.
 - Export performs policy/reuse-scope preflight before writes, stages inside the authorized boundary, emits notices plus BOM/license evidence, and promotes atomically; blocked/failed export leaves no promoted partial target.
-- Exact accepted head `8c88aeb8a32abce2e9ecb6706c4b67e9b7ac1a`; R0 #1057 / `32603562499`; Python Core #1031 / `32603562511` 5/5 with Ubuntu `547 passed / 5 skipped / 46 warnings`; UI Smoke #998 / `32603562503`; PR #91 merge `57c2aa010f438b95a3d753040f1565ae4b68e262`; manual NONE.
+- Exact accepted head `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe`; R0 #1057 / `32603562499`; Python Core #1031 / `32603562511` 5/5 with Ubuntu `547 passed / 5 skipped / 46 warnings`; UI Smoke #998 / `32603562503`; PR #91 merge `57c2aa010f438b95a3d753040f1565ae4b68e262`; manual NONE.
 - Rejected precursor `85b6c0a550297934194a58122b735a9d0808c5c6` failed only newly added fixture tests because the fixture misused frozen `ProjectAssetReference`/R8.3 transform contracts; the accepted correction changed the fixture and did not weaken production safeguards.
 
 ### R8.7 accepted baseline

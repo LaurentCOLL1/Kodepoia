@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning is now authorized and in progress; no R10.1 implementation is authorized until the exhaustive R10 plan is accepted, merged, and planning continuity is normalized.** `docs/roadmap/R9_PLAN.md` remains the exhaustive authority for completed R9.1–R9.11. Final R9 normalization candidate `e3d4e396bb062bbc97297572d7c90f640c03cea2` passed R0 #1214 / `32658997406`, Python Core #1188 / `32658997391`, and UI Smoke #1155 / `32658997367`, all SUCCESS; PR #128 merged to `main` as `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`. This satisfies the frozen R9 completion condition. Canonical R9 integrated report remains `status=pass`, `blockers=[]`, `source_sha=e8e7e83c107bdb8bcb29882936720bc9eeb1c246`, digest `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`; R9.8 REQUIRED remains SATISFIED by reviewed local evidence SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967` (5744 bytes). R10 frozen-roadmap title is **Blender / 3D**. Current planning branch `r10/planning` starts from normalized `main` `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`; `docs/roadmap/R10_PLAN.md` is the proposed exhaustive R10.1–R10.12 structure. Freeze its exact final planning head, require R0 Repository Guard + full Python Core + KodeStudio UI Smoke, merge the planning PR, then perform one continuity-only planning normalization before R10.1. No user intervention is required for planning.
+> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 exhaustive planning is ACCEPTED and merged; planning continuity normalization is the only remaining condition before R10.1 is authorized.** Final R9 normalization head `e3d4e396bb062bbc97297572d7c90f640c03cea2` passed R0 #1214 / `32658997406`, Python #1188 / `32658997391`, UI #1155 / `32658997367`; PR #128 merged as `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`, satisfying R9 completion. `docs/roadmap/R10_PLAN.md` is now the exhaustive proposed authority for R10.1–R10.12. Accepted R10 planning head `3bfd6adbff13578f052e8d2bcbd99af3780043ef` passed R0 #1216 / `32661485353`, Python Core #1190 / `32661485175`, and UI Smoke #1157 / `32661485210`, all SUCCESS; PR #129 merged as `a42282a1329c51f341ad997947222f0d297ad732`. The current branch `r10/planning-continuity-normalization` changes continuity only. Freeze its exact commit, require R0 + full Python Core + UI Smoke, and merge it. If all succeed, **R10 planning becomes ACCEPTED + NORMALIZED and R10.1 is authorized.** No user intervention is required for this planning normalization.
 
 ## Source de vérité et état
 
@@ -17,7 +17,7 @@
 - R9 planning : ACCEPTED + NORMALIZED.
 - R9.1–R9.11 : COMPLETE + NORMALIZED; inherited/required manual gates remain resolved as recorded below.
 - R9 phase : **COMPLETE + NORMALIZED**.
-- R10 planning : **IN PROGRESS** on `r10/planning`; exhaustive plan candidate created; acceptance/merge/normalization pending.
+- R10 planning : **ACCEPTED + MERGED**; continuity-only planning normalization pending.
 - R10.1–R10.12 : PLANNED only; implementation NOT STARTED.
 - R11–R16 : PENDING / NOT STARTED.
 
@@ -123,7 +123,10 @@
 - Planning branch: `r10/planning`.
 - Planning branch point / normalized R9 `main`: `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`.
 - Exhaustive plan file: `docs/roadmap/R10_PLAN.md`.
-- Initial plan commit: `24b76dbb24d9e52038e0a594b1dae3bdcedb1346`; final planning head will additionally include this continuity synchronization and MUST be frozen before acceptance.
+- Initial plan commit: `24b76dbb24d9e52038e0a594b1dae3bdcedb1346`.
+- Accepted exact planning head: `3bfd6adbff13578f052e8d2bcbd99af3780043ef`.
+- Planning acceptance gates on that head: R0 Repository Guard #1216 / `32661485353` SUCCESS; Python Core #1190 / `32661485175` SUCCESS; KodeStudio UI Smoke #1157 / `32661485210` SUCCESS.
+- Planning PR #129 merged as `a42282a1329c51f341ad997947222f0d297ad732`.
 - Upstream compatibility baseline recorded by planning: Blender 5.2.x LTS, governed headless `bpy`, GLB/glTF 2.0 as the primary exchange contract, and Godot 4.7 interoperability through accepted R5 boundaries. External references are compatibility evidence only and do not override frozen architecture.
 - Proposed frozen subdivision/manual-state structure:
   - R10.1 Blender contracts, runtime discovery + secure process boundary — NONE.
@@ -182,10 +185,10 @@ Preserve without reinterpretation:
 5. Scope/structure changes synchronize plan + continuity in the same work cycle.
 6. Foundation changes require an ADR.
 
-## R10 planning acceptance rule / next action
+## R10 planning normalization rule / next action
 
-The current branch `r10/planning` is planning-only. It may change `docs/roadmap/R10_PLAN.md` and continuity, but MUST NOT implement R10.1 production/runtime code. Freeze the exact final planning commit after continuity synchronization. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with prior R7/R8/R9 integrated acceptance still PASS and canonical R9 digest unchanged.
+The current branch `r10/planning-continuity-normalization` is the **single planning continuity normalization** after accepted plan PR #129. It must change continuity only and MUST NOT implement R10.1 code. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with R7/R8/R9 integrated acceptance still PASS and canonical R9 digest unchanged.
 
-If all three gates succeed, merge the R10 planning PR into `main`. Then create one continuity-only R10 planning normalization recording the accepted plan head, exact gate IDs and planning PR merge. Freeze and validate that normalization with R0 + full Python Core + UI Smoke, then merge it. **Only the resulting normalized `main` authorizes R10.1.**
+If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10 planning ACCEPTED + NORMALIZED and authorizes R10.1.** Do not create another recursive planning-continuity update solely to record the normalization's own run IDs; record those exact-head IDs in the normalization PR body/merge record, following the established R9 anti-recursion pattern.
 
-Do not begin R10.1 before both merges. Do not add, remove, merge, split or renumber R10.1–R10.12 silently; any scope/manual-state change must update `R10_PLAN.md` and continuity in the same work cycle, and any frozen-foundation change requires an ADR.
+R10.1 must start from the resulting normalized `main`. Do not add, remove, merge, split or renumber R10.1–R10.12 silently; any scope/manual-state change must update `R10_PLAN.md` and continuity in the same work cycle, and any frozen-foundation change requires an ADR.

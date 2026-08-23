@@ -15,6 +15,7 @@ def build_window(
     project_root: Path | None = None,
     research_service=None,
     asset_service=None,
+    comfy_service=None,
 ):
     from PySide6.QtWidgets import (
         QLabel,
@@ -150,11 +151,22 @@ def build_window(
             status_bar=status,
         )
 
+    def comfy_page() -> QWidget:
+        from kodepoia.kodestudio.comfy_panel import create_comfy_page
+
+        return create_comfy_page(
+            root,
+            translator=tr,
+            service=comfy_service,
+            status_bar=status,
+        )
+
     sections = (
         ("app.nav.chat", None),
         ("app.nav.projects", projects_page),
         ("app.nav.research", research_page),
         ("app.nav.vault", vault_page),
+        ("app.nav.comfy", comfy_page),
         ("app.nav.security", security_page),
         ("app.nav.audit", None),
         ("app.nav.settings", None),

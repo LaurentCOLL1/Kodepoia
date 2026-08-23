@@ -50,6 +50,15 @@ from .inventory import (
     diff_capability_snapshots,
     normalize_node_inventory,
 )
+from .outputs import (
+    ComfyCapturedOutput,
+    ComfyCaptureState,
+    ComfyOutputCaptureManifest,
+    ComfyOutputCaptureService,
+    ComfyOutputCaptureStore,
+    ComfyOutputSpec,
+    ComfyPartialCaptureError,
+)
 from .serialization import canonical_json_bytes, canonical_sha256, make_envelope, parse_envelope
 from .workflow import (
     GovernedModelResolver,
@@ -78,6 +87,8 @@ __all__ = [
     "ComfyCapabilityInventory",
     "ComfyCapabilitySnapshot",
     "ComfyCapabilityState",
+    "ComfyCapturedOutput",
+    "ComfyCaptureState",
     "ComfyEndpoint",
     "ComfyError",
     "ComfyEventSequence",
@@ -91,7 +102,12 @@ __all__ = [
     "ComfyModelInventory",
     "ComfyNodeDefinition",
     "ComfyNodeInputSpec",
+    "ComfyOutputCaptureManifest",
+    "ComfyOutputCaptureService",
+    "ComfyOutputCaptureStore",
     "ComfyOutputReference",
+    "ComfyOutputSpec",
+    "ComfyPartialCaptureError",
     "ComfyProbeSnapshot",
     "ComfyPromptReference",
     "ComfyPromptSubmission",

@@ -105,8 +105,12 @@ class ProductionWorkflowPack:
         negative = parameters["negative_prompt"]
         if not isinstance(prompt, str) or not prompt.strip() or len(prompt) > _MAX_PROMPT_CHARS:
             raise ComfyGovernanceError("R9.9 prompt must be a bounded non-empty string")
-        if not isinstance(negative, str) or len(negative) > _MAX_NEGATIVE_PROMPT_CHARS:
-            raise ComfyGovernanceError("R9.9 negative prompt must be a bounded string")
+        if (
+            not isinstance(negative, str)
+            or not negative.strip()
+            or len(negative) > _MAX_NEGATIVE_PROMPT_CHARS
+        ):
+            raise ComfyGovernanceError("R9.9 negative prompt must be a bounded non-empty string")
         width = _strict_int(parameters["width"], "width")
         height = _strict_int(parameters["height"], "height")
         outputs = _strict_int(parameters["output_count"], "output_count")
@@ -272,7 +276,7 @@ def default_production_workflow_packs() -> tuple[ProductionWorkflowPack, ...]:
             min_size=256,
             max_size=1536,
             max_outputs=4,
-            max_total_pixels=9_437_184,
+            max_total_pixels=8_388_608,
             estimate_mib=8192,
             material_source_only=False,
         ),
@@ -282,7 +286,7 @@ def default_production_workflow_packs() -> tuple[ProductionWorkflowPack, ...]:
             min_size=64,
             max_size=1024,
             max_outputs=4,
-            max_total_pixels=4_194_304,
+            max_total_pixels=3_145_728,
             estimate_mib=6144,
             material_source_only=False,
         ),
@@ -292,7 +296,7 @@ def default_production_workflow_packs() -> tuple[ProductionWorkflowPack, ...]:
             min_size=256,
             max_size=1536,
             max_outputs=4,
-            max_total_pixels=9_437_184,
+            max_total_pixels=8_388_608,
             estimate_mib=8192,
             material_source_only=True,
         ),
@@ -302,7 +306,7 @@ def default_production_workflow_packs() -> tuple[ProductionWorkflowPack, ...]:
             min_size=64,
             max_size=1024,
             max_outputs=4,
-            max_total_pixels=4_194_304,
+            max_total_pixels=3_145_728,
             estimate_mib=6144,
             material_source_only=False,
         ),

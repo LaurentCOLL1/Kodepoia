@@ -10,6 +10,7 @@ import pytest
 from kodepoia.assets import (
     AssetId,
     AssetKind,
+    AssetRevisionId,
     AssetRole,
     AssetSearchIndex,
     AssetVcsService,
@@ -168,15 +169,15 @@ def test_hostile_metadata_remains_search_data_and_governance_blocked(tmp_path: P
             blocked=True,
         )
         assert hostile in document.text
+        assert document.blocked is True
+        assert document.license_state == "unknown"
         index = AssetSearchIndex(store)
         try:
             index.index_documents((document,))
-            assert index.search("reveal secrets") == ()
+            assert index.search("reveal secrets") == []
             hits = index.search("reveal secrets", filters=SearchFilters(include_blocked=True))
             assert len(hits) == 1
             assert hits[0].revision_id == revision.revision_id
-            assert hits[0].document.blocked is True
-            assert hits[0].document.license_state == "unknown"
         finally:
             index.close()
     finally:
@@ -237,7 +238,7 @@ def test_pre_cancelled_asset_rebuild_preserves_canonical_manifest_and_object(tmp
         revision_id = detail.summary.revision_id
         assert revision_id is not None
         manifest = service.store.boundary.resolve(f"manifests/revisions/{revision_id}.json")
-        object_path = service.store.object_path(type(service.store.list_revisions()[0])(revision_id))
+        object_path = service.store.object_path(AssetRevisionId(revision_id))
         before_manifest = manifest.read_bytes()
         before_object = object_path.read_bytes()
         token = AssetCancellationToken()

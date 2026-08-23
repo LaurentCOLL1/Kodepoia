@@ -79,7 +79,8 @@ def _make_runner(tmp_path: Path, *, tamper: bool = False) -> tuple[PBRRunner, Pa
     input_root = tmp_path / "inputs"
     texture_root = tmp_path / "textures"
     work = tmp_path / "work"
-    for item in (install, input_root, texture_root, work): item.mkdir()
+    for item in (install, input_root, texture_root, work):
+        item.mkdir(parents=True, exist_ok=False)
     executable = install / ("blender.exe" if os.name == "nt" else "blender")
     executable.write_bytes(b"fake-blender-r10.4")
     input_blend = input_root / "source.blend"

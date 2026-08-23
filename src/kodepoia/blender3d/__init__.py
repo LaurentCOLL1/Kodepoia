@@ -1,3 +1,6 @@
+from .animation_contracts import AnimationChannel, AnimationClip, BoneMapping, ChannelPath, Keyframe, RetargetRecipe, RigSemanticProfile, RootMotionPolicy, SemanticBone
+from .animation_runner import AnimationRunner
+from .animation_validator import evaluate_animation_measurements
 from .boundary import BlenderExecutableBoundary, default_known_candidates, default_known_roots, validate_environment_overrides
 from .contracts import BlenderCapabilityState, BlenderJobRecipe, BlenderJobState, BlenderOperation, BlenderProcessLimits, BlenderRunManifest, BlenderRuntimeIdentity, BlenderRuntimePolicy, BlenderVersion, can_transition_job_state, is_terminal_job_state
 from .errors import BlenderBoundaryError, BlenderError, BlenderProtocolError, BlenderVersionError
@@ -15,6 +18,7 @@ from .runner import BlenderRunner, RunnerProcessResult, write_local_evidence
 from .serialization import canonical_json_bytes, canonical_sha256, make_envelope, parse_envelope
 
 __all__ = [
+    "AnimationChannel", "AnimationClip", "AnimationRunner", "BoneMapping", "ChannelPath", "Keyframe", "RetargetRecipe", "RigSemanticProfile", "RootMotionPolicy", "SemanticBone", "evaluate_animation_measurements",
     "BlenderBoundaryError", "BlenderCapabilityState", "BlenderError", "BlenderExecutableBoundary", "BlenderJobRecipe", "BlenderJobState", "BlenderOperation", "BlenderProcessLimits", "BlenderProtocolError", "BlenderRunManifest", "BlenderRunner", "BlenderRuntimeIdentity", "BlenderRuntimePolicy", "BlenderVersion", "BlenderVersionError",
     "GeometryOperation", "GeometryRecipe", "GeometryRunner", "GeometryStep", "MaterialSpec", "PBRRecipe", "PBRRunner", "TextureRef", "TextureRole", "UVMethod", "UVSpec",
     "BoundaryPolicy", "MeshAssetClass", "MeshQABudgets", "MeshQAProfile", "MeshQARunner", "MeshRepairOperation", "MeshRepairRecipe", "UVOverlapPolicy", "evaluate_mesh_qa",

@@ -4,9 +4,11 @@ import hashlib
 import json
 import os
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 from kodepoia.assets.vcs import AssetVcsService, VcsFileState
 from kodepoia.brain.ollama import OllamaClient
@@ -29,28 +31,49 @@ from .resources import (
     WorkflowMemoryObservation,
 )
 from .serialization import canonical_sha256, make_envelope, parse_envelope
-from .workflow import GovernedModelResolver, WorkflowCatalog, WorkflowValidator
+from .workflow import (
+    GovernedModelResolver,
+    WorkflowCatalog,
+    WorkflowValidator,
+    _safe_model_token,
+)
 
 _EVIDENCE_SCHEMA = "kodepoia.comfy-vram-evidence"
 _EVIDENCE_VERSION = 1
 _MAX_EVIDENCE_BYTES = 16 * 1024 * 1024
+_MAX_R98_MODELS_PER_TYPE = 250_000
 _MIB = 1024 * 1024
 
 
 class _R98WorkflowCapabilityInventory(ComfyCapabilityInventory):
-    """Strict R9.3 inventory scoped to node classes used by one governed R9.4 graph.
+    """Strict R9.3 inventory scoped to one governed R9.4 workflow.
 
-    ComfyUI /object_info is global and custom nodes outside the selected workflow may
-    expose malformed metadata. R9.8 must not let unrelated metadata block an
-    authoritative run, while metadata for every node that the governed graph actually
-    uses must still pass the unchanged strict R9.3 normalizer.
+    ComfyUI's discovery routes are global. Unrelated custom nodes or model files may
+    expose malformed metadata/tokens, especially OS-native path separators on Windows.
+    R9.8 therefore narrows discovery before applying the unchanged strict R9.3
+    normalizers: only node classes used by the governed graph and only exact model
+    tokens declared by its requirements (or explicitly selected) are considered.
+    Anything actually used by the workflow remains strict and fail-closed.
     """
 
-    def __init__(self, client: ComfyUIClient, node_classes: tuple[str, ...]) -> None:
+    def __init__(
+        self,
+        client: ComfyUIClient,
+        node_classes: tuple[str, ...],
+        model_targets: Mapping[str, tuple[str, ...]] | None = None,
+    ) -> None:
         super().__init__(client)
         if not node_classes:
             raise ComfyGovernanceError("R9.8 workflow must contain at least one node class")
         self._node_classes = frozenset(node_classes)
+        targets: dict[str, frozenset[str]] = {}
+        for model_type, tokens in (model_targets or {}).items():
+            if not isinstance(model_type, str) or not model_type:
+                raise ComfyGovernanceError("R9.8 model target type must be a non-empty string")
+            normalized = frozenset(_safe_model_token(token) for token in tokens)
+            if normalized:
+                targets[model_type] = normalized
+        self._model_targets = targets
 
     def _object_info(self) -> dict[str, Any]:
         raw = super()._object_info()
@@ -59,6 +82,30 @@ class _R98WorkflowCapabilityInventory(ComfyCapabilityInventory):
             for class_type in sorted(self._node_classes)
             if class_type in raw
         }
+
+    def _model_types(self) -> tuple[str, ...]:
+        available = super()._model_types()
+        return tuple(item for item in available if item in self._model_targets)
+
+    def _models(self, model_type: str) -> tuple[str, ...]:
+        targets = self._model_targets.get(model_type)
+        if not targets:
+            return ()
+        raw = self.client._http.get_json_value(f"/models/{quote(model_type, safe='')}")
+        if not isinstance(raw, list) or len(raw) > _MAX_R98_MODELS_PER_TYPE:
+            raise ComfyProtocolError("ComfyUI targeted model inventory must be a bounded array")
+        selected = tuple(
+            sorted(
+                item
+                for item in raw
+                if isinstance(item, str) and item in targets
+            )
+        )
+        if len(set(selected)) != len(selected):
+            raise ComfyProtocolError(
+                f"ComfyUI targeted model inventory {model_type!r} contains duplicate tokens"
+            )
+        return selected
 
 
 @dataclass(frozen=True, slots=True)
@@ -192,14 +239,35 @@ class R98LocalAcceptance:
         if len(node_classes) != len({node.get("class_type") for node in definition.graph().values()}):
             raise ComfyGovernanceError("R9.8 governed workflow contains invalid node class metadata")
 
+        selections = _unique_pairs(request.model_selections, "model selection")
+        model_target_sets: dict[str, set[str]] = {}
+        for requirement in definition.model_requirements:
+            targets = set(requirement.accepted_tokens)
+            requested = selections.get(requirement.requirement_id)
+            if requested is not None:
+                targets.add(_safe_model_token(requested))
+            if not targets:
+                raise ComfyGovernanceError(
+                    "R9.8 local acceptance requires accepted_tokens or an explicit --model "
+                    f"selection for model requirement {requirement.requirement_id!r}"
+                )
+            model_target_sets.setdefault(requirement.model_type, set()).update(targets)
+        model_targets = {
+            model_type: tuple(sorted(tokens))
+            for model_type, tokens in sorted(model_target_sets.items())
+        }
+
         client = ComfyUIClient(request.endpoint)
-        capability = _R98WorkflowCapabilityInventory(client, node_classes).capture()
+        capability = _R98WorkflowCapabilityInventory(
+            client,
+            node_classes,
+            model_targets,
+        ).capture()
         if capability.state is not ComfyCapabilityState.CURRENT:
             raise ComfyGovernanceError(
                 f"R9.8 requires a CURRENT ComfyUI capability snapshot, got {capability.state.value}"
             )
 
-        selections = _unique_pairs(request.model_selections, "model selection")
         parameters = _unique_pairs(request.parameters, "parameter")
         inputs = _unique_pairs(request.input_bindings, "input binding")
         resolutions = GovernedModelResolver().resolve(

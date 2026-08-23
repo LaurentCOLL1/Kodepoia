@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/comfy-run-manifest-v1.schema.json",
+  "type": "object",
+  "required": ["schema", "version", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "kodepoia.comfy-run-manifest"},
+    "version": {"const": 1},
+    "payload": {"type": "object"}
+  }
+}

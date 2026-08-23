@@ -36,7 +36,7 @@ No custom-node class is in the allowlist. No model token is embedded as an accep
 Every family exposes exactly these typed R9.4 parameters:
 
 - `prompt`: bounded non-empty string at the pack-policy layer;
-- `negative_prompt`: bounded string;
+- `negative_prompt`: bounded non-empty string, matching the frozen R9.4 string contract;
 - `width`, `height`: integer and family-bounded;
 - `output_count`: integer 1..4;
 - `seed`: explicit non-negative R9 seed;
@@ -45,7 +45,7 @@ Every family exposes exactly these typed R9.4 parameters:
 
 Sampler and scheduler are frozen to `euler` / `normal` in v1 rather than widening the user surface to arbitrary sampler metadata. Denoise is fixed to `1.0` for this text-to-image variant.
 
-Pack-level policy also enforces `width * height * output_count` so independently legal scalar dimensions cannot compose into an unbounded batch. Concept/material-source packs cap the aggregate at 9,437,184 pixels and carry an 8192 MiB estimate; UI/sprite packs cap at 4,194,304 pixels and carry a 6144 MiB estimate. R9.8 remains the actual admission authority at execution time; these estimates do not manufacture free-VRAM proof.
+Pack-level policy also enforces `width * height * output_count` so independently legal scalar dimensions cannot compose into an excessive batch. Concept/material-source packs cap the aggregate at 8,388,608 pixels and carry an 8192 MiB estimate; UI/sprite packs cap at 3,145,728 pixels and carry a 6144 MiB estimate. These aggregate bounds are intentionally stricter than the product of every independent scalar maximum. R9.8 remains the actual admission authority at execution time; these estimates do not manufacture free-VRAM proof.
 
 ## Output and R8 lineage contract
 

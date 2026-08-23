@@ -1,0 +1,61 @@
+{
+  "name": "r9.4-safe-sampler-fixture",
+  "revision": 1,
+  "graph": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": {
+        "ckpt_name": {"$model": "checkpoint"}
+      }
+    },
+    "2": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": ["1", 0],
+        "seed": {"$param": "seed"},
+        "steps": {"$param": "steps"},
+        "cfg": 7.5,
+        "control_after_generate": "fixed"
+      }
+    }
+  },
+  "parameters": [
+    {
+      "name": "seed",
+      "node_id": "2",
+      "input_name": "seed",
+      "kind": "seed",
+      "minimum": 0,
+      "maximum": 18446744073709551615,
+      "choices": []
+    },
+    {
+      "name": "steps",
+      "node_id": "2",
+      "input_name": "steps",
+      "kind": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "choices": []
+    }
+  ],
+  "input_slots": [],
+  "output_slots": [
+    {
+      "name": "latent",
+      "node_id": "2",
+      "output_index": 0,
+      "type_token": "LATENT"
+    }
+  ],
+  "model_requirements": [
+    {
+      "requirement_id": "checkpoint",
+      "model_type": "checkpoints",
+      "node_id": "1",
+      "input_name": "ckpt_name",
+      "accepted_tokens": ["base/model-a.safetensors"]
+    }
+  ],
+  "allowed_node_classes": ["CheckpointLoaderSimple", "KSampler"]
+}

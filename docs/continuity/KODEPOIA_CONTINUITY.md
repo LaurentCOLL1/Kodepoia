@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.10 COMPLETE. R8.11 implementation ACCEPTED / INTEGRATED EVIDENCE PENDING.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. R8.10 normalization est fusionnée; `main` normalisé avant R8.11 = `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`. R8.11 est accepté sur l'implementation head exact `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, avec R0 #1092 / `32621457672`, Python Core #1066 / `32621457675` 5/5 et Ubuntu `587 passed / 7 skipped / 46 warnings`, UI Smoke #1033 / `32621457788`. Manual R8.11 = CONDITIONAL NOT TRIGGERED. Le premier candidat R8.11 a révélé un vrai défaut de cache transform cross-output; le service a été durci sans affaiblir les gates. `scripts/r8_integrated_acceptance.py` doit maintenant produire puis vérifier `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json` depuis les blobs `git show HEAD:<path>`. **Ne pas fusionner PR #101 et ne pas commencer R9** avant rapport intégré `status=pass`, `blockers=[]`, continuité synchronisée et R0 + full Python Core + UI Smoke SUCCESS sur un même head final. Après merge R8.11, normaliser R8 en continuity-only; R9 commence obligatoirement par un `R9_PLAN.md` exhaustif accepté avant toute R9.1.
+> Kodepoia, architecture v1.0 gelée. **R1–R7 COMPLETE. R8 planning ACCEPTED. R8.1–R8.10 COMPLETE. R8.11 implementation ACCEPTED / INTEGRATED REPORT CHECKED IN / FINAL GATES PENDING.** `docs/roadmap/R8_PLAN.md` reste l'autorité structurelle exhaustive R8.1–R8.11. R8.10 normalization est fusionnée; `main` normalisé avant R8.11 = `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`. R8.11 est accepté sur l'implementation head exact `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, avec R0 #1092 / `32621457672`, Python Core #1066 / `32621457675` 5/5 et Ubuntu `587 passed / 7 skipped / 46 warnings`, UI Smoke #1033 / `32621457788`. Manual R8.11 = CONDITIONAL NOT TRIGGERED. Le premier candidat R8.11 a révélé un vrai défaut de cache transform cross-output; le service a été durci sans affaiblir les gates. `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json` est maintenant check-in avec `status=pass`, `blockers=[]`, digest `6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`, généré depuis les blobs `git show HEAD:<path>`. **Ne pas fusionner PR #101 et ne pas commencer R9** avant R0 + full Python Core avec `R8 integrated acceptance: PASS` + UI Smoke SUCCESS sur le head exact contenant cette continuité. Après merge R8.11, normaliser R8 en continuity-only; R9 commence obligatoirement par un `R9_PLAN.md` exhaustif accepté avant toute R9.1.
 
 ## Source de vérité et état
 
@@ -15,7 +15,7 @@
 - R7 : COMPLETE.
 - R8 planning : ACCEPTED.
 - R8.1–R8.10 : COMPLETE.
-- R8.11 : IMPLEMENTATION ACCEPTED / INTEGRATED EVIDENCE PENDING sur PR #101.
+- R8.11 : IMPLEMENTATION ACCEPTED / INTEGRATED REPORT CHECKED IN / FINAL GATES PENDING sur PR #101.
 - R9–R16 : PENDING / NOT STARTED.
 
 ## R8 planning acceptance
@@ -151,7 +151,7 @@
 - R6.5 accessibility and R6.6 pseudo-localization contracts were extended for Vault; both UI workflows execute the R8.10 smoke.
 - Manual intervention: NONE.
 
-### R8.11 accepted implementation baseline — integrated evidence pending
+### R8.11 accepted implementation baseline — final gates pending
 
 - Exact accepted implementation head `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`; base normalized R8.10 main `32c9dc413a89b74cd702c25b21a257cfc21d3cfc`.
 - R0 Repository Guard #1092 / `32621457672`: SUCCESS Ubuntu + Windows.
@@ -163,8 +163,10 @@
 - Rejected first candidate `28fe9610bcdf9d92a4e6aa0367441b342bfd288b`: Python Ubuntu correctly found one real transform-cache cross-output identity defect and one fixture assertion type mismatch. Gates were not weakened.
 - Production hardening commit `781e2cc154b3be8d7f120fbf62da09ad0d8af8ad`: cache HIT now binds inputs, recipe, tool, environment, requested logical output asset, content digest/length, DERIVED role/kind, READY status, lineage and transform provenance. Old cache docs lacking output identity become STALE and rebuild.
 - `docs/roadmap/R8_11_ACCEPTANCE.md` fixes implementation head `d1589cf...`; manual CONDITIONAL resolves to **CONDITIONAL NOT TRIGGERED** because R8.5/R8.8 inherited conditionals remain resolved, R8.9 REQUIRED remains SATISFIED, and hosted CI can execute the integrated path.
-- `scripts/r8_integrated_acceptance.py` emits or validates the canonical `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json`; Linux Python Core executes it before pytest.
-- PR #101: OPEN / NOT MERGEABLE BY POLICY until final integrated JSON + final exact-head R0/Python/UI gates are SUCCESS.
+- `scripts/r8_integrated_acceptance.py` emits or validates the canonical report; Linux Python Core executes it before pytest.
+- Canonical report `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json`: `schema_version=1`, `source_sha=d1589cf94545b854f995e7b6706c4b67e9b7ac1a`, `status=pass`, `blockers=[]`, `evidence_sha256=6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`.
+- The report was emitted by CI from exact acceptance Git blobs before check-in, then committed without changing any bound acceptance document.
+- PR #101: OPEN / NOT MERGEABLE BY POLICY until final R0 + Python Core (`R8 integrated acceptance: PASS`) + UI Smoke succeed on one exact head containing this continuity.
 
 ## R8 exact merge chain
 
@@ -245,4 +247,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R7 COMPLETE. R8.1–R8.10 COMPLETE. R8.11 implementation ACCEPTED / integrated evidence PENDING.** Attendre uniquement la CI du head contenant le verifier/continuité sans modifier le code métier; récupérer le candidat JSON imprimé par `scripts/r8_integrated_acceptance.py`; créer exactement `docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json`; exiger ensuite R0 Repository Guard, full Python Core avec `R8 integrated acceptance: PASS` et KodeStudio UI Smoke SUCCESS sur un même head final. Fusionner PR #101 seulement après ces preuves. Post-merge, normaliser la continuité sans modifier les documents d'acceptance liés au rapport intégré, repasser les trois gates, fusionner cette normalisation, puis marquer **R8 COMPLETE**. La prochaine action après R8 COMPLETE est **planifier R9 avec un `R9_PLAN.md` exhaustif**, pas commencer R9.1 directement.
+**R1–R7 COMPLETE. R8.1–R8.10 COMPLETE. R8.11 implementation ACCEPTED; integrated report CHECKED IN; final gates PENDING.** Ne plus modifier le code métier ni les documents `R8_<n>_ACCEPTANCE.md`. Faire passer R0 Repository Guard, full Python Core avec `R8 integrated acceptance: PASS` et KodeStudio UI Smoke sur le head exact contenant cette continuité et le JSON intégré. Si les trois sont SUCCESS, fusionner PR #101. Post-merge, normaliser uniquement `docs/continuity/KODEPOIA_CONTINUITY.md` pour enregistrer le merge R8.11 et **R8 COMPLETE**, repasser les trois gates et fusionner cette normalisation. La prochaine action après R8 COMPLETE est **planifier R9 avec un `R9_PLAN.md` exhaustif**, pas commencer R9.1 directement.

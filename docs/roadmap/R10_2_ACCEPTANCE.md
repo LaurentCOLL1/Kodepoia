@@ -1,7 +1,7 @@
 # R10.2 — Acceptance record
 
-Status: **HOSTED IMPLEMENTATION ACCEPTED; MANUAL REQUIRED**  
-Manual intervention: **REQUIRED**
+Status: **LOCAL EVIDENCE ACCEPTED; FINAL DOCUMENTED HEAD PENDING GATES**  
+Manual intervention: **REQUIRED — SATISFIED**
 
 ## Accepted hosted implementation
 
@@ -13,69 +13,48 @@ Exact-head hosted gates:
 - Python Core #1199 / `32662882146`: **SUCCESS**.
 - KodeStudio UI Smoke #1166 / `32662882152`: **SUCCESS**.
 
-The accepted hosted head includes deterministic fake-runner coverage for success, crash, timeout, cancellation, bounded output, malformed result and artifact-path spoofing; schema validation for probe-result/local evidence; CLI registration; and static bootstrap inspection proving no dynamic-code/network/subprocess surface.
+The hosted implementation includes deterministic fake-runner coverage for success, crash, timeout, cancellation, bounded output, malformed result and artifact-path spoofing; schema validation; CLI registration; and a static bootstrap with no dynamic-code/network/subprocess surface.
 
-## REQUIRED local gate
+## Final manual candidate and hosted gates
 
-The final documented branch head produced by this acceptance update must itself pass R0 + full Python Core + UI Smoke before it is used locally. Once that final SHA is recorded in PR #133, check out **that exact SHA** and run the command below against a legitimate Blender 5.2.x LTS executable.
+Final manual candidate head: `0a2da2334cc6ebe116819110ba80ad1729e22057`.
 
-PowerShell from the repository root:
+Exact-head gates on that candidate:
 
-```powershell
-$SourceSha = (git rev-parse HEAD).Trim()
-$Blender = "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
+- R0 Repository Guard #1226 / `32663068270`: **SUCCESS**.
+- Python Core #1200 / `32663068251`: **SUCCESS**.
+- KodeStudio UI Smoke #1167 / `32663068243`: **SUCCESS**.
 
-if (-not (Test-Path -LiteralPath $Blender)) {
-    throw "Blender 5.2 executable not found at $Blender. Stop and set `$Blender to the legitimate local Blender 5.2.x executable path; do not download/install add-ons or relax the R10 policy."
-}
-if (Test-Path -LiteralPath ".kodepoia\blender\r10_2_work") {
-    throw "R10.2 work directory already exists. Preserve any prior failure evidence and stop; do not delete it blindly."
-}
+The REQUIRED local acceptance was executed on that exact SHA against Blender **5.2.0 LTS** on Windows and returned CLI exit code `0`.
 
-& $Blender --version
-python -m pip install -e ".[dev,code]"
-python -m kodepoia.cli r10-blender-accept `
-  --blender "$Blender" `
-  --source-sha "$SourceSha" `
-  --work-dir ".kodepoia/blender/r10_2_work" `
-  --output ".kodepoia/blender/r10_2_local_acceptance.json"
-$AcceptanceExit = $LASTEXITCODE
-Write-Host "R10.2 exit code: $AcceptanceExit"
-Get-Content ".kodepoia\blender\r10_2_local_acceptance.json"
-Get-FileHash ".kodepoia\blender\r10_2_local_acceptance.json" -Algorithm SHA256
-(Get-Item ".kodepoia\blender\r10_2_local_acceptance.json").Length
-```
+## Reviewed canonical local evidence
 
-Do not continue if `git rev-parse HEAD` differs from the exact final manual candidate SHA recorded in PR #133.
+Canonical repository copy: `docs/roadmap/R10_2_LOCAL_ACCEPTANCE.json`.
 
-## Required success evidence
+Evidence file identity as received and independently rechecked:
 
-Acceptance requires all of the following:
+- SHA-256: `3b65790c4f553640f6d3c14bc141940bca73695a911a343a4ad78449445f243a`.
+- Bytes: `1141`.
+- `schema=kodepoia.r10.local_blender_evidence`, version `1`.
+- `source_sha=0a2da2334cc6ebe116819110ba80ad1729e22057`.
+- `status=pass`, `blockers=[]`.
+- Runtime: Blender `5.2.0`, embedded Python `3.13.13`, Windows AMD64.
+- Executable SHA-256: `0060916d6921eb4d46c57254609d805a2ea711917399051391a52ba14beb6327`.
+- Command policy `r10.2-v1`: factory startup, background mode, autoexec disabled, offline mode, Python exit code `17`.
+- Probe: `background=true`, `online_access=false`, `gltf_exporter_available=true`, `bmesh_available=true`.
+- Canonical probe scene facts: 1 object, 8 vertices, 6 faces; bmesh vertex count 8.
+- `.blend`: 94,460 bytes, SHA-256 `dbda97a9f3f7dddeb2df92af277502aa21ac119a3ee9f49509dbdf4735389e43`.
+- GLB: 1,436 bytes, SHA-256 `47fa0c82eb14f211e33a9f6b5c36d48a60d1619c33632c4cbbd9099c5d70bc1f`.
+- Process: return code `0`; timeout/cancel/crash/OOM all false; stdout/stderr limits not exceeded.
 
-- process/CLI exit code `0`;
-- evidence `status=pass` and `blockers=[]`;
-- evidence `source_sha` equals the exact final manual candidate SHA;
-- Blender version is `5.2.x`;
-- `probe.background=true`;
-- `probe.online_access=false`;
-- `probe.gltf_exporter_available=true`;
-- `probe.bmesh_available=true`;
-- verified `.blend` and GLB SHA-256 plus non-zero byte sizes;
-- `process.timed_out=false`, `cancelled=false`, `crash=false`, `oom=false`.
+The evidence contains no username, home path, executable path, token, password, private key, network endpoint or unrelated user data.
 
-Send back:
+## Upstream compatibility cross-check
 
-1. the complete canonical `.kodepoia/blender/r10_2_local_acceptance.json` file or its complete text;
-2. the console summary printed by `r10-blender-accept`;
-3. the SHA-256 and byte size of the evidence JSON;
-4. the output of `git rev-parse HEAD` and `blender.exe --version`.
+Official Blender 5.2 LTS release material identifies Blender 5.2.0 as the July 14, 2026 LTS release supported until July 2028. The Blender 5.2 manual documents the glTF 2.0 importer/exporter and GLB single-file export. These upstream sources are compatibility evidence only; the reviewed real-runtime evidence above remains authoritative for R10.2 acceptance.
 
-Do not send passwords, tokens, private keys, unrelated files, or unredacted diagnostic paths outside the governed evidence.
+## Final gate ordering
 
-## Failure recovery
+This documentation/evidence commit changes no runner implementation. Its exact head must now pass R0 Repository Guard + full Python Core + KodeStudio UI Smoke. If those gates succeed, PR #133 may be merged with `expected_head_sha` and then a single continuity-only post-merge normalization must pass the same three gates and merge.
 
-On any non-zero exit or `status=fail`, preserve the JSON and the entire `.kodepoia/blender/r10_2_work` directory, stop, and return the evidence. Do **not** retry with autoexec enabled, online mode, arbitrary Python flags, relaxed sandbox paths, add-ons, or modified Blender preferences. Cleanup is allowed only after the failed evidence has been reviewed and only for the documented R10.2 temporary workspace.
-
-## Gate ordering
-
-R10.2 remains **IN PROGRESS** until the REQUIRED local evidence is reviewed, accepted, recorded, final exact-head gates succeed, PR #133 merges, and post-merge continuity normalization succeeds. **Do not start R10.3 before that sequence is complete.**
+Only after that normalization merge is R10.2 **COMPLETE + NORMALIZED** and R10.3 authorized.

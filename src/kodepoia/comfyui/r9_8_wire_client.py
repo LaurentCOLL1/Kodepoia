@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import math
 import re
 import uuid
 from collections.abc import Iterator, Mapping
@@ -105,11 +106,17 @@ class R98WireComfyUIClient(ComfyUIClient):
                 if observed_digest != expected_digest:
                     expected_semantic = _strip_metadata_only(expected_prompt)
                     stored_semantic = _strip_metadata_only(stored_prompt)
-                    if canonical_sha256(stored_semantic) != canonical_sha256(expected_semantic):
+                    if not _json_value_equivalent(expected_semantic, stored_semantic):
                         raise ComfyProtocolError(
                             "ComfyUI stored prompt differs structurally from the submitted R9.4 instance: "
                             + _prompt_diff_summary(expected_semantic, stored_semantic)
                         )
+                    # ComfyUI validation mutates scalar inputs to their declared INT/FLOAT types
+                    # before queue/history persistence. JSON 1 and 1.0 are value-equivalent for
+                    # that bounded coercion but have different canonical encodings. Preserve the
+                    # frozen logical R9.5 prompt digest only when the complete prompt remains
+                    # structurally identical after metadata removal and value-preserving numeric
+                    # normalization. The raw server-history digest remains independently bound.
                     history = replace(history, prompt_digest_sha256=expected_digest)
         references = tuple(replace(item, prompt_id=prompt_id) for item in history.output_references)
         return replace(history, prompt_id=prompt_id, output_references=references)
@@ -196,6 +203,27 @@ def _strip_metadata_only(prompt: Mapping[str, Any]) -> dict[str, Any]:
     return normalized
 
 
+def _json_value_equivalent(expected: Any, observed: Any) -> bool:
+    """Strict JSON equivalence plus value-preserving INT/FLOAT coercion only."""
+    if isinstance(expected, bool) or isinstance(observed, bool):
+        return isinstance(expected, bool) and isinstance(observed, bool) and expected is observed
+    if isinstance(expected, (int, float)) and isinstance(observed, (int, float)):
+        if isinstance(expected, float) and not math.isfinite(expected):
+            return False
+        if isinstance(observed, float) and not math.isfinite(observed):
+            return False
+        return expected == observed
+    if isinstance(expected, Mapping) and isinstance(observed, Mapping):
+        if set(expected) != set(observed):
+            return False
+        return all(_json_value_equivalent(expected[key], observed[key]) for key in expected)
+    if isinstance(expected, list) and isinstance(observed, list):
+        return len(expected) == len(observed) and all(
+            _json_value_equivalent(left, right) for left, right in zip(expected, observed, strict=True)
+        )
+    return type(expected) is type(observed) and expected == observed
+
+
 def _prompt_diff_summary(expected: Mapping[str, Any], observed: Mapping[str, Any]) -> str:
     expected_ids = set(expected)
     observed_ids = set(observed)
@@ -216,9 +244,7 @@ def _prompt_diff_summary(expected: Mapping[str, Any], observed: Mapping[str, Any
         else:
             node_changed = False
             for input_name in sorted(expected_inputs):
-                expected_value_digest = canonical_sha256({"value": expected_inputs[input_name]})
-                observed_value_digest = canonical_sha256({"value": observed_inputs[input_name]})
-                if expected_value_digest != observed_value_digest:
+                if not _json_value_equivalent(expected_inputs[input_name], observed_inputs[input_name]):
                     node_changed = True
                     if len(changed_inputs) < _MAX_DIFF_INPUTS:
                         changed_inputs.append(f"{str(node_id)[:64]}:{str(input_name)[:128]}")

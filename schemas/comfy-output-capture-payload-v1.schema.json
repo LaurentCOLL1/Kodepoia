@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/comfy-output-capture-payload-v1.schema.json",
+  "title": "Kodepoia ComfyUI output capture payload v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "run_manifest_digest_sha256",
+    "evidence_revision_id",
+    "state",
+    "outputs",
+    "capture_digest_sha256"
+  ],
+  "properties": {
+    "run_id": {"type": "string", "pattern": "^run_[0-9a-f]{32}$"},
+    "run_manifest_digest_sha256": {"$ref": "#/$defs/sha256"},
+    "evidence_revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"},
+    "state": {"enum": ["complete", "partial"]},
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/output"}
+    },
+    "capture_digest_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "output_index",
+        "asset_id",
+        "revision_id",
+        "kind",
+        "content_sha256",
+        "content_length"
+      ],
+      "properties": {
+        "node_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "output_index": {"type": "integer", "minimum": 0},
+        "asset_id": {"type": "string", "pattern": "^asset_[0-9a-f]{32}$"},
+        "revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"},
+        "kind": {"enum": ["generic", "image", "texture", "model_3d", "audio", "video", "document", "ui", "font"]},
+        "content_sha256": {"$ref": "#/$defs/sha256"},
+        "content_length": {"type": "integer", "minimum": 0}
+      }
+    }
+  }
+}

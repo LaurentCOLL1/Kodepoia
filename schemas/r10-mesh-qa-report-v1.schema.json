@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-mesh-qa-report-v1.schema.json",
+  "title": "Kodepoia R10.5 Mesh QA Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema","version","profile_id","profile_digest","input_blend_sha256","asset_class","status","summary","rules","objects","report_digest"],
+  "properties": {
+    "schema": {"const": "kodepoia.blender.mesh_qa_report"},
+    "version": {"const": 1},
+    "profile_id": {"type": "string"},
+    "profile_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "input_blend_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "asset_class": {"enum": ["closed_static","open_static","character","animal"]},
+    "status": {"enum": ["pass","warn","block"]},
+    "summary": {"type": "object", "additionalProperties": false, "required": ["pass","warn","block"], "properties": {"pass": {"type": "integer", "minimum": 0}, "warn": {"type": "integer", "minimum": 0}, "block": {"type": "integer", "minimum": 0}}},
+    "rules": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["rule_id","state","applicable","value","limit","reason"], "properties": {"rule_id": {"type": "string"}, "state": {"enum": ["PASS","WARN","BLOCK"]}, "applicable": {"type": "boolean"}, "value": {}, "limit": {}, "reason": {"type": "string", "minLength": 1}}}},
+    "objects": {"type": "object", "additionalProperties": {"type": "object"}},
+    "report_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

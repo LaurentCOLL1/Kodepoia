@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-mesh-qa-profile-v1.schema.json",
+  "title": "Kodepoia R10.5 Mesh QA Profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version","profile_id","asset_class","input_blend_sha256","object_ids","budgets","boundary_policy","overlap_policy","require_uv","require_consistent_winding","minimum_face_area","duplicate_tolerance","uv_zero_area_epsilon"],
+  "properties": {
+    "version": {"const": 1},
+    "profile_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+    "asset_class": {"enum": ["closed_static","open_static","character","animal"]},
+    "input_blend_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "object_ids": {"type": "array", "minItems": 1, "maxItems": 256, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"}},
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_objects","max_triangles","max_materials","max_textures","max_shape_keys","max_uv_layers","max_loose_vertices","max_loose_edges","max_non_manifold_edges","max_duplicate_vertex_indicators","max_zero_area_uv_triangles","max_scale_ratio"],
+      "properties": {
+        "max_objects": {"type": "integer", "minimum": 1, "maximum": 1024},
+        "max_triangles": {"type": "integer", "minimum": 1, "maximum": 50000000},
+        "max_materials": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "max_textures": {"type": "integer", "minimum": 0, "maximum": 16384},
+        "max_shape_keys": {"type": "integer", "minimum": 0, "maximum": 4096},
+        "max_uv_layers": {"type": "integer", "minimum": 0, "maximum": 64},
+        "max_loose_vertices": {"type": "integer", "minimum": 0, "maximum": 10000000},
+        "max_loose_edges": {"type": "integer", "minimum": 0, "maximum": 10000000},
+        "max_non_manifold_edges": {"type": "integer", "minimum": 0, "maximum": 10000000},
+        "max_duplicate_vertex_indicators": {"type": "integer", "minimum": 0, "maximum": 10000000},
+        "max_zero_area_uv_triangles": {"type": "integer", "minimum": 0, "maximum": 10000000},
+        "max_scale_ratio": {"type": "number", "minimum": 1.0, "maximum": 1000000.0}
+      }
+    },
+    "boundary_policy": {"enum": ["allow","warn","block"]},
+    "overlap_policy": {"enum": ["ignore","warn","block"]},
+    "require_uv": {"type": "boolean"},
+    "require_consistent_winding": {"type": "boolean"},
+    "minimum_face_area": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+    "duplicate_tolerance": {"type": "number", "minimum": 1e-12, "maximum": 0.01},
+    "uv_zero_area_epsilon": {"type": "number", "minimum": 0.0, "maximum": 0.001}
+  }
+}

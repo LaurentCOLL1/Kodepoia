@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-mesh-repair-recipe-v1.schema.json",
+  "title": "Kodepoia R10.5 Explicit Mesh Repair Recipe v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version","recipe_id","input_blend_sha256","object_ids","operation"],
+  "properties": {
+    "version": {"const": 1},
+    "recipe_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+    "input_blend_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "object_ids": {"type": "array", "minItems": 1, "maxItems": 256, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"}},
+    "operation": {"const": "recalculate_normals"}
+  }
+}

@@ -7,6 +7,10 @@ from kodepoia.assets.duplicates import (
     DuplicateCandidate, DuplicateDecisionKind, DuplicateDetector, DuplicateKind, Fingerprint,
     ImageDHashFingerprinter, TextByteShapeFingerprinter,
 )
+from kodepoia.assets.godot_bridge import (
+    GodotAssetBridge, GodotAssetClassification, GodotImportSettingsEvidence, GodotPortabilityIssue,
+    GodotRebuildReport, GodotRebuildState, GodotSourceEvidence,
+)
 from kodepoia.assets.governance import (
     AssetExportPlan, AssetExportReport, AssetGovernanceDecision, AssetGovernanceOutcome,
     AssetGovernanceService, AssetLicenseEvidence,

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/godot-import-manifest-v1.schema.json",
+  "title": "Kodepoia Godot Import Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "engine_version", "project", "sources", "references"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "engine_version": {"type": ["string", "null"]},
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "content_length"],
+      "properties": {
+        "path": {"const": "project.godot"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "content_length": {"type": "integer", "minimum": 0}
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "content_length", "asset_id", "revision_id", "import_settings"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "content_length": {"type": "integer", "minimum": 0},
+          "asset_id": {"type": ["string", "null"], "pattern": "^asset_[0-9a-f]{32}$"},
+          "revision_id": {"type": ["string", "null"], "pattern": "^rev_[0-9a-f]{32}$"},
+          "import_settings": {
+            "oneOf": [
+              {"type": "null"},
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "sha256", "content_length"],
+                "properties": {
+                  "path": {"type": "string", "minLength": 1},
+                  "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                  "content_length": {"type": "integer", "minimum": 0}
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["project_id", "asset_id", "revision_id", "target_path"],
+        "properties": {
+          "project_id": {"type": "string", "minLength": 1},
+          "asset_id": {"type": "string", "pattern": "^asset_[0-9a-f]{32}$"},
+          "revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"},
+          "target_path": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

@@ -121,7 +121,7 @@ def _snapshot(*, state: ComfyCapabilityState = ComfyCapabilityState.CURRENT) -> 
 def _valid_request() -> dict[str, object]:
     return {
         "prompt": "clean production concept",
-        "negative_prompt": "",
+        "negative_prompt": "artifacts",
         "width": 512,
         "height": 512,
         "output_count": 1,
@@ -169,6 +169,11 @@ def test_pack_policy_bounds_dimensions_outputs_pixels_prompts_and_material_claim
     too_large["output_count"] = 4
     with pytest.raises(ComfyGovernanceError, match="total-pixel"):
         material.validate_request(too_large)
+
+    empty_negative = _valid_request()
+    empty_negative["negative_prompt"] = ""
+    with pytest.raises(ComfyGovernanceError, match="negative prompt"):
+        material.validate_request(empty_negative)
 
     hostile = _valid_request()
     hostile["prompt"] = "x" * 9000

@@ -82,10 +82,16 @@ def create_comfy_page(
     vram.setObjectName("comfyVramStatus")
     ollama = QLabel(tr.text("comfy.status.ollama.na"))
     ollama.setObjectName("comfyOllamaStatus")
+    model_status = QLabel(tr.text("comfy.status.model.unchecked"))
+    model_status.setObjectName("comfyModelStatus")
+    admission_status = QLabel(tr.text("comfy.status.admission.unknown"))
+    admission_status.setObjectName("comfyAdmissionStatus")
     status_grid.addWidget(connection, 0, 0)
     status_grid.addWidget(capability, 0, 1)
     status_grid.addWidget(vram, 1, 0)
     status_grid.addWidget(ollama, 1, 1)
+    status_grid.addWidget(model_status, 2, 0)
+    status_grid.addWidget(admission_status, 2, 1)
     layout.addWidget(status_group)
 
     workflow_group = QGroupBox(tr.text("comfy.workflow.group"))
@@ -227,6 +233,21 @@ def create_comfy_page(
             capability.setText(
                 tr.text("comfy.status.capability", state=value.get("capability_state", "unknown"))
             )
+        compatibility = value.get("compatibility")
+        if isinstance(compatibility, dict):
+            selected = compatibility.get("selected_models", [])
+            selected_text = ", ".join(
+                str(item[1])
+                for item in selected
+                if isinstance(item, (list, tuple)) and len(item) == 2
+            )
+            model_status.setText(
+                tr.text(
+                    "comfy.status.model",
+                    state=compatibility.get("state", "unknown"),
+                    selection=selected_text or tr.text("comfy.status.model.none"),
+                )
+            )
         telemetry = value.get("telemetry")
         if isinstance(telemetry, dict):
             devices = telemetry.get("devices", [])
@@ -235,6 +256,14 @@ def create_comfy_page(
                 free = int(primary.get("vram_free_bytes", 0)) // (1024 * 1024)
                 total = int(primary.get("vram_total_bytes", 0)) // (1024 * 1024)
                 vram.setText(tr.text("comfy.status.vram", free=free, total=total))
+        admission = value.get("admission")
+        if isinstance(admission, dict):
+            admission_status.setText(
+                tr.text(
+                    "comfy.status.admission",
+                    state=admission.get("decision", "unknown"),
+                )
+            )
         coexistence = value.get("ollama_coexistence")
         if isinstance(coexistence, dict):
             ollama.setText(tr.text("comfy.status.ollama", state=coexistence.get("state", "unknown")))

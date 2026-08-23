@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "system_stats": {
+    "system": {
+      "comfyui_version": "0.3.fixture",
+      "python_version": "3.12.fixture"
+    },
+    "devices": [
+      {
+        "name": "fixture-gpu-0",
+        "type": "cuda",
+        "index": 0,
+        "vram_total": 12884901888,
+        "vram_free": 8589934592,
+        "torch_vram_total": 12884901888,
+        "torch_vram_free": 7516192768
+      },
+      {
+        "name": "fixture-gpu-1",
+        "type": "cuda",
+        "index": 1,
+        "vram_total": 8589934592,
+        "vram_free": 6442450944,
+        "torch_vram_total": 8589934592,
+        "torch_vram_free": 5368709120
+      }
+    ]
+  },
+  "ollama_ps": {
+    "models": [
+      {
+        "name": "fixture-model:latest",
+        "size_vram": 2147483648,
+        "expires_at": "2026-08-23T12:00:00Z"
+      }
+    ]
+  }
+}

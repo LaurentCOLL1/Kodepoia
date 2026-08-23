@@ -1,0 +1,200 @@
+from __future__ import annotations
+
+from typing import Any
+
+import pytest
+
+from kodepoia.comfyui import ComfyEndpoint
+from kodepoia.comfyui.errors import ComfyProtocolError
+from kodepoia.comfyui.r9_8_wire_client import (
+    R98WireComfyUIClient,
+    logical_prompt_id_to_wire,
+    wire_prompt_id_to_logical,
+)
+from kodepoia.comfyui.serialization import canonical_sha256
+
+LOGICAL = "kp_0123456789abcdef0123456789abcdef"
+WIRE = "01234567-89ab-cdef-0123-456789abcdef"
+BASE_PROMPT = {"1": {"class_type": "Fixture", "inputs": {"steps": 1}}}
+
+
+class _HTTP:
+    def __init__(self) -> None:
+        self.posts: list[tuple[str, dict[str, Any]]] = []
+        self.history_prompt: dict[str, Any] = BASE_PROMPT
+
+    def post_json(self, path: str, document: dict[str, Any]) -> dict[str, Any]:
+        self.posts.append((path, document))
+        assert path == "/prompt"
+        assert document["prompt_id"] == WIRE
+        return {"prompt_id": WIRE, "number": 7, "node_errors": {}}
+
+    def get_json(self, path: str) -> dict[str, Any]:
+        if path == "/queue":
+            return {"queue_running": [[0, WIRE, {}, {}, []]], "queue_pending": []}
+        if path == "/prompt":
+            return {"exec_info": {"queue_remaining": 1}}
+        if path == f"/history/{WIRE}":
+            return {
+                WIRE: {
+                    "prompt": [
+                        0,
+                        WIRE,
+                        self.history_prompt,
+                        {"kodepoia": {"run_id": "run_" + "a" * 32}},
+                    ],
+                    "status": {"status_str": "success", "completed": True},
+                    "outputs": {
+                        "7": {
+                            "images": [
+                                {"filename": "fixture.png", "subfolder": "", "type": "output"}
+                            ]
+                        }
+                    },
+                }
+            }
+        raise AssertionError(path)
+
+
+def _client() -> R98WireComfyUIClient:
+    client = R98WireComfyUIClient(ComfyEndpoint.parse("http://127.0.0.1:8188"))
+    client._http = _HTTP()  # type: ignore[assignment]
+    return client
+
+
+def _submit(client: R98WireComfyUIClient, prompt: dict[str, Any] = BASE_PROMPT) -> None:
+    client.submit_prompt(
+        prompt,
+        prompt_id=LOGICAL,
+        client_id="kc_" + "b" * 32,
+        correlation={"run_id": "run_" + "a" * 32},
+    )
+
+
+def test_logical_prompt_id_maps_to_canonical_uuid_and_back() -> None:
+    assert logical_prompt_id_to_wire(LOGICAL) == WIRE
+    assert wire_prompt_id_to_logical(WIRE) == LOGICAL
+
+
+def test_wire_adapter_rejects_non_frozen_logical_prompt_id() -> None:
+    with pytest.raises(ComfyProtocolError, match="kp_<32hex>"):
+        logical_prompt_id_to_wire("not-a-kodepoia-prompt")
+
+
+def test_submit_uses_uuid_on_wire_but_preserves_logical_identity() -> None:
+    client = _client()
+    _submit(client)
+    assert client._http.posts[0][1]["prompt_id"] == WIRE  # type: ignore[attr-defined]
+
+
+def test_queue_maps_wire_uuid_back_to_logical_identity() -> None:
+    client = _client()
+    queue = client.queue()
+    assert queue.running_prompt_ids == (LOGICAL,)
+    assert queue.pending_prompt_ids == ()
+    assert queue.digest_sha256 == canonical_sha256(
+        {
+            "queue": {"queue_running": [[0, WIRE, {}, {}, []]], "queue_pending": []},
+            "prompt": {"exec_info": {"queue_remaining": 1}},
+        }
+    )
+
+
+def test_execution_history_queries_uuid_but_returns_logical_output_references() -> None:
+    client = _client()
+    _submit(client)
+    history = client.execution_history(LOGICAL)
+    assert history.prompt_id == LOGICAL
+    assert history.present is True
+    assert history.output_references
+    assert history.prompt_digest_sha256 == canonical_sha256(BASE_PROMPT)
+    assert all(item.prompt_id == LOGICAL for item in history.output_references)
+
+
+def test_history_metadata_only_rewrite_preserves_frozen_prompt_digest() -> None:
+    client = _client()
+    _submit(client)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "1": {
+            "class_type": "Fixture",
+            "inputs": {"steps": 1},
+            "_meta": {"title": "server decoration"},
+        }
+    }
+    history = client.execution_history(LOGICAL)
+    assert history.prompt_digest_sha256 == canonical_sha256(BASE_PROMPT)
+
+
+def test_history_value_preserving_int_to_float_coercion_preserves_frozen_prompt_digest() -> None:
+    prompt = {"12": {"class_type": "KSampler", "inputs": {"cfg": 1, "steps": 20}}}
+    client = _client()
+    _submit(client, prompt)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "12": {"class_type": "KSampler", "inputs": {"cfg": 1.0, "steps": 20}}
+    }
+    history = client.execution_history(LOGICAL)
+    assert history.prompt_digest_sha256 == canonical_sha256(prompt)
+
+
+def test_history_numeric_value_change_remains_rejected() -> None:
+    prompt = {"12": {"class_type": "KSampler", "inputs": {"cfg": 1, "steps": 20}}}
+    client = _client()
+    _submit(client, prompt)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "12": {"class_type": "KSampler", "inputs": {"cfg": 1.1, "steps": 20}}
+    }
+    with pytest.raises(ComfyProtocolError) as exc_info:
+        client.execution_history(LOGICAL)
+    message = str(exc_info.value)
+    assert "input_values_changed=['12']" in message
+    assert "changed_inputs=['12:cfg']" in message
+    assert "1.1" not in message
+
+
+def test_history_bool_to_number_is_not_treated_as_numeric_equivalence() -> None:
+    prompt = {"1": {"class_type": "Fixture", "inputs": {"flag": True}}}
+    client = _client()
+    _submit(client, prompt)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "1": {"class_type": "Fixture", "inputs": {"flag": 1}}
+    }
+    with pytest.raises(ComfyProtocolError, match=r"changed_inputs=\['1:flag'\]"):
+        client.execution_history(LOGICAL)
+
+
+def test_history_semantic_input_rewrite_is_rejected_with_value_free_summary() -> None:
+    client = _client()
+    _submit(client)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "1": {"class_type": "Fixture", "inputs": {"steps": 2}}
+    }
+    with pytest.raises(ComfyProtocolError) as exc_info:
+        client.execution_history(LOGICAL)
+    message = str(exc_info.value)
+    assert "input_values_changed=['1']" in message
+    assert "changed_inputs=['1:steps']" in message
+    assert "2" not in message
+
+
+def test_history_class_rewrite_is_rejected() -> None:
+    client = _client()
+    _submit(client)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "1": {"class_type": "OtherFixture", "inputs": {"steps": 1}}
+    }
+    with pytest.raises(ComfyProtocolError, match=r"class_changed=\['1'\]"):
+        client.execution_history(LOGICAL)
+
+
+def test_history_unknown_node_field_is_rejected() -> None:
+    client = _client()
+    _submit(client)
+    client._http.history_prompt = {  # type: ignore[attr-defined]
+        "1": {
+            "class_type": "Fixture",
+            "inputs": {"steps": 1},
+            "runtime_override": "unexpected",
+        }
+    }
+    with pytest.raises(ComfyProtocolError, match="unsupported node fields"):
+        client.execution_history(LOGICAL)

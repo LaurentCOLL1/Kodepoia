@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/comfy-workflow-definition-payload-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "revision",
+    "graph",
+    "parameters",
+    "input_slots",
+    "output_slots",
+    "model_requirements",
+    "allowed_node_classes",
+    "definition_id",
+    "definition_digest_sha256"
+  ],
+  "properties": {
+    "name": {"type": "string", "minLength": 1, "maxLength": 256},
+    "revision": {"type": "integer", "minimum": 1},
+    "graph": {
+      "type": "object",
+      "maxProperties": 10000,
+      "propertyNames": {"type": "string", "minLength": 1, "maxLength": 128},
+      "additionalProperties": {"$ref": "#/$defs/node"}
+    },
+    "parameters": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/parameter"}
+    },
+    "input_slots": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/inputSlot"}
+    },
+    "output_slots": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/outputSlot"}
+    },
+    "model_requirements": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/modelRequirement"}
+    },
+    "allowed_node_classes": {
+      "type": "array",
+      "maxItems": 10000,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 256}
+    },
+    "definition_id": {"type": "string", "pattern": "^wf_[0-9a-f]{32}$"},
+    "definition_digest_sha256": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "scalar": {"type": ["string", "integer", "number", "boolean", "null"]},
+    "link": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "string", "minLength": 1, "maxLength": 128},
+        {"type": "integer", "minimum": 0}
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "paramMarker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$param"],
+      "properties": {"$param": {"type": "string", "minLength": 1, "maxLength": 128}}
+    },
+    "inputMarker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$input"],
+      "properties": {"$input": {"type": "string", "minLength": 1, "maxLength": 128}}
+    },
+    "modelMarker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$model"],
+      "properties": {"$model": {"type": "string", "minLength": 1, "maxLength": 128}}
+    },
+    "graphValue": {
+      "oneOf": [
+        {"$ref": "#/$defs/scalar"},
+        {"$ref": "#/$defs/link"},
+        {"$ref": "#/$defs/paramMarker"},
+        {"$ref": "#/$defs/inputMarker"},
+        {"$ref": "#/$defs/modelMarker"}
+      ]
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["class_type", "inputs"],
+      "properties": {
+        "class_type": {"type": "string", "minLength": 1, "maxLength": 256},
+        "inputs": {
+          "type": "object",
+          "maxProperties": 4096,
+          "propertyNames": {"type": "string", "minLength": 1, "maxLength": 256},
+          "additionalProperties": {"$ref": "#/$defs/graphValue"}
+        }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "node_id", "input_name", "kind", "minimum", "maximum", "choices"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 128},
+        "node_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "input_name": {"type": "string", "minLength": 1, "maxLength": 256},
+        "kind": {"enum": ["string", "integer", "number", "boolean", "enum", "seed"]},
+        "minimum": {"type": ["integer", "number", "null"]},
+        "maximum": {"type": ["integer", "number", "null"]},
+        "choices": {"type": "array", "maxItems": 100000, "items": {"$ref": "#/$defs/scalar"}}
+      }
+    },
+    "inputSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "node_id", "input_name", "type_token"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 128},
+        "node_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "input_name": {"type": "string", "minLength": 1, "maxLength": 256},
+        "type_token": {"type": "string", "minLength": 1, "maxLength": 256}
+      }
+    },
+    "outputSlot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "node_id", "output_index", "type_token"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 128},
+        "node_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "output_index": {"type": "integer", "minimum": 0},
+        "type_token": {"type": "string", "minLength": 1, "maxLength": 256}
+      }
+    },
+    "modelRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement_id", "model_type", "node_id", "input_name", "accepted_tokens"],
+      "properties": {
+        "requirement_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "model_type": {"type": "string", "minLength": 1, "maxLength": 128},
+        "node_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "input_name": {"type": "string", "minLength": 1, "maxLength": 256},
+        "accepted_tokens": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 250000,
+          "items": {"type": "string", "minLength": 1, "maxLength": 1024}
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE + NORMALIZED. R9.2 COMPLETE + NORMALIZED. R9.3 COMPLETE; post-merge continuity normalization in progress.** `docs/roadmap/R9_PLAN.md` est l’autorité structurelle exhaustive de R9.1–R9.11. R9.3 est acceptée côté implémentation sur `915075149fa81b31308c3eedcfa35e74f8a9b7a4`, puis sur le head documentaire exact `97e47799f6efe30eed58d73abf509d9d34ed862d` avec R0 #1127 / `32626703651`, Python Core #1101 / `32626703557`, UI Smoke #1068 / `32626703574`, tous SUCCESS; PR #109 est fusionnée sous `fdd054fa93a91b9e9bb017fe2df982f364c4ecfc`. Manual R9.3 = NONE. Cette normalisation continuity-only doit passer les trois gates et être fusionnée avant tout démarrage de R9.4.
+> Kodepoia, architecture v1.0 gelée. **R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE + NORMALIZED. R9.2 COMPLETE + NORMALIZED. R9.3 COMPLETE + NORMALIZED. R9.4 IMPLEMENTATION ACCEPTED; final documentation gates pending.** `docs/roadmap/R9_PLAN.md` est l’autorité structurelle exhaustive de R9.1–R9.11. R9.3 est normalisée via PR #110 sous `e9152cbe15ba9da2b383e2e6577251ca7c424e41`. R9.4 est acceptée côté implémentation sur `e158fd643ecf55a1ed9022193a48d2d1ee1716ed` avec R0 #1132 / `32627342083`, Python Core #1106 / `32627342056`, UI Smoke #1073 / `32627342058`, tous SUCCESS; Ubuntu `643 passed / 6 skipped / 46 warnings`. Manual R9.4 = NONE. Faire passer les trois gates sur le head documentaire final de PR #111, fusionner #111 uniquement si tous sont SUCCESS, puis effectuer une normalisation continuity-only avant toute R9.5.
 
 ## Source de vérité et état
 
@@ -22,8 +22,9 @@
 - R9 planning normalization : ACCEPTED sur `51a6bb7d04d8aacd47e621b15a747f6e9d08781c`; R0 #1106 / `32623679409`; Python Core #1080 / `32623679387`; UI Smoke #1047 / `32623679382`; PR #104 merge `e3f7bf6039cee918a5d505fb47ed536cde087e0e`.
 - R9.1 : COMPLETE; implementation head `dfde39746f0ec909a865a9f0ef75b6856e77c88f`, final documentation head `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58`; PR #105 merge `2eeadafb7cf12328a2c502684187a24ae82a82b7`; normalization head `1bd7dafa0307bc1985ef6811e529393c508680f8`; R0 #1111 / `32624628174`, Python #1085 / `32624628215`, UI #1052 / `32624628266`, all SUCCESS; PR #106 merge `2d646a08412b18709b5a1d3aa0c9a4bfed30ea05`.
 - R9.2 : COMPLETE + NORMALIZED; implementation head `15186ced206f05d8baf764738615e6625aa6d459`, final documentation head `89ea9d90ffab6db3563164e629f192caca91ed79`; R0 #1117 / `32625547484`, Python Core #1091 / `32625547536`, UI Smoke #1058 / `32625547485`, all SUCCESS; manual CONDITIONAL NOT TRIGGERED; PR #107 merge `549c1d6f0adc622d92997240bb2e6df2a654b3ee`; normalization head `3fd267d6f5901f0da3a41f85325cf7e58a9ded9f`; R0 #1119 / `32625925666`, Python #1093 / `32625925669`, UI #1060 / `32625925742`, all SUCCESS; PR #108 merge `9c18a0dc88f311c6aab469cdd6c9a02ca453805b`.
-- R9.3 : COMPLETE; implementation head `915075149fa81b31308c3eedcfa35e74f8a9b7a4`, final documentation head `97e47799f6efe30eed58d73abf509d9d34ed862d`; R0 #1127 / `32626703651`, Python Core #1101 / `32626703557`, UI Smoke #1068 / `32626703574`, all SUCCESS; manual NONE; PR #109 merge `fdd054fa93a91b9e9bb017fe2df982f364c4ecfc`; post-merge continuity normalization must merge before R9.4.
-- R9.4–R9.11 : PLANNED / NOT STARTED; structure R9.1–R9.11 figée par le plan fusionné.
+- R9.3 : COMPLETE + NORMALIZED; implementation head `915075149fa81b31308c3eedcfa35e74f8a9b7a4`, final documentation head `97e47799f6efe30eed58d73abf509d9d34ed862d`; R0 #1127 / `32626703651`, Python Core #1101 / `32626703557`, UI Smoke #1068 / `32626703574`, all SUCCESS; manual NONE; PR #109 merge `fdd054fa93a91b9e9bb017fe2df982f364c4ecfc`; normalization head `6da529ca8a2aa20d7c2d13e69e21c9579173a1fb`; R0 #1130 / `32626924944`, Python #1104 / `32626924986`, UI #1071 / `32626924952`, all SUCCESS; PR #110 merge `e9152cbe15ba9da2b383e2e6577251ca7c424e41`.
+- R9.4 : IMPLEMENTATION ACCEPTED on `e158fd643ecf55a1ed9022193a48d2d1ee1716ed`; R0 #1132 / `32627342083`, Python Core #1106 / `32627342056`, UI Smoke #1073 / `32627342058`, all SUCCESS; manual NONE; final documentation gates / PR #111 merge pending.
+- R9.5–R9.11 : PLANNED / NOT STARTED; structure R9.1–R9.11 figée par le plan fusionné.
 - R10–R16 : PENDING / NOT STARTED.
 
 ## R8 planning acceptance
@@ -60,7 +61,7 @@
 | R9.1 | ComfyUI contracts, local endpoint boundary + capability schema | `cb746fbfe1f318a5b05d4a6e35f1b8afb2338b58` | R0 #1109; Python #1083; UI #1050 | NONE |
 | R9.2 | Typed HTTP/WebSocket client, health, queue/history + protocol state | `89ea9d90ffab6db3563164e629f192caca91ed79` | R0 #1117; Python #1091; UI #1058 | CONDITIONAL NOT TRIGGERED |
 | R9.3 | Node/model inventory + capability snapshots | `97e47799f6efe30eed58d73abf509d9d34ed862d` | R0 #1127; Python #1101; UI #1068 | NONE |
-| R9.4 | Validated workflow catalog + governed model resolver | — | — | NONE |
+| R9.4 | Validated workflow catalog + governed model resolver | `e158fd643ecf55a1ed9022193a48d2d1ee1716ed` (implementation) | R0 #1132; Python #1106; UI #1073 | NONE |
 | R9.5 | Execution engine, queue/progress/reconciliation + run manifests | — | — | CONDITIONAL |
 | R9.6 | Generated-output capture + R8 Vault/AssetPipeline lineage bridge | — | — | NONE |
 | R9.7 | Cancellation, interruption, crash recovery + free-memory semantics | — | — | NONE |
@@ -106,12 +107,29 @@
 - Implementation gates: R0 #1125 / `32626438121`, Python #1099 / `32626438098`, UI #1066 / `32626438104`, all SUCCESS; Ubuntu `634 passed / 6 skipped / 46 warnings`; Windows tests and Ubuntu/Windows package builds SUCCESS; R7/R8 integrated acceptance PASS.
 - Final documentation/continuity head `97e47799f6efe30eed58d73abf509d9d34ed862d`: R0 #1127 / `32626703651`, Python #1101 / `32626703557`, UI #1068 / `32626703574`, all SUCCESS.
 - PR #109 merged as `fdd054fa93a91b9e9bb017fe2df982f364c4ecfc`.
+- Post-merge continuity normalization head `6da529ca8a2aa20d7c2d13e69e21c9579173a1fb`: R0 #1130 / `32626924944`, Python #1104 / `32626924986`, UI #1071 / `32626924952`, all SUCCESS; PR #110 merged as `e9152cbe15ba9da2b383e2e6577251ca7c424e41`.
 - `ComfyCapabilityInventory` discovers only the fixed accepted loopback routes and never scans Kodepoia model directories or executes/downloads nodes/models.
 - Snapshot identity binds endpoint/system/features/nodes/models/unavailable evidence but excludes `captured_at`; unchanged recapture at the same endpoint is deterministic.
 - Unknown node-extension metadata is inert but SHA-256-bound so drift is visible; model tokens are relative logical identifiers only and cannot manufacture Vault/provenance/license truth.
 - Capability drift yields explicit `STALE` evidence; the root-confined atomic snapshot cache is rebuildable and tamper-checked.
 - Frozen R9.1 `comfy-capability-snapshot-v1` envelope remains unchanged; R9.3 adds a separate strict payload schema.
 - Rejected precursor `5c714d49d775dd04d04bca95ec341289cc59a515`: R0 #1121 and UI #1062 SUCCESS, Python #1095 FAILURE with two newly introduced failures (illegal tightening of the R9.1 root schema and a determinism fixture that changed endpoint as well as timestamp). Both were corrected without weakening gates.
+- Manual intervention: NONE.
+
+### R9.4 accepted implementation baseline
+
+- Base normalized R9.3 `main`: `e9152cbe15ba9da2b383e2e6577251ca7c424e41`.
+- Exact accepted implementation head: `e158fd643ecf55a1ed9022193a48d2d1ee1716ed`.
+- Implementation gates: R0 #1132 / `32627342083`, Python #1106 / `32627342056`, UI #1073 / `32627342058`, all SUCCESS; Ubuntu `643 passed / 6 skipped / 46 warnings`; Windows tests and Ubuntu/Windows package builds SUCCESS; R7/R8 integrated acceptance PASS.
+- `WorkflowDefinition` binds the canonical Kodepoia-owned API graph, revision, allowlisted classes, scalar/input/output slots and model requirements into a SHA-256 definition identity; node IDs/classes/connections cannot be parameter-mutated.
+- Only declared `$param`, `$input` and `$model` markers can be substituted. Parameters are bounded JSON scalars, so a parameter cannot inject an arbitrary mapping/graph fragment.
+- Validation requires a `CURRENT` R9.3 snapshot and checks node presence, allowlist, required/unknown inputs, scalar constraints, link type compatibility and output-slot types against that exact capability evidence.
+- Seeds are explicit typed parameters; R9.4 does not manufacture hidden randomness.
+- `GovernedModelResolver` resolves only discovered inventory tokens and exposes `RESOLVED`, `MISSING`, `AMBIGUOUS` and `BLOCKED`. Multiple candidates require explicit deterministic selection; no filename is guessed or downloaded.
+- Optional `VaultModelEvidence` reuses R8 `AssetRevisionId`, exact digest, `ReuseScope`, `AssetGovernanceOutcome` and license evidence. External-local models without R8 evidence remain `NOASSERTION` and non-exportable.
+- `WorkflowCatalog` loads only explicitly named, root-confined, non-symlink JSON files and recomputes canonical definition identity. There is no recursive workflow discovery.
+- Frozen R9.1 root workflow envelope remains unchanged; strict R9.4 payload validation lives in `comfy-workflow-definition-payload-v1.schema.json`.
+- `docs/roadmap/R9_4_ACCEPTANCE.md` pins the implementation evidence. Final documentation/continuity head must pass all three exact-head gates before PR #111 merge.
 - Manual intervention: NONE.
 
 ## R8 accepted structure and evidence
@@ -334,4 +352,4 @@ For R8 and every later phase:
 
 ## Next action
 
-**R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE + NORMALIZED. R9.2 COMPLETE + NORMALIZED. R9.3 COMPLETE.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head exact de `r9/3-continuity-normalization`, puis fusionner cette normalisation continuity-only. **R9.4 reste interdit avant cette fusion.** Une fois la normalisation fusionnée, commencer R9.4 sur une branche dédiée depuis le `main` normalisé.
+**R1–R8 COMPLETE. R9 planning ACCEPTED + NORMALIZED. R9.1 COMPLETE + NORMALIZED. R9.2 COMPLETE + NORMALIZED. R9.3 COMPLETE + NORMALIZED. R9.4 IMPLEMENTATION ACCEPTED.** Faire passer R0 Repository Guard, full Python Core et KodeStudio UI Smoke sur le head documentaire final de PR #111. Si les trois sont SUCCESS sur ce SHA exact, fusionner #111 avec verrou exact-head. Ensuite créer une normalisation continuity-only enregistrant le final documentation head, les trois runs finaux et le merge SHA de #111; gate et fusionner cette normalisation avant toute R9.5.

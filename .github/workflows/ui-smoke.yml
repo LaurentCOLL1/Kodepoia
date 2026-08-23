@@ -37,4 +37,4 @@ jobs:
       - name: Compile
         run: python -m compileall -q src tests
       - name: Run KodeStudio smoke tests
-        run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py tests/test_r6_6_localization_ui.py tests/test_r7_10_research_ui.py tests/test_r8_10_kodestudio.py
+        run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py tests/test_r6_6_localization_ui.py tests/test_r7_10_research_ui.py tests/test_r8_10_kodestudio.py tests/test_comfyui_r9_10_kodestudio.py

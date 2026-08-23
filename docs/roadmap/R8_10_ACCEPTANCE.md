@@ -1,16 +1,15 @@
 # R8.10 — CLI + KodeStudio Vault/Asset/VCS UX — Acceptance
 
-**Status:** ACCEPTED / PENDING MERGE  
+**Status:** COMPLETE / ACCEPTED  
 **Manual intervention:** NONE
 
-## Accepted implementation candidate
+## Accepted implementation and merge
 
 - Exact accepted implementation head: `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`.
 - Base normalized R8.9 main: `8ca2eec6192b3d82495309b1c5bc2e6e8e49132a`.
+- Final acceptance/continuity documentation head before merge: `29928598224aa8df74a768984928733b1d52ef94`.
 - PR: #99.
-- Merge SHA: PENDING.
-
-No implementation code is accepted from a later SHA unless the complete R0/Python/UI gate set is rerun on that later SHA.
+- Merge SHA: `a72da6be019f2b1771ab42d04b37c44b0d7464d3`.
 
 ## Authoritative automated CI on the exact implementation head
 
@@ -21,7 +20,17 @@ No implementation code is accepted from a later SHA unless the complete R0/Pytho
 - KodeStudio UI Smoke #1024 / `32614391930`: SUCCESS.
 - Python Core's integrated Windows KodeStudio smoke: SUCCESS.
 
-R8.10 manual intervention is `NONE`; no hardware-local, credential-bearing or external-provider acceptance step is required.
+R8.10 manual intervention is `NONE`; no hardware-local, credential-bearing or external-provider acceptance step was required.
+
+## Final documentation gate before merge
+
+The documentation/continuity-only head `29928598224aa8df74a768984928733b1d52ef94` passed:
+
+- R0 Repository Guard #1086 / `32620855929`: SUCCESS Ubuntu + Windows.
+- Python Core #1060 / `32620855945`: SUCCESS 5/5, including Ubuntu + Windows suites, package builds on both platforms and the integrated Windows KodeStudio smoke.
+- KodeStudio UI Smoke #1027 / `32620855926`: SUCCESS.
+
+No implementation code changed after `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`; the later commits only added `R8_10_DESIGN.md`, this acceptance evidence and synchronized continuity.
 
 ## Accepted architecture and behavior
 
@@ -71,7 +80,7 @@ Potentially expensive work uses `QThreadPool`/`QRunnable`. Each worker calls `As
 R8.10 extends, rather than bypasses, the accepted R6.5 accessibility and R6.6 localization contracts:
 
 - new interactive Vault controls are registered with stable accessibility IDs/names/descriptions;
-- pseudo-localized navigation now explicitly expects the seventh `Vault` item;
+- pseudo-localized navigation explicitly expects the seventh `Vault` item;
 - both UI workflows include the R8.10 Vault smoke alongside existing accessibility/localization/Research regressions.
 
 ## Rejected/intermediate candidates
@@ -96,16 +105,10 @@ Qt documents `QThreadPool`/`QRunnable` as the standard mechanism for running que
 
 R8.10 introduces no model-supplied arbitrary executable, argv, cwd, environment, Git command/refspec/config key, remote URL/host, raw socket or secret surface. VCS/LFS behavior continues to use the accepted structured R8.7/R8.8 boundaries; asset paths remain project/Vault confined; license/export policy remains R8.6/R6-governed.
 
-## Documentation gate still required before merge
+## Post-merge normalization gate
 
-This acceptance file and `docs/roadmap/R8_10_DESIGN.md` are documentation-only additions after the exact implementation head above. `docs/continuity/KODEPOIA_CONTINUITY.md` must be synchronized in the same work cycle. The resulting final documentation head must then pass:
-
-- R0 Repository Guard;
-- full Python Core;
-- KodeStudio UI Smoke.
-
-Only after all three succeed on that exact documentation head may PR #99 be merged. The post-merge normalization must then record the PR #99 merge SHA and mark R8.10 COMPLETE before R8.11 implementation begins.
+This acceptance update and the synchronized continuity are post-merge normalization-only changes based exactly on merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`. The normalization head must pass R0 Repository Guard, full Python Core and KodeStudio UI Smoke before its PR is merged. R8.11 must not begin before that normalization merge.
 
 ## Result
 
-R8.10 implementation is **ACCEPTED / PENDING MERGE** on exact head `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`. R8.11 remains blocked until the documentation gate, PR #99 merge and R8.10 post-merge normalization are complete.
+R8.10 is **COMPLETE** with accepted implementation head `6a78b05575ff3ba675b94ebbcbfb45dabf6dbd22`, final pre-merge documentation head `29928598224aa8df74a768984928733b1d52ef94`, PR #99 merge `a72da6be019f2b1771ab42d04b37c44b0d7464d3`, and manual intervention `NONE`. R8.11 becomes authorized only after the R8.10 post-merge normalization passes its three gates and is merged.

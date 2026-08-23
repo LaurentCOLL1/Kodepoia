@@ -155,7 +155,7 @@
 - Frozen R9.1 root run-manifest envelope remains unchanged; strict R9.5 payload validation is separate in `schemas/comfy-run-manifest-payload-v1.schema.json`.
 - Deterministic fixture `tests/fixtures/comfyui/r9_5_execution.json`: version 1, SHA-256 `549eab22a20f34ad367baf8f46d5c1a5166cd9fb8cbb90fdb983b9bd1129d50a`, 542 bytes.
 - Rejected precursor `4d0a5e0f66603387893d1633ba283c0e5d5d5078`: R0 #1140 and UI #1081 SUCCESS, Python #1114 / `32628835669` FAILURE with Ubuntu `652 passed / 2 failed / 6 skipped / 46 warnings`. One failure exposed the real missing snapshot/executor-origin binding; the other was a fixture-only `zip(..., strict=True)` assertion mismatch. The accepted correction strengthened production confinement and fixed only the test mechanism.
-- Manual intervention: **CONDITIONAL NOT TRIGGERED** because deterministic loopback CI on both hosted platforms établissent les propriétés figées d’exécution/recovery/prevention duplicate de R9.5, tandis que l’evidence upstream ComfyUI courante confirme que queue/history doivent rester l’autorité durable lorsque la livraison WebSocket cale ou que le succès précède la persistence des outputs. No required property depends on GPU, model/custom-node installation or a user-specific deployment.
+- Manual intervention: **CONDITIONAL NOT TRIGGERED** because deterministic loopback CI on both hosted platforms establishes the frozen R9.5 execution/recovery/duplicate-prevention properties, while current upstream ComfyUI evidence confirms that queue/history must remain the durable authority when WebSocket delivery stalls or success precedes output persistence. No required property depends on GPU, model/custom-node installation or a user-specific deployment.
 
 ### R9.6 accepted baseline
 

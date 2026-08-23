@@ -180,7 +180,7 @@
 
 ### R8.8 accepted baseline
 
-- Git LFS pointer v1 parsing is independent, strict and canonical: version URL, SHA-256 OID, exact size and ordered extension evidence are validated without invoking un remote.
+- Git LFS pointer v1 parsing is independent, strict and canonical: version URL, SHA-256 OID, exact size and ordered extension evidence are validated without invoking a remote.
 - Git LFS capability/list/fsck operations use a fixed local ProcessSandbox surface; fetch/pull/push and migration/history rewrite are not exposed.
 - `.gitattributes` heavy-asset policy and path-effective attributes are inspectable; updates are restricted to the frozen policy set, explicitly confirmed, SafeChange-snapshotted, atomic and audited.
 - Pointer, invalid pointer, missing/mismatched local LFS object, hydrated match/mismatch and pointer-only working tree are distinct states.

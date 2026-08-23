@@ -19,6 +19,7 @@ from .errors import ComfyProtocolError, ComfyResourceError, ComfyUnavailableErro
 _WS_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 _MAX_HTTP_REDIRECTS = 3
 _MAX_HTTP_HEADER_BYTES = 64 * 1024
+_MAX_DISCARDED_ERROR_BYTES = 64 * 1024
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,7 +54,7 @@ class _FixedHTTPTransport:
         query: dict[str, str] | None,
         max_bytes: int,
     ) -> _HTTPPayload:
-        if not path.startswith("/") or "#" in path:
+        if not path.startswith("/") or "?" in path or "#" in path:
             raise ComfyProtocolError("Internal ComfyUI route is invalid")
         request_target = path
         if query:
@@ -85,7 +86,7 @@ class _FixedHTTPTransport:
 
             if 300 <= response.status < 400:
                 location = response.getheader("Location")
-                response.read()
+                response.read(_MAX_DISCARDED_ERROR_BYTES + 1)
                 if location is None:
                     raise ComfyProtocolError("ComfyUI redirect omitted Location")
                 if redirects >= _MAX_HTTP_REDIRECTS:
@@ -96,7 +97,7 @@ class _FixedHTTPTransport:
                 return self._request_target(next_target, max_bytes=max_bytes, redirects=redirects + 1)
 
             if not 200 <= response.status < 300:
-                response.read(min(max_bytes + 1, 64 * 1024))
+                response.read(_MAX_DISCARDED_ERROR_BYTES + 1)
                 raise ComfyProtocolError(f"ComfyUI HTTP request failed with status {response.status}")
 
             declared_length = response.getheader("Content-Length")
@@ -156,9 +157,10 @@ class _WebSocketConnection:
                 sock = raw_socket
             sock.settimeout(limits.read_timeout_seconds)
             key = base64.b64encode(os.urandom(16)).decode("ascii")
-            host_header = f"[{endpoint.host}]:{endpoint.port}" if ":" in endpoint.host else (
-                f"{endpoint.host}:{endpoint.port}"
-            )
+            if ":" in endpoint.host:
+                host_header = f"[{endpoint.host}]:{endpoint.port}"
+            else:
+                host_header = f"{endpoint.host}:{endpoint.port}"
             target = f"/ws?{urlencode({'clientId': client_id})}"
             request = (
                 f"GET {target} HTTP/1.1\r\n"
@@ -198,20 +200,23 @@ class _WebSocketConnection:
 
     @staticmethod
     def _read_handshake(sock: socket.socket) -> tuple[int, dict[str, str]]:
+        # Read through the header terminator one byte at a time. This prevents
+        # over-reading a first WebSocket frame that the peer may coalesce with
+        # the HTTP 101 response in the same TCP packet.
         buffer = bytearray()
-        while b"\r\n\r\n" not in buffer:
+        while not buffer.endswith(b"\r\n\r\n"):
             if len(buffer) >= _MAX_HTTP_HEADER_BYTES:
                 raise ComfyResourceError("ComfyUI WebSocket handshake headers exceed the accepted bound")
-            chunk = sock.recv(min(4096, _MAX_HTTP_HEADER_BYTES - len(buffer)))
+            chunk = sock.recv(1)
             if not chunk:
                 raise _WebSocketClosed("ComfyUI closed during WebSocket handshake")
             buffer.extend(chunk)
-        header_bytes, _separator, remainder = bytes(buffer).partition(b"\r\n\r\n")
-        if remainder:
-            raise ComfyProtocolError("ComfyUI sent WebSocket frame bytes inside the handshake read")
+        header_bytes = bytes(buffer[:-4])
         try:
             lines = header_bytes.decode("iso-8859-1").split("\r\n")
             status_parts = lines[0].split(" ", 2)
+            if not status_parts[0].startswith("HTTP/"):
+                raise ValueError("missing HTTP status prefix")
             status = int(status_parts[1])
         except (UnicodeDecodeError, ValueError, IndexError) as exc:
             raise ComfyProtocolError("Malformed ComfyUI WebSocket HTTP handshake") from exc
@@ -220,7 +225,10 @@ class _WebSocketConnection:
             if ":" not in line:
                 raise ComfyProtocolError("Malformed ComfyUI WebSocket response header")
             key, value = line.split(":", 1)
-            headers[key.strip().lower()] = value.strip()
+            normalized_key = key.strip().lower()
+            if not normalized_key:
+                raise ComfyProtocolError("Malformed empty ComfyUI WebSocket response header name")
+            headers[normalized_key] = value.strip()
         return status, headers
 
     def close(self) -> None:

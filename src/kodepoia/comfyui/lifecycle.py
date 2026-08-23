@@ -12,9 +12,14 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
-from .client import ComfySystemSnapshot, ComfyUIClient
+from .client import ComfyUIClient
 from .contracts import ComfyRunState, is_terminal_run_state
-from .errors import ComfyGovernanceError, ComfyProtocolError, ComfySubmissionAmbiguousError, ComfyUnavailableError
+from .errors import (
+    ComfyGovernanceError,
+    ComfyProtocolError,
+    ComfySubmissionAmbiguousError,
+    ComfyUnavailableError,
+)
 from .execution import ComfyExecutionBudget, ComfyExecutionService, ComfyRunManifest, ComfyRunStore
 from .serialization import canonical_json_bytes, canonical_sha256, make_envelope, parse_envelope
 
@@ -84,7 +89,7 @@ class ComfyLifecycleAudit:
             "run_id": self.run_id,
             "run_manifest_digest_sha256": self.run_manifest_digest_sha256,
             "endpoint": self.endpoint,
-            "events": [item.canonical() for item in self.events],
+            "events": [event.canonical() for event in self.events],
         }
 
     def payload(self) -> dict[str, Any]:
@@ -121,7 +126,7 @@ class ComfyFreeMemoryEvidence:
 
 
 class ComfyLifecycleAuditStore:
-    """Atomic tamper-evident audit per logical run; events form an append-only hash chain."""
+    """Atomic tamper-evident per-run lifecycle audit with an append-only hash chain."""
 
     def __init__(self, root: Path | str) -> None:
         raw = Path(root)
@@ -219,7 +224,7 @@ class ComfyLifecycleAuditStore:
 
 
 class ComfyLifecycleService:
-    """Targeted cancellation and restart recovery without global interruption or fabricated memory evidence."""
+    """Bounded targeted cancellation, restart recovery and conservative memory cleanup."""
 
     def __init__(
         self,
@@ -251,7 +256,6 @@ class ComfyLifecycleService:
             )
             return manifest
 
-        # Reconcile immediately before the side effect to close obvious terminal races.
         current = self.execution.reconcile_once(run_id, instance)
         if is_terminal_run_state(current.state):
             self.audit.append(
@@ -282,7 +286,7 @@ class ComfyLifecycleService:
         action = ComfyLifecycleAction.JOB_CANCEL
         response_digest: str | None = None
         try:
-            response = self.client._http.post_json(  # fixed internal route; no caller-supplied path
+            response = self.client._http.post_json(
                 f"/api/jobs/{quote(current.prompt_id, safe='')}/cancel",
                 {},
             )
@@ -290,8 +294,6 @@ class ComfyLifecycleService:
                 raise ComfyProtocolError("ComfyUI job-cancel response shape is invalid")
             response_digest = canonical_sha256(response)
         except ComfyProtocolError as exc:
-            # Current ComfyUI exposes atomic job cancel. A 404 here means an older server route;
-            # only then use state-classified legacy targeted operations. Never issue global interrupt.
             if "status 404" not in str(exc):
                 raise
             if pending:
@@ -299,11 +301,20 @@ class ComfyLifecycleService:
                 request = {"delete": [current.prompt_id]}
                 request_digest = canonical_sha256(request)
                 self._post_empty("/queue", request)
-            elif running:
+            else:
+                # Legacy /interrupt is global in upstream ComfyUI. Sending a prompt_id body does
+                # not make it targeted, so using it would risk interrupting another prompt.
                 action = ComfyLifecycleAction.TARGETED_INTERRUPT
-                request = {"prompt_id": current.prompt_id}
-                request_digest = canonical_sha256(request)
-                self._post_empty("/interrupt", request)
+                self.audit.append(
+                    current,
+                    action=action,
+                    outcome=ComfyLifecycleOutcome.UNSUPPORTED,
+                    observed_state=current.state,
+                    request_digest_sha256=request_digest,
+                )
+                raise ComfyGovernanceError(
+                    "Running-job cancellation is unsupported by this ComfyUI version without the targeted job-cancel API"
+                ) from exc
         except (ComfySubmissionAmbiguousError, ComfyUnavailableError):
             self.audit.append(
                 current,
@@ -322,12 +333,20 @@ class ComfyLifecycleService:
             request_digest_sha256=request_digest,
             response_digest_sha256=response_digest,
         )
-        limits = budget or ComfyExecutionBudget(max_poll_attempts=16, poll_interval_seconds=0.01, max_wait_seconds=10)
+        limits = budget or ComfyExecutionBudget(
+            max_poll_attempts=16,
+            poll_interval_seconds=0.01,
+            max_wait_seconds=10,
+        )
         result = self.execution.wait(run_id, instance, budget=limits, cancel_event=cancel_event)
         self.audit.append(
             result,
             action=ComfyLifecycleAction.RECOVER,
-            outcome=(ComfyLifecycleOutcome.RECONCILED if is_terminal_run_state(result.state) else ComfyLifecycleOutcome.AMBIGUOUS),
+            outcome=(
+                ComfyLifecycleOutcome.RECONCILED
+                if is_terminal_run_state(result.state)
+                else ComfyLifecycleOutcome.AMBIGUOUS
+            ),
             observed_state=result.state,
         )
         return result
@@ -359,7 +378,11 @@ class ComfyLifecycleService:
         self.audit.append(
             result,
             action=ComfyLifecycleAction.RECOVER,
-            outcome=(ComfyLifecycleOutcome.RECONCILED if result.state != manifest.state else ComfyLifecycleOutcome.NOOP),
+            outcome=(
+                ComfyLifecycleOutcome.RECONCILED
+                if result.state != manifest.state
+                else ComfyLifecycleOutcome.NOOP
+            ),
             observed_state=result.state,
         )
         return result
@@ -373,23 +396,67 @@ class ComfyLifecycleService:
         settle_seconds: float = 0.0,
     ) -> ComfyFreeMemoryEvidence:
         if not unload_models and free_memory:
-            raise ComfyGovernanceError("free_memory without unload_models is rejected because ComfyUI may unload implicitly")
+            raise ComfyGovernanceError(
+                "free_memory without unload_models is rejected because ComfyUI may unload implicitly"
+            )
         if not unload_models and not free_memory:
             raise ValueError("At least one cleanup request must be enabled")
         if not 0 <= settle_seconds <= 30:
             raise ValueError("settle_seconds must be between 0 and 30 seconds")
+
+        manifests: list[ComfyRunManifest] = []
         for run_id in known_run_ids:
             manifest = self.run_store.load(run_id)
             self._verify_origin(manifest)
             if not is_terminal_run_state(manifest.state):
-                raise ComfyGovernanceError("Free-memory request is blocked while a known Kodepoia run is non-terminal")
+                self.audit.append(
+                    manifest,
+                    action=ComfyLifecycleAction.FREE_REQUEST,
+                    outcome=ComfyLifecycleOutcome.BLOCKED,
+                    observed_state=manifest.state,
+                )
+                raise ComfyGovernanceError(
+                    "Free-memory request is blocked while a known Kodepoia run is non-terminal"
+                )
+            manifests.append(manifest)
+
         before = self.client.system_stats()
         request = {"unload_models": bool(unload_models), "free_memory": bool(free_memory)}
         request_digest = canonical_sha256(request)
-        self._post_empty("/free", request)
-        if settle_seconds:
-            time.sleep(settle_seconds)
-        after = self.client.system_stats()
+        try:
+            self._post_empty("/free", request)
+            if settle_seconds:
+                time.sleep(settle_seconds)
+            after = self.client.system_stats()
+        except (ComfySubmissionAmbiguousError, ComfyUnavailableError):
+            for manifest in manifests:
+                self.audit.append(
+                    manifest,
+                    action=ComfyLifecycleAction.FREE_REQUEST,
+                    outcome=ComfyLifecycleOutcome.AMBIGUOUS,
+                    observed_state=manifest.state,
+                    request_digest_sha256=request_digest,
+                )
+            raise
+
+        response_digest = canonical_sha256(
+            {
+                "request_acknowledged": True,
+                "before_system_digest_sha256": before.digest_sha256,
+                "after_system_digest_sha256": after.digest_sha256,
+                "reclaimed_bytes": None,
+            }
+        )
+        for manifest in manifests:
+            self.audit.append(
+                manifest,
+                action=ComfyLifecycleAction.FREE_REQUEST,
+                outcome=ComfyLifecycleOutcome.RECONCILED,
+                observed_state=manifest.state,
+                request_digest_sha256=request_digest,
+                response_digest_sha256=response_digest,
+            )
+
         return ComfyFreeMemoryEvidence(
             endpoint=self.client.endpoint.origin,
             unload_models=bool(unload_models),
@@ -401,9 +468,34 @@ class ComfyLifecycleService:
             reclaimed_bytes=None,
         )
 
+    def cleanup_terminal_run(
+        self,
+        run_id: str,
+        *,
+        settle_seconds: float = 0.0,
+    ) -> ComfyFreeMemoryEvidence:
+        manifest = self.run_store.load(run_id)
+        self._verify_origin(manifest)
+        if not is_terminal_run_state(manifest.state):
+            self.audit.append(
+                manifest,
+                action=ComfyLifecycleAction.FREE_REQUEST,
+                outcome=ComfyLifecycleOutcome.BLOCKED,
+                observed_state=manifest.state,
+            )
+            raise ComfyGovernanceError("Cleanup is allowed only after a terminal run state")
+        return self.request_free_memory(
+            known_run_ids=(run_id,),
+            unload_models=True,
+            free_memory=True,
+            settle_seconds=settle_seconds,
+        )
+
     def _post_empty(self, path: str, document: dict[str, Any]) -> None:
+        if path not in {"/queue", "/free"}:
+            raise ComfyGovernanceError("Lifecycle operation is outside the fixed accepted route set")
         body = canonical_json_bytes(document)
-        payload = self.client._http._post_target(  # package-private fixed transport; route is hard-coded above
+        payload = self.client._http._post_target(
             path,
             body=body,
             max_bytes=self.client.limits.max_json_bytes,
@@ -414,7 +506,9 @@ class ComfyLifecycleService:
             except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                 raise ComfyProtocolError("ComfyUI lifecycle acknowledgement is malformed") from exc
             if decoded not in ({}, None):
-                raise ComfyProtocolError("ComfyUI lifecycle acknowledgement contains unexpected data")
+                raise ComfyProtocolError(
+                    "ComfyUI lifecycle acknowledgement contains unexpected data"
+                )
 
     def _verify_origin(self, manifest: ComfyRunManifest) -> None:
         if manifest.capability_endpoint != self.client.endpoint.origin:
@@ -428,11 +522,17 @@ def _seal_audit(audit: ComfyLifecycleAudit) -> ComfyLifecycleAudit:
         raise ComfyProtocolError("Lifecycle run-manifest digest is invalid")
     if not audit.endpoint or len(audit.endpoint) > 2048:
         raise ComfyProtocolError("Lifecycle endpoint is invalid")
+    if len(audit.events) > _MAX_EVENTS:
+        raise ComfyProtocolError("Lifecycle audit event bound exceeded")
     previous: str | None = None
     for index, event in enumerate(audit.events):
         if event.sequence != index or event.previous_event_digest_sha256 != previous:
             raise ComfyProtocolError("Lifecycle event chain is broken")
-        for digest in (event.request_digest_sha256, event.response_digest_sha256, event.previous_event_digest_sha256):
+        for digest in (
+            event.request_digest_sha256,
+            event.response_digest_sha256,
+            event.previous_event_digest_sha256,
+        ):
             if digest is not None and not _HEX64_RE.fullmatch(digest):
                 raise ComfyProtocolError("Lifecycle event digest field is invalid")
         expected = canonical_sha256(event.canonical_without_digest())
@@ -440,7 +540,10 @@ def _seal_audit(audit: ComfyLifecycleAudit) -> ComfyLifecycleAudit:
             raise ComfyProtocolError("Lifecycle event digest is invalid")
         previous = event.event_digest_sha256
     normalized = replace(audit, audit_digest_sha256="")
-    return replace(normalized, audit_digest_sha256=canonical_sha256(normalized.canonical_without_digest()))
+    return replace(
+        normalized,
+        audit_digest_sha256=canonical_sha256(normalized.canonical_without_digest()),
+    )
 
 
 def _validate_audit(audit: ComfyLifecycleAudit) -> None:
@@ -450,7 +553,13 @@ def _validate_audit(audit: ComfyLifecycleAudit) -> None:
 
 
 def _audit_from_payload(payload: dict[str, Any]) -> ComfyLifecycleAudit:
-    expected = {"run_id", "run_manifest_digest_sha256", "endpoint", "events", "audit_digest_sha256"}
+    expected = {
+        "run_id",
+        "run_manifest_digest_sha256",
+        "endpoint",
+        "events",
+        "audit_digest_sha256",
+    }
     if set(payload) != expected or not isinstance(payload["events"], list):
         raise ComfyProtocolError("Lifecycle audit payload fields are invalid")
     events: list[ComfyLifecycleEvent] = []

@@ -1,13 +1,13 @@
 # R10.6 — Acceptance record
 
-Status: **HOSTED IMPLEMENTATION ACCEPTED; FIRST LOCAL EVIDENCE REJECTED; COLLECTOR HARDENING IN PROGRESS**  
-Manual intervention: **CONDITIONAL TRIGGERED — rerun required after hardening gates**
+Status: **LOCAL BLENDER EVIDENCE ACCEPTED; FINAL DOCUMENTED HEAD PENDING GATES**  
+Manual intervention: **CONDITIONAL TRIGGERED AND SATISFIED**
 
 ## Definition of Done
 
-R10.6 requires exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, deterministic rig-profile identity, hierarchy/deform-set validation, influence/tolerance budgets, malformed weight fixtures, explicit exported-deform set, staging lineage and a real Blender 5.2 deformation fixture when the frozen CONDITIONAL boundary is triggered.
+R10.6 requires exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, deterministic rig-profile identity, hierarchy/deform-set validation, influence/tolerance budgets, malformed weight fixtures, explicit exported-deform set, staging lineage and a real Blender 5.2 deformation fixture because the frozen CONDITIONAL boundary was triggered.
 
-## Hosted implementation evidence
+## Original hosted implementation evidence
 
 Immutable implementation head `4fb687b232eb7ed113991e81038284cb4a806554` passed:
 
@@ -15,32 +15,48 @@ Immutable implementation head `4fb687b232eb7ed113991e81038284cb4a806554` passed:
 - Python Core #1221 / `32667542562` — SUCCESS; Ubuntu **799 passed / 7 skipped / 46 warnings**; R7/R8/R9 integrated acceptance PASS.
 - KodeStudio UI Smoke #1188 / `32667542603` — SUCCESS.
 
-The hosted tests prove the frozen four-influence default and explicit higher-count opt-in; hierarchy/connected-rest invariants; control-only weight rejection; deterministic tiny-weight pruning/normalization; create vs imported-existing strategy constraints; PASS/WARN/BLOCK validation for zero weights, bad sums, over-budget influences, control references, modifier/parent binding and deformation-probe protocol; immutable parent/derived SHA lineage; protocol tamper rejection; and the bounded offline local-acceptance path.
+The hosted tests proved the frozen four-influence default and explicit higher-count opt-in; hierarchy/connected-rest invariants; control-only weight rejection; deterministic tiny-weight pruning/normalization; create vs imported-existing strategy constraints; PASS/WARN/BLOCK validation for zero weights, bad sums, over-budget influences, control references, modifier/parent binding and deformation-probe protocol; immutable parent/derived SHA lineage; protocol tamper rejection; and the bounded offline local-acceptance path.
 
-## First local attempt — rejected evidence, implementation result retained as diagnostic
+## First local attempt — rejected evidence, rig result retained as diagnostic
 
-The first bounded local run was executed against the immutable implementation head `4fb687b232eb7ed113991e81038284cb4a806554` using the user's local Blender executable. The uploaded evidence file is **820 bytes** with file SHA-256 `2f2fac99e933db667f1f7dad3118cdeebe736106cff19b4886f5909122af1f93` and internally consistent `evidence_digest=4ff18deab62020708d48e6fcb83090a717b83537270d65e0829843e5dfc5b94f`.
+The first bounded local run against `4fb687b232eb7ed113991e81038284cb4a806554` produced top-level `status=pass`, geometry PASS and rig PASS, but all runtime identity fields were serialized as null. Its uploaded evidence was therefore rejected as final evidence even though the rig/deformation path itself succeeded.
 
-Useful diagnostic facts from that attempt:
+Root cause: `scripts/r10_6_local_acceptance.py` incorrectly read `probe["facts"]`, while `BlenderRunner.run_capability_probe()` exposes runtime identity under `runtime` and execution facts under `probe`. The old schema also required only an object at `runtime`, so it failed to reject null identity fields.
 
-- top-level `status=pass`, `blockers=[]`;
-- geometry fixture `status=pass`, blend SHA-256 `46ac3bc526ac6d3a156c91902d2fd74b27d0338df086d57ba2eda0bf75c54ce7`;
-- rig `status=pass`, profile digest `aa3a47b89c9d45f7d1e54bbdbc8fab76b998f862323846988c88bf983a48b266`;
-- rig report digest `4d0120df9a368555b3163956ab7c863abf57564dcb92bb2f6dd0a555a874fc02`;
-- derived `rig_output.blend` 91,424 bytes / SHA-256 `9d1174c5864bbdadc0ca586b42fe9efaa2d071901215e0049a7ea0b170ab9da3`.
+## Collector hardening
 
-This evidence is **not accepted as final local evidence** because all runtime identity fields were serialized as null. Root cause: `scripts/r10_6_local_acceptance.py` incorrectly read `probe["facts"]`, while the accepted `BlenderRunner.run_capability_probe()` manifest exposes runtime identity under `runtime` and probe facts under `probe`. The old JSON schema was also too weak because it required only an object at `runtime` and therefore did not reject null identity fields.
+Hardening head `3b1263b92d5a1a8f50e03c188a1f2fa6d4bc2880`:
 
-## Corrective hardening
+- maps accepted capability-manifest `runtime.version` / `runtime.platform` and `probe.background` / `probe.online_access` correctly;
+- fails closed unless Blender is 5.2.x, platform is present, background mode is true and online access is false;
+- strengthens `r10-rig-local-acceptance-v1.schema.json` so null runtime identity is invalid;
+- adds regression tests for successful mapping and missing-runtime rejection.
 
-The hardening candidate must:
+Exact-head hardening gates:
 
-1. map `runtime.version` -> `runtime.blender_version` and `runtime.platform` -> `runtime.platform`;
-2. map `probe.background` and `probe.online_access` into the local evidence;
-3. fail closed if the runtime is not Blender 5.2.x, platform is missing, background mode is not confirmed true, or offline mode is not confirmed false;
-4. strengthen `r10-rig-local-acceptance-v1.schema.json` so null runtime evidence is invalid;
-5. add regression tests for both successful mapping and missing-runtime rejection.
+- R0 Repository Guard #1249 / `32668952047` — SUCCESS.
+- Python Core #1223 / `32668952036` — SUCCESS; Ubuntu **802 passed / 7 skipped / 46 warnings**; R7/R8/R9 integrated acceptance PASS.
+- KodeStudio UI Smoke #1190 / `32668952071` — SUCCESS.
 
-## Completion sequence
+## Accepted corrected local Blender 5.2 evidence
 
-Freeze the collector-hardening head -> exact-head R0/Python/UI -> rerun `scripts/r10_6_local_acceptance.py` locally on **that new immutable head** -> review the new canonical evidence and require non-null Blender 5.2 runtime facts plus `status=pass`, no blockers and PASS deformation evidence -> commit/bind accepted local evidence -> rerun all three gates on the final documented head -> merge with expected SHA -> continuity-only normalization with exact-head gates -> merge normalization. Only then may R10.7 start.
+Canonical evidence file: `docs/roadmap/R10_6_LOCAL_ACCEPTANCE.json`.
+
+The corrected bounded local run was executed against exact source SHA `3b1263b92d5a1a8f50e03c188a1f2fa6d4bc2880` and is accepted with:
+
+- canonical file bytes: **829**;
+- canonical file SHA-256: `06153ac976c4568f6b555365e658e725a67898ddc1ecabf49e95e66e02f0fb4a`;
+- internal `evidence_digest`: `fa62fdddcab850857d0520708c3e0fad7b27471730dc106653bc0513e65967a3`, independently recomputed from the canonical payload excluding the digest field;
+- `status=pass`, `blockers=[]`;
+- runtime: Blender `5.2.0`, platform `windows`, `background=true`, `online_access=false`;
+- geometry fixture `status=pass`, recipe `r10.6.local.body`, source blend SHA-256 `98959b098a3a6b8a907b74d9e5ba76c52c8e5fb2b2ed4bb890c8efcced1bb22e`;
+- rig `status=pass`, rig ID `r10.6.local.rig`;
+- rig profile digest `656129c72f44e7f3fae4f654469184e8cec1b6c4b97dc81ca143c3a1fc17cd0c`;
+- rig report digest `7a7770e313aff76db3f1a36bb65003047eec7521b4454d3f6896ff0efdc87452`;
+- derived `rig_output.blend` **91,424 bytes**, SHA-256 `1f64a4b951bddddb5f5384c90e178b521ead2df35feb7ea4dc22e41d43b70f8b`.
+
+The local script can return PASS only after the rig report contains a `deformation_probe` rule in state `PASS`; otherwise it appends `deformation_probe_failed` and fails the acceptance. Therefore the accepted local evidence binds a real Blender Armature-modifier deformation result, not merely a schema-valid rig manifest. Manual weight painting was not used as acceptance evidence.
+
+## Final documentation gate
+
+The canonical evidence commit plus this acceptance update intentionally create a new final documented head. That exact head must pass R0 Repository Guard + full Python Core + KodeStudio UI Smoke before PR #141 merges. After merge, perform one continuity-only post-merge normalization and require the same exact-head gates. Only after that normalization merge is R10.6 **COMPLETE + NORMALIZED** and R10.7 authorized.

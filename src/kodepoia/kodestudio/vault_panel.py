@@ -94,36 +94,90 @@ def create_vault_page(
     query.setPlaceholderText(translator.text("vault.search.placeholder"))
 
     kind = QComboBox()
-    kind.setObjectName("vaultKindFilter")
+    mark_accessible(
+        kind,
+        object_name="vaultKindFilter",
+        name="Asset kind filter",
+        description="Restrict Vault results to one typed asset kind.",
+        description_required=True,
+    )
     kind.addItem(translator.text("vault.filter.all_kinds"), None)
     for item in AssetKind:
         kind.addItem(item.value, item.value)
 
     role = QComboBox()
-    role.setObjectName("vaultRoleFilter")
+    mark_accessible(
+        role,
+        object_name="vaultRoleFilter",
+        name="Asset role filter",
+        description="Restrict Vault results to source or derived revisions.",
+        description_required=True,
+    )
     role.addItem(translator.text("vault.filter.all_roles"), None)
     for item in AssetRole:
         role.addItem(item.value, item.value)
 
     reuse = QComboBox()
-    reuse.setObjectName("vaultReuseFilter")
+    mark_accessible(
+        reuse,
+        object_name="vaultReuseFilter",
+        name="Asset reuse scope filter",
+        description="Restrict Vault results by governed reuse scope.",
+        description_required=True,
+    )
     reuse.addItem(translator.text("vault.filter.all_reuse"), None)
     for item in ReuseScope:
         reuse.addItem(item.value, item.value)
 
     include_blocked = QCheckBox(translator.text("vault.filter.include_blocked"))
-    include_blocked.setObjectName("vaultIncludeBlocked")
+    mark_accessible(
+        include_blocked,
+        object_name="vaultIncludeBlocked",
+        name=translator.text("vault.filter.include_blocked"),
+        description="Include policy-blocked or unknown-license revisions in search results without changing their policy state.",
+        description_required=True,
+    )
 
     search_button = QPushButton(translator.text("vault.search"))
-    search_button.setObjectName("vaultSearchButton")
+    mark_accessible(
+        search_button,
+        object_name="vaultSearchButton",
+        name=translator.text("vault.search"),
+        description="Search the rebuildable asset index through AssetService.",
+        description_required=True,
+    )
     refresh_button = QPushButton(translator.text("vault.refresh"))
-    refresh_button.setObjectName("vaultRefreshButton")
+    mark_accessible(
+        refresh_button,
+        object_name="vaultRefreshButton",
+        name=translator.text("vault.refresh"),
+        description="Refresh canonical Vault rows and local VCS/LFS health through AssetService.",
+        description_required=True,
+    )
     duplicate_button = QPushButton(translator.text("vault.duplicates"))
-    duplicate_button.setObjectName("vaultDuplicatesButton")
+    mark_accessible(
+        duplicate_button,
+        object_name="vaultDuplicatesButton",
+        name=translator.text("vault.duplicates"),
+        description="Show exact and near-duplicate candidates without destructive merging.",
+        description_required=True,
+    )
     rebuild_button = QPushButton(translator.text("vault.rebuild"))
-    rebuild_button.setObjectName("vaultRebuildButton")
+    mark_accessible(
+        rebuild_button,
+        object_name="vaultRebuildButton",
+        name=translator.text("vault.rebuild"),
+        description="Rebuild canonical and search indexes from immutable Vault evidence.",
+        description_required=True,
+    )
     cancel_button = QPushButton(translator.text("vault.cancel"))
-    cancel_button.setObjectName("vaultCancelButton")
+    mark_accessible(
+        cancel_button,
+        object_name="vaultCancelButton",
+        name=translator.text("vault.cancel"),
+        description="Request cooperative cancellation of the active Vault worker operation.",
+        description_required=True,
+    )
     cancel_button.setEnabled(False)
 
     for widget in (query, kind, role, reuse, include_blocked, search_button, refresh_button, duplicate_button, rebuild_button, cancel_button):
@@ -131,7 +185,6 @@ def create_vault_page(
     layout.addLayout(controls)
 
     table = QTableWidget(0, 8)
-    table.setObjectName("vaultAssetTable")
     table.setHorizontalHeaderLabels(
         [
             translator.text("vault.column.name"),

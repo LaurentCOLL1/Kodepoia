@@ -50,6 +50,15 @@ from .inventory import (
     diff_capability_snapshots,
     normalize_node_inventory,
 )
+from .lifecycle import (
+    ComfyFreeMemoryEvidence,
+    ComfyLifecycleAction,
+    ComfyLifecycleAudit,
+    ComfyLifecycleAuditStore,
+    ComfyLifecycleEvent,
+    ComfyLifecycleOutcome,
+    ComfyLifecycleService,
+)
 from .outputs import (
     ComfyCapturedOutput,
     ComfyCaptureState,
@@ -96,9 +105,16 @@ __all__ = [
     "ComfyExecutionBudget",
     "ComfyExecutionHistory",
     "ComfyExecutionService",
+    "ComfyFreeMemoryEvidence",
     "ComfyGovernanceError",
     "ComfyHistoryReference",
     "ComfyHistorySnapshot",
+    "ComfyLifecycleAction",
+    "ComfyLifecycleAudit",
+    "ComfyLifecycleAuditStore",
+    "ComfyLifecycleEvent",
+    "ComfyLifecycleOutcome",
+    "ComfyLifecycleService",
     "ComfyModelInventory",
     "ComfyNodeDefinition",
     "ComfyNodeInputSpec",

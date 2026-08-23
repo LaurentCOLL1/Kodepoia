@@ -3,8 +3,8 @@
 **Updated:** 2026-08-23  
 **Phase status:** IN PROGRESS  
 **Planning:** ACCEPTED  
-**Completed subdivisions:** R8.1–R8.7  
-**Next authorized subdivision:** R8.8
+**Completed subdivisions:** R8.1–R8.8  
+**Next authorized subdivision:** R8.9
 
 ## Planning authority
 
@@ -21,20 +21,21 @@
 | R8.5 | COMPLETE | `08c90bd8d52a7dd2dfc8da6ce94f6731701469f6` | #89 | `9bb1f169d7f1534b0068ad43691accf1b6a5e14a` | CONDITIONAL NOT TRIGGERED |
 | R8.6 | COMPLETE | `8c88aeb8a32abce2e9ecb670da3c2acbb4a31cfe` | #91 | `57c2aa010f438b95a3d753040f1565ae4b68e262` | NONE |
 | R8.7 | COMPLETE | `c52c54ae8b4c1eee386b4dbbdec945fa04afa0f3` | #93 | `b90ddcb1b4823442a9e58c7a0c1444966c5bd8a9` | NONE |
+| R8.8 | COMPLETE | `32e5ace263546d85ee662c5ba333caaaefaa8bcc` | #95 | `8923f6aa75656033887dd93551fc7b2651d78f04` | CONDITIONAL NOT TRIGGERED |
 
-## R8.7 acceptance evidence
+## R8.8 acceptance evidence
 
-- R0 Repository Guard #1061 / `32603884834`: SUCCESS.
-- Python Core #1035 / `32603884762`: SUCCESS 5/5.
-- Ubuntu authoritative suite: `552 passed / 5 skipped / 46 warnings`.
-- KodeStudio UI Smoke #1002 / `32603884719`: SUCCESS.
-- Structured local Git only: exact HEAD/branch/detached status, porcelain `-z`, binary-safe `--numstat`, SafeChange index snapshots, audit, Vault↔repository evidence; no arbitrary Git surface.
+- R0 Repository Guard #1066 / `32604356727`: SUCCESS Ubuntu + Windows, including `git lfs version`.
+- Python Core #1040 / `32604356661`: SUCCESS 5/5.
+- Ubuntu authoritative suite: `558 passed / 5 skipped / 46 warnings`.
+- KodeStudio UI Smoke #1007 / `32604356692`: SUCCESS.
+- Rejected precursor `6b02a22fb4c526a53579a96e81ade3a3088a5e88`: fixture-only interaction with active LFS clean filtering; accepted correction did not weaken production safeguards.
+- Manual final: CONDITIONAL NOT TRIGGERED.
 
 ## Remaining frozen subdivisions
 
-- R8.8 — Git LFS tracking, pointer/object integrity + diagnostics — PLANNED / CONDITIONAL.
 - R8.9 — Godot 4.7 source/import bridge + rebuild verification — PLANNED / CONDITIONAL.
 - R8.10 — CLI + KodeStudio Vault/Asset/VCS UX — PLANNED / NONE.
 - R8.11 — Adversarial hardening + R8 integrated acceptance — PLANNED / CONDITIONAL.
 
-R8.8 may start only after this R8.7 normalization itself passes R0 Repository Guard, full Python Core and KodeStudio UI Smoke on one exact head and is merged to `main`.
+R8.9 may start only after this R8.8 normalization itself passes R0 Repository Guard, full Python Core and KodeStudio UI Smoke on one exact head and is merged to `main`.

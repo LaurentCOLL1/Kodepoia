@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-geometry-manifest-v1.schema.json",
+  "title": "Kodepoia R10.3 geometry manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "source_sha", "policy_version", "recipe_id", "recipe_digest", "status", "blockers", "objects", "artifact", "process"],
+  "properties": {
+    "schema": {"const": "kodepoia.blender.geometry_manifest"},
+    "version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "policy_version": {"const": "r10.3-v1"},
+    "recipe_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+    "recipe_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"enum": ["pass", "fail"]},
+    "blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "objects": {"type": "object"},
+    "artifact": {"type": ["object", "null"]},
+    "process": {"type": "object"}
+  }
+}

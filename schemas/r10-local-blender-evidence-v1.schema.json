@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-local-blender-evidence-v1.schema.json",
+  "title": "Kodepoia R10.2 real Blender local evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "source_sha", "status", "blockers", "runtime", "command_policy", "probe", "artifacts", "process"],
+  "properties": {
+    "schema": {"const": "kodepoia.r10.local_blender_evidence"},
+    "version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "status": {"enum": ["pass", "fail"]},
+    "blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "runtime": {
+      "type": ["object", "null"],
+      "properties": {
+        "version": {"type": ["string", "null"]},
+        "python_version": {"type": ["string", "null"]},
+        "platform": {"type": "string"},
+        "machine": {"type": "string"},
+        "executable_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      },
+      "required": ["version", "python_version", "platform", "machine", "executable_sha256"],
+      "additionalProperties": false
+    },
+    "command_policy": {"type": "object"},
+    "probe": {"type": "object"},
+    "artifacts": {"type": "object"},
+    "process": {"type": "object"}
+  }
+}

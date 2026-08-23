@@ -450,7 +450,7 @@ def _safe_server_filename(value: str) -> str:
         raise ComfyProtocolError("ComfyUI output filename must be a relative POSIX basename")
     posix = PurePosixPath(value)
     windows = PureWindowsPath(value)
-    if posix.is_absolute() or windows.is_absolute() or len(posix.parts) != 1 or ".." in posix.parts:
+    if posix.is_absolute() or windows.is_absolute() or bool(windows.drive) or len(posix.parts) != 1 or ".." in posix.parts:
         raise ComfyProtocolError("ComfyUI output filename escapes the accepted relative basename boundary")
     return value
 
@@ -462,7 +462,7 @@ def _safe_server_subfolder(value: str) -> str:
         raise ComfyProtocolError("ComfyUI output subfolder must use relative POSIX segments")
     posix = PurePosixPath(value)
     windows = PureWindowsPath(value)
-    if posix.is_absolute() or windows.is_absolute() or any(part in {"", ".", ".."} for part in posix.parts):
+    if posix.is_absolute() or windows.is_absolute() or bool(windows.drive) or any(part in {"", ".", ".."} for part in posix.parts):
         raise ComfyProtocolError("ComfyUI output subfolder escapes the accepted relative boundary")
     return value
 

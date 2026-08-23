@@ -31,10 +31,7 @@ class _HTTP:
 
     def get_json(self, path: str) -> dict[str, Any]:
         if path == "/queue":
-            return {
-                "queue_running": [[0, WIRE, {}, {}, []]],
-                "queue_pending": [],
-            }
+            return {"queue_running": [[0, WIRE, {}, {}, []]], "queue_pending": []}
         if path == "/prompt":
             return {"exec_info": {"queue_remaining": 1}}
         if path == f"/history/{WIRE}":
@@ -50,11 +47,7 @@ class _HTTP:
                     "outputs": {
                         "7": {
                             "images": [
-                                {
-                                    "filename": "fixture.png",
-                                    "subfolder": "",
-                                    "type": "output",
-                                }
+                                {"filename": "fixture.png", "subfolder": "", "type": "output"}
                             ]
                         }
                     },
@@ -101,10 +94,7 @@ def test_queue_maps_wire_uuid_back_to_logical_identity() -> None:
     assert queue.pending_prompt_ids == ()
     assert queue.digest_sha256 == canonical_sha256(
         {
-            "queue": {
-                "queue_running": [[0, WIRE, {}, {}, []]],
-                "queue_pending": [],
-            },
+            "queue": {"queue_running": [[0, WIRE, {}, {}, []]], "queue_pending": []},
             "prompt": {"exec_info": {"queue_remaining": 1}},
         }
     )
@@ -141,8 +131,12 @@ def test_history_semantic_input_rewrite_is_rejected_with_value_free_summary() ->
     client._http.history_prompt = {  # type: ignore[attr-defined]
         "1": {"class_type": "Fixture", "inputs": {"steps": 2}}
     }
-    with pytest.raises(ComfyProtocolError, match=r"input_values_changed=\['1'\]"):
+    with pytest.raises(ComfyProtocolError) as exc_info:
         client.execution_history(LOGICAL)
+    message = str(exc_info.value)
+    assert "input_values_changed=['1']" in message
+    assert "changed_inputs=['1:steps']" in message
+    assert "2" not in message
 
 
 def test_history_class_rewrite_is_rejected() -> None:

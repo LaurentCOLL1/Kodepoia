@@ -34,12 +34,15 @@ class _FixedHTTPTransport:
         self.endpoint = endpoint
         self.limits = limits
 
-    def get_json(self, path: str, *, query: dict[str, str] | None = None) -> dict[str, Any]:
+    def get_json_value(self, path: str, *, query: dict[str, str] | None = None) -> Any:
         payload = self._get(path, query=query, max_bytes=self.limits.max_json_bytes)
         try:
-            decoded = json.loads(payload.body.decode("utf-8"))
+            return json.loads(payload.body.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise ComfyProtocolError("ComfyUI returned malformed UTF-8 JSON") from exc
+
+    def get_json(self, path: str, *, query: dict[str, str] | None = None) -> dict[str, Any]:
+        decoded = self.get_json_value(path, query=query)
         if not isinstance(decoded, dict):
             raise ComfyProtocolError("ComfyUI JSON response must be an object")
         return decoded

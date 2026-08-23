@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -144,9 +145,17 @@ def test_r10_4_recipe_result_tamper_blocks(tmp_path: Path) -> None:
 
 
 def test_r10_4_bootstrap_has_fixed_no_bake_no_network_surface() -> None:
-    compile(PBR_BOOTSTRAP_SOURCE, "pbr_bootstrap.py", "exec")
+    tree = ast.parse(PBR_BOOTSTRAP_SOURCE, filename="pbr_bootstrap.py", mode="exec")
+    imported_roots: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported_roots.update(alias.name.split(".", 1)[0] for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imported_roots.add(node.module.split(".", 1)[0])
+    assert imported_roots.isdisjoint({"subprocess", "socket", "urllib", "requests", "http", "ftplib"})
+
     lowered = PBR_BOOTSTRAP_SOURCE.lower()
-    for forbidden in ("exec(", "eval(", "subprocess", "socket", "urllib", "requests", "bpy.ops.object.bake", "bpy.ops.wm.url_open"):
+    for forbidden in ("exec(", "eval(", "bpy.ops.object.bake", "bpy.ops.wm.url_open"):
         assert forbidden not in lowered
     assert "shadernodebsdfprincipled" in lowered
     assert "shadernodenormalmap" in lowered

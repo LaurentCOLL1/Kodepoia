@@ -152,7 +152,7 @@ def test_r911_free_memory_remains_ack_only_and_bound_to_known_runs(monkeypatch: 
     service.lifecycle = lifecycle
     monkeypatch.setattr(ComfyService, "_known_run_ids", lambda self: ("run_a", "run_b"))
     result = service.free_memory()
-    assert lifecycle.calls == [("run_a", "run_b"), True, True]
+    assert lifecycle.calls == [(('run_a', 'run_b'), True, True)]
     assert result["state"] == "requested"
     assert result["evidence"]["reclaimed_bytes"] is None
 

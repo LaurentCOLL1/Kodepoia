@@ -9,7 +9,7 @@ from typing import Any
 _CONTROL_RE = re.compile(r"[\x00-\x1f\x7f]")
 
 
-def _bounded_text(value: str, *, field_name: str, maximum: int, allow_empty: bool = false) -> str:
+def _bounded_text(value: str, *, field_name: str, maximum: int, allow_empty: bool = False) -> str:
     if not isinstance(value, str):
         raise TypeError(f"{field_name} must be a string")
     if (not allow_empty and not value) or len(value) > maximum:

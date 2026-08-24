@@ -240,8 +240,11 @@ def main() -> int:
 
     track = animation_data.nla_tracks.new()
     track.name = "kdp_track_" + str(clip["clip_id"])
-    strip = track.strips.new("kdp_strip_" + str(clip["clip_id"]), float(clip["frame_start"]), action)
+    nla_start = float(clip["frame_start"])
+    nla_creation_start = int(math.floor(nla_start))
+    strip = track.strips.new("kdp_strip_" + str(clip["clip_id"]), nla_creation_start, action)
     strip.action_slot = slot
+    strip.frame_start = nla_start
     strip.action_frame_start = float(clip["frame_start"])
     strip.action_frame_end = float(clip["frame_end"])
     strip.repeat = 1.0

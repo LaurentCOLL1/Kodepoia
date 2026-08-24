@@ -1,6 +1,6 @@
 # R10.10 — Acceptance record
 
-Status: **LOCAL REQUIRED ACCEPTED; FINAL EXACT-HEAD GATES PENDING**  
+Status: **LOCAL REQUIRED ACCEPTED; FINAL EXACT-HEAD GATES SUCCESS**  
 Frozen manual intervention: **REQUIRED — SATISFIED**
 
 ## Definition of Done
@@ -60,6 +60,17 @@ Canonical evidence: `R10_10_LOCAL_ACCEPTANCE.json`.
 
 The evidence digest and raw evidence SHA-256/size were independently recomputed before binding and matched exactly. The earlier FAIL remains preserved and rejected; it is not overwritten or reclassified.
 
+## Final evidence-bound candidate — ACCEPTED
+
+Evidence-bound head: `867cae1d3534716ec2f617be64f67206700a252a`.
+
+Exact-head final gates:
+- R0 Repository Guard #1304 / `32708720158`: **SUCCESS**;
+- Python Core #1278 / `32708720261`: **SUCCESS**;
+- KodeStudio UI Smoke #1245 / `32708720153`: **SUCCESS**.
+
+Python Core preserves Ubuntu/Windows coverage, R7/R8/R9 integrated acceptance PASS, KodeStudio smoke and both package builds SUCCESS.
+
 ## Accepted candidate implementation
 
 - `gltf_contracts.py`, `gltf_validator.py`, `gltf_bootstrap.py`, `gltf_godot_fixture.py`, `gltf_runner.py`;
@@ -71,13 +82,11 @@ The evidence digest and raw evidence SHA-256/size were independently recomputed 
 ## Final acceptance ordering
 
 1. Preserve both the rejected and accepted local evidence records permanently.
-2. Freeze the evidence-bound branch head.
-3. Run fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact head.
-4. Merge PR #149 only if all three are SUCCESS and the PR head has not moved.
-5. Create a continuity-only post-merge normalization branch from the resulting `main` merge commit.
-6. Run fresh R0 + Python + UI on the normalization head and merge only if all three are SUCCESS.
-7. Only after that merge is R10.10 **COMPLETE + NORMALIZED** and R10.11 authorized.
+2. Merge PR #149 only from exact accepted head `867cae1d3534716ec2f617be64f67206700a252a`.
+3. Create a continuity-only post-merge normalization branch from the resulting `main` merge commit.
+4. Run fresh R0 + Python + UI on the normalization head and merge only if all three are SUCCESS.
+5. Only after that merge is R10.10 **COMPLETE + NORMALIZED** and R10.11 authorized.
 
 ## Manual safety rules
 
-Do not install add-ons/plugins/assets, enable Blender autoexec/online/user preferences, convert through FBX/ESCN, edit bundled fixtures, delete failed evidence before review, or relax sandbox/import/glTF rules after a failure. The REQUIRED manual gate is now satisfied; no further local retry is authorized for this candidate unless a later exact-head change invalidates the evidence binding.
+Do not install add-ons/plugins/assets, enable Blender autoexec/online/user preferences, convert through FBX/ESCN, edit bundled fixtures, delete failed evidence before review, or relax sandbox/import/glTF rules after a failure. The REQUIRED manual gate is satisfied; no further local retry is authorized for this candidate.

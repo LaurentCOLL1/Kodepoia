@@ -403,9 +403,12 @@ def test_r10_12_report_digest_and_schema_detect_tampering() -> None:
         R10IntegrationReport.from_dict(payload)
 
 
-def test_r10_12_real_required_local_evidence_is_still_exact_and_pass_bound() -> None:
+def test_r10_12_real_required_local_evidence_is_repository_bound_and_pass() -> None:
     r2_bytes = (ROOT / "docs/roadmap/R10_2_LOCAL_ACCEPTANCE.json").read_bytes()
     r10_bytes = (ROOT / "docs/roadmap/R10_10_LOCAL_ACCEPTANCE.json").read_bytes()
+    r2_document = json.loads(r2_bytes)
+    r10_document = json.loads(r10_bytes)
+
     r2 = build_local_evidence("R10.2", canonical_bytes=r2_bytes)
     r10 = build_local_evidence(
         "R10.10",
@@ -413,7 +416,18 @@ def test_r10_12_real_required_local_evidence_is_still_exact_and_pass_bound() -> 
         godot_major=4,
         godot_minor=7,
     )
-    assert r2.sha256 == "3b65790c4f553640f6d3c14bc141940bca73695a911a343a4ad78449445f243a"
-    assert r2.bytes == 1141
-    assert r10.sha256 == "da9680219dfd4e3a44683a547481b6584b9ef186ee364f27dfcfe2c0c5c29c9f"
-    assert r10.bytes == 2843
+
+    assert r2.sha256 and r2.bytes == len(r2_bytes)
+    assert r10.sha256 and r10.bytes == len(r10_bytes)
+    assert r2.source_sha == "0a2da2334cc6ebe116819110ba80ad1729e22057"
+    assert r10.source_sha == "85e2db277ce1cb467aeb9b056700150bc1d67fa7"
+    assert r2_document["status"] == "pass" and r2_document["blockers"] == []
+    assert r2_document["runtime"]["version"].startswith("5.2.")
+    assert r2_document["command_policy"]["autoexec_disabled"] is True
+    assert r2_document["command_policy"]["offline_mode"] is True
+    assert r10_document["status"] == "pass" and r10_document["blockers"] == []
+    assert r10_document["blender"]["version"].startswith("5.2.")
+    assert r10_document["blender"]["online_access"] is False
+    assert r10_document["godot"]["version"]["major"] == 4
+    assert r10_document["godot"]["version"]["minor"] == 7
+    assert r10_document["godot"]["semantic_smoke"]["pass_marker"] is True

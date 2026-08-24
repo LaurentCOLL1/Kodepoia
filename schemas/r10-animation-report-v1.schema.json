@@ -1,0 +1,18 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.local/schemas/r10-animation-report-v1.schema.json",
+  "title":"Kodepoia R10.7 Animation Report v1",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["schema","version","recipe_id","recipe_digest","status","summary","rules","report_digest"],
+  "properties":{
+    "schema":{"const":"kodepoia.blender.animation_report"},
+    "version":{"const":1},
+    "recipe_id":{"type":"string"},
+    "recipe_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "status":{"enum":["pass","warn","block"]},
+    "summary":{"type":"object"},
+    "rules":{"type":"array"},
+    "report_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"}
+  }
+}

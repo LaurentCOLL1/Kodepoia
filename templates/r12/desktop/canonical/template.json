@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "template_id": "canonical_desktop",
+  "template_version": "1.0.0",
+  "files": [
+    {
+      "path_template": "src/{{identifier:name}}.txt",
+      "content_template": "project={{identifier:name}}\nnamespace={{namespace:namespace}}\n",
+      "ownership": "kodepoia"
+    },
+    {
+      "path_template": "README.md",
+      "content_template": "{{text:description}}\n",
+      "ownership": "user"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r11/continuity-bridge-package.schema.json",
+  "title": "Kodepoia R11 Continuity Bridge Package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["package_id", "source_project_id", "target_project_id", "source_artifact_revision_id", "snapshot_digest", "snapshot", "promotion_policy"],
+  "properties": {
+    "package_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "source_project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "target_project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "source_artifact_revision_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "snapshot": {"$ref": "continuity-snapshot.schema.json"},
+    "promotion_policy": {"const": "compare_only_no_canon_mutation"}
+  }
+}

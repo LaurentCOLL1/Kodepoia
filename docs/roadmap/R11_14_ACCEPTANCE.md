@@ -68,11 +68,11 @@ R11.9 REQUIRED local cinematic evidence remains authoritative:
 - semantic digest `6afe45e3c9047cfa58b7c617ff671e34e166bd9189a32ea62f1350243955b6f5`;
 - Godot 4.7-compatible repository-synthetic capture, 90/90 frames and bounded A/V synchronization.
 
-Prior canonical semantic digests remain frozen to their already accepted values:
+Prior canonical semantic digests remain frozen to their currently accepted values on normalized `main`:
 
-- R7 `5b56bb94b6c5c0b8a11e0d1883d0123f0803418414509517e88204990647e2fc`;
-- R8 `c73868d7f89453c65d3b633ccdded70d031766c1ce05b77c02e8e4a0d51ed8c5`;
-- R9 `ad8ad9d16682f54dd942e76dccf333234065d27f320409301cbb8dd67036dcdc`;
+- R7 `2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437`;
+- R8 `6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89`;
+- R9 `19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a`;
 - R10 `48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8`.
 
 ## Manual-state evaluation

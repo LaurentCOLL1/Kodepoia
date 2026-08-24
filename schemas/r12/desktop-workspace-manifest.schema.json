@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r12/desktop-workspace-manifest.schema.json",
+  "title": "Kodepoia R12 desktop workspace manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "template_id",
+    "template_version",
+    "template_sha256",
+    "dna_sha256",
+    "product_sha256",
+    "files"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "template_id": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+    "template_version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+){0,2}$"},
+    "template_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "dna_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "product_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "ownership"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "ownership": {"enum": ["kodepoia", "user"]}
+        }
+      }
+    }
+  }
+}

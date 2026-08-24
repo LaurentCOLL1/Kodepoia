@@ -110,6 +110,7 @@ Identity independently verified from the submitted file:
 
 - bytes: `1622`;
 - SHA-256: `f2374feadf87ce9c0f3362969aa0f98314842c73f31c2a90b42c9e2ab107a8cf`;
+- Git blob SHA-1: `2cf5b8962ad5e830f21621277ec8f11e6ed6f56d` (proves byte-for-byte repository preservation, including the submitted CRLF terminator);
 - evidence digest: `3ef6f4b366a3179f36a20ed606fdf25708309ae350df2704176dfee5e3b1f0b7`;
 - source SHA: `21510878f49815b7bb5551da9672a349c3fd817f`;
 - runtime: Blender `5.2.0`, platform `windows`, background `true`, online access `false`;
@@ -125,7 +126,7 @@ Identity independently verified from the submitted file:
 - manifest blockers `[]`;
 - all 20 reported acceptance rules PASS: `constraint_free_target`, `driver_free_target`, `duration`, `export_readiness`, `frame_end`, `frame_rate`, `frame_start`, `key_budget`, `loop_policy`, `mapping_ambiguity`, `mapping_coverage`, `nla_strip_count`, `nla_track_count`, `required_target_mapping`, `rest_direction_compatibility`, `rest_length_compatibility`, `root_motion_policy`, `sampling_policy`, `unmapped_source_deform`, `unmapped_target_deform`.
 
-The canonical evidence digest was independently recomputed from canonical JSON excluding the `evidence_digest` field and matched exactly. The file SHA-256/byte size also matched the user's PowerShell output exactly.
+The canonical evidence digest was independently recomputed from canonical JSON excluding the `evidence_digest` field and matched exactly. The file SHA-256/byte size matched the user's PowerShell output exactly, and the repository blob identity independently proves that the archived file is byte-for-byte identical to the submitted evidence.
 
 Therefore the R10.7 manual state is **CONDITIONAL TRIGGERED → SATISFIED**.
 

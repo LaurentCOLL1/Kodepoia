@@ -1,6 +1,6 @@
 # R11.12 — Acceptance
 
-Status: **IMPLEMENTED — HOSTED EXACT-HEAD GATES PENDING**  
+Status: **IMPLEMENTED — FINAL DOCUMENTATION HEAD GATES PENDING**  
 Manual intervention: **CONDITIONAL — NOT TRIGGERED**
 
 ## Base and scope
@@ -21,7 +21,18 @@ Manual intervention: **CONDITIONAL — NOT TRIGGERED**
 - Durable migration creates a verified backup and SafeChange snapshot, updates atomically, verifies output and audits success.
 - Injected post-write failure restores the exact prior bytes and leaves explicit recovery/audit evidence.
 - JSON Schema Draft 2020-12 validates canonical fixtures offline.
-- Full R0 Repository Guard, Python Core and KodeStudio UI Smoke must pass on one exact candidate head, followed by final-doc re-gate before merge.
+
+## Accepted implementation head
+
+Exact candidate: `66ccd03bf486ac325ee2fba7133a6fc2a9c244b0`.
+
+- R0 Repository Guard #1442 / `32762000034`: **SUCCESS**.
+- Python Core #1416 / `32762000036`: **SUCCESS**.
+- KodeStudio UI Smoke #1383 / `32762000071`: **SUCCESS**.
+- Ubuntu and Windows Python Core: **SUCCESS**.
+- Ubuntu and Windows package builds: **SUCCESS**.
+- Internal KodeStudio UI job: **SUCCESS**.
+- Prior R7/R8/R9 integrated acceptance checks: **PASS** where executed.
 
 ## Conditional manual gate
 
@@ -29,6 +40,8 @@ Manual intervention: **CONDITIONAL — NOT TRIGGERED**
 
 If a later change adds such a real-format claim, the conditional gate must be frozen and satisfied before merge; the sole copy of a real save must never be used.
 
-## Completion ordering
+## Finalization
 
-Accepted candidate -> acceptance run IDs -> re-gate final docs -> expected-SHA merge -> exactly one continuity-only normalization -> exact-head gates -> merge normalization -> only then R11.13.
+This update changes acceptance documentation only. Its resulting exact head must pass R0 Repository Guard + full Python Core + KodeStudio UI Smoke before PR #179 can merge with `expected_head_sha`.
+
+After merge, exactly one continuity-only post-merge normalization must pass the same gates and merge. Only that normalization authorizes R11.13.

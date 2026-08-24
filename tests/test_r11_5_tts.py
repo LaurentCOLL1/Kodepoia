@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -152,3 +153,41 @@ def test_local_acceptance_schema_accepts_privacy_minimized_representative_eviden
     }
     schema = json.loads(Path("schemas/r11/tts-local-acceptance.schema.json").read_text(encoding="utf-8"))
     validate(instance=evidence, schema=schema)
+
+
+def test_recorded_local_acceptance_is_schema_valid_digest_bound_and_pass() -> None:
+    evidence_path = Path("docs/roadmap/R11_5_LOCAL_ACCEPTANCE.json")
+    raw = evidence_path.read_bytes()
+    evidence = json.loads(raw.decode("utf-8"))
+    schema = json.loads(Path("schemas/r11/tts-local-acceptance.schema.json").read_text(encoding="utf-8"))
+    validate(instance=evidence, schema=schema)
+
+    recorded_digest = evidence["evidence_digest"]
+    digest_payload = {key: value for key, value in evidence.items() if key != "evidence_digest"}
+    canonical = json.dumps(
+        digest_payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    assert hashlib.sha256(canonical).hexdigest() == recorded_digest
+    assert recorded_digest == "12223e911a76087a4eea23ce9e371fdc401990d127cb9f306237d67550725ffe"
+    assert hashlib.sha256(raw).hexdigest() == "6406884deb38ab5be22fe99d5f3c50187953b4aa9cb8f59f5f21b4a396309e2e"
+    assert evidence["source_sha"] == "a9862b3bf475b259fe154d1e2486116ad04602f3"
+    assert evidence["status"] == "pass"
+    assert evidence["blockers"] == []
+    assert evidence["voice_identity"]["model_id"] == "tts.piper.fr-FR.siwis-medium"
+    assert evidence["voice_identity"]["model_sha256"] == "641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99"
+    assert evidence["voice_identity"]["config_sha256"] == "39479916c2db192b5ac9764daddd0c744d83e023ad890c6976c0633ae4df8959"
+    assert evidence["synthesis"]["qa"]["profile_id"] == "tts.local.v2"
+    assert evidence["synthesis"]["qa"]["state"] == "PASS"
+    assert evidence["synthesis"]["process"]["returncode"] == 0
+    assert evidence["synthesis"]["process"]["text_passed_via_argv"] is False
+    assert evidence["synthesis"]["process"]["ephemeral_input_deleted"] is True
+    assert evidence["privacy"] == {
+        "audio_retained": False,
+        "network_download_performed_by_collector": False,
+        "private_recording_used": False,
+        "voice_clone_used": False,
+    }

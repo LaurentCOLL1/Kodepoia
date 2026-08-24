@@ -1,6 +1,6 @@
 # R11.14 — Acceptance record
 
-Status: **ACCEPTED IMPLEMENTATION CANDIDATE — CANONICAL REPORT GENERATION PENDING**  
+Status: **FINAL EVIDENCE CANDIDATE — EXACT-HEAD FINAL GATES PENDING**  
 Frozen manual intervention: **CONDITIONAL — NOT TRIGGERED**
 
 ## Base and frozen scope
@@ -103,6 +103,12 @@ Accepted immutable implementation candidate:
 
 This accepted implementation SHA is immutable for R11.14 integrated evidence. Documentation/report commits after it MUST NOT replace the R11.14 `source_sha`/`accepted_head`.
 
+## Canonical integrated report state
+
+`docs/roadmap/R11_INTEGRATED_ACCEPTANCE.json` is now present only because the immutable implementation candidate above passed all three required gates. The report binds this final acceptance-document state, normalized R11.13 continuity, the two preserved REQUIRED local runtime artifacts and the canonical R7–R10 integrated reports. Its exact semantic digest is authoritative in the report itself and will be copied into the single post-merge continuity normalization; it is deliberately not embedded in this acceptance document, avoiding a circular digest dependency.
+
+The final documentation/evidence head containing the regenerated canonical report MUST now pass fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke before PR #183 may merge.
+
 ## Completion ordering
 
-Accepted implementation head -> freeze exact run IDs here -> generate canonical integrated report from immutable repository evidence -> fresh exact-head R0/Python/UI on final documentation/evidence head -> merge implementation/evidence PR with expected SHA -> exactly one continuity-only normalization -> exact-head R0/Python/UI -> merge normalization -> R11 COMPLETE + NORMALIZED -> R12 planning authorized.
+Accepted implementation head -> frozen exact run IDs -> canonical integrated report -> fresh exact-head R0/Python/UI on final documentation/evidence head -> merge implementation/evidence PR with expected SHA -> exactly one continuity-only normalization containing the report digest -> exact-head R0/Python/UI -> merge normalization -> R11 COMPLETE + NORMALIZED -> R12 planning authorized.

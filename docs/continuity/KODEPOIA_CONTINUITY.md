@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 planning ACCEPTED + NORMALIZED. R11.1–R11.4 COMPLETE + NORMALIZED. R11.5 implementation + REQUIRED local TTS acceptance are ACCEPTED and PR #165 is MERGED; exactly one continuity-only R11.5 normalization is now pending. R11.6 is forbidden until that normalization passes exact-head R0 + full Python Core + KodeStudio UI Smoke and merges.** R11.5 accepted implementation candidate `a9862b3bf475b259fe154d1e2486116ad04602f3` passed R0 #1394 / `32740559995`, Python #1368 / `32740559969`, UI #1335 / `32740559942`; the REQUIRED local Piper evidence passed with digest `12223e911a76087a4eea23ce9e371fdc401990d127cb9f306237d67550725ffe`. Final evidence-bound PR head `e58954e4c144d00f3747b9918b5657f495075452` passed R0 #1399 / `32744397834`, Python #1373 / `32744397841`, UI #1340 / `32744397831`, then PR #165 merged as `cd55311f8103266fec3cc1c33893cb052d490a92`. Current cycle is continuity-only normalization; its accepted merge will make R11.5 COMPLETE + NORMALIZED and authorize R11.6.
+> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 planning ACCEPTED + NORMALIZED. R11.1–R11.5 COMPLETE + NORMALIZED. R11.6 implementation is ACCEPTED and PR #167 is MERGED; exactly one continuity-only R11.6 normalization is now pending. R11.7 is forbidden until that normalization passes exact-head R0 + full Python Core + KodeStudio UI Smoke and merges.** R11.5 normalization PR #166 merged as `e12a575314afd511bb752f263c9e5b7e60c75d51` after R0 #1401 / `32744856545`, Python #1375 / `32744856464`, UI #1342 / `32744856455` all SUCCESS. R11.6 implementation candidate `ea86762ecaa5ab16f6637701638c3461eea9d5ce` passed R0 #1403 / `32745871626`, Python #1377 / `32745871312`, UI #1344 / `32745871357`; Ubuntu reported 981 passed / 8 skipped / 46 warnings and R7/R8/R9 PASS. Final documentation head `85a0d1b793f0ec9aa657bfc0f56d1be22424534a` passed R0 #1404 / `32746087783`, Python #1378 / `32746087766`, UI #1345 / `32746088179`; PR #167 merged as `742ea5b5e1e3b6ffa73f499198464295131e91bf`. Manual R11.6 CONDITIONAL was NOT TRIGGERED because no external/native aligner accuracy claim was accepted.
 
 ## État
 
@@ -16,8 +16,9 @@
 - R11.2 : **COMPLETE + NORMALIZED** — PR #159 merge `b1c600a907431dc2202938cba038cd374145852b`; normalization PR #160 merge `b796a073b1d752fec02770a5102d651dda6d0949`; manual CONDITIONAL NOT TRIGGERED.
 - R11.3 : **COMPLETE + NORMALIZED** — PR #161 merge `dee8b2148597fd3cc9d6b45f5525f7f89003a7bb`; normalization PR #162 merge `9c0436b039492c161da95cdcc706552b82d408e2`; manual NONE.
 - R11.4 : **COMPLETE + NORMALIZED** — PR #163 merge `9ea0d35dbcde42282a9fab0f87ac950ab36d7275`; normalization PR #164 merge `354a0ec2f6889561afcee3b1f547e0b77ca3804b`; manual NONE.
-- R11.5 : **ACCEPTED + MERGED; CONTINUITY NORMALIZATION PENDING** — PR #165 merge `cd55311f8103266fec3cc1c33893cb052d490a92`; manual REQUIRED **SATISFIED**.
-- R11.6–R11.14 : **FROZEN / NOT STARTED**; R11.6 waits for R11.5 normalization.
+- R11.5 : **COMPLETE + NORMALIZED** — PR #165 merge `cd55311f8103266fec3cc1c33893cb052d490a92`; normalization PR #166 merge `e12a575314afd511bb752f263c9e5b7e60c75d51`; manual REQUIRED SATISFIED.
+- R11.6 : **ACCEPTED + MERGED; CONTINUITY NORMALIZATION PENDING** — PR #167 merge `742ea5b5e1e3b6ffa73f499198464295131e91bf`; manual CONDITIONAL NOT TRIGGERED.
+- R11.7–R11.14 : **FROZEN / NOT STARTED**; R11.7 waits for R11.6 normalization.
 - R12–R16 : **PENDING / NOT STARTED**.
 
 ## Autorité historique
@@ -56,32 +57,37 @@ Plan autoritatif : `docs/roadmap/R11_PLAN.md`.
 - Normalization head `1fa19e9400e2c4ef1ee9c84840bb4b03084e1f27`: R0 #1357, Python #1331, UI #1298 SUCCESS; PR #164 merge `354a0ec2f6889561afcee3b1f547e0b77ca3804b`.
 - Manual NONE. **R11.4 COMPLETE + NORMALIZED.**
 
-## R11.5 closure in progress
+## R11.5 closure
 
 - Base normalized main `354a0ec2f6889561afcee3b1f547e0b77ca3804b`; branch `r11/5-local-tts-adapters`; PR #165.
 - Delivered backend-neutral TTS registry/capabilities, Piper-compatible fixed-argv adapter under `ProcessSandbox`, ephemeral `--input-file` text channel, deterministic request/cache identity, Godot/system-TTS accessibility-only capability path, bounded WAV/PCM QA, repository-local `models/` physical catalog and `KodeModelRegistry`, schemas/tests/docs and real local collector.
-- Heavy model payloads live physically under `<repo>/models/` but are ignored by Git; tracked manifests carry stable model id, relative paths, SHA-256, license/provenance/use metadata and byte budgets. Existing logical `kodepoia.models.router.ModelRegistry` remains the LLM routing registry.
 - Candidate 1 `441ea87436c6851cd106654454f955a91460f7af`: hosted gates SUCCESS but first real local evidence FAIL because generic R11.2 zero-clipping QA blocked one isolated full-scale endpoint sample. This remains rejected historical evidence and was never reclassified.
 - Accepted implementation candidate 2 `a9862b3bf475b259fe154d1e2486116ad04602f3`: R0 #1394 / `32740559995`, Python #1368 / `32740559969`, UI #1335 / `32740559942` SUCCESS; Ubuntu **970 passed / 8 skipped / 46 warnings**; Windows Python, both package builds and internal KodeStudio smoke SUCCESS; R7/R8/R9 PASS.
-- Candidate 2 keeps generic R11.2 `max_clipped_samples=0` unchanged and adds only `tts.local.v2`, bounded to at most 10 ppm full-scale endpoints with absolute cap 16; repeated saturation remains BLOCKED.
-- REQUIRED local acceptance: **SATISFIED** on exact candidate 2 using catalog model `tts.piper.fr-FR.siwis-medium`.
-  - evidence `docs/roadmap/R11_5_LOCAL_ACCEPTANCE.json`: 2865 bytes, repository LF SHA-256 `6406884deb38ab5be22fe99d5f3c50187953b4aa9cb8f59f5f21b4a396309e2e`;
-  - canonical evidence digest `12223e911a76087a4eea23ce9e371fdc401990d127cb9f306237d67550725ffe`;
-  - model SHA-256 `641d1ab097da2b81128c076810edb052b385decc8be3381814802a64a73baf99`;
-  - config SHA-256 `39479916c2db192b5ac9764daddd0c744d83e023ad890c6976c0633ae4df8959`;
-  - synthesis return code 0, QA `tts.local.v2` PASS, no blockers, no timeout/cancel, no text in argv, ephemeral input deleted, no private recording/voice clone/collector download/audio retention.
-- Evidence-bound final head `e58954e4c144d00f3747b9918b5657f495075452`: R0 #1399 / `32744397834`, Python #1373 / `32744397841`, UI #1340 / `32744397831` SUCCESS. Cross-platform LF normalization is explicit for `*_LOCAL_ACCEPTANCE.json` so raw evidence SHA is deterministic on Windows/Linux.
+- REQUIRED local acceptance **SATISFIED** with `tts.piper.fr-FR.siwis-medium`; canonical evidence digest `12223e911a76087a4eea23ce9e371fdc401990d127cb9f306237d67550725ffe`; evidence file repository LF SHA-256 `6406884deb38ab5be22fe99d5f3c50187953b4aa9cb8f59f5f21b4a396309e2e`.
+- Evidence-bound final head `e58954e4c144d00f3747b9918b5657f495075452`: R0 #1399 / `32744397834`, Python #1373 / `32744397841`, UI #1340 / `32744397831` SUCCESS.
 - PR #165 merge `cd55311f8103266fec3cc1c33893cb052d490a92`.
-- Current branch `r11/5-continuity-normalization` changes only this continuity file. Its accepted merge makes **R11.5 COMPLETE + NORMALIZED** and authorizes R11.6.
+- Normalization `ea26ac0444e8b85797538fddde44979e16278082`: R0 #1401 / `32744856545`, Python #1375 / `32744856464`, UI #1342 / `32744856455` SUCCESS; PR #166 merge `e12a575314afd511bb752f263c9e5b7e60c75d51`.
+- Manual REQUIRED SATISFIED. **R11.5 COMPLETE + NORMALIZED.**
+
+## R11.6 closure in progress
+
+- Base normalized main `e12a575314afd511bb752f263c9e5b7e60c75d51`; branch `r11/6-speech-alignment-viseme-qa`; PR #167.
+- Delivered strict `SpeechAlignmentTimeline`, bounded backend timing interchange, explicitly synthetic deterministic fixtures, versioned phoneme→viseme sets with explicit fallback semantics, bounded deterministic attack/release coarticulation, identity-bound lip-sync QA for density/overlap/drift/fallback/confidence, caption timing bridge that can never become phoneme authority, five JSON schemas and adversarial tests/docs.
+- No external aligner/runtime install/download; no native/backend timing accuracy claim; no R10 facial-target or Godot runtime mutation.
+- Implementation candidate `ea86762ecaa5ab16f6637701638c3461eea9d5ce`: R0 #1403 / `32745871626`, Python #1377 / `32745871312`, UI #1344 / `32745871357` SUCCESS; Ubuntu **981 passed / 8 skipped / 46 warnings**; Windows Python/internal UI/package builds SUCCESS; R7/R8/R9 PASS.
+- Final documentation head `85a0d1b793f0ec9aa657bfc0f56d1be22424534a`: R0 #1404 / `32746087783`, Python #1378 / `32746087766`, UI #1345 / `32746088179` SUCCESS.
+- PR #167 merge `742ea5b5e1e3b6ffa73f499198464295131e91bf`.
+- Manual CONDITIONAL **NOT TRIGGERED** because accepted behavior does not rely on backend/native phoneme timing or an external aligner unavailable in hosted CI.
+- Current branch `r11/6-continuity-normalization` changes only this continuity file. Its accepted merge makes **R11.6 COMPLETE + NORMALIZED** and authorizes R11.7.
 
 ## Baselines externes R11
 
 - Godot 4.7 remains the R5 engine target.
 - FFmpeg/ffprobe are capability-probed external runtimes; structured ffprobe JSON is preferred when used; no automatic install/download.
 - TTS is backend-neutral. Piper is a local external runtime; Kodepoia performs no automatic collector-time download/install.
-- Each voice/model's own model card/license/provenance is authoritative; repository-level licensing is not substituted for per-resource rights.
-- Voice cloning/impersonation from arbitrary human recordings is outside R11 v1.0.
-- R11.9 still requires real Godot 4.7 cinematic capture evidence.
+- R11.6 remains aligner-neutral; future external/native alignment requires capability probing and a triggered conditional acceptance before any production-accuracy claim.
+- Godot 4.7 supports blend-shape animation tracks in `AnimationPlayer`; R11.7 may generate typed facial animation intent but R10 remains authoritative for target identities and R5 for Godot materialization.
+- Godot movie capture supports `--write-movie` and fixed FPS; R11.9 still requires real Godot 4.7 cinematic capture evidence.
 
 ## Permanent boundaries
 
@@ -95,4 +101,4 @@ Normalization run IDs remain in PR/merge metadata; do not create recursive commi
 
 ## Next authorized action
 
-Cycle = **R11.5 continuity normalization only**. Gate exact head of `r11/5-continuity-normalization` with R0 + full Python Core + KodeStudio UI Smoke and merge with expected SHA. **That merge alone makes R11.5 COMPLETE + NORMALIZED and authorizes R11.6 (manual CONDITIONAL).**
+Cycle = **R11.6 continuity normalization only**. Gate exact head of `r11/6-continuity-normalization` with R0 + full Python Core + KodeStudio UI Smoke and merge with expected SHA. **That merge alone makes R11.6 COMPLETE + NORMALIZED and authorizes R11.7 (manual CONDITIONAL).**

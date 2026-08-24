@@ -1,0 +1,6 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://kodepoia.local/schemas/r10-gltf-local-acceptance-v1.schema.json","title":"Kodepoia R10.10 local Blender/Godot acceptance v1","type":"object","additionalProperties":false,
+  "required":["schema","version","source_sha","status","blockers","policy_version","platform","blender","fixtures","godot","evidence_digest"],
+  "properties":{"schema":{"const":"kodepoia.r10.gltf_local_acceptance"},"version":{"const":1},"source_sha":{"type":"string","pattern":"^[0-9a-f]{40}$"},"status":{"enum":["pass","fail"]},"blockers":{"type":"array","uniqueItems":true,"items":{"type":"string"}},"policy_version":{"const":"r10.10-local-v1"},"platform":{"type":"object"},"blender":{"type":"object"},"fixtures":{"type":"object","required":["static","rigged"],"properties":{"static":{"$ref":"#/$defs/fixture"},"rigged":{"$ref":"#/$defs/fixture"}}},"godot":{"type":"object"},"evidence_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"}},
+  "$defs":{"fixture":{"type":"object","required":["artifact","gltf","roundtrip"],"properties":{"artifact":{"type":["object","null"]},"gltf":{"type":["object","null"]},"roundtrip":{"type":["object","null"]}}}}
+}

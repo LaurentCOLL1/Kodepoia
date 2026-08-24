@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-gltf-export-profile-v1.schema.json",
+  "title": "Kodepoia R10.10 glTF export profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version","profile_id","input_blend_sha256","source_asset_id","source_revision_id","source_content_sha256","output_asset_id","asset_mode","container","scope","source_object_ids","mesh_qa_digest","pbr_profile_digest","rig_profile_digest","animation_report_digest","lod_manifest_digest","export_normals","export_tangents","export_uvs","export_materials","export_skins","export_morphs","export_animations","deform_bones_only","max_influences","required_uv_sets","required_materials","required_bones","required_shape_keys","required_animations","allowed_extensions","max_output_bytes","unit_scale_meters","export_y_up"],
+  "properties": {
+    "version":{"const":1},"profile_id":{"type":"string","pattern":"^[a-z][a-z0-9_.-]{0,63}$"},
+    "input_blend_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},"source_asset_id":{"type":"string","pattern":"^asset_[0-9a-f]{32}$"},"source_revision_id":{"type":"string","pattern":"^rev_[0-9a-f]{32}$"},"source_content_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},"output_asset_id":{"type":"string","pattern":"^asset_[0-9a-f]{32}$"},
+    "asset_mode":{"enum":["static","skinned"]},"container":{"enum":["GLB","GLTF_SEPARATE"]},"scope":{"enum":["scene","selected"]},
+    "source_object_ids":{"type":"array","maxItems":256,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":128}},
+    "mesh_qa_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},"pbr_profile_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},"rig_profile_digest":{"type":["string","null"],"pattern":"^[0-9a-f]{64}$"},"animation_report_digest":{"type":["string","null"],"pattern":"^[0-9a-f]{64}$"},"lod_manifest_digest":{"type":["string","null"],"pattern":"^[0-9a-f]{64}$"},
+    "export_normals":{"type":"boolean"},"export_tangents":{"type":"boolean"},"export_uvs":{"type":"boolean"},"export_materials":{"type":"boolean"},"export_skins":{"type":"boolean"},"export_morphs":{"type":"boolean"},"export_animations":{"type":"boolean"},"deform_bones_only":{"type":"boolean"},
+    "max_influences":{"type":"integer","minimum":1,"maximum":8},
+    "required_uv_sets":{"type":"array","maxItems":16,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":128}},"required_materials":{"type":"array","maxItems":256,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":128}},"required_bones":{"type":"array","maxItems":512,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":128}},"required_shape_keys":{"type":"array","maxItems":512,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":128}},"required_animations":{"type":"array","maxItems":512,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":128}},"allowed_extensions":{"type":"array","maxItems":32,"uniqueItems":true,"items":{"type":"string","minLength":1,"maxLength":128}},
+    "max_output_bytes":{"type":"integer","minimum":1,"maximum":2147483647},"unit_scale_meters":{"const":1.0},"export_y_up":{"const":true}
+  }
+}

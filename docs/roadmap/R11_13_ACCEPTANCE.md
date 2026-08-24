@@ -1,6 +1,6 @@
 # R11.13 — Acceptance
 
-Status: **IMPLEMENTED — HOSTED EXACT-HEAD GATES PENDING**  
+Status: **ACCEPTED CANDIDATE — FINAL DOCUMENTATION HEAD RE-GATE PENDING**  
 Manual intervention: **NONE**
 
 ## Base and scope
@@ -24,10 +24,25 @@ Manual intervention: **NONE**
 - Full R0 Repository Guard, Python Core and KodeStudio UI Smoke must pass on one exact candidate head.
 - After authoritative run IDs are frozen here, any resulting documentation-only head is re-gated before merge.
 
+## Accepted implementation candidate
+
+Exact implementation/documentation candidate before this evidence-record commit:
+
+- SHA: `79a891eaede7e5ecf7d8daf35846b20b1d3d02f9`.
+- R0 Repository Guard: run #1447 / `32763810080` — **SUCCESS**.
+- Python Core: run #1421 / `32763810070` — **SUCCESS**.
+- KodeStudio UI Smoke: run #1388 / `32763810029` — **SUCCESS**.
+- Python Core Ubuntu/Windows: **SUCCESS**.
+- Package build Ubuntu/Windows: **SUCCESS**.
+- Python-Core-internal KodeStudio smoke: **SUCCESS**.
+- Prior R7/R8/R9 integrated validations remained PASS where authoritative execution occurs.
+
+This acceptance update changes documentation bytes, so the resulting final head must pass the same R0 + full Python Core + KodeStudio UI Smoke gates before merge.
+
 ## Manual state
 
 **NONE.** R11.13 introduces presentation/workflow bindings only. Accepted R11.5/R11.9 runtime evidence remains authoritative and no new runtime-specific claim is made.
 
 ## Completion ordering
 
-Accepted candidate -> record exact run IDs -> re-gate final docs if head changes -> merge with `expected_head_sha` -> exactly one continuity-only post-merge normalization -> exact-head R0/Python/UI -> merge normalization -> only then R11.14 is authorized.
+Accepted candidate -> record exact run IDs -> re-gate final docs -> merge with `expected_head_sha` -> exactly one continuity-only post-merge normalization -> exact-head R0/Python/UI -> merge normalization -> only then R11.14 is authorized.

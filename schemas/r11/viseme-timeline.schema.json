@@ -1,0 +1,18 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.invalid/schemas/r11/viseme-timeline.schema.json",
+  "type":"object",
+  "required":["timeline_id","audio_sha256","alignment_digest","viseme_set_id","viseme_set_digest","duration_seconds","attack_seconds","release_seconds","events"],
+  "additionalProperties":false,
+  "properties":{
+    "timeline_id":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"},
+    "audio_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "alignment_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "viseme_set_id":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"},
+    "viseme_set_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "duration_seconds":{"type":"number","exclusiveMinimum":0},
+    "attack_seconds":{"type":"number","minimum":0,"maximum":0.25},
+    "release_seconds":{"type":"number","minimum":0,"maximum":0.25},
+    "events":{"type":"array","maxItems":16384,"items":{"type":"object","required":["source_phoneme","viseme","influence_start_seconds","peak_start_seconds","peak_end_seconds","influence_end_seconds","fallback_used"],"additionalProperties":false,"properties":{"source_phoneme":{"type":"string","minLength":1,"maxLength":64},"viseme":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"},"influence_start_seconds":{"type":"number","minimum":0},"peak_start_seconds":{"type":"number","minimum":0},"peak_end_seconds":{"type":"number","exclusiveMinimum":0},"influence_end_seconds":{"type":"number","exclusiveMinimum":0},"fallback_used":{"type":"boolean"}}}}
+  }
+}

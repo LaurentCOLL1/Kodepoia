@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import tempfile
@@ -37,7 +36,7 @@ def main() -> int:
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--piper", required=True, help="Exact existing piper/piper.exe executable path; never downloaded by this script")
     parser.add_argument("--model", required=True, help="Existing approved .onnx voice model")
-    parser.add_argument("--config", required=True, help="Existing approved .onnx.json voice config")
+    parser.add_argument("--config", required=True, help="Exact approved <model>.onnx.json sibling")
     parser.add_argument("--locale", required=True, help="Locale such as fr-FR")
     parser.add_argument("--license-id", required=True, help="Reviewed per-voice/model license identifier, e.g. cc-by-4.0")
     parser.add_argument("--provenance-id", required=True, help="Stable provenance identifier for the reviewed voice package")
@@ -60,8 +59,9 @@ def main() -> int:
         raise SystemExit("--model must be an existing .onnx file")
     if config.suffix.lower() != ".json":
         raise SystemExit("--config must be an existing .json file")
-    if model.parent != config.parent:
-        raise SystemExit("--model and --config must be in the same governed voice directory")
+    expected_config = model.with_name(model.name + ".json")
+    if config != expected_config:
+        raise SystemExit("--config must be the exact <model>.onnx.json sibling next to --model")
 
     model_sha = sha256_file(model)
     config_sha = sha256_file(config, max_bytes=16 * 1024 * 1024)

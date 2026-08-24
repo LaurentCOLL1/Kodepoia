@@ -22,9 +22,9 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         nav = window.findChild(QListWidget, "mainNavigation")
         assert nav is not None
         texts = [nav.item(index).text() for index in range(nav.count())]
-        # R10.11 intentionally adds the governed Blender / 3D page to the
-        # previously eight-entry main navigation surface.
-        assert len(texts) == 9
+        # R10.11 added Blender / 3D as entry 9; R11.13 intentionally adds the
+        # governed Media / Franchise workspace as entry 10.
+        assert len(texts) == 10
         assert all(text.startswith("⟦") and text.endswith("⟧") for text in texts)
         assert nav.minimumWidth() >= nav.sizeHintForColumn(0) + 24
 
@@ -34,12 +34,16 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         research = window.findChild(QPushButton, "researchSearchButton")
         vault = window.findChild(QPushButton, "vaultSearchButton")
         comfy = window.findChild(QPushButton, "comfyRunButton")
+        r11_refresh = window.findChild(QPushButton, "r11RefreshButton")
+        r11_cancel = window.findChild(QPushButton, "r11CancelButton")
         assert new_project is not None and new_project.text().startswith("⟦")
         assert stop is not None and stop.text().startswith("⟦")
         assert reset is not None and reset.text().startswith("⟦")
         assert research is not None and research.text().startswith("⟦")
         assert vault is not None and vault.text().startswith("⟦")
         assert comfy is not None and comfy.text().startswith("⟦")
+        assert r11_refresh is not None and r11_refresh.text().startswith("⟦")
+        assert r11_cancel is not None and r11_cancel.text().startswith("⟦")
 
         assert window.windowTitle().startswith("⟦")
         assert window.size().width() >= 1100

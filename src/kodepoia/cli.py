@@ -21,6 +21,7 @@ from kodepoia.intelligence.research.media import (
 )
 from kodepoia.intelligence.research.media_fixture import run_fixture_acceptance
 from kodepoia.intelligence.research.research_cli import register_research_commands
+from kodepoia.media.r11_cli import register_r11_commands
 from kodepoia.project.dna import ApprovalPolicy, Dimension, Platform, ProjectType
 from kodepoia.project.initializer import ProjectInitializer
 from kodepoia.project.wizard import ProjectWizardState
@@ -310,6 +311,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_asset_commands(commands)
     register_comfy_commands(commands)
     register_blender_commands(commands)
+    register_r11_commands(commands)
     return parser
 
 

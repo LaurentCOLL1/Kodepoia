@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r11/godot-facial-animation-intent.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["intent_id", "curve_set_digest", "target_id", "target_kind", "track_kind", "key_count", "duration_seconds"],
+  "properties": {
+    "intent_id": {"type": "string"},
+    "curve_set_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "target_id": {"type": "string"},
+    "target_kind": {"enum": ["blend_shape", "bone"]},
+    "track_kind": {"enum": ["blend_shape", "bone_property"]},
+    "key_count": {"type": "integer", "minimum": 1},
+    "duration_seconds": {"type": "number", "exclusiveMinimum": 0}
+  }
+}

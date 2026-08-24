@@ -12,6 +12,7 @@ from kodepoia.blender3d.acceptance import (
     R10IntegrationReport,
     R10IntegrationStatus,
     R10ManualState,
+    build_continuity_evidence,
     build_local_evidence,
     build_prior_phase_evidence,
     build_subdivision_evidence,
@@ -188,13 +189,23 @@ def _fake_report() -> tuple[R10IntegrationReport, dict[str, bytes]]:
     repository: dict[str, bytes] = {}
     source_sha = "f" * 40
     subdivisions = []
+    accepted_heads: list[str] = []
+
     for index in range(1, 13):
         subdivision = f"R10.{index}"
         accepted_head = source_sha if index == 12 else f"{index:040x}"
+        accepted_heads.append(accepted_head)
         source = f"docs/roadmap/R10_{index}_ACCEPTANCE.md"
-        repository[source] = (
-            f"# {subdivision}\naccepted head `{accepted_head}`\nmanual state satisfied\n"
-        ).encode("utf-8")
+        if index == 11:
+            repository[source] = (
+                "# R10.11\n"
+                "The pull request metadata is authoritative for exact-head binding.\n"
+            ).encode("utf-8")
+        else:
+            repository[source] = (
+                f"# {subdivision}\naccepted head `{accepted_head}`\nmanual state satisfied\n"
+            ).encode("utf-8")
+
         if index in {2, 10}:
             manual = R10ManualState.REQUIRED_SATISFIED
         elif index == 12:
@@ -210,6 +221,16 @@ def _fake_report() -> tuple[R10IntegrationReport, dict[str, bytes]]:
                 canonical_bytes=repository[source],
             )
         )
+
+    continuity_text = "# Kodepoia continuity\n" + "\n".join(
+        f"- accepted `{head}`" for head in accepted_heads
+    )
+    repository["docs/continuity/KODEPOIA_CONTINUITY.md"] = (
+        continuity_text + "\n"
+    ).encode("utf-8")
+    continuity = build_continuity_evidence(
+        canonical_bytes=repository["docs/continuity/KODEPOIA_CONTINUITY.md"]
+    )
 
     r2 = {
         "schema": "kodepoia.r10.local_blender_evidence",
@@ -280,11 +301,30 @@ def _fake_report() -> tuple[R10IntegrationReport, dict[str, bytes]]:
         generated_at="2026-08-24T10:00:00Z",
         source_sha=source_sha,
         subdivisions=tuple(subdivisions),
+        continuity=continuity,
         local_evidence=local_evidence,
         prior_phases=tuple(prior_phases),
         status=R10IntegrationStatus.PASS,
     )
     return report, repository
+
+
+def _replace_report(
+    report: R10IntegrationReport,
+    *,
+    continuity=None,
+    local_evidence=None,
+    prior_phases=None,
+) -> R10IntegrationReport:
+    return R10IntegrationReport(
+        generated_at=report.generated_at,
+        source_sha=report.source_sha,
+        subdivisions=report.subdivisions,
+        continuity=report.continuity if continuity is None else continuity,
+        local_evidence=report.local_evidence if local_evidence is None else local_evidence,
+        prior_phases=report.prior_phases if prior_phases is None else prior_phases,
+        status=R10IntegrationStatus.PASS,
+    )
 
 
 def test_r10_12_integrated_verifier_passes_only_immutable_bound_evidence() -> None:
@@ -297,6 +337,25 @@ def test_r10_12_integrated_verifier_passes_only_immutable_bound_evidence() -> No
         validate_repository_evidence(report, tampered.__getitem__)
 
 
+def test_r10_12_normalized_continuity_is_immutable_head_authority() -> None:
+    report, repository = _fake_report()
+    tampered = dict(repository)
+    tampered["docs/continuity/KODEPOIA_CONTINUITY.md"] += b"tamper"
+    with pytest.raises(ValueError, match="continuity evidence identity mismatch"):
+        validate_repository_evidence(report, tampered.__getitem__)
+
+    missing = dict(repository)
+    missing["docs/continuity/KODEPOIA_CONTINUITY.md"] = (
+        "# continuity without R10.11 accepted head\n"
+    ).encode("utf-8")
+    continuity = build_continuity_evidence(
+        canonical_bytes=missing["docs/continuity/KODEPOIA_CONTINUITY.md"]
+    )
+    forged_report = _replace_report(report, continuity=continuity)
+    with pytest.raises(ValueError, match="absent from both"):
+        validate_repository_evidence(forged_report, missing.__getitem__)
+
+
 def test_r10_12_required_local_runtime_spoofing_is_rejected() -> None:
     report, repository = _fake_report()
     tampered = dict(repository)
@@ -305,14 +364,7 @@ def test_r10_12_required_local_runtime_spoofing_is_rejected() -> None:
     forged = json.dumps(document, sort_keys=True).encode("utf-8")
     local = list(report.local_evidence)
     local[0] = build_local_evidence("R10.2", canonical_bytes=forged)
-    forged_report = R10IntegrationReport(
-        generated_at=report.generated_at,
-        source_sha=report.source_sha,
-        subdivisions=report.subdivisions,
-        local_evidence=tuple(local),
-        prior_phases=report.prior_phases,
-        status=R10IntegrationStatus.PASS,
-    )
+    forged_report = _replace_report(report, local_evidence=tuple(local))
     tampered["docs/roadmap/R10_2_LOCAL_ACCEPTANCE.json"] = forged
     with pytest.raises(ValueError, match="does not bind Blender 5.2"):
         validate_repository_evidence(forged_report, tampered.__getitem__)
@@ -327,14 +379,7 @@ def test_r10_12_prior_phase_fail_cannot_be_rebound_into_pass() -> None:
     forged = json.dumps(bad, sort_keys=True).encode("utf-8")
     prior = list(report.prior_phases)
     prior[1] = build_prior_phase_evidence("R8", canonical_bytes=forged)
-    forged_report = R10IntegrationReport(
-        generated_at=report.generated_at,
-        source_sha=report.source_sha,
-        subdivisions=report.subdivisions,
-        local_evidence=report.local_evidence,
-        prior_phases=tuple(prior),
-        status=R10IntegrationStatus.PASS,
-    )
+    forged_report = _replace_report(report, prior_phases=tuple(prior))
     tampered["docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json"] = forged
     with pytest.raises(ValueError, match="R8 integrated report is not PASS"):
         validate_repository_evidence(forged_report, tampered.__getitem__)

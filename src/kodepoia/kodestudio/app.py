@@ -124,7 +124,7 @@ def build_window(
         )
 
         def open_wizard() -> None:
-            from kodepoia.kodestudio.project_wizard import create_project_dialog
+            from kodepoia.kodestudio.r12_project_wizard import create_project_dialog
 
             create_project_dialog(window).exec()
 

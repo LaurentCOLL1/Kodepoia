@@ -1,0 +1,13 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.invalid/schemas/r11/viseme-set.schema.json",
+  "type":"object",
+  "required":["set_id","entries","fallback_viseme","rest_viseme"],
+  "additionalProperties":false,
+  "properties":{
+    "set_id":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"},
+    "entries":{"type":"array","minItems":1,"maxItems":1024,"items":{"type":"object","required":["phoneme","viseme"],"additionalProperties":false,"properties":{"phoneme":{"type":"string","minLength":1,"maxLength":64},"viseme":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"}}}},
+    "fallback_viseme":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"},
+    "rest_viseme":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"}
+  }
+}

@@ -5,8 +5,9 @@
 *.bat text eol=crlf
 *.cmd text eol=crlf
 
-# Deterministic protocol fixtures hashed byte-for-byte in cross-platform CI
+# Deterministic protocol fixtures/evidence hashed byte-for-byte in cross-platform CI
 tests/fixtures/comfyui/*.json text eol=lf
+docs/roadmap/*_LOCAL_ACCEPTANCE.json text eol=lf
 
 # Git LFS — heavy/non-mergeable source assets
 *.blend filter=lfs diff=lfs merge=lfs -text

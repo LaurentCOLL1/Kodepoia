@@ -1,7 +1,7 @@
 # R10.12 — Acceptance record
 
-Status: **IMPLEMENTATION CANDIDATE PENDING EXACT-HEAD GATES**  
-Frozen manual intervention: **CONDITIONAL**
+Status: **IMPLEMENTATION HEAD ACCEPTED — FINAL INTEGRATED EVIDENCE PENDING**  
+Frozen manual intervention: **CONDITIONAL — NOT TRIGGERED**
 
 ## Definition of Done
 
@@ -44,14 +44,34 @@ The report verifier must bind and independently re-read:
 
 Each accepted subdivision head must appear in either its immutable acceptance document or the immutable normalized continuity. A passing report cannot contain explicit or derived blockers. Unsatisfied REQUIRED/triggered CONDITIONAL manual state, stale/missing evidence, changed evidence bytes, non-PASS local evidence, changed runtime baseline or non-PASS prior integrated evidence must reject the report.
 
+## Implementation-candidate history
+
+Historical implementation candidate `314f73a787df138a1525ddb9d6c894b95022f973`:
+
+- R0 Repository Guard #1328 / `32716816926`: repository validation succeeded;
+- Python Core #1302 / `32716816964`: **REJECTED** because one new test incorrectly compared the current repository bytes of `R10_2_LOCAL_ACCEPTANCE.json` with the historical transfer SHA-256 recorded during R10.2; Ubuntu otherwise reported **905 passed / 8 skipped / 46 warnings**, and R7/R8/R9 integrated acceptance PASS;
+- KodeStudio UI Smoke #1269 / `32716817062` was not used to accept this rejected head.
+
+The corrective change does not weaken evidence verification. It distinguishes the immutable SHA-256/byte identity of the evidence file currently present in the repository from its historically recorded transfer digest, while preserving the original historical digest in R10.2 documentation/continuity.
+
+Accepted immutable implementation head: **`2f1db59c8ffa8da28d7afd994e8203a126d4f478`**.
+
+Exact-head gates on `2f1db59c8ffa8da28d7afd994e8203a126d4f478`:
+
+- R0 Repository Guard #1329 / `32716992444`: **SUCCESS**;
+- Python Core #1303 / `32716992453`: **SUCCESS**; Ubuntu **906 passed / 8 skipped / 46 warnings**; Windows Python SUCCESS; KodeStudio smoke SUCCESS; Ubuntu/Windows package builds SUCCESS; R7/R8/R9 integrated acceptance PASS;
+- KodeStudio UI Smoke #1270 / `32716992458`: **SUCCESS**.
+
+This immutable implementation head is the only R10.12 `source_sha`/`accepted_head` authorized for the canonical integrated report.
+
 ## Manual-state evaluation
 
-Current evaluation: **CONDITIONAL NOT TRIGGERED**, subject to implementation-gate confirmation.
+Final implementation evaluation: **CONDITIONAL NOT TRIGGERED**.
 
 R10.12 adds deterministic adversarial validation and evidence binding only. It does not change Blender job generation, Blender execution flags, Blender 5.2 semantics, GLB/glTF export semantics, or Godot 4.7 import/smoke behavior. The reviewed REQUIRED local evidence from R10.2 and R10.10 remains the authoritative hardware/runtime proof and is revalidated by the integrated verifier.
 
-If implementation work changes that fact or exposes an authoritative real-runtime seam not covered by those accepted local gates, this state immediately becomes TRIGGERED and work must stop for a new bounded local acceptance command.
+The rejected candidate exposed only a repository-evidence identity assertion error and no new authoritative Blender/Godot runtime seam. No new manual Blender/Godot intervention is required.
 
-## Candidate/final evidence
+## Final integrated evidence
 
-The immutable implementation SHA and its exact R0/Python/UI run IDs will be recorded here only after that candidate actually passes. `R10_INTEGRATED_ACCEPTANCE.json` will then be generated from that immutable implementation SHA. No placeholder SHA or synthetic PASS is permitted.
+`R10_INTEGRATED_ACCEPTANCE.json` must now be generated from the immutable implementation head above plus immutable repository evidence. No placeholder SHA, synthetic PASS, or future final-documentation head may replace `2f1db59c8ffa8da28d7afd994e8203a126d4f478` as the R10.12 accepted implementation head.

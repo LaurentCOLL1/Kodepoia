@@ -1,0 +1,49 @@
+name: R12 Avalonia Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r12-avalonia-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  avalonia:
+    name: avalonia-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install Kodepoia
+        run: python -m pip install -e ".[dev]"
+      - name: Set up accepted .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Build and runtime-probe Avalonia fixture
+        run: python scripts/r12_7_avalonia_acceptance.py --output ".kodepoia/evidence/R12_7_AVALONIA_${{ runner.os }}.json"
+      - name: Upload platform-partitioned Avalonia evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r12-7-avalonia-${{ runner.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .kodepoia/evidence/R12_7_AVALONIA_${{ runner.os }}.json
+          if-no-files-found: error

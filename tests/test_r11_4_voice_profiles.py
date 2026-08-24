@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import dataclasses
+import json
+from pathlib import Path
 
 import pytest
+from jsonschema import validate
 
 from kodepoia.media.contracts import MediaState
 from kodepoia.media.voice import (
@@ -21,6 +24,7 @@ from kodepoia.media.voice import (
 
 _SHA_A = "a" * 64
 _SHA_B = "b" * 64
+_SCHEMA_ROOT = Path("schemas/r11")
 
 
 def test_locale_normalization_profile_digest_and_fallbacks_are_deterministic() -> None:
@@ -149,3 +153,40 @@ def test_invalid_locale_and_nonfinite_prosody_fail_closed() -> None:
         normalize_locale("x")
     with pytest.raises(ValueError):
         ProsodyIntent(pace=float("nan"))
+
+
+def test_r11_4_json_schemas_accept_canonical_contracts() -> None:
+    profile = VoiceProfile(
+        "voice.hero",
+        "character.hero",
+        "fr-FR",
+        ("en-US",),
+        ProsodyIntent(styles=("warm",)),
+        "Hero",
+    )
+    lexicon = PronunciationLexicon(
+        "lex.main",
+        (PronunciationEntry("entry.fr", "fr-FR", "Kodepoia", "kɔdepɔja"),),
+    )
+    binding = VoiceModelBinding(
+        "binding.fr.demo",
+        "piper-compatible",
+        _SHA_A,
+        _SHA_B,
+        "fr-FR",
+        RightsDeclaration(
+            "prov.demo",
+            "cc-by-4.0",
+            (AllowedUse.INTERNAL,),
+            source_uri_id="source.model-card",
+        ),
+        speaker_id="speaker.0",
+    )
+    cases = (
+        ("voice-profile.schema.json", profile.canonical()),
+        ("pronunciation-lexicon.schema.json", lexicon.canonical()),
+        ("voice-model-binding.schema.json", binding.canonical()),
+    )
+    for schema_name, payload in cases:
+        schema = json.loads((_SCHEMA_ROOT / schema_name).read_text(encoding="utf-8"))
+        validate(instance=payload, schema=schema)

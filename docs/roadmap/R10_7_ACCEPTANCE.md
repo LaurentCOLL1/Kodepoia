@@ -1,69 +1,104 @@
 # R10.7 — Acceptance record
 
-Status: **HOSTED IMPLEMENTATION ACCEPTED; LOCAL BLENDER 5.2 ACTION/NLA EVIDENCE REQUIRED**  
-Manual intervention: **CONDITIONAL TRIGGERED**
+Status: **CORRECTED HOSTED GATES PENDING**  
+Manual intervention: **TRIGGERED — first local attempt rejected; corrected candidate must pass hosted gates before re-test**
 
 ## Definition of Done
 
-R10.7 requires exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke; canonical animation/retarget recipe identity; deterministic frame/FPS/duration/loop/root-motion policy; explicit injective semantic mapping; objective rest-pose compatibility measurements; explicit `explicit_keys_only` sampling policy; bounded Action/NLA organization and key budget; immutable parent `.blend`, verified derivative and lineage; and, because the frozen condition is now triggered, a real Blender 5.2 Action/F-Curve/NLA execution fixture.
+R10.7 requires one exact head with:
 
-## Rejected hosted candidate
+- R0 Repository Guard SUCCESS;
+- full Python Core SUCCESS on Ubuntu/Windows with R7/R8/R9 integrated acceptance still PASS;
+- KodeStudio UI Smoke SUCCESS;
+- canonical animation/retarget recipe identity;
+- deterministic frame/FPS/duration/loop/root-motion policy;
+- explicit injective semantic mapping with required target coverage and no fuzzy authority;
+- objective rest-pose compatibility measurements;
+- explicit `explicit_keys_only` sampling policy and fail-closed constraint/driver behavior;
+- bounded Blender 5.2 layered Action/ActionSlot/F-Curve/NLA organization and key budget;
+- immutable parent `.blend`, verified derived `.blend` and parent→derived SHA lineage;
+- static offline bootstrap with no arbitrary driver/script/network/dynamic-code surface.
 
-Candidate `3fd3c528fc827815b10b13e0d35e591274c7b804` was **REJECTED** even though R0 #1256 and UI #1197 succeeded. Python Core #1230 failed on both Ubuntu and Windows because one new test fixture intended to exercise an out-of-range key changed the first key frame from `1` to `11`, yielding `[11,10]`. The contract correctly rejected the earlier invariant `keyframes must be strictly ordered and unique by frame`, so the test's expected `outside clip frame range` message was unreachable.
+## Hosted fixture expectations
 
-The fix changed only the fixture: the second frame is changed from `10` to `11`, preserving `[1,11]` and reaching the intended range gate. No production contract, security boundary or acceptance criterion was weakened.
+Tests must cover:
 
-## Accepted hosted implementation head
+- stable `RigSemanticProfile` identity;
+- quaternion normalization and invalid frame/key rejection;
+- duplicate/ambiguous/unknown mapping rejection;
+- required target mapping and key budget enforcement;
+- PASS report for the canonical retarget fixture;
+- BLOCK for incompatible rest pose, unsupported constraints/drivers, invalid NLA/export readiness and root-motion failure;
+- WARN-only semantics for optional unmapped deform bones;
+- runner result-digest tamper rejection and source immutability;
+- static bootstrap import/surface inspection;
+- explicit Blender 5.2 Action slot/layer/keyframe-strip/channelbag/F-Curve construction;
+- valid recipe/report/local-evidence schemas and bounded local acceptance script with surfaced manifest blockers/process state.
 
-Immutable hosted implementation candidate:
+## Hosted candidate 0a49d3ad — PASS, then rejected locally
+
+Exact implementation source SHA:
 
 `0a49d3ad15c3e263652be5776f28f959562feaef`
 
-Exact-head gates:
+Hosted gates:
 
-- R0 Repository Guard #1257 / run `32670538729`: **SUCCESS**.
-- Python Core #1231 / run `32670538733`: **SUCCESS**. Ubuntu reported **813 passed / 7 skipped / 46 warnings**; R7 integrated acceptance PASS, R8 integrated acceptance PASS and R9 integrated acceptance PASS; Windows Python, Ubuntu/Windows package builds and embedded KodeStudio Windows all succeeded.
-- KodeStudio UI Smoke #1198 / run `32670538746`: **SUCCESS**.
+- R0 Repository Guard #1257 / `32670538729`: SUCCESS;
+- Python Core #1231 / `32670538733`: SUCCESS; Ubuntu `813 passed, 7 skipped, 46 warnings`, R7/R8/R9 integrated acceptance PASS; Windows Python and Ubuntu/Windows package builds SUCCESS;
+- KodeStudio UI Smoke #1198 / `32670538746`: SUCCESS.
 
-Hosted tests cover stable semantic-rig identity; quaternion normalization; ordered/in-range key validation; explicit injective mappings; required target coverage; key budgets; rest-pose direction/length compatibility; `explicit_keys_only` policy; constraint/driver blocking; NLA/export-readiness rules; root-motion rules; WARN-only optional unmapped deform semantics; source immutability/lineage; manifest tamper rejection; static offline bootstrap inspection; and recipe/report/local-evidence schemas.
+The frozen CONDITIONAL decision was **TRIGGERED** because prior R10.2/R10.6 evidence did not execute the new Blender Action/F-Curve/NLA seam.
 
-## CONDITIONAL decision — TRIGGERED
+### Rejected local evidence
 
-R10.2 certified a real Blender 5.2 headless runtime and glTF/bmesh capability. R10.6 certified real Blender 5.2 armature deformation. Neither accepted local gate executed R10.7's new runtime semantics: creation of an Action, pose-bone key insertion/F-Curves, transfer into an NLA Action strip, clearing of the active Action while retaining the governed NLA identity, and measurement of the resulting animation derivative.
+The exact local execution on Windows / Blender 5.2.0 returned exit code 17 and is permanently archived as:
 
-Hosted CI uses deterministic fake-runner fixtures for those seams; it does not execute Blender 5.2 itself. Therefore prior local evidence cannot authoritatively certify the new Action/F-Curve/NLA runtime behavior. The frozen **CONDITIONAL is TRIGGERED**.
+`docs/roadmap/R10_7_LOCAL_ACCEPTANCE_REJECTED_0a49d3ad.json`
 
-Stop before R10.8 and run the bounded local fixture on exact hosted candidate `0a49d3ad15c3e263652be5776f28f959562feaef`:
+Identity supplied and independently checked from the submitted file:
 
-```powershell
-git fetch origin
-git checkout 0a49d3ad15c3e263652be5776f28f959562feaef
-
-python scripts/r10_7_local_acceptance.py `
-  --source-sha 0a49d3ad15c3e263652be5776f28f959562feaef `
-  --blender "G:\SteamLibrary\steamapps\common\Blender\blender.exe" `
-  --output "docs\roadmap\R10_7_LOCAL_ACCEPTANCE.json"
-```
-
-If Blender is installed elsewhere, change only the `--blender` path. Do not alter `--source-sha`.
-
-## Required local evidence
-
-The machine-readable JSON must report:
-
-- `source_sha=0a49d3ad15c3e263652be5776f28f959562feaef`;
-- `status=pass`, `blockers=[]`;
-- Blender 5.2.x, non-empty platform, `background=true`, `online_access=false`;
-- geometry fixture PASS;
+- bytes: `897`;
+- SHA-256: `59ce89901c9df64c9ba54b353323acad47884e4c3c20fa5328f3f51b2a93992b`;
+- evidence digest: `604e4d26f7c2fa3c4266eda4055e462ffafd3ef63baab013cefe2cde1c1368ea`;
+- source SHA: `0a49d3ad15c3e263652be5776f28f959562feaef`;
+- runtime: Blender `5.2.0`, Windows, background `true`, online access `false`;
+- geometry PASS;
 - source rig PASS;
 - target rig PASS;
-- animation manifest PASS;
-- PASS rules including mapping coverage, rest-direction compatibility, rest-length compatibility, key budget, NLA track count, NLA strip count and root-motion policy; the animation manifest itself must have no BLOCK/WARN result for the minimal canonical fixture;
-- verified `animation_output.blend` filename, non-zero bytes and SHA-256;
-- canonical evidence digest.
+- animation BLOCK;
+- top-level blockers: `animation_retarget_failed`, `animation_rules_incomplete`;
+- no animation artifact and no animation report digest were produced.
 
-No manual animation editing, weight painting, driver insertion, constraint tweaking or video-only evidence is accepted. On failure, preserve the JSON exactly and return it without relaxing the bootstrap or Blender preferences.
+This evidence is **REJECTED**, not a partial PASS. It proves the failure is isolated to the animation runtime seam while the preceding governed geometry and rig fixture chain succeeds.
 
-## Merge ordering
+## Corrective action after rejected local evidence
 
-After reviewed local evidence is bound to the immutable candidate, record its canonical SHA-256/bytes and facts here, rerun R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the final documented head, merge PR #143 with expected SHA, then perform exactly one continuity-only post-merge normalization with the same three gates. Only after that normalization merge is R10.7 **COMPLETE + NORMALIZED** and R10.8 authorized.
+The rejected bootstrap created an empty Action, assigned it directly to target `AnimData`, and then relied on `PoseBone.keyframe_insert()` to infer Blender's layered animation structure. That assumption was not established by prior evidence.
+
+The corrected bootstrap follows the Blender 5.2 layered API explicitly:
+
+1. create the Kodepoia Action;
+2. create exactly one Action Slot for the target armature object;
+3. create one Action Layer;
+4. create one `KEYFRAME` Action strip;
+5. create/ensure the slot Channelbag;
+6. create deterministic F-Curves for each mapped pose-bone channel and insert bounded keyframe points;
+7. assign both `animation_data.action` and `animation_data.action_slot`;
+8. create one NLA track/strip and explicitly bind `strip.action_slot`;
+9. clear the active Action only after NLA binding;
+10. verify Action+slot identity before saving the derived `.blend`.
+
+The local acceptance output is also hardened to expose the underlying animation manifest blockers and process facts on any further failure. Failure payloads preserve recipe/input lineage whenever the job was readable, preventing an execution exception from being obscured by secondary digest mismatch noise.
+
+## Corrected-candidate ordering
+
+The correction must now satisfy, in order:
+
+1. exact-head R0 Repository Guard;
+2. exact-head full Python Core;
+3. exact-head KodeStudio UI Smoke;
+4. only after all three succeed, rerun `scripts/r10_7_local_acceptance.py` on that immutable corrected source SHA using Blender 5.2.x;
+5. if local evidence is not PASS, stop again before R10.8 and preserve the new evidence unchanged;
+6. if local evidence is PASS, bind it canonically in this acceptance record, rerun the three final gates on the final documented head, merge PR #143 with expected SHA, then perform exactly one continuity-only post-merge normalization with the same gates.
+
+Only after the normalization merge is R10.7 **COMPLETE + NORMALIZED** and R10.8 authorized.

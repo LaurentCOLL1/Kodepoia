@@ -10,13 +10,17 @@ from typing import Mapping
 
 from kodepoia.core.audit import AuditLog
 from kodepoia.core.backup import BackupManager
+from kodepoia.core.safe_change import SafeChangeManager
 
 
 _IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _NAMESPACE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$")
 _TOKEN = re.compile(r"\{\{(identifier|namespace|text|bool):([A-Za-z_][A-Za-z0-9_]*)\}\}")
 _WINDOWS_RESERVED = {
-    "CON", "PRN", "AUX", "NUL",
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
     *(f"COM{i}" for i in range(1, 10)),
     *(f"LPT{i}" for i in range(1, 10)),
 }
@@ -78,7 +82,9 @@ class TemplateValue:
             raise ValueError(f"unsafe identifier: {value!r}")
         if self.kind is TemplateValueKind.NAMESPACE and not _NAMESPACE.fullmatch(value):
             raise ValueError(f"unsafe namespace: {value!r}")
-        if self.kind is TemplateValueKind.TEXT and any(ord(ch) < 32 and ch not in "\n\t" for ch in value):
+        if self.kind is TemplateValueKind.TEXT and any(
+            ord(ch) < 32 and ch not in "\n\t" for ch in value
+        ):
             raise ValueError("text template value contains forbidden control characters")
         return value
 
@@ -88,6 +94,13 @@ class TemplateFile:
     path_template: str
     content_template: str
     ownership: FileOwnership = FileOwnership.KODEPOIA
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "path_template": self.path_template,
+            "content_template": _normalize_newlines(self.content_template),
+            "ownership": self.ownership.value,
+        }
 
 
 @dataclass(frozen=True, slots=True)
@@ -115,22 +128,53 @@ class DesktopTemplateManifest:
             _validate_tokens(file.path_template)
             _validate_tokens(file.content_template)
 
-    def digest(self) -> str:
+    def to_dict(self) -> dict[str, object]:
         self.validate()
-        payload = {
+        return {
             "schema_version": self.schema_version,
             "template_id": self.template_id,
             "template_version": self.template_version,
-            "files": [
-                {
-                    "path_template": item.path_template,
-                    "content_template": _normalize_newlines(item.content_template),
-                    "ownership": item.ownership.value,
-                }
-                for item in self.files
-            ],
+            "files": [item.to_dict() for item in self.files],
         }
-        return _sha256_bytes(_canonical_json(payload))
+
+    def digest(self) -> str:
+        return _sha256_bytes(_canonical_json(self.to_dict()))
+
+    @classmethod
+    def from_dict(cls, raw: object) -> "DesktopTemplateManifest":
+        if not isinstance(raw, dict):
+            raise ValueError("desktop template manifest must be a JSON object")
+        allowed = {"schema_version", "template_id", "template_version", "files"}
+        if set(raw) != allowed:
+            raise ValueError("desktop template manifest has unknown or missing keys")
+        files_raw = raw["files"]
+        if not isinstance(files_raw, list):
+            raise ValueError("desktop template files must be an array")
+        files: list[TemplateFile] = []
+        for item in files_raw:
+            if not isinstance(item, dict):
+                raise ValueError("desktop template file entry must be an object")
+            if set(item) != {"path_template", "content_template", "ownership"}:
+                raise ValueError("desktop template file entry has invalid keys")
+            files.append(
+                TemplateFile(
+                    path_template=str(item["path_template"]),
+                    content_template=str(item["content_template"]),
+                    ownership=FileOwnership(str(item["ownership"])),
+                )
+            )
+        manifest = cls(
+            schema_version=int(raw["schema_version"]),
+            template_id=str(raw["template_id"]),
+            template_version=str(raw["template_version"]),
+            files=tuple(files),
+        )
+        manifest.validate()
+        return manifest
+
+    @classmethod
+    def load(cls, path: Path) -> "DesktopTemplateManifest":
+        return cls.from_dict(json.loads(path.read_text(encoding="utf-8")))
 
 
 @dataclass(frozen=True, slots=True)
@@ -272,7 +316,9 @@ class DesktopScaffoldEngine:
             seen.add(path)
             content = _normalize_newlines(_render_tokens(item.content_template, values))
             encoded = content.encode("utf-8")
-            rendered.append(RenderedFile(path, content, _sha256_bytes(encoded), item.ownership))
+            rendered.append(
+                RenderedFile(path, content, _sha256_bytes(encoded), item.ownership)
+            )
         rendered.sort(key=lambda item: item.path)
         manifest = WorkspaceManifest(
             schema_version=1,
@@ -294,7 +340,7 @@ class DesktopScaffoldEngine:
     ) -> ScaffoldPreview:
         root = project_root.resolve(strict=False)
         rendered, manifest = self.render(template, values, lineage)
-        previous_ownership = self._previous_ownership(root)
+        previous = self._previous_files(root)
         items: list[PreviewItem] = []
         for desired in rendered:
             target = self._inside(root, desired.path)
@@ -306,11 +352,16 @@ class DesktopScaffoldEngine:
                 current = None
             else:
                 current = _sha256_bytes(target.read_bytes())
+                prior = previous.get(desired.path)
                 if current == desired.sha256:
                     action = PreviewAction.UNCHANGED
                 elif desired.ownership is FileOwnership.USER:
                     action = PreviewAction.PRESERVE
-                elif previous_ownership.get(desired.path) is FileOwnership.KODEPOIA:
+                elif (
+                    prior is not None
+                    and prior[0] is FileOwnership.KODEPOIA
+                    and current == prior[1]
+                ):
                     action = PreviewAction.REPLACE
                 else:
                     action = PreviewAction.CONFLICT
@@ -324,6 +375,7 @@ class DesktopScaffoldEngine:
         project_root: Path,
         preview: ScaffoldPreview,
         *,
+        safe_change: SafeChangeManager | None = None,
         backup_manager: BackupManager | None = None,
         audit_log: AuditLog | None = None,
         actor: str = "kodepoia",
@@ -333,11 +385,19 @@ class DesktopScaffoldEngine:
         if preview.has_conflicts:
             raise FileExistsError("refusing scaffold apply with ownership/path conflicts")
         by_path = {item.path: item for item in preview.manifest.files}
-        replace_paths = [root / item.path for item in preview.items if item.action is PreviewAction.REPLACE]
+        replace_paths = [
+            self._inside(root, item.path)
+            for item in preview.items
+            if item.action is PreviewAction.REPLACE
+        ]
+        safe_snapshot: Path | None = None
         backup_path: Path | None = None
         if replace_paths:
-            if backup_manager is None:
-                raise ValueError("destructive scaffold regeneration requires BackupManager")
+            if safe_change is None or backup_manager is None:
+                raise ValueError(
+                    "destructive scaffold regeneration requires SafeChangeManager and BackupManager"
+                )
+            safe_snapshot = safe_change.snapshot(replace_paths)
             backup_path = backup_manager.create_archive(root, label="desktop-scaffold")
         for item in preview.items:
             if item.action in {PreviewAction.UNCHANGED, PreviewAction.PRESERVE}:
@@ -358,13 +418,18 @@ class DesktopScaffoldEngine:
                 {
                     "workspace_manifest_sha256": preview.manifest.digest(),
                     "template_sha256": preview.manifest.template_sha256,
+                    "safe_snapshot": str(safe_snapshot) if safe_snapshot else None,
                     "backup": str(backup_path) if backup_path else None,
-                    "actions": {item.path: item.action.value for item in preview.items},
+                    "actions": {
+                        item.path: item.action.value for item in preview.items
+                    },
                 },
             )
         return preview.manifest
 
-    def _previous_ownership(self, root: Path) -> dict[str, FileOwnership]:
+    def _previous_files(
+        self, root: Path
+    ) -> dict[str, tuple[FileOwnership, str]]:
         path = self._inside(root, self.MANIFEST_PATH)
         if not path.is_file():
             return {}
@@ -372,9 +437,13 @@ class DesktopScaffoldEngine:
             raw = json.loads(path.read_text(encoding="utf-8"))
             if raw.get("schema_version") != 1 or not isinstance(raw.get("files"), list):
                 return {}
-            result: dict[str, FileOwnership] = {}
+            result: dict[str, tuple[FileOwnership, str]] = {}
             for item in raw["files"]:
-                result[_validate_template_path(str(item["path"]))] = FileOwnership(item["ownership"])
+                relative = _validate_template_path(str(item["path"]))
+                digest = str(item["sha256"])
+                if not re.fullmatch(r"[0-9a-f]{64}", digest):
+                    return {}
+                result[relative] = (FileOwnership(item["ownership"]), digest)
             return result
         except (KeyError, TypeError, ValueError, json.JSONDecodeError):
             return {}

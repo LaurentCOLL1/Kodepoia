@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -8,9 +9,12 @@ from typing import Any
 from ..audio.qa import AudioQAProfile, evaluate_wav
 from ..audio.wav import AudioFormatError, inspect_wav_bytes
 from ..contracts import MediaState
+from ..serialization import canonical_sha256
 from ..voice import VoiceModelBinding
 from .contracts import SynthesisLimits, SynthesisRequest
 from .piper import PiperAdapter, PiperCapabilityReport, sha256_file
+
+_SOURCE_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
 class TTSRunError(RuntimeError):
@@ -70,6 +74,8 @@ def synthesize_local(
     limits: SynthesisLimits | None = None,
     capability_report: PiperCapabilityReport | None = None,
 ) -> SynthesisManifest:
+    if not isinstance(source_sha, str) or _SOURCE_SHA_RE.fullmatch(source_sha) is None:
+        raise ValueError("source_sha must be the exact lowercase 40-character candidate SHA")
     active_limits = limits or SynthesisLimits()
     probe = capability_report or adapter.capability_probe(executable)
     if probe.status != "pass":
@@ -146,11 +152,7 @@ def synthesize_local(
     }
     return SynthesisManifest(
         source_sha=source_sha,
-        request_digest=request.cache_key(
-            runtime_sha256="0" * 64,
-            model_sha256=binding.model_sha256,
-            config_sha256=binding.config_sha256,
-        ),
+        request_digest=canonical_sha256(request.canonical()),
         text_sha256=request.text_sha256,
         cache_key=cache_key,
         backend_id=adapter.backend_id,

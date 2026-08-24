@@ -60,25 +60,36 @@ Recommended acceptance voice for the frozen command below: `fr_FR-siwis-medium`.
 
 The collector itself never downloads or installs software/models. If Piper or the selected voice is not already installed, bootstrap them **before** the offline collector run.
 
-For the currently reviewed Windows x86-64/Python 3.9+ path, use Piper package version `1.6.0` from PyPI. Run inside the already-active Kodepoia virtual environment:
+For Windows x86-64/Python 3.9+, use Piper package version `1.6.0` from PyPI. Keep Piper isolated from the Kodepoia project virtual environment by creating a dedicated runtime venv under `%LOCALAPPDATA%`:
 
 ```powershell
-python -m pip install --upgrade "piper-tts==1.6.0"
-$Piper = (Get-Command piper.exe -ErrorAction Stop).Source
+$PiperRoot = Join-Path $env:LOCALAPPDATA "Kodepoia\Piper\runtime-1.6.0"
+$PiperVenv = Join-Path $PiperRoot ".venv"
+$PiperPython = Join-Path $PiperVenv "Scripts\python.exe"
+$Piper = Join-Path $PiperVenv "Scripts\piper.exe"
+
+New-Item -ItemType Directory -Force -Path $PiperRoot | Out-Null
+if (-not (Test-Path -LiteralPath $PiperPython -PathType Leaf)) {
+    python -m venv $PiperVenv
+}
+
+& $PiperPython -m pip install --upgrade pip
+& $PiperPython -m pip install --upgrade "piper-tts==1.6.0"
 & $Piper --help | Out-Host
-python -m pip show piper-tts
+& $PiperPython -m pip show piper-tts
 ```
 
-Keep voice bytes outside the Git worktree so the exact-head evidence tree remains clean. Download the reviewed voice with Piper's official downloader into a user-local runtime directory:
+Keep voice bytes outside the Git worktree as well. Download the reviewed voice with Piper's official downloader into a user-local voice directory:
 
 ```powershell
 $VoiceDir = Join-Path $env:LOCALAPPDATA "Kodepoia\Piper\voices"
 New-Item -ItemType Directory -Force -Path $VoiceDir | Out-Null
-python -m piper.download_voices --data-dir $VoiceDir fr_FR-siwis-medium
+& $PiperPython -m piper.download_voices --data-dir $VoiceDir fr_FR-siwis-medium
 
 $Model = Join-Path $VoiceDir "fr_FR-siwis-medium.onnx"
 $Config = "$Model.json"
 
+if (-not (Test-Path -LiteralPath $Piper -PathType Leaf)) { throw "Dedicated piper.exe is missing. STOP." }
 if (-not (Test-Path -LiteralPath $Model -PathType Leaf)) { throw "Downloaded .onnx model is missing. STOP." }
 if (-not (Test-Path -LiteralPath $Config -PathType Leaf)) { throw "Downloaded exact <model>.onnx.json sibling is missing. STOP." }
 
@@ -91,32 +102,36 @@ Before the collector command, personally review the `fr_FR-siwis-medium` model c
 
 Prerequisites after Phase 0:
 
-1. local `piper.exe` from the explicitly installed accepted Piper package;
+1. dedicated local `piper.exe` from the explicitly installed accepted Piper package;
 2. reviewed `fr_FR-siwis-medium.onnx` and exact sibling `fr_FR-siwis-medium.onnx.json`;
-3. a clean Kodepoia working tree before switching/reconfirming the frozen candidate;
+3. a clean Kodepoia working tree and exact frozen candidate HEAD;
 4. no private reference recording and no voice cloning;
 5. no network is required or initiated by the collector itself.
 
 ### Exact PowerShell acceptance command
 
-Run from the Kodepoia repository root. This command fetches only the already-created Kodepoia candidate from GitHub; it does **not** download Piper or any voice/model.
+Run from the Kodepoia repository root. Piper/model installation must already be complete before this block.
 
 ```powershell
 $ErrorActionPreference = "Stop"
 $Candidate = "441ea87436c6851cd106654454f955a91460f7af"
 
-if (git status --porcelain) { throw "Kodepoia working tree is not clean. STOP and report this instead of stashing/discarding changes." }
-git fetch origin r11/5-local-tts-adapters
-if ((git cat-file -t $Candidate).Trim() -ne "commit") { throw "Frozen R11.5 candidate is unavailable locally. STOP and report this." }
-git switch --detach $Candidate
+if ((git rev-parse HEAD).Trim() -ne $Candidate) {
+    if (git status --porcelain) { throw "Kodepoia working tree is not clean. STOP and report this instead of stashing/discarding changes." }
+    git fetch origin r11/5-local-tts-adapters
+    if ((git cat-file -t $Candidate).Trim() -ne "commit") { throw "Frozen R11.5 candidate is unavailable locally. STOP and report this." }
+    git switch --detach $Candidate
+}
 if ((git rev-parse HEAD).Trim() -ne $Candidate) { throw "HEAD does not equal the frozen R11.5 candidate. STOP." }
+if (git status --porcelain) { throw "Kodepoia working tree is not clean at the frozen candidate. STOP." }
 
-$Piper = (Get-Command piper.exe -ErrorAction Stop).Source
+$PiperRoot = Join-Path $env:LOCALAPPDATA "Kodepoia\Piper\runtime-1.6.0"
+$Piper = Join-Path $PiperRoot ".venv\Scripts\piper.exe"
 $VoiceDir = Join-Path $env:LOCALAPPDATA "Kodepoia\Piper\voices"
 $Model = Join-Path $VoiceDir "fr_FR-siwis-medium.onnx"
 $Config = "$Model.json"
 
-if (-not (Test-Path -LiteralPath $Piper -PathType Leaf)) { throw "piper.exe is missing. STOP and report this." }
+if (-not (Test-Path -LiteralPath $Piper -PathType Leaf)) { throw "Dedicated piper.exe is missing. STOP and report this." }
 if (-not (Test-Path -LiteralPath $Model -PathType Leaf)) { throw "Reviewed .onnx model is missing. STOP and report this." }
 if (-not (Test-Path -LiteralPath $Config -PathType Leaf)) { throw "Exact <model>.onnx.json sibling is missing. STOP and report this." }
 

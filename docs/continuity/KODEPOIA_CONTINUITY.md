@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.5 COMPLETE + NORMALIZED. R12.5 final head `07181f30c9326dcb05bafc93da86e0fdb67de8a0`: R0 #1498 / `32782373299`, Python #1472 / `32782373210`, UI #1439 / `32782373424`, WPF #9 / `32782373004`, tous SUCCESS; PR #195 merge `9b9e0060520fec664e90b4c833245dade2c86287`. Single normalization `676edfec7d028f06ecb5d4ef490555b70e5254ea`: R0 #1500 / `32785594679`, Python #1474 / `32785594639`, UI #1441 / `32785594705`, WPF #10 / `32785594643`, tous SUCCESS; PR #196 merge `f84762085282eccc2e2c26ee1c0ccf62fbdfcf49`. Manual R12.5 CONDITIONAL NOT TRIGGERED. R12.6 WinUI 3 est en implémentation sur branche dédiée depuis ce normalized main; R12.7 reste interdit avant R12.6 COMPLETE + NORMALIZED.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.5 COMPLETE + NORMALIZED. R12.6 first accepted implementation candidate `b990a613d6becbc80e637ea0184f87b502573b74`: R0 #1502 / `32786054869`, Python #1476 / `32786054919`, UI #1443 / `32786054865`, WPF regression #11 / `32786054841`, R12 WinUI3 Acceptance #1 / `32786054895`, tous SUCCESS. Hosted Windows a réellement provisionné le template WinUI documenté, restauré Windows App SDK `1.8.260804001`, compilé le fixture et chargé le runtime; manual CONDITIONAL NOT TRIGGERED. Cette documentation crée le final R12.6 head à re-gater. R12.7 reste interdit jusqu’au merge R12.6 puis à son unique normalisation.**
 
 ## État global
 
@@ -13,25 +13,15 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.5 : **COMPLETE + NORMALIZED**.
-- R12.6 : **IMPLEMENTATION / ACCEPTANCE PENDING**.
+- R12.6 : **FIRST CANDIDATE ACCEPTED / FINAL DOCUMENTATION RE-GATE PENDING**.
 - R12.7–R12.16 : **PLANNED / NOT STARTED**.
 
 ## Recent closure authority
 
-### R12.4
-- Final docs `b9c926d94d8ad52de8471287a6b34f9950e24c96`: R0 #1486 / `32779563916`, Python #1460 / `32779563963`, UI #1427 / `32779563925` — SUCCESS; PR #193 merge `a98d985c3200f977f8fdbc38483d4aaf81e870af`.
-- Single normalization `b280bf60cddf7b3a9b079d6845d9a991e009487e`: R0 #1488 / `32779785160`, Python #1462 / `32779785121`, UI #1429 / `32779785040` — SUCCESS; PR #194 merge `180a507a81c979ec797f3bafe3de29ba38b72c94`.
-- Manual NONE. **R12.4 COMPLETE + NORMALIZED.**
-
 ### R12.5
-- Base normalized `main`: `180a507a81c979ec797f3bafe3de29ba38b72c94`.
-- Implementation branch `r12/5-wpf-dotnet-adapter`; PR #195; Manual **CONDITIONAL / NOT TRIGGERED**.
-- Accepted implementation candidate `bd2ac96b4ac2a1b366ab52aae2ea50f7d49fce33`: R0 #1496 / `32782170580`, Python #1470 / `32782170531`, UI #1437 / `32782170529`, WPF #7 / `32782170577` — SUCCESS.
-- Final documentation head `07181f30c9326dcb05bafc93da86e0fdb67de8a0`: R0 #1498 / `32782373299`, Python #1472 / `32782373210`, UI #1439 / `32782373424`, WPF #9 / `32782373004` — SUCCESS.
-- PR #195 merge `9b9e0060520fec664e90b4c833245dade2c86287`.
-- Single continuity normalization `676edfec7d028f06ecb5d4ef490555b70e5254ea`: R0 #1500 / `32785594679`, Python #1474 / `32785594639`, UI #1441 / `32785594705`, WPF #10 / `32785594643` — SUCCESS.
-- PR #196 merge `f84762085282eccc2e2c26ee1c0ccf62fbdfcf49`.
-- Hosted Windows proved real .NET 10 WPF restore/build/STA runtime; no manual intervention required. **R12.5 COMPLETE + NORMALIZED.**
+- Final documentation head `07181f30c9326dcb05bafc93da86e0fdb67de8a0`: R0 #1498 / `32782373299`, Python #1472 / `32782373210`, UI #1439 / `32782373424`, WPF #9 / `32782373004` — SUCCESS; PR #195 merge `9b9e0060520fec664e90b4c833245dade2c86287`.
+- Single continuity normalization `676edfec7d028f06ecb5d4ef490555b70e5254ea`: R0 #1500 / `32785594679`, Python #1474 / `32785594639`, UI #1441 / `32785594705`, WPF #10 / `32785594643` — SUCCESS; PR #196 merge `f84762085282eccc2e2c26ee1c0ccf62fbdfcf49`.
+- Manual CONDITIONAL NOT TRIGGERED. **R12.5 COMPLETE + NORMALIZED.**
 
 ## Frozen R12 subdivision index
 
@@ -57,10 +47,15 @@
 ## R12.6 acceptance in progress
 
 - Base normalized `main`: `f84762085282eccc2e2c26ee1c0ccf62fbdfcf49`.
-- Branch `r12/6-winui3-windows-app-sdk`; Manual **CONDITIONAL**, triggered only if hosted Windows cannot prove the required WinUI/Windows App SDK build/runtime/deployment semantic.
-- Delivered `WinUiDeploymentContract` + durable schema, deterministic WinUI 3 adapter mapping from `canonical_sample_app()`, bounded .NET 10 + `dotnet new winui` capability probe, Windows App SDK exact package pin, unpackaged self-contained CI fixture, deterministic package manifest identity and separate runtime probe.
-- Hosted workflow may provision the documented WinUI dotnet-new template package as CI infrastructure; Kodepoia runtime never installs templates/workloads, enables Developer Mode or requests production certificates.
-- Exact implementation candidate/run IDs: **PENDING** until branch freeze and exact-head gates.
+- Branch `r12/6-winui3-windows-app-sdk`; PR #197; Manual **CONDITIONAL / NOT TRIGGERED**.
+- Delivered schema-backed `WinUiDeploymentContract`, deterministic WinUI 3 mapping, bounded .NET 10 + template probe, exact Windows App SDK package pin, deterministic package manifest, unpackaged self-contained acceptance fixture and separate runtime probe.
+- Accepted implementation head `b990a613d6becbc80e637ea0184f87b502573b74`.
+- R0 #1502 / `32786054869` — **SUCCESS**.
+- Python Core #1476 / `32786054919` — **SUCCESS**.
+- KodeStudio UI Smoke #1443 / `32786054865` — **SUCCESS**.
+- WPF regression #11 / `32786054841` — **SUCCESS**.
+- R12 WinUI3 Acceptance #1 / `32786054895` — **SUCCESS**, real hosted Windows template/restore/build/runtime/evidence.
+- Evidence recording changes bytes; the resulting final documentation head requires fresh exact-head R0 + Python + UI + WinUI before merge.
 
 ## Permanent boundaries
 
@@ -74,4 +69,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**Freeze and gate R12.6 only.** Require exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + real Windows `R12 WinUI3 Acceptance`. If accepted, record evidence, re-gate final docs, merge, then perform exactly one post-merge continuity normalization. **R12.7 remains forbidden until that normalization merges.**
+**R12.6 final documentation re-gate only.** Require fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R12 WinUI3 Acceptance on the resulting head, then merge PR #197 with `expected_head_sha` and perform exactly one post-merge continuity normalization. **R12.7 remains forbidden until that normalization merges.**

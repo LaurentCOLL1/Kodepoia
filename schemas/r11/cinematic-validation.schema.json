@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.local/schemas/r11/cinematic-validation.schema.json",
+  "type":"object","additionalProperties":false,
+  "required":["status","subject_digest","blockers","facts"],
+  "properties":{
+    "status":{"enum":["PASS","FAIL"]},
+    "subject_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "blockers":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "facts":{"type":"object","additionalProperties":{"type":"integer","minimum":0}}
+  }
+}

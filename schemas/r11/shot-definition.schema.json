@@ -1,0 +1,13 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.local/schemas/r11/shot-definition.schema.json",
+  "type":"object","additionalProperties":false,
+  "required":["shot_id","timebase","duration_frames","refs","events"],
+  "properties":{
+    "shot_id":{"type":"string"},
+    "timebase":{"type":"object","additionalProperties":false,"required":["fps_num","fps_den"],"properties":{"fps_num":{"type":"integer","minimum":1},"fps_den":{"type":"integer","minimum":1}}},
+    "duration_frames":{"type":"integer","minimum":1},
+    "refs":{"type":"array","maxItems":2048,"items":{"type":"object","additionalProperties":false,"required":["ref_id","ref_kind","digest"],"properties":{"ref_id":{"type":"string"},"ref_kind":{"type":"string"},"digest":{"type":"string","pattern":"^[0-9a-f]{64}$"}}}},
+    "events":{"type":"array","maxItems":8192,"items":{"type":"object","additionalProperties":false,"required":["event_id","track_kind","start_frame","duration_frames","ref_id","payload"],"properties":{"event_id":{"type":"string"},"track_kind":{"enum":["camera","body","facial","dialogue","music","sfx","foley","subtitle","event"]},"start_frame":{"type":"integer","minimum":0},"duration_frames":{"type":"integer","minimum":1},"ref_id":{"type":["string","null"]},"payload":{"type":"object","maxProperties":8}}}}
+  }
+}

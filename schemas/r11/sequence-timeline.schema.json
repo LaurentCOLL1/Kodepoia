@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.local/schemas/r11/sequence-timeline.schema.json",
+  "type":"object","additionalProperties":false,
+  "required":["sequence_id","timebase","entries","nested_sequence_ids"],
+  "properties":{
+    "sequence_id":{"type":"string"},
+    "timebase":{"type":"object","additionalProperties":false,"required":["fps_num","fps_den"],"properties":{"fps_num":{"type":"integer","minimum":1},"fps_den":{"type":"integer","minimum":1}}},
+    "entries":{"type":"array","minItems":1,"maxItems":4096,"items":{"type":"object","additionalProperties":false,"required":["entry_id","shot_id","shot_digest","start_frame","duration_frames"],"properties":{"entry_id":{"type":"string"},"shot_id":{"type":"string"},"shot_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},"start_frame":{"type":"integer","minimum":0},"duration_frames":{"type":"integer","minimum":1}}}},
+    "nested_sequence_ids":{"type":"array","items":{"type":"string"},"uniqueItems":true}
+  }
+}

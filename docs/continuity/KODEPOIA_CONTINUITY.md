@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.2 COMPLETE + NORMALIZED. R12.3 est en implémentation sur branche dédiée depuis le normalized main `6a58719522b46b0f89b9514dbeff6cb5ca0bdb6c`. Manual R12.3 NONE. Aucun R12.4 ne peut commencer avant acceptance, merge et unique normalisation post-merge de R12.3.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.2 COMPLETE + NORMALIZED. R12.3 first implementation candidate `bf4c5b095bc7b91ecf7c27100c3da81c0a13ce31` est accepté : R0 #1478 / `32778299021`, Python Core #1452 / `32778298974`, UI Smoke #1419 / `32778299000`, tous SUCCESS. Cette documentation crée le final R12.3 head à re-gater avant merge de PR #191. Manual NONE. R12.4 reste interdit jusqu’au merge R12.3 puis à son unique normalisation post-merge.**
 
 ## État global
 
@@ -13,7 +13,7 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.2 : **COMPLETE + NORMALIZED**.
-- R12.3 : **IMPLEMENTATION / ACCEPTANCE PENDING**.
+- R12.3 : **FIRST CANDIDATE ACCEPTED / FINAL DOCUMENTATION HEAD RE-GATE PENDING**.
 - R12.4–R12.16 : **PLANNED / NOT STARTED**.
 
 ## R12.1 closure authority
@@ -57,16 +57,14 @@
 ## R12.3 acceptance in progress
 
 - Base normalized `main`: `6a58719522b46b0f89b9514dbeff6cb5ca0bdb6c`.
-- Branch: `r12/3-desktop-scaffold-engine`.
-- Manual: **NONE**.
-- Delivered source: `src/kodepoia/desktop/scaffold.py` plus desktop package exports.
-- Durable schemas: `schemas/r12/desktop-template-manifest.schema.json`, `desktop-workspace-manifest.schema.json`.
-- Kodepoia-owned versioned fixture: `templates/r12/desktop/canonical/template.json`.
-- Focused tests: `tests/test_r12_3_desktop_scaffold.py`.
-- Design/acceptance: `docs/roadmap/R12_3_DESIGN.md`, `R12_3_ACCEPTANCE.md`.
-- Security/ownership: typed non-executable substitutions, traversal/symlink/reserved-name/collision rejection, read-only preview, whole-file Kodepoia/user ownership, prior-SHA verification before generated replacement, SafeChange + Backup requirement for destructive regeneration and optional tamper-evident AuditLog.
-- R8-style lineage: workspace manifest binds DNA SHA-256 + KodeProduct SHA-256 + template SHA-256 + ordered generated file SHA-256 values.
-- Exact implementation candidate and run IDs: **PENDING** until the branch is frozen and gated.
+- Branch: `r12/3-desktop-scaffold-engine`; PR #191; Manual **NONE**.
+- Delivered deterministic typed scaffold engine, strict durable template/workspace schemas, repository-owned canonical template, read-only preview, whole-file ownership, prior-SHA guard, SafeChange + Backup + Audit destructive-regeneration path and R8-style DNA/Product/template/file lineage.
+- Focused tests cover deterministic bytes/digests, schema load, traversal/reserved/symlink/directive/type attacks, preservation/conflict policy, prior-SHA anti-overwrite and governed backup/audit regeneration.
+- First accepted implementation candidate: `bf4c5b095bc7b91ecf7c27100c3da81c0a13ce31`.
+- R0 Repository Guard #1478 / `32778299021` — **SUCCESS**.
+- Python Core #1452 / `32778298974` — **SUCCESS**, Ubuntu/Windows pytest + package builds + internal KodeStudio smoke.
+- KodeStudio UI Smoke #1419 / `32778299000` — **SUCCESS**.
+- Evidence recording changes bytes after that candidate; the resulting final documentation head requires a fresh exact-head R0 + full Python + UI triplet before expected-SHA merge of #191.
 
 ## Permanent boundaries
 
@@ -80,4 +78,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**Freeze and gate R12.3 only.** Require exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke. If accepted, record the evidence, re-gate the resulting final documentation head, merge with expected SHA, then perform exactly one post-merge continuity normalization. **R12.4 remains forbidden until that normalization merges.**
+**R12.3 final documentation re-gate only.** Merge PR #191 only after fresh R0 + full Python Core + UI succeed, then perform exactly one continuity normalization. **R12.4 remains forbidden until that normalization merges.**

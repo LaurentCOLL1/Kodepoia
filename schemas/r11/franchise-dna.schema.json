@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r11/franchise-dna.schema.json",
+  "title": "Kodepoia R11 Franchise DNA",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["franchise_dna_id", "version", "compatible_project_dna_refs", "policies"],
+  "properties": {
+    "franchise_dna_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "compatible_project_dna_refs": {
+      "type": "array",
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 128}
+    },
+    "policies": {
+      "type": "object",
+      "maxProperties": 128,
+      "propertyNames": {"minLength": 1, "maxLength": 128},
+      "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 512}
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # R11.11 — Acceptance
 
-Status: **IMPLEMENTED — HOSTED EXACT-HEAD GATES PENDING**  
+Status: **IMPLEMENTED — FINAL DOCUMENTATION HEAD GATES PENDING**  
 Manual intervention: **NONE**
 
 ## Base and scope
@@ -20,13 +20,25 @@ Manual intervention: **NONE**
 - Historical record/snapshot values are immutable; transitions return new records.
 - Durable persistence is Guardian-authorized, SafeChange-snapshotted and Audit-recorded.
 - Canon/Franchise schemas validate canonical examples without network resolution.
-- R0 Repository Guard, full Python Core and KodeStudio UI Smoke must all be SUCCESS on one exact candidate head.
-- After run IDs are recorded here, the final documentation head is re-gated before merge.
+
+## Accepted implementation head
+
+Exact candidate: `38dc7dce1bf288b61eabfa3b174add11ade4ae49`.
+
+- R0 Repository Guard #1437 / `32760860029`: **SUCCESS**.
+- Python Core #1411 / `32760860051`: **SUCCESS**.
+- KodeStudio UI Smoke #1378 / `32760859982`: **SUCCESS**.
+- Ubuntu and Windows Python Core: **SUCCESS**.
+- Ubuntu and Windows package builds: **SUCCESS**.
+- Internal KodeStudio UI job: **SUCCESS**.
+- Prior R7/R8/R9 integrated acceptance checks: **PASS** on Ubuntu; Windows skips the Unix-only report emission steps as designed.
 
 ## Manual state
 
 **NONE.** All behavior is contract/governance logic exercised with synthetic canon/franchise fixtures. No user content judgment or external runtime is required.
 
-## Completion ordering
+## Finalization
 
-Accepted exact head -> final acceptance update -> re-gate exact final head -> merge with `expected_head_sha` -> exactly one continuity-only post-merge normalization -> exact-head R0/Python/UI -> merge normalization -> only then R11.12 is authorized.
+This acceptance update changes documentation only. Its resulting exact head must pass R0 Repository Guard + full Python Core + KodeStudio UI Smoke before PR #177 can merge with `expected_head_sha`.
+
+After merge, exactly one continuity-only post-merge normalization must pass the same gates and merge. Only that normalization authorizes R11.12.

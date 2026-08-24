@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import platform
 import shutil
 from dataclasses import dataclass
@@ -36,12 +37,17 @@ class WpfAdapter:
     ADAPTER_ID = "adapter.wpf"
     TARGET = "net10.0-windows"
     SENTINEL = "KODEPOIA_WPF_TEST_PASS"
+    _WINDOWS_MACHINE_ENV = ("PROGRAMFILES", "PROGRAMFILES(X86)", "PROGRAMW6432", "PROGRAMDATA")
 
     def __init__(self, project_root: Path, staging_root: Path) -> None:
         self.project_root = Path(project_root).resolve(strict=False)
         self.staging_root = Path(staging_root).resolve(strict=False)
         self.fixture_root = self.project_root / ".kodepoia" / "fixtures" / "wpf"
         self.last_diagnostic = ""
+
+    @classmethod
+    def _dotnet_env(cls) -> dict[str, str]:
+        return {key: value for key in cls._WINDOWS_MACHINE_ENV if (value := os.environ.get(key))}
 
     def _failure(self, identity: DesktopToolchainIdentity, blocker: str, result: SandboxResult | None = None) -> DesktopCapabilityReport:
         if result is not None:
@@ -70,7 +76,7 @@ class WpfAdapter:
             return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.UNAVAILABLE, blockers=("dotnet_missing",))
         dotnet = Path(found).resolve(strict=True)
         boundary = DesktopToolchainBoundary(allowed_runtime_roots=(dotnet.parent, dotnet.parent.parent), project_root=self.project_root, staging_root=self.staging_root)
-        probe = ProcessSandbox(self.project_root, {dotnet.name}).run(boundary.build_probe_argv(DesktopToolKind.DOTNET, dotnet), cwd=self.project_root, timeout=30)
+        probe = ProcessSandbox(self.project_root, {dotnet.name}).run(boundary.build_probe_argv(DesktopToolKind.DOTNET, dotnet), cwd=self.project_root, timeout=30, env=self._dotnet_env())
         version = probe.stdout.strip()
         if probe.returncode != 0 or not version:
             self.last_diagnostic = (probe.stdout + "\n" + probe.stderr).strip()[-8000:]
@@ -108,17 +114,18 @@ class WpfAdapter:
         app, harness, digest = self.render_fixture(model)
         boundary = DesktopToolchainBoundary(allowed_runtime_roots=(dotnet.parent, dotnet.parent.parent), project_root=self.project_root, staging_root=self.staging_root)
         sandbox = ProcessSandbox(self.project_root, {dotnet.name})
+        env = self._dotnet_env()
         for project in (app, harness):
             p = boundary.validate_project_file(project, suffixes=frozenset({".csproj"}))
-            r = sandbox.run((str(dotnet), "restore", str(p), "--nologo"), cwd=self.project_root, timeout=120)
+            r = sandbox.run((str(dotnet), "restore", str(p), "--nologo"), cwd=self.project_root, timeout=120, env=env)
             if r.returncode != 0: return self._failure(identity, "restore_failed", r)
-        build = sandbox.run(boundary.build_dotnet_argv(dotnet, operation="build", project_file=app, configuration="Release"), cwd=self.project_root, timeout=180)
+        build = sandbox.run(boundary.build_dotnet_argv(dotnet, operation="build", project_file=app, configuration="Release"), cwd=self.project_root, timeout=180, env=env)
         if build.returncode != 0: return self._failure(identity, "wpf_build_failed", build)
-        hb = sandbox.run(boundary.build_dotnet_argv(dotnet, operation="build", project_file=harness, configuration="Release"), cwd=self.project_root, timeout=180)
+        hb = sandbox.run(boundary.build_dotnet_argv(dotnet, operation="build", project_file=harness, configuration="Release"), cwd=self.project_root, timeout=180, env=env)
         if hb.returncode != 0: return self._failure(identity, "wpf_test_build_failed", hb)
         dll = boundary.validate_staging_path(self.staging_root / "harness" / "Release" / self.TARGET / "KodepoiaWpfHarness.dll")
         if not dll.is_file(): return self._failure(identity, "test_artifact_missing")
-        test = sandbox.run((str(dotnet), str(dll)), cwd=self.project_root, timeout=60)
+        test = sandbox.run((str(dotnet), str(dll)), cwd=self.project_root, timeout=60, env=env)
         if test.returncode != 0 or f"{self.SENTINEL}:{digest}" not in test.stdout: return self._failure(identity, "wpf_runtime_test_failed", test)
         artifacts = tuple(WpfArtifact(p.relative_to(self.staging_root).as_posix(), p.stat().st_size, self._sha(p)) for p in sorted(x for x in self.staging_root.rglob("*") if x.is_file()))
         report = DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.AVAILABLE, toolchain=identity, capabilities=("build_ready", "restore_ready", "runtime_smoke_ready", "test_ready", "windows_only"))

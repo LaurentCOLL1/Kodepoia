@@ -73,6 +73,20 @@ model-cache/
 checkpoints/
 loras/
 
+# Additional repository-local model payload formats. Keep manifests/README/schema files tracked.
+/models/**/*.onnx.json
+/models/**/*.onnx.data
+/models/**/*.bin
+/models/**/*.ggml
+/models/**/*.engine
+/models/**/*.tflite
+/models/**/*.mlmodel
+/models/**/*.mlpackage/
+/models/**/*.pb
+/models/**/*.npz
+/models/**/*.npy
+/models/**/tokenizer.model
+
 # Generated release artifacts
 artifacts/
 releases-local/

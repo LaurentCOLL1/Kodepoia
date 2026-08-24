@@ -53,6 +53,9 @@ class SynthesisCacheIndex:
         config_sha256: str,
     ) -> SynthesisCacheRecord | None:
         sha256_hex(cache_key, field="cache_key")
+        sha256_hex(runtime_sha256, field="runtime_sha256")
+        sha256_hex(model_sha256, field="model_sha256")
+        sha256_hex(config_sha256, field="config_sha256")
         record = self._records.get(cache_key)
         if record is None:
             return None

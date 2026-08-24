@@ -1,6 +1,6 @@
 # R11.7 — Acceptance
 
-Status: **IMPLEMENTATION CANDIDATE — HOSTED GATES PENDING**  
+Status: **IMPLEMENTATION ACCEPTED; FINAL EXACT-HEAD GATES PENDING**  
 Manual intervention: **CONDITIONAL — NOT TRIGGERED**
 
 ## Branch point and scope
@@ -10,22 +10,26 @@ Manual intervention: **CONDITIONAL — NOT TRIGGERED**
 - R11.7 scope only: facial target metadata adapter, facial performance profile, facial LOD, deterministic curve generation, QA and typed R5 Godot facial animation intent.
 - No topology/rig generation, Blender editing, raw Godot resource/script materialization or real runtime playback claim.
 
-## Required hosted acceptance
+## Accepted implementation candidate
 
-The exact implementation candidate must pass:
+Implementation candidate: `1d2347178b804ae46e8696a8fd78e88e8cb2d84b`.
 
-1. R0 Repository Guard — SUCCESS.
-2. Full Python Core — SUCCESS on Ubuntu and Windows, with R7/R8/R9 integrated checks and package builds.
-3. KodeStudio UI Smoke — SUCCESS.
-4. Focused R11.7 tests demonstrate:
-   - strict R10 target metadata shape/digest/range binding;
-   - missing/spoofed targets fail closed;
-   - deterministic curve generation from R11.6 viseme timelines;
-   - explicit bounded clamping and clipping accounting;
-   - facial LOD target filtering and critical semantic preservation;
-   - key-density/total-key budgets;
-   - typed R5 intents with no raw resource/script/path surface;
-   - versioned JSON schema validation.
+Exact-head hosted gates:
+- R0 Repository Guard #1408 / `32748232176`: **SUCCESS**;
+- Python Core #1382 / `32748232050`: **SUCCESS**;
+- KodeStudio UI Smoke #1349 / `32748231962`: **SUCCESS**.
+
+Python Core Ubuntu: **990 passed / 8 skipped / 46 warnings**; R7/R8/R9 integrated acceptance PASS. Windows Python, KodeStudio internal smoke and both package builds also SUCCESS.
+
+The accepted implementation demonstrates:
+- strict R10 target metadata shape/digest/range binding;
+- missing/spoofed targets fail closed;
+- deterministic curve generation from R11.6 viseme timelines;
+- explicit bounded clamping and clipping accounting;
+- facial LOD target filtering and critical semantic preservation;
+- key-density/total-key budgets;
+- typed R5 intents with no raw resource/script/path surface;
+- versioned JSON schema validation.
 
 ## Manual checkpoint decision
 
@@ -35,10 +39,11 @@ This candidate makes no such claim. It uses synthetic R10-shaped metadata and de
 
 If a later change in this subdivision adds real import/playback/render behavior before merge, the checkpoint must be reclassified as triggered and the exact candidate SHA, repository fixture, command and machine-readable evidence requirements must be frozen before any local run.
 
-## Completion ordering
+## Final acceptance ordering
 
-- Freeze implementation head and run R0 + Python Core + UI Smoke.
-- Record immutable candidate/run IDs in this document; re-run all three gates on the final documentation head.
-- Merge exact accepted PR head with expected-SHA protection.
-- Perform exactly one continuity-only post-merge normalization, re-gate it, and merge it.
-- Only that normalization merge makes R11.7 COMPLETE + NORMALIZED and authorizes R11.8.
+1. Freeze the documentation-bound branch head containing this record.
+2. Run fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact head.
+3. Merge PR #169 only if all three are SUCCESS and the PR head has not moved.
+4. Create exactly one continuity-only post-merge normalization branch from resulting `main`.
+5. Run fresh R0 + Python + UI on the normalization head and merge only if all three are SUCCESS.
+6. Only after that normalization merge is R11.7 **COMPLETE + NORMALIZED** and R11.8 authorized.

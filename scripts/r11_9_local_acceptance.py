@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import platform
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -17,7 +18,6 @@ from kodepoia.media.cinematic.godot_capture import (
     write_trusted_capture_fixture,
 )
 
-GODOT_NAMES = frozenset({"godot", "godot.exe", "godot4", "godot4.exe"})
 FFPROBE_NAMES = frozenset({"ffprobe", "ffprobe.exe"})
 
 
@@ -54,6 +54,22 @@ def _git_head(repo: Path) -> str:
             if name == ref:
                 return validate_source_sha(sha)
     raise RuntimeError("git_head_ref_unresolved")
+
+
+def _resolve_godot(value: str) -> Path:
+    raw = str(value).strip()
+    candidate = Path(raw)
+    if candidate.exists():
+        resolved = candidate.resolve(strict=True)
+    else:
+        found = shutil.which(raw)
+        if not found:
+            raise FileNotFoundError("godot_runtime_not_found")
+        resolved = Path(found).resolve(strict=True)
+    name = resolved.name.casefold()
+    if not resolved.is_file() or not name.startswith("godot") or resolved.suffix.casefold() not in {"", ".exe"}:
+        raise ValueError("godot_runtime_name_not_allowed")
+    return resolved
 
 
 def _ffprobe_identity(ffprobe: Path, root: Path) -> dict[str, object]:
@@ -95,7 +111,7 @@ def main() -> int:
     error_type: str | None = None
 
     try:
-        godot = resolve_executable(str(args.godot), allowed_names=GODOT_NAMES)
+        godot = _resolve_godot(str(args.godot))
         ffprobe = resolve_executable(str(args.ffprobe), allowed_names=FFPROBE_NAMES)
         policy = CapturePolicy(width=640, height=360, fps=30, frames=90, max_output_bytes=64 * 1024 * 1024, video_tolerance_frames=1, av_sync_tolerance_frames=2)
         intent = synthetic_capture_fixture_intent(fps=policy.fps, frames=policy.frames)

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r12/desktop-app-model.schema.json",
+  "title": "Kodepoia R12 framework-neutral desktop app model",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "app_id", "state_fields", "validation_rules", "services", "commands", "view_models", "views", "routes", "dialogs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "app_id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"},
+    "state_fields": {"type": "array", "items": {"$ref": "#/$defs/state"}},
+    "validation_rules": {"type": "array", "items": {"$ref": "#/$defs/validation"}},
+    "services": {"type": "array", "items": {"$ref": "#/$defs/service"}},
+    "commands": {"type": "array", "items": {"$ref": "#/$defs/command"}},
+    "view_models": {"type": "array", "items": {"$ref": "#/$defs/view_model"}},
+    "views": {"type": "array", "items": {"$ref": "#/$defs/view"}},
+    "routes": {"type": "array", "items": {"$ref": "#/$defs/route"}},
+    "dialogs": {"type": "array", "items": {"$ref": "#/$defs/dialog"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"},
+    "state": {
+      "type": "object", "additionalProperties": false,
+      "required": ["field_id", "kind", "default"],
+      "properties": {"field_id": {"$ref": "#/$defs/id"}, "kind": {"enum": ["string", "integer", "float", "boolean"]}, "default": {"type": ["string", "integer", "number", "boolean", "null"]}}
+    },
+    "validation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rule_id", "field_id", "kind", "argument"],
+      "properties": {"rule_id": {"$ref": "#/$defs/id"}, "field_id": {"$ref": "#/$defs/id"}, "kind": {"enum": ["required", "range", "regex"]}, "argument": {"type": ["string", "number", "array", "null"]}}
+    },
+    "service": {
+      "type": "object", "additionalProperties": false,
+      "required": ["service_id", "lifetime", "dependencies", "disposable"],
+      "properties": {"service_id": {"$ref": "#/$defs/id"}, "lifetime": {"enum": ["singleton", "scoped", "transient"]}, "dependencies": {"type": "array", "items": {"$ref": "#/$defs/id"}}, "disposable": {"type": "boolean"}}
+    },
+    "command": {
+      "type": "object", "additionalProperties": false,
+      "required": ["command_id", "operation", "service_id", "can_execute_field"],
+      "properties": {"command_id": {"$ref": "#/$defs/id"}, "operation": {"type": "string"}, "service_id": {"type": ["string", "null"]}, "can_execute_field": {"type": ["string", "null"]}}
+    },
+    "view_model": {
+      "type": "object", "additionalProperties": false,
+      "required": ["view_model_id", "state_fields", "commands", "services"],
+      "properties": {"view_model_id": {"$ref": "#/$defs/id"}, "state_fields": {"type": "array", "items": {"$ref": "#/$defs/id"}}, "commands": {"type": "array", "items": {"$ref": "#/$defs/id"}}, "services": {"type": "array", "items": {"$ref": "#/$defs/id"}}}
+    },
+    "view": {
+      "type": "object", "additionalProperties": false,
+      "required": ["view_id", "view_model_id"],
+      "properties": {"view_id": {"$ref": "#/$defs/id"}, "view_model_id": {"$ref": "#/$defs/id"}}
+    },
+    "route": {
+      "type": "object", "additionalProperties": false,
+      "required": ["route_id", "path", "view_id", "parent_route_id"],
+      "properties": {"route_id": {"$ref": "#/$defs/id"}, "path": {"type": "string", "pattern": "^/"}, "view_id": {"$ref": "#/$defs/id"}, "parent_route_id": {"type": ["string", "null"]}}
+    },
+    "dialog": {
+      "type": "object", "additionalProperties": false,
+      "required": ["dialog_id", "kind", "view_model_id"],
+      "properties": {"dialog_id": {"$ref": "#/$defs/id"}, "kind": {"enum": ["information", "confirmation", "input"]}, "view_model_id": {"$ref": "#/$defs/id"}}
+    }
+  }
+}

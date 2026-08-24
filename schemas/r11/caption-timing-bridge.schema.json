@@ -1,0 +1,15 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.invalid/schemas/r11/caption-timing-bridge.schema.json",
+  "type":"object",
+  "required":["bridge_id","alignment_digest","audio_sha256","locale","phoneme_authority","cues"],
+  "additionalProperties":false,
+  "properties":{
+    "bridge_id":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"},
+    "alignment_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "audio_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "locale":{"type":"string","minLength":2,"maxLength":64},
+    "phoneme_authority":{"const":false},
+    "cues":{"type":"array","maxItems":4096,"items":{"type":"object","required":["text","start_seconds","end_seconds"],"additionalProperties":false,"properties":{"text":{"type":"string","minLength":1,"maxLength":1024},"start_seconds":{"type":"number","minimum":0},"end_seconds":{"type":"number","exclusiveMinimum":0}}}}
+  }
+}

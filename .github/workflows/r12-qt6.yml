@@ -1,0 +1,51 @@
+name: R12 Qt6 Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r12-qt6-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qt6-windows:
+    name: qt6-windows
+    runs-on: windows-latest
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install Kodepoia
+        run: python -m pip install -e ".[dev]"
+      - name: Provision exact Qt 6.11.2 as CI infrastructure
+        shell: pwsh
+        run: |
+          python -m pip install aqtinstall==3.3.0
+          $architectures = python -m aqt list-qt windows desktop --arch 6.11.2
+          if ($architectures -notmatch "win64_msvc2022_64") { throw "Qt 6.11.2 MSVC 2022 x64 archive unavailable" }
+          python -m aqt install-qt --outputdir "$env:RUNNER_TEMP\Qt" windows desktop 6.11.2 win64_msvc2022_64
+          $qtBin = Join-Path $env:RUNNER_TEMP "Qt\6.11.2\msvc2022_64\bin"
+          if (-not (Test-Path $qtBin)) { throw "Qt bin directory missing after CI provisioning" }
+          $qtBin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Build and runtime-probe Qt fixture
+        run: python scripts/r12_8_qt_acceptance.py --output ".kodepoia/evidence/R12_8_QT_WINDOWS.json"
+      - name: Upload Qt evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r12-8-qt6-windows-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .kodepoia/evidence/R12_8_QT_WINDOWS.json
+          if-no-files-found: error

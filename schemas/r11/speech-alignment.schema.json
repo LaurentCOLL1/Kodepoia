@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://kodepoia.invalid/schemas/r11/speech-alignment.schema.json",
+  "type":"object",
+  "required":["timeline_id","audio_sha256","locale","duration_seconds","source","source_id","words","phonemes"],
+  "additionalProperties":false,
+  "properties":{
+    "timeline_id":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"},
+    "audio_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "locale":{"type":"string","minLength":2,"maxLength":64},
+    "duration_seconds":{"type":"number","exclusiveMinimum":0},
+    "source":{"enum":["backend","synthetic","imported"]},
+    "source_id":{"type":"string","pattern":"^[a-z0-9][a-z0-9._:-]{0,127}$"},
+    "words":{"type":"array","maxItems":4096,"items":{"$ref":"#/$defs/word"}},
+    "phonemes":{"type":"array","maxItems":16384,"items":{"$ref":"#/$defs/phoneme"}}
+  },
+  "$defs":{
+    "word":{"type":"object","required":["text","start_seconds","end_seconds","confidence"],"additionalProperties":false,"properties":{"text":{"type":"string","minLength":1,"maxLength":256},"start_seconds":{"type":"number","minimum":0},"end_seconds":{"type":"number","exclusiveMinimum":0},"confidence":{"type":["number","null"],"minimum":0,"maximum":1}}},
+    "phoneme":{"type":"object","required":["phoneme","start_seconds","end_seconds","confidence","word_index"],"additionalProperties":false,"properties":{"phoneme":{"type":"string","minLength":1,"maxLength":64},"start_seconds":{"type":"number","minimum":0},"end_seconds":{"type":"number","exclusiveMinimum":0},"confidence":{"type":["number","null"],"minimum":0,"maximum":1},"word_index":{"type":["integer","null"],"minimum":0}}}
+  }
+}

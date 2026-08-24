@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r12/qt6-kit.schema.json",
+  "title": "Kodepoia R12.8 Qt 6 Kit Identity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "qt_version", "platform", "architecture", "generator",
+    "cmake_version", "cmake_sha256", "qtpaths_sha256",
+    "compiler_name", "compiler_id", "compiler_version", "compiler_sha256",
+    "components", "license_state"
+  ],
+  "properties": {
+    "qt_version": {"type": "string", "pattern": "^6\\.[0-9]+\\.[0-9]+$", "maxLength": 32},
+    "platform": {"enum": ["windows", "linux", "macos"]},
+    "architecture": {"enum": ["x64", "arm64", "x86"]},
+    "generator": {"enum": ["Visual Studio 17 2022", "Ninja"]},
+    "cmake_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?$", "maxLength": 32},
+    "cmake_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "qtpaths_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "compiler_name": {"type": "string", "minLength": 1, "maxLength": 128},
+    "compiler_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]{0,127}$"},
+    "compiler_version": {"type": "string", "minLength": 1, "maxLength": 128},
+    "compiler_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "components": {
+      "type": "array",
+      "prefixItems": [{"const": "Core"}, {"const": "Widgets"}],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "license_state": {"const": "REVIEW_REQUIRED"}
+  }
+}

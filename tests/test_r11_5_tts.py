@@ -133,6 +133,8 @@ def test_local_acceptance_schema_accepts_privacy_minimized_representative_eviden
             "locale": "fr-FR",
         },
         "voice_identity": {
+            "model_id": "tts.piper.fr-FR.fixture",
+            "manifest_digest": "1" * 64,
             "model_sha256": "b" * 64,
             "config_sha256": "c" * 64,
             "binding_digest": "d" * 64,

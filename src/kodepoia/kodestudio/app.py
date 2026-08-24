@@ -16,6 +16,7 @@ def build_window(
     research_service=None,
     asset_service=None,
     comfy_service=None,
+    blender_service=None,
 ):
     from PySide6.QtWidgets import (
         QLabel,
@@ -161,18 +162,30 @@ def build_window(
             status_bar=status,
         )
 
+    def blender_page() -> QWidget:
+        from kodepoia.kodestudio.blender_panel import create_blender_page
+
+        return create_blender_page(
+            root,
+            locale=locale,
+            service=blender_service,
+            status_bar=status,
+        )
+
+    from kodepoia.kodestudio.blender_localization import blender_nav_text
+
     sections = (
-        ("app.nav.chat", None),
-        ("app.nav.projects", projects_page),
-        ("app.nav.research", research_page),
-        ("app.nav.vault", vault_page),
-        ("app.nav.comfy", comfy_page),
-        ("app.nav.security", security_page),
-        ("app.nav.audit", None),
-        ("app.nav.settings", None),
+        (tr.text("app.nav.chat"), None),
+        (tr.text("app.nav.projects"), projects_page),
+        (tr.text("app.nav.research"), research_page),
+        (tr.text("app.nav.vault"), vault_page),
+        (tr.text("app.nav.comfy"), comfy_page),
+        (blender_nav_text(locale), blender_page),
+        (tr.text("app.nav.security"), security_page),
+        (tr.text("app.nav.audit"), None),
+        (tr.text("app.nav.settings"), None),
     )
-    for message_id, factory in sections:
-        title = tr.text(message_id)
+    for title, factory in sections:
         nav.addItem(title)
         if factory is not None:
             pages.addWidget(factory())

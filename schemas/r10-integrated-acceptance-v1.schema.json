@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-integrated-acceptance-v1.schema.json",
+  "title": "Kodepoia R10 integrated acceptance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "source_sha",
+    "runtime_policy",
+    "continuity",
+    "subdivisions",
+    "local_evidence",
+    "prior_phases",
+    "status",
+    "blockers",
+    "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "minLength": 1, "maxLength": 128},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "runtime_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blender", "godot"],
+      "properties": {
+        "blender": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["major", "minor", "autoexec_disabled", "offline_mode"],
+          "properties": {
+            "major": {"const": 5},
+            "minor": {"const": 2},
+            "autoexec_disabled": {"const": true},
+            "offline_mode": {"const": true}
+          }
+        },
+        "godot": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["major", "minor"],
+          "properties": {
+            "major": {"const": 4},
+            "minor": {"const": 7}
+          }
+        }
+      }
+    },
+    "continuity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "sha256", "bytes"],
+      "properties": {
+        "source": {"const": "docs/continuity/KODEPOIA_CONTINUITY.md"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "subdivisions": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["subdivision", "source", "sha256", "bytes", "accepted_head", "manual_state", "manual_reason", "manual_satisfied"],
+        "properties": {
+          "subdivision": {"type": "string", "pattern": "^R10\\.(?:[1-9]|1[0-2])$"},
+          "source": {"type": "string", "pattern": "^docs/roadmap/R10_(?:[1-9]|1[0-2])_ACCEPTANCE\\.md$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 1},
+          "accepted_head": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+          "manual_state": {"enum": ["none", "required_satisfied", "conditional_not_triggered", "conditional_satisfied", "required_unsatisfied", "conditional_triggered_unsatisfied"]},
+          "manual_reason": {"type": "string", "minLength": 1, "maxLength": 4096},
+          "manual_satisfied": {"type": "boolean"}
+        }
+      }
+    },
+    "local_evidence": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["subdivision", "source", "sha256", "bytes", "source_sha", "blender_version_prefix", "godot_major", "godot_minor"],
+        "properties": {
+          "subdivision": {"enum": ["R10.2", "R10.10"]},
+          "source": {"type": "string", "pattern": "^docs/roadmap/R10_(?:2|10)_LOCAL_ACCEPTANCE\\.json$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 1},
+          "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+          "blender_version_prefix": {"const": "5.2."},
+          "godot_major": {"type": ["integer", "null"]},
+          "godot_minor": {"type": ["integer", "null"]}
+        }
+      }
+    },
+    "prior_phases": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["phase", "source", "sha256", "bytes", "evidence_sha256"],
+        "properties": {
+          "phase": {"enum": ["R7", "R8", "R9"]},
+          "source": {"type": "string", "pattern": "^docs/roadmap/R[789]_INTEGRATED_ACCEPTANCE\\.json$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 1},
+          "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "status": {"enum": ["unknown", "pass", "fail"]},
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 512}
+    },
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

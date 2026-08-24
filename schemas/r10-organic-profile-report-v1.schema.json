@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-organic-profile-report-v1.schema.json",
+  "title": "Kodepoia R10.8 Organic Profile Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "profile_id", "profile_kind", "profile_digest", "asset_revision_id", "status", "summary", "rules", "report_digest"],
+  "properties": {
+    "schema": {"const": "kodepoia.blender.organic_profile_report"},
+    "version": {"const": 1},
+    "profile_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+    "profile_kind": {"enum": ["humanoid_biped", "quadruped"]},
+    "profile_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "asset_revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"},
+    "status": {"enum": ["pass", "warn", "block"]},
+    "summary": {"type": "object", "additionalProperties": false, "required": ["pass", "warn", "block"], "properties": {"pass": {"type": "integer", "minimum": 0}, "warn": {"type": "integer", "minimum": 0}, "block": {"type": "integer", "minimum": 0}}},
+    "rules": {
+      "type": "array", "minItems": 1,
+      "items": {"type": "object", "additionalProperties": false, "required": ["rule_id", "state", "value", "limit", "reason"], "properties": {"rule_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"}, "state": {"enum": ["PASS", "WARN", "BLOCK"]}, "value": {}, "limit": {}, "reason": {"type": "string", "minLength": 1}}}
+    },
+    "report_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

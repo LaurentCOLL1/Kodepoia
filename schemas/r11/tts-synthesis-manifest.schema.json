@@ -20,14 +20,16 @@
     "qa": {"type": "object"},
     "process": {
       "type": "object",
-      "required": ["returncode", "timed_out", "cancelled", "stdout_bytes", "stderr_bytes"],
+      "required": ["returncode", "timed_out", "cancelled", "stdout_bytes", "stderr_bytes", "text_passed_via_argv", "ephemeral_input_deleted"],
       "additionalProperties": false,
       "properties": {
         "returncode": {"type": "integer"},
         "timed_out": {"type": "boolean"},
         "cancelled": {"type": "boolean"},
         "stdout_bytes": {"type": "integer", "minimum": 0},
-        "stderr_bytes": {"type": "integer", "minimum": 0}
+        "stderr_bytes": {"type": "integer", "minimum": 0},
+        "text_passed_via_argv": {"const": false},
+        "ephemeral_input_deleted": {"const": true}
       }
     },
     "status": {"enum": ["pass", "fail"]},

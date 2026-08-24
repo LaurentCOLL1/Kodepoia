@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 exhaustive planning is ACCEPTED + MERGED; exactly one continuity-only planning normalization is now pending. R11.1 remains FORBIDDEN until that normalization passes exact-head R0 + full Python Core + KodeStudio UI Smoke and merges.** Planning head `6d335f9bc025dfff0b5b92b206115ab603d9a8d5` passed R0 #1335 / `32722294209`, Python #1309 / `32722294203`, UI #1276 / `32722294224`, all SUCCESS; Ubuntu reported 906 passed / 8 skipped / 46 warnings with R7/R8/R9 integrated acceptance PASS, and PR #155 merged as `523048121613a07554787a07701d1334c59cd2dd`. The R11.1–R11.14 subdivision structure and manual states in `docs/roadmap/R11_PLAN.md` are frozen. Current branch `r11/plan-continuity-normalization` changes continuity only. If this exact normalization head passes the same three gates and merges, **R11 planning becomes ACCEPTED + NORMALIZED and R11.1 is authorized.**
+> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 planning ACCEPTED + NORMALIZED. R11.1 implementation ACCEPTED + MERGED; exactly one continuity-only R11.1 normalization is in progress. R11.2 is forbidden until that normalization passes exact-head R0 + full Python Core + KodeStudio UI Smoke and merges.** R11 planning normalization PR #156 merged as `95d582d864fe7a68f79e74d1383d4a2a2db7cee2`, authorizing R11.1. R11.1 implementation head `46ee14f3e94ed8c5c1cadbf139a890fab853929f` passed R0 #1339 / `32724742731`, Python #1313 / `32724743073`, UI #1280 / `32724742770`; final documentation head `70969202b8d604f7b91ca47aa980f96850879a5b` passed R0 #1340 / `32724919759`, Python #1314 / `32724919770`, UI #1281 / `32724919760`; PR #157 merged as `f1638f962e30e9f191dfc2a061fbe564e36efd0d`. Manual R11.1 = NONE. Current branch `r11/1-continuity-normalization` must change continuity only. If its exact head passes the three gates and merges, **R11.1 becomes COMPLETE + NORMALIZED and R11.2 is authorized.**
 
 ## Source de vérité / état
 
@@ -12,59 +12,52 @@
 - Architecture v1.0 : gelée le 21 août 2026.
 - `main` : source de vérité après chaque merge accepté et normalisation requise.
 - R1–R10 : **COMPLETE + NORMALIZED**.
-- R11 planning : **ACCEPTED + MERGED; PLANNING NORMALIZATION PENDING**.
-- R11 planning accepted head `6d335f9bc025dfff0b5b92b206115ab603d9a8d5`: R0 #1335 / `32722294209`, Python #1309 / `32722294203`, UI #1276 / `32722294224` SUCCESS; PR #155 merge `523048121613a07554787a07701d1334c59cd2dd`.
-- R11.1–R11.14 : **FROZEN / NOT STARTED**; R11.1 waits for the planning-normalization merge.
+- R11 planning : **ACCEPTED + NORMALIZED** — PR #155 plan merge `523048121613a07554787a07701d1334c59cd2dd`; PR #156 normalization merge `95d582d864fe7a68f79e74d1383d4a2a2db7cee2`.
+- R11.1 : **ACCEPTED + MERGED; CONTINUITY NORMALIZATION PENDING** — manual NONE; PR #157 merge `f1638f962e30e9f191dfc2a061fbe564e36efd0d`.
+- R11.2–R11.14 : **FROZEN / NOT STARTED**; R11.2 waits for the R11.1 normalization merge.
 - R12–R16 : **PENDING / NOT STARTED**.
 
 ## Autorité historique des acceptances
 
-Les détails complets, candidats rejetés, rapports JSON canoniques, preuves locales et récits exact-head restent autoritatifs dans `docs/roadmap/R7_*`, `R8_*`, `R9_*`, `R10_*` et l'historique des PR mergées. Cette continuité ne réécrit pas rétroactivement ces preuves.
+Les récits exact-head, candidats rejetés, preuves locales et rapports canoniques restent autoritatifs dans `docs/roadmap/R7_*`, `R8_*`, `R9_*`, `R10_*`, `R11_*` et l'historique des PR mergées. Cette continuité résume l'état de reprise sans réécrire rétroactivement ces preuves.
 
 ### R7
 
 - Phase **COMPLETE + NORMALIZED**.
 - R7.7 REQUIRED SATISFIED; head local accepté `04cef94c82fdacafe7313d27c8cf516e8e765295`.
 - Rapport intégré `status=pass`, `blockers=[]`.
-- Normalisation finale `d2278b1ee31d7d4a7b8570836edc3082e9fe30c4`; PR #82 a établi le point de départ R8 `b98832b339902527bce8a5ea95b5a08a19839a40`.
+- PR #82 a établi le point de départ R8 `b98832b339902527bce8a5ea95b5a08a19839a40`.
 
 ### R8
 
 - Phase **COMPLETE + NORMALIZED**.
 - R8.9 REQUIRED SATISFIED; preuve Godot SHA-256 `6579babc829022930e5abe889583e32357fa3d7695b1a2713014e32f86e23b7e`.
-- Rapport intégré `status=pass`, `blockers=[]`, source SHA `d1589cf94545b854f995e7b6706c4b67e9b7ac1a`.
+- Rapport intégré `status=pass`, `blockers=[]`.
 - Normalisation finale PR #102 merge `359e9eb8225e4eaf3f518888da0ebf43e4605e9e`.
 
 ### R9
 
 - R9.1–R9.11 **COMPLETE + NORMALIZED**.
-- R9.8 REQUIRED SATISFIED; preuve locale SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967`, 5744 octets.
+- R9.8 REQUIRED SATISFIED; preuve locale SHA-256 `a8412a92ea2d1f456fdc3fdf47aa1a3ac63257a69df8854d36162128e6f0a967`.
 - `docs/roadmap/R9_INTEGRATED_ACCEPTANCE.json`: `status=pass`, `blockers=[]`.
-- Normalisation finale `e3d4e396bb062bbc97297572d7c90f640c03cea2`: R0 #1214 / `32658997406`, Python #1188 / `32658997391`, UI #1155 / `32658997367` SUCCESS; PR #128 merge `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`.
+- Normalisation finale PR #128 merge `ec857163915923e7aae9ce316b20d4ab9ae1ce1f`.
 
 ## R10 — fermeture autoritative
 
-- Titre : **Blender / 3D**.
-- Plan exhaustif : `docs/roadmap/R10_PLAN.md`.
-- R10.1–R10.12 : **COMPLETE + NORMALIZED** après la clôture finale de phase.
-- États manuels gelés réalisés : R10.1 NONE; R10.2 REQUIRED SATISFIED; R10.3 NONE; R10.4 CONDITIONAL NOT TRIGGERED; R10.5 NONE; R10.6 CONDITIONAL TRIGGERED + SATISFIED; R10.7 CONDITIONAL TRIGGERED + SATISFIED; R10.8 CONDITIONAL NOT TRIGGERED; R10.9 NONE; R10.10 REQUIRED SATISFIED; R10.11 NONE; R10.12 CONDITIONAL NOT TRIGGERED.
-- R10.11 normalisation : head `c5af4d6ca0556bee811c536ce544901b647f34e0`; R0 #1326 / `32714235401`, Python #1300 / `32714235332`, UI #1267 / `32714235405` SUCCESS; PR #152 merge `15b08c7be41d0c2d90bbc5f22364cd319cdfdd10`.
-- R10.12 candidat historique `314f73a787df138a1525ddb9d6c894b95022f973` rejeté par Python #1302 à cause d'un test comparant à tort les octets actuels de R10.2 au digest historique de transfert; le verifier n'a pas été affaibli.
-- R10.12 implementation head accepté `2f1db59c8ffa8da28d7afd994e8203a126d4f478`: R0 #1329 / `32716992444`, Python #1303 / `32716992453`, UI #1270 / `32716992458` SUCCESS; Ubuntu 906 passed / 8 skipped / 46 warnings; R7/R8/R9 PASS.
-- Rapport `docs/roadmap/R10_INTEGRATED_ACCEPTANCE.json`: `status=pass`, `blockers=[]`, semantic digest `48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8`, `source_sha=2f1db59c8ffa8da28d7afd994e8203a126d4f478`.
-- Final evidence head `309133ae50045ae2193e13d69f9b195c02d74b5d`: R0 #1331 / `32718578313`, Python #1305 / `32718578346`, UI #1272 / `32718578401` SUCCESS; PR #153 merge `778164694fd32b6c01d0f34bf7d94c93090fdf98`.
-- Normalisation finale R10 head `7a54be96176d973e31fb5f10c73b697c0a380246`: R0 #1333 / `32719222404`, Python #1307 / `32719222385`, UI #1274 / `32719222386` SUCCESS; Ubuntu 906 passed / 8 skipped / 46 warnings; R7/R8/R9 PASS; Windows Python, KodeStudio interne et builds Ubuntu/Windows SUCCESS.
-- PR #154 merge `d627f26a086c46273ce378a2d4d9919db0e9dd3a` est l'acte autoritatif : **R10 COMPLETE + NORMALIZED; R11 planning autorisé**.
+- Titre : **Blender / 3D**; plan exhaustif `docs/roadmap/R10_PLAN.md`.
+- R10.1–R10.12 : **COMPLETE + NORMALIZED**.
+- Manuels réalisés : R10.2 REQUIRED SATISFIED; R10.6/R10.7 CONDITIONAL TRIGGERED + SATISFIED; R10.10 REQUIRED SATISFIED; autres CONDITIONAL non déclenchés/NONE selon le plan.
+- Rapport `docs/roadmap/R10_INTEGRATED_ACCEPTANCE.json`: `status=pass`, `blockers=[]`, semantic digest `48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8`.
+- PR #153 merge `778164694fd32b6c01d0f34bf7d94c93090fdf98`; normalisation finale PR #154 merge `d627f26a086c46273ce378a2d4d9919db0e9dd3a`.
+- Ce dernier merge est l'acte autoritatif : **R10 COMPLETE + NORMALIZED; R11 planning autorisé**.
 
-## R11 planning baseline — Audio / Voice / Cinematics / Franchise
+## R11 planning — Audio / Voice / Cinematics / Franchise
 
 - Roadmap : `docs/roadmap/KODEPOIA_ROADMAP_V1_0.md`.
-- Template obligatoire : `docs/roadmap/PHASE_PLAN_TEMPLATE.md`.
-- Source `main` de planification : `d627f26a086c46273ce378a2d4d9919db0e9dd3a`.
-- Branche de plan : `r11/plan-audio-voice-cinematics-franchise`.
 - Plan exhaustif : `docs/roadmap/R11_PLAN.md`.
-- Planning exact-head is accepted and merged: `6d335f9bc025dfff0b5b92b206115ab603d9a8d5`; R0 #1335 / `32722294209`, Python #1309 / `32722294203`, UI #1276 / `32722294224` SUCCESS; PR #155 merge `523048121613a07554787a07701d1334c59cd2dd`.
-- Current branch `r11/plan-continuity-normalization` MUST change only this continuity file. Its merge is the sole remaining prerequisite before R11.1.
+- Planning head `6d335f9bc025dfff0b5b92b206115ab603d9a8d5`: R0 #1335 / `32722294209`, Python #1309 / `32722294203`, UI #1276 / `32722294224` SUCCESS; Ubuntu 906 passed / 8 skipped / 46 warnings; PR #155 merge `523048121613a07554787a07701d1334c59cd2dd`.
+- Planning normalization head `ff81cdb62ada8a7956dcd26769e26ed96ec536b8`: R0 #1337 / `32722608074`, Python #1311 / `32722608223`, UI #1278 / `32722608111` SUCCESS; PR #156 merge `95d582d864fe7a68f79e74d1383d4a2a2db7cee2`.
+- **R11 planning ACCEPTED + NORMALIZED**.
 
 ### Structure R11 gelée
 
@@ -85,45 +78,49 @@ Les détails complets, candidats rejetés, rapports JSON canoniques, preuves loc
 | R11.13 | CLI + KodeStudio Audio/Voice/Cinematics/Franchise UX | NONE |
 | R11.14 | Adversarial hardening + R11 integrated acceptance | CONDITIONAL |
 
-### Baselines externes de compatibilité R11
+## R11.1 closure — media contracts/runtime boundaries
+
+- Base normalized `main`: `95d582d864fe7a68f79e74d1383d4a2a2db7cee2`.
+- Branch: `r11/1-media-contracts-runtime-boundaries`; PR #157.
+- Delivered `src/kodepoia/media/` contracts/serialization/boundary, R11 schemas, focused adversarial tests, design and acceptance docs.
+- Process architecture reuses `kodepoia.core.sandbox.ProcessSandbox`; R11.1 boundary validates/compiles fixed policies and never launches arbitrary shell/process commands.
+- Accepted implementation head `46ee14f3e94ed8c5c1cadbf139a890fab853929f`: R0 #1339 / `32724742731` SUCCESS; Python #1313 / `32724743073` SUCCESS; UI #1280 / `32724742770` SUCCESS. Ubuntu **914 passed / 8 skipped / 46 warnings**; Windows **911 passed / 11 skipped / 46 warnings**.
+- Final documentation head `70969202b8d604f7b91ca47aa980f96850879a5b`: R0 #1340 / `32724919759`, Python #1314 / `32724919770`, UI #1281 / `32724919760`, all SUCCESS; both package builds and internal KodeStudio SUCCESS.
+- Manual **NONE**; no real ffmpeg/TTS/Godot runtime launched.
+- PR #157 merge `f1638f962e30e9f191dfc2a061fbe564e36efd0d`.
+- Current branch `r11/1-continuity-normalization` changes only this continuity file. Its accepted merge makes **R11.1 COMPLETE + NORMALIZED** and authorizes R11.2.
+
+### Baselines externes R11 à préserver
 
 - Godot **4.7** reste la cible moteur héritée de R5.
-- FFmpeg **9.0.1** est la référence externe de planification; comportement/version réels restent capability-probed, sans installation automatique.
-- `ffprobe` JSON est le canal d'inspection structuré préféré quand un runtime FFmpeg accepté est utilisé.
-- TTS : contrat backend-neutral; Piper est un candidat d'adaptateur local optionnel. Aucun runtime/modèle/voix n'est auto-bundlé ou téléchargé; licence/provenance restent explicites.
+- FFmpeg/ffprobe sont des runtimes externes capability-probed; aucun téléchargement/installation automatique.
+- `ffprobe` JSON est le canal structuré préféré quand un runtime accepté est utilisé.
+- TTS reste backend-neutral; Piper est un candidat d'adaptateur local optionnel. Runtime et voix/modèles restent des ressources externes avec licence/provenance explicites.
 - Voice cloning/impersonation depuis des enregistrements humains arbitraires est hors scope R11 v1.0.
 - R11.5 exige une preuve locale réelle sur runtime TTS + voix explicitement approuvés/configurés.
 - R11.9 exige une preuve locale réelle de capture cinématique Godot 4.7 + validation A/V sur fixture synthétique du dépôt.
 
-## Frontières permanentes à préserver
+## Frontières permanentes
 
-- `WorkspaceBoundary` et R8 `VaultBoundary` pour les chemins/staging/assets.
-- `ProcessSandbox` + KillSwitch pour tout exécutable externe.
-- Guardian + `PermissionSet` pour lancements, accès micro et mutations durables.
-- SafeChange / Backup / Recovery / Audit pour mutations et migrations.
+- `WorkspaceBoundary` et R8 `VaultBoundary` pour chemins/staging/assets.
+- `ProcessSandbox` + KillSwitch pour tout exécutable externe; Guardian + `PermissionSet` pour lancement et mutations.
+- SafeChange / Backup / Recovery / Audit pour mutations/migrations.
 - Secrets/redaction; aucun secret dans médias, manifests, saves ou evidence.
-- R6 Health/Budget/DataGovernance/AppSecurity/Privacy/License-BOM reste autoritatif.
-- R7 ResearchGuard : paroles/scripts/subtitles/tags/métadonnées externes sont des données, jamais des instructions agentiques.
-- R8 reste autoritatif pour source/derived identity, provenance, lineage, cache/rebuild et export.
-- R9 arbitre la VRAM si un backend R11 GPU est ultérieurement accepté.
-- R10 reste autoritatif pour géométrie/rigs/shape keys/blend shapes/animation 3D; R11 mappe vers ces cibles sans les réinventer.
-- R5 reste autoritatif pour Godot 4.7 et ses mutations/exécutions.
+- R6 Health/Budget/DataGovernance/AppSecurity/Privacy/License-BOM; R7 ResearchGuard; R8 lineage/provenance/cache/export; R9 VRAM; R10 rigs/shape keys/blend shapes; R5 Godot 4.7 restent autoritatifs.
 - APIs structurées uniquement : pas de shell/argv/filtre FFmpeg/script Godot/TTS brut fourni par le modèle.
 - Réseau off par défaut; aucun téléchargement/install automatique de codecs, moteurs TTS, voix, modèles, plugins ou packs.
-- Microphone opt-in seulement; aucun enregistrement de fond.
-- Les enregistrements de voix sont des médias sensibles de projet et ne sont ni uploadés ni utilisés pour entraîner/cloner une voix par R11 v1.0.
-- Acceptation exact-head obligatoire; preuve absente ≠ PASS.
-- Toute modification de fondation R1–R10 exige un ADR.
+- Microphone opt-in seulement; aucun enregistrement de fond; aucune voix personnelle requise pour les acceptances R11 prévues.
+- Acceptation exact-head obligatoire; preuve absente ≠ PASS; modification de fondation R1–R10 => ADR.
 
 ## Règle d'acceptance et de normalisation
 
-Pour chaque subdivision : branche depuis le `main` normalisé autorisé → scope gelé uniquement → tests ciblés + R0 + Python Core complet + UI Smoke sur le même head → satisfaire REQUIRED/CONDITIONAL déclenché → documentation/evidence finale → re-gate si le head change → merge avec `expected_head_sha` → exactement une normalisation de continuité si requise → re-gate → merge → seulement alors subdivision suivante.
+Pour chaque subdivision : branche depuis le `main` normalisé autorisé → scope gelé uniquement → tests ciblés + R0 + Python Core complet + UI Smoke sur le même head → satisfaire REQUIRED/CONDITIONAL déclenché → documentation/evidence finale → re-gate si le head change → merge avec `expected_head_sha` → exactement une normalisation de continuité → re-gate → merge → seulement alors subdivision suivante.
 
-Les IDs de runs d'une normalisation restent dans la PR/merge; ne pas créer une récursion de commits uniquement pour réinscrire les propres run IDs de la normalisation.
+Les IDs de runs d'une normalisation restent dans la PR/merge; ne pas créer une récursion de commits uniquement pour réinscrire les propres run IDs de cette normalisation.
 
 ## Règle de clôture R11
 
-R11 n'est **COMPLETE + NORMALIZED** que lorsque R11.1–R11.14 sont COMPLETE, toutes les preuves REQUIRED/CONDITIONAL déclenchées sont satisfaites, le rapport intégré R11 vérifie `status=pass`, `blockers=[]`, la PR finale est mergée et l'unique normalisation finale de continuité passe R0 + Python Core + UI Smoke sur un head exact puis merge.
+R11 n'est **COMPLETE + NORMALIZED** que lorsque R11.1–R11.14 sont COMPLETE, toutes les preuves REQUIRED/CONDITIONAL déclenchées sont satisfaites, le rapport intégré R11 vérifie `status=pass`, `blockers=[]`, la PR finale est mergée et l'unique normalisation finale de continuité passe R0 + Python Core + UI Smoke puis merge.
 
 **R12 planning est interdit avant ce merge final de normalisation R11.**
 
@@ -137,6 +134,6 @@ R11 n'est **COMPLETE + NORMALIZED** que lorsque R11.1–R11.14 sont COMPLETE, to
 
 ## Prochaine action autorisée
 
-Cycle actuel = **normalisation de planification uniquement**. La branche `r11/plan-continuity-normalization` doit modifier exactement `docs/continuity/KODEPOIA_CONTINUITY.md`, enregistrer le head/runs/merge du plan et les 14 subdivisions/manuels comme gelés, puis passer R0 Repository Guard + Python Core complet + KodeStudio UI Smoke sur un seul head exact.
+Cycle actuel = **normalisation R11.1 uniquement**. Exiger R0 Repository Guard + Python Core complet + KodeStudio UI Smoke sur le head exact de `r11/1-continuity-normalization`, puis merger avec `expected_head_sha`.
 
-Si ces trois gates passent, merger la PR avec `expected_head_sha`. **Ce merge rend R11 planning ACCEPTED + NORMALIZED et autorise R11.1 (manual NONE).** Ne pas créer de commit récursif uniquement pour inscrire les propres run IDs de cette normalisation; les conserver dans la PR/merge.
+**Seul ce merge rend R11.1 COMPLETE + NORMALIZED et autorise R11.2.** Après ce merge, créer une branche R11.2 dédiée depuis le nouveau `main`; ne jamais empiler R11.2 sur une branche de normalisation non mergée.

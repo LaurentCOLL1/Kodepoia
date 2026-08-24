@@ -4,17 +4,14 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning candidate est accepté sur son premier head mais le head documentaire final doit être re-gaté avant merge; R12.1 reste strictement interdit jusqu’au merge du plan et à sa normalisation de continuité.** Source normalisée de départ : `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`. Premier planning head accepté `b085fbdb03d62bd06dbdd045eccded3a0de667ab` : R0 #1463 / `32771732655`, Python Core #1437 / `32771732751`, UI Smoke #1404 / `32771732640`, tous SUCCESS. `docs/roadmap/R12_PLAN.md` fige R12.1–R12.16. Aucun R12.x n’est encore implémenté.
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning est ACCEPTED + MERGED via PR #185; exactement une planning continuity normalization est maintenant en cours. R12.1 reste interdit jusqu’au succès exact-head R0 + full Python Core + KodeStudio UI Smoke de cette normalisation et à son merge.** Plan final head `661c09e57639190a60630411127d49870a959cc9`: R0 #1464 / `32772400955`, Python Core #1438 / `32772400921`, UI Smoke #1405 / `32772400996`, tous SUCCESS. PR #185 merge `6ad0e6045ac70a82f367b4eacb18d927ffd1bddf`. `docs/roadmap/R12_PLAN.md` fige R12.1–R12.16. Aucun R12.x n’est encore implémenté.
 
 ## État global
 
 - Dépôt : `LaurentCOLL1/Kodepoia` — PUBLIC volontairement.
 - Architecture v1.0 gelée; `main` est la source de vérité après chaque merge accepté.
-- R1–R10 : **COMPLETE + NORMALIZED**.
-- R11 planning : **ACCEPTED + NORMALIZED**.
-- R11.1–R11.14 : **COMPLETE + NORMALIZED**.
-- R11 : **COMPLETE + NORMALIZED**.
-- R12 planning : **ACCEPTED CANDIDATE — FINAL DOCUMENTATION HEAD RE-GATE PENDING**.
+- R1–R11 : **COMPLETE + NORMALIZED**.
+- R12 planning : **ACCEPTED + MERGED; CONTINUITY NORMALIZATION PENDING**.
 - R12.1–R12.16 : **PLANNED / NOT STARTED**.
 - R13–R16 : **PENDING / NOT STARTED**.
 
@@ -27,22 +24,20 @@
 - R11.14 continuity normalization head `b406ea16538843bbce8c75b0633c151e3bab2eb4`: R0 #1461 / `32771013589`, Python #1435 / `32771013516`, UI #1402 / `32771013711` SUCCESS.
 - R11.14 normalization PR #184 merge `6d3c7eb557d940641977d18384e4f6d2bad42f3c`.
 - R11.14 manual **CONDITIONAL NOT TRIGGERED**.
-- Required preserved R11.5 TTS digest `12223e911a76087a4eea23ce9e371fdc401990d127cb9f306237d67550725ffe` and R11.9 cinematic digest `6afe45e3c9047cfa58b7c617ff671e34e166bd9189a32ea62f1350243955b6f5` remain authoritative.
 
-## R12 planning authority
+## R12 planning closure in progress
 
 Roadmap title : **R12 — Desktop applications**. Roadmap DoD : **créer, compiler et tester une application Windows moderne depuis le Project Wizard**.
 
-- Planning branch : `r12/00-phase-plan`, créée exactement depuis normalized `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`.
+- Plan : `docs/roadmap/R12_PLAN.md`.
+- Planning branch : `r12/00-phase-plan`, base normalized `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`.
 - Planning PR : #185.
-- Plan candidate : `docs/roadmap/R12_PLAN.md`.
-- Premier exact planning head accepté : `b085fbdb03d62bd06dbdd045eccded3a0de667ab`.
-- R0 Repository Guard #1463 / `32771732655` — **SUCCESS**.
-- Python Core #1437 / `32771732751` — **SUCCESS**; Python Ubuntu/Windows, package builds Ubuntu/Windows et KodeStudio smoke interne SUCCESS.
-- KodeStudio UI Smoke #1404 / `32771732640` — **SUCCESS**.
-- Cette mise à jour de continuité change les octets documentaires après le premier triplet; le nouveau head doit donc passer un triplet frais avant merge.
-
-R12 étend les contrats R2 Project DNA/Project Wizard/KodeProduct existants; il ne crée pas un second desktop wizard. Existing Project DNA already has `ProjectType.DESKTOP_APP` and Windows platform semantics. Permanent R1–R11 governance remains in force.
+- Premier planning candidate `b085fbdb03d62bd06dbdd045eccded3a0de667ab`: R0 #1463 / `32771732655`, Python #1437 / `32771732751`, UI #1404 / `32771732640` SUCCESS.
+- Final planning documentation head `661c09e57639190a60630411127d49870a959cc9`: R0 #1464 / `32772400955`, Python #1438 / `32772400921`, UI #1405 / `32772400996` SUCCESS.
+- Python #1438 includes Python Ubuntu/Windows, package builds Ubuntu/Windows and KodeStudio UI smoke internal, all SUCCESS.
+- PR #185 merge : `6ad0e6045ac70a82f367b4eacb18d927ffd1bddf`.
+- Current branch `r12/00-postmerge-continuity-normalization` is the single authorized planning continuity normalization and MUST change only this file.
+- Its accepted merge makes R12 planning **ACCEPTED + NORMALIZED** and authorizes R12.1.
 
 ### Frozen R12 subdivision index
 
@@ -65,44 +60,24 @@ R12 étend les contrats R2 Project DNA/Project Wizard/KodeProduct existants; il 
 | R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | NONE |
 | R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | CONDITIONAL |
 
-`CONDITIONAL` means hosted accepted exact-head evidence is used when sufficient. Manual intervention is triggered only when an authoritative OS/toolchain/runtime semantic required by the claim cannot be proved by CI. A triggered manual gate must freeze exact candidate SHA, bounded collector/commands, prerequisites, output, recovery/privacy steps and must be reviewed before progression. Missing evidence never manufactures PASS.
+## R12 frozen technical boundaries
 
-## R12 frozen technical baseline
-
-- Windows-first phase DoD, without claiming that one Windows result validates Linux/macOS.
-- WinUI 3/Windows App SDK is the modern native Windows adapter; WPF remains a supported first-class adapter.
-- Avalonia is the cross-platform .NET/XAML adapter.
-- Qt 6/CMake is the native cross-platform adapter.
-- Tauri v2 is the Rust/WebView desktop adapter; Windows capability requires the relevant Rust/C++ Build Tools/WebView2 prerequisites.
-- SQLite is the embedded persistence baseline; no global `sqlite3` CLI requirement.
+- Existing R2 Project DNA/Project Wizard/KodeProduct remain authoritative; R12 extends them and creates no parallel Wizard.
+- Windows-first phase DoD; one Windows PASS never manufactures Linux/macOS PASS.
+- WinUI 3/Windows App SDK, WPF, Avalonia, Qt 6/CMake and Tauri v2 are the five frozen adapter families.
+- SQLite is the embedded persistence baseline.
 - Toolchains are capability-probed. Kodepoia does not silently install SDKs, workloads, Qt, Rust, WebView2 or signing credentials.
-- External processes always pass through ProcessSandbox + KillSwitch with Kodepoia-owned fixed argv templates; no shell command strings/raw model argv.
-- Dependencies are pinned/locked; mutable `latest` dependency semantics are not accepted evidence.
-- Network remains off by default for Kodepoia runtime operations. Explicit dependency restore is a governed build action, not an implicit installer.
-- Signing states are explicit (`UNSIGNED`, `TEST_SIGNED`, `SIGNED`, `SIGNING_UNAVAILABLE`); phase acceptance does not require a user production certificate.
-- R12 does not introduce production updater servers, app-store submission, mobile implementation or cloud/backend services.
+- ProcessSandbox + KillSwitch, Guardian/PermissionSet, SafeChange/Backup/Recovery/Audit, KodeSecrets, R6 governance, R7 ResearchGuard and R8 lineage remain mandatory.
+- No shell command strings or model/project raw argv/MSBuild/CMake/Cargo/package scripts/SQL/signing commands are execution surfaces.
+- Dependencies are pinned/locked; network off by default. Signing state is explicit and no production certificate is required for phase acceptance.
+- CONDITIONAL manual intervention triggers only when an authoritative OS/toolchain/runtime semantic required by a claim cannot be proven by accepted CI. Missing evidence never manufactures PASS.
 
-## Permanent boundaries
+## Execution rule after planning normalization
 
-Workspace/R8 Vault boundaries; ProcessSandbox + KillSwitch; Guardian/PermissionSet; SafeChange/Backup/Recovery/Audit; KodeSecrets/redaction; R6 governance/security/privacy/license/build/accessibility/localization; R7 ResearchGuard; R8 lineage/provenance/cache/export; R9 AI resource arbitration; R10 3D authority; R11 media/runtime/privacy/evidence boundaries remain in force. Structured APIs only. Exact-head evidence mandatory.
+Each R12 subdivision : dedicated branch from normalized `main` → focused implementation/tests → exact-head R0/full Python/UI → satisfy triggered CONDITIONAL manual gate if any → final docs/evidence and re-gate if head changes → expected-SHA merge → exactly one continuity-only normalization + same gates + merge → only then next subdivision.
 
-## Planning acceptance rule
-
-No R12.1 implementation is authorized until all of these are complete:
-
-1. `R12_PLAN.md` and continuity synchronization exist on one planning branch from exact normalized `main`;
-2. immutable planning candidate passes R0 Repository Guard + full Python Core + KodeStudio UI Smoke;
-3. accepted planning head/run IDs are recorded and resulting documentation head is re-gated;
-4. planning PR merges with `expected_head_sha`;
-5. exactly one post-merge planning continuity-only normalization passes the same exact-head triplet and merges;
-6. only then R12 planning becomes **ACCEPTED + NORMALIZED** and R12.1 becomes authorized.
-
-## Execution rule after planning acceptance
-
-Each subdivision : dedicated branch from normalized `main` → implementation/focused tests → exact-head R0/full Python/UI → satisfy REQUIRED/triggered CONDITIONAL manual state → final docs/evidence and re-gate if head changes → expected-SHA merge → exactly one continuity-only normalization + same gates + merge → only then next subdivision.
-
-R12.16 follows anti-circular integrated acceptance: implementation head accepted before `R12_INTEGRATED_ACCEPTANCE.json` is generated; final evidence head is re-gated; then implementation/evidence merge and one final continuity normalization. Only that closure authorizes R13 planning.
+R12.16 uses anti-circular integrated acceptance and only its final normalized closure authorizes R13 planning.
 
 ## Next authorized action
 
-Cycle = **R12 planning final documentation re-gate** on PR #185. Merge only after R0 + full Python Core + UI Smoke succeed on the exact new head, then perform exactly one planning continuity normalization. **R12.1 remains forbidden until that normalization merges.**
+Cycle = **R12 planning continuity normalization only**. Gate exact head of `r12/00-postmerge-continuity-normalization`; merge it with `expected_head_sha`. **Only that merge authorizes R12.1.**

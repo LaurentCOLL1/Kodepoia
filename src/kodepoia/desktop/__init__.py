@@ -16,6 +16,11 @@ from .contracts import (
     DesktopFramework, DesktopOS, DesktopPackageKind, DesktopTargetProfile,
     DesktopToolKind, DesktopToolchainIdentity, canonical_sha256,
 )
+from .qt6 import (
+    Qt6Adapter, QtAcceptanceResult, QtArtifact, QtDependencyDeclaration,
+    QtGeneratedFile, QtKitIdentity, QtLicenseState, QtProjectManifest,
+    write_qt_acceptance_report,
+)
 from .scaffold import (
     DesktopScaffoldEngine, DesktopTemplateManifest, FileOwnership, PreviewAction,
     RenderedFile, ScaffoldLineage, ScaffoldPreview, TemplateFile, TemplateValue,
@@ -34,7 +39,9 @@ __all__ = [
     "DesktopCapabilityState", "DesktopFramework", "DesktopOS", "DesktopPackageKind",
     "DesktopScaffoldEngine", "DesktopTargetProfile", "DesktopTemplateManifest",
     "DesktopToolKind", "DesktopToolchainBoundary", "DesktopToolchainIdentity",
-    "DialogContract", "DialogKind", "FileOwnership", "PreviewAction", "RenderedFile",
+    "DialogContract", "DialogKind", "FileOwnership", "PreviewAction", "Qt6Adapter",
+    "QtAcceptanceResult", "QtArtifact", "QtDependencyDeclaration", "QtGeneratedFile",
+    "QtKitIdentity", "QtLicenseState", "QtProjectManifest", "RenderedFile",
     "RouteContract", "ScaffoldLineage", "ScaffoldPreview", "ServiceContract",
     "ServiceLifetime", "StateField", "StateValueKind", "TemplateFile", "TemplateValue",
     "TemplateValueKind", "ValidationKind", "ValidationRule", "ViewContract",
@@ -43,5 +50,6 @@ __all__ = [
     "WpfAcceptanceResult", "WpfAdapter", "WpfArtifact", "canonical_avalonia_matrix",
     "canonical_sample_app", "canonical_sha256", "canonical_winui_deployment",
     "validate_environment_overrides", "write_avalonia_acceptance_report",
-    "write_winui_acceptance_report", "write_wpf_acceptance_report",
+    "write_qt_acceptance_report", "write_winui_acceptance_report",
+    "write_wpf_acceptance_report",
 ]

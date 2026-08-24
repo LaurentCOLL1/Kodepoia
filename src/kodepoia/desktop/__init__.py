@@ -1,5 +1,22 @@
 """Governed desktop-application contracts and boundaries for R12."""
 
+from .app_model import (
+    AdapterConformanceProjection,
+    CommandContract,
+    DesktopAppModel,
+    DialogContract,
+    DialogKind,
+    RouteContract,
+    ServiceContract,
+    ServiceLifetime,
+    StateField,
+    StateValueKind,
+    ValidationKind,
+    ValidationRule,
+    ViewContract,
+    ViewModelContract,
+    canonical_sample_app,
+)
 from .boundary import DesktopBoundaryError, DesktopToolchainBoundary, validate_environment_overrides
 from .contracts import (
     DesktopArchitecture,
@@ -28,6 +45,9 @@ from .scaffold import (
 )
 
 __all__ = [
+    "AdapterConformanceProjection",
+    "CommandContract",
+    "DesktopAppModel",
     "DesktopArchitecture",
     "DesktopBoundaryError",
     "DesktopCapabilityReport",
@@ -41,15 +61,27 @@ __all__ = [
     "DesktopToolKind",
     "DesktopToolchainBoundary",
     "DesktopToolchainIdentity",
+    "DialogContract",
+    "DialogKind",
     "FileOwnership",
     "PreviewAction",
     "RenderedFile",
+    "RouteContract",
     "ScaffoldLineage",
     "ScaffoldPreview",
+    "ServiceContract",
+    "ServiceLifetime",
+    "StateField",
+    "StateValueKind",
     "TemplateFile",
     "TemplateValue",
     "TemplateValueKind",
+    "ValidationKind",
+    "ValidationRule",
+    "ViewContract",
+    "ViewModelContract",
     "WorkspaceManifest",
+    "canonical_sample_app",
     "canonical_sha256",
     "validate_environment_overrides",
 ]

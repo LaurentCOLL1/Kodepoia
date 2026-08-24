@@ -44,9 +44,9 @@ _ACCEPTED_LOCAL_DIGESTS = {
     "R11.9": "6afe45e3c9047cfa58b7c617ff671e34e166bd9189a32ea62f1350243955b6f5",
 }
 _ACCEPTED_PRIOR_DIGESTS = {
-    "R7": "5b56bb94b6c5c0b8a11e0d1883d0123f0803418414509517e88204990647e2fc",
-    "R8": "c73868d7f89453c65d3b633ccdded70d031766c1ce05b77c02e8e4a0d51ed8c5",
-    "R9": "ad8ad9d16682f54dd942e76dccf333234065d27f320409301cbb8dd67036dcdc",
+    "R7": "2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437",
+    "R8": "6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89",
+    "R9": "19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a",
     "R10": "48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8",
 }
 _ACCEPTED_HEADS = {
@@ -79,7 +79,9 @@ def test_r11_14_environment_and_path_injection_fail_closed(tmp_path: Path) -> No
     staging.mkdir()
     boundary = MediaRuntimeBoundary(allowed_roots=(runtime_root,), staging_root=staging)
     with pytest.raises(MediaBoundaryError, match="escapes staging root"):
-        boundary.validate_output(tmp_path / "outside.wav", suffixes=frozenset({".wav"}))
+        boundary.validate_output(
+            tmp_path / "outside.wav", suffixes=frozenset({".wav"})
+        )
 
 
 def test_r11_14_unicode_bidi_control_and_raw_markup_fail_closed() -> None:
@@ -161,68 +163,6 @@ def test_r11_14_save_checksum_and_migration_cycle_fail_closed() -> None:
         registry.register(MigrationStep("two-to-one", 2, 1, lambda value: dict(value)))
 
 
-def _digest_payload(payload: dict[str, object]) -> dict[str, object]:
-    result = dict(payload)
-    result["evidence_digest"] = canonical_sha256(result)
-    return result
-
-
-def _fake_r11_5() -> bytes:
-    payload: dict[str, object] = {
-        "schema": "kodepoia.r11_5_local_acceptance",
-        "version": 1,
-        "source_sha": _ACCEPTED_HEADS["R11.5"],
-        "status": "pass",
-        "blockers": [],
-        "approval": {"license_reviewed": True},
-        "capability": {
-            "status": "pass",
-            "capabilities": {"network_required": False},
-        },
-        "synthesis": {
-            "status": "pass",
-            "process": {
-                "timed_out": False,
-                "cancelled": False,
-                "text_passed_via_argv": False,
-                "ephemeral_input_deleted": True,
-            },
-            "qa": {"state": "PASS", "blockers": []},
-        },
-        "privacy": {
-            "audio_retained": False,
-            "network_download_performed_by_collector": False,
-            "private_recording_used": False,
-            "voice_clone_used": False,
-        },
-    }
-    return json.dumps(
-        _digest_payload(payload), sort_keys=True, separators=(",", ":")
-    ).encode("utf-8")
-
-
-def _fake_r11_9() -> bytes:
-    payload: dict[str, object] = {
-        "schema": "kodepoia.r11_9_local_acceptance",
-        "version": 1,
-        "source_sha": _ACCEPTED_HEADS["R11.9"],
-        "status": "pass",
-        "blockers": [],
-        "runtime": {"godot_compatible_47": True, "godot_version": "4.7.2.test"},
-        "fixture": {"kind": "repository_synthetic"},
-        "capture": {
-            "status": "pass",
-            "reported_frames": 90,
-            "expected_frames": 90,
-            "av_sync_error_seconds": 0.0,
-            "av_sync_limit_seconds": 0.1,
-        },
-    }
-    return json.dumps(
-        _digest_payload(payload), sort_keys=True, separators=(",", ":")
-    ).encode("utf-8")
-
-
 def _fake_report() -> tuple[R11IntegratedReport, dict[str, bytes]]:
     source_sha = "f" * 40
     repository: dict[str, bytes] = {}
@@ -235,21 +175,15 @@ def _fake_report() -> tuple[R11IntegratedReport, dict[str, bytes]]:
             f"# {subdivision} acceptance\naccepted implementation head `{heads[subdivision]}`\n"
         ).encode("utf-8")
     repository["docs/continuity/KODEPOIA_CONTINUITY.md"] = (
-        "# continuity\n" + "\n".join(f"- {key} `{value}`" for key, value in heads.items())
+        "# continuity\n"
+        + "\n".join(f"- {key} `{value}`" for key, value in heads.items())
     ).encode("utf-8")
-    repository["docs/roadmap/R11_5_LOCAL_ACCEPTANCE.json"] = _fake_r11_5()
-    repository["docs/roadmap/R11_9_LOCAL_ACCEPTANCE.json"] = _fake_r11_9()
+    for index in (5, 9):
+        path = f"docs/roadmap/R11_{index}_LOCAL_ACCEPTANCE.json"
+        repository[path] = (ROOT / path).read_bytes()
     for phase in ("R7", "R8", "R9", "R10"):
-        repository[f"docs/roadmap/{phase}_INTEGRATED_ACCEPTANCE.json"] = json.dumps(
-            {
-                "schema_version": 1,
-                "source_sha": "1" * 40,
-                "status": "pass",
-                "blockers": [],
-                "evidence_sha256": (phase.lower().replace("r", "a") * 64)[:64],
-            },
-            sort_keys=True,
-        ).encode("utf-8")
+        path = f"docs/roadmap/{phase}_INTEGRATED_ACCEPTANCE.json"
+        repository[path] = (ROOT / path).read_bytes()
     report = build_repository_report(
         source_sha=source_sha,
         generated_at="2026-08-24T20:00:00Z",
@@ -273,28 +207,60 @@ def test_r11_14_integrated_evidence_detects_acceptance_and_continuity_substituti
         validate_repository_evidence(report, tampered.__getitem__)
 
 
+def test_r11_14_pre_report_local_evidence_substitution_cannot_be_rebound() -> None:
+    _, repository = _fake_report()
+    path = "docs/roadmap/R11_5_LOCAL_ACCEPTANCE.json"
+    document = json.loads(repository[path])
+    document["voice_identity"]["model_id"] = "tts.substituted.model"
+    semantic = dict(document)
+    semantic.pop("evidence_digest")
+    document["evidence_digest"] = canonical_sha256(semantic)
+    repository[path] = json.dumps(
+        document, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
+    with pytest.raises(ValueError, match="accepted semantic digest drift"):
+        build_repository_report(
+            source_sha="f" * 40,
+            generated_at="2026-08-24T20:00:00Z",
+            read_bytes=repository.__getitem__,
+        )
+
+
 def test_r11_14_prior_phase_failure_cannot_be_rebound_as_pass() -> None:
     report, repository = _fake_report()
     tampered = dict(repository)
-    prior_path = "docs/roadmap/R10_INTEGRATED_ACCEPTANCE.json"
-    document = json.loads(tampered[prior_path])
+    path = "docs/roadmap/R10_INTEGRATED_ACCEPTANCE.json"
+    document = json.loads(tampered[path])
     document["status"] = "fail"
     document["blockers"] = ["synthetic"]
-    tampered[prior_path] = json.dumps(document, sort_keys=True).encode("utf-8")
+    tampered[path] = json.dumps(document, sort_keys=True).encode("utf-8")
     with pytest.raises(ValueError, match="identity mismatch"):
         validate_repository_evidence(report, tampered.__getitem__)
+
+
+def test_r11_14_pre_report_prior_semantic_substitution_is_rejected() -> None:
+    _, repository = _fake_report()
+    path = "docs/roadmap/R10_INTEGRATED_ACCEPTANCE.json"
+    document = json.loads(repository[path])
+    document["evidence_sha256"] = "0" * 64
+    repository[path] = json.dumps(document, sort_keys=True).encode("utf-8")
+    with pytest.raises(ValueError, match="accepted integrated semantic digest drift"):
+        build_repository_report(
+            source_sha="f" * 40,
+            generated_at="2026-08-24T20:00:00Z",
+            read_bytes=repository.__getitem__,
+        )
 
 
 def test_r11_14_timestamp_is_not_part_of_semantic_digest_and_schema_is_strict() -> None:
     report, _ = _fake_report()
     payload = report.to_dict()
-    Draft202012Validator(
-        json.loads(
-            (ROOT / "schemas/r11-integrated-acceptance-v1.schema.json").read_text(
-                encoding="utf-8"
-            )
+    schema = json.loads(
+        (ROOT / "schemas/r11-integrated-acceptance-v1.schema.json").read_text(
+            encoding="utf-8"
         )
-    ).validate(payload)
+    )
+    Draft202012Validator(schema).validate(payload)
 
     changed = dict(payload)
     changed["generated_at"] = "2099-01-01T00:00:00Z"

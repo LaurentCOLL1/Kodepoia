@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r11/savebridge-document.schema.json",
+  "title": "Kodepoia R11 SaveBridge Document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "project_id", "franchise_dna_id", "content_version", "canon_snapshot_digest", "state", "extensions", "checksum"],
+  "properties": {
+    "schema_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "schema_version": {"type": "integer", "minimum": 1, "maximum": 1000000},
+    "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "franchise_dna_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "content_version": {"type": "string", "minLength": 1, "maxLength": 128},
+    "canon_snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "state": {"type": "object"},
+    "extensions": {
+      "type": "object",
+      "maxProperties": 128,
+      "propertyNames": {"pattern": "^[^.][^\\n]{0,126}\\.[^.][^\\n]{0,126}$"}
+    },
+    "checksum": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

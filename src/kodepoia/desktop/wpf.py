@@ -45,7 +45,7 @@ class WpfAdapter:
 
     def _failure(self, identity: DesktopToolchainIdentity, blocker: str, result: SandboxResult | None = None) -> DesktopCapabilityReport:
         if result is not None:
-            text = (result.stderr or result.stdout).strip().replace("\x00", "")
+            text = (result.stdout + "\n" + result.stderr).strip().replace("\x00", "")
             self.last_diagnostic = text[-8000:]
         return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.FAILED, toolchain=identity, blockers=(blocker,))
 
@@ -73,7 +73,7 @@ class WpfAdapter:
         probe = ProcessSandbox(self.project_root, {dotnet.name}).run(boundary.build_probe_argv(DesktopToolKind.DOTNET, dotnet), cwd=self.project_root, timeout=30)
         version = probe.stdout.strip()
         if probe.returncode != 0 or not version:
-            self.last_diagnostic = (probe.stderr or probe.stdout)[-8000:]
+            self.last_diagnostic = (probe.stdout + "\n" + probe.stderr).strip()[-8000:]
             return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.FAILED, blockers=("dotnet_probe_failed",))
         try:
             major = int(version.split(".", 1)[0])

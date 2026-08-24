@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning candidate est en cours sur `r12/00-phase-plan`; R12.1 reste strictement interdit jusqu’au merge du plan et à sa normalisation de continuité.** Source normalisée de départ : `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`. `docs/roadmap/R12_PLAN.md` fige R12.1–R12.16 : fondations desktop, Wizard/DNA/KodeProduct, scaffold déterministe, MVVM, WPF, WinUI 3, Avalonia, Qt, Tauri, SQLite, async/concurrence, IPC, accessibilité/localisation/DPI, packaging/update, CLI/KodeStudio et acceptance intégrée adversariale. Aucun R12.x n’est encore implémenté.
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning candidate est accepté sur son premier head mais le head documentaire final doit être re-gaté avant merge; R12.1 reste strictement interdit jusqu’au merge du plan et à sa normalisation de continuité.** Source normalisée de départ : `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`. Premier planning head accepté `b085fbdb03d62bd06dbdd045eccded3a0de667ab` : R0 #1463 / `32771732655`, Python Core #1437 / `32771732751`, UI Smoke #1404 / `32771732640`, tous SUCCESS. `docs/roadmap/R12_PLAN.md` fige R12.1–R12.16. Aucun R12.x n’est encore implémenté.
 
 ## État global
 
@@ -14,7 +14,7 @@
 - R11 planning : **ACCEPTED + NORMALIZED**.
 - R11.1–R11.14 : **COMPLETE + NORMALIZED**.
 - R11 : **COMPLETE + NORMALIZED**.
-- R12 planning : **CANDIDATE / GATES PENDING**.
+- R12 planning : **ACCEPTED CANDIDATE — FINAL DOCUMENTATION HEAD RE-GATE PENDING**.
 - R12.1–R12.16 : **PLANNED / NOT STARTED**.
 - R13–R16 : **PENDING / NOT STARTED**.
 
@@ -33,11 +33,16 @@
 
 Roadmap title : **R12 — Desktop applications**. Roadmap DoD : **créer, compiler et tester une application Windows moderne depuis le Project Wizard**.
 
-Planning branch : `r12/00-phase-plan`, créée exactement depuis normalized `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`.
+- Planning branch : `r12/00-phase-plan`, créée exactement depuis normalized `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`.
+- Planning PR : #185.
+- Plan candidate : `docs/roadmap/R12_PLAN.md`.
+- Premier exact planning head accepté : `b085fbdb03d62bd06dbdd045eccded3a0de667ab`.
+- R0 Repository Guard #1463 / `32771732655` — **SUCCESS**.
+- Python Core #1437 / `32771732751` — **SUCCESS**; Python Ubuntu/Windows, package builds Ubuntu/Windows et KodeStudio smoke interne SUCCESS.
+- KodeStudio UI Smoke #1404 / `32771732640` — **SUCCESS**.
+- Cette mise à jour de continuité change les octets documentaires après le premier triplet; le nouveau head doit donc passer un triplet frais avant merge.
 
-Plan candidate : `docs/roadmap/R12_PLAN.md`.
-
-R12 extends the existing R2 Project DNA/Project Wizard/KodeProduct contracts; it does not create a second desktop wizard. Existing Project DNA already has `ProjectType.DESKTOP_APP` and Windows platform semantics. Permanent R1–R11 governance remains in force.
+R12 étend les contrats R2 Project DNA/Project Wizard/KodeProduct existants; il ne crée pas un second desktop wizard. Existing Project DNA already has `ProjectType.DESKTOP_APP` and Windows platform semantics. Permanent R1–R11 governance remains in force.
 
 ### Frozen R12 subdivision index
 
@@ -85,9 +90,9 @@ Workspace/R8 Vault boundaries; ProcessSandbox + KillSwitch; Guardian/PermissionS
 
 No R12.1 implementation is authorized until all of these are complete:
 
-1. `R12_PLAN.md` and this continuity synchronization exist on one planning branch from exact normalized `main`;
-2. one immutable planning head passes R0 Repository Guard + full Python Core + KodeStudio UI Smoke;
-3. accepted planning head/run IDs are recorded; if bytes change, final documentation head is re-gated;
+1. `R12_PLAN.md` and continuity synchronization exist on one planning branch from exact normalized `main`;
+2. immutable planning candidate passes R0 Repository Guard + full Python Core + KodeStudio UI Smoke;
+3. accepted planning head/run IDs are recorded and resulting documentation head is re-gated;
 4. planning PR merges with `expected_head_sha`;
 5. exactly one post-merge planning continuity-only normalization passes the same exact-head triplet and merges;
 6. only then R12 planning becomes **ACCEPTED + NORMALIZED** and R12.1 becomes authorized.
@@ -100,4 +105,4 @@ R12.16 follows anti-circular integrated acceptance: implementation head accepted
 
 ## Next authorized action
 
-Cycle = **R12 planning only**. Gate the exact planning candidate containing `docs/roadmap/R12_PLAN.md` + this continuity update, merge the plan, then perform exactly one planning continuity normalization. **R12.1 remains forbidden until that normalization merges.**
+Cycle = **R12 planning final documentation re-gate** on PR #185. Merge only after R0 + full Python Core + UI Smoke succeed on the exact new head, then perform exactly one planning continuity normalization. **R12.1 remains forbidden until that normalization merges.**

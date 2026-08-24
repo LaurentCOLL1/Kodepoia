@@ -20,6 +20,7 @@ The dedicated R10.12 suite covers the high-value seams that can cross an accepte
 - forged GLB declared lengths and unsupported chunk types;
 - envelope/schema-version drift;
 - accepted-document substitution after an evidence digest is bound;
+- normalized-continuity substitution or loss of an exact-head binding;
 - required local runtime evidence substitution;
 - prior R7/R8/R9 integrated-report substitution or non-PASS state;
 - integrated report semantic-digest and runtime-policy tampering.
@@ -28,14 +29,15 @@ The full Python Core remains part of every exact-head gate, so all previously ac
 
 ## Integrated evidence model
 
-`src/kodepoia/blender3d/acceptance.py` defines a versioned deterministic model with four bound evidence classes:
+`src/kodepoia/blender3d/acceptance.py` defines a versioned deterministic model with five bound evidence classes:
 
 1. twelve ordered R10 subdivision acceptance documents (`R10.1` through `R10.12`), each bound by repository byte length, SHA-256, accepted implementation head and satisfied manual state;
-2. the two frozen REQUIRED local runtime artifacts, `R10_2_LOCAL_ACCEPTANCE.json` and `R10_10_LOCAL_ACCEPTANCE.json`;
-3. the canonical R7, R8 and R9 integrated acceptance reports, each bound by file SHA-256/byte length and its own semantic `evidence_sha256`;
-4. a frozen runtime policy requiring Blender 5.2.x with autoexec disabled/offline mode and Godot 4.7 for the R10.10 interoperability proof.
+2. the normalized `docs/continuity/KODEPOIA_CONTINUITY.md`, bound by repository byte length and SHA-256, which preserves exact accepted heads/run metadata when a subdivision intentionally kept those facts in PR/continuity metadata rather than recursively rewriting its acceptance document;
+3. the two frozen REQUIRED local runtime artifacts, `R10_2_LOCAL_ACCEPTANCE.json` and `R10_10_LOCAL_ACCEPTANCE.json`;
+4. the canonical R7, R8 and R9 integrated acceptance reports, each bound by file SHA-256/byte length and its own semantic `evidence_sha256`;
+5. a frozen runtime policy requiring Blender 5.2.x with autoexec disabled/offline mode and Godot 4.7 for the R10.10 interoperability proof.
 
-The verifier re-reads repository bytes and recomputes file identities. A report is invalid if a declared accepted head is absent from its canonical acceptance document, if any manual state is unsatisfied, if local evidence is not `status=pass` with no blockers, if the local runtime no longer binds Blender 5.2/Godot 4.7, or if any prior integrated report is not PASS.
+The verifier re-reads repository bytes and recomputes file identities. A subdivision accepted head must appear either in its immutable acceptance document or in the immutable normalized continuity. A report is invalid if neither contains it, if any manual state is unsatisfied, if local evidence is not `status=pass` with no blockers, if the local runtime no longer binds Blender 5.2/Godot 4.7, or if any prior integrated report is not PASS.
 
 ## Anti-circular sequence
 

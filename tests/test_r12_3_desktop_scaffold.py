@@ -9,6 +9,7 @@ from jsonschema import Draft202012Validator
 
 from kodepoia.core.audit import AuditLog
 from kodepoia.core.backup import BackupManager
+from kodepoia.core.safe_change import SafeChangeManager
 from kodepoia.desktop.scaffold import (
     DesktopScaffoldEngine,
     DesktopTemplateManifest,
@@ -81,6 +82,21 @@ def test_r12_3_workspace_manifest_matches_strict_schema() -> None:
     Draft202012Validator(schema).validate(manifest.to_dict())
 
 
+def test_r12_3_repository_template_manifest_is_strict_and_loadable() -> None:
+    path = ROOT / "templates" / "r12" / "desktop" / "canonical" / "template.json"
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    schema = json.loads(
+        (ROOT / "schemas" / "r12" / "desktop-template-manifest.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    Draft202012Validator(schema).validate(raw)
+    loaded = DesktopTemplateManifest.load(path)
+    assert loaded.template_id == "canonical_desktop"
+    assert loaded.template_version == "1.0.0"
+    assert loaded.digest() == DesktopTemplateManifest.from_dict(raw).digest()
+
+
 def test_r12_3_rejects_path_traversal_reserved_names_and_directives() -> None:
     engine = DesktopScaffoldEngine()
     malicious = DesktopTemplateManifest(
@@ -102,7 +118,7 @@ def test_r12_3_rejects_path_traversal_reserved_names_and_directives() -> None:
         "1.0",
         (TemplateFile("safe.txt", "{% execute shell %}"),),
     )
-    # Non-token text is inert; executable template languages are not interpreted.
+    # Non-token text remains inert; executable template languages are never interpreted.
     files, _ = engine.render(directive, {}, _lineage())
     assert files[0].content == "{% execute shell %}"
 
@@ -169,7 +185,7 @@ def test_r12_3_unowned_existing_file_conflicts_and_is_not_overwritten(tmp_path: 
     assert target.read_text(encoding="utf-8") == "hand written\n"
 
 
-def test_r12_3_regeneration_requires_verified_prior_content_and_backup(tmp_path: Path) -> None:
+def test_r12_3_regeneration_requires_safechange_backup_and_audit(tmp_path: Path) -> None:
     root = tmp_path / "project"
     backups = BackupManager(tmp_path / "backups")
     audit = AuditLog(tmp_path / "audit.jsonl")
@@ -188,18 +204,26 @@ def test_r12_3_regeneration_requires_verified_prior_content_and_backup(tmp_path:
     )
     action = next(item.action for item in changed.items if item.path == "src/SampleApp.cs")
     assert action is PreviewAction.REPLACE
-    with pytest.raises(ValueError, match="BackupManager"):
+    with pytest.raises(ValueError, match="SafeChangeManager and BackupManager"):
         engine.apply(root, changed, audit_log=audit)
 
-    engine.apply(root, changed, backup_manager=backups, audit_log=audit)
+    safe_change = SafeChangeManager(root, root / ".kodepoia" / "snapshots")
+    engine.apply(
+        root,
+        changed,
+        safe_change=safe_change,
+        backup_manager=backups,
+        audit_log=audit,
+    )
     assert target.read_bytes() != old
+    assert any((root / ".kodepoia" / "snapshots").iterdir())
     archives = list((tmp_path / "backups").glob("*.zip"))
     assert len(archives) == 1
     assert backups.verify(archives[0])
     assert audit.verify()
 
 
-def test_r12_3_tampered_kodepoia_file_or_manifest_cannot_authorize_replace(tmp_path: Path) -> None:
+def test_r12_3_tampered_generated_file_cannot_authorize_replace(tmp_path: Path) -> None:
     root = tmp_path / "project"
     engine = DesktopScaffoldEngine()
     first = engine.preview(root, _template("v1 {{identifier:name}}\n"), _values(), _lineage())
@@ -210,11 +234,13 @@ def test_r12_3_tampered_kodepoia_file_or_manifest_cannot_authorize_replace(tmp_p
     changed = engine.preview(root, _template("v2 {{identifier:name}}\n"), _values(), _lineage())
     assert next(item.action for item in changed.items if item.path == "src/SampleApp.cs") is PreviewAction.CONFLICT
 
-    # Even a forged ownership flag must not grant replacement if the current SHA differs
-    # from the previously recorded generated SHA.
+    # Forging only ownership cannot grant replacement: current bytes must still match
+    # the SHA recorded by the previous Kodepoia manifest.
     manifest_path = root / DesktopScaffoldEngine.MANIFEST_PATH
     raw = json.loads(manifest_path.read_text(encoding="utf-8"))
-    raw["files"][0]["ownership"] = "kodepoia"
+    for item in raw["files"]:
+        if item["path"] == "src/SampleApp.cs":
+            item["ownership"] = "kodepoia"
     manifest_path.write_text(json.dumps(raw), encoding="utf-8")
     changed_again = engine.preview(root, _template("v3 {{identifier:name}}\n"), _values(), _lineage())
     assert next(item.action for item in changed_again.items if item.path == "src/SampleApp.cs") is PreviewAction.CONFLICT

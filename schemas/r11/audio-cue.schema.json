@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.invalid/schemas/r11/audio-cue.schema.json",
+  "type": "object",
+  "required": ["schema_version", "cue_id", "category", "playback", "variants", "bus_id", "priority", "max_polyphony", "cooldown_seconds", "duck_bus_id", "loop", "spatialization", "allow_runtime_nondeterminism"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "cue_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "category": {"enum": ["music", "ambience", "sfx", "foley", "ui", "dialogue_support"]},
+    "playback": {"enum": ["one_shot", "loop", "playlist", "weighted"]},
+    "variants": {"type": "array", "minItems": 1, "maxItems": 64},
+    "bus_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "priority": {"type": "integer", "minimum": 0, "maximum": 100},
+    "max_polyphony": {"type": "integer", "minimum": 1, "maximum": 128},
+    "cooldown_seconds": {"type": "number", "minimum": 0, "maximum": 3600},
+    "duck_bus_id": {"type": ["string", "null"]},
+    "loop": {"type": "object"},
+    "spatialization": {"type": "object"},
+    "allow_runtime_nondeterminism": {"type": "boolean"}
+  }
+}

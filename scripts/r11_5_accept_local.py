@@ -12,9 +12,11 @@ from kodepoia.media.serialization import canonical_sha256
 from kodepoia.media.tts import PiperAdapter, SynthesisLimits, SynthesisRequest, synthesize_local
 from kodepoia.media.tts.piper import sha256_file
 from kodepoia.media.voice import AllowedUse, RightsDeclaration, VoiceModelBinding, VoiceProfile
+from kodepoia.models import KodeModelRegistry
 
 _SOURCE_RE = re.compile(r"^[0-9a-f]{40}$")
 _APPROVAL = "I_REVIEWED_AND_APPROVE_THIS_VOICE_LICENSE"
+_DEFAULT_MODEL_ID = "tts.piper.fr-FR.siwis-medium"
 
 
 def _fixture_text(locale: str) -> str:
@@ -35,11 +37,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="R11.5 real local Piper-compatible TTS acceptance collector")
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--piper", required=True, help="Exact existing piper/piper.exe executable path; never downloaded by this script")
-    parser.add_argument("--model", required=True, help="Existing approved .onnx voice model")
-    parser.add_argument("--config", required=True, help="Exact approved <model>.onnx.json sibling")
-    parser.add_argument("--locale", required=True, help="Locale such as fr-FR")
-    parser.add_argument("--license-id", required=True, help="Reviewed per-voice/model license identifier, e.g. cc-by-4.0")
-    parser.add_argument("--provenance-id", required=True, help="Stable provenance identifier for the reviewed voice package")
+    parser.add_argument("--model-id", default=_DEFAULT_MODEL_ID, help="KodeModelRegistry id under repository-local models/")
+    parser.add_argument("--repo-root", default=".", help="Kodepoia repository root containing models/registry/models.json")
     parser.add_argument("--speaker", type=int)
     parser.add_argument("--approval", required=True, help=f"Must equal {_APPROVAL}")
     parser.add_argument("--output", required=True)
@@ -51,40 +50,47 @@ def main() -> int:
         raise SystemExit(f"--approval must be exactly {_APPROVAL} after you review the voice/model license")
 
     piper = Path(args.piper).resolve(strict=True)
-    model = Path(args.model).resolve(strict=True)
-    config = Path(args.config).resolve(strict=True)
     if piper.name.lower() not in {"piper", "piper.exe"}:
         raise SystemExit("--piper must point to the piper or piper.exe console executable")
-    if model.suffix.lower() != ".onnx":
-        raise SystemExit("--model must be an existing .onnx file")
-    if config.suffix.lower() != ".json":
-        raise SystemExit("--config must be an existing .json file")
-    expected_config = model.with_name(model.name + ".json")
-    if config != expected_config:
-        raise SystemExit("--config must be the exact <model>.onnx.json sibling next to --model")
+
+    registry = KodeModelRegistry(Path(args.repo_root))
+    try:
+        model_manifest = registry.manifest(args.model_id)
+        model = registry.resolve_file(args.model_id, "model", verify=True)
+        config = registry.resolve_file(args.model_id, "config", verify=True)
+    except (FileNotFoundError, KeyError, ValueError) as exc:
+        raise SystemExit(f"KodeModelRegistry rejected local model {args.model_id!r}: {exc}") from exc
+
+    if model_manifest.purpose != "tts" or model_manifest.backend != "piper-compatible":
+        raise SystemExit("selected model manifest is not an accepted Piper-compatible TTS model")
+    if model_manifest.locale is None:
+        raise SystemExit("selected TTS model manifest must declare locale")
+    if AllowedUse.INTERNAL.value not in model_manifest.allowed_uses:
+        raise SystemExit("selected TTS model manifest does not permit internal acceptance use")
 
     model_sha = sha256_file(model)
     config_sha = sha256_file(config, max_bytes=16 * 1024 * 1024)
+    manifest_digest = canonical_sha256(model_manifest.canonical())
     rights = RightsDeclaration(
-        provenance_id=args.provenance_id,
-        license_id=args.license_id,
+        provenance_id=model_manifest.provenance_id,
+        license_id=model_manifest.license_id,
         allowed_uses=(AllowedUse.INTERNAL,),
-        source_uri_id=f"{args.provenance_id}.model-card",
+        source_uri_id=f"{model_manifest.provenance_id}.model-card",
     )
     binding = VoiceModelBinding(
         binding_id="binding.r11.5.local",
         backend_id="piper-compatible",
         model_sha256=model_sha,
         config_sha256=config_sha,
-        locale=args.locale,
+        locale=model_manifest.locale,
         rights=rights,
         speaker_id=None if args.speaker is None else f"speaker.{args.speaker}",
-        display_label="R11.5 approved local synthetic voice",
+        display_label="R11.5 approved repository-local synthetic voice",
     )
     profile = VoiceProfile(
         profile_id="voice.r11.5.local",
         scope_id="acceptance.r11.5",
-        locale=args.locale,
+        locale=model_manifest.locale,
         display_name="R11.5 local acceptance voice",
     )
     request = SynthesisRequest.from_profile(
@@ -143,12 +149,14 @@ def main() -> int:
         "blockers": sorted(set(blockers)),
         "approval": {
             "license_reviewed": True,
-            "license_id": args.license_id,
-            "provenance_id": args.provenance_id,
+            "license_id": model_manifest.license_id,
+            "provenance_id": model_manifest.provenance_id,
             "allowed_use": AllowedUse.INTERNAL.value,
             "locale": binding.locale,
         },
         "voice_identity": {
+            "model_id": model_manifest.model_id,
+            "manifest_digest": manifest_digest,
             "model_sha256": model_sha,
             "config_sha256": config_sha,
             "binding_digest": binding.digest(),

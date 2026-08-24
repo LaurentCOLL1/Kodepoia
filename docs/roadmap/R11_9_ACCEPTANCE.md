@@ -1,6 +1,6 @@
 # R11.9 — Acceptance
 
-Status: **HOSTED IMPLEMENTATION ACCEPTED — REQUIRED LOCAL GATE FROZEN / NOT YET RUN**  
+Status: **HOSTED IMPLEMENTATION ACCEPTED — REQUIRED LOCAL GATE PRE-GATE BLOCKED / NOT YET RUN**  
 Manual intervention: **REQUIRED**
 
 ## Branch point and scope
@@ -15,7 +15,7 @@ Manual intervention: **REQUIRED**
 
 ### Superseded candidate
 
-`13832f63c8513962547845a86de655f2affcdca8` passed R0 #1418 / `32752786958`, Python #1392 / `32752787149`, and UI #1359 / `32752787060`; Ubuntu reported **1016 passed / 8 skipped / 46 warnings** and R7/R8/R9 PASS. It is **not** the manual candidate because Web verification of official Godot 4.7 Windows distribution names exposed an over-restrictive collector basename allowlist. That candidate remains historical green evidence only.
+`13832f63c8513962547845a86de655f2affcdca8` passed R0 #1418 / `32752786958`, Python #1392 / `32752787149`, and UI #1359 / `32752787060`; Ubuntu reported **1016 passed / 8 skipped / 46 warnings** and R7/R8/R9 PASS. It is historical green evidence only.
 
 ### Accepted implementation candidate
 
@@ -29,76 +29,144 @@ Exact manual candidate: **`087eae19ea03dd544d75a08c1eb348fe187624c5`**.
   - Windows package build: SUCCESS.
   - internal KodeStudio smoke: SUCCESS.
 - KodeStudio UI Smoke: #1360 / `32753163936` — SUCCESS.
+- Frozen-procedure documentation head `a5f1566ea823be5b0a5396663ab83aeffc6c409e`: R0 #1420, Python #1394 and UI #1361 — SUCCESS.
 
 Focused R11.9 tests prove R11.8 shot/digest/timebase binding, typed-only assembly intent, fixed R5 movie argv, failure/timeout/cancel propagation, fixed trusted synthetic fixture, fixed ffprobe query, fail-closed FPS/resolution/stream/size/A-V drift checks, and schema validation.
 
-## REQUIRED local checkpoint — frozen procedure
+## First local preflight attempt — NOT A GATE FAILURE
 
-Real Godot 4.7 Movie Maker/import/render/audio behavior cannot be established from fake runners or hosted tests. Run **only** the following checkpoint against candidate `087eae19ea03dd544d75a08c1eb348fe187624c5`.
+The first user attempt on 2026-08-24 did not enter the real collector gate:
 
-### Prerequisites
+- local HEAD was `a9862b3bf475b259fe154d1e2486116ad04602f3` (R11.5-era local state);
+- candidate `087eae19ea03dd544d75a08c1eb348fe187624c5` was not present in the local object database;
+- therefore `scripts/r11_9_local_acceptance.py` was also absent from the checked-out worktree;
+- Godot 4.7 was not discoverable through `PATH` by `Get-Command`;
+- `ffprobe` was discoverable.
 
-- Work from the local Kodepoia repository.
-- The working tree must be clean before switching SHA.
-- Python environment/dependencies already used for Kodepoia must already work. **Do not run pip/install/update during this gate.**
-- Godot 4.7 must already be installed. Official names such as `Godot_v4.7-stable_win64.exe` and `Godot_v4.7.1-stable_win64.exe` are accepted; the collector still validates the reported engine version as 4.7.x.
-- `ffprobe` must already be installed and callable. **Do not install FFmpeg/ffprobe during this gate.**
-- No network access, download, private project, personal recording or private asset is required.
+This is a **pre-gate prerequisite block**, not FAIL evidence. An exact Git synchronization is permitted before the gate. The no-network rule starts only after the candidate and local runtime paths have been resolved.
 
-### PowerShell procedure
+## REQUIRED local checkpoint — corrected frozen procedure
 
-Run from the Kodepoia repository root:
+Real Godot 4.7 Movie Maker/import/render/audio behavior cannot be established from fake runners or hosted tests. Run the following from the local Kodepoia repository.
+
+### Phase A — pre-gate synchronization and runtime discovery
+
+Network access is permitted only for the exact Git fetch below. Do not install/update Python packages, Godot, FFmpeg, codecs or plugins as part of the gate.
+
+Paste this as **one PowerShell script block** so a failure stops the remainder instead of producing cascading errors:
 
 ```powershell
-$SourceSha = "087eae19ea03dd544d75a08c1eb348fe187624c5"
+& {
+    $ErrorActionPreference = "Stop"
+    $SourceSha = "087eae19ea03dd544d75a08c1eb348fe187624c5"
+    $RemoteBranch = "r11/9-godot-cinematic-capture"
 
-if (git status --porcelain) {
-    throw "Working tree is not clean. Stop: do not stash, reset, or discard files for R11.9."
-}
+    if (git status --porcelain) {
+        throw "Working tree is not clean. Stop: do not stash, reset, or discard files for R11.9."
+    }
 
-git cat-file -e "$SourceSha^{commit}"
-if ($LASTEXITCODE -ne 0) {
-    throw "R11.9 candidate is not available locally. Stop and report this; do not fetch/download during the gate."
-}
+    Write-Host "[PRE-GATE] Fetching only the R11.9 branch so the accepted candidate exists locally..."
+    git fetch --no-tags origin $RemoteBranch
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to fetch the R11.9 branch from origin. Stop and return this error."
+    }
 
-git switch --detach $SourceSha
-$Head = (git rev-parse HEAD).Trim()
-if ($Head -ne $SourceSha) {
-    throw "Wrong HEAD: expected $SourceSha, got $Head"
-}
+    git cat-file -e "$SourceSha^{commit}"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Accepted R11.9 candidate is still unavailable after the branch fetch. Stop and return this error."
+    }
 
-$GodotCmd = Get-Command godot -ErrorAction SilentlyContinue
-if (-not $GodotCmd) { $GodotCmd = Get-Command godot4 -ErrorAction SilentlyContinue }
-if (-not $GodotCmd) { $GodotCmd = Get-Command "Godot_v4.7*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 }
-if (-not $GodotCmd) {
-    throw "Existing Godot 4.7 executable was not found through PATH. Stop and report the path/location situation; do not install or download anything."
-}
-$Godot = $GodotCmd.Source
+    $GodotCmd = Get-Command godot -ErrorAction SilentlyContinue
+    if (-not $GodotCmd) { $GodotCmd = Get-Command godot4 -ErrorAction SilentlyContinue }
 
-$FfprobeCmd = Get-Command ffprobe -ErrorAction SilentlyContinue
-if (-not $FfprobeCmd) {
-    throw "Existing ffprobe executable was not found through PATH. Stop and report this; do not install or download anything."
-}
-$Ffprobe = $FfprobeCmd.Source
+    if ($GodotCmd) {
+        $Godot = $GodotCmd.Source
+    } else {
+        $SearchRoots = @(
+            (Join-Path $env:USERPROFILE "Downloads"),
+            (Join-Path $env:USERPROFILE "Desktop"),
+            (Join-Path $env:LOCALAPPDATA "Programs"),
+            $env:ProgramFiles,
+            [Environment]::GetFolderPath("ProgramFilesX86")
+        ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -Unique
 
-$Evidence = Join-Path $env:TEMP "KODEPOIA_R11_9_LOCAL_ACCEPTANCE.json"
-Remove-Item $Evidence -ErrorAction SilentlyContinue
+        $GodotCandidates = @(
+            foreach ($Root in $SearchRoots) {
+                Get-ChildItem -LiteralPath $Root -Filter "Godot*.exe" -File -Recurse -ErrorAction SilentlyContinue |
+                    Where-Object { $_.Name -match '(?i)^Godot.*4\.7' }
+            }
+        ) | Sort-Object FullName -Unique
 
-python scripts/r11_9_local_acceptance.py `
-  --source-sha $SourceSha `
-  --godot "$Godot" `
-  --ffprobe "$Ffprobe" `
-  --output "$Evidence"
-$CollectorExit = $LASTEXITCODE
+        if ($GodotCandidates.Count -eq 0) {
+            throw "No existing Godot 4.7 executable was found in PATH or common Windows locations. Stop and report this; do not run the collector."
+        }
+        if ($GodotCandidates.Count -gt 1) {
+            $GodotCandidates | Select-Object FullName | Format-Table -AutoSize
+            throw "Multiple Godot 4.7 executables were found. Stop and return the list so one exact executable can be frozen."
+        }
+        $Godot = $GodotCandidates[0].FullName
+    }
 
-if (-not (Test-Path $Evidence)) {
-    throw "R11.9 collector did not produce its JSON evidence file. Stop and return the console output."
-}
+    $GodotVersion = (& $Godot --version | Select-Object -First 1).Trim()
+    if ($LASTEXITCODE -ne 0 -or $GodotVersion -notmatch '^4\.7(?:\.|-|$)') {
+        throw "Resolved Godot is not a working 4.7.x runtime: $GodotVersion"
+    }
 
-Get-Content $Evidence -Raw
+    $FfprobeCmd = Get-Command ffprobe -ErrorAction SilentlyContinue
+    if (-not $FfprobeCmd) {
+        throw "Existing ffprobe executable was not found through PATH. Stop and report this; do not install/download during the gate."
+    }
+    $Ffprobe = $FfprobeCmd.Source
 
-if ($CollectorExit -ne 0) {
-    throw "R11.9 local acceptance returned FAIL. Return the complete JSON above; do not edit, convert, or retry with a private project."
+    $PythonExe = (python -c "import sys; print(sys.executable)").Trim()
+    if ($LASTEXITCODE -ne 0) {
+        throw "Python is not callable from the active Kodepoia environment."
+    }
+
+    Write-Host "[PRE-GATE] Candidate available : $SourceSha"
+    Write-Host "[PRE-GATE] Godot              : $Godot"
+    Write-Host "[PRE-GATE] Godot version      : $GodotVersion"
+    Write-Host "[PRE-GATE] ffprobe            : $Ffprobe"
+    Write-Host "[PRE-GATE] Python             : $PythonExe"
+
+    Write-Host "[GATE] From this point onward: no fetch/download/install/update."
+
+    git switch --detach $SourceSha
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to detach to the accepted R11.9 candidate."
+    }
+
+    $Head = (git rev-parse HEAD).Trim()
+    if ($Head -ne $SourceSha) {
+        throw "Wrong HEAD: expected $SourceSha, got $Head"
+    }
+    if (git status --porcelain) {
+        throw "Working tree changed while switching to the candidate. Stop."
+    }
+    if (-not (Test-Path -LiteralPath "scripts/r11_9_local_acceptance.py")) {
+        throw "R11.9 collector is missing on the accepted candidate. Stop."
+    }
+
+    $Evidence = Join-Path $env:TEMP "KODEPOIA_R11_9_LOCAL_ACCEPTANCE.json"
+    Remove-Item $Evidence -ErrorAction SilentlyContinue
+
+    python scripts/r11_9_local_acceptance.py `
+      --source-sha $SourceSha `
+      --godot "$Godot" `
+      --ffprobe "$Ffprobe" `
+      --output "$Evidence"
+    $CollectorExit = $LASTEXITCODE
+
+    if (-not (Test-Path -LiteralPath $Evidence)) {
+        throw "R11.9 collector did not produce its JSON evidence file. Stop and return the console output."
+    }
+
+    $EvidenceText = Get-Content $Evidence -Raw
+    Write-Output $EvidenceText
+
+    if ($CollectorExit -ne 0) {
+        throw "R11.9 local acceptance returned FAIL. Return the complete JSON above; do not edit/convert/retry against a private project."
+    }
 }
 ```
 
@@ -115,25 +183,25 @@ The JSON must have all of the following without manual editing:
 - five synthetic fixture hashes;
 - `assembly.command_policy_id = "r11.9.godot.capture.v1"`;
 - capture `status = "pass"`, 640×360, 30 FPS, expected 90 frames/3 s;
-- exactly the verifier-accepted audio facts and A/V sync error within the frozen tolerance;
+- verifier-accepted audio facts and A/V sync error within the frozen tolerance;
 - capture SHA-256/byte count and evidence digest.
 
-The temporary Godot project and AVI are destroyed automatically after verification. **Do not attempt to preserve or commit the AVI.**
+The temporary Godot project and AVI are destroyed automatically after verification. Do not attempt to preserve or commit the AVI.
 
 ### Failure recovery / stop rules
 
-If any prerequisite check, version check, renderer/movie-writer operation, timeout/cancel check, ffprobe verification, duration check or A/V sync check fails:
+If pre-gate discovery finds no Godot 4.7, or finds more than one candidate, stop and return that result before the collector. If the real gate starts and any version, renderer/movie-writer, timeout/cancel, ffprobe, duration or A/V sync check fails:
 
-1. Do not edit generated files.
-2. Do not convert the AVI.
-3. Do not run against another/private project.
-4. Do not install/download a codec, plugin, Godot build or FFmpeg build during the gate.
-5. Return the complete generated JSON when present, plus the final PowerShell error line when no JSON is produced.
-6. R11.9 remains blocked; R11.10 and later subdivisions remain forbidden.
+1. do not edit generated files;
+2. do not convert the AVI;
+3. do not run against another/private project;
+4. do not install/download a codec, plugin, Godot build or FFmpeg build during the gate;
+5. return the complete generated JSON when present, plus the final PowerShell error line when no JSON is produced;
+6. R11.9 remains blocked and R11.10+ remain forbidden.
 
 ### Evidence to return
 
-Return **the complete JSON printed by `Get-Content $Evidence -Raw`**. The accepted schema intentionally omits local filesystem paths, usernames, private project names and private media. If an unexpected console line contains a personal path, redact only that console line; do not alter the JSON.
+Return the complete JSON printed by the script block. The accepted schema intentionally omits local filesystem paths, usernames, private project names and private media.
 
 ## Completion ordering after manual PASS
 

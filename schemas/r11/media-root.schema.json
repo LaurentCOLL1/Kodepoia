@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.invalid/schemas/r11/media-root.schema.json",
+  "title": "Kodepoia R11 media root",
+  "type": "object",
+  "required": ["schema", "version", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"type": "string", "pattern": "^kodepoia\\.r11\\."},
+    "version": {"const": 1},
+    "payload": {"type": "object"}
+  }
+}

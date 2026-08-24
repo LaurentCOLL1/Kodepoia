@@ -4,7 +4,7 @@
 
 Avalonia cross-platform desktop adapter with platform-partitioned Windows/Linux/macOS evidence.
 
-Manual intervention: **CONDITIONAL**. Trigger only if a platform runtime claim required by the frozen acceptance cannot be proven by the selected hosted CI target.
+Manual intervention: **CONDITIONAL / NOT TRIGGERED**. Hosted CI established every selected platform claim.
 
 ## Required acceptance
 
@@ -22,13 +22,24 @@ Manual intervention: **CONDITIONAL**. Trigger only if a platform runtime claim r
 - missing/incompatible capability is explicit and cannot become PASS;
 - exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + the complete three-OS `R12 Avalonia Acceptance` matrix all succeed.
 
-## Evidence state
+## Accepted implementation evidence
 
 Base normalized `main`: `47ca9463015d652ead0b21a2e9a7030377a0c695`.
 Branch: `r12/7-avalonia-cross-platform`.
+PR: #199.
+Accepted implementation head: `57432a90c439abbbbcc6a8b2de76dcd7d917b8a2`.
 
-Exact implementation SHA and workflow run IDs are **PENDING** until the branch is frozen and independently gated. A partial OS matrix cannot be promoted to accepted cross-platform evidence.
+- R0 Repository Guard #1509 / `32787159628` — **SUCCESS**.
+- Python Core #1483 / `32787159636` — **SUCCESS**.
+- KodeStudio UI Smoke #1450 / `32787159647` — **SUCCESS**.
+- R12 Avalonia Acceptance #2 / `32787159696` — **SUCCESS** on Windows, Ubuntu and macOS independently.
+- WPF regression #16 / `32787159633` — **SUCCESS**.
+- WinUI regression #6 / `32787159622` — **SUCCESS**.
+
+The rejected predecessor `abbfa7677014b26fb60ecee335dec4a3a2f34488` exposed an overly strict internal assembly-name check on macOS. The accepted head validates public Avalonia type identities instead. macOS ARM64, Ubuntu and Windows all restored exact Avalonia `12.1.1`, built the canonical application and executed their platform-specific runtime probe. No manual platform evidence was required.
+
+Recording this evidence changes repository bytes. Re-gate the resulting final documentation head with R0 + Python + UI + the complete Avalonia matrix before merge.
 
 ## Merge / normalization rule
 
-After accepted evidence is recorded, re-gate the resulting final documentation head with R0 + Python + UI + complete Avalonia matrix. Merge with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization and gate that exact head with the same acceptance set. R12.8 remains forbidden until normalization merges.
+Merge PR #199 only after the final documentation head passes the fresh acceptance set, using `expected_head_sha`. Then perform exactly one continuity-only post-merge normalization and gate that exact head with R0 + Python + UI + complete Avalonia matrix before merge. R12.8 remains forbidden until normalization merges.

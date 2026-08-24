@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from jsonschema import validate
 
 from kodepoia.media.contracts import MediaState
@@ -43,12 +44,21 @@ def test_registry_rejects_duplicate_backend_identity() -> None:
     )
     registry.register(descriptor)
     assert registry.get("piper-compatible") == descriptor
-    try:
+    with pytest.raises(ValueError, match="already registered"):
         registry.register(descriptor)
-    except ValueError as exc:
-        assert "already registered" in str(exc)
-    else:
-        raise AssertionError("duplicate backend registration must fail")
+
+
+def test_network_required_backend_is_rejected() -> None:
+    with pytest.raises(ValueError, match="must not require network"):
+        TTSBackendCapabilities(
+            backend_id="cloud-like",
+            supports_explicit_model_path=False,
+            supports_explicit_config_path=False,
+            supports_output_wav=True,
+            supports_speaker_id=False,
+            supports_length_scale=False,
+            network_required=True,
+        )
 
 
 def test_godot_system_tts_is_accessibility_only_and_never_canonical_production() -> None:
@@ -106,3 +116,37 @@ def test_cache_record_schema_accepts_canonical_record() -> None:
     )
     schema = json.loads(Path("schemas/r11/tts-cache-record.schema.json").read_text(encoding="utf-8"))
     validate(instance=record.canonical(), schema=schema)
+
+
+def test_local_acceptance_schema_accepts_privacy_minimized_representative_evidence() -> None:
+    evidence = {
+        "schema": "kodepoia.r11_5_local_acceptance",
+        "version": 1,
+        "source_sha": "a" * 40,
+        "status": "pass",
+        "blockers": [],
+        "approval": {
+            "license_reviewed": True,
+            "license_id": "cc-by-4.0",
+            "provenance_id": "prov.voice.fixture",
+            "allowed_use": "internal",
+            "locale": "fr-FR",
+        },
+        "voice_identity": {
+            "model_sha256": "b" * 64,
+            "config_sha256": "c" * 64,
+            "binding_digest": "d" * 64,
+            "profile_digest": "e" * 64,
+        },
+        "capability": {},
+        "synthesis": {},
+        "privacy": {
+            "private_recording_used": False,
+            "voice_clone_used": False,
+            "network_download_performed_by_collector": False,
+            "audio_retained": False,
+        },
+        "evidence_digest": "f" * 64,
+    }
+    schema = json.loads(Path("schemas/r11/tts-local-acceptance.schema.json").read_text(encoding="utf-8"))
+    validate(instance=evidence, schema=schema)

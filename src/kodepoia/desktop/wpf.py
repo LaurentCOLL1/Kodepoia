@@ -29,7 +29,7 @@ class WpfAcceptanceResult:
     artifacts: tuple[WpfArtifact, ...]
 
     def to_dict(self) -> dict[str, object]:
-        return {"adapter": self.report.canonical(), "model_sha256": self.model_sha256, "build": {"returncode": self.build.returncode}, "test": {"returncode": self.test.returncode, "stdout": self.test.stdout.strip()}, "artifacts": [a.__dict__ if hasattr(a, "__dict__") else {"path": a.path, "size": a.size, "sha256": a.sha256} for a in self.artifacts]}
+        return {"adapter": self.report.canonical(), "model_sha256": self.model_sha256, "build": {"returncode": self.build.returncode}, "test": {"returncode": self.test.returncode, "stdout": self.test.stdout.strip()}, "artifacts": [{"path": a.path, "size": a.size, "sha256": a.sha256} for a in self.artifacts]}
 
 
 class WpfAdapter:
@@ -41,6 +41,13 @@ class WpfAdapter:
         self.project_root = Path(project_root).resolve(strict=False)
         self.staging_root = Path(staging_root).resolve(strict=False)
         self.fixture_root = self.project_root / ".kodepoia" / "fixtures" / "wpf"
+        self.last_diagnostic = ""
+
+    def _failure(self, identity: DesktopToolchainIdentity, blocker: str, result: SandboxResult | None = None) -> DesktopCapabilityReport:
+        if result is not None:
+            text = (result.stderr or result.stdout).strip().replace("\x00", "")
+            self.last_diagnostic = text[-8000:]
+        return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.FAILED, toolchain=identity, blockers=(blocker,))
 
     @staticmethod
     def _sha(path: Path) -> str:
@@ -66,6 +73,7 @@ class WpfAdapter:
         probe = ProcessSandbox(self.project_root, {dotnet.name}).run(boundary.build_probe_argv(DesktopToolKind.DOTNET, dotnet), cwd=self.project_root, timeout=30)
         version = probe.stdout.strip()
         if probe.returncode != 0 or not version:
+            self.last_diagnostic = (probe.stderr or probe.stdout)[-8000:]
             return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.FAILED, blockers=("dotnet_probe_failed",))
         try:
             major = int(version.split(".", 1)[0])
@@ -103,15 +111,15 @@ class WpfAdapter:
         for project in (app, harness):
             p = boundary.validate_project_file(project, suffixes=frozenset({".csproj"}))
             r = sandbox.run((str(dotnet), "restore", str(p), "--nologo"), cwd=self.project_root, timeout=120)
-            if r.returncode != 0: return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.FAILED, toolchain=identity, blockers=("restore_failed",))
+            if r.returncode != 0: return self._failure(identity, "restore_failed", r)
         build = sandbox.run(boundary.build_dotnet_argv(dotnet, operation="build", project_file=app, configuration="Release"), cwd=self.project_root, timeout=180)
-        if build.returncode != 0: return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.FAILED, toolchain=identity, blockers=("wpf_build_failed",))
+        if build.returncode != 0: return self._failure(identity, "wpf_build_failed", build)
         hb = sandbox.run(boundary.build_dotnet_argv(dotnet, operation="build", project_file=harness, configuration="Release"), cwd=self.project_root, timeout=180)
-        if hb.returncode != 0: return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.FAILED, toolchain=identity, blockers=("wpf_test_build_failed",))
+        if hb.returncode != 0: return self._failure(identity, "wpf_test_build_failed", hb)
         dll = boundary.validate_staging_path(self.staging_root / "harness" / "Release" / self.TARGET / "KodepoiaWpfHarness.dll")
-        if not dll.is_file(): return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.FAILED, toolchain=identity, blockers=("test_artifact_missing",))
+        if not dll.is_file(): return self._failure(identity, "test_artifact_missing")
         test = sandbox.run((str(dotnet), str(dll)), cwd=self.project_root, timeout=60)
-        if test.returncode != 0 or f"{self.SENTINEL}:{digest}" not in test.stdout: return DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.FAILED, toolchain=identity, blockers=("wpf_runtime_test_failed",))
+        if test.returncode != 0 or f"{self.SENTINEL}:{digest}" not in test.stdout: return self._failure(identity, "wpf_runtime_test_failed", test)
         artifacts = tuple(WpfArtifact(p.relative_to(self.staging_root).as_posix(), p.stat().st_size, self._sha(p)) for p in sorted(x for x in self.staging_root.rglob("*") if x.is_file()))
         report = DesktopCapabilityReport(self.ADAPTER_ID, DesktopCapabilityState.AVAILABLE, toolchain=identity, capabilities=("build_ready", "restore_ready", "runtime_smoke_ready", "test_ready", "windows_only"))
         return WpfAcceptanceResult(report, digest, build, test, artifacts)

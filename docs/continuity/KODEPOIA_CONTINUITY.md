@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.5 COMPLETE + NORMALIZED. R12.6 implementation/evidence ACCEPTED + MERGED via PR #197, merge `62edf1540c4da7689e86d6a391087a9bc50ae1c3`. Final R12.6 head `c5b98d71cc279018745c83c8edc81a23e8df4b22`: R0 #1504 / `32786268565`, Python #1478 / `32786268605`, UI #1445 / `32786268585`, WPF regression #13 / `32786268628`, R12 WinUI3 Acceptance #3 / `32786268572`, tous SUCCESS. Manual CONDITIONAL NOT TRIGGERED. Exactly one continuity-only normalization is in progress; R12.7 remains forbidden until its exact-head standard + WinUI gate succeeds and it merges.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.6 COMPLETE + NORMALIZED. R12.6 final head `c5b98d71cc279018745c83c8edc81a23e8df4b22`: R0 #1504 / `32786268565`, Python #1478 / `32786268605`, UI #1445 / `32786268585`, WPF #13 / `32786268628`, WinUI #3 / `32786268572`, tous SUCCESS; PR #197 merge `62edf1540c4da7689e86d6a391087a9bc50ae1c3`. Single normalization `fabd6c86ca9f1302576db7cd5e794faab1042bc0`: R0 #1506 / `32786517826`, Python #1480 / `32786517750`, UI #1447 / `32786517737`, WPF #14 / `32786517811`, WinUI #4 / `32786517785`, tous SUCCESS; PR #198 merge `47ca9463015d652ead0b21a2e9a7030377a0c695`. Manual R12.6 CONDITIONAL NOT TRIGGERED. R12.7 Avalonia est en implémentation sur branche dédiée depuis ce normalized main; R12.8 reste interdit avant R12.7 COMPLETE + NORMALIZED.**
 
 ## État global
 
@@ -12,27 +12,17 @@
 - Architecture v1.0 gelée; `main` après chaque merge accepté est source de vérité.
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
-- R12.1–R12.5 : **COMPLETE + NORMALIZED**.
-- R12.6 : **ACCEPTED + MERGED / CONTINUITY NORMALIZATION PENDING**.
-- R12.7–R12.16 : **PLANNED / NOT STARTED**.
+- R12.1–R12.6 : **COMPLETE + NORMALIZED**.
+- R12.7 : **IMPLEMENTATION / ACCEPTANCE PENDING**.
+- R12.8–R12.16 : **PLANNED / NOT STARTED**.
 
 ## Recent closure authority
 
-### R12.5
-- Final documentation head `07181f30c9326dcb05bafc93da86e0fdb67de8a0`: R0 #1498 / `32782373299`, Python #1472 / `32782373210`, UI #1439 / `32782373424`, WPF #9 / `32782373004` — SUCCESS; PR #195 merge `9b9e0060520fec664e90b4c833245dade2c86287`.
-- Single continuity normalization `676edfec7d028f06ecb5d4ef490555b70e5254ea`: R0 #1500 / `32785594679`, Python #1474 / `32785594639`, UI #1441 / `32785594705`, WPF #10 / `32785594643` — SUCCESS; PR #196 merge `f84762085282eccc2e2c26ee1c0ccf62fbdfcf49`.
-- Manual CONDITIONAL NOT TRIGGERED. **R12.5 COMPLETE + NORMALIZED.**
-
-## R12.6 closure in progress
-
-- Base normalized `main`: `f84762085282eccc2e2c26ee1c0ccf62fbdfcf49`.
-- Implementation branch `r12/6-winui3-windows-app-sdk`; PR #197; Manual **CONDITIONAL / NOT TRIGGERED**.
+### R12.6
 - Accepted implementation candidate `b990a613d6becbc80e637ea0184f87b502573b74`: R0 #1502 / `32786054869`, Python #1476 / `32786054919`, UI #1443 / `32786054865`, WPF #11 / `32786054841`, WinUI #1 / `32786054895` — SUCCESS.
-- Final documentation head `c5b98d71cc279018745c83c8edc81a23e8df4b22`: R0 #1504 / `32786268565`, Python #1478 / `32786268605`, UI #1445 / `32786268585`, WPF #13 / `32786268628`, WinUI #3 / `32786268572` — SUCCESS.
-- Hosted Windows proved documented WinUI template availability, exact Windows App SDK restore, canonical WinUI build, deterministic identity/deployment metadata and WinUI runtime loading without Developer Mode or production signing.
-- PR #197 merge `62edf1540c4da7689e86d6a391087a9bc50ae1c3`.
-- Current branch `r12/6-postmerge-continuity-normalization` is the **single authorized** R12.6 continuity-only normalization and MUST change only this file.
-- Accepted exact-head R0 + Python + UI + WinUI gates and merge make **R12.6 COMPLETE + NORMALIZED** and authorize R12.7.
+- Final documentation head `c5b98d71cc279018745c83c8edc81a23e8df4b22`: R0 #1504 / `32786268565`, Python #1478 / `32786268605`, UI #1445 / `32786268585`, WPF #13 / `32786268628`, WinUI #3 / `32786268572` — SUCCESS; PR #197 merge `62edf1540c4da7689e86d6a391087a9bc50ae1c3`.
+- Single continuity normalization `fabd6c86ca9f1302576db7cd5e794faab1042bc0`: R0 #1506 / `32786517826`, Python #1480 / `32786517750`, UI #1447 / `32786517737`, WPF #14 / `32786517811`, WinUI #4 / `32786517785` — SUCCESS; PR #198 merge `47ca9463015d652ead0b21a2e9a7030377a0c695`.
+- Manual CONDITIONAL NOT TRIGGERED. **R12.6 COMPLETE + NORMALIZED.**
 
 ## Frozen R12 subdivision index
 
@@ -55,6 +45,14 @@
 | R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | NONE |
 | R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | CONDITIONAL |
 
+## R12.7 acceptance in progress
+
+- Base normalized `main`: `47ca9463015d652ead0b21a2e9a7030377a0c695`.
+- Branch `r12/7-avalonia-cross-platform`; Manual **CONDITIONAL**, triggered only if a platform claim selected by frozen acceptance cannot be proven in hosted CI.
+- Delivered schema-backed desktop-only `AvaloniaTargetMatrix`, deterministic common-model adapter, exact Avalonia `12.1.1` dependency pin, `net10.0` accepted target, repository-owned Avalonia XAML app, platform-specific runtime probe and Windows/Linux/macOS evidence partitioning.
+- Dedicated matrix workflow builds/probes the exact candidate independently on Windows, Ubuntu and macOS. Assembly/runtime evidence does not manufacture an interactive native-window-rendering claim.
+- Exact implementation candidate/run IDs: **PENDING** until branch freeze and exact-head gates.
+
 ## Permanent boundaries
 
 Workspace/R8 Vault boundaries; ProcessSandbox + KillSwitch; Guardian/PermissionSet; SafeChange/Backup/Recovery/Audit; KodeSecrets/redaction; R6 governance/security/privacy/license/build/accessibility/localization; R7 ResearchGuard; R8 lineage/provenance/cache/export; R9 AI resource arbitration; R10 3D authority; R11 media/runtime/privacy/evidence boundaries remain in force. Structured APIs only. Network off by default. Exact-head evidence mandatory. Missing evidence never manufactures PASS.
@@ -67,4 +65,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.6 continuity normalization only.** Gate its exact head with R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R12 WinUI3 Acceptance and merge with `expected_head_sha`. **Only that merge authorizes R12.7.**
+**Freeze and gate R12.7 only.** Require exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + complete Windows/Linux/macOS `R12 Avalonia Acceptance`. If accepted, record evidence, re-gate final docs, merge, then perform exactly one post-merge continuity normalization. **R12.8 remains forbidden until that normalization merges.**

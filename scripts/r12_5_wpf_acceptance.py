@@ -22,9 +22,13 @@ def main() -> int:
     staging = work / "staging"
     work.mkdir(parents=True, exist_ok=True)
     staging.mkdir(parents=True, exist_ok=True)
-    result = WpfAdapter(ROOT, staging).run_acceptance(canonical_sample_app())
+    adapter = WpfAdapter(ROOT, staging)
+    result = adapter.run_acceptance(canonical_sample_app())
     if isinstance(result, DesktopCapabilityReport):
         print(json.dumps(result.canonical(), indent=2, sort_keys=True))
+        if adapter.last_diagnostic:
+            print("--- bounded WPF diagnostic ---", file=sys.stderr)
+            print(adapter.last_diagnostic, file=sys.stderr)
         return 2 if result.state in {DesktopCapabilityState.UNAVAILABLE, DesktopCapabilityState.UNSUPPORTED} else 1
     assert isinstance(result, WpfAcceptanceResult)
     write_wpf_acceptance_report(result, ROOT / args.output)

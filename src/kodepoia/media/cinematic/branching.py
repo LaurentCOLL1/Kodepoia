@@ -64,15 +64,21 @@ def evaluate_branch(condition: BranchCondition, context: Mapping[str, object]) -
         raise KeyError(condition.context_key)
     actual = _scalar(context[condition.context_key], field="actual")
     expected = _scalar(condition.expected, field="expected")
-    if condition.operator in {BranchOperator.GT, BranchOperator.GTE, BranchOperator.LT, BranchOperator.LTE}:
+    if condition.operator is BranchOperator.EQ:
+        result = actual == expected
+    elif condition.operator is BranchOperator.NE:
+        result = actual != expected
+    else:
         if isinstance(actual, bool) or isinstance(expected, bool) or not isinstance(actual, (int, float)) or not isinstance(expected, (int, float)):
             raise TypeError("ordered branch operators require numeric scalars")
-    result = {
-        BranchOperator.EQ: actual == expected,
-        BranchOperator.NE: actual != expected,
-        BranchOperator.GT: actual > expected,
-        BranchOperator.GTE: actual >= expected,
-        BranchOperator.LT: actual < expected,
-        BranchOperator.LTE: actual <= expected,
-    }[condition.operator]
+        if condition.operator is BranchOperator.GT:
+            result = actual > expected
+        elif condition.operator is BranchOperator.GTE:
+            result = actual >= expected
+        elif condition.operator is BranchOperator.LT:
+            result = actual < expected
+        elif condition.operator is BranchOperator.LTE:
+            result = actual <= expected
+        else:
+            raise ValueError("unsupported branch operator")
     return condition.true_target if result else condition.false_target

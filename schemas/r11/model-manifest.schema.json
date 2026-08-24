@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.invalid/schemas/r11/model-manifest.schema.json",
+  "type": "object",
+  "required": ["schema_version", "model_id", "purpose", "backend", "license_id", "provenance_id", "allowed_uses", "files"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "model_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$"},
+    "purpose": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$"},
+    "backend": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$"},
+    "license_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$"},
+    "provenance_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$"},
+    "allowed_uses": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 128}},
+    "locale": {"type": ["string", "null"], "maxLength": 64},
+    "role": {"type": ["string", "null"], "maxLength": 128},
+    "source": {"type": ["string", "null"], "maxLength": 2048},
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["role", "path", "sha256", "max_bytes"],
+        "additionalProperties": false,
+        "properties": {
+          "role": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$"},
+          "path": {"type": "string", "minLength": 1, "maxLength": 512},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "max_bytes": {"type": ["integer", "null"], "minimum": 1}
+        }
+      }
+    }
+  }
+}

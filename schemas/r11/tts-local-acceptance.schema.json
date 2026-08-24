@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.invalid/schemas/r11/tts-local-acceptance.schema.json",
+  "type": "object",
+  "required": ["schema", "version", "source_sha", "status", "blockers", "approval", "voice_identity", "capability", "synthesis", "privacy", "evidence_digest"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "kodepoia.r11_5_local_acceptance"},
+    "version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "status": {"enum": ["pass", "fail"]},
+    "blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 128}},
+    "approval": {
+      "type": "object",
+      "required": ["license_reviewed", "license_id", "provenance_id", "allowed_use", "locale"],
+      "additionalProperties": false,
+      "properties": {
+        "license_reviewed": {"const": true},
+        "license_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "provenance_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "allowed_use": {"const": "internal"},
+        "locale": {"type": "string", "minLength": 2, "maxLength": 64}
+      }
+    },
+    "voice_identity": {
+      "type": "object",
+      "required": ["model_id", "manifest_digest", "model_sha256", "config_sha256", "binding_digest", "profile_digest"],
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {"type": "string", "minLength": 2, "maxLength": 128},
+        "manifest_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "model_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "config_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "binding_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "profile_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "capability": {"type": "object"},
+    "synthesis": {"type": "object"},
+    "privacy": {
+      "type": "object",
+      "required": ["private_recording_used", "voice_clone_used", "network_download_performed_by_collector", "audio_retained"],
+      "additionalProperties": false,
+      "properties": {
+        "private_recording_used": {"const": false},
+        "voice_clone_used": {"const": false},
+        "network_download_performed_by_collector": {"const": false},
+        "audio_retained": {"const": false}
+      }
+    },
+    "evidence_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

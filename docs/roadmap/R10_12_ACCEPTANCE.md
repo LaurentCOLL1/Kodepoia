@@ -9,7 +9,7 @@ R10.12 is accepted only after the anti-circular sequence frozen in `R10_PLAN.md`
 
 1. one immutable implementation head contains the adversarial suite, integrated acceptance model/verifier, JSON schema, design and this acceptance contract;
 2. that exact implementation head passes R0 Repository Guard + full Python Core + KodeStudio UI Smoke, with R7/R8/R9 integrated acceptance still PASS;
-3. the implementation head is then bound as R10.12 `source_sha`/`accepted_head` in the canonical `R10_INTEGRATED_ACCEPTANCE.json`, alongside the immutable R10.1–R10.11 acceptance blobs and reviewed REQUIRED local R10.2/R10.10 evidence;
+3. the implementation head is then bound as R10.12 `source_sha`/`accepted_head` in the canonical `R10_INTEGRATED_ACCEPTANCE.json`, alongside the immutable R10.1–R10.11 acceptance blobs, normalized continuity and reviewed REQUIRED local R10.2/R10.10 evidence;
 4. the final documentation/evidence head passes fresh exact-head R0 + full Python Core + KodeStudio UI Smoke;
 5. the canonical integrated report verifies as `status=pass`, `blockers=[]`;
 6. implementation PR merges and exactly one final continuity-only normalization passes the same gates and merges.
@@ -27,7 +27,7 @@ The dedicated R10.12 suite must fail closed for:
 - remote/absolute/parent-traversal glTF external URIs;
 - forged GLB length/chunk structure;
 - schema/version drift;
-- acceptance-document, required-local-evidence and prior-integrated-report substitution;
+- acceptance-document, normalized-continuity, required-local-evidence and prior-integrated-report substitution;
 - runtime-policy and semantic report digest tampering.
 
 Full Python Core additionally re-runs all accepted R10.1–R10.11 suites, including malformed mesh/UV/material, rig/weight, animation/retarget, LOD/preservation, process timeout/crash/cancellation/output limits, R8 lineage and GLB/Godot acceptance contracts.
@@ -37,11 +37,12 @@ Full Python Core additionally re-runs all accepted R10.1–R10.11 suites, includ
 The report verifier must bind and independently re-read:
 
 - `docs/roadmap/R10_1_ACCEPTANCE.md` through `R10_12_ACCEPTANCE.md` in strict order;
+- normalized `docs/continuity/KODEPOIA_CONTINUITY.md`, so exact-head facts intentionally stored in PR/continuity metadata remain verifiable without retroactively rewriting prior acceptance documents;
 - `docs/roadmap/R10_2_LOCAL_ACCEPTANCE.json` and `R10_10_LOCAL_ACCEPTANCE.json` by SHA-256 and byte length;
 - `docs/roadmap/R7_INTEGRATED_ACCEPTANCE.json`, `R8_INTEGRATED_ACCEPTANCE.json` and `R9_INTEGRATED_ACCEPTANCE.json` by repository identity and their own semantic evidence digests;
 - Blender 5.2.x with autoexec disabled/offline mode and Godot 4.7 as the frozen runtime policy.
 
-A passing report cannot contain explicit or derived blockers. Unsatisfied REQUIRED/triggered CONDITIONAL manual state, stale/missing evidence, changed evidence bytes, non-PASS local evidence, changed runtime baseline or non-PASS prior integrated evidence must reject the report.
+Each accepted subdivision head must appear in either its immutable acceptance document or the immutable normalized continuity. A passing report cannot contain explicit or derived blockers. Unsatisfied REQUIRED/triggered CONDITIONAL manual state, stale/missing evidence, changed evidence bytes, non-PASS local evidence, changed runtime baseline or non-PASS prior integrated evidence must reject the report.
 
 ## Manual-state evaluation
 

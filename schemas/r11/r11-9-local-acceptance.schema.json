@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r11/r11-9-local-acceptance.schema.json",
+  "title": "Kodepoia R11.9 Local Acceptance Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "source_sha", "status", "blockers", "error_type", "runtime", "fixture", "assembly", "capture", "evidence_digest"],
+  "properties": {
+    "schema": {"const": "kodepoia.r11_9_local_acceptance"},
+    "version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "status": {"enum": ["pass", "fail"]},
+    "blockers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "error_type": {"type": ["string", "null"], "maxLength": 128},
+    "runtime": {"type": "object"},
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "file_sha256"],
+      "properties": {
+        "kind": {"const": "repository_synthetic"},
+        "file_sha256": {
+          "type": "object",
+          "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "assembly": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequence_id", "digest", "command_policy_id"],
+      "properties": {
+        "sequence_id": {"type": ["string", "null"]},
+        "digest": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "command_policy_id": {"type": ["string", "null"]}
+      }
+    },
+    "capture": {"type": ["object", "null"]},
+    "evidence_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

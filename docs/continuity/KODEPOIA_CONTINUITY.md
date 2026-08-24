@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1 COMPLETE + NORMALIZED. R12.2 first implementation/documentation candidate `7d26027c8eed997fc1c8c2bdedf4c9a3bd47bb21` est accepté : R0 #1473 / `32775050033`, Python Core #1447 / `32775049955`, UI Smoke #1414 / `32775049980`, tous SUCCESS. Cette continuité crée le final documentation head à re-gater avant merge de PR #189. Manual NONE. R12.3 reste interdit jusqu’au merge R12.2 puis à son unique normalisation post-merge.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1 COMPLETE + NORMALIZED. R12.2 implementation/evidence ACCEPTED + MERGED via PR #189, merge `919508b6aad977ee7c4242b51509d108b1bdf1f6`; exactement une continuity-only normalization est en cours. Final R12.2 head `030d35ecd2d712bb9465760854a54ddc96c1c652`: R0 #1474 / `32775260396`, Python Core #1448 / `32775260347`, UI Smoke #1415 / `32775260363`, tous SUCCESS. Manual NONE. R12.3 reste interdit jusqu’au succès et merge de cette normalisation.**
 
 ## État global
 
@@ -13,12 +13,12 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1 : **COMPLETE + NORMALIZED**.
-- R12.2 : **FIRST CANDIDATE ACCEPTED / FINAL DOCUMENTATION HEAD RE-GATE PENDING**.
+- R12.2 : **ACCEPTED + MERGED / CONTINUITY NORMALIZATION PENDING**.
 - R12.3–R12.16 : **PLANNED / NOT STARTED**.
 
 ## R12.1 closure authority
 
-- Implementation PR #187 final head `5d541ea9b71fead8c048a8933dccbfdfe357bf7e`: R0 #1469 / `32773951265`, Python #1443 / `32773951408`, UI #1410 / `32773951307` — SUCCESS; merge `8f8dc143b0d3788184577f55cf9f8503783898d3`.
+- PR #187 final head `5d541ea9b71fead8c048a8933dccbfdfe357bf7e`: R0 #1469 / `32773951265`, Python #1443 / `32773951408`, UI #1410 / `32773951307` — SUCCESS; merge `8f8dc143b0d3788184577f55cf9f8503783898d3`.
 - Single normalization head `4d2a90593844b69bc26dba5ee9d7e68e04de3b82`: R0 #1471 / `32774326113`, Python #1445 / `32774326078`, UI #1412 / `32774326154` — SUCCESS; PR #188 merge `d0c97b89a49a0bb3a49761a0ccf46ac755c3a1e8`.
 - Manual NONE. **R12.1 COMPLETE + NORMALIZED.**
 
@@ -43,20 +43,16 @@
 | R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | NONE |
 | R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | CONDITIONAL |
 
-## R12.2 acceptance in progress
+## R12.2 closure
 
 - Base normalized `main`: `d0c97b89a49a0bb3a49761a0ccf46ac755c3a1e8`.
-- Branch: `r12/2-desktop-project-wizard`; PR #189; Manual **NONE**.
-- Project DNA schema remains v1; optional `DesktopProjectProfile` preserves old files by omitting `desktop` when absent.
-- New desktop Wizard intent includes framework, architecture, package kind, persistence, IPC and updates; impossible combinations fail closed.
-- KodeProduct adds deterministic desktop constraints plus reserved P0 `DESKTOP-TARGET` acceptance.
-- Existing KodeStudio Project Wizard is decorated with accessible Desktop controls; no second wizard or source generator exists.
-- Tests cover legacy round trip, profile validation, KodeProduct mapping and offscreen ProjectInitializer output.
-- First accepted candidate: `7d26027c8eed997fc1c8c2bdedf4c9a3bd47bb21`.
-- R0 #1473 / `32775050033` — **SUCCESS**.
-- Python Core #1447 / `32775049955` — **SUCCESS**, Ubuntu/Windows pytest + package builds + internal KodeStudio smoke.
-- KodeStudio UI Smoke #1414 / `32775049980` — **SUCCESS**.
-- This update changes bytes after the first accepted candidate; resulting final documentation head requires a fresh exact-head triplet before expected-SHA merge of #189.
+- Implementation branch `r12/2-desktop-project-wizard`; PR #189; Manual **NONE**.
+- Delivered backward-compatible schema-v1 desktop Project DNA profile, ProjectWizardState intent, deterministic KodeProduct `desktop.*` constraints + reserved P0 `DESKTOP-TARGET`, accessible Desktop controls on the existing KodeStudio Project Wizard, and focused legacy/domain/UI tests.
+- First candidate `7d26027c8eed997fc1c8c2bdedf4c9a3bd47bb21`: R0 #1473 / `32775050033`, Python #1447 / `32775049955`, UI #1414 / `32775049980` — SUCCESS.
+- Final documentation head `030d35ecd2d712bb9465760854a54ddc96c1c652`: R0 #1474 / `32775260396`, Python Core #1448 / `32775260347`, UI Smoke #1415 / `32775260363` — SUCCESS.
+- PR #189 merge: `919508b6aad977ee7c4242b51509d108b1bdf1f6`.
+- Current branch `r12/2-postmerge-continuity-normalization` is the **single** authorized R12.2 continuity normalization and MUST change only this file.
+- Accepted normalization exact-head triplet + merge makes **R12.2 COMPLETE + NORMALIZED** and authorizes R12.3.
 
 ## Permanent boundaries
 
@@ -70,4 +66,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.2 final documentation re-gate only.** Merge #189 only after fresh R0 + full Python Core + UI succeed, then perform exactly one continuity normalization. **R12.3 remains forbidden until that normalization merges.**
+**R12.2 continuity normalization only.** Gate its exact head with R0 + full Python Core + KodeStudio UI Smoke and merge with `expected_head_sha`. **Only that merge authorizes R12.3.**

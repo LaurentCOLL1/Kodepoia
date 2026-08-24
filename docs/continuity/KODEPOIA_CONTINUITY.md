@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.2 COMPLETE + NORMALIZED. R12.3 first implementation candidate `bf4c5b095bc7b91ecf7c27100c3da81c0a13ce31` est accepté : R0 #1478 / `32778299021`, Python Core #1452 / `32778298974`, UI Smoke #1419 / `32778299000`, tous SUCCESS. Cette documentation crée le final R12.3 head à re-gater avant merge de PR #191. Manual NONE. R12.4 reste interdit jusqu’au merge R12.3 puis à son unique normalisation post-merge.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.2 COMPLETE + NORMALIZED. R12.3 implementation/evidence ACCEPTED + MERGED via PR #191, merge `dab35e11a354b4a8d90c6d8bf5695a3e8f9c6937`; exactement une continuity-only normalization est en cours. Final R12.3 head `be9217edf96518556c37f7e1ae3b1cdcb093cdb7`: R0 #1480 / `32778510158`, Python Core #1454 / `32778510179`, UI Smoke #1421 / `32778510136`, tous SUCCESS. Manual NONE. R12.4 reste interdit jusqu’au succès et merge de cette normalisation.**
 
 ## État global
 
@@ -13,7 +13,7 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.2 : **COMPLETE + NORMALIZED**.
-- R12.3 : **FIRST CANDIDATE ACCEPTED / FINAL DOCUMENTATION HEAD RE-GATE PENDING**.
+- R12.3 : **ACCEPTED + MERGED / CONTINUITY NORMALIZATION PENDING**.
 - R12.4–R12.16 : **PLANNED / NOT STARTED**.
 
 ## R12.1 closure authority
@@ -54,17 +54,16 @@
 | R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | NONE |
 | R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | CONDITIONAL |
 
-## R12.3 acceptance in progress
+## R12.3 closure
 
 - Base normalized `main`: `6a58719522b46b0f89b9514dbeff6cb5ca0bdb6c`.
-- Branch: `r12/3-desktop-scaffold-engine`; PR #191; Manual **NONE**.
+- Implementation branch `r12/3-desktop-scaffold-engine`; PR #191; Manual **NONE**.
 - Delivered deterministic typed scaffold engine, strict durable template/workspace schemas, repository-owned canonical template, read-only preview, whole-file ownership, prior-SHA guard, SafeChange + Backup + Audit destructive-regeneration path and R8-style DNA/Product/template/file lineage.
-- Focused tests cover deterministic bytes/digests, schema load, traversal/reserved/symlink/directive/type attacks, preservation/conflict policy, prior-SHA anti-overwrite and governed backup/audit regeneration.
-- First accepted implementation candidate: `bf4c5b095bc7b91ecf7c27100c3da81c0a13ce31`.
-- R0 Repository Guard #1478 / `32778299021` — **SUCCESS**.
-- Python Core #1452 / `32778298974` — **SUCCESS**, Ubuntu/Windows pytest + package builds + internal KodeStudio smoke.
-- KodeStudio UI Smoke #1419 / `32778299000` — **SUCCESS**.
-- Evidence recording changes bytes after that candidate; the resulting final documentation head requires a fresh exact-head R0 + full Python + UI triplet before expected-SHA merge of #191.
+- First accepted implementation candidate `bf4c5b095bc7b91ecf7c27100c3da81c0a13ce31`: R0 #1478 / `32778299021`, Python #1452 / `32778298974`, UI #1419 / `32778299000` — SUCCESS.
+- Final documentation head `be9217edf96518556c37f7e1ae3b1cdcb093cdb7`: R0 #1480 / `32778510158`, Python Core #1454 / `32778510179`, UI Smoke #1421 / `32778510136` — SUCCESS.
+- PR #191 merge: `dab35e11a354b4a8d90c6d8bf5695a3e8f9c6937`.
+- Current branch `r12/3-postmerge-continuity-normalization` is the **single** authorized R12.3 continuity normalization and MUST change only this file.
+- Accepted normalization exact-head triplet + merge makes **R12.3 COMPLETE + NORMALIZED** and authorizes R12.4.
 
 ## Permanent boundaries
 
@@ -78,4 +77,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.3 final documentation re-gate only.** Merge PR #191 only after fresh R0 + full Python Core + UI succeed, then perform exactly one continuity normalization. **R12.4 remains forbidden until that normalization merges.**
+**R12.3 continuity normalization only.** Gate its exact head with R0 + full Python Core + KodeStudio UI Smoke and merge with `expected_head_sha`. **Only that merge authorizes R12.4.**

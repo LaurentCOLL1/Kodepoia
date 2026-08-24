@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1–R10.9 COMPLETE + NORMALIZED. R10.10 GLB/glTF export + Blender round-trip + Godot 4.7 acceptance is ACCEPTED + merged; its single post-merge continuity normalization is the only remaining R10.10 completion condition.** `docs/roadmap/R10_PLAN.md` remains the exhaustive authority for R10.1–R10.12. R10.10 initial implementation `1f4f61485016790b854244a5a0a43094b7c98bab` passed hosted gates; first local candidate `64e21eca32be4fc47944962b57f341b7ed2dbf09` produced a preserved REJECTED FAIL. Hardened local candidate `85e2db277ce1cb467aeb9b056700150bc1d67fa7` passed R0 #1302 / `32707671592`, Python #1276 / `32707671595`, UI #1243 / `32707671624`, then the REQUIRED local Blender 5.2.0 LTS + Godot 4.7.2 acceptance passed with `status=pass`, `blockers=[]`, static and rigged GLBs, Blender round-trip PASS and Godot semantic smoke PASS. Final PR head `c4fdadd4e451a28b9466695a42cefabf60648e4c` passed R0 #1319 / `32710039110`, Python #1293 / `32710039167`, UI #1260 / `32710039132`, all SUCCESS. PR #149 squash-merged as `836e78967fcd5dcca92c909098b4232233d12a0f`. Current branch `r10/10-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10.10 becomes COMPLETE + NORMALIZED and R10.11 is authorized.** R10.11 frozen manual state is NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1–R10.10 COMPLETE + NORMALIZED. R10.11 CLI + KodeStudio Blender/3D UX is ACCEPTED + merged; its single post-merge continuity normalization is the only remaining R10.11 completion condition.** `docs/roadmap/R10_PLAN.md` remains the exhaustive authority for R10.1–R10.12. R10.10 normalization head `02f8bd922662869390038a44327f3519fcebaf39` passed R0 #1321 / `32710626638`, Python #1295 / `32710626649`, UI #1262 / `32710626665`, all SUCCESS, and PR #150 merged as `0bb957b4401026af265ab42e0eb296a9e8615001`, making R10.10 COMPLETE + NORMALIZED and authorizing R10.11. R10.11 historical candidate `e8b1b12a8c199dfcd1829a6d206567ed7be9c324` passed R0 #1323 / `32713096826` but Python #1297 / `32713096801` and UI #1264 / `32713096799` failed only because the historical R6.6 pseudo-locale regression still expected 8 navigation entries after the intentional ninth Blender / 3D page was added. Corrective exact candidate `a75813ac6ab11b7e9e87bf99784bf00696aaef41` changed only that expected navigation count to 9, preserved the pseudo-localization/truncation assertions and dedicated R10.11 Blender page coverage, then passed R0 #1324 / `32713740897`, Python #1298 / `32713740901`, UI #1265 / `32713740869`, all SUCCESS with R7/R8/R9 integrated acceptance PASS. PR #151 merged as `56daf7db7d493f1f89d722bf46f95afa2f9aad24`. Current branch `r10/11-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10.11 becomes COMPLETE + NORMALIZED and R10.12 is authorized.** R10.12 frozen manual state is CONDITIONAL.
 
 ## Source de vérité / état
 
@@ -22,9 +22,9 @@
 - R10.7 : **COMPLETE + NORMALIZED** — manual CONDITIONAL TRIGGERED AND SATISFIED.
 - R10.8 : **COMPLETE + NORMALIZED** — manual CONDITIONAL NOT TRIGGERED.
 - R10.9 : **COMPLETE + NORMALIZED** — manual NONE.
-- R10.10 : implementation/final exact-head acceptance ACCEPTED + PR #149 MERGED — manual REQUIRED SATISFIED — post-merge normalization pending.
-- R10.11 : PLANNED — manual NONE; NOT STARTED until R10.10 normalization merges.
-- R10.12 : PLANNED — manual CONDITIONAL.
+- R10.10 : **COMPLETE + NORMALIZED** — manual REQUIRED SATISFIED.
+- R10.11 : implementation/final exact-head acceptance ACCEPTED + PR #151 MERGED — manual NONE — post-merge normalization pending.
+- R10.12 : PLANNED — manual CONDITIONAL; NOT STARTED until R10.11 normalization merges.
 - R11–R16 : PENDING / NOT STARTED.
 
 ## Historical acceptance source of truth
@@ -149,7 +149,19 @@ Detailed evidence, rejected candidates, canonical JSON reports and exact accepta
 - Canonical accepted evidence `docs/roadmap/R10_10_LOCAL_ACCEPTANCE.json`: **2843 bytes**, SHA-256 `da9680219dfd4e3a44683a547481b6584b9ef186ee364f27dfcfe2c0c5c29c9f`. Blender background=true, online_access=false, process returncode 0. Static GLB: 2832 bytes, SHA-256 `19a8adfbc4c9ac098a676fbdf52143dc5e445b29228830eab67d271341758308`; rigged GLB: 6796 bytes, SHA-256 `84e9f0a7c7638566962160d6b986073b37528d8bf944d8840c1b6f99f138175f`. Rigged glTF has 1 skin, 1 morph target and 1 animation; round-trip preserves `Root`/`Child`, `Smile`, `Wave`; Godot import returncode 0 and semantic smoke `pass_marker=true`.
 - Final PR head `c4fdadd4e451a28b9466695a42cefabf60648e4c`: R0 #1319 / `32710039110`, Python #1293 / `32710039167`, UI #1260 / `32710039132` SUCCESS.
 - PR #149 squash-merged as `836e78967fcd5dcca92c909098b4232233d12a0f` to collapse documentation-only head churn without changing the accepted tree semantics.
-- Current branch `r10/10-continuity-normalization` changes only this continuity file.
+- R10.10 normalization head `02f8bd922662869390038a44327f3519fcebaf39`: R0 #1321 / `32710626638`, Python #1295 / `32710626649`, UI #1262 / `32710626665` SUCCESS; PR #150 merge `0bb957b4401026af265ab42e0eb296a9e8615001` made R10.10 COMPLETE + NORMALIZED and authorized R10.11.
+
+## R10.11 accepted implementation and merge — CLI + KodeStudio Blender/3D UX
+
+- Base normalized R10.10 `0bb957b4401026af265ab42e0eb296a9e8615001`; branch `r10/11-cli-kodestudio-blender-ux`; PR #151.
+- Scope: governed shared `BlenderService`; bounded `blender3d` CLI for status/capabilities, inspection, geometry validation, QA, rig/skin, animation/retarget, LOD, GLB/glTF reports and accepted evidence; service-managed IDs only; no raw Python/expression/operator/executable/argv/path/URL/environment passthrough.
+- KodeStudio adds the Blender/3D page with `QRunnable` + `QThreadPool`, cooperative cancellation, explicit operation states, runtime/capability visibility, read-only QA/evidence summaries, dedicated localization/pseudo-locale and accessibility registration, plus service/CLI/UI smoke and cancellation tests.
+- Historical candidate `e8b1b12a8c199dfcd1829a6d206567ed7be9c324`: R0 #1323 / `32713096826` SUCCESS; Python #1297 / `32713096801` FAILURE and UI #1264 / `32713096799` FAILURE solely because historical R6.6 still asserted exactly 8 main-navigation items after the intentional ninth Blender / 3D entry. Other Python Core jobs were green.
+- Corrective candidate `a75813ac6ab11b7e9e87bf99784bf00696aaef41` changed only that historical expected count from 8 to 9; pseudo-localization and truncation assertions remained intact, while dedicated R10.11 tests already verify the Blender page and pseudo-locale registration.
+- Final exact-head gates on `a75813ac6ab11b7e9e87bf99784bf00696aaef41`: R0 #1324 / `32713740897`, Python #1298 / `32713740901`, UI #1265 / `32713740869` SUCCESS. Ubuntu/Windows tests, KodeStudio smoke, Ubuntu/Windows package builds and R7/R8/R9 integrated acceptance PASS.
+- Frozen manual state **NONE**; no real Blender/Godot run is introduced by R10.11.
+- PR #151 merged as `56daf7db7d493f1f89d722bf46f95afa2f9aad24`.
+- Current branch `r10/11-continuity-normalization` changes only this continuity file.
 
 ## Permanent architecture/security boundaries
 
@@ -184,10 +196,10 @@ Preserve without reinterpretation:
 5. Scope/structure changes synchronize plan + continuity in the same work cycle.
 6. Foundation changes require an ADR.
 
-## R10.10 normalization rule / next action
+## R10.11 normalization rule / next action
 
-The current branch `r10/10-continuity-normalization` is the **single post-merge continuity normalization** after accepted R10.10 PR #149. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with R7/R8/R9 integrated acceptance still PASS.
+The current branch `r10/11-continuity-normalization` is the **single post-merge continuity normalization** after accepted R10.11 PR #151. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with R7/R8/R9 integrated acceptance still PASS.
 
-If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10.10 COMPLETE + NORMALIZED and authorizes R10.11.** Do not create another recursive R10.10 continuity commit solely to record the normalization's own run IDs; record those IDs in the normalization PR/merge metadata instead.
+If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10.11 COMPLETE + NORMALIZED and authorizes R10.12.** Do not create another recursive R10.11 continuity commit solely to record the normalization's own run IDs; record those IDs in the normalization PR/merge metadata instead.
 
-R10.11 frozen manual state is **NONE**. Do not start R10.11 inside this normalization. Start it only from the resulting normalized `main` and only in a later authorized work cycle.
+R10.12 frozen manual state is **CONDITIONAL**. Do not start R10.12 inside this normalization. Start it only from the resulting normalized `main` and only in a later authorized work cycle.

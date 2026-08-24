@@ -60,16 +60,19 @@ Canonical evidence: `R10_10_LOCAL_ACCEPTANCE.json`.
 
 The evidence digest and raw evidence SHA-256/size were independently recomputed before binding and matched exactly. The earlier FAIL remains preserved and rejected; it is not overwritten or reclassified.
 
-## Final evidence-bound candidate — ACCEPTED
+## Final evidence-bound candidates — ACCEPTED
 
-Evidence-bound head: `867cae1d3534716ec2f617be64f67206700a252a`.
+Evidence-bound head `867cae1d3534716ec2f617be64f67206700a252a`:
+- R0 #1304 / `32708720158`: **SUCCESS**;
+- Python #1278 / `32708720261`: **SUCCESS**;
+- UI #1245 / `32708720153`: **SUCCESS**.
 
-Exact-head final gates:
-- R0 Repository Guard #1304 / `32708720158`: **SUCCESS**;
-- Python Core #1278 / `32708720261`: **SUCCESS**;
-- KodeStudio UI Smoke #1245 / `32708720153`: **SUCCESS**.
+Final documentation head `ceff4d2896b5fa1b2f4996fe70682521eca9e1c3`:
+- R0 #1305 / `32708920919`: **SUCCESS**;
+- Python #1279 / `32708920926`: **SUCCESS**;
+- UI #1246 / `32708920982`: **SUCCESS**.
 
-Python Core preserves Ubuntu/Windows coverage, R7/R8/R9 integrated acceptance PASS, KodeStudio smoke and both package builds SUCCESS.
+Python Core preserves Ubuntu/Windows coverage, R7/R8/R9 integrated acceptance PASS, KodeStudio smoke and both package builds SUCCESS. No further branch writes are permitted before merge.
 
 ## Accepted candidate implementation
 
@@ -82,7 +85,7 @@ Python Core preserves Ubuntu/Windows coverage, R7/R8/R9 integrated acceptance PA
 ## Final acceptance ordering
 
 1. Preserve both the rejected and accepted local evidence records permanently.
-2. Merge PR #149 only from exact accepted head `867cae1d3534716ec2f617be64f67206700a252a`.
+2. Merge PR #149 only from exact accepted head `ceff4d2896b5fa1b2f4996fe70682521eca9e1c3`.
 3. Create a continuity-only post-merge normalization branch from the resulting `main` merge commit.
 4. Run fresh R0 + Python + UI on the normalization head and merge only if all three are SUCCESS.
 5. Only after that merge is R10.10 **COMPLETE + NORMALIZED** and R10.11 authorized.

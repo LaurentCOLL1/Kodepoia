@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.3 COMPLETE + NORMALIZED. R12.4 est en implémentation sur branche dédiée depuis normalized main `1f52adffedb69384904a4b35bb32e45e06b05e33`. Manual R12.4 NONE. R12.5 reste interdit jusqu’à acceptance, merge et unique normalisation post-merge de R12.4.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.3 COMPLETE + NORMALIZED. R12.4 first implementation candidate `d55b55feedcfc638e1e11d194d12f80b8f7b6f9c` est accepté : R0 #1484 / `32779332770`, Python Core #1458 / `32779332780`, UI Smoke #1425 / `32779332799`, tous SUCCESS. Cette documentation crée le final R12.4 head à re-gater avant merge de PR #193. Manual NONE. R12.5 reste interdit jusqu’au merge R12.4 puis à son unique normalisation post-merge.**
 
 ## État global
 
@@ -13,25 +13,20 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.3 : **COMPLETE + NORMALIZED**.
-- R12.4 : **IMPLEMENTATION / ACCEPTANCE PENDING**.
+- R12.4 : **FIRST CANDIDATE ACCEPTED / FINAL DOCUMENTATION HEAD RE-GATE PENDING**.
 - R12.5–R12.16 : **PLANNED / NOT STARTED**.
 
-## R12.2 closure authority
+## Recent closure authority
 
-- Final documentation head `030d35ecd2d712bb9465760854a54ddc96c1c652`: R0 #1474 / `32775260396`, Python #1448 / `32775260347`, UI #1415 / `32775260363` — SUCCESS.
-- PR #189 merge `919508b6aad977ee7c4242b51509d108b1bdf1f6`.
-- Single normalization head `611c8768bb11ad25ca275eb50cb4cc325abe1db3`: R0 #1476 / `32776007461`, Python #1450 / `32776007559`, UI #1417 / `32776007449` — SUCCESS.
-- PR #190 merge `6a58719522b46b0f89b9514dbeff6cb5ca0bdb6c`. Manual NONE. **R12.2 COMPLETE + NORMALIZED.**
+### R12.2
+- Final docs `030d35ecd2d712bb9465760854a54ddc96c1c652`: R0 #1474 / `32775260396`, Python #1448 / `32775260347`, UI #1415 / `32775260363` — SUCCESS; PR #189 merge `919508b6aad977ee7c4242b51509d108b1bdf1f6`.
+- Normalization `611c8768bb11ad25ca275eb50cb4cc325abe1db3`: R0 #1476 / `32776007461`, Python #1450 / `32776007559`, UI #1417 / `32776007449` — SUCCESS; PR #190 merge `6a58719522b46b0f89b9514dbeff6cb5ca0bdb6c`.
+- Manual NONE. **R12.2 COMPLETE + NORMALIZED.**
 
-## R12.3 closure authority
-
-- Base normalized `main`: `6a58719522b46b0f89b9514dbeff6cb5ca0bdb6c`.
-- Implementation branch `r12/3-desktop-scaffold-engine`; PR #191; Manual **NONE**.
-- First accepted implementation candidate `bf4c5b095bc7b91ecf7c27100c3da81c0a13ce31`: R0 #1478 / `32778299021`, Python #1452 / `32778298974`, UI #1419 / `32778299000` — SUCCESS.
-- Final documentation head `be9217edf96518556c37f7e1ae3b1cdcb093cdb7`: R0 #1480 / `32778510158`, Python #1454 / `32778510179`, UI #1421 / `32778510136` — SUCCESS.
-- PR #191 merge `dab35e11a354b4a8d90c6d8bf5695a3e8f9c6937`.
-- Single continuity normalization head `34a5becb45603c1cf0ddc7b1679111dc44708397`: R0 #1482 / `32778771303`, Python Core #1456 / `32778771366`, UI Smoke #1423 / `32778771306` — SUCCESS.
-- Normalization PR #192 merge `1f52adffedb69384904a4b35bb32e45e06b05e33`.
+### R12.3
+- First candidate `bf4c5b095bc7b91ecf7c27100c3da81c0a13ce31`: R0 #1478 / `32778299021`, Python #1452 / `32778298974`, UI #1419 / `32778299000` — SUCCESS.
+- Final docs `be9217edf96518556c37f7e1ae3b1cdcb093cdb7`: R0 #1480 / `32778510158`, Python #1454 / `32778510179`, UI #1421 / `32778510136` — SUCCESS; PR #191 merge `dab35e11a354b4a8d90c6d8bf5695a3e8f9c6937`.
+- Normalization `34a5becb45603c1cf0ddc7b1679111dc44708397`: R0 #1482 / `32778771303`, Python #1456 / `32778771366`, UI #1423 / `32778771306` — SUCCESS; PR #192 merge `1f52adffedb69384904a4b35bb32e45e06b05e33`.
 - Manual NONE. **R12.3 COMPLETE + NORMALIZED.**
 
 ## Frozen R12 subdivision index
@@ -58,15 +53,15 @@
 ## R12.4 acceptance in progress
 
 - Base normalized `main`: `1f52adffedb69384904a4b35bb32e45e06b05e33`.
-- Branch: `r12/4-desktop-app-contracts`.
-- Manual: **NONE**.
-- Delivered source: `src/kodepoia/desktop/app_model.py` and package exports.
-- Durable schema: `schemas/r12/desktop-app-model.schema.json`.
-- Focused tests: `tests/test_r12_4_desktop_app_contracts.py`.
-- Design/acceptance: `docs/roadmap/R12_4_DESIGN.md`, `R12_4_ACCEPTANCE.md`.
-- Logical model: typed state/validation, commands, view-model bindings, views, routes/dialogs, services/lifetimes and deterministic disposal ordering; no concrete framework object is serialized.
-- Canonical sample app is the shared adapter conformance fixture for WPF/WinUI/Avalonia/Qt/Tauri.
-- Exact implementation candidate/run IDs: **PENDING** until branch freeze and exact-head gates.
+- Branch `r12/4-desktop-app-contracts`; PR #193; Manual **NONE**.
+- Delivered framework-neutral `DesktopAppModel`: typed state/validation, bounded commands/can-execute, view-model bindings, views, routes/dialogs, service dependencies/lifetimes and deterministic disposal.
+- Durable schema `schemas/r12/desktop-app-model.schema.json` and canonical shared adapter fixture `canonical_sample_app()`.
+- Tests reject dangling refs, duplicate/cyclic routes, raw/invalid operations, service cycles/lifetime capture and type-invalid validation; all five frozen adapters must preserve the same logical signature.
+- First accepted candidate `d55b55feedcfc638e1e11d194d12f80b8f7b6f9c`.
+- R0 #1484 / `32779332770` — **SUCCESS**.
+- Python Core #1458 / `32779332780` — **SUCCESS** including Ubuntu/Windows pytest, package builds and internal UI smoke.
+- KodeStudio UI Smoke #1425 / `32779332799` — **SUCCESS**.
+- Evidence recording changed bytes; final documentation head requires a fresh exact-head triplet before merge.
 
 ## Permanent boundaries
 
@@ -80,4 +75,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**Freeze and gate R12.4 only.** Require exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke. If accepted, record evidence, re-gate the final documentation head, merge with expected SHA, then perform exactly one post-merge continuity normalization. **R12.5 remains forbidden until that normalization merges.**
+**R12.4 final documentation re-gate only.** Merge PR #193 only after fresh R0 + full Python Core + UI succeed, then perform exactly one continuity normalization. **R12.5 remains forbidden until that normalization merges.**

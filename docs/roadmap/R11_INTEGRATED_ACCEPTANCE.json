@@ -1,0 +1,189 @@
+{
+  "blockers": [],
+  "continuity": {
+    "bytes": 6262,
+    "sha256": "6e73bb8feb1a9a28128f178734d92731d94174149ec091efd758cac9498a1a5d",
+    "source": "docs/continuity/KODEPOIA_CONTINUITY.md"
+  },
+  "evidence_sha256": "ed956be1aa19592b654382a209e5ca99d44d3cbcd67dd3981bdae3d865563170",
+  "generated_at": "2026-08-24T19:44:00Z",
+  "local_evidence": [
+    {
+      "bytes": 2865,
+      "evidence_digest": "12223e911a76087a4eea23ce9e371fdc401990d127cb9f306237d67550725ffe",
+      "sha256": "6406884deb38ab5be22fe99d5f3c50187953b4aa9cb8f59f5f21b4a396309e2e",
+      "source": "docs/roadmap/R11_5_LOCAL_ACCEPTANCE.json",
+      "source_sha": "a9862b3bf475b259fe154d1e2486116ad04602f3",
+      "subdivision": "R11.5"
+    },
+    {
+      "bytes": 1721,
+      "evidence_digest": "6afe45e3c9047cfa58b7c617ff671e34e166bd9189a32ea62f1350243955b6f5",
+      "sha256": "3b82b34a71051886db420ed50def6d9d6af5eba31f4e5ac240f2287525eba8e8",
+      "source": "docs/roadmap/R11_9_LOCAL_ACCEPTANCE.json",
+      "source_sha": "087eae19ea03dd544d75a08c1eb348fe187624c5",
+      "subdivision": "R11.9"
+    }
+  ],
+  "prior_phases": [
+    {
+      "bytes": 4408,
+      "evidence_sha256": "2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437",
+      "phase": "R7",
+      "sha256": "7f9ac2296d431e71ccb163f16741381194833b239a5a6d96bfdcbfb81e396687",
+      "source": "docs/roadmap/R7_INTEGRATED_ACCEPTANCE.json"
+    },
+    {
+      "bytes": 5468,
+      "evidence_sha256": "6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89",
+      "phase": "R8",
+      "sha256": "152b0541e2c96b14e1080f76d25cc1c4ff8a321ace5339378fda28897f701960",
+      "source": "docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json"
+    },
+    {
+      "bytes": 6828,
+      "evidence_sha256": "19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a",
+      "phase": "R9",
+      "sha256": "7ab2384a116d0f29b20a6cd34337b0ccee0bd961a16d6bf984cd7ebd65b72b53",
+      "source": "docs/roadmap/R9_INTEGRATED_ACCEPTANCE.json"
+    },
+    {
+      "bytes": 7771,
+      "evidence_sha256": "48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8",
+      "phase": "R10",
+      "sha256": "35c8c268f44cabbf6c232005cca12b6714fcc23ce016fd3c8d2aa8fe498f1e0b",
+      "source": "docs/roadmap/R10_INTEGRATED_ACCEPTANCE.json"
+    }
+  ],
+  "schema_version": 1,
+  "source_sha": "f2693c8cfd4a7aaa5c73fc0a318ebaeef4ff0bb1",
+  "status": "pass",
+  "subdivisions": [
+    {
+      "accepted_head": "46ee14f3e94ed8c5c1cadbf139a890fab853929f",
+      "bytes": 1476,
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "af7795db8d4c87b4edfdf90a727b8f75e054f360c100e0c3c9a58071fac7c48d",
+      "source": "docs/roadmap/R11_1_ACCEPTANCE.md",
+      "subdivision": "R11.1"
+    },
+    {
+      "accepted_head": "103365dc7d5e3d725e0a9d23a839283079fe959c",
+      "bytes": 1450,
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "sha256": "1ff05a7126cc8150b91c5e77db69a91d103e3592161a979e59d3c0f7583fbf0b",
+      "source": "docs/roadmap/R11_2_ACCEPTANCE.md",
+      "subdivision": "R11.2"
+    },
+    {
+      "accepted_head": "a835ab4491b5c49268ac85e389a2584ba379fcf3",
+      "bytes": 1422,
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "6f30cdf71ad7fa434ce544afaba31a1d956a3de738ff4422f73793903d0955fe",
+      "source": "docs/roadmap/R11_3_ACCEPTANCE.md",
+      "subdivision": "R11.3"
+    },
+    {
+      "accepted_head": "a662046c9fd38a198cc76c33b9012774f254407c",
+      "bytes": 1757,
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "94d4a1c6ff4f3bfaa2ab953160042a0e85b3808d83a68da32c9dde43a004256e",
+      "source": "docs/roadmap/R11_4_ACCEPTANCE.md",
+      "subdivision": "R11.4"
+    },
+    {
+      "accepted_head": "a9862b3bf475b259fe154d1e2486116ad04602f3",
+      "bytes": 6372,
+      "manual_satisfied": true,
+      "manual_state": "required_satisfied",
+      "sha256": "59e74cb6884217a0a4becca6f6154d621b079abadd6072627c1c5ebbb92973bc",
+      "source": "docs/roadmap/R11_5_ACCEPTANCE.md",
+      "subdivision": "R11.5"
+    },
+    {
+      "accepted_head": "ea86762ecaa5ab16f6637701638c3461eea9d5ce",
+      "bytes": 3094,
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "sha256": "5b45055ed598274706578ff8c76fa7684b2187fa3865e216c3051a1c149e6be4",
+      "source": "docs/roadmap/R11_6_ACCEPTANCE.md",
+      "subdivision": "R11.6"
+    },
+    {
+      "accepted_head": "1d2347178b804ae46e8696a8fd78e88e8cb2d84b",
+      "bytes": 2714,
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "sha256": "f787439d97a670287f7218091eb374fb7aa6ab7ab4b355e474c6cd40faa36d0c",
+      "source": "docs/roadmap/R11_7_ACCEPTANCE.md",
+      "subdivision": "R11.7"
+    },
+    {
+      "accepted_head": "26703862a91b5d6a86e83be4f0c2dfabd0541efc",
+      "bytes": 1969,
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "5f7144034a806b9e719bf53ada6bb876b2afff6864840bd431230918f162443d",
+      "source": "docs/roadmap/R11_8_ACCEPTANCE.md",
+      "subdivision": "R11.8"
+    },
+    {
+      "accepted_head": "087eae19ea03dd544d75a08c1eb348fe187624c5",
+      "bytes": 5851,
+      "manual_satisfied": true,
+      "manual_state": "required_satisfied",
+      "sha256": "8c3ff2164b998acc65522d09488e94c5641f31ba0ed22d47b5ad4d44f9af8ec4",
+      "source": "docs/roadmap/R11_9_ACCEPTANCE.md",
+      "subdivision": "R11.9"
+    },
+    {
+      "accepted_head": "5fb1b80a212880bd510977d54a570859c532c206",
+      "bytes": 2700,
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "e41d0cf6826c2a04ef93e8ff0c34941da5a5de987f9f3aa85441b88c6179e569",
+      "source": "docs/roadmap/R11_10_ACCEPTANCE.md",
+      "subdivision": "R11.10"
+    },
+    {
+      "accepted_head": "38dc7dce1bf288b61eabfa3b174add11ade4ae49",
+      "bytes": 2468,
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "c59b28cbc57864110e9a6c210b9acaf5ebd4cce424d0e67b438b416bc434e7a3",
+      "source": "docs/roadmap/R11_11_ACCEPTANCE.md",
+      "subdivision": "R11.11"
+    },
+    {
+      "accepted_head": "66ccd03bf486ac325ee2fba7133a6fc2a9c244b0",
+      "bytes": 2598,
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "sha256": "454e10cfce5718cca77cdf4d9a81918d233363e3114be7d3ace313399226515c",
+      "source": "docs/roadmap/R11_12_ACCEPTANCE.md",
+      "subdivision": "R11.12"
+    },
+    {
+      "accepted_head": "79a891eaede7e5ecf7d8daf35846b20b1d3d02f9",
+      "bytes": 2899,
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "9c4946279575b686c3c3e66088e2902d36cadc440c8402c05dee4b275a2408c4",
+      "source": "docs/roadmap/R11_13_ACCEPTANCE.md",
+      "subdivision": "R11.13"
+    },
+    {
+      "accepted_head": "f2693c8cfd4a7aaa5c73fc0a318ebaeef4ff0bb1",
+      "bytes": 7880,
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "sha256": "d762468c123cf7306e19e012db48f6913cabfd4f1791170bcf72c097d14c2db9",
+      "source": "docs/roadmap/R11_14_ACCEPTANCE.md",
+      "subdivision": "R11.14"
+    }
+  ]
+}

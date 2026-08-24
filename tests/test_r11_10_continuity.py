@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator, RefResolver
+from jsonschema import Draft202012Validator
 
 from kodepoia.media.continuity import (
     ContinuityBridgePackage,
@@ -140,7 +140,7 @@ def test_bridge_rejects_wrong_target_and_same_project_package() -> None:
         import_bridge_package(package.canonical(), expected_target_project_id="project.gamma")
 
 
-def test_r11_10_schemas_accept_canonical_examples() -> None:
+def test_r11_10_schemas_accept_canonical_examples_without_remote_resolution() -> None:
     snapshot = _snapshot("snap.schema", (_fact("character.alex.location", "home"),))
     diff = compare_snapshots(snapshot, _snapshot("snap.schema.2", (_fact("character.alex.location", "school"),)))
     package = ContinuityBridgePackage("bridge.schema", "project.alpha", "project.beta", "r8.rev", snapshot, snapshot.digest())
@@ -151,5 +151,4 @@ def test_r11_10_schemas_accept_canonical_examples() -> None:
 
     Draft202012Validator(snapshot_schema).validate(snapshot.canonical())
     Draft202012Validator(diff_schema).validate(diff.canonical())
-    resolver = RefResolver(base_uri=(ROOT / "schemas/r11/").as_uri() + "/", referrer=bridge_schema)
-    Draft202012Validator(bridge_schema, resolver=resolver).validate(package.canonical())
+    Draft202012Validator(bridge_schema).validate(package.canonical())

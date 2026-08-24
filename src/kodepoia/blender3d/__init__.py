@@ -6,6 +6,9 @@ from .contracts import BlenderCapabilityState, BlenderJobRecipe, BlenderJobState
 from .errors import BlenderBoundaryError, BlenderError, BlenderProtocolError, BlenderVersionError
 from .geometry_contracts import GeometryOperation, GeometryRecipe, GeometryStep, geometry_recipe_digest, validate_geometry_recipes
 from .geometry_runner import GeometryRunner
+from .lod_contracts import LODAssetMode, LODPreservationPolicy, LODProfile, LODTier, ShapeKeyLODPolicy, make_lod_variant_revision, validate_lod_source_revision
+from .lod_runner import LODRunner
+from .lod_validator import evaluate_lod_measurements
 from .pbr_contracts import MaterialSpec, PBRRecipe, TextureRef, TextureRole, UVMethod, UVSpec
 from .pbr_runner import PBRRunner
 from .profile_contracts import AssetRevisionBinding, CoordinateProfile, MaterialSlotBinding, OrganicAssetProfile, OrganicProfileKind, OrganicProfileQAPolicy, ProfilePiece, ProfilePieceType, SemanticZone, ShapeKeyBinding
@@ -23,6 +26,7 @@ __all__ = [
     "AnimationChannel", "AnimationClip", "AnimationRunner", "BoneMapping", "ChannelPath", "Keyframe", "RetargetRecipe", "RigSemanticProfile", "RootMotionPolicy", "SemanticBone", "evaluate_animation_measurements",
     "BlenderBoundaryError", "BlenderCapabilityState", "BlenderError", "BlenderExecutableBoundary", "BlenderJobRecipe", "BlenderJobState", "BlenderOperation", "BlenderProcessLimits", "BlenderProtocolError", "BlenderRunManifest", "BlenderRunner", "BlenderRuntimeIdentity", "BlenderRuntimePolicy", "BlenderVersion", "BlenderVersionError",
     "GeometryOperation", "GeometryRecipe", "GeometryRunner", "GeometryStep", "MaterialSpec", "PBRRecipe", "PBRRunner", "TextureRef", "TextureRole", "UVMethod", "UVSpec",
+    "LODAssetMode", "LODPreservationPolicy", "LODProfile", "LODRunner", "LODTier", "ShapeKeyLODPolicy", "evaluate_lod_measurements", "make_lod_variant_revision", "validate_lod_source_revision",
     "AssetRevisionBinding", "CoordinateProfile", "MaterialSlotBinding", "OrganicAssetProfile", "OrganicProfileKind", "OrganicProfileQAPolicy", "ProfilePiece", "ProfilePieceType", "SemanticZone", "ShapeKeyBinding", "evaluate_organic_profile",
     "BoundaryPolicy", "MeshAssetClass", "MeshQABudgets", "MeshQAProfile", "MeshQARunner", "MeshRepairOperation", "MeshRepairRecipe", "UVOverlapPolicy", "evaluate_mesh_qa",
     "BoneSpec", "BoneWeight", "InfluenceProfile", "MeshSkinSpec", "RigMode", "RigProfile", "RigRunner", "VertexWeight", "WeightStrategy", "evaluate_rig_measurements",

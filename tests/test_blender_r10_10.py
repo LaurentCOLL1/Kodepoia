@@ -142,6 +142,17 @@ def test_bootstraps_are_static_offline_owned_code() -> None:
     assert "use_scripts=False" in GLTF_EXPORT_BOOTSTRAP_SOURCE
 
 
+def test_acceptance_bootstrap_uses_blender_52_principled_and_layered_action_contracts() -> None:
+    source = GLTF_ACCEPTANCE_BOOTSTRAP_SOURCE
+    assert 'bsdf.inputs["Metallic"]' in source
+    assert 'bsdf.inputs["Metallic IOR Level"]' not in source
+    assert "action.slots.new" in source
+    assert 'layer.strips.new(type="KEYFRAME")' in source
+    assert "channelbag.fcurves.new" in source
+    assert "animation_data.action_slot = slot" in source
+    assert "pose.keyframe_insert" not in source
+
+
 def test_godot_acceptance_script_is_fixed_and_semantic() -> None:
     assert "KODEPOIA_R10_10_GODOT_PASS" in GODOT_VALIDATOR_SCRIPT_SOURCE
     assert "Skeleton3D" in GODOT_VALIDATOR_SCRIPT_SOURCE and "AnimationPlayer" in GODOT_VALIDATOR_SCRIPT_SOURCE

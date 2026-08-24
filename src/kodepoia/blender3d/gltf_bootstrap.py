@@ -263,7 +263,7 @@ def add_uv_and_material(obj: bpy.types.Object, material_name: str) -> None:
     bsdf = material.node_tree.nodes.get("Principled BSDF") if material.node_tree is not None else None
     if bsdf is not None:
         bsdf.inputs["Base Color"].default_value = (0.25, 0.55, 0.8, 1.0)
-        bsdf.inputs["Metallic IOR Level"].default_value = 0.1
+        bsdf.inputs["Metallic"].default_value = 0.1
         bsdf.inputs["Roughness"].default_value = 0.45
     obj.data.materials.append(material)
     uv = obj.data.uv_layers.new(name="UVMap")
@@ -383,15 +383,27 @@ def build_rigged() -> dict[str, object]:
 
     pose = arm.pose.bones["Child"]
     pose.rotation_mode = "XYZ"
-    bpy.context.scene.frame_set(1)
-    pose.rotation_euler = (0.0, 0.0, 0.0)
-    pose.keyframe_insert(data_path="rotation_euler", frame=1, group="Child")
-    bpy.context.scene.frame_set(20)
-    pose.rotation_euler = (0.0, 0.0, 0.4)
-    pose.keyframe_insert(data_path="rotation_euler", frame=20, group="Child")
-    if arm.animation_data is None or arm.animation_data.action is None:
-        raise RuntimeError("fixture_action_missing")
-    arm.animation_data.action.name = "Wave"
+    action = bpy.data.actions.new("Wave")
+    slot = action.slots.new(arm.id_type, arm.name)
+    layer = action.layers.new("KDP_WaveLayer")
+    keyframe_strip = layer.strips.new(type="KEYFRAME")
+    channelbag = keyframe_strip.channelbag(slot, ensure=True)
+    if channelbag is None:
+        raise RuntimeError("fixture_action_channelbag_missing")
+    data_path = pose.path_from_id("rotation_euler")
+    for array_index, values in enumerate(((0.0, 0.0), (0.0, 0.0), (0.0, 0.4))):
+        fcurve = channelbag.fcurves.new(data_path=data_path, index=array_index, group_name="Child")
+        fcurve.keyframe_points.add(2)
+        fcurve.keyframe_points[0].co = (1.0, values[0])
+        fcurve.keyframe_points[1].co = (20.0, values[1])
+        for point in fcurve.keyframe_points:
+            point.interpolation = "LINEAR"
+        fcurve.update()
+    animation_data = arm.animation_data_create()
+    animation_data.action = action
+    animation_data.action_slot = slot
+    if animation_data.action != action or animation_data.action_slot != slot:
+        raise RuntimeError("fixture_action_slot_assignment_failed")
     bpy.context.scene.frame_set(1)
 
     bpy.ops.object.select_all(action="DESELECT")

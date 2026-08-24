@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r12/desktop-target-profile-v1.schema.json",
+  "title": "Kodepoia R12 desktop target profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile_id", "framework", "targets", "architecture", "package_kind"],
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "framework": {
+      "enum": ["wpf", "winui3", "avalonia", "qt6", "tauri2"]
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"enum": ["windows", "linux", "macos"]}
+    },
+    "architecture": {"enum": ["x64", "arm64", "x86"]},
+    "package_kind": {"enum": ["unpackaged", "msix", "msi", "archive"]}
+  }
+}

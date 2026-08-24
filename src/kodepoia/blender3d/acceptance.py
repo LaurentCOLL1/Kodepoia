@@ -17,6 +17,7 @@ _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _EXPECTED_SUBDIVISIONS = tuple(f"R10.{index}" for index in range(1, 13))
 _EXPECTED_PRIOR_PHASES = ("R7", "R8", "R9")
 _REQUIRED_LOCAL = ("R10.2", "R10.10")
+_CONTINUITY_SOURCE = "docs/continuity/KODEPOIA_CONTINUITY.md"
 _RUNTIME_POLICY = {
     "blender": {
         "major": 5,
@@ -69,6 +70,31 @@ def _file_identity(data: bytes) -> tuple[str, int]:
 
 
 @dataclass(frozen=True, slots=True)
+class R10ContinuityBinding:
+    source: str
+    sha256: str
+    bytes: int
+
+    def __post_init__(self) -> None:
+        if self.source != _CONTINUITY_SOURCE:
+            raise ValueError(f"R10 continuity must use canonical source {_CONTINUITY_SOURCE}")
+        _require_sha256(self.sha256, "continuity sha256")
+        if self.bytes < 1:
+            raise ValueError("continuity byte length must be positive")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"source": self.source, "sha256": self.sha256, "bytes": self.bytes}
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> "R10ContinuityBinding":
+        return cls(
+            source=str(payload["source"]),
+            sha256=str(payload["sha256"]),
+            bytes=int(payload["bytes"]),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class R10LocalEvidenceBinding:
     subdivision: str
     source: str
@@ -91,7 +117,7 @@ class R10LocalEvidenceBinding:
         if self.bytes < 1:
             raise ValueError("local evidence byte length must be positive")
         _require_sha40(self.source_sha, "local evidence source_sha")
-        if not self.blender_version_prefix.startswith("5.2."):
+        if self.blender_version_prefix != "5.2.":
             raise ValueError("R10 integrated acceptance is frozen to Blender 5.2.x")
         if (self.godot_major is None) != (self.godot_minor is None):
             raise ValueError("Godot major/minor must be provided together")
@@ -230,11 +256,17 @@ class R10IntegrationReport:
     generated_at: str
     source_sha: str
     subdivisions: tuple[R10SubdivisionEvidence, ...]
+    continuity: R10ContinuityBinding
     local_evidence: tuple[R10LocalEvidenceBinding, ...]
     prior_phases: tuple[PriorPhaseEvidence, ...]
     status: R10IntegrationStatus
     blockers: tuple[str, ...] = ()
-    runtime_policy: Mapping[str, Any] = field(default_factory=lambda: dict(_RUNTIME_POLICY))
+    runtime_policy: Mapping[str, Any] = field(
+        default_factory=lambda: {
+            "blender": dict(_RUNTIME_POLICY["blender"]),
+            "godot": dict(_RUNTIME_POLICY["godot"]),
+        }
+    )
     schema_version: int = R10_INTEGRATION_SCHEMA_VERSION
     evidence_sha256: str = field(init=False)
 
@@ -290,6 +322,7 @@ class R10IntegrationReport:
             "generated_at": self.generated_at,
             "source_sha": self.source_sha,
             "runtime_policy": dict(self.runtime_policy),
+            "continuity": self.continuity.to_dict(),
             "subdivisions": [item.to_dict() for item in self.subdivisions],
             "local_evidence": [item.to_dict() for item in self.local_evidence],
             "prior_phases": [item.to_dict() for item in self.prior_phases],
@@ -309,6 +342,7 @@ class R10IntegrationReport:
                 R10SubdivisionEvidence.from_dict(item)
                 for item in payload.get("subdivisions", [])
             ),
+            continuity=R10ContinuityBinding.from_dict(payload["continuity"]),
             local_evidence=tuple(
                 R10LocalEvidenceBinding.from_dict(item)
                 for item in payload.get("local_evidence", [])
@@ -344,6 +378,15 @@ def build_subdivision_evidence(
         accepted_head=accepted_head,
         manual_state=manual_state,
         manual_reason=manual_reason,
+    )
+
+
+def build_continuity_evidence(*, canonical_bytes: bytes) -> R10ContinuityBinding:
+    digest, size = _file_identity(canonical_bytes)
+    return R10ContinuityBinding(
+        source=_CONTINUITY_SOURCE,
+        sha256=digest,
+        bytes=size,
     )
 
 
@@ -450,6 +493,20 @@ def validate_repository_evidence(
     report: R10IntegrationReport,
     read_bytes: Callable[[str], bytes],
 ) -> None:
+    try:
+        continuity_payload = read_bytes(report.continuity.source)
+    except Exception as exc:
+        raise ValueError(
+            f"Missing normalized R10 continuity evidence: {report.continuity.source}"
+        ) from exc
+    continuity_sha, continuity_bytes = _file_identity(continuity_payload)
+    if (continuity_sha, continuity_bytes) != (
+        report.continuity.sha256,
+        report.continuity.bytes,
+    ):
+        raise ValueError("R10 continuity evidence identity mismatch")
+    continuity_text = continuity_payload.decode("utf-8", errors="strict")
+
     for item in report.subdivisions:
         try:
             payload = read_bytes(item.source)
@@ -459,10 +516,10 @@ def validate_repository_evidence(
         if (observed_sha, observed_bytes) != (item.sha256, item.bytes):
             raise ValueError(f"R10 acceptance identity mismatch for {item.subdivision}")
         text = payload.decode("utf-8", errors="strict")
-        if item.accepted_head not in text:
+        if item.accepted_head not in text and item.accepted_head not in continuity_text:
             raise ValueError(
-                "R10 acceptance document does not contain declared accepted head: "
-                f"{item.subdivision}"
+                "R10 accepted head is absent from both subdivision acceptance and "
+                f"normalized continuity: {item.subdivision}"
             )
         if not item.manual_satisfied:
             raise ValueError(f"R10 manual gate is not satisfied: {item.subdivision}")
@@ -504,13 +561,16 @@ def validate_repository_evidence(
 def write_integrated_acceptance_report(path: Path, report: R10IntegrationReport) -> Path:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(
-        report.to_dict(),
-        ensure_ascii=False,
-        sort_keys=True,
-        indent=2,
-        allow_nan=False,
-    ).encode("utf-8") + b"\n"
+    payload = (
+        json.dumps(
+            report.to_dict(),
+            ensure_ascii=False,
+            sort_keys=True,
+            indent=2,
+            allow_nan=False,
+        ).encode("utf-8")
+        + b"\n"
+    )
     destination.write_bytes(payload)
     return destination
 

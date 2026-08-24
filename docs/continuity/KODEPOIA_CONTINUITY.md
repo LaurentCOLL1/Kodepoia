@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 planning ACCEPTED + NORMALIZED. R11.1–R11.6 COMPLETE + NORMALIZED. R11.7 implementation is ACCEPTED and PR #169 is MERGED; exactly one continuity-only R11.7 normalization is now pending. R11.8 is forbidden until that normalization passes exact-head R0 + full Python Core + KodeStudio UI Smoke and merges.** R11.6 normalization head `d8162c2015895594b66949ca3daf3a4f7995dd11` passed R0 #1406 / `32747513911`, Python #1380 / `32747514129`, UI #1347 / `32747513746`; PR #168 merged as `956fbf296a1ffc312fdd1e17e20ec39fb7fe20cc`. R11.7 implementation candidate `1d2347178b804ae46e8696a8fd78e88e8cb2d84b` passed R0 #1408 / `32748232176`, Python #1382 / `32748232050`, UI #1349 / `32748231962`; Ubuntu reported 990 passed / 8 skipped / 46 warnings and R7/R8/R9 PASS. Final documentation head `49f52432df1d3345dcd69e8862d14f9477d0d342` passed R0 #1409 / `32748449061`, Python #1383 / `32748449069`, UI #1350 / `32748449063`; PR #169 merged as `2ec8ea6b3718a08f31cfad969bc86d97992e46ab`. Manual R11.7 CONDITIONAL was NOT TRIGGERED because no real R10/Godot playback/render claim was accepted.
+> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 planning ACCEPTED + NORMALIZED. R11.1–R11.7 COMPLETE + NORMALIZED. R11.8 implementation is ACCEPTED and PR #171 is MERGED; exactly one continuity-only R11.8 normalization is now pending. R11.9 is forbidden until that normalization passes exact-head R0 + full Python Core + KodeStudio UI Smoke and merges.** R11.7 normalization head `b7538bffa6f94bc50a3296833a52d66911914a98` passed R0 #1411 / `32748814831`, Python #1385 / `32748814882`, UI #1352 / `32748814833`; PR #170 merged as `c3d091fb88acfc2bd054521fd3c76904eff0b885`. R11.8 implementation candidate `26703862a91b5d6a86e83be4f0c2dfabd0541efc` passed R0 #1413 / `32749386348`, Python #1387 / `32749386310`, UI #1354 / `32749386435`; Ubuntu reported 999 passed / 8 skipped / 46 warnings and R7/R8/R9 PASS. Final documentation head `80e7d60b2e6bf75d26f36a28cc2d77f7dac2945e` passed R0 #1414 / `32749687096`, Python #1388 / `32749687090`, UI #1355 / `32749687098`; PR #171 merged as `7d7a421e069a9d8beaf4d9160b06351752946e73`. Manual R11.8 = NONE. R11.9 is the next subdivision and has a frozen REQUIRED manual Godot 4.7 movie-capture acceptance; do not start R11.10 before R11.9 is fully accepted, merged and normalized.
 
 ## État
 
@@ -18,8 +18,9 @@
 - R11.4 : **COMPLETE + NORMALIZED** — PR #163 merge `9ea0d35dbcde42282a9fab0f87ac950ab36d7275`; normalization PR #164 merge `354a0ec2f6889561afcee3b1f547e0b77ca3804b`; manual NONE.
 - R11.5 : **COMPLETE + NORMALIZED** — PR #165 merge `cd55311f8103266fec3cc1c33893cb052d490a92`; normalization PR #166 merge `e12a575314afd511bb752f263c9e5b7e60c75d51`; manual REQUIRED SATISFIED.
 - R11.6 : **COMPLETE + NORMALIZED** — PR #167 merge `742ea5b5e1e3b6ffa73f499198464295131e91bf`; normalization PR #168 merge `956fbf296a1ffc312fdd1e17e20ec39fb7fe20cc`; manual CONDITIONAL NOT TRIGGERED.
-- R11.7 : **ACCEPTED + MERGED; CONTINUITY NORMALIZATION PENDING** — PR #169 merge `2ec8ea6b3718a08f31cfad969bc86d97992e46ab`; manual CONDITIONAL NOT TRIGGERED.
-- R11.8–R11.14 : **FROZEN / NOT STARTED**; R11.8 waits for R11.7 normalization.
+- R11.7 : **COMPLETE + NORMALIZED** — PR #169 merge `2ec8ea6b3718a08f31cfad969bc86d97992e46ab`; normalization PR #170 merge `c3d091fb88acfc2bd054521fd3c76904eff0b885`; manual CONDITIONAL NOT TRIGGERED.
+- R11.8 : **ACCEPTED + MERGED; CONTINUITY NORMALIZATION PENDING** — PR #171 merge `7d7a421e069a9d8beaf4d9160b06351752946e73`; manual NONE.
+- R11.9–R11.14 : **FROZEN / NOT STARTED**; R11.9 waits for R11.8 normalization.
 - R12–R16 : **PENDING / NOT STARTED**.
 
 ## Autorité historique
@@ -68,7 +69,7 @@ Plan autoritatif : `docs/roadmap/R11_PLAN.md`.
 - Normalization `d8162c2015895594b66949ca3daf3a4f7995dd11`: R0 #1406 / `32747513911`, Python #1380 / `32747514129`, UI #1347 / `32747513746` SUCCESS; PR #168 merge `956fbf296a1ffc312fdd1e17e20ec39fb7fe20cc`.
 - Manual CONDITIONAL **NOT TRIGGERED**. **R11.6 COMPLETE + NORMALIZED.**
 
-## R11.7 closure in progress
+## R11.7 closure
 
 - Base normalized main `956fbf296a1ffc312fdd1e17e20ec39fb7fe20cc`; branch `r11/7-facial-performance-lod`; PR #169.
 - Delivered strict R10 facial target catalog adapter, `FacialPerformanceProfile`, target/range validation, facial LOD with critical-semantic preservation, deterministic R11.6 viseme→curve generation, explicit clipping accounting, facial QA and typed R5 Godot animation intents without raw script/resource/path surface.
@@ -76,8 +77,19 @@ Plan autoritatif : `docs/roadmap/R11_PLAN.md`.
 - Implementation `1d2347178b804ae46e8696a8fd78e88e8cb2d84b`: R0 #1408 / `32748232176`, Python #1382 / `32748232050`, UI #1349 / `32748231962` SUCCESS; Ubuntu **990 passed / 8 skipped / 46 warnings**; Windows Python/internal UI/package builds SUCCESS; R7/R8/R9 PASS.
 - Final documentation head `49f52432df1d3345dcd69e8862d14f9477d0d342`: R0 #1409 / `32748449061`, Python #1383 / `32748449069`, UI #1350 / `32748449063` SUCCESS.
 - PR #169 merge `2ec8ea6b3718a08f31cfad969bc86d97992e46ab`.
-- Manual CONDITIONAL **NOT TRIGGERED** because accepted behavior is fully proved from synthetic R10-shaped metadata and deterministic CI; no real R10/Godot behavior claim is made.
-- Current branch `r11/7-continuity-normalization` changes only this continuity file. Its accepted merge makes **R11.7 COMPLETE + NORMALIZED** and authorizes R11.8.
+- Normalization `b7538bffa6f94bc50a3296833a52d66911914a98`: R0 #1411 / `32748814831`, Python #1385 / `32748814882`, UI #1352 / `32748814833` SUCCESS; PR #170 merge `c3d091fb88acfc2bd054521fd3c76904eff0b885`.
+- Manual CONDITIONAL **NOT TRIGGERED**. **R11.7 COMPLETE + NORMALIZED.**
+
+## R11.8 closure in progress
+
+- Base normalized main `c3d091fb88acfc2bd054521fd3c76904eff0b885`; branch `r11/8-cinematic-timeline`; PR #171.
+- Delivered exact rational/frame-aware timebase; digest-bound `ShotDefinition` and `SequenceTimeline`; camera/body/facial/dialogue/music/SFX/Foley/subtitle/event tracks; bounded allowlisted event payloads; deterministic one-key branch conditions; gap/overlap/missing-ref/timebase/digest/nested-cycle/budget validation; canonical schemas and focused adversarial tests.
+- No Godot runtime/movie capture, no arbitrary event code, no NLE replacement and no R8 asset mutation.
+- Implementation candidate `26703862a91b5d6a86e83be4f0c2dfabd0541efc`: R0 #1413 / `32749386348`, Python #1387 / `32749386310`, UI #1354 / `32749386435` SUCCESS; Ubuntu **999 passed / 8 skipped / 46 warnings**; Windows Python/internal UI/package builds SUCCESS; R7/R8/R9 PASS.
+- Final documentation head `80e7d60b2e6bf75d26f36a28cc2d77f7dac2945e`: R0 #1414 / `32749687096`, Python #1388 / `32749687090`, UI #1355 / `32749687098` SUCCESS.
+- PR #171 merge `7d7a421e069a9d8beaf4d9160b06351752946e73`.
+- Manual **NONE**.
+- Current branch `r11/8-continuity-normalization` changes only this continuity file. Its accepted merge makes **R11.8 COMPLETE + NORMALIZED** and authorizes R11.9.
 
 ## Baselines externes R11
 
@@ -86,7 +98,8 @@ Plan autoritatif : `docs/roadmap/R11_PLAN.md`.
 - TTS is backend-neutral; Piper remains an external configured runtime, never auto-downloaded by Kodepoia.
 - R11.6 remains aligner-neutral unless a later triggered conditional gate accepts a real backend/native aligner.
 - R11.7 emits only typed facial animation intent; R10 remains authoritative for target identity/ranges and R5 for Godot materialization.
-- R11.9 still requires real Godot 4.7 movie-capture evidence.
+- R11.8 remains declarative and engine-neutral; its tracks/events do not execute raw code.
+- R11.9 requires real Godot 4.7 movie-capture evidence. Godot's documented `--write-movie` path forces fixed-FPS movie mode; `--fixed-fps` can set capture FPS and `--quit-after` permits bounded clean termination. Abrupt Ctrl+C/F8 termination is not acceptable evidence because AVI/WAV duration metadata can be malformed.
 
 ## Permanent boundaries
 
@@ -100,4 +113,4 @@ Normalization run IDs remain in PR/merge metadata; do not create recursive commi
 
 ## Next authorized action
 
-Cycle = **R11.7 continuity normalization only**. Gate exact head of `r11/7-continuity-normalization` with R0 + full Python Core + KodeStudio UI Smoke and merge with expected SHA. **That merge alone makes R11.7 COMPLETE + NORMALIZED and authorizes R11.8 (manual NONE).**
+Cycle = **R11.8 continuity normalization only**. Gate exact head of `r11/8-continuity-normalization` with R0 + full Python Core + KodeStudio UI Smoke and merge with expected SHA. **That merge alone makes R11.8 COMPLETE + NORMALIZED and authorizes R11.9 (manual REQUIRED).**

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 planning ACTIVE sur la branche `r11/plan-audio-voice-cinematics-franchise`. R11.1 est INTERDIT tant que `docs/roadmap/R11_PLAN.md` n'a pas été accepté sur un head exact, mergé, puis normalisé par une unique PR de continuité elle-même acceptée et mergée.** Le `main` autoritatif au départ de R11 est `d627f26a086c46273ce378a2d4d9919db0e9dd3a`. Le titre gelé de R11 est **Audio / Voice / Cinematics / Franchise**. Le plan propose R11.1–R11.14 avec R11.5 et R11.9 en REQUIRED, R11.2/R11.6/R11.7/R11.12/R11.14 en CONDITIONAL, toutes les autres subdivisions en NONE. Aucune implémentation R11 n'a commencé.
+> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 exhaustive planning is ACCEPTED + MERGED; exactly one continuity-only planning normalization is now pending. R11.1 remains FORBIDDEN until that normalization passes exact-head R0 + full Python Core + KodeStudio UI Smoke and merges.** Planning head `6d335f9bc025dfff0b5b92b206115ab603d9a8d5` passed R0 #1335 / `32722294209`, Python #1309 / `32722294203`, UI #1276 / `32722294224`, all SUCCESS; Ubuntu reported 906 passed / 8 skipped / 46 warnings with R7/R8/R9 integrated acceptance PASS, and PR #155 merged as `523048121613a07554787a07701d1334c59cd2dd`. The R11.1–R11.14 subdivision structure and manual states in `docs/roadmap/R11_PLAN.md` are frozen. Current branch `r11/plan-continuity-normalization` changes continuity only. If this exact normalization head passes the same three gates and merges, **R11 planning becomes ACCEPTED + NORMALIZED and R11.1 is authorized.**
 
 ## Source de vérité / état
 
@@ -12,8 +12,9 @@
 - Architecture v1.0 : gelée le 21 août 2026.
 - `main` : source de vérité après chaque merge accepté et normalisation requise.
 - R1–R10 : **COMPLETE + NORMALIZED**.
-- R11 planning : **IN PROGRESS** sur `r11/plan-audio-voice-cinematics-franchise`.
-- R11.1–R11.14 : **PLANNED ONLY / NOT STARTED** jusqu'au merge du plan puis au merge de sa normalisation.
+- R11 planning : **ACCEPTED + MERGED; PLANNING NORMALIZATION PENDING**.
+- R11 planning accepted head `6d335f9bc025dfff0b5b92b206115ab603d9a8d5`: R0 #1335 / `32722294209`, Python #1309 / `32722294203`, UI #1276 / `32722294224` SUCCESS; PR #155 merge `523048121613a07554787a07701d1334c59cd2dd`.
+- R11.1–R11.14 : **FROZEN / NOT STARTED**; R11.1 waits for the planning-normalization merge.
 - R12–R16 : **PENDING / NOT STARTED**.
 
 ## Autorité historique des acceptances
@@ -60,11 +61,12 @@ Les détails complets, candidats rejetés, rapports JSON canoniques, preuves loc
 - Roadmap : `docs/roadmap/KODEPOIA_ROADMAP_V1_0.md`.
 - Template obligatoire : `docs/roadmap/PHASE_PLAN_TEMPLATE.md`.
 - Source `main` de planification : `d627f26a086c46273ce378a2d4d9919db0e9dd3a`.
-- Branche : `r11/plan-audio-voice-cinematics-franchise`.
+- Branche de plan : `r11/plan-audio-voice-cinematics-franchise`.
 - Plan exhaustif : `docs/roadmap/R11_PLAN.md`.
-- R11.1 ne peut commencer qu'après : plan exact-head R0 + Python Core complet + KodeStudio UI Smoke SUCCESS → merge du plan avec `expected_head_sha` → unique normalisation de continuité de planification → mêmes trois gates exact-head SUCCESS → merge de normalisation.
+- Planning exact-head is accepted and merged: `6d335f9bc025dfff0b5b92b206115ab603d9a8d5`; R0 #1335 / `32722294209`, Python #1309 / `32722294203`, UI #1276 / `32722294224` SUCCESS; PR #155 merge `523048121613a07554787a07701d1334c59cd2dd`.
+- Current branch `r11/plan-continuity-normalization` MUST change only this continuity file. Its merge is the sole remaining prerequisite before R11.1.
 
-### Structure R11 proposée à geler
+### Structure R11 gelée
 
 | ID | Titre | Manuel |
 | --- | --- | --- |
@@ -135,6 +137,6 @@ R11 n'est **COMPLETE + NORMALIZED** que lorsque R11.1–R11.14 sont COMPLETE, to
 
 ## Prochaine action autorisée
 
-Cycle actuel = **planification uniquement**. Figer `docs/roadmap/R11_PLAN.md` avec cette continuité sur un seul head. Ouvrir la PR de planification et exiger R0 Repository Guard + Python Core complet + KodeStudio UI Smoke SUCCESS sur ce SHA exact. **Ne pas implémenter R11.1 sur la branche de planification.**
+Cycle actuel = **normalisation de planification uniquement**. La branche `r11/plan-continuity-normalization` doit modifier exactement `docs/continuity/KODEPOIA_CONTINUITY.md`, enregistrer le head/runs/merge du plan et les 14 subdivisions/manuels comme gelés, puis passer R0 Repository Guard + Python Core complet + KodeStudio UI Smoke sur un seul head exact.
 
-Si les trois gates passent : merge du plan avec `expected_head_sha`, puis création d'une seule branche de normalisation de planification ne modifiant que cette continuité; y enregistrer head/runs/merge du plan et geler officiellement R11.1–R11.14/manual states; exécuter les mêmes trois gates et merger. **Seul ce second merge autorise R11.1.**
+Si ces trois gates passent, merger la PR avec `expected_head_sha`. **Ce merge rend R11 planning ACCEPTED + NORMALIZED et autorise R11.1 (manual NONE).** Ne pas créer de commit récursif uniquement pour inscrire les propres run IDs de cette normalisation; les conserver dans la PR/merge.

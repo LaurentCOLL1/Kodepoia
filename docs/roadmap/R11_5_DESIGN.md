@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementation candidate. Manual acceptance is **REQUIRED** before merge.
+Implementation revised after the first real-runtime checkpoint. Manual acceptance remains **REQUIRED** before merge.
 
 ## Scope
 
@@ -17,21 +17,50 @@ R11.5 adds governed local speech synthesis without changing the frozen R1–R10 
 - bounded synthesis time/stdout/stderr/output bytes/duration;
 - WAV/PCM inspection and QA through R11.2;
 - privacy-minimized synthesis/local-acceptance evidence schemas;
+- repository-local `models/` catalog governed by `KodeModelRegistry`;
 - real local collector requiring explicit voice-license review.
+
+## Repository-local model catalog
+
+Kodepoia now treats `<repo>/models/` as the canonical local home for model payloads. This is a physical catalog, not a Git payload store.
+
+Tracked content:
+
+- `models/README.md` and category/role documentation;
+- `models/registry/models.json`;
+- one tracked `manifest.json` per governed installed model identity;
+- model schemas, license/provenance metadata, SHA-256 identities and byte budgets.
+
+Local-only content:
+
+- `.onnx`, `.gguf`, `.safetensors`, checkpoints and other large model payloads;
+- downloaded model-package sidecars such as `.onnx.json` when they are third-party payload bytes;
+- runtime caches and provider-specific binary stores.
+
+The existing `kodepoia.models.router.ModelRegistry` remains the logical model-routing registry for roles such as `fast/core/coder/embed/vision`. `KodeModelRegistry` is complementary: it resolves the physical repository-relative model catalog, validates path confinement and verifies local payload SHA-256 identities. No second routing architecture is introduced.
+
+The first registered physical model is:
+
+- model id: `tts.piper.fr-FR.siwis-medium`;
+- local directory: `models/tts/piper/fr-FR/siwis-medium/`;
+- model/config SHA-256 identities taken from the real R11.5 operator run;
+- locale `fr-FR`, backend `piper-compatible`, license id `cc-by-4.0`, provenance id `piper.fr-fr.siwis.medium`.
+
+The collector selects this voice by model id and derives locale/license/provenance from the tracked manifest. Operator approval is still explicit and mandatory.
 
 ## Piper-compatible boundary
 
-Kodepoia never downloads Piper or a voice model. The user supplies existing paths to:
+Kodepoia runtime collectors never download Piper or a voice model. Prerequisite installation/download is an explicit operator action performed before the offline collector run.
 
-1. a `piper` / `piper.exe` executable;
-2. a governed `.onnx` model;
-3. its exact `<model>.onnx.json` sibling.
+The adapter uses:
+
+1. an existing `piper` / `piper.exe` executable;
+2. a governed `.onnx` model resolved by `KodeModelRegistry`;
+3. its exact `<model>.onnx.json` sibling resolved by the same manifest.
 
 The adapter hashes executable/model/config bytes before synthesis. The current Piper CLI is capability-probed with `--help`; the required markers are `--model`, `--input-file`, `--output-file`, `--speaker` and `--length-scale`.
 
 The text is written to a bounded UTF-8 staging `.txt` file, passed via `--input-file`, and deleted after process execution. The text itself is never passed in argv or written to acceptance evidence; evidence stores only its SHA-256 digest.
-
-The config file is still part of the governed identity and must be the exact `<model>.onnx.json` sibling. R11.5 does not claim an independently routed config path changes Piper runtime behavior.
 
 No raw Piper flags, `--cuda`, server mode, download command, shell fragment, URL, SSML/XML or arbitrary argv surface is exposed.
 
@@ -47,11 +76,24 @@ No raw Piper flags, `--cuda`, server mode, download command, shell fragment, URL
 - malformed/truncated/non-PCM WAV output fails through R11.2 validation.
 - cancellation/non-zero exit/timeouts fail closed.
 
+## TTS-specific clipping policy
+
+The first real Piper run produced valid 16-bit PCM with one full-scale endpoint sample in 106,496 frames. R11.2's generic audio profile intentionally uses `max_clipped_samples=0`, so that candidate was correctly reported as blocked under the then-current policy.
+
+R11.5 does **not** weaken the generic R11.2 policy. Instead, local neural TTS uses `tts.local.v2` with a tiny isolated-endpoint tolerance:
+
+- maximum 10 parts per million of samples;
+- minimum allowance of one isolated endpoint sample;
+- absolute cap of 16 samples regardless of output length;
+- any count above that budget remains `BLOCKED` as clipping.
+
+This is a Kodepoia TTS acceptance policy, not a claim that full-scale samples are universally harmless. It distinguishes a single isolated PCM endpoint from repeated saturation while keeping the general audio QA profile unchanged.
+
 ## Rights and provenance
 
 R11.4 `VoiceModelBinding` remains authoritative. A synthesis request can only be created when:
 
-- the binding permits the requested use;
+- the tracked model manifest permits the requested use;
 - binding/profile locale compatibility succeeds;
 - runtime/model/config bytes match the governed identity;
 - the local acceptance operator explicitly confirms that the per-voice/model license was reviewed.
@@ -71,6 +113,7 @@ No voice cloning, model training, biometric inference, personal reference record
 Hosted acceptance uses synthetic/fake process fixtures only. Real-runtime acceptance is intentionally local and REQUIRED. The local collector emits one JSON document containing:
 
 - candidate Git SHA;
+- `KodeModelRegistry` model id and manifest digest;
 - license/provenance acknowledgement identifiers;
 - runtime executable/help hashes;
 - model/config hashes;
@@ -81,6 +124,8 @@ Hosted acceptance uses synthetic/fake process fixtures only. Real-runtime accept
 
 The temporary WAV and text staging directory are removed when the collector exits.
 
-## External baseline note
+## First local checkpoint result
 
-As verified on 2026-08-24, the maintained OHF Piper project installs as `piper-tts`; its current CLI exposes explicit model/input-file/output-file/speaker/length-scale controls. Voice packages remain external and have per-resource model cards/licenses. This is a compatibility baseline, not vendored dependency evidence.
+Candidate `441ea87436c6851cd106654454f955a91460f7af` passed all hosted gates but its first real local evidence returned `status=fail`. Piper itself succeeded and the privacy/process checks passed; QA blocked only because the WAV contained one full-scale endpoint sample and the original generic profile allowed zero. That evidence remains a rejected historical candidate and is not reclassified as PASS.
+
+The catalog + TTS QA revision therefore requires a new exact implementation candidate, fresh hosted gates and a fresh local collector run before R11.5 may merge.

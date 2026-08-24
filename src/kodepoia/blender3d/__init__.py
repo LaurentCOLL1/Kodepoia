@@ -6,6 +6,9 @@ from .contracts import BlenderCapabilityState, BlenderJobRecipe, BlenderJobState
 from .errors import BlenderBoundaryError, BlenderError, BlenderProtocolError, BlenderVersionError
 from .geometry_contracts import GeometryOperation, GeometryRecipe, GeometryStep, geometry_recipe_digest, validate_geometry_recipes
 from .geometry_runner import GeometryRunner
+from .gltf_contracts import GltfAssetMode, GltfContainer, GltfExportProfile, GltfExportScope, make_gltf_export_revision, validate_gltf_source_revision
+from .gltf_runner import GltfExportRunner, GltfLocalAcceptanceRunner, validate_local_acceptance_evidence, write_gltf_local_evidence
+from .gltf_validator import GltfDocumentFacts, evaluate_roundtrip, parse_glb_bytes, parse_gltf_json_bytes, validate_gltf_document, validate_gltf_file
 from .lod_contracts import LODAssetMode, LODPreservationPolicy, LODProfile, LODTier, ShapeKeyLODPolicy, make_lod_variant_revision, validate_lod_source_revision
 from .lod_runner import LODRunner
 from .lod_validator import evaluate_lod_measurements
@@ -26,6 +29,7 @@ __all__ = [
     "AnimationChannel", "AnimationClip", "AnimationRunner", "BoneMapping", "ChannelPath", "Keyframe", "RetargetRecipe", "RigSemanticProfile", "RootMotionPolicy", "SemanticBone", "evaluate_animation_measurements",
     "BlenderBoundaryError", "BlenderCapabilityState", "BlenderError", "BlenderExecutableBoundary", "BlenderJobRecipe", "BlenderJobState", "BlenderOperation", "BlenderProcessLimits", "BlenderProtocolError", "BlenderRunManifest", "BlenderRunner", "BlenderRuntimeIdentity", "BlenderRuntimePolicy", "BlenderVersion", "BlenderVersionError",
     "GeometryOperation", "GeometryRecipe", "GeometryRunner", "GeometryStep", "MaterialSpec", "PBRRecipe", "PBRRunner", "TextureRef", "TextureRole", "UVMethod", "UVSpec",
+    "GltfAssetMode", "GltfContainer", "GltfDocumentFacts", "GltfExportProfile", "GltfExportRunner", "GltfExportScope", "GltfLocalAcceptanceRunner", "evaluate_roundtrip", "make_gltf_export_revision", "parse_glb_bytes", "parse_gltf_json_bytes", "validate_gltf_document", "validate_gltf_file", "validate_gltf_source_revision", "validate_local_acceptance_evidence", "write_gltf_local_evidence",
     "LODAssetMode", "LODPreservationPolicy", "LODProfile", "LODRunner", "LODTier", "ShapeKeyLODPolicy", "evaluate_lod_measurements", "make_lod_variant_revision", "validate_lod_source_revision",
     "AssetRevisionBinding", "CoordinateProfile", "MaterialSlotBinding", "OrganicAssetProfile", "OrganicProfileKind", "OrganicProfileQAPolicy", "ProfilePiece", "ProfilePieceType", "SemanticZone", "ShapeKeyBinding", "evaluate_organic_profile",
     "BoundaryPolicy", "MeshAssetClass", "MeshQABudgets", "MeshQAProfile", "MeshQARunner", "MeshRepairOperation", "MeshRepairRecipe", "UVOverlapPolicy", "evaluate_mesh_qa",

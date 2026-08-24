@@ -1,0 +1,5 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://kodepoia.local/schemas/r10-gltf-export-manifest-v1.schema.json","title":"Kodepoia R10.10 glTF export manifest v1","type":"object",
+  "required":["schema","version","source_sha","policy_version","profile_digest","input_revision_id","status","blockers","runtime","artifact","gltf","roundtrip","process","evidence_digest","promotion"],
+  "properties":{"schema":{"const":"kodepoia.blender.gltf_export_manifest"},"version":{"const":1},"source_sha":{"type":"string","pattern":"^[0-9a-f]{40}$"},"policy_version":{"const":"r10.10-export-v1"},"profile_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},"input_revision_id":{"type":"string","pattern":"^rev_[0-9a-f]{32}$"},"status":{"enum":["pass","block"]},"blockers":{"type":"array","uniqueItems":true,"items":{"type":"string"}},"runtime":{"type":"object"},"artifact":{"type":["object","null"]},"gltf":{"type":["object","null"]},"roundtrip":{"type":["object","null"]},"process":{"type":"object"},"evidence_digest":{"type":"string","pattern":"^[0-9a-f]{64}$"},"promotion":{"type":["object","null"]}}
+}

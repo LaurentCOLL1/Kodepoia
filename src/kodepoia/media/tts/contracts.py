@@ -5,7 +5,7 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
-from ..contracts import stable_id
+from ..contracts import sha256_hex, stable_id
 from ..serialization import canonical_sha256
 from ..voice import AllowedUse, VoiceModelBinding, VoiceProfile, normalize_locale, normalize_voice_text
 
@@ -86,9 +86,7 @@ class SynthesisRequest:
     def __post_init__(self) -> None:
         stable_id(self.request_id, field="request_id")
         for name in ("profile_digest", "binding_digest"):
-            value = getattr(self, name)
-            if not isinstance(value, str) or len(value) != 64 or any(ch not in "0123456789abcdef" for ch in value):
-                raise ValueError(f"{name} must be lowercase SHA-256 hex")
+            sha256_hex(getattr(self, name), field=name)
         object.__setattr__(self, "locale", normalize_locale(self.locale))
         object.__setattr__(self, "text", _plain_tts_text(self.text))
         if self.speaker_id is not None and (isinstance(self.speaker_id, bool) or not isinstance(self.speaker_id, int) or not 0 <= self.speaker_id <= 65535):
@@ -138,6 +136,9 @@ class SynthesisRequest:
         }
 
     def cache_key(self, *, runtime_sha256: str, model_sha256: str, config_sha256: str) -> str:
+        sha256_hex(runtime_sha256, field="runtime_sha256")
+        sha256_hex(model_sha256, field="model_sha256")
+        sha256_hex(config_sha256, field="config_sha256")
         payload = {
             "schema_version": 1,
             "request": self.canonical(),

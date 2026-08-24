@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1–R10.10 COMPLETE + NORMALIZED. R10.11 CLI + KodeStudio Blender/3D UX is ACCEPTED + merged; its single post-merge continuity normalization is the only remaining R10.11 completion condition.** `docs/roadmap/R10_PLAN.md` remains the exhaustive authority for R10.1–R10.12. R10.10 normalization head `02f8bd922662869390038a44327f3519fcebaf39` passed R0 #1321 / `32710626638`, Python #1295 / `32710626649`, UI #1262 / `32710626665`, all SUCCESS, and PR #150 merged as `0bb957b4401026af265ab42e0eb296a9e8615001`, making R10.10 COMPLETE + NORMALIZED and authorizing R10.11. R10.11 historical candidate `e8b1b12a8c199dfcd1829a6d206567ed7be9c324` passed R0 #1323 / `32713096826` but Python #1297 / `32713096801` and UI #1264 / `32713096799` failed only because the historical R6.6 pseudo-locale regression still expected 8 navigation entries after the intentional ninth Blender / 3D page was added. Corrective exact candidate `a75813ac6ab11b7e9e87bf99784bf00696aaef41` changed only that expected navigation count to 9, preserved the pseudo-localization/truncation assertions and dedicated R10.11 Blender page coverage, then passed R0 #1324 / `32713740897`, Python #1298 / `32713740901`, UI #1265 / `32713740869`, all SUCCESS with R7/R8/R9 integrated acceptance PASS. PR #151 merged as `56daf7db7d493f1f89d722bf46f95afa2f9aad24`. Current branch `r10/11-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10.11 becomes COMPLETE + NORMALIZED and R10.12 is authorized.** R10.12 frozen manual state is CONDITIONAL.
+> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1–R10.11 COMPLETE + NORMALIZED. R10.12 adversarial hardening + integrated acceptance is ACCEPTED + merged; only the single final R10 continuity normalization remains before R10 becomes COMPLETE + NORMALIZED.** `docs/roadmap/R10_PLAN.md` remains the exhaustive authority for R10.1–R10.12. R10.11 normalization head `c5af4d6ca0556bee811c536ce544901b647f34e0` passed R0 #1326 / `32714235401`, Python #1300 / `32714235332`, UI #1267 / `32714235405`, all SUCCESS with R7/R8/R9 integrated acceptance PASS; PR #152 merged as `15b08c7be41d0c2d90bbc5f22364cd319cdfdd10`, making R10.11 COMPLETE + NORMALIZED and authorizing R10.12. R10.12 corrective immutable implementation head `2f1db59c8ffa8da28d7afd994e8203a126d4f478` passed R0 #1329 / `32716992444`, Python #1303 / `32716992453`, UI #1270 / `32716992458`, all SUCCESS; frozen manual state CONDITIONAL was NOT TRIGGERED. Canonical `docs/roadmap/R10_INTEGRATED_ACCEPTANCE.json` has `status=pass`, `blockers=[]`, semantic digest `48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8`, and binds the immutable R10.12 implementation head plus prior R10 acceptance/local/integrated evidence. Final evidence head `309133ae50045ae2193e13d69f9b195c02d74b5d` passed R0 #1331 / `32718578313`, Python #1305 / `32718578346`, UI #1272 / `32718578401`, all SUCCESS; PR #153 merged as `778164694fd32b6c01d0f34bf7d94c93090fdf98`. Current branch `r10/12-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10 becomes COMPLETE + NORMALIZED and R11 planning is authorized.**
 
 ## Source de vérité / état
 
@@ -23,9 +23,9 @@
 - R10.8 : **COMPLETE + NORMALIZED** — manual CONDITIONAL NOT TRIGGERED.
 - R10.9 : **COMPLETE + NORMALIZED** — manual NONE.
 - R10.10 : **COMPLETE + NORMALIZED** — manual REQUIRED SATISFIED.
-- R10.11 : implementation/final exact-head acceptance ACCEPTED + PR #151 MERGED — manual NONE — post-merge normalization pending.
-- R10.12 : PLANNED — manual CONDITIONAL; NOT STARTED until R10.11 normalization merges.
-- R11–R16 : PENDING / NOT STARTED.
+- R10.11 : **COMPLETE + NORMALIZED** — manual NONE.
+- R10.12 : **ACCEPTED + MERGED; FINAL NORMALIZATION PENDING** — manual CONDITIONAL NOT TRIGGERED.
+- R11–R16 : PENDING / NOT STARTED; R11 planning is authorized only after the final R10 normalization merge.
 
 ## Historical acceptance source of truth
 
@@ -161,7 +161,19 @@ Detailed evidence, rejected candidates, canonical JSON reports and exact accepta
 - Final exact-head gates on `a75813ac6ab11b7e9e87bf99784bf00696aaef41`: R0 #1324 / `32713740897`, Python #1298 / `32713740901`, UI #1265 / `32713740869` SUCCESS. Ubuntu/Windows tests, KodeStudio smoke, Ubuntu/Windows package builds and R7/R8/R9 integrated acceptance PASS.
 - Frozen manual state **NONE**; no real Blender/Godot run is introduced by R10.11.
 - PR #151 merged as `56daf7db7d493f1f89d722bf46f95afa2f9aad24`.
-- Current branch `r10/11-continuity-normalization` changes only this continuity file.
+- R10.11 normalization head `c5af4d6ca0556bee811c536ce544901b647f34e0`: R0 #1326 / `32714235401`, Python #1300 / `32714235332`, UI #1267 / `32714235405` SUCCESS; R7/R8/R9 integrated acceptance PASS; PR #152 merge `15b08c7be41d0c2d90bbc5f22364cd319cdfdd10` made R10.11 COMPLETE + NORMALIZED and authorized R10.12.
+
+
+## R10.12 accepted implementation and merge — adversarial hardening + integrated acceptance
+
+- Base normalized R10.11 `15b08c7be41d0c2d90bbc5f22364cd319cdfdd10`; branch `r10/12-adversarial-integrated-acceptance`; PR #153.
+- Historical candidate `314f73a787df138a1525ddb9d6c894b95022f973`: R0 #1328 / `32716816926` repository validation succeeded, while Python #1302 / `32716816964` was **REJECTED** because one new R10.12 test incorrectly compared the current repository bytes of `R10_2_LOCAL_ACCEPTANCE.json` with the historical transfer SHA-256 recorded during R10.2. Ubuntu otherwise reported **905 passed / 8 skipped / 46 warnings** and R7/R8/R9 integrated acceptance PASS. The verifier/security boundary was not weakened.
+- Corrective immutable implementation head `2f1db59c8ffa8da28d7afd994e8203a126d4f478`: R0 #1329 / `32716992444`, Python #1303 / `32716992453`, UI #1270 / `32716992458` SUCCESS; Ubuntu **906 passed / 8 skipped / 46 warnings**, R7/R8/R9 integrated acceptance PASS, Windows tests/UI/package builds SUCCESS.
+- Frozen R10.12 manual state **CONDITIONAL NOT TRIGGERED**: the subdivision adds adversarial/evidence validation only and introduces no new authoritative Blender/Godot runtime seam.
+- Acceptance/evidence-preparation head `23fa118df2aae555c206b49a628f57a318136c6c`: R0 #1330 / `32717163414`, Python #1304 / `32717163455`, UI #1271 / `32717163421` SUCCESS.
+- Canonical integrated report `docs/roadmap/R10_INTEGRATED_ACCEPTANCE.json`: **7771 bytes**, file SHA-256 `d7ddb6f402f0452a78dbb789afd3f29cc6162bd311618b21dfe1a0d4ac6a86c1`, semantic digest `48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8`, `source_sha=2f1db59c8ffa8da28d7afd994e8203a126d4f478`, `status=pass`, `blockers=[]`. It immutably binds all R10.1–R10.12 acceptance documents, the pre-R10.12-normalization continuity identity, required R10.2/R10.10 local runtime evidence, and R7/R8/R9 integrated reports.
+- Final exact evidence head `309133ae50045ae2193e13d69f9b195c02d74b5d`: R0 #1331 / `32718578313`, Python #1305 / `32718578346`, UI #1272 / `32718578401` SUCCESS; Ubuntu **906 passed / 8 skipped / 46 warnings**, R7/R8/R9 integrated acceptance PASS; Windows tests, KodeStudio smoke and Ubuntu/Windows package builds SUCCESS.
+- PR #153 merged as `778164694fd32b6c01d0f34bf7d94c93090fdf98`.
 
 ## Permanent architecture/security boundaries
 
@@ -196,10 +208,8 @@ Preserve without reinterpretation:
 5. Scope/structure changes synchronize plan + continuity in the same work cycle.
 6. Foundation changes require an ADR.
 
-## R10.11 normalization rule / next action
+## R10.12 final normalization rule / next action
 
-The current branch `r10/11-continuity-normalization` is the **single post-merge continuity normalization** after accepted R10.11 PR #151. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with R7/R8/R9 integrated acceptance still PASS.
+The current branch `r10/12-continuity-normalization` is the **single final post-merge continuity normalization for R10** after accepted R10.12 PR #153. It changes only this continuity file. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with R7/R8/R9 integrated acceptance still PASS.
 
-If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10.11 COMPLETE + NORMALIZED and authorizes R10.12.** Do not create another recursive R10.11 continuity commit solely to record the normalization's own run IDs; record those IDs in the normalization PR/merge metadata instead.
-
-R10.12 frozen manual state is **CONDITIONAL**. Do not start R10.12 inside this normalization. Start it only from the resulting normalized `main` and only in a later authorized work cycle.
+If all three gates succeed, merge the normalization PR into `main` with its exact expected head SHA. **The act of merging that exact validated continuity-only normalization makes R10 COMPLETE + NORMALIZED and authorizes R11 planning.** Do not create another recursive R10 continuity commit solely to record the normalization's own run IDs; record those IDs in the normalization PR/merge metadata instead.

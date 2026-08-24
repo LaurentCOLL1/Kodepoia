@@ -72,6 +72,11 @@ Final documentation head `ceff4d2896b5fa1b2f4996fe70682521eca9e1c3`:
 - Python #1279 / `32708920926`: **SUCCESS**;
 - UI #1246 / `32708920982`: **SUCCESS**.
 
+Final frozen head `ea25f9d2327452165cd1c5fdb749240ba4f08ab8`:
+- R0 #1306 / `32709108935`: **SUCCESS**;
+- Python #1280 / `32709108919`: **SUCCESS**;
+- UI #1247 / `32709109055`: **SUCCESS**.
+
 Python Core preserves Ubuntu/Windows coverage, R7/R8/R9 integrated acceptance PASS, KodeStudio smoke and both package builds SUCCESS. No further branch writes are permitted before merge.
 
 ## Accepted candidate implementation
@@ -85,7 +90,7 @@ Python Core preserves Ubuntu/Windows coverage, R7/R8/R9 integrated acceptance PA
 ## Final acceptance ordering
 
 1. Preserve both the rejected and accepted local evidence records permanently.
-2. Merge PR #149 only from exact accepted head `ceff4d2896b5fa1b2f4996fe70682521eca9e1c3`.
+2. Merge PR #149 only from exact accepted head `ea25f9d2327452165cd1c5fdb749240ba4f08ab8`.
 3. Create a continuity-only post-merge normalization branch from the resulting `main` merge commit.
 4. Run fresh R0 + Python + UI on the normalization head and merge only if all three are SUCCESS.
 5. Only after that merge is R10.10 **COMPLETE + NORMALIZED** and R10.11 authorized.

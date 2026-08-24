@@ -13,9 +13,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  qt6-windows:
-    name: qt6-windows
-    runs-on: windows-2022
+  qt6-macos:
+    name: qt6-macos
+    runs-on: macos-latest
     env:
       KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
@@ -30,35 +30,34 @@ jobs:
           cache: pip
       - name: Install Kodepoia
         run: python -m pip install -e ".[dev]"
-      - name: Provision exact Qt 6.11.2 as CI infrastructure
-        shell: pwsh
+      - name: Provision supported Qt 6 toolchain as CI infrastructure
+        shell: bash
         run: |
-          $qtRoot = Join-Path $env:RUNNER_TEMP "Qt"
-          $installer = Join-Path $env:RUNNER_TEMP "qt-online-installer-windows-x64-online.exe"
-          $installerUrl = "https://download.qt.io/official_releases/online_installers/qt-online-installer-windows-x64-online.exe"
-          $installerSha256 = "ae919bc9b224b8ccdada69ec787a9f69330001f227f3fcbfb4a11a4adb3786f6"
-          curl.exe --fail --location --retry 3 --retry-delay 5 --output "$installer" "$installerUrl"
-          if ($LASTEXITCODE -ne 0) { throw "Official Qt Online Installer download failed" }
-          $actualSha256 = (Get-FileHash -Algorithm SHA256 "$installer").Hash.ToLowerInvariant()
-          if ($actualSha256 -ne $installerSha256) { throw "Official Qt Online Installer SHA-256 mismatch" }
-          & "$installer" `
-            --root "$qtRoot" `
-            --mirror "https://qt.mirror.constant.com" `
-            --accept-licenses `
-            --accept-obligations `
-            --default-answer `
-            --confirm-command `
-            install qt.qt6.6112.win64_msvc2022_64
-          if ($LASTEXITCODE -ne 0) { throw "Official Qt Online Installer provisioning failed" }
-          $qtBin = Join-Path $qtRoot "6.11.2\msvc2022_64\bin"
-          if (-not (Test-Path (Join-Path $qtBin "qtpaths.exe"))) { throw "Qt qtpaths.exe missing after official CI provisioning" }
-          $qtBin | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          set -euo pipefail
+          brew install qtbase cmake ninja
+          qt_prefix="$(brew --prefix qtbase)"
+          test -d "$qt_prefix/bin"
+          if test -x "$qt_prefix/bin/qtpaths6"; then
+            qtpaths="$qt_prefix/bin/qtpaths6"
+          elif test -x "$qt_prefix/bin/qtpaths"; then
+            qtpaths="$qt_prefix/bin/qtpaths"
+          else
+            echo "qtpaths executable missing from Homebrew qtbase" >&2
+            exit 1
+          fi
+          qt_version="$($qtpaths --qt-version)"
+          case "$qt_version" in
+            6.*) ;;
+            *) echo "Expected Qt 6, got $qt_version" >&2; exit 1 ;;
+          esac
+          echo "$qt_prefix/bin" >> "$GITHUB_PATH"
+          echo "Qt CI toolchain: version=$qt_version prefix=$qt_prefix"
       - name: Build and runtime-probe Qt fixture
-        run: python scripts/r12_8_qt_acceptance.py --output ".kodepoia/evidence/R12_8_QT_WINDOWS.json"
+        run: python scripts/r12_8_qt_acceptance.py --output ".kodepoia/evidence/R12_8_QT_MACOS.json"
       - name: Upload Qt evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: r12-8-qt6-windows-${{ github.event.pull_request.head.sha || github.sha }}
-          path: .kodepoia/evidence/R12_8_QT_WINDOWS.json
+          name: r12-8-qt6-macos-${{ github.event.pull_request.head.sha || github.sha }}
+          path: .kodepoia/evidence/R12_8_QT_MACOS.json
           if-no-files-found: warn

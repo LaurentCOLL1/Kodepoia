@@ -5,8 +5,8 @@
     "sha256": "6e73bb8feb1a9a28128f178734d92731d94174149ec091efd758cac9498a1a5d",
     "source": "docs/continuity/KODEPOIA_CONTINUITY.md"
   },
-  "evidence_sha256": "da84dfd869dd70593db502b1c03a4fb080fc34cc767374304cd2f5e525abaa84",
-  "generated_at": "2026-08-24T19:42:00Z",
+  "evidence_sha256": "ed956be1aa19592b654382a209e5ca99d44d3cbcd67dd3981bdae3d865563170",
+  "generated_at": "2026-08-24T19:44:00Z",
   "local_evidence": [
     {
       "bytes": 2865,
@@ -178,10 +178,10 @@
     },
     {
       "accepted_head": "f2693c8cfd4a7aaa5c73fc0a318ebaeef4ff0bb1",
-      "bytes": 7103,
+      "bytes": 7880,
       "manual_satisfied": true,
       "manual_state": "conditional_not_triggered",
-      "sha256": "ca196e4ba7721bdee5a0e828481977040fafb698e7d872692e6ee9f008aac008",
+      "sha256": "d762468c123cf7306e19e012db48f6913cabfd4f1791170bcf72c097d14c2db9",
       "source": "docs/roadmap/R11_14_ACCEPTANCE.md",
       "subdivision": "R11.14"
     }

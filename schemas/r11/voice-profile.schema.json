@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.invalid/schemas/r11/voice-profile.schema.json",
+  "type": "object",
+  "required": ["profile_id", "scope_id", "locale", "fallback_locales", "prosody", "display_name"],
+  "additionalProperties": false,
+  "properties": {
+    "profile_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "scope_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "locale": {"type": "string", "minLength": 2, "maxLength": 63},
+    "fallback_locales": {"type": "array", "maxItems": 8, "uniqueItems": true, "items": {"type": "string", "minLength": 2, "maxLength": 63}},
+    "display_name": {"type": "string", "minLength": 1, "maxLength": 128},
+    "prosody": {
+      "type": "object",
+      "required": ["pace", "pitch_semitones", "energy", "styles"],
+      "additionalProperties": false,
+      "properties": {
+        "pace": {"type": "number", "minimum": 0.5, "maximum": 2.0},
+        "pitch_semitones": {"type": "number", "minimum": -12.0, "maximum": 12.0},
+        "energy": {"type": "number", "minimum": 0.0, "maximum": 2.0},
+        "styles": {"type": "array", "maxItems": 8, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 128}}
+      }
+    }
+  }
+}

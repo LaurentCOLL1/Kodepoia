@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Any
 
@@ -17,6 +18,9 @@ class CaptionCue:
 
     def __post_init__(self) -> None:
         bounded_text(self.text, field="caption.text", maximum=1024)
+        values = (self.start_seconds, self.end_seconds)
+        if any(isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(float(value)) for value in values):
+            raise ValueError("caption cue times must be finite numeric values")
         if self.start_seconds < 0 or self.end_seconds <= self.start_seconds:
             raise ValueError("caption cue timing is invalid")
 

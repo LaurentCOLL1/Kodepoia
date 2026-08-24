@@ -17,6 +17,10 @@ from .scaffold import (
     RenderedFile, ScaffoldLineage, ScaffoldPreview, TemplateFile, TemplateValue,
     TemplateValueKind, WorkspaceManifest,
 )
+from .winui3 import (
+    WinUi3Adapter, WinUiAcceptanceResult, WinUiArtifact, WinUiDeploymentContract,
+    WinUiDeploymentMode, canonical_winui_deployment, write_winui_acceptance_report,
+)
 from .wpf import WpfAcceptanceResult, WpfAdapter, WpfArtifact, write_wpf_acceptance_report
 
 __all__ = [
@@ -29,7 +33,9 @@ __all__ = [
     "RouteContract", "ScaffoldLineage", "ScaffoldPreview", "ServiceContract",
     "ServiceLifetime", "StateField", "StateValueKind", "TemplateFile", "TemplateValue",
     "TemplateValueKind", "ValidationKind", "ValidationRule", "ViewContract",
-    "ViewModelContract", "WorkspaceManifest", "WpfAcceptanceResult", "WpfAdapter",
-    "WpfArtifact", "canonical_sample_app", "canonical_sha256",
-    "validate_environment_overrides", "write_wpf_acceptance_report",
+    "ViewModelContract", "WinUi3Adapter", "WinUiAcceptanceResult", "WinUiArtifact",
+    "WinUiDeploymentContract", "WinUiDeploymentMode", "WorkspaceManifest",
+    "WpfAcceptanceResult", "WpfAdapter", "WpfArtifact", "canonical_sample_app",
+    "canonical_sha256", "canonical_winui_deployment", "validate_environment_overrides",
+    "write_winui_acceptance_report", "write_wpf_acceptance_report",
 ]

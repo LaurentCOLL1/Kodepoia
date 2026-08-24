@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-lod-profile-v1.schema.json",
+  "title": "Kodepoia R10.9 LOD profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version","profile_id","input_blend_sha256","source_asset_id","source_revision_id","source_content_sha256","source_object_id","asset_mode","mesh_qa_profile_digest","rig_profile_digest","ratio_tolerance","tiers","preservation"],
+  "properties": {
+    "version": {"const": 1},
+    "profile_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+    "input_blend_sha256": {"$ref": "#/$defs/sha"},
+    "source_asset_id": {"type": "string", "pattern": "^asset_[0-9a-f]{32}$"},
+    "source_revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"},
+    "source_content_sha256": {"$ref": "#/$defs/sha"},
+    "source_object_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+    "asset_mode": {"enum": ["static", "skinned"]},
+    "mesh_qa_profile_digest": {"$ref": "#/$defs/sha"},
+    "rig_profile_digest": {"anyOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+    "ratio_tolerance": {"type": "number", "minimum": 0, "maximum": 0.25},
+    "tiers": {"type": "array", "minItems": 1, "maxItems": 8, "items": {"type": "object", "additionalProperties": false, "required": ["tier_id","output_asset_id","ratio","min_triangles","max_triangles"], "properties": {"tier_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"}, "output_asset_id": {"type": "string", "pattern": "^asset_[0-9a-f]{32}$"}, "ratio": {"type": "number", "minimum": 0.01, "maximum": 0.99}, "min_triangles": {"type": "integer", "minimum": 1, "maximum": 50000000}, "max_triangles": {"type": "integer", "minimum": 1, "maximum": 50000000}}}},
+    "preservation": {"type": "object", "additionalProperties": false, "required": ["preserve_material_slots","preserve_uv_layers","preserve_normals","shape_keys","required_vertex_groups","max_extent_relative_error","max_surface_area_relative_error","max_weight_sum_error","max_influences"], "properties": {"preserve_material_slots": {"type": "boolean"}, "preserve_uv_layers": {"type": "boolean"}, "preserve_normals": {"type": "boolean"}, "shape_keys": {"enum": ["block_if_present", "drop_explicit"]}, "required_vertex_groups": {"type": "array", "maxItems": 512, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 128}}, "max_extent_relative_error": {"type": "number", "minimum": 0, "maximum": 1}, "max_surface_area_relative_error": {"type": "number", "minimum": 0, "maximum": 1}, "max_weight_sum_error": {"type": "number", "minimum": 0, "maximum": 1}, "max_influences": {"type": "integer", "minimum": 1, "maximum": 16}}}
+  },
+  "$defs": {"sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

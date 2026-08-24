@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-lod-manifest-v1.schema.json",
+  "title": "Kodepoia R10.9 LOD manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema","version","source_sha","policy_version","profile_id","profile_digest","input_blend_sha256","status","blockers","report","report_digest","artifacts","variant_revisions","lineage","process"],
+  "properties": {
+    "schema": {"const": "kodepoia.blender.lod_manifest"}, "version": {"const": 1}, "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "policy_version": {"const": "r10.9-v1"}, "profile_id": {"type": "string"}, "profile_digest": {"$ref": "#/$defs/sha"}, "input_blend_sha256": {"$ref": "#/$defs/sha"}, "status": {"enum": ["pass","warn","block"]},
+    "blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}, "report": {"anyOf": [{"type": "object"}, {"type": "null"}]}, "report_digest": {"anyOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
+    "artifacts": {"type": "object", "additionalProperties": {"type": "object", "additionalProperties": false, "required": ["filename","bytes","sha256"], "properties": {"filename": {"type": "string"}, "bytes": {"type": "integer", "minimum": 1}, "sha256": {"$ref": "#/$defs/sha"}}}},
+    "variant_revisions": {"type": "object", "additionalProperties": {"type": "object"}},
+    "lineage": {"type": "object", "additionalProperties": false, "required": ["source_asset_id","source_revision_id","source_sha256"], "properties": {"source_asset_id": {"type": "string", "pattern": "^asset_[0-9a-f]{32}$"}, "source_revision_id": {"type": "string", "pattern": "^rev_[0-9a-f]{32}$"}, "source_sha256": {"$ref": "#/$defs/sha"}}},
+    "process": {"type": "object", "additionalProperties": false, "required": ["returncode","timed_out","cancelled","stdout_truncated","stderr_truncated"], "properties": {"returncode": {"type": "integer"}, "timed_out": {"type": "boolean"}, "cancelled": {"type": "boolean"}, "stdout_truncated": {"type": "boolean"}, "stderr_truncated": {"type": "boolean"}}}
+  },
+  "$defs": {"sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

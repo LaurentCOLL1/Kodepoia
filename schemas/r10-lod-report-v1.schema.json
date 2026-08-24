@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r10-lod-report-v1.schema.json",
+  "title": "Kodepoia R10.9 LOD report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema","version","profile_id","profile_digest","input_blend_sha256","status","summary","rules","source","tiers","report_digest"],
+  "properties": {
+    "schema": {"const": "kodepoia.blender.lod_report"}, "version": {"const": 1}, "profile_id": {"type": "string"}, "profile_digest": {"$ref": "#/$defs/sha"}, "input_blend_sha256": {"$ref": "#/$defs/sha"}, "status": {"enum": ["pass","warn","block"]},
+    "summary": {"type": "object", "additionalProperties": false, "required": ["pass","warn","block"], "properties": {"pass": {"type": "integer", "minimum": 0}, "warn": {"type": "integer", "minimum": 0}, "block": {"type": "integer", "minimum": 0}}},
+    "rules": {"type": "array", "items": {"type": "object", "required": ["rule_id","state","value","limit","reason"], "properties": {"rule_id": {"type": "string"}, "state": {"enum": ["PASS","WARN","BLOCK"]}, "tier_id": {"type": "string"}, "value": {}, "limit": {}, "reason": {"type": "string"}}, "additionalProperties": false}},
+    "source": {"type": "object"}, "tiers": {"type": "object"}, "report_digest": {"$ref": "#/$defs/sha"}
+  },
+  "$defs": {"sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

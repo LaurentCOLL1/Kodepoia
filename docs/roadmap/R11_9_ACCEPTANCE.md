@@ -30,6 +30,7 @@ Exact manual candidate: **`087eae19ea03dd544d75a08c1eb348fe187624c5`**.
   - internal KodeStudio smoke: SUCCESS.
 - KodeStudio UI Smoke: #1360 / `32753163936` — SUCCESS.
 - Frozen-procedure documentation head `a5f1566ea823be5b0a5396663ab83aeffc6c409e`: R0 #1420, Python #1394 and UI #1361 — SUCCESS.
+- First corrected pre-gate documentation head `6d01623b9552a5b357423d4f2a3d773dac52fc76`: R0 #1421, Python #1395 and UI #1362 — SUCCESS.
 
 Focused R11.9 tests prove R11.8 shot/digest/timebase binding, typed-only assembly intent, fixed R5 movie argv, failure/timeout/cancel propagation, fixed trusted synthetic fixture, fixed ffprobe query, fail-closed FPS/resolution/stream/size/A-V drift checks, and schema validation.
 
@@ -41,15 +42,14 @@ The first user attempt on 2026-08-24 did not enter the real collector gate:
 - candidate `087eae19ea03dd544d75a08c1eb348fe187624c5` was not present in the local object database;
 - therefore `scripts/r11_9_local_acceptance.py` was also absent from the checked-out worktree;
 - Godot 4.7 was not discoverable through `PATH` by `Get-Command`;
-- `ffprobe` was discoverable.
+- `ffprobe` was discoverable;
+- despite the `(.venv)` prompt, the failed script launch identified `C:\Python\Python312\python.exe`, so the corrected procedure now pins execution to `.venv\Scripts\python.exe` and verifies `import kodepoia` before gate start.
 
 This is a **pre-gate prerequisite block**, not FAIL evidence. An exact Git synchronization is permitted before the gate. The no-network rule starts only after the candidate and local runtime paths have been resolved.
 
 ## REQUIRED local checkpoint — corrected frozen procedure
 
 Real Godot 4.7 Movie Maker/import/render/audio behavior cannot be established from fake runners or hosted tests. Run the following from the local Kodepoia repository.
-
-### Phase A — pre-gate synchronization and runtime discovery
 
 Network access is permitted only for the exact Git fetch below. Do not install/update Python packages, Godot, FFmpeg, codecs or plugins as part of the gate.
 
@@ -118,16 +118,21 @@ Paste this as **one PowerShell script block** so a failure stops the remainder i
     }
     $Ffprobe = $FfprobeCmd.Source
 
-    $PythonExe = (python -c "import sys; print(sys.executable)").Trim()
+    $VenvPython = Join-Path (Get-Location) ".venv\Scripts\python.exe"
+    if (-not (Test-Path -LiteralPath $VenvPython)) {
+        throw "Expected project venv Python is missing: .venv\Scripts\python.exe. Stop and report this; do not pip install during the gate."
+    }
+    $Python = (Resolve-Path -LiteralPath $VenvPython).Path
+    & $Python -c "import sys, kodepoia; print(sys.executable); print(kodepoia.__file__)"
     if ($LASTEXITCODE -ne 0) {
-        throw "Python is not callable from the active Kodepoia environment."
+        throw "Project venv Python cannot import kodepoia. Stop and report this; do not pip install during the gate."
     }
 
     Write-Host "[PRE-GATE] Candidate available : $SourceSha"
     Write-Host "[PRE-GATE] Godot              : $Godot"
     Write-Host "[PRE-GATE] Godot version      : $GodotVersion"
     Write-Host "[PRE-GATE] ffprobe            : $Ffprobe"
-    Write-Host "[PRE-GATE] Python             : $PythonExe"
+    Write-Host "[PRE-GATE] Python             : $Python"
 
     Write-Host "[GATE] From this point onward: no fetch/download/install/update."
 
@@ -150,7 +155,7 @@ Paste this as **one PowerShell script block** so a failure stops the remainder i
     $Evidence = Join-Path $env:TEMP "KODEPOIA_R11_9_LOCAL_ACCEPTANCE.json"
     Remove-Item $Evidence -ErrorAction SilentlyContinue
 
-    python scripts/r11_9_local_acceptance.py `
+    & $Python scripts/r11_9_local_acceptance.py `
       --source-sha $SourceSha `
       --godot "$Godot" `
       --ffprobe "$Ffprobe" `
@@ -190,12 +195,12 @@ The temporary Godot project and AVI are destroyed automatically after verificati
 
 ### Failure recovery / stop rules
 
-If pre-gate discovery finds no Godot 4.7, or finds more than one candidate, stop and return that result before the collector. If the real gate starts and any version, renderer/movie-writer, timeout/cancel, ffprobe, duration or A/V sync check fails:
+If pre-gate discovery finds no Godot 4.7, finds more than one candidate, or the project venv is unavailable/unusable, stop and return that result before the collector. If the real gate starts and any version, renderer/movie-writer, timeout/cancel, ffprobe, duration or A/V sync check fails:
 
 1. do not edit generated files;
 2. do not convert the AVI;
 3. do not run against another/private project;
-4. do not install/download a codec, plugin, Godot build or FFmpeg build during the gate;
+4. do not install/download a codec, plugin, Godot build, Python package or FFmpeg build during the gate;
 5. return the complete generated JSON when present, plus the final PowerShell error line when no JSON is produced;
 6. R11.9 remains blocked and R11.10+ remain forbidden.
 

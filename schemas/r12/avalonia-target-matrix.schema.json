@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r12/avalonia-target-matrix.schema.json",
+  "title": "Kodepoia R12 Avalonia desktop target matrix",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["targets"],
+  "properties": {
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"enum": ["windows", "linux", "macos"]}
+    }
+  }
+}

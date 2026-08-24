@@ -299,7 +299,7 @@ class AvaloniaAdapter:
         (probe_dir / "Program.cs").write_text(
             'using System; using Avalonia; using Avalonia.Controls; internal static class Program {'
             'public static int Main() {'
-            'if (typeof(Application).Assembly.GetName().Name != "Avalonia.Base") return 31;'
+            'if (typeof(Application).FullName != "Avalonia.Application") return 31;'
             'if (typeof(Window).FullName != "Avalonia.Controls.Window") return 32;'
             'if (typeof(AppBuilder).FullName != "Avalonia.AppBuilder") return 33;'
             f'Console.WriteLine("{self.SENTINEL}:{current.value}:{model_sha}"); return 0; }} }}\n',

@@ -1,6 +1,6 @@
 # R10.9 — Acceptance record
 
-Status: **HOSTED IMPLEMENTATION CANDIDATE — CANDIDATE GATES PENDING**  
+Status: **HOSTED IMPLEMENTATION CANDIDATE ACCEPTED — FINAL EXACT-HEAD GATES PENDING**  
 Manual intervention: **NONE**
 
 ## Definition of Done
@@ -37,6 +37,27 @@ R10.9 requires:
 - package exports in `src/kodepoia/blender3d/__init__.py`
 - this record and `R10_9_DESIGN.md`
 
+## Hosted implementation candidate acceptance
+
+Accepted implementation candidate: `fa64f49776a29ece4d06cd05f508632129ee863d`.
+
+Exact-head hosted gates:
+- R0 Repository Guard #1295 / run `32690770568`: **SUCCESS**;
+- Python Core #1269 / run `32690770644`: **SUCCESS**;
+- KodeStudio UI Smoke #1236 / run `32690770565`: **SUCCESS**.
+
+Python Core evidence:
+- Ubuntu: **837 passed / 7 skipped / 46 warnings**;
+- R7 integrated acceptance: **PASS**;
+- R8 integrated acceptance: **PASS**;
+- R9 integrated acceptance: **PASS**;
+- Windows Python Core: **SUCCESS**;
+- Ubuntu package build: **SUCCESS**;
+- Windows package build: **SUCCESS**;
+- integrated KodeStudio Windows smoke inside Python Core: **SUCCESS**.
+
+The candidate therefore satisfies the hosted implementation acceptance. This documentation commit is the only planned post-candidate write on the implementation branch; fresh R0/Python/UI gates are required on its exact resulting SHA before merge.
+
 ## Manual state
 
 Frozen state: **NONE**.
@@ -45,9 +66,9 @@ No local/manual Blender run is required for R10.9. The implementation uses the a
 
 ## Acceptance ordering
 
-1. Run R0 + full Python Core + UI Smoke on the implementation candidate head.
-2. If all succeed, bind candidate SHA/run IDs and test totals into this file exactly once.
-3. Run fresh R0 + full Python Core + UI Smoke on that final documented head.
+1. Candidate gates above are accepted.
+2. This file binds candidate SHA/run IDs and test totals exactly once.
+3. Run fresh R0 + full Python Core + UI Smoke on this final documented head.
 4. Merge the implementation PR with `expected_head_sha`.
 5. Create exactly one continuity-only post-merge normalization.
 6. Run R0 + full Python Core + UI Smoke on that normalization head and merge it.

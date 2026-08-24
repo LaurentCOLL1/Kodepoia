@@ -22,7 +22,9 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         nav = window.findChild(QListWidget, "mainNavigation")
         assert nav is not None
         texts = [nav.item(index).text() for index in range(nav.count())]
-        assert len(texts) == 8
+        # R10.11 intentionally adds the governed Blender / 3D page to the
+        # previously eight-entry main navigation surface.
+        assert len(texts) == 9
         assert all(text.startswith("⟦") and text.endswith("⟧") for text in texts)
         assert nav.minimumWidth() >= nav.sizeHintForColumn(0) + 24
 

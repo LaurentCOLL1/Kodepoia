@@ -32,12 +32,16 @@ class FakeSandbox:
         self.wav = wav
         self.cancel = cancel
         self.calls: list[tuple[str, ...]] = []
+        self.input_texts: list[str] = []
 
     def run(self, argv: tuple[str, ...], *, timeout: float = 60.0, **_kwargs: object) -> SandboxResult:
         self.calls.append(tuple(argv))
         if "--help" in argv:
-            help_text = "--model --config --output-file --speaker --length-scale"
+            help_text = "--model --input-file --output-file --speaker --length-scale"
             return SandboxResult(0, help_text, "")
+        input_index = argv.index("--input-file") + 1
+        input_path = Path(argv[input_index])
+        self.input_texts.append(input_path.read_text(encoding="utf-8"))
         output_index = argv.index("--output-file") + 1
         Path(argv[output_index]).write_bytes(self.wav)
         if self.cancel:
@@ -90,7 +94,7 @@ def _fixture(tmp_path: Path) -> tuple[PiperAdapter, Path, Path, Path, VoiceModel
 
 
 def test_synthesis_request_identity_is_deterministic_and_rights_gated(tmp_path: Path) -> None:
-    adapter, executable, model, config, binding, request = _fixture(tmp_path)
+    _adapter, executable, _model, _config, binding, request = _fixture(tmp_path)
     runtime_sha = hashlib.sha256(executable.read_bytes()).hexdigest()
     key1 = request.cache_key(runtime_sha256=runtime_sha, model_sha256=binding.model_sha256, config_sha256=binding.config_sha256)
     key2 = request.cache_key(runtime_sha256=runtime_sha, model_sha256=binding.model_sha256, config_sha256=binding.config_sha256)
@@ -115,37 +119,69 @@ def test_synthesis_request_identity_is_deterministic_and_rights_gated(tmp_path: 
         SynthesisRequest.from_profile(request_id="tts.blocked", profile=profile, binding=blocked, text="Test")
 
 
-def test_piper_probe_and_compiler_are_finite_and_path_safe(tmp_path: Path) -> None:
+def test_piper_probe_and_compiler_are_finite_path_safe_and_do_not_expose_text_in_argv(tmp_path: Path) -> None:
     adapter, executable, model, config, binding, request = _fixture(tmp_path)
     probe = adapter.capability_probe(executable)
     assert probe.status == "pass"
+    assert probe.capabilities.supports_explicit_config_path is False
     output = adapter.boundary.staging_root / "voice.wav"
-    argv = adapter.compile_synthesis_argv(executable, model, config, output, binding=binding, request=request)
+    input_path = adapter.boundary.staging_root / "voice.input.txt"
+    input_path.write_text(request.text + "\n", encoding="utf-8")
+    argv = adapter.compile_synthesis_argv(executable, model, config, input_path, output, binding=binding, request=request)
     assert argv[0] == str(executable.resolve())
-    assert "--model" in argv and "--config" in argv and "--output-file" in argv
+    assert "--model" in argv and "--input-file" in argv and "--output-file" in argv
     assert "--length-scale" in argv
+    assert "--config" not in argv
     assert "--cuda" not in argv and "download" not in " ".join(argv).lower()
-    assert argv[-2] == "--"
-    assert argv[-1] == request.text
-    with pytest.raises(ValueError):
-        adapter.compile_synthesis_argv(executable, model, config, tmp_path / "escape.wav", binding=binding, request=request)
-
-
-def test_model_byte_identity_mismatch_fails_closed(tmp_path: Path) -> None:
-    adapter, executable, model, config, binding, request = _fixture(tmp_path)
-    model.write_bytes(b"tampered")
+    assert request.text not in argv
     with pytest.raises(ValueError):
         adapter.compile_synthesis_argv(
             executable,
             model,
             config,
+            input_path,
+            tmp_path / "escape.wav",
+            binding=binding,
+            request=request,
+        )
+
+
+def test_piper_config_must_be_the_governed_model_sibling(tmp_path: Path) -> None:
+    adapter, executable, model, config, binding, request = _fixture(tmp_path)
+    wrong = config.parent / "other.json"
+    wrong.write_bytes(config.read_bytes())
+    input_path = adapter.boundary.staging_root / "voice.input.txt"
+    input_path.write_text(request.text, encoding="utf-8")
+    with pytest.raises(ValueError, match="sibling"):
+        adapter.compile_synthesis_argv(
+            executable,
+            model,
+            wrong,
+            input_path,
             adapter.boundary.staging_root / "voice.wav",
             binding=binding,
             request=request,
         )
 
 
-def test_synthesize_local_validates_wav_qa_and_emits_deterministic_manifest(tmp_path: Path) -> None:
+def test_model_byte_identity_mismatch_fails_closed(tmp_path: Path) -> None:
+    adapter, executable, model, config, binding, request = _fixture(tmp_path)
+    model.write_bytes(b"tampered")
+    input_path = adapter.boundary.staging_root / "voice.input.txt"
+    input_path.write_text(request.text, encoding="utf-8")
+    with pytest.raises(ValueError):
+        adapter.compile_synthesis_argv(
+            executable,
+            model,
+            config,
+            input_path,
+            adapter.boundary.staging_root / "voice.wav",
+            binding=binding,
+            request=request,
+        )
+
+
+def test_synthesize_local_validates_wav_qa_manifest_and_ephemeral_text_cleanup(tmp_path: Path) -> None:
     adapter, executable, model, config, binding, request = _fixture(tmp_path)
     output = adapter.boundary.staging_root / "voice.wav"
     manifest = synthesize_local(
@@ -165,6 +201,33 @@ def test_synthesize_local_validates_wav_qa_and_emits_deterministic_manifest(tmp_
     assert manifest.qa["state"] in {"PASS", "WARN"}
     assert manifest.wav_facts["sample_rate_hz"] == 22050
     assert len(manifest.cache_key) == 64
+    assert manifest.process["text_passed_via_argv"] is False
+    assert manifest.process["ephemeral_input_deleted"] is True
+    assert not output.with_suffix(".input.txt").exists()
+    sandbox = adapter.sandbox
+    assert isinstance(sandbox, FakeSandbox)
+    assert sandbox.input_texts[-1] == request.text + "\n"
+    assert request.text not in sandbox.calls[-1]
+
+
+def test_stale_output_is_removed_before_failed_synthesis(tmp_path: Path) -> None:
+    adapter, executable, model, config, binding, request = _fixture(tmp_path)
+    adapter.sandbox = FakeSandbox(b"", cancel=True)  # type: ignore[assignment]
+    output = adapter.boundary.staging_root / "stale.wav"
+    output.write_bytes(_wav_bytes())
+    manifest = synthesize_local(
+        adapter,
+        executable=executable,
+        model_path=model,
+        config_path=config,
+        output_path=output,
+        binding=binding,
+        request=request,
+        source_sha="d" * 40,
+    )
+    assert manifest.status == "fail"
+    assert "synthesis_cancelled" in manifest.blockers
+    assert "synthesis_nonzero" in manifest.blockers
 
 
 def test_cancelled_runtime_fails_manifest(tmp_path: Path) -> None:
@@ -185,14 +248,25 @@ def test_cancelled_runtime_fails_manifest(tmp_path: Path) -> None:
     assert "synthesis_nonzero" in manifest.blockers
 
 
-def test_raw_markup_and_unapproved_locale_fail_before_execution(tmp_path: Path) -> None:
-    adapter, _executable, _model, _config, binding, _request = _fixture(tmp_path)
+def test_raw_markup_unapproved_locale_and_invalid_source_sha_fail_before_acceptance(tmp_path: Path) -> None:
+    adapter, executable, model, config, binding, request = _fixture(tmp_path)
     profile = VoiceProfile("voice.en", "character.en", "en-US")
     with pytest.raises(ValueError):
         SynthesisRequest.from_profile(request_id="tts.locale", profile=profile, binding=binding, text="Hello")
     profile_fr = VoiceProfile("voice.fr", "character.fr", "fr-FR")
     with pytest.raises(ValueError):
         SynthesisRequest.from_profile(request_id="tts.ssml", profile=profile_fr, binding=binding, text="<speak>Bonjour</speak>")
+    with pytest.raises(ValueError, match="source_sha"):
+        synthesize_local(
+            adapter,
+            executable=executable,
+            model_path=model,
+            config_path=config,
+            output_path=adapter.boundary.staging_root / "invalid.wav",
+            binding=binding,
+            request=request,
+            source_sha="not-a-sha",
+        )
 
 
 def test_synthesis_manifest_schema_accepts_representative_manifest(tmp_path: Path) -> None:

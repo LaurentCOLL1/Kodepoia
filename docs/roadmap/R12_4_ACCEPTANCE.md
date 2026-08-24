@@ -20,14 +20,19 @@ Manual intervention: **NONE**.
 - no framework objects/toolchains/processes are introduced;
 - exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke all succeed.
 
-## Evidence state
+## Accepted implementation candidate
 
 Branch: `r12/4-desktop-app-contracts`.
 Base normalized `main`: `1f52adffedb69384904a4b35bb32e45e06b05e33`.
-Manual: **NONE**.
+Accepted implementation head: `d55b55feedcfc638e1e11d194d12f80b8f7b6f9c`.
 
-Exact implementation and final-documentation SHA/run IDs remain **PENDING** until an immutable candidate is independently gated.
+- R0 Repository Guard #1484 / `32779332770` — **SUCCESS**.
+- Python Core #1458 / `32779332780` — **SUCCESS**, including Ubuntu/Windows pytest, package builds and internal KodeStudio smoke.
+- KodeStudio UI Smoke #1425 / `32779332799` — **SUCCESS**.
+- Manual state: **NONE**.
+
+This evidence update changes bytes after the accepted implementation candidate. The resulting final documentation head requires a fresh exact-head R0 + full Python Core + KodeStudio UI Smoke triplet before expected-SHA merge. No synthetic PASS is permitted.
 
 ## Merge / normalization rule
 
-After final documentation head acceptance, merge the R12.4 PR with `expected_head_sha`, then create exactly one continuity-only post-merge normalization. R12.5 remains forbidden until that normalization passes the exact-head triplet and merges.
+After final documentation head acceptance, merge PR #193 with `expected_head_sha`, then create exactly one continuity-only post-merge normalization. R12.5 remains forbidden until that normalization passes the exact-head triplet and merges.

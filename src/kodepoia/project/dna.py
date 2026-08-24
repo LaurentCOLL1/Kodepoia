@@ -7,6 +7,14 @@ from typing import Any
 
 import yaml
 
+from kodepoia.desktop.contracts import (
+    DesktopArchitecture,
+    DesktopFramework,
+    DesktopOS,
+    DesktopPackageKind,
+    DesktopTargetProfile,
+)
+
 
 class ProjectType(StrEnum):
     GAME = "game"
@@ -68,6 +76,38 @@ class PerformanceBudget:
 
 
 @dataclass(slots=True)
+class DesktopProjectProfile:
+    """Backward-compatible desktop intent carried by Project DNA schema v1.
+
+    The field is optional on ProjectDNA so pre-R12 schema-v1 files load and
+    re-serialize without gaining new semantic data. New desktop projects created
+    by the R12 Wizard always provide this profile.
+    """
+
+    framework: DesktopFramework = DesktopFramework.WINUI3
+    architecture: DesktopArchitecture = DesktopArchitecture.X64
+    package_kind: DesktopPackageKind = DesktopPackageKind.UNPACKAGED
+    persistence: DecisionState = DecisionState.UNDECIDED
+    ipc: DecisionState = DecisionState.UNDECIDED
+    updates: DecisionState = DecisionState.UNDECIDED
+
+    def validate(self, platforms: list[Platform]) -> None:
+        desktop_platforms = {Platform.WINDOWS, Platform.LINUX, Platform.MACOS}
+        if not platforms or any(item not in desktop_platforms for item in platforms):
+            raise ValueError("Desktop projects may target only Windows, Linux or macOS")
+        DesktopTargetProfile(
+            profile_id="project.desktop",
+            framework=self.framework,
+            targets=tuple(DesktopOS(item.value) for item in platforms),
+            architecture=self.architecture,
+            package_kind=self.package_kind,
+        )
+        for name in ("persistence", "ipc", "updates"):
+            if not isinstance(getattr(self, name), DecisionState):
+                raise ValueError(f"Desktop {name} must use DecisionState")
+
+
+@dataclass(slots=True)
 class ProjectDNA:
     schema_version: int
     name: str
@@ -87,6 +127,7 @@ class ProjectDNA:
     install_policy: ApprovalPolicy = ApprovalPolicy.ASK
     lineage: dict[str, str] = field(default_factory=dict)
     capabilities: dict[str, DecisionState] = field(default_factory=dict)
+    desktop: DesktopProjectProfile | None = None
 
     def validate(self) -> None:
         if self.schema_version != 1:
@@ -101,6 +142,11 @@ class ProjectDNA:
             raise ValueError("Game projects require a dimension")
         if self.project_type is not ProjectType.GAME and self.dimension is not None:
             raise ValueError("Only game projects can define a game dimension")
+        if self.project_type is ProjectType.DESKTOP_APP:
+            if self.desktop is not None:
+                self.desktop.validate(self.platforms)
+        elif self.desktop is not None:
+            raise ValueError("Desktop profile is valid only for desktop_app projects")
 
         mobile = {Platform.ANDROID, Platform.IOS} & set(self.platforms)
         normalized_inputs = {item.lower() for item in self.inputs}
@@ -143,7 +189,10 @@ class ProjectDNA:
                 return [primitive(item) for item in value]
             return value
 
-        return primitive(asdict(self))
+        payload = primitive(asdict(self))
+        if self.desktop is None:
+            payload.pop("desktop", None)
+        return payload
 
     def save(self, path: Path) -> None:
         self.validate()
@@ -161,6 +210,19 @@ class ProjectDNA:
         performance = {
             key: PerformanceBudget(**value) for key, value in raw.get("performance", {}).items()
         }
+        raw_desktop = raw.get("desktop")
+        desktop = None
+        if raw_desktop is not None:
+            if not isinstance(raw_desktop, dict):
+                raise ValueError("Desktop Project DNA profile must be an object")
+            desktop = DesktopProjectProfile(
+                framework=DesktopFramework(raw_desktop.get("framework", "winui3")),
+                architecture=DesktopArchitecture(raw_desktop.get("architecture", "x64")),
+                package_kind=DesktopPackageKind(raw_desktop.get("package_kind", "unpackaged")),
+                persistence=DecisionState(raw_desktop.get("persistence", "undecided")),
+                ipc=DecisionState(raw_desktop.get("ipc", "undecided")),
+                updates=DecisionState(raw_desktop.get("updates", "undecided")),
+            )
         dna = cls(
             schema_version=int(raw["schema_version"]),
             name=str(raw["name"]),
@@ -183,6 +245,7 @@ class ProjectDNA:
                 str(key): DecisionState(value)
                 for key, value in raw.get("capabilities", {}).items()
             },
+            desktop=desktop,
         )
         dna.validate()
         return dna

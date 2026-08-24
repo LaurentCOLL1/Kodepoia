@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.invalid/schemas/r11/runtime.schema.json",
+  "title": "Kodepoia R11 runtime identity",
+  "type": "object",
+  "required": ["backend", "version", "platform", "executable_sha256", "capabilities"],
+  "additionalProperties": false,
+  "properties": {
+    "backend": {"type": "string", "minLength": 1, "maxLength": 128},
+    "version": {"type": "string", "minLength": 1, "maxLength": 128},
+    "platform": {"type": "string", "minLength": 1, "maxLength": 128},
+    "executable_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "capabilities": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

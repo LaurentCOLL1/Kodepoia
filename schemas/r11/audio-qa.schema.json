@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.invalid/schemas/r11/audio-qa.schema.json",
+  "type": "object",
+  "required": ["profile_id", "source_sha256", "state", "blockers", "warnings"],
+  "additionalProperties": false,
+  "properties": {
+    "profile_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "state": {"enum": ["PASS", "WARN", "BLOCKED", "BUDGET_EXCEEDED", "CORRUPT"]},
+    "blockers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "warnings": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  }
+}

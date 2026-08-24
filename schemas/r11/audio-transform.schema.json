@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.invalid/schemas/r11/audio-transform.schema.json",
+  "type": "object",
+  "required": ["schema_version", "operation", "input_revision_id", "input_sha256"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "operation": {"enum": ["resample", "channels", "trim", "fade", "normalize", "transcode_pcm"]},
+    "input_revision_id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "input_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "sample_rate_hz": {"type": ["integer", "null"]},
+    "channels": {"type": ["integer", "null"]},
+    "start_seconds": {"type": ["number", "null"]},
+    "end_seconds": {"type": ["number", "null"]},
+    "fade_seconds": {"type": ["number", "null"]},
+    "target_peak_dbfs": {"type": ["number", "null"]}
+  }
+}

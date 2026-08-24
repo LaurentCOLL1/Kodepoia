@@ -31,10 +31,11 @@ Exact manual candidate: **`087eae19ea03dd544d75a08c1eb348fe187624c5`**.
 - KodeStudio UI Smoke: #1360 / `32753163936` — SUCCESS.
 - Frozen-procedure documentation head `a5f1566ea823be5b0a5396663ab83aeffc6c409e`: R0 #1420, Python #1394 and UI #1361 — SUCCESS.
 - First corrected pre-gate documentation head `6d01623b9552a5b357423d4f2a3d773dac52fc76`: R0 #1421, Python #1395 and UI #1362 — SUCCESS.
+- Venv-pinned documentation head `70c2ad9240a91faffa707e5408d58f084b59de47`: R0 #1422 / `32754716642`, Python #1396 / `32754716732`, UI #1363 / `32754716656` — SUCCESS.
 
 Focused R11.9 tests prove R11.8 shot/digest/timebase binding, typed-only assembly intent, fixed R5 movie argv, failure/timeout/cancel propagation, fixed trusted synthetic fixture, fixed ffprobe query, fail-closed FPS/resolution/stream/size/A-V drift checks, and schema validation.
 
-## First local preflight attempt — NOT A GATE FAILURE
+## Local preflight attempts — NOT GATE FAILURES
 
 The first user attempt on 2026-08-24 did not enter the real collector gate:
 
@@ -43,9 +44,22 @@ The first user attempt on 2026-08-24 did not enter the real collector gate:
 - therefore `scripts/r11_9_local_acceptance.py` was also absent from the checked-out worktree;
 - Godot 4.7 was not discoverable through `PATH` by `Get-Command`;
 - `ffprobe` was discoverable;
-- despite the `(.venv)` prompt, the failed script launch identified `C:\Python\Python312\python.exe`, so the corrected procedure now pins execution to `.venv\Scripts\python.exe` and verifies `import kodepoia` before gate start.
+- despite the `(.venv)` prompt, the failed script launch identified system Python, so the corrected procedure pins execution to `.venv\Scripts\python.exe` and verifies `import kodepoia` before gate start.
 
-This is a **pre-gate prerequisite block**, not FAIL evidence. An exact Git synchronization is permitted before the gate. The no-network rule starts only after the candidate and local runtime paths have been resolved.
+A second preflight successfully fetched the R11.9 branch and made the accepted candidate available locally, but stopped before `[GATE]` because the resolver still did not know Steam-library locations. The already-installed Godot runtime was confirmed to follow the Steam distribution layout `<drive>:\SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe`. No user-specific absolute path is stored in acceptance evidence.
+
+Both attempts are **pre-gate prerequisite blocks, not FAIL evidence**. An exact Git synchronization is permitted before the gate. The no-network rule starts only after candidate/runtime/venv resolution.
+
+## Steam/external-runtime discovery convention
+
+For Windows external runtimes used by Kodepoia, discovery order is:
+
+1. explicit governed/configured executable when supplied;
+2. executable already available through `PATH`;
+3. fixed provider-specific locations on mounted filesystem drives;
+4. narrowly bounded common application locations.
+
+For Steam, do not assume a fixed drive letter. Probe fixed product-relative locations such as `<drive>:\SteamLibrary\steamapps\common\<Product>\<Executable>` and standard Steam roots under `Program Files`, without recursively crawling arbitrary user data or accepting a model-supplied path. For the Steam build of Godot on Windows, the accepted product-relative executable is `Godot Engine\godot.windows.opt.tools.64.exe`; the collector still validates the reported Godot version and hashes the exact executable before accepting evidence.
 
 ## REQUIRED local checkpoint — corrected frozen procedure
 
@@ -82,29 +96,56 @@ Paste this as **one PowerShell script block** so a failure stops the remainder i
     if ($GodotCmd) {
         $Godot = $GodotCmd.Source
     } else {
-        $SearchRoots = @(
-            (Join-Path $env:USERPROFILE "Downloads"),
-            (Join-Path $env:USERPROFILE "Desktop"),
-            (Join-Path $env:LOCALAPPDATA "Programs"),
-            $env:ProgramFiles,
-            [Environment]::GetFolderPath("ProgramFilesX86")
-        ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -Unique
+        # Steam libraries are drive-variable. Probe only fixed, known product-relative
+        # locations on mounted filesystem drives; do not recursively crawl drives.
+        $SteamRelativeCandidates = @(
+            "SteamLibrary\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe",
+            "Program Files (x86)\Steam\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe",
+            "Program Files\Steam\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe",
+            "Steam\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe"
+        )
 
-        $GodotCandidates = @(
-            foreach ($Root in $SearchRoots) {
-                Get-ChildItem -LiteralPath $Root -Filter "Godot*.exe" -File -Recurse -ErrorAction SilentlyContinue |
-                    Where-Object { $_.Name -match '(?i)^Godot.*4\.7' }
+        $SteamGodotCandidates = @(
+            foreach ($Drive in (Get-PSDrive -PSProvider FileSystem)) {
+                if ($Drive.Root -match '^[A-Za-z]:\\$') {
+                    foreach ($Relative in $SteamRelativeCandidates) {
+                        $Candidate = Join-Path $Drive.Root $Relative
+                        if (Test-Path -LiteralPath $Candidate -PathType Leaf) {
+                            Get-Item -LiteralPath $Candidate
+                        }
+                    }
+                }
             }
         ) | Sort-Object FullName -Unique
 
-        if ($GodotCandidates.Count -eq 0) {
-            throw "No existing Godot 4.7 executable was found in PATH or common Windows locations. Stop and report this; do not run the collector."
+        if ($SteamGodotCandidates.Count -eq 1) {
+            $Godot = $SteamGodotCandidates[0].FullName
+        } elseif ($SteamGodotCandidates.Count -gt 1) {
+            $SteamGodotCandidates | Select-Object FullName | Format-Table -AutoSize
+            throw "Multiple Steam Godot executables were found. Stop and return the list so one exact executable can be frozen."
+        } else {
+            $SearchRoots = @(
+                (Join-Path $env:USERPROFILE "Downloads"),
+                (Join-Path $env:USERPROFILE "Desktop"),
+                (Join-Path $env:LOCALAPPDATA "Programs")
+            ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -Unique
+
+            $GodotCandidates = @(
+                foreach ($Root in $SearchRoots) {
+                    Get-ChildItem -LiteralPath $Root -Filter "Godot*.exe" -File -Recurse -ErrorAction SilentlyContinue |
+                        Where-Object { $_.Name -match '(?i)^Godot.*4\.7' }
+                }
+            ) | Sort-Object FullName -Unique
+
+            if ($GodotCandidates.Count -eq 0) {
+                throw "No existing Godot 4.7 executable was found through PATH, Steam library locations, or bounded common locations. Stop and report this; do not run the collector."
+            }
+            if ($GodotCandidates.Count -gt 1) {
+                $GodotCandidates | Select-Object FullName | Format-Table -AutoSize
+                throw "Multiple Godot 4.7 executables were found. Stop and return the list so one exact executable can be frozen."
+            }
+            $Godot = $GodotCandidates[0].FullName
         }
-        if ($GodotCandidates.Count -gt 1) {
-            $GodotCandidates | Select-Object FullName | Format-Table -AutoSize
-            throw "Multiple Godot 4.7 executables were found. Stop and return the list so one exact executable can be frozen."
-        }
-        $Godot = $GodotCandidates[0].FullName
     }
 
     $GodotVersion = (& $Godot --version | Select-Object -First 1).Trim()

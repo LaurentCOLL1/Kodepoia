@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 planning ACCEPTED + NORMALIZED. R11.1 COMPLETE + NORMALIZED. R11.2 implementation ACCEPTED + MERGED; its continuity-only normalization is in progress. R11.3 is forbidden until that normalization passes exact-head R0 + full Python Core + KodeStudio UI Smoke and merges.** R11.1 normalization head `638789fc43fe364cc236b27f0f7149dab9bdc887` passed R0 #1342 / `32725211522`, Python #1316 / `32725211401`, UI #1283 / `32725211509`; PR #158 merged as `ce702323a134934c7543df30caa232ded391a831`. R11.2 implementation head `103365dc7d5e3d725e0a9d23a839283079fe959c` passed R0 #1344 / `32725655275`, Python #1318 / `32725655403`, UI #1285 / `32725655286`; final docs head `cab6128d16b243e57aa12592bb3d4bf8e5cfa01e` passed R0 #1345 / `32725827200`, Python #1319 / `32725827205`, UI #1286 / `32725827120`; PR #159 merged as `b1c600a907431dc2202938cba038cd374145852b`. R11.2 manual CONDITIONAL was NOT TRIGGERED. Current cycle is continuity-only normalization; its accepted merge will make R11.2 COMPLETE + NORMALIZED and authorize R11.3.
+> Kodepoia, architecture v1.0 gelée. **R1–R10 COMPLETE + NORMALIZED. R11 planning ACCEPTED + NORMALIZED. R11.1–R11.2 COMPLETE + NORMALIZED. R11.3 implementation ACCEPTED + MERGED; exactly one continuity-only R11.3 normalization is now pending. R11.4 is forbidden until that normalization passes exact-head R0 + full Python Core + KodeStudio UI Smoke and merges.** R11.2 normalization head `dfbba473c5c6055475489f0773ec0ec81280d532` passed R0 #1347 / `32726075236`, Python #1321 / `32726075380`, UI #1288 / `32726075297`; PR #160 merged as `b796a073b1d752fec02770a5102d651dda6d0949`, authorizing R11.3. R11.3 implementation head `a835ab4491b5c49268ac85e389a2584ba379fcf3` passed R0 #1349 / `32726607784`, Python #1323 / `32726607816`, UI #1290 / `32726607841`; Ubuntu reported 934 passed / 8 skipped / 46 warnings. Final R11.3 documentation head `f43707da56b5268677fa1104a5234025d7167025` passed R0 #1350 / `32728038957`, Python #1324 / `32728038903`, UI #1291 / `32728039219`; PR #161 merged as `dee8b2148597fd3cc9d6b45f5525f7f89003a7bb`. Manual R11.3 = NONE. Current cycle is continuity-only normalization; its accepted merge will make R11.3 COMPLETE + NORMALIZED and authorize R11.4.
 
 ## État
 
@@ -12,14 +12,15 @@
 - Architecture v1.0 gelée le 21 août 2026; `main` est la source de vérité après chaque merge accepté.
 - R1–R10 : **COMPLETE + NORMALIZED**.
 - R11 planning : **ACCEPTED + NORMALIZED** — plan PR #155 merge `523048121613a07554787a07701d1334c59cd2dd`; normalization PR #156 merge `95d582d864fe7a68f79e74d1383d4a2a2db7cee2`.
-- R11.1 : **COMPLETE + NORMALIZED** — manual NONE; implementation/docs PR #157 merge `f1638f962e30e9f191dfc2a061fbe564e36efd0d`; normalization PR #158 merge `ce702323a134934c7543df30caa232ded391a831`.
-- R11.2 : **ACCEPTED + MERGED; CONTINUITY NORMALIZATION PENDING** — manual CONDITIONAL NOT TRIGGERED; PR #159 merge `b1c600a907431dc2202938cba038cd374145852b`.
-- R11.3–R11.14 : FROZEN / NOT STARTED; R11.3 waits for R11.2 normalization.
-- R12–R16 : PENDING / NOT STARTED.
+- R11.1 : **COMPLETE + NORMALIZED** — implementation/docs PR #157 merge `f1638f962e30e9f191dfc2a061fbe564e36efd0d`; normalization PR #158 merge `ce702323a134934c7543df30caa232ded391a831`; manual NONE.
+- R11.2 : **COMPLETE + NORMALIZED** — implementation/docs PR #159 merge `b1c600a907431dc2202938cba038cd374145852b`; normalization PR #160 merge `b796a073b1d752fec02770a5102d651dda6d0949`; manual CONDITIONAL NOT TRIGGERED.
+- R11.3 : **ACCEPTED + MERGED; CONTINUITY NORMALIZATION PENDING** — implementation/docs PR #161 merge `dee8b2148597fd3cc9d6b45f5525f7f89003a7bb`; manual NONE.
+- R11.4–R11.14 : **FROZEN / NOT STARTED**; R11.4 waits for R11.3 normalization.
+- R12–R16 : **PENDING / NOT STARTED**.
 
 ## Autorité historique
 
-Les acceptances détaillées, preuves locales, rapports JSON et PR restent autoritatifs dans `docs/roadmap/R7_*`, `R8_*`, `R9_*`, `R10_*`, `R11_*` et l'historique GitHub. Cette continuité ne remplace pas ces preuves.
+Les acceptances détaillées, preuves locales, rapports JSON et PR restent autoritatifs dans `docs/roadmap/R7_*`, `R8_*`, `R9_*`, `R10_*`, `R11_*` et l'historique GitHub. Cette continuité résume l'état de reprise sans réécrire les preuves historiques.
 
 - R7, R8, R9 : COMPLETE + NORMALIZED; rapports intégrés PASS.
 - R10 : COMPLETE + NORMALIZED; `R10_INTEGRATED_ACCEPTANCE.json` a `status=pass`, `blockers=[]`, digest `48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8`; final normalization PR #154 merge `d627f26a086c46273ce378a2d4d9919db0e9dd3a`.
@@ -48,29 +49,39 @@ Plan autoritatif : `docs/roadmap/R11_PLAN.md`.
 ## R11.1 closure
 
 - Base normalized main `95d582d864fe7a68f79e74d1383d4a2a2db7cee2`.
-- Contracts/serialization/runtime boundary under `src/kodepoia/media/`; boundary never launches arbitrary commands and reuses `kodepoia.core.sandbox.ProcessSandbox` for future execution.
+- Contracts/serialization/runtime boundary under `src/kodepoia/media/`; future external execution remains behind accepted `ProcessSandbox` boundaries.
 - Implementation `46ee14f3e94ed8c5c1cadbf139a890fab853929f`: R0 #1339, Python #1313, UI #1280 SUCCESS; Ubuntu 914 passed / 8 skipped / 46 warnings.
 - Final docs `70969202b8d604f7b91ca47aa980f96850879a5b`: R0 #1340, Python #1314, UI #1281 SUCCESS.
 - PR #157 merge `f1638f962e30e9f191dfc2a061fbe564e36efd0d`.
 - Normalization `638789fc43fe364cc236b27f0f7149dab9bdc887`: R0 #1342 / `32725211522`, Python #1316 / `32725211401`, UI #1283 / `32725211509` SUCCESS; PR #158 merge `ce702323a134934c7543df30caa232ded391a831`.
 - Manual NONE. **R11.1 COMPLETE + NORMALIZED.**
 
-## R11.2 closure in progress
+## R11.2 closure
 
-- Base normalized main `ce702323a134934c7543df30caa232ded391a831`; branch `r11/2-audio-pipeline-qa`; PR #159.
+- Base normalized main `ce702323a134934c7543df30caa232ded391a831`; PR #159.
 - Delivered deterministic pure-Python WAV/PCM inspection, bounded representative ffprobe JSON parsing, typed allowlisted transform recipes, deterministic audio QA, schemas/tests/docs.
 - No arbitrary FFmpeg filter/argv surface; no real FFmpeg codec/transcode behavior claimed.
-- Implementation `103365dc7d5e3d725e0a9d23a839283079fe959c`: R0 #1344 / `32725655275`, Python #1318 / `32725655403`, UI #1285 / `32725655286` SUCCESS; Ubuntu **924 passed / 8 skipped / 46 warnings**, R7/R8/R9 PASS.
-- Final docs `cab6128d16b243e57aa12592bb3d4bf8e5cfa01e`: R0 #1345 / `32725827200`, Python #1319 / `32725827205`, UI #1286 / `32725827120`, all SUCCESS.
-- Manual CONDITIONAL **NOT TRIGGERED**, because acceptance does not assert actual FFmpeg runtime behavior.
+- Implementation `103365dc7d5e3d725e0a9d23a839283079fe959c`: R0 #1344 / `32725655275`, Python #1318 / `32725655403`, UI #1285 / `32725655286` SUCCESS; Ubuntu 924 passed / 8 skipped / 46 warnings, R7/R8/R9 PASS.
+- Final docs `cab6128d16b243e57aa12592bb3d4bf8e5cfa01e`: R0 #1345 / `32725827200`, Python #1319 / `32725827205`, UI #1286 / `32725827120` SUCCESS.
 - PR #159 merge `b1c600a907431dc2202938cba038cd374145852b`.
-- Current branch `r11/2-continuity-normalization` must modify continuity only; its accepted merge makes **R11.2 COMPLETE + NORMALIZED** and authorizes R11.3.
+- Normalization `dfbba473c5c6055475489f0773ec0ec81280d532`: R0 #1347 / `32726075236`, Python #1321 / `32726075380`, UI #1288 / `32726075297` SUCCESS; PR #160 merge `b796a073b1d752fec02770a5102d651dda6d0949`.
+- Manual CONDITIONAL **NOT TRIGGERED**. **R11.2 COMPLETE + NORMALIZED.**
+
+## R11.3 closure in progress
+
+- Base normalized main `b796a073b1d752fec02770a5102d651dda6d0949`; branch `r11/3-audio-cues-packaging`; PR #161.
+- Delivered semantic Music/Ambience/SFX/Foley/UI/dialogue-support cue contracts, promotable R8 revision+SHA references, bounded loop/spatialization/bus/polyphony/cooldown/ducking intent, deterministic weighted/playlist selection, and R5 Godot packaging intent without raw `.tres`, script or filesystem path generation.
+- Implementation head `a835ab4491b5c49268ac85e389a2584ba379fcf3`: R0 #1349 / `32726607784`, Python #1323 / `32726607816`, UI #1290 / `32726607841` SUCCESS; Ubuntu **934 passed / 8 skipped / 46 warnings**; Windows Python/internal UI/package builds SUCCESS; R7/R8/R9 PASS.
+- Final docs head `f43707da56b5268677fa1104a5234025d7167025`: R0 #1350 / `32728038957`, Python #1324 / `32728038903`, UI #1291 / `32728039219`, all SUCCESS.
+- Manual **NONE**.
+- PR #161 merge `dee8b2148597fd3cc9d6b45f5525f7f89003a7bb`.
+- Current branch `r11/3-continuity-normalization` changes only this continuity file. Its accepted merge makes **R11.3 COMPLETE + NORMALIZED** and authorizes R11.4.
 
 ## Baselines externes R11
 
 - Godot 4.7 remains the R5 engine target.
 - FFmpeg/ffprobe are capability-probed external runtimes; structured ffprobe JSON is preferred when used; no automatic install/download.
-- TTS is backend-neutral. Piper is an optional local adapter candidate; runtimes and voice models are external resources with explicit license/provenance.
+- TTS is backend-neutral. Piper-compatible support is an optional local adapter target; runtime and voice/model bytes remain external, explicitly configured and governed by per-resource license/provenance.
 - Voice cloning/impersonation from arbitrary human recordings is outside R11 v1.0.
 - R11.5 requires real local TTS evidence with an explicitly approved/configured voice; R11.9 requires real Godot 4.7 cinematic capture evidence.
 
@@ -86,4 +97,4 @@ Normalization run IDs remain in PR/merge metadata; do not create recursive commi
 
 ## Next authorized action
 
-Cycle = **R11.2 continuity normalization only**. Gate exact head of `r11/2-continuity-normalization` with R0 + full Python Core + UI Smoke and merge with expected SHA. **That merge alone makes R11.2 COMPLETE + NORMALIZED and authorizes R11.3 (manual NONE).**
+Cycle = **R11.3 continuity normalization only**. Gate exact head of `r11/3-continuity-normalization` with R0 + full Python Core + KodeStudio UI Smoke and merge with expected SHA. **That merge alone makes R11.3 COMPLETE + NORMALIZED and authorizes R11.4 (manual NONE).**

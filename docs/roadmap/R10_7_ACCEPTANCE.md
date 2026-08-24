@@ -1,7 +1,7 @@
 # R10.7 — Acceptance record
 
-Status: **SECOND LOCAL ATTEMPT REJECTED; NLA INTEGER-START FIX HOSTED GATES PENDING**  
-Manual intervention: **TRIGGERED — do not rerun locally until the new exact head passes hosted gates**
+Status: **LOCAL BLENDER 5.2 GATE SATISFIED; FINAL DOCUMENTED HEAD PENDING GATES**  
+Manual intervention: **CONDITIONAL TRIGGERED → SATISFIED**
 
 ## Definition of Done
 
@@ -18,7 +18,7 @@ R10.7 requires one exact head with:
 - bounded Blender 5.2 layered Action/ActionSlot/F-Curve/NLA organization and key budget;
 - immutable parent `.blend`, verified derived `.blend` and parent→derived SHA lineage;
 - static offline bootstrap with no arbitrary driver/script/network/dynamic-code surface;
-- real Blender 5.2 local evidence for the new Action/F-Curve/NLA runtime seam because the frozen CONDITIONAL is TRIGGERED.
+- real Blender 5.2 local evidence for the Action/F-Curve/NLA runtime seam because the frozen CONDITIONAL was triggered.
 
 ## Hosted fixture expectations
 
@@ -88,16 +88,53 @@ Blender's `NlaStrips.new(name, start, action)` creation API requires an integer 
 
 A dedicated hosted regression test asserts that no float is passed to `NlaStrips.new` and that the exact float start is preserved after creation. No animation policy, mapping rule, security boundary or acceptance threshold was weakened.
 
-## New-candidate ordering
+## Accepted hosted implementation candidate
 
-The branch head containing the NLA integer-start fix, dedicated regression test, both permanently rejected local evidence files and this acceptance update must now satisfy, in order:
+Immutable local candidate:
 
-1. exact-head R0 Repository Guard;
-2. exact-head full Python Core;
-3. exact-head KodeStudio UI Smoke;
-4. only after all three succeed, freeze that exact SHA as the next local candidate;
-5. rerun `scripts/r10_7_local_acceptance.py` on that exact SHA using Blender 5.2.x;
-6. if local evidence is not PASS, stop again before R10.8 and preserve it unchanged;
-7. if local evidence is PASS, bind it canonically here, rerun the three final gates on the final documented head, merge PR #143 with expected SHA, then perform exactly one continuity-only post-merge normalization with the same gates.
+`21510878f49815b7bb5551da9672a349c3fd817f`
 
-Only after that normalization merge is R10.7 **COMPLETE + NORMALIZED** and R10.8 authorized.
+Exact-head hosted gates:
+
+- R0 Repository Guard #1267 / `32683968797`: **SUCCESS**;
+- Python Core #1241 / `32683968785`: **SUCCESS**; Ubuntu **814 passed / 7 skipped / 46 warnings**, R7/R8/R9 integrated acceptance PASS, Windows Python and Ubuntu/Windows package builds SUCCESS;
+- KodeStudio UI Smoke #1208 / `32683968838`: **SUCCESS**.
+
+## Accepted REQUIRED/CONDITIONAL local Blender evidence
+
+The frozen CONDITIONAL was triggered because prior R10.2/R10.6 local evidence did not execute the new Action/F-Curve/NLA seam. The exact candidate `21510878f49815b7bb5551da9672a349c3fd817f` was executed locally on Windows with legitimate Blender 5.2.0 and produced canonical PASS evidence archived as:
+
+`docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json`
+
+Identity independently verified from the submitted file:
+
+- bytes: `1622`;
+- SHA-256: `f2374feadf87ce9c0f3362969aa0f98314842c73f31c2a90b42c9e2ab107a8cf`;
+- evidence digest: `3ef6f4b366a3179f36a20ed606fdf25708309ae350df2704176dfee5e3b1f0b7`;
+- source SHA: `21510878f49815b7bb5551da9672a349c3fd817f`;
+- runtime: Blender `5.2.0`, platform `windows`, background `true`, online access `false`;
+- top-level status `pass`, blockers `[]`;
+- geometry PASS;
+- source rig PASS;
+- target rig PASS;
+- animation PASS;
+- animation process return code `0`, no timeout/cancel/truncation;
+- animation output `animation_output.blend`, `92875` bytes, SHA-256 `b0c760d1126305ae618f851adab6cd472e94c99033340458cff32ec957138e0b`;
+- recipe digest `a33af267311cdda320636b8aa90b9106e6398edb972e163c36cfd59df287759a`;
+- report digest `17a5bc6018a79d846115b5c5a1d9cabafe80659cf4e7879189167c432e116ef5`;
+- manifest blockers `[]`;
+- all 20 reported acceptance rules PASS: `constraint_free_target`, `driver_free_target`, `duration`, `export_readiness`, `frame_end`, `frame_rate`, `frame_start`, `key_budget`, `loop_policy`, `mapping_ambiguity`, `mapping_coverage`, `nla_strip_count`, `nla_track_count`, `required_target_mapping`, `rest_direction_compatibility`, `rest_length_compatibility`, `root_motion_policy`, `sampling_policy`, `unmapped_source_deform`, `unmapped_target_deform`.
+
+The canonical evidence digest was independently recomputed from canonical JSON excluding the `evidence_digest` field and matched exactly. The file SHA-256/byte size also matched the user's PowerShell output exactly.
+
+Therefore the R10.7 manual state is **CONDITIONAL TRIGGERED → SATISFIED**.
+
+## Final merge ordering
+
+This acceptance update and canonical PASS evidence intentionally create a new final documented head. That exact head must now pass, without modification:
+
+1. R0 Repository Guard;
+2. full Python Core with R7/R8/R9 integrated acceptance still PASS;
+3. KodeStudio UI Smoke.
+
+If all three succeed, merge PR #143 with expected head SHA. Then perform exactly one continuity-only post-merge normalization, again requiring the same three exact-head gates. Only after that normalization merge is R10.7 **COMPLETE + NORMALIZED** and R10.8 authorized.

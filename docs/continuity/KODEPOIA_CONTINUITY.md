@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1–R10.8 COMPLETE + NORMALIZED. R10.9 LOD generation/preservation/variant-lineage implementation and final exact-head acceptance are ACCEPTED + merged; post-merge continuity normalization is the only remaining R10.9 completion condition.** `docs/roadmap/R10_PLAN.md` remains the exhaustive authority for R10.1–R10.12. R10.9 implementation candidate `fa64f49776a29ece4d06cd05f508632129ee863d` passed R0 #1295 / `32690770568`, Python Core #1269 / `32690770644`, UI Smoke #1236 / `32690770565`; final documented head `f12b786a10e7e42e7814a96f049daf485ce12692` passed R0 #1296 / `32690925110`, Python Core #1270 / `32690925091`, UI Smoke #1237 / `32690925181`, all SUCCESS. Ubuntu reported **837 passed / 7 skipped / 46 warnings** with R7/R8/R9 integrated acceptance PASS; Windows Python and Ubuntu/Windows package builds SUCCESS. Manual state **NONE**. PR #147 merged as `daa7fd921528301742e19d9fac8d3ed452676b79`. Current branch `r10/9-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10.9 becomes COMPLETE + NORMALIZED and R10.10 is authorized.** R10.10 frozen manual state is REQUIRED; do not proceed beyond its manual acceptance checkpoint until the user supplies the required local Blender 5.2 + Godot 4.7 evidence.
+> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1–R10.9 COMPLETE + NORMALIZED. R10.10 GLB/glTF export + Blender round-trip + Godot 4.7 acceptance is ACCEPTED + merged; its single post-merge continuity normalization is the only remaining R10.10 completion condition.** `docs/roadmap/R10_PLAN.md` remains the exhaustive authority for R10.1–R10.12. R10.10 initial implementation `1f4f61485016790b854244a5a0a43094b7c98bab` passed hosted gates; first local candidate `64e21eca32be4fc47944962b57f341b7ed2dbf09` produced a preserved REJECTED FAIL. Hardened local candidate `85e2db277ce1cb467aeb9b056700150bc1d67fa7` passed R0 #1302 / `32707671592`, Python #1276 / `32707671595`, UI #1243 / `32707671624`, then the REQUIRED local Blender 5.2.0 LTS + Godot 4.7.2 acceptance passed with `status=pass`, `blockers=[]`, static and rigged GLBs, Blender round-trip PASS and Godot semantic smoke PASS. Final PR head `c4fdadd4e451a28b9466695a42cefabf60648e4c` passed R0 #1319 / `32710039110`, Python #1293 / `32710039167`, UI #1260 / `32710039132`, all SUCCESS. PR #149 squash-merged as `836e78967fcd5dcca92c909098b4232233d12a0f`. Current branch `r10/10-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10.10 becomes COMPLETE + NORMALIZED and R10.11 is authorized.** R10.11 frozen manual state is NONE.
 
 ## Source de vérité / état
 
@@ -21,9 +21,9 @@
 - R10.6 : **COMPLETE + NORMALIZED** — manual CONDITIONAL TRIGGERED AND SATISFIED.
 - R10.7 : **COMPLETE + NORMALIZED** — manual CONDITIONAL TRIGGERED AND SATISFIED.
 - R10.8 : **COMPLETE + NORMALIZED** — manual CONDITIONAL NOT TRIGGERED.
-- R10.9 : implementation/final exact-head acceptance ACCEPTED + PR #147 MERGED — manual NONE — post-merge normalization pending.
-- R10.10 : PLANNED — manual REQUIRED; NOT STARTED until R10.9 normalization merges.
-- R10.11 : PLANNED — manual NONE.
+- R10.9 : **COMPLETE + NORMALIZED** — manual NONE.
+- R10.10 : implementation/final exact-head acceptance ACCEPTED + PR #149 MERGED — manual REQUIRED SATISFIED — post-merge normalization pending.
+- R10.11 : PLANNED — manual NONE; NOT STARTED until R10.10 normalization merges.
 - R10.12 : PLANNED — manual CONDITIONAL.
 - R11–R16 : PENDING / NOT STARTED.
 
@@ -128,7 +128,7 @@ Detailed evidence, rejected candidates, canonical JSON reports and exact accepta
 - PR #145 merge `6d2c195329a4d001d173a41a827fea277087d8b2`.
 - Normalization `4cb8d872cea034539ece955d8dd1bff4e3a04eaf`: R0 #1293 / `32689972029`, Python #1267 / `32689972030`, UI #1234 / `32689972024` SUCCESS; PR #146 merge `f2c21350cce9a8dc9e168b35940c566f389fd4b6`.
 
-## R10.9 accepted implementation and merge — LOD / preservation / lineage
+## R10.9 closure — LOD / preservation / lineage
 
 - Base normalized R10.8 `f2c21350cce9a8dc9e168b35940c566f389fd4b6`; branch `r10/9-lod-lineage`; PR #147.
 - Implementation candidate `fa64f49776a29ece4d06cd05f508632129ee863d` adds static/skinned LOD profiles, strictly descending triangle ratios and absolute budgets, a fixed offline Blender `DECIMATE`/`COLLAPSE` bootstrap, post-decimation material/UV/normal/extent/surface-area preservation checks, stricter skin-group/weight/influence checks, fail-closed Shape Key handling and deterministic R8 `lod_variant` revision lineage.
@@ -137,7 +137,19 @@ Detailed evidence, rejected candidates, canonical JSON reports and exact accepta
 - Frozen manual state **NONE**.
 - Final documented head `f12b786a10e7e42e7814a96f049daf485ce12692`: R0 #1296 / `32690925110`, Python #1270 / `32690925091`, UI #1237 / `32690925181` SUCCESS; Ubuntu **837 passed / 7 skipped / 46 warnings**, R7/R8/R9 PASS, Windows Python and Ubuntu/Windows package builds SUCCESS.
 - PR #147 merged as `daa7fd921528301742e19d9fac8d3ed452676b79`.
-- Current branch `r10/9-continuity-normalization` changes only this continuity file.
+- Normalization `b73564c9f30dfd16ff980bfe185ca3c9212d8078`: R0 #1298 / `32691227728`, Python #1272 / `32691227808`, UI #1239 / `32691227806` SUCCESS; PR #148 merge `ac6e2cea836ece815d75ef84cfecb99b82bc7e0f`.
+
+## R10.10 accepted implementation and merge — GLB/glTF + Blender/Godot acceptance
+
+- Base normalized R10.9 `ac6e2cea836ece815d75ef84cfecb99b82bc7e0f`; branch `r10/10-gltf-godot-acceptance`; PR #149.
+- Initial implementation candidate `1f4f61485016790b854244a5a0a43094b7c98bab`: strict R8-bound GLB/glTF export profile, bounded glTF/GLB validator, fixed Blender export/re-import bootstrap, semantic round-trip checks, R8 `gltf_export` lineage, Godot R5 runtime reuse and one bounded local acceptance command. R0 #1300 / `32692671006`, Python #1274 / `32692671028`, UI #1241 / `32692670992` SUCCESS; Ubuntu **852 passed / 7 skipped / 46 warnings**, R7/R8/R9 PASS.
+- First documented/manual candidate `64e21eca32be4fc47944962b57f341b7ed2dbf09`: R0 #1301 / `32692800763`, Python #1275 / `32692800872`, UI #1242 / `32692800747` SUCCESS. Its REQUIRED local run was **REJECTED**: exit 2, `status=fail`, 952-byte evidence SHA-256 `37b5be2bdc6d1b93320e0ce453d3612643c4c729ecf304bd021169421c409a58`, evidence digest `17ce1fb01a96fa5ddcc061f48af79c85a747824211e43460f2ab767cb0997f18`; Blender failed before either GLB existed and Godot was correctly not executed.
+- Hardening candidate `85e2db277ce1cb467aeb9b056700150bc1d67fa7`: corrected Blender 5.2 Principled BSDF `Metallic` socket usage and switched the rigged fixture to the explicit Blender 5.2 layered Action slot/layer/keyframe-strip/channelbag/F-Curve API. R0 #1302 / `32707671592`, Python #1276 / `32707671595`, UI #1243 / `32707671624` SUCCESS; Ubuntu **853 passed / 7 skipped / 46 warnings**, R7/R8/R9 PASS.
+- REQUIRED local acceptance on exact `85e2db277ce1cb467aeb9b056700150bc1d67fa7`: **SATISFIED** with Blender `5.2.0 LTS`, Godot `4.7.2.stable.steam.ed1daf0bf`, `status=pass`, `blockers=[]`, evidence digest `1965ad088a721c9774ea536fe908bffa3f8b07a23ac135c22c339f0d778f6627`.
+- Canonical accepted evidence `docs/roadmap/R10_10_LOCAL_ACCEPTANCE.json`: **2843 bytes**, SHA-256 `da9680219dfd4e3a44683a547481b6584b9ef186ee364f27dfcfe2c0c5c29c9f`. Blender background=true, online_access=false, process returncode 0. Static GLB: 2832 bytes, SHA-256 `19a8adfbc4c9ac098a676fbdf52143dc5e445b29228830eab67d271341758308`; rigged GLB: 6796 bytes, SHA-256 `84e9f0a7c7638566962160d6b986073b37528d8bf944d8840c1b6f99f138175f`. Rigged glTF has 1 skin, 1 morph target and 1 animation; round-trip preserves `Root`/`Child`, `Smile`, `Wave`; Godot import returncode 0 and semantic smoke `pass_marker=true`.
+- Final PR head `c4fdadd4e451a28b9466695a42cefabf60648e4c`: R0 #1319 / `32710039110`, Python #1293 / `32710039167`, UI #1260 / `32710039132` SUCCESS.
+- PR #149 squash-merged as `836e78967fcd5dcca92c909098b4232233d12a0f` to collapse documentation-only head churn without changing the accepted tree semantics.
+- Current branch `r10/10-continuity-normalization` changes only this continuity file.
 
 ## Permanent architecture/security boundaries
 
@@ -172,10 +184,10 @@ Preserve without reinterpretation:
 5. Scope/structure changes synchronize plan + continuity in the same work cycle.
 6. Foundation changes require an ADR.
 
-## R10.9 normalization rule / next action
+## R10.10 normalization rule / next action
 
-The current branch `r10/9-continuity-normalization` is the **single post-merge continuity normalization** after accepted R10.9 PR #147. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with R7/R8/R9 integrated acceptance still PASS.
+The current branch `r10/10-continuity-normalization` is the **single post-merge continuity normalization** after accepted R10.10 PR #149. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with R7/R8/R9 integrated acceptance still PASS.
 
-If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10.9 COMPLETE + NORMALIZED and authorizes R10.10.** Do not create another recursive R10.9 continuity commit solely to record the normalization's own run IDs; record those exact-head IDs in the normalization PR body/merge record.
+If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10.10 COMPLETE + NORMALIZED and authorizes R10.11.** Do not create another recursive R10.10 continuity commit solely to record the normalization's own run IDs; record those IDs in the normalization PR/merge metadata instead.
 
-R10.10 must start from the resulting normalized `main`. Its frozen title is **GLB/glTF export + Blender round-trip + Godot 4.7 acceptance**, its frozen manual state is **REQUIRED**, and it depends on R10.4–R10.9 plus R5/R8. Implement and validate the hosted candidate first, then stop at the required real local Blender 5.2.x + Godot 4.7 acceptance checkpoint and provide the exact bounded command/evidence instructions. Do not continue to R10.11 until that evidence is supplied and reviewed.
+R10.11 frozen manual state is **NONE**. Do not start R10.11 inside this normalization. Start it only from the resulting normalized `main` and only in a later authorized work cycle.

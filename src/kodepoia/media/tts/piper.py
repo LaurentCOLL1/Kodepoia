@@ -12,7 +12,7 @@ from ..contracts import MediaRuntimeKind
 from ..voice import VoiceModelBinding
 from .contracts import SynthesisRequest, TTSBackendCapabilities
 
-_REQUIRED_HELP_MARKERS = ("--model", "--config", "--output-file", "--speaker", "--length-scale")
+_REQUIRED_HELP_MARKERS = ("--model", "--input-file", "--output-file", "--speaker", "--length-scale")
 
 
 def sha256_file(path: Path, *, max_bytes: int = 512 * 1024 * 1024) -> str:
@@ -60,10 +60,14 @@ class PiperAdapter:
 
     @property
     def capabilities(self) -> TTSBackendCapabilities:
+        # Current Piper resolves the JSON configuration as the governed sibling
+        # of the explicit .onnx model. Kodepoia therefore verifies that sibling
+        # by hash instead of claiming that an independently routed config path
+        # changes runtime behavior.
         return TTSBackendCapabilities(
             backend_id=self.backend_id,
             supports_explicit_model_path=True,
-            supports_explicit_config_path=True,
+            supports_explicit_config_path=False,
             supports_output_wav=True,
             supports_speaker_id=True,
             supports_length_scale=True,
@@ -87,13 +91,20 @@ class PiperAdapter:
         for marker in _REQUIRED_HELP_MARKERS:
             if marker not in lowered:
                 blockers.append(f"missing_capability_{marker[2:].replace('-', '_')}")
-        return PiperCapabilityReport(runtime_sha, help_sha, self.capabilities, "pass" if not blockers else "fail", tuple(sorted(set(blockers))))
+        return PiperCapabilityReport(
+            runtime_sha,
+            help_sha,
+            self.capabilities,
+            "pass" if not blockers else "fail",
+            tuple(sorted(set(blockers))),
+        )
 
     def compile_synthesis_argv(
         self,
         executable: Path,
         model_path: Path,
         config_path: Path,
+        input_path: Path,
         output_path: Path,
         *,
         binding: VoiceModelBinding,
@@ -106,7 +117,15 @@ class PiperAdapter:
         exe = self.boundary.validate_executable(MediaRuntimeKind.TTS, executable)
         model = self.boundary.validate_input(model_path, root=self.model_root, suffixes=frozenset({".onnx"}))
         config = self.boundary.validate_input(config_path, root=self.model_root, suffixes=frozenset({".json"}))
+        text_input = self.boundary.validate_input(
+            input_path,
+            root=self.boundary.staging_root,
+            suffixes=frozenset({".txt"}),
+        )
         output = self.boundary.validate_output(output_path, suffixes=frozenset({".wav"}))
+        expected_config = model.with_name(model.name + ".json")
+        if config != expected_config:
+            raise ValueError("Piper config must be the governed <model>.onnx.json sibling")
         model_sha = sha256_file(model)
         config_sha = sha256_file(config, max_bytes=16 * 1024 * 1024)
         if model_sha != binding.model_sha256 or config_sha != binding.config_sha256:
@@ -115,8 +134,8 @@ class PiperAdapter:
             str(exe),
             "--model",
             str(model),
-            "--config",
-            str(config),
+            "--input-file",
+            str(text_input),
             "--output-file",
             str(output),
             "--length-scale",
@@ -124,5 +143,4 @@ class PiperAdapter:
         ]
         if request.speaker_id is not None:
             argv.extend(("--speaker", str(request.speaker_id)))
-        argv.extend(("--", request.text))
         return tuple(argv)

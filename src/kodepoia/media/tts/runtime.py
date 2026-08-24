@@ -87,15 +87,34 @@ def synthesize_local(
         model_sha256=model_sha,
         config_sha256=config_sha,
     )
-    argv = adapter.compile_synthesis_argv(
-        executable,
-        model_path,
-        config_path,
-        output_path,
-        binding=binding,
-        request=request,
-    )
-    result = adapter.sandbox.run(argv, timeout=active_limits.timeout_seconds)
+    request_digest = canonical_sha256({"schema_version": 1, "request": request.canonical()})
+
+    output = adapter.boundary.validate_output(output_path, suffixes=frozenset({".wav"}))
+    input_path = output.with_suffix(".input.txt")
+    adapter.boundary.validate_output(input_path, suffixes=frozenset({".txt"}))
+    if output.exists():
+        output.unlink()
+    if input_path.exists():
+        input_path.unlink()
+    input_path.write_text(request.text + "\n", encoding="utf-8", newline="\n")
+
+    try:
+        argv = adapter.compile_synthesis_argv(
+            executable,
+            model_path,
+            config_path,
+            input_path,
+            output,
+            binding=binding,
+            request=request,
+        )
+        result = adapter.sandbox.run(argv, timeout=active_limits.timeout_seconds)
+    finally:
+        try:
+            input_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
     blockers: list[str] = []
     if result.timed_out:
         blockers.append("synthesis_timeout")
@@ -103,12 +122,13 @@ def synthesize_local(
         blockers.append("synthesis_cancelled")
     if result.returncode != 0:
         blockers.append("synthesis_nonzero")
-    if len(result.stdout.encode("utf-8", errors="replace")) > active_limits.max_stdout_bytes:
+    stdout_bytes = len(result.stdout.encode("utf-8", errors="replace"))
+    stderr_bytes = len(result.stderr.encode("utf-8", errors="replace"))
+    if stdout_bytes > active_limits.max_stdout_bytes:
         blockers.append("stdout_budget")
-    if len(result.stderr.encode("utf-8", errors="replace")) > active_limits.max_stderr_bytes:
+    if stderr_bytes > active_limits.max_stderr_bytes:
         blockers.append("stderr_budget")
 
-    output = Path(output_path).resolve(strict=False)
     output_bytes = b""
     facts_payload: dict[str, Any] = {}
     qa_payload: dict[str, Any] = {}
@@ -147,12 +167,14 @@ def synthesize_local(
         "returncode": result.returncode,
         "timed_out": result.timed_out,
         "cancelled": result.cancelled,
-        "stdout_bytes": len(result.stdout.encode("utf-8", errors="replace")),
-        "stderr_bytes": len(result.stderr.encode("utf-8", errors="replace")),
+        "stdout_bytes": stdout_bytes,
+        "stderr_bytes": stderr_bytes,
+        "text_passed_via_argv": False,
+        "ephemeral_input_deleted": not input_path.exists(),
     }
     return SynthesisManifest(
         source_sha=source_sha,
-        request_digest=canonical_sha256(request.canonical()),
+        request_digest=request_digest,
         text_sha256=request.text_sha256,
         cache_key=cache_key,
         backend_id=adapter.backend_id,

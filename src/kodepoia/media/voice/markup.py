@@ -14,6 +14,13 @@ class SpeechSegmentKind(StrEnum):
     EMPHASIS = "emphasis"
 
 
+def _plain_segment_text(value: str) -> str:
+    normalized = normalize_voice_text(value, maximum=4096)
+    if "<" in normalized or ">" in normalized:
+        raise ValueError("raw XML/SSML-like markup is not accepted")
+    return normalized
+
+
 @dataclass(frozen=True, slots=True)
 class SpeechSegment:
     kind: SpeechSegmentKind
@@ -25,7 +32,7 @@ class SpeechSegment:
         if self.kind is SpeechSegmentKind.TEXT:
             if self.text is None or self.pause_seconds is not None or self.emphasis is not None:
                 raise ValueError("text segment requires only text")
-            object.__setattr__(self, "text", normalize_voice_text(self.text, maximum=4096))
+            object.__setattr__(self, "text", _plain_segment_text(self.text))
             return
         if self.kind is SpeechSegmentKind.PAUSE:
             if self.text is not None or self.emphasis is not None or self.pause_seconds is None:
@@ -37,7 +44,7 @@ class SpeechSegment:
         if self.kind is SpeechSegmentKind.EMPHASIS:
             if self.text is None or self.pause_seconds is not None or self.emphasis not in {"reduced", "moderate", "strong"}:
                 raise ValueError("emphasis segment requires text and an allowlisted emphasis")
-            object.__setattr__(self, "text", normalize_voice_text(self.text, maximum=4096))
+            object.__setattr__(self, "text", _plain_segment_text(self.text))
             return
         raise ValueError("unsupported speech segment kind")
 

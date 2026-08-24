@@ -34,6 +34,16 @@ _ACCEPTED_HEADS = {
     "R11.12": "66ccd03bf486ac325ee2fba7133a6fc2a9c244b0",
     "R11.13": "79a891eaede7e5ecf7d8daf35846b20b1d3d02f9",
 }
+_ACCEPTED_LOCAL_DIGESTS = {
+    "R11.5": "12223e911a76087a4eea23ce9e371fdc401990d127cb9f306237d67550725ffe",
+    "R11.9": "6afe45e3c9047cfa58b7c617ff671e34e166bd9189a32ea62f1350243955b6f5",
+}
+_ACCEPTED_PRIOR_DIGESTS = {
+    "R7": "2d6fc8e95d22891228a462d2731059683ed03ae51bb5fff6e2755b194198f437",
+    "R8": "6ea9c82dedbc2adb97849344f94386838235050bc598f0f8a8d0cfb3676dea89",
+    "R9": "19291d79bd800fdb76d96656f9f150ee3114dbcde08d2e82415aff7ff747816a",
+    "R10": "48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8",
+}
 
 
 class R11IntegrationStatus(StrEnum):
@@ -93,6 +103,12 @@ def _identity(data: bytes) -> tuple[str, int]:
     return hashlib.sha256(data).hexdigest(), len(data)
 
 
+def _safe_source(value: str) -> str:
+    if not value or value.startswith("/") or ".." in Path(value).parts:
+        raise ValueError("evidence source must be a safe repository-relative path")
+    return value
+
+
 def _json_object(data: bytes, label: str) -> dict[str, Any]:
     try:
         value = json.loads(data.decode("utf-8"))
@@ -116,8 +132,7 @@ class FileBinding:
     bytes: int
 
     def __post_init__(self) -> None:
-        if not self.source or self.source.startswith("/") or ".." in Path(self.source).parts:
-            raise ValueError("evidence source must be a safe repository-relative path")
+        _safe_source(self.source)
         _require_sha256(self.sha256, "file sha256")
         if self.bytes < 1:
             raise ValueError("evidence byte length must be positive")
@@ -131,13 +146,19 @@ class FileBinding:
 
 
 @dataclass(frozen=True, slots=True)
-class SubdivisionBinding(FileBinding):
+class SubdivisionBinding:
+    source: str
+    sha256: str
+    bytes: int
     subdivision: str
     accepted_head: str
     manual_state: R11ManualState
 
     def __post_init__(self) -> None:
-        super().__post_init__()
+        _safe_source(self.source)
+        _require_sha256(self.sha256, "subdivision file sha256")
+        if self.bytes < 1:
+            raise ValueError("subdivision evidence byte length must be positive")
         if self.subdivision not in _EXPECTED_SUBDIVISIONS:
             raise ValueError(f"Unsupported R11 subdivision: {self.subdivision}")
         expected = f"docs/roadmap/R11_{self.subdivision.split('.')[1]}_ACCEPTANCE.md"
@@ -155,7 +176,9 @@ class SubdivisionBinding(FileBinding):
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            **super().to_dict(),
+            "source": self.source,
+            "sha256": self.sha256,
+            "bytes": self.bytes,
             "subdivision": self.subdivision,
             "accepted_head": self.accepted_head,
             "manual_state": self.manual_state.value,
@@ -178,13 +201,19 @@ class SubdivisionBinding(FileBinding):
 
 
 @dataclass(frozen=True, slots=True)
-class LocalEvidenceBinding(FileBinding):
+class LocalEvidenceBinding:
+    source: str
+    sha256: str
+    bytes: int
     subdivision: str
     source_sha: str
     evidence_digest: str
 
     def __post_init__(self) -> None:
-        super().__post_init__()
+        _safe_source(self.source)
+        _require_sha256(self.sha256, "local file sha256")
+        if self.bytes < 1:
+            raise ValueError("local evidence byte length must be positive")
         if self.subdivision not in _REQUIRED_LOCAL:
             raise ValueError("Only R11.5 and R11.9 are required local bindings")
         expected = f"docs/roadmap/R11_{self.subdivision.split('.')[1]}_LOCAL_ACCEPTANCE.json"
@@ -194,10 +223,14 @@ class LocalEvidenceBinding(FileBinding):
         _require_sha256(self.evidence_digest, "local evidence digest")
         if self.source_sha != _ACCEPTED_HEADS[self.subdivision]:
             raise ValueError(f"{self.subdivision} local source SHA drift")
+        if self.evidence_digest != _ACCEPTED_LOCAL_DIGESTS[self.subdivision]:
+            raise ValueError(f"{self.subdivision} accepted semantic digest drift")
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            **super().to_dict(),
+            "source": self.source,
+            "sha256": self.sha256,
+            "bytes": self.bytes,
             "subdivision": self.subdivision,
             "source_sha": self.source_sha,
             "evidence_digest": self.evidence_digest,
@@ -216,20 +249,34 @@ class LocalEvidenceBinding(FileBinding):
 
 
 @dataclass(frozen=True, slots=True)
-class PriorPhaseBinding(FileBinding):
+class PriorPhaseBinding:
+    source: str
+    sha256: str
+    bytes: int
     phase: str
     evidence_sha256: str
 
     def __post_init__(self) -> None:
-        super().__post_init__()
+        _safe_source(self.source)
+        _require_sha256(self.sha256, "prior phase file sha256")
+        if self.bytes < 1:
+            raise ValueError("prior evidence byte length must be positive")
         if self.phase not in _EXPECTED_PRIOR_PHASES:
             raise ValueError(f"Unsupported prior phase {self.phase}")
         if self.source != f"docs/roadmap/{self.phase}_INTEGRATED_ACCEPTANCE.json":
             raise ValueError("prior phase source is not canonical")
         _require_sha256(self.evidence_sha256, "prior evidence digest")
+        if self.evidence_sha256 != _ACCEPTED_PRIOR_DIGESTS[self.phase]:
+            raise ValueError(f"{self.phase} accepted integrated semantic digest drift")
 
     def to_dict(self) -> dict[str, Any]:
-        return {**super().to_dict(), "phase": self.phase, "evidence_sha256": self.evidence_sha256}
+        return {
+            "source": self.source,
+            "sha256": self.sha256,
+            "bytes": self.bytes,
+            "phase": self.phase,
+            "evidence_sha256": self.evidence_sha256,
+        }
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> "PriorPhaseBinding":
@@ -256,7 +303,7 @@ class R11IntegratedReport:
     evidence_sha256: str = field(init=False)
 
     def __post_init__(self) -> None:
-        if self.schema_version != 1:
+        if self.schema_version != R11_INTEGRATION_SCHEMA_VERSION:
             raise ValueError("Unsupported R11 integrated schema version")
         if not self.generated_at.strip():
             raise ValueError("generated_at is required")
@@ -271,14 +318,20 @@ class R11IntegratedReport:
             raise ValueError("R11 report must bind R7, R8, R9 and R10 in order")
         if self.subdivisions[-1].accepted_head != self.source_sha:
             raise ValueError("R11.14 accepted head must equal report source_sha")
-        if len(set(self.blockers)) != len(self.blockers) or any(not item.strip() for item in self.blockers):
+        if len(set(self.blockers)) != len(self.blockers) or any(
+            not item.strip() for item in self.blockers
+        ):
             raise ValueError("blockers must be unique non-empty strings")
         derived = self.derived_blockers()
         if self.status is R11IntegrationStatus.PASS and (self.blockers or derived):
             raise ValueError("PASS report cannot contain blockers")
         if self.status is R11IntegrationStatus.FAIL and not (self.blockers or derived):
             raise ValueError("FAIL report requires a blocker")
-        object.__setattr__(self, "evidence_sha256", hashlib.sha256(canonical_json_bytes(self.semantic_payload())).hexdigest())
+        object.__setattr__(
+            self,
+            "evidence_sha256",
+            hashlib.sha256(canonical_json_bytes(self.semantic_payload())).hexdigest(),
+        )
 
     def derived_blockers(self) -> tuple[str, ...]:
         return tuple(
@@ -288,7 +341,7 @@ class R11IntegratedReport:
         )
 
     def semantic_payload(self) -> dict[str, Any]:
-        # generated_at is intentionally excluded from semantic identity.
+        # generated_at is metadata, not semantic evidence identity.
         return {
             "schema_version": self.schema_version,
             "source_sha": self.source_sha,
@@ -301,7 +354,11 @@ class R11IntegratedReport:
         }
 
     def to_dict(self) -> dict[str, Any]:
-        return {"generated_at": self.generated_at, **self.semantic_payload(), "evidence_sha256": self.evidence_sha256}
+        return {
+            "generated_at": self.generated_at,
+            **self.semantic_payload(),
+            "evidence_sha256": self.evidence_sha256,
+        }
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> "R11IntegratedReport":
@@ -309,9 +366,15 @@ class R11IntegratedReport:
             generated_at=str(value["generated_at"]),
             source_sha=str(value["source_sha"]),
             continuity=FileBinding.from_dict(value["continuity"]),
-            subdivisions=tuple(SubdivisionBinding.from_dict(item) for item in value.get("subdivisions", [])),
-            local_evidence=tuple(LocalEvidenceBinding.from_dict(item) for item in value.get("local_evidence", [])),
-            prior_phases=tuple(PriorPhaseBinding.from_dict(item) for item in value.get("prior_phases", [])),
+            subdivisions=tuple(
+                SubdivisionBinding.from_dict(item) for item in value.get("subdivisions", [])
+            ),
+            local_evidence=tuple(
+                LocalEvidenceBinding.from_dict(item) for item in value.get("local_evidence", [])
+            ),
+            prior_phases=tuple(
+                PriorPhaseBinding.from_dict(item) for item in value.get("prior_phases", [])
+            ),
             status=R11IntegrationStatus(value["status"]),
             blockers=tuple(str(item) for item in value.get("blockers", [])),
             schema_version=int(value.get("schema_version", 0)),
@@ -326,11 +389,20 @@ def _binding(source: str, data: bytes) -> FileBinding:
     return FileBinding(source, digest, size)
 
 
-def _subdivision_binding(subdivision: str, data: bytes, *, source_sha: str) -> SubdivisionBinding:
+def _subdivision_binding(
+    subdivision: str, data: bytes, *, source_sha: str
+) -> SubdivisionBinding:
     source = f"docs/roadmap/R11_{subdivision.split('.')[1]}_ACCEPTANCE.md"
     digest, size = _identity(data)
     head = source_sha if subdivision == "R11.14" else _ACCEPTED_HEADS[subdivision]
-    return SubdivisionBinding(source, digest, size, subdivision, head, _MANUAL_STATES[subdivision])
+    return SubdivisionBinding(
+        source,
+        digest,
+        size,
+        subdivision,
+        head,
+        _MANUAL_STATES[subdivision],
+    )
 
 
 def _local_binding(subdivision: str, data: bytes) -> LocalEvidenceBinding:
@@ -351,25 +423,46 @@ def _prior_binding(phase: str, data: bytes) -> PriorPhaseBinding:
     source = f"docs/roadmap/{phase}_INTEGRATED_ACCEPTANCE.json"
     digest, size = _identity(data)
     document = _json_object(data, phase)
-    return PriorPhaseBinding(source, digest, size, phase, str(document.get("evidence_sha256", "")))
+    return PriorPhaseBinding(
+        source,
+        digest,
+        size,
+        phase,
+        str(document.get("evidence_sha256", "")),
+    )
 
 
-def build_repository_report(*, source_sha: str, generated_at: str, read_bytes: Callable[[str], bytes]) -> R11IntegratedReport:
+def build_repository_report(
+    *,
+    source_sha: str,
+    generated_at: str,
+    read_bytes: Callable[[str], bytes],
+) -> R11IntegratedReport:
     _require_sha40(source_sha, "source_sha")
     subdivisions = tuple(
         _subdivision_binding(
             subdivision,
-            read_bytes(f"docs/roadmap/R11_{subdivision.split('.')[1]}_ACCEPTANCE.md"),
+            read_bytes(
+                f"docs/roadmap/R11_{subdivision.split('.')[1]}_ACCEPTANCE.md"
+            ),
             source_sha=source_sha,
         )
         for subdivision in _EXPECTED_SUBDIVISIONS
     )
     local = tuple(
-        _local_binding(subdivision, read_bytes(f"docs/roadmap/R11_{subdivision.split('.')[1]}_LOCAL_ACCEPTANCE.json"))
+        _local_binding(
+            subdivision,
+            read_bytes(
+                f"docs/roadmap/R11_{subdivision.split('.')[1]}_LOCAL_ACCEPTANCE.json"
+            ),
+        )
         for subdivision in _REQUIRED_LOCAL
     )
     prior = tuple(
-        _prior_binding(phase, read_bytes(f"docs/roadmap/{phase}_INTEGRATED_ACCEPTANCE.json"))
+        _prior_binding(
+            phase,
+            read_bytes(f"docs/roadmap/{phase}_INTEGRATED_ACCEPTANCE.json"),
+        )
         for phase in _EXPECTED_PRIOR_PHASES
     )
     report = R11IntegratedReport(
@@ -413,42 +506,73 @@ def _validate_local(binding: LocalEvidenceBinding, data: bytes) -> None:
             raise ValueError("R11.5 synthesis is not PASS")
         process = synthesis.get("process")
         qa = synthesis.get("qa")
-        if not isinstance(process, dict) or process.get("timed_out") or process.get("cancelled"):
+        if (
+            not isinstance(process, dict)
+            or process.get("timed_out")
+            or process.get("cancelled")
+        ):
             raise ValueError("R11.5 synthesis process did not complete cleanly")
-        if process.get("text_passed_via_argv") is not False or process.get("ephemeral_input_deleted") is not True:
+        if (
+            process.get("text_passed_via_argv") is not False
+            or process.get("ephemeral_input_deleted") is not True
+        ):
             raise ValueError("R11.5 privacy-safe text transport invariant failed")
-        if not isinstance(qa, dict) or qa.get("state") != "PASS" or qa.get("blockers") != []:
+        if (
+            not isinstance(qa, dict)
+            or qa.get("state") != "PASS"
+            or qa.get("blockers") != []
+        ):
             raise ValueError("R11.5 speech QA is not PASS")
-        if not isinstance(privacy, dict) or any(privacy.get(key) is not False for key in ("audio_retained", "network_download_performed_by_collector", "private_recording_used", "voice_clone_used")):
+        privacy_keys = (
+            "audio_retained",
+            "network_download_performed_by_collector",
+            "private_recording_used",
+            "voice_clone_used",
+        )
+        if not isinstance(privacy, dict) or any(
+            privacy.get(key) is not False for key in privacy_keys
+        ):
             raise ValueError("R11.5 privacy invariants failed")
         if not isinstance(approval, dict) or approval.get("license_reviewed") is not True:
             raise ValueError("R11.5 license approval is not explicit")
-    else:
-        runtime = document.get("runtime")
-        capture = document.get("capture")
-        fixture = document.get("fixture")
-        if not isinstance(runtime, dict) or runtime.get("godot_compatible_47") is not True:
-            raise ValueError("R11.9 local evidence does not bind compatible Godot 4.7")
-        if not str(runtime.get("godot_version", "")).startswith("4.7."):
-            raise ValueError("R11.9 Godot version drift")
-        if not isinstance(fixture, dict) or fixture.get("kind") != "repository_synthetic":
-            raise ValueError("R11.9 local fixture is not repository synthetic")
-        if not isinstance(capture, dict) or capture.get("status") != "pass":
-            raise ValueError("R11.9 capture is not PASS")
-        if capture.get("reported_frames") != capture.get("expected_frames"):
-            raise ValueError("R11.9 frame count mismatch")
-        if float(capture.get("av_sync_error_seconds", 1e9)) > float(capture.get("av_sync_limit_seconds", -1)):
-            raise ValueError("R11.9 A/V sync exceeds accepted bound")
+        return
+
+    runtime = document.get("runtime")
+    capture = document.get("capture")
+    fixture = document.get("fixture")
+    if not isinstance(runtime, dict) or runtime.get("godot_compatible_47") is not True:
+        raise ValueError("R11.9 local evidence does not bind compatible Godot 4.7")
+    if not str(runtime.get("godot_version", "")).startswith("4.7."):
+        raise ValueError("R11.9 Godot version drift")
+    if not isinstance(fixture, dict) or fixture.get("kind") != "repository_synthetic":
+        raise ValueError("R11.9 local fixture is not repository synthetic")
+    if not isinstance(capture, dict) or capture.get("status") != "pass":
+        raise ValueError("R11.9 capture is not PASS")
+    if capture.get("reported_frames") != capture.get("expected_frames"):
+        raise ValueError("R11.9 frame count mismatch")
+    try:
+        sync_error = float(capture["av_sync_error_seconds"])
+        sync_limit = float(capture["av_sync_limit_seconds"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("R11.9 A/V sync evidence is malformed") from exc
+    if sync_error < 0.0 or sync_limit < 0.0 or sync_error > sync_limit:
+        raise ValueError("R11.9 A/V sync exceeds accepted bound")
 
 
-def validate_repository_evidence(report: R11IntegratedReport, read_bytes: Callable[[str], bytes]) -> None:
+def validate_repository_evidence(
+    report: R11IntegratedReport,
+    read_bytes: Callable[[str], bytes],
+) -> None:
     continuity = read_bytes(report.continuity.source)
     observed = _identity(continuity)
     if observed != (report.continuity.sha256, report.continuity.bytes):
-        # The only accepted post-report difference is the final continuity-only
-        # normalization. It must explicitly bind this report's semantic digest.
+        # Exactly one post-report continuity-only normalization is allowed.
         text = continuity.decode("utf-8", errors="strict")
-        if "R11.14" not in text or "COMPLETE + NORMALIZED" not in text or report.evidence_sha256 not in text:
+        if (
+            "R11.14" not in text
+            or "COMPLETE + NORMALIZED" not in text
+            or report.evidence_sha256 not in text
+        ):
             raise ValueError("R11 continuity evidence identity mismatch")
 
     continuity_text = continuity.decode("utf-8", errors="strict")
@@ -457,7 +581,7 @@ def validate_repository_evidence(report: R11IntegratedReport, read_bytes: Callab
         if _identity(data) != (item.sha256, item.bytes):
             raise ValueError(f"R11 acceptance identity mismatch for {item.subdivision}")
         text = data.decode("utf-8", errors="strict")
-        if item.subdivision != "R11.14" and item.accepted_head not in text and item.accepted_head not in continuity_text:
+        if item.accepted_head not in text and item.accepted_head not in continuity_text:
             raise ValueError(f"Accepted head not evidenced for {item.subdivision}")
         if not item.manual_satisfied:
             raise ValueError(f"Unsatisfied manual state for {item.subdivision}")
@@ -475,14 +599,30 @@ def validate_repository_evidence(report: R11IntegratedReport, read_bytes: Callab
         if document.get("evidence_sha256") != item.evidence_sha256:
             raise ValueError(f"{item.phase} integrated semantic digest mismatch")
 
-    if report.status is not R11IntegrationStatus.PASS or report.blockers or report.derived_blockers():
+    if (
+        report.status is not R11IntegrationStatus.PASS
+        or report.blockers
+        or report.derived_blockers()
+    ):
         raise ValueError("R11 integrated report is not PASS")
 
 
-def write_integrated_acceptance_report(path: Path, report: R11IntegratedReport) -> Path:
+def write_integrated_acceptance_report(
+    path: Path, report: R11IntegratedReport
+) -> Path:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(json.dumps(report.to_dict(), ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+    destination.write_text(
+        json.dumps(
+            report.to_dict(),
+            ensure_ascii=False,
+            sort_keys=True,
+            indent=2,
+            allow_nan=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     return destination
 
 

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1–R10.6 COMPLETE + NORMALIZED. R10.7 animation/actions/NLA/retarget implementation, corrective Blender 5.2 hardening, canonical real-runtime PASS evidence and final exact-head acceptance are ACCEPTED + merged; post-merge continuity normalization is the only remaining R10.7 completion condition.** `docs/roadmap/R10_PLAN.md` remains the exhaustive authority for R10.1–R10.12. R10.7 accepted local-runtime source candidate `21510878f49815b7bb5551da9672a349c3fd817f` produced canonical Blender 5.2.0 PASS evidence `docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json`, 1622 bytes, SHA-256 `f2374feadf87ce9c0f3362969aa0f98314842c73f31c2a90b42c9e2ab107a8cf`, evidence digest `3ef6f4b366a3179f36a20ed606fdf25708309ae350df2704176dfee5e3b1f0b7`, `status=pass`, `blockers=[]`, geometry/source-rig/target-rig/animation PASS. Final exact PR head `04808ee7ffbe6cd8c7f44ea5f32760c62e3161bf` passed R0 #1286 / `32685828156`, Python Core #1260 / `32685828157`, UI Smoke #1227 / `32685828175`, all SUCCESS; Ubuntu reported **814 passed / 7 skipped / 46 warnings** with R7/R8/R9 integrated acceptance PASS, Windows Python and Ubuntu/Windows package builds SUCCESS. Manual state **CONDITIONAL TRIGGERED AND SATISFIED**. PR #143 merged as `c8bf40ec0fcbc24de7b4c63ead056a9dbd57ff77`. Current branch `r10/7-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10.7 becomes COMPLETE + NORMALIZED and R10.8 is authorized.** R10.8 frozen manual state is CONDITIONAL.
+> Kodepoia, architecture v1.0 gelée. **R1–R9 COMPLETE + NORMALIZED. R10 planning ACCEPTED + NORMALIZED. R10.1–R10.7 COMPLETE + NORMALIZED. R10.8 human/animal profile pipelines implementation and final exact-head acceptance are ACCEPTED + merged; post-merge continuity normalization is the only remaining R10.8 completion condition.** `docs/roadmap/R10_PLAN.md` remains the exhaustive authority for R10.1–R10.12. R10.8 implementation candidate `77511b8d89c171517e7d492102145689343bc3e5` passed R0 #1290 / `32687083713`, Python Core #1264 / `32687083701`, UI Smoke #1231 / `32687083725`; final documented head `40214211f6cc8783d3aeece84c327dc1f7e3b7db` passed R0 #1291 / `32687205676`, Python Core #1265 / `32687205699`, UI Smoke #1232 / `32687205673`, all SUCCESS. Ubuntu reported **826 passed / 7 skipped / 46 warnings** with R7/R8/R9 integrated acceptance PASS; Windows Python and Ubuntu/Windows package builds SUCCESS. Manual state **CONDITIONAL NOT TRIGGERED** because no approved plan amendment requires a specific production human/animal asset. PR #145 merged as `6d2c195329a4d001d173a41a827fea277087d8b2`. Current branch `r10/8-continuity-normalization` changes continuity only. If its exact head passes R0 + full Python Core + UI Smoke and merges, **R10.8 becomes COMPLETE + NORMALIZED and R10.9 is authorized.** R10.9 frozen manual state is NONE.
 
 ## Source de vérité / état
 
@@ -22,9 +22,9 @@
 - R10.4 : **COMPLETE + NORMALIZED** — manual CONDITIONAL NOT TRIGGERED.
 - R10.5 : **COMPLETE + NORMALIZED** — manual NONE.
 - R10.6 : **COMPLETE + NORMALIZED** — manual CONDITIONAL TRIGGERED AND SATISFIED.
-- R10.7 : implementation/final exact-head acceptance ACCEPTED + PR #143 MERGED — manual CONDITIONAL TRIGGERED AND SATISFIED — post-merge normalization pending.
-- R10.8 : PLANNED — manual CONDITIONAL; NOT STARTED until R10.7 normalization merges.
-- R10.9 : PLANNED — manual NONE.
+- R10.7 : **COMPLETE + NORMALIZED** — manual CONDITIONAL TRIGGERED AND SATISFIED.
+- R10.8 : implementation/final exact-head acceptance ACCEPTED + PR #145 MERGED — manual CONDITIONAL NOT TRIGGERED — post-merge normalization pending.
+- R10.9 : PLANNED — manual NONE; NOT STARTED until R10.8 normalization merges.
 - R10.10 : PLANNED — manual REQUIRED.
 - R10.11 : PLANNED — manual NONE.
 - R10.12 : PLANNED — manual CONDITIONAL.
@@ -113,7 +113,7 @@ Detailed evidence, rejected candidates, canonical JSON reports and exact accepta
 - Manual **CONDITIONAL TRIGGERED AND SATISFIED**; PR #141 merge `f127b6f7a6edc4821424e59eda7cb164bbe035cd`.
 - Normalization `aab487b8b7fee146b55f93e0689c43d7eaf76d3b`: R0 #1254 / `32669719987`, Python #1228 / `32669719959`, UI #1195 / `32669719974` SUCCESS; PR #142 merge `8f268970f54d167a98ca8dcb11ee68fe829003eb`.
 
-## R10.7 accepted implementation and merge — animation/NLA/retarget
+## R10.7 closure — animation/NLA/retarget
 
 - Base normalized R10.6 `8f268970f54d167a98ca8dcb11ee68fe829003eb`; branch `r10/7-animation-retarget`; PR #143.
 - Historical candidate `0a49d3ad15c3e263652be5776f28f959562feaef`: hosted gates SUCCESS but required local Blender 5.2 execution FAILED; rejected evidence archived as `docs/roadmap/R10_7_LOCAL_ACCEPTANCE_REJECTED_0a49d3ad.json`.
@@ -123,9 +123,18 @@ Detailed evidence, rejected candidates, canonical JSON reports and exact accepta
 - Canonical local evidence `docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json`: **1622 bytes**, SHA-256 `f2374feadf87ce9c0f3362969aa0f98314842c73f31c2a90b42c9e2ab107a8cf`, Git blob SHA-1 `2cf5b8962ad5e830f21621277ec8f11e6ed6f56d`, evidence digest `3ef6f4b366a3179f36a20ed606fdf25708309ae350df2704176dfee5e3b1f0b7`, source SHA `21510878f49815b7bb5551da9672a349c3fd817f`, `status=pass`, `blockers=[]`, Blender `5.2.0`, platform `windows`, background=true, online_access=false, geometry PASS, source rig PASS, target rig PASS, animation PASS, process return code 0.
 - Derived `animation_output.blend`: **92,875 bytes**, SHA-256 `b0c760d1126305ae618f851adab6cd472e94c99033340458cff32ec957138e0b`; recipe digest `a33af267311cdda320636b8aa90b9106e6398edb972e163c36cfd59df287759a`; report digest `17a5bc6018a79d846115b5c5a1d9cabafe80659cf4e7879189167c432e116ef5`; all 20 reported acceptance rules PASS.
 - Final exact PR head `04808ee7ffbe6cd8c7f44ea5f32760c62e3161bf`: R0 #1286 / `32685828156`, Python #1260 / `32685828157`, UI #1227 / `32685828175` SUCCESS; Ubuntu **814 passed / 7 skipped / 46 warnings**, R7/R8/R9 PASS, Windows Python and Ubuntu/Windows package builds SUCCESS.
-- Manual **CONDITIONAL TRIGGERED AND SATISFIED**.
-- PR #143 merged as `c8bf40ec0fcbc24de7b4c63ead056a9dbd57ff77`.
-- Current branch `r10/7-continuity-normalization` changes only this continuity file.
+- Manual **CONDITIONAL TRIGGERED AND SATISFIED**; PR #143 merged as `c8bf40ec0fcbc24de7b4c63ead056a9dbd57ff77`.
+- Normalization `d52c28efc5120594eb88bcb26cc1d00b431cc531`: R0 #1288 / `32686270793`, Python #1262 / `32686270790`, UI #1229 / `32686270786` SUCCESS; PR #144 merge `d485aa092c06128f0bb07093aef564d53aee56a4`.
+
+## R10.8 accepted implementation and merge — human/animal profiles
+
+- Base normalized R10.7 `d485aa092c06128f0bb07093aef564d53aee56a4`; branch `r10/8-human-animal-profiles`; PR #145.
+- Implementation candidate `77511b8d89c171517e7d492102145689343bc3e5` introduced governed `humanoid_biped`/`quadruped` profiles, exact R8 `AssetRevision` binding, frozen metre / `-Z` forward / `Y` up basis, stable piece/material/shape-key inventories, semantic zones, exact R10.6/R10.7 rig compatibility and deterministic PASS/WARN/BLOCK QA; no dynamic Blender/network/subprocess execution surface was added.
+- Candidate exact-head gates: R0 #1290 / `32687083713`, Python #1264 / `32687083701`, UI #1231 / `32687083725` SUCCESS; Ubuntu **826 passed / 7 skipped / 46 warnings**, R7/R8/R9 integrated acceptance PASS, Windows Python and Ubuntu/Windows package builds SUCCESS.
+- Frozen manual **CONDITIONAL NOT TRIGGERED**: no approved amendment requires a specific real production human/animal asset; synthetic fixtures certify contract behavior only and make no artistic/anatomical quality claim.
+- Final documented head `40214211f6cc8783d3aeece84c327dc1f7e3b7db`: R0 #1291 / `32687205676`, Python #1265 / `32687205699`, UI #1232 / `32687205673` SUCCESS; Ubuntu **826 passed / 7 skipped / 46 warnings**, R7/R8/R9 PASS, Windows Python and Ubuntu/Windows package builds SUCCESS.
+- PR #145 merged as `6d2c195329a4d001d173a41a827fea277087d8b2`.
+- Current branch `r10/8-continuity-normalization` changes only this continuity file.
 
 ## Permanent architecture/security boundaries
 
@@ -160,10 +169,10 @@ Preserve without reinterpretation:
 5. Scope/structure changes synchronize plan + continuity in the same work cycle.
 6. Foundation changes require an ADR.
 
-## R10.7 normalization rule / next action
+## R10.8 normalization rule / next action
 
-The current branch `r10/7-continuity-normalization` is the **single post-merge continuity normalization** after accepted R10.7 PR #143. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with R7/R8/R9 integrated acceptance still PASS.
+The current branch `r10/8-continuity-normalization` is the **single post-merge continuity normalization** after accepted R10.8 PR #145. Freeze its exact commit after this update. Require R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, with R7/R8/R9 integrated acceptance still PASS.
 
-If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10.7 COMPLETE + NORMALIZED and authorizes R10.8.** Do not create another recursive R10.7 continuity commit solely to record the normalization's own run IDs; record those exact-head IDs in the normalization PR body/merge record.
+If all three gates succeed, merge the normalization PR into `main`. **The act of merging that exact validated continuity-only normalization makes R10.8 COMPLETE + NORMALIZED and authorizes R10.9.** Do not create another recursive R10.8 continuity commit solely to record the normalization's own run IDs; record those exact-head IDs in the normalization PR body/merge record.
 
-R10.8 must start from the resulting normalized `main`. Its frozen title is **Human + animal profile pipelines**, its frozen manual state is **CONDITIONAL**, and it depends on R10.3–R10.7 plus R8 governance. Do not silently add proprietary generators, unbounded procedural code, arbitrary Blender/Python execution, online asset-library installation, or any other scope excluded by `docs/roadmap/R10_PLAN.md`.
+R10.9 must start from the resulting normalized `main`. Its frozen title is **LOD generation, preservation checks + variant lineage**, its frozen manual state is **NONE**, and it depends on R10.5–R10.8. Each LOD tier must remain a separate derived R8 asset with deterministic lineage; failed material/UV/normal/shape-key/skinning preservation must BLOCK promotion. Do not invent a universal non-standard glTF LOD extension or overwrite source meshes.

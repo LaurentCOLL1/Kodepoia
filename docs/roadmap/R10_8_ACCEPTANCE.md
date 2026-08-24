@@ -1,6 +1,6 @@
 # R10.8 — Acceptance record
 
-Status: **HOSTED IMPLEMENTATION CANDIDATE — FINAL EXACT-HEAD GATES PENDING**  
+Status: **IMPLEMENTATION CANDIDATE ACCEPTED — FINAL DOCUMENTED HEAD GATES PENDING**  
 Manual intervention: **CONDITIONAL NOT TRIGGERED**
 
 ## Definition of Done
@@ -63,6 +63,41 @@ Reason: the frozen R10.8 scope requires reusable governed human/animal profile p
 - `tests/test_blender_r10_8.py`;
 - package exports in `src/kodepoia/blender3d/__init__.py`;
 - this acceptance record and `R10_8_DESIGN.md`.
+
+## Accepted implementation candidate
+
+Implementation candidate:
+
+`77511b8d89c171517e7d492102145689343bc3e5`
+
+Exact-head hosted gates:
+
+- R0 Repository Guard #1290 / `32687083713`: **SUCCESS**;
+- Python Core #1264 / `32687083701`: **SUCCESS**;
+- KodeStudio UI Smoke #1231 / `32687083725`: **SUCCESS**.
+
+Python Core details:
+
+- Ubuntu: **826 passed / 7 skipped / 46 warnings**;
+- R7 integrated acceptance: PASS;
+- R8 integrated acceptance: PASS;
+- R9 integrated acceptance: PASS;
+- Windows Python: SUCCESS;
+- Ubuntu package build/evidence: SUCCESS;
+- Windows package build/evidence: SUCCESS;
+- integrated KodeStudio Windows smoke inside Python Core: SUCCESS.
+
+The candidate therefore satisfies the hosted implementation gate. The frozen manual state remains **CONDITIONAL NOT TRIGGERED**; no local Blender rerun is required for R10.8 because no production-asset condition was activated.
+
+## Final documented-head rule
+
+This acceptance binding intentionally creates one new documentation-only head. No implementation, threshold, schema or manual-state rule is changed by that documentation commit. That exact new head must pass, without further branch modification:
+
+1. R0 Repository Guard;
+2. full Python Core with R7/R8/R9 integrated acceptance PASS;
+3. KodeStudio UI Smoke.
+
+Only then may PR #145 merge with `expected_head_sha`.
 
 ## Final ordering
 

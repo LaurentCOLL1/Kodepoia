@@ -67,7 +67,7 @@ Absolute runner paths are not durable identity. Compiler identity is captured on
 
 The fixture uses `Qt6::Core` and `Qt6::Widgets`, compiles one C++17 executable and embeds `model.txt` with `qt_add_resources`. The runtime probe uses `QCoreApplication`, links the Widgets module, verifies the public `QWidget` meta-object identity, reads the embedded model digest and emits a source-bound sentinel with the runtime Qt version. It deliberately makes no interactive-window/rendering claim.
 
-Hosted Windows CI provisions Qt 6.11.2 MSVC 2022 x64 as **CI infrastructure** using pinned `aqtinstall==3.3.0`, then Kodepoia independently discovers and validates the toolchain. The real build uses the Visual Studio 17 2022 CMake generator and the CMake-selected compiler identity is hashed into evidence.
+Hosted Windows CI provisions Qt 6.11.2 MSVC 2022 x64 as **CI infrastructure** using the official Qt Online Installer command-line unattended mode. The installer executable is downloaded from Qt's official release endpoint and its published SHA-256 is verified before execution; the CI install uses the exact `qt.qt6.6112.win64_msvc2022_64` package and an explicit Qt-documented mirror. Kodepoia then independently discovers and validates the prepared toolchain. The real build uses the Visual Studio 17 2022 CMake generator and the CMake-selected compiler identity is hashed into evidence.
 
 ## Rollback / failure states
 

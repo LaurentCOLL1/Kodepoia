@@ -56,13 +56,46 @@ Recommended acceptance voice for the frozen command below: `fr_FR-siwis-medium`.
 - dataset/model-card license identifier for this acceptance: `cc-by-4.0`;
 - provenance id recorded by Kodepoia: `piper.fr-fr.siwis.medium`.
 
-Prerequisites:
+### Phase 0 — install the accepted local prerequisites
 
-1. existing local `piper.exe`; the collector never downloads or installs it;
-2. existing reviewed `fr_FR-siwis-medium.onnx` and exact sibling `fr_FR-siwis-medium.onnx.json`;
-3. a clean Kodepoia working tree before switching to the frozen candidate;
+The collector itself never downloads or installs software/models. If Piper or the selected voice is not already installed, bootstrap them **before** the offline collector run.
+
+For the currently reviewed Windows x86-64/Python 3.9+ path, use Piper package version `1.6.0` from PyPI. Run inside the already-active Kodepoia virtual environment:
+
+```powershell
+python -m pip install --upgrade "piper-tts==1.6.0"
+$Piper = (Get-Command piper.exe -ErrorAction Stop).Source
+& $Piper --help | Out-Host
+python -m pip show piper-tts
+```
+
+Keep voice bytes outside the Git worktree so the exact-head evidence tree remains clean. Download the reviewed voice with Piper's official downloader into a user-local runtime directory:
+
+```powershell
+$VoiceDir = Join-Path $env:LOCALAPPDATA "Kodepoia\Piper\voices"
+New-Item -ItemType Directory -Force -Path $VoiceDir | Out-Null
+python -m piper.download_voices --data-dir $VoiceDir fr_FR-siwis-medium
+
+$Model = Join-Path $VoiceDir "fr_FR-siwis-medium.onnx"
+$Config = "$Model.json"
+
+if (-not (Test-Path -LiteralPath $Model -PathType Leaf)) { throw "Downloaded .onnx model is missing. STOP." }
+if (-not (Test-Path -LiteralPath $Config -PathType Leaf)) { throw "Downloaded exact <model>.onnx.json sibling is missing. STOP." }
+
+Get-Item -LiteralPath $Piper, $Model, $Config | Select-Object FullName, Length
+```
+
+The network may be used for this explicit prerequisite installation/download phase. After these prerequisites exist locally, the **R11.5 collector itself must run without downloading anything**. Do not use any private reference recording, voice cloning, cloud TTS or model-training path.
+
+Before the collector command, personally review the `fr_FR-siwis-medium` model card/license and only continue if you accept the recorded `cc-by-4.0` declaration for this acceptance.
+
+Prerequisites after Phase 0:
+
+1. local `piper.exe` from the explicitly installed accepted Piper package;
+2. reviewed `fr_FR-siwis-medium.onnx` and exact sibling `fr_FR-siwis-medium.onnx.json`;
+3. a clean Kodepoia working tree before switching/reconfirming the frozen candidate;
 4. no private reference recording and no voice cloning;
-5. no network is required by the collector itself.
+5. no network is required or initiated by the collector itself.
 
 ### Exact PowerShell acceptance command
 
@@ -79,7 +112,8 @@ git switch --detach $Candidate
 if ((git rev-parse HEAD).Trim() -ne $Candidate) { throw "HEAD does not equal the frozen R11.5 candidate. STOP." }
 
 $Piper = (Get-Command piper.exe -ErrorAction Stop).Source
-$Model = (Read-Host "Absolute path to your REVIEWED fr_FR-siwis-medium.onnx").Trim().Trim('"')
+$VoiceDir = Join-Path $env:LOCALAPPDATA "Kodepoia\Piper\voices"
+$Model = Join-Path $VoiceDir "fr_FR-siwis-medium.onnx"
 $Config = "$Model.json"
 
 if (-not (Test-Path -LiteralPath $Piper -PathType Leaf)) { throw "piper.exe is missing. STOP and report this." }

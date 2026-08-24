@@ -36,6 +36,7 @@ jobs:
       - name: Compile and runtime-test WPF fixture
         run: python scripts/r12_5_wpf_acceptance.py --output .kodepoia/evidence/R12_5_WPF_ACCEPTANCE.json
       - name: Upload WPF evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: r12-5-wpf-${{ github.event.pull_request.head.sha || github.sha }}

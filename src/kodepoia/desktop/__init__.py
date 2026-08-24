@@ -13,6 +13,19 @@ from .contracts import (
     DesktopToolchainIdentity,
     canonical_sha256,
 )
+from .scaffold import (
+    DesktopScaffoldEngine,
+    DesktopTemplateManifest,
+    FileOwnership,
+    PreviewAction,
+    RenderedFile,
+    ScaffoldLineage,
+    ScaffoldPreview,
+    TemplateFile,
+    TemplateValue,
+    TemplateValueKind,
+    WorkspaceManifest,
+)
 
 __all__ = [
     "DesktopArchitecture",
@@ -22,10 +35,21 @@ __all__ = [
     "DesktopFramework",
     "DesktopOS",
     "DesktopPackageKind",
+    "DesktopScaffoldEngine",
     "DesktopTargetProfile",
+    "DesktopTemplateManifest",
     "DesktopToolKind",
     "DesktopToolchainBoundary",
     "DesktopToolchainIdentity",
+    "FileOwnership",
+    "PreviewAction",
+    "RenderedFile",
+    "ScaffoldLineage",
+    "ScaffoldPreview",
+    "TemplateFile",
+    "TemplateValue",
+    "TemplateValueKind",
+    "WorkspaceManifest",
     "canonical_sha256",
     "validate_environment_overrides",
 ]

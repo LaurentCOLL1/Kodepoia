@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r11/continuity-bridge-package.schema.json",
+  "title": "Kodepoia R11 Continuity Bridge Package",
+  "$defs": {
+    "continuity_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["snapshot_id", "scope", "project_id", "content_version", "facts", "extensions"],
+      "properties": {
+        "snapshot_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "scope": {"enum": ["shot", "sequence", "scene", "project", "franchise"]},
+        "project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "content_version": {"type": "string", "minLength": 1, "maxLength": 128},
+        "facts": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fact_id", "namespace", "key", "value", "source_authority", "source_ref", "content_version", "state"],
+            "properties": {
+              "fact_id": {"type": "string", "minLength": 1, "maxLength": 128},
+              "namespace": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+              "key": {"type": "string", "minLength": 1, "maxLength": 128},
+              "value": {},
+              "source_authority": {"type": "string", "minLength": 1, "maxLength": 128},
+              "source_ref": {"type": "string", "minLength": 1, "maxLength": 128},
+              "content_version": {"type": "string", "minLength": 1, "maxLength": 128},
+              "state": {"enum": ["ACTIVE", "STALE", "MISSING", "DELETED", "CONFLICTED"]}
+            }
+          }
+        },
+        "extensions": {
+          "type": "object",
+          "propertyNames": {"pattern": "^[a-z][a-z0-9_.-]*\\.[a-z0-9_.-]+$"},
+          "additionalProperties": {"type": "object"}
+        }
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["package_id", "source_project_id", "target_project_id", "source_artifact_revision_id", "snapshot_digest", "snapshot", "promotion_policy"],
+  "properties": {
+    "package_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "source_project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "target_project_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "source_artifact_revision_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "snapshot": {"$ref": "#/$defs/continuity_snapshot"},
+    "promotion_policy": {"const": "compare_only_no_canon_mutation"}
+  }
+}

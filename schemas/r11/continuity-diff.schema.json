@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r11/continuity-diff.schema.json",
+  "title": "Kodepoia R11 Continuity Diff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["before_snapshot_digest", "after_snapshot_digest", "findings"],
+  "properties": {
+    "before_snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "after_snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_id", "fact_id", "kind", "severity", "before_state", "after_state", "before_digest", "after_digest"],
+        "properties": {
+          "finding_id": {"type": "string", "pattern": "^[0-9a-f]{24}$"},
+          "fact_id": {"type": "string", "minLength": 1, "maxLength": 128},
+          "kind": {"enum": ["FACT_ADDED", "FACT_MISSING", "STATE_CHANGED", "VALUE_CHANGED", "SOURCE_CHANGED"]},
+          "severity": {"enum": ["INFO", "WARNING", "ERROR"]},
+          "before_state": {"type": ["string", "null"]},
+          "after_state": {"type": ["string", "null"]},
+          "before_digest": {"anyOf": [{"type": "null"}, {"type": "string", "pattern": "^[0-9a-f]{64}$"}]},
+          "after_digest": {"anyOf": [{"type": "null"}, {"type": "string", "pattern": "^[0-9a-f]{64}$"}]}
+        }
+      }
+    }
+  }
+}

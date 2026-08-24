@@ -1,0 +1,192 @@
+{
+  "blockers": [],
+  "continuity": {
+    "bytes": 22815,
+    "sha256": "ae214aeda167ec5c9764a7d76c9ece210e7fa88c9c6e04ce863babc807545bf5",
+    "source": "docs/continuity/KODEPOIA_CONTINUITY.md"
+  },
+  "evidence_sha256": "48c18aacc916fb064810b36ada5a179f1d3b149912bea8a19a3295da1826a3c8",
+  "generated_at": "2026-08-24T10:46:57Z",
+  "local_evidence": [
+    {
+      "blender_version_prefix": "5.2.",
+      "bytes": 1142,
+      "godot_major": null,
+      "godot_minor": null,
+      "sha256": "92eb4980f78c19f380cd00ddd23817fb641d0e6c365c048d725406ce91898514",
+      "source": "docs/roadmap/R10_2_LOCAL_ACCEPTANCE.json",
+      "source_sha": "0a2da2334cc6ebe116819110ba80ad1729e22057",
+      "subdivision": "R10.2"
+    },
+    {
+      "blender_version_prefix": "5.2.",
+      "bytes": 2843,
+      "godot_major": 4,
+      "godot_minor": 7,
+      "sha256": "da9680219dfd4e3a44683a547481b6584b9ef186ee364f27dfcfe2c0c5c29c9f",
+      "source": "docs/roadmap/R10_10_LOCAL_ACCEPTANCE.json",
+      "source_sha": "85e2db277ce1cb467aeb9b056700150bc1d67fa7",
+      "subdivision": "R10.10"
+    }
+  ],
+  "prior_phases": [
+    {
+      "bytes": 4408,
+      "evidence_sha256": "5b56bb94b6c5c0b8a11e0d1883d0123f0803418414509517e88204990647e2fc",
+      "phase": "R7",
+      "sha256": "7f9ac2296d431e71ccb163f16741381194833b239a5a6d96bfdcbfb81e396687",
+      "source": "docs/roadmap/R7_INTEGRATED_ACCEPTANCE.json"
+    },
+    {
+      "bytes": 4510,
+      "evidence_sha256": "c73868d7f89453c65d3b633ccdded70d031766c1ce05b77c02e8e4a0d51ed8c5",
+      "phase": "R8",
+      "sha256": "d2a9d733505daf1312151a2752770e207c979afae14dc62dca343f86b4b420f8",
+      "source": "docs/roadmap/R8_INTEGRATED_ACCEPTANCE.json"
+    },
+    {
+      "bytes": 5229,
+      "evidence_sha256": "ad8ad9d16682f54dd942e76dccf333234065d27f320409301cbb8dd67036dcdc",
+      "phase": "R9",
+      "sha256": "58de6ab62742bd78175879c3c49ae6d4ecace3f2427c567f623c242dcf2cd9d8",
+      "source": "docs/roadmap/R9_INTEGRATED_ACCEPTANCE.json"
+    }
+  ],
+  "runtime_policy": {
+    "blender": {
+      "autoexec_disabled": true,
+      "major": 5,
+      "minor": 2,
+      "offline_mode": true
+    },
+    "godot": {
+      "major": 4,
+      "minor": 7
+    }
+  },
+  "schema_version": 1,
+  "source_sha": "2f1db59c8ffa8da28d7afd994e8203a126d4f478",
+  "status": "pass",
+  "subdivisions": [
+    {
+      "accepted_head": "f8d629ca0109037863bd7dd5d109f11cd72a196e",
+      "bytes": 2362,
+      "manual_reason": "No manual runtime gate was frozen for R10.1.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "2cf85b258fb687cbb97f07abe458abf84dfae60f1ded30d6baf1c2fc005059ee",
+      "source": "docs/roadmap/R10_1_ACCEPTANCE.md",
+      "subdivision": "R10.1"
+    },
+    {
+      "accepted_head": "0a2da2334cc6ebe116819110ba80ad1729e22057",
+      "bytes": 3381,
+      "manual_reason": "Required real Blender 5.2.0 LTS local acceptance was satisfied on the final manual candidate.",
+      "manual_satisfied": true,
+      "manual_state": "required_satisfied",
+      "sha256": "74dcc5c690445e5c737401dd34bbd44aa2d56abb3e6266068fceeb3908ac4c60",
+      "source": "docs/roadmap/R10_2_ACCEPTANCE.md",
+      "subdivision": "R10.2"
+    },
+    {
+      "accepted_head": "5a3042ae4d7214fb8cfe5d2790eae229563d9fc6",
+      "bytes": 3103,
+      "manual_reason": "No additional hardware/backend-specific manual gate was required beyond accepted R10.2 runtime evidence.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "d4679f7a2fbc3174e8eefeb6bc233b8580e5ff043dc402602e12cd9b910165ab",
+      "source": "docs/roadmap/R10_3_ACCEPTANCE.md",
+      "subdivision": "R10.3"
+    },
+    {
+      "accepted_head": "edc67ae12f8e15051b91af48d20a5bd2ef2a9629",
+      "bytes": 3826,
+      "manual_reason": "Conditional bake/backend gate was not triggered because R10.4 claims no bake path.",
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "sha256": "f6d6ecf5aec1cf98e55050275e08b20b8825039b68129ef6b821775466e20755",
+      "source": "docs/roadmap/R10_4_ACCEPTANCE.md",
+      "subdivision": "R10.4"
+    },
+    {
+      "accepted_head": "9b8ba987fc3ba6cc37b342d345c2af83f6802e20",
+      "bytes": 2978,
+      "manual_reason": "No new hardware/backend-specific manual gate was required.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "e38a13e250dac232bf57f239f00e3438390175308b775081acc14c63de4de4a7",
+      "source": "docs/roadmap/R10_5_ACCEPTANCE.md",
+      "subdivision": "R10.5"
+    },
+    {
+      "accepted_head": "3b1263b92d5a1a8f50e03c188a1f2fa6d4bc2880",
+      "bytes": 4957,
+      "manual_reason": "Conditional real Blender Armature deformation gate was triggered and satisfied by corrected Blender 5.2 evidence.",
+      "manual_satisfied": true,
+      "manual_state": "conditional_satisfied",
+      "sha256": "08498aa8270d75dc0cc3867defaf0b20ec4af4ed4b32658eb601c320938e5b4a",
+      "source": "docs/roadmap/R10_6_ACCEPTANCE.md",
+      "subdivision": "R10.6"
+    },
+    {
+      "accepted_head": "21510878f49815b7bb5551da9672a349c3fd817f",
+      "bytes": 8682,
+      "manual_reason": "Conditional real Blender animation/retarget gate was triggered and satisfied by accepted local Blender 5.2 evidence.",
+      "manual_satisfied": true,
+      "manual_state": "conditional_satisfied",
+      "sha256": "b2c57337483dc86eb4408b93b6d5972b469a03a556c88473106aa6138f42cd38",
+      "source": "docs/roadmap/R10_7_ACCEPTANCE.md",
+      "subdivision": "R10.7"
+    },
+    {
+      "accepted_head": "77511b8d89c171517e7d492102145689343bc3e5",
+      "bytes": 5096,
+      "manual_reason": "Conditional production-asset gate was not triggered; acceptance remained structural and synthetic.",
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "sha256": "55cf5c2a5b22a1e1a6a196e5a00e441625fcc516fb2447782d2c97e86c0f5831",
+      "source": "docs/roadmap/R10_8_ACCEPTANCE.md",
+      "subdivision": "R10.8"
+    },
+    {
+      "accepted_head": "fa64f49776a29ece4d06cd05f508632129ee863d",
+      "bytes": 3206,
+      "manual_reason": "No additional manual gate was frozen for R10.9.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "76ca63b604dcdc143092052e83829cbe971e936f7a002a656207a53e2213a984",
+      "source": "docs/roadmap/R10_9_ACCEPTANCE.md",
+      "subdivision": "R10.9"
+    },
+    {
+      "accepted_head": "85e2db277ce1cb467aeb9b056700150bc1d67fa7",
+      "bytes": 6091,
+      "manual_reason": "Required Blender 5.2 plus Godot 4.7 local GLB/glTF acceptance was satisfied.",
+      "manual_satisfied": true,
+      "manual_state": "required_satisfied",
+      "sha256": "861878747a6dc3188a78339e8cb062dca38db6b4fe8b2f604586819378ccdc0b",
+      "source": "docs/roadmap/R10_10_ACCEPTANCE.md",
+      "subdivision": "R10.10"
+    },
+    {
+      "accepted_head": "a75813ac6ab11b7e9e87bf99784bf00696aaef41",
+      "bytes": 2820,
+      "manual_reason": "No real Blender/Godot behavior was introduced; hosted deterministic tests were authoritative.",
+      "manual_satisfied": true,
+      "manual_state": "none",
+      "sha256": "9379143827e86f2f83ec90305a93b5516c5d864d89d7d727bf75759442343946",
+      "source": "docs/roadmap/R10_11_ACCEPTANCE.md",
+      "subdivision": "R10.11"
+    },
+    {
+      "accepted_head": "2f1db59c8ffa8da28d7afd994e8203a126d4f478",
+      "bytes": 5828,
+      "manual_reason": "Conditional manual gate was not triggered because R10.12 adds adversarial/evidence validation only and introduces no new real runtime seam.",
+      "manual_satisfied": true,
+      "manual_state": "conditional_not_triggered",
+      "sha256": "9a3325d820f3e65e2183176da20c85d99e91ddbec9192e06a8b8924c089dc5db",
+      "source": "docs/roadmap/R10_12_ACCEPTANCE.md",
+      "subdivision": "R10.12"
+    }
+  ]
+}

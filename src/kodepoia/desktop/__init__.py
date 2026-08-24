@@ -6,6 +6,10 @@ from .app_model import (
     StateValueKind, ValidationKind, ValidationRule, ViewContract, ViewModelContract,
     canonical_sample_app,
 )
+from .avalonia import (
+    AvaloniaAcceptanceResult, AvaloniaAdapter, AvaloniaArtifact, AvaloniaTargetMatrix,
+    canonical_avalonia_matrix, write_avalonia_acceptance_report,
+)
 from .boundary import DesktopBoundaryError, DesktopToolchainBoundary, validate_environment_overrides
 from .contracts import (
     DesktopArchitecture, DesktopCapabilityReport, DesktopCapabilityState,
@@ -24,7 +28,8 @@ from .winui3 import (
 from .wpf import WpfAcceptanceResult, WpfAdapter, WpfArtifact, write_wpf_acceptance_report
 
 __all__ = [
-    "AdapterConformanceProjection", "CommandContract", "DesktopAppModel",
+    "AdapterConformanceProjection", "AvaloniaAcceptanceResult", "AvaloniaAdapter",
+    "AvaloniaArtifact", "AvaloniaTargetMatrix", "CommandContract", "DesktopAppModel",
     "DesktopArchitecture", "DesktopBoundaryError", "DesktopCapabilityReport",
     "DesktopCapabilityState", "DesktopFramework", "DesktopOS", "DesktopPackageKind",
     "DesktopScaffoldEngine", "DesktopTargetProfile", "DesktopTemplateManifest",
@@ -35,7 +40,8 @@ __all__ = [
     "TemplateValueKind", "ValidationKind", "ValidationRule", "ViewContract",
     "ViewModelContract", "WinUi3Adapter", "WinUiAcceptanceResult", "WinUiArtifact",
     "WinUiDeploymentContract", "WinUiDeploymentMode", "WorkspaceManifest",
-    "WpfAcceptanceResult", "WpfAdapter", "WpfArtifact", "canonical_sample_app",
-    "canonical_sha256", "canonical_winui_deployment", "validate_environment_overrides",
+    "WpfAcceptanceResult", "WpfAdapter", "WpfArtifact", "canonical_avalonia_matrix",
+    "canonical_sample_app", "canonical_sha256", "canonical_winui_deployment",
+    "validate_environment_overrides", "write_avalonia_acceptance_report",
     "write_winui_acceptance_report", "write_wpf_acceptance_report",
 ]

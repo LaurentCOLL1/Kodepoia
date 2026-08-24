@@ -24,9 +24,11 @@
     },
     "voice_identity": {
       "type": "object",
-      "required": ["model_sha256", "config_sha256", "binding_digest", "profile_digest"],
+      "required": ["model_id", "manifest_digest", "model_sha256", "config_sha256", "binding_digest", "profile_digest"],
       "additionalProperties": false,
       "properties": {
+        "model_id": {"type": "string", "minLength": 2, "maxLength": 128},
+        "manifest_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "model_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "config_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "binding_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},

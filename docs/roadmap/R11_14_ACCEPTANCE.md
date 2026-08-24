@@ -1,7 +1,7 @@
 # R11.14 — Acceptance record
 
-Status: **IMPLEMENTATION CANDIDATE — EXACT-HEAD GATES PENDING**  
-Frozen manual intervention: **CONDITIONAL — NOT TRIGGERED unless a new authoritative runtime seam is exposed**
+Status: **ACCEPTED IMPLEMENTATION CANDIDATE — CANONICAL REPORT GENERATION PENDING**  
+Frozen manual intervention: **CONDITIONAL — NOT TRIGGERED**
 
 ## Base and frozen scope
 
@@ -77,16 +77,32 @@ Prior canonical semantic digests remain frozen to their currently accepted value
 
 ## Manual-state evaluation
 
-Current evaluation: **CONDITIONAL NOT TRIGGERED**.
+Final implementation-candidate evaluation: **CONDITIONAL NOT TRIGGERED**.
 
-R11.14 introduces deterministic adversarial validation and evidence binding only. It does not change authoritative Piper/TTS synthesis behavior, Godot capture behavior, FFmpeg/ffprobe execution semantics, or add a new external runtime. The reviewed REQUIRED R11.5 and R11.9 local evidence is revalidated rather than replaced.
-
-If exact-head gates demonstrate that the implementation has created or newly depends on a runtime-specific semantic not covered by the preserved evidence, this state must change to triggered and work must stop before canonical PASS report generation until bounded local evidence is collected and reviewed.
+R11.14 introduces deterministic adversarial validation and evidence binding only. It does not change authoritative Piper/TTS synthesis behavior, Godot capture behavior, FFmpeg/ffprobe execution semantics, or add a new external runtime. The reviewed REQUIRED R11.5 and R11.9 local evidence is revalidated rather than replaced. Exact-head hosted gates exposed no new runtime-specific seam requiring an additional collector.
 
 ## Implementation-candidate history
 
-No implementation head is accepted yet. The canonical `docs/roadmap/R11_INTEGRATED_ACCEPTANCE.json` MUST remain absent until one exact implementation head passes all three authoritative gates.
+Rejected candidate:
+
+- SHA `1bd7d671e0b708e3d75ec0de013453eec4a6a43e`.
+- R0 Repository Guard #1452 / `32768634250` — **SUCCESS**.
+- KodeStudio UI Smoke #1393 / `32768637839` — **SUCCESS**.
+- Python Core #1426 / `32768635381` — **FAILURE**: four R11.14 test failures (three Python 3.12 dataclass/slots inheritance failures and one stale R7 semantic-digest expectation). No canonical R11 report was generated from this rejected SHA.
+
+Accepted immutable implementation candidate:
+
+- SHA `f2693c8cfd4a7aaa5c73fc0a318ebaeef4ff0bb1`.
+- R0 Repository Guard #1455 / `32769325414` — **SUCCESS**.
+- Python Core #1429 / `32769325329` — **SUCCESS**.
+- KodeStudio UI Smoke #1396 / `32769325281` — **SUCCESS**.
+- Python Core Ubuntu and Windows: **SUCCESS**.
+- Package build Ubuntu and Windows: **SUCCESS**.
+- Python-Core-internal KodeStudio smoke: **SUCCESS**.
+- Prior R7/R8/R9 integrated validation remained PASS where authoritatively re-executed.
+
+This accepted implementation SHA is immutable for R11.14 integrated evidence. Documentation/report commits after it MUST NOT replace the R11.14 `source_sha`/`accepted_head`.
 
 ## Completion ordering
 
-Implementation head -> exact-head R0/Python/UI -> freeze accepted source SHA/run IDs here -> generate canonical integrated report -> fresh exact-head R0/Python/UI -> merge implementation/evidence PR -> exactly one continuity-only normalization -> exact-head R0/Python/UI -> merge normalization -> R11 COMPLETE + NORMALIZED -> R12 planning authorized.
+Accepted implementation head -> freeze exact run IDs here -> generate canonical integrated report from immutable repository evidence -> fresh exact-head R0/Python/UI on final documentation/evidence head -> merge implementation/evidence PR with expected SHA -> exactly one continuity-only normalization -> exact-head R0/Python/UI -> merge normalization -> R11 COMPLETE + NORMALIZED -> R12 planning authorized.

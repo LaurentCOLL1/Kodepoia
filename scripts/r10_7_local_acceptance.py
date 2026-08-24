@@ -143,6 +143,18 @@ def resolve_blender(explicit: str | None) -> Path:
     raise SystemExit("Blender 5.2 executable not found; pass --blender with the exact blender.exe path")
 
 
+def manifest_blockers(manifest: dict[str, object]) -> list[str]:
+    raw = manifest.get("blockers")
+    if not isinstance(raw, list):
+        return []
+    return sorted({str(item) for item in raw})
+
+
+def manifest_process(manifest: dict[str, object]) -> dict[str, object]:
+    raw = manifest.get("process")
+    return dict(raw) if isinstance(raw, dict) else {}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Bounded local Blender 5.2 animation/NLA acceptance for Kodepoia R10.7")
     parser.add_argument("--source-sha", required=True)
@@ -254,15 +266,17 @@ def main() -> int:
                 "background": background,
                 "online_access": online_access,
             },
-            "geometry": {"status": geometry.get("status"), "artifact_sha256": geometry_sha},
-            "source_rig": {"status": source_rig.get("status"), "artifact_sha256": source_rig_sha},
-            "target_rig": {"status": target_rig.get("status"), "artifact_sha256": target_rig_sha},
+            "geometry": {"status": geometry.get("status"), "artifact_sha256": geometry_sha, "manifest_blockers": manifest_blockers(geometry)},
+            "source_rig": {"status": source_rig.get("status"), "artifact_sha256": source_rig_sha, "manifest_blockers": manifest_blockers(source_rig)},
+            "target_rig": {"status": target_rig.get("status"), "artifact_sha256": target_rig_sha, "manifest_blockers": manifest_blockers(target_rig)},
             "animation": {
                 "status": animation.get("status"),
                 "recipe_digest": animation.get("recipe_digest"),
                 "report_digest": animation.get("report_digest"),
                 "artifact": animation_artifact,
                 "passed_rules": sorted(passed_rules),
+                "manifest_blockers": manifest_blockers(animation),
+                "process": manifest_process(animation),
             },
         }
         evidence["evidence_digest"] = digest_document(evidence)

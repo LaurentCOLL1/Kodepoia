@@ -18,6 +18,7 @@ def main() -> int:
     parser.add_argument("--output", default="docs/roadmap/R12_5_WPF_ACCEPTANCE.json")
     parser.add_argument("--work", default=".kodepoia/r12_5_wpf")
     args = parser.parse_args()
+    output = (ROOT / args.output).resolve()
     work = (ROOT / args.work).resolve()
     staging = work / "staging"
     work.mkdir(parents=True, exist_ok=True)
@@ -25,13 +26,13 @@ def main() -> int:
     adapter = WpfAdapter(ROOT, staging)
     result = adapter.run_acceptance(canonical_sample_app())
     if isinstance(result, DesktopCapabilityReport):
-        print(json.dumps(result.canonical(), indent=2, sort_keys=True))
-        if adapter.last_diagnostic:
-            print("--- bounded WPF diagnostic ---", file=sys.stderr)
-            print(adapter.last_diagnostic, file=sys.stderr)
+        payload = {"adapter": result.canonical(), "diagnostic": adapter.last_diagnostic}
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+        print(json.dumps(payload, indent=2, sort_keys=True))
         return 2 if result.state in {DesktopCapabilityState.UNAVAILABLE, DesktopCapabilityState.UNSUPPORTED} else 1
     assert isinstance(result, WpfAcceptanceResult)
-    write_wpf_acceptance_report(result, ROOT / args.output)
+    write_wpf_acceptance_report(result, output)
     print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
     return 0
 

@@ -92,6 +92,18 @@ def rest_compatibility(source_armature: bpy.types.Object, target_armature: bpy.t
     return {"max_direction_angle_degrees": max_angle, "max_scaled_length_relative_error": max_length_error}
 
 
+def transformed_values(path: str, values: list[float], *, translation_scale: float, zero_root_motion: bool) -> tuple[float, ...]:
+    if path == "location":
+        if zero_root_motion:
+            return (0.0, 0.0, 0.0)
+        return tuple(float(item) * translation_scale for item in values)
+    if path == "rotation_quaternion":
+        return quat_normalize(values)
+    if path == "scale":
+        return tuple(float(item) for item in values)
+    raise RuntimeError("unsupported_channel_path")
+
+
 def main() -> int:
     job = json.loads(JOB.read_text(encoding="utf-8"))
     recipe = dict(job["recipe"])
@@ -151,12 +163,21 @@ def main() -> int:
     action.frame_start = float(clip["frame_start"])
     action.frame_end = float(clip["frame_end"])
     action.use_cyclic = bool(clip["loop"])
-    animation_data.action = action
+
+    # Blender 5.2 layered Action API: build the slot/layer/keyframe-strip/channelbag
+    # explicitly instead of relying on legacy keyframe insertion to infer them.
+    slot = action.slots.new(target_armature.id_type, target_armature.name)
+    layer = action.layers.new("kdp_layer_" + str(clip["clip_id"]))
+    keyframe_strip = layer.strips.new(type="KEYFRAME")
+    channelbag = keyframe_strip.channelbag(slot, ensure=True)
+    if channelbag is None:
+        raise RuntimeError("action_channelbag_creation_failed")
 
     target_by_semantic = {str(item["bone_id"]): dict(item) for item in target_profile["bones"]}
     target_root_ids = sorted(item for item, spec in target_by_semantic.items() if spec["parent_id"] is None)
     target_root = target_root_ids[0] if target_root_ids else None
-    key_count = 0
+    logical_key_count = 0
+    scalar_key_count = 0
     root_first: tuple[float, float, float] | None = None
     root_last: tuple[float, float, float] | None = None
 
@@ -177,46 +198,59 @@ def main() -> int:
             continue
         if path == "rotation_quaternion":
             pose_bone.rotation_mode = "QUATERNION"
+        rows: list[tuple[float, tuple[float, ...]]] = []
         for raw_key in channel["keys"]:
             key = dict(raw_key)
             frame = float(key["frame"])
             values = [float(item) for item in key["value"]]
-            if path == "location":
-                if str(clip["root_motion"]) == "zero" and target_id == target_root:
-                    transformed = (0.0, 0.0, 0.0)
-                else:
-                    transformed = tuple(item * translation_scale for item in values)
-                pose_bone.location = transformed
-                if target_id == target_root:
-                    if root_first is None:
-                        root_first = transformed
-                    root_last = transformed
-            elif path == "rotation_quaternion":
-                transformed = quat_normalize(values)
-                pose_bone.rotation_quaternion = transformed
-            elif path == "scale":
-                transformed = tuple(values)
-                pose_bone.scale = transformed
-            else:
-                raise RuntimeError("unsupported_channel_path")
-            if not pose_bone.keyframe_insert(data_path=path, frame=frame, group=target_id):
-                raise RuntimeError("keyframe_insert_failed")
-            key_count += 1
+            zero_root_motion = str(clip["root_motion"]) == "zero" and target_id == target_root and path == "location"
+            transformed = transformed_values(path, values, translation_scale=translation_scale, zero_root_motion=zero_root_motion)
+            rows.append((frame, transformed))
+            if path == "location" and target_id == target_root:
+                location = (float(transformed[0]), float(transformed[1]), float(transformed[2]))
+                if root_first is None:
+                    root_first = location
+                root_last = location
+            logical_key_count += 1
 
-    if key_count <= 0:
+        data_path = pose_bone.path_from_id(path)
+        width = len(rows[0][1]) if rows else 0
+        if width <= 0:
+            raise RuntimeError("retarget_channel_has_no_keys")
+        for array_index in range(width):
+            fcurve = channelbag.fcurves.new(data_path=data_path, index=array_index, group_name=target_id)
+            if fcurve is None:
+                raise RuntimeError("fcurve_creation_failed:" + target_id + ":" + path)
+            fcurve.keyframe_points.add(len(rows))
+            for key_index, (frame, transformed) in enumerate(rows):
+                point = fcurve.keyframe_points[key_index]
+                point.co = (frame, float(transformed[array_index]))
+                point.interpolation = "LINEAR"
+                scalar_key_count += 1
+            fcurve.update()
+
+    if logical_key_count <= 0 or scalar_key_count <= 0 or len(channelbag.fcurves) <= 0:
         raise RuntimeError("no_retargeted_keys")
+
+    animation_data.action = action
+    animation_data.action_slot = slot
+    if animation_data.action != action or animation_data.action_slot != slot:
+        raise RuntimeError("action_slot_assignment_failed")
     bpy.context.view_layer.update()
 
     track = animation_data.nla_tracks.new()
     track.name = "kdp_track_" + str(clip["clip_id"])
     strip = track.strips.new("kdp_strip_" + str(clip["clip_id"]), float(clip["frame_start"]), action)
+    strip.action_slot = slot
     strip.action_frame_start = float(clip["frame_start"])
     strip.action_frame_end = float(clip["frame_end"])
     strip.repeat = 1.0
     strip.use_sync_length = True
     animation_data.action = None
-    action_identity_bound = strip.action == action and action.get("kodepoia_clip_id") == str(clip["clip_id"])
+    action_identity_bound = strip.action == action and strip.action_slot == slot and action.get("kodepoia_clip_id") == str(clip["clip_id"])
     active_action_cleared = animation_data.action is None
+    if not action_identity_bound:
+        raise RuntimeError("nla_action_slot_binding_failed")
 
     bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT_BLEND))
     if not OUTPUT_BLEND.is_file():
@@ -247,7 +281,7 @@ def main() -> int:
         },
         "rest_pose": rest_pose,
         "sampling": {"policy": "explicit_keys_only", "constraint_count": constraint_count, "driver_count": driver_count},
-        "clip": {"clip_id": str(clip["clip_id"]), "fps": actual_fps, "frame_start": float(clip["frame_start"]), "frame_end": float(clip["frame_end"]), "duration_seconds": duration_seconds, "loop": bool(clip["loop"]), "key_count": key_count},
+        "clip": {"clip_id": str(clip["clip_id"]), "fps": actual_fps, "frame_start": float(clip["frame_start"]), "frame_end": float(clip["frame_end"]), "duration_seconds": duration_seconds, "loop": bool(clip["loop"]), "key_count": logical_key_count},
         "nla": {"track_count": len(animation_data.nla_tracks), "strip_count": sum(len(item.strips) for item in animation_data.nla_tracks), "action_identity_bound": action_identity_bound, "active_action_cleared": active_action_cleared},
         "root_motion": {"policy": str(clip["root_motion"]), "translation_delta": root_delta},
         "artifact": {"filename": "animation_output.blend", "bytes": OUTPUT_BLEND.stat().st_size, "sha256": sha256_file(OUTPUT_BLEND)},
@@ -260,7 +294,16 @@ def main() -> int:
 try:
     raise SystemExit(main())
 except Exception as exc:
-    payload = {"schema": "kodepoia.blender.animation_measurements", "version": 1, "status": "fail", "blockers": [str(exc)[:256]], "mapping": {}, "rest_pose": {}, "sampling": {}, "clip": {}, "nla": {}, "root_motion": {}, "artifact": {}}
+    payload: dict[str, object] = {"schema": "kodepoia.blender.animation_measurements", "version": 1, "status": "fail", "blockers": [str(exc)[:256]], "mapping": {}, "rest_pose": {}, "sampling": {}, "clip": {}, "nla": {}, "root_motion": {}, "artifact": {}}
+    try:
+        failed_job = json.loads(JOB.read_text(encoding="utf-8"))
+        failed_recipe = dict(failed_job["recipe"])
+        payload["recipe_digest"] = str(failed_job["recipe_digest"])
+        payload["input_blend_sha256"] = str(failed_recipe["input_blend_sha256"])
+        if INPUT_BLEND.is_file():
+            payload["input_file_sha256"] = sha256_file(INPUT_BLEND)
+    except Exception:
+        pass
     write_result(payload)
     print("KODEPOIA_R10_7_RESULT=fail")
     raise SystemExit(17)

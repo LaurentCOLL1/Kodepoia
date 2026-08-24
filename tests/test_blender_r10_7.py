@@ -210,7 +210,12 @@ def test_r10_7_bootstrap_has_static_offline_animation_surface() -> None:
     for token in ("exec(", "eval(", "driver_add", "bpy.data.texts", "bpy.ops.script", "bpy.ops.wm.url_open"):
         assert token not in lowered
     assert "bpy.data.actions.new" in lowered
-    assert "keyframe_insert" in lowered
+    assert "action.slots.new" in lowered
+    assert "action.layers.new" in lowered
+    assert "channelbag" in lowered and "fcurves.new" in lowered
+    assert "animation_data.action_slot = slot" in lowered
+    assert "strip.action_slot = slot" in lowered
+    assert "pose_bone.keyframe_insert" not in lowered
     assert "nla_tracks.new" in lowered
     assert "strips.new" in lowered
 
@@ -220,5 +225,6 @@ def test_r10_7_local_acceptance_script_and_schema_are_bounded() -> None:
     compile(source, "r10_7_local_acceptance.py", "exec")
     assert "GeometryRunner" in source and "RigRunner" in source and "AnimationRunner" in source
     assert "--source-sha" in source and "run_capability_probe" in source
+    assert "manifest_blockers" in source and "manifest_process" in source
     schema = json.loads((ROOT / "schemas/r10-animation-local-acceptance-v1.schema.json").read_text())
     Draft202012Validator.check_schema(schema)

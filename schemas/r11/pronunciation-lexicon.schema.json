@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.invalid/schemas/r11/pronunciation-lexicon.schema.json",
+  "type": "object",
+  "required": ["lexicon_id", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "lexicon_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "entries": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "type": "object",
+        "required": ["entry_id", "locale", "grapheme", "pronunciation", "alphabet"],
+        "additionalProperties": false,
+        "properties": {
+          "entry_id": {"type": "string", "minLength": 1, "maxLength": 128},
+          "locale": {"type": "string", "minLength": 2, "maxLength": 63},
+          "grapheme": {"type": "string", "minLength": 1, "maxLength": 256},
+          "pronunciation": {"type": "string", "minLength": 1, "maxLength": 512},
+          "alphabet": {"enum": ["ipa", "xsampa", "engine"]}
+        }
+      }
+    }
+  }
+}

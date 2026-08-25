@@ -359,7 +359,11 @@ def prepare_build_staging(
     source_root = source_root.resolve(strict=False)
     staging_root = staging_root.resolve(strict=False)
     source_manifest, source_manifest_sha = verify_source_workspace(source_root)
-    if staging_root == source_root or source_root in staging_root.parents:
+    if (
+        staging_root == source_root
+        or source_root in staging_root.parents
+        or staging_root in source_root.parents
+    ):
         raise ValueError("build staging must be isolated from source workspace")
     if staging_root.exists():
         shutil.rmtree(staging_root)

@@ -62,6 +62,15 @@ def _bounded_log_tail(log_file: Path, line_limit: int = 80) -> str:
     return "\n".join(text.splitlines()[-line_limit:])
 
 
+def _controlled_avd_home() -> Path:
+    raw = os.environ.get("ANDROID_AVD_HOME")
+    if not raw:
+        raise SystemExit("R13.6 requires an explicit ANDROID_AVD_HOME")
+    home = Path(raw).expanduser().resolve()
+    home.mkdir(parents=True, exist_ok=True)
+    return home
+
+
 def probe_acceleration() -> None:
     emulator = _tool("emulator")
     completed = _run([emulator, "-accel-check"], timeout=30, check=False)
@@ -88,6 +97,12 @@ def launch_and_wait(
     if re.fullmatch(r"system-images;android-[0-9]+;google_apis;x86_64", system_image) is None:
         raise SystemExit("unsupported R13.6 system image identity")
 
+    avd_home = _controlled_avd_home()
+    user_home_raw = os.environ.get("ANDROID_USER_HOME")
+    if not user_home_raw:
+        raise SystemExit("R13.6 requires an explicit ANDROID_USER_HOME")
+    Path(user_home_raw).expanduser().resolve().mkdir(parents=True, exist_ok=True)
+
     probe_acceleration()
     avdmanager = _tool("avdmanager")
     emulator = _tool("emulator")
@@ -102,10 +117,22 @@ def launch_and_wait(
             avd_name,
             "--package",
             system_image,
+            "--path",
+            str(avd_home / f"{avd_name}.avd"),
         ],
         input_text="no\n",
         timeout=120,
     )
+
+    listed = _run([emulator, "-list-avds"], timeout=30)
+    avd_names = {
+        line.strip()
+        for line in listed.stdout.decode("utf-8", errors="replace").splitlines()
+        if line.strip()
+    }
+    if avd_name not in avd_names:
+        bounded = ", ".join(sorted(avd_names)[:20]) or "<none>"
+        raise SystemExit(f"R13.6 created AVD is not discoverable by emulator: {bounded}")
 
     log_file.parent.mkdir(parents=True, exist_ok=True)
     with log_file.open("wb") as log_handle:

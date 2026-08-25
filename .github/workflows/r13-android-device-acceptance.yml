@@ -97,6 +97,8 @@ jobs:
         env:
           R13_PID: ${{ runner.temp }}/kodepoia-r13-6-emulator.pid
           R13_EMULATOR_LOG: ${{ runner.temp }}/kodepoia-r13-6-emulator.log
+          ANDROID_AVD_HOME: ${{ runner.temp }}/kodepoia-r13-6-avd
+          ANDROID_USER_HOME: ${{ runner.temp }}/kodepoia-r13-6-android-user
         run: >-
           python scripts/r13_6_emulator_ci.py launch
           --avd-name "${{ env.R13_AVD_NAME }}"

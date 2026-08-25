@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r13/mobile-target-profile.schema.json",
+  "title": "R13 MobileTargetProfile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile_id", "platform", "form_factors", "source_kind", "architecture", "minimum_platform_version", "target_api_level", "package_kinds"],
+  "properties": {
+    "profile_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "platform": {"enum": ["android", "ios", "ipados"]},
+    "form_factors": {"type": "array", "minItems": 1, "maxItems": 2, "uniqueItems": true, "items": {"enum": ["phone", "tablet"]}},
+    "source_kind": {"enum": ["native", "godot_export"]},
+    "architecture": {"enum": ["arm64", "x86_64"]},
+    "minimum_platform_version": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+){0,3}$"},
+    "target_api_level": {"type": ["integer", "null"], "minimum": 1, "maximum": 1000},
+    "package_kinds": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"enum": ["apk", "aab", "app", "xcarchive", "ipa"]}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"platform": {"const": "android"}}},
+      "then": {
+        "properties": {
+          "target_api_level": {"type": "integer", "minimum": 1, "maximum": 1000},
+          "package_kinds": {"items": {"enum": ["apk", "aab"]}}
+        }
+      },
+      "else": {
+        "properties": {
+          "target_api_level": {"type": "null"},
+          "package_kinds": {"items": {"enum": ["app", "xcarchive", "ipa"]}}
+        }
+      }
+    }
+  ]
+}

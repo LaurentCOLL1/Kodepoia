@@ -61,10 +61,10 @@ class MobileToolchainBoundary:
             raise MobileBoundaryError(f"mobile tool is unavailable: {candidate}") from exc
         if not resolved.is_file():
             raise MobileBoundaryError("mobile tool must be a regular file")
-        if resolved.name.casefold() not in _ALLOWED_TOOL_NAMES[kind]:
-            raise MobileBoundaryError(f"unexpected tool for {kind.value}: {resolved.name}")
         if not any(_within(resolved, root) for root in self.allowed_runtime_roots):
             raise MobileBoundaryError("mobile tool escapes configured runtime roots")
+        if resolved.name.casefold() not in _ALLOWED_TOOL_NAMES[kind]:
+            raise MobileBoundaryError(f"unexpected tool for {kind.value}: {resolved.name}")
         if kind is MobileToolKind.BUNDLETOOL and resolved.suffix.casefold() != ".jar":
             raise MobileBoundaryError("bundletool must be a repository-approved jar identity")
         return resolved

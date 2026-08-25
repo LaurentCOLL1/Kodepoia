@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED.** R12 canonical integrated evidence has semantic digest `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`; R12.16 implementation/evidence PR #217 merged as `2250d782a65c4aa0d849cc98f7d87e6f3d68c07e`, and its single continuity-only normalization PR #218 passed 9/9 exact-head gates on `f9a1fc05708be3a4b4048b2b33e6ac228485285e` and merged as normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`. **R13 planning is now the sole active work.** Branch `r13/00-phase-plan` was created exactly from that normalized main. `docs/roadmap/R13_PLAN.md` freezes 17 subdivisions, R13.1–R13.17, all PLANNED. R13.1 is FORBIDDEN until the R13 planning PR passes exact-head R0/full Python/KodeStudio UI, merges with expected SHA, then exactly one continuity-only planning normalization also passes those exact-head gates and merges. No R13 implementation may start before that normalized planning merge.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED.** R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`; normalized R12 `main`: `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`. **R13 planning PR #219 has been accepted and merged**: planning candidate `6f44e8faf8ef675dab5c8079541ce436ff55b4b2` passed exact-head R0 #1596 / `32846530810`, Python Core #1570 / `32846530804`, and KodeStudio UI #1537 / `32846530786`, all SUCCESS; PR #219 merged with expected head as `9a5c678c226cb845c639b914e6365b475ab20e86`. `docs/roadmap/R13_PLAN.md` freezes R13.1–R13.17, all PLANNED. This branch `r13/00-planning-continuity-normalization` is the **single authorized planning post-merge normalization** and may modify only this continuity file. R13.1 remains FORBIDDEN until this exact normalization head passes fresh R0/full Python/KodeStudio UI and its PR merges with expected SHA. After that merge, R13 planning becomes ACCEPTED + NORMALIZED and R13.1 is authorized.
 
 ## État global
 
@@ -13,21 +13,22 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 : **COMPLETE + NORMALIZED**.
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
-- R12 normalized final `main`: **`997db5a5ad9f847037de79057bcdc7aefd1ddeb9`**.
-- R13 planning: **IN PROGRESS on `r13/00-phase-plan`**.
+- R12 normalized final `main`: `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`.
+- R13 planning implementation PR #219: **MERGED** as `9a5c678c226cb845c639b914e6365b475ab20e86`.
+- R13 planning normalization: **IN PROGRESS, continuity-only**.
 - R13.1–R13.17: **PLANNED / NOT STARTED**.
+- R13.1 implementation: **FORBIDDEN until planning normalization passes + merges**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
 
 - Accepted R12.16 implementation source: `1927d9ab673228101c932b1cb6b89243296ac957`.
-- Final evidence head: `f12132b777569a6a03171e759dd1b36d3a1858b4`.
-- Canonical report: `docs/roadmap/R12_INTEGRATED_ACCEPTANCE.json`, `status=pass`, `blockers=[]`, manual `conditional_not_triggered`, semantic digest `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
-- PR #217 merged with expected head as `2250d782a65c4aa0d849cc98f7d87e6f3d68c07e`.
-- Single post-merge normalization head: `f9a1fc05708be3a4b4048b2b33e6ac228485285e`.
-- Normalization exact-head gates all SUCCESS: R0 #1594 / `32844549399`; Python Core #1568 / `32844549531`; KodeStudio UI #1535 / `32844549411`; WPF #82 / `32844549655`; WinUI3 #72 / `32844549414`; Avalonia #68 / `32844549519`; Qt6 #63 / `32844549568`; Tauri2 #54 / `32844549393`; Integrated Windows #7 / `32844549496`.
-- PR #218 merged as **`997db5a5ad9f847037de79057bcdc7aefd1ddeb9`**.
-- Therefore R12 is authoritatively **COMPLETE + NORMALIZED** and R13 planning is authorized.
+- Final R12 evidence head: `f12132b777569a6a03171e759dd1b36d3a1858b4`.
+- Canonical report `docs/roadmap/R12_INTEGRATED_ACCEPTANCE.json`: `status=pass`, `blockers=[]`, semantic digest `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
+- R12.16 PR #217 merged as `2250d782a65c4aa0d849cc98f7d87e6f3d68c07e`.
+- R12 normalization head `f9a1fc05708be3a4b4048b2b33e6ac228485285e` passed R0 #1594 / `32844549399`, Python #1568 / `32844549531`, UI #1535 / `32844549411`, WPF #82 / `32844549655`, WinUI3 #72 / `32844549414`, Avalonia #68 / `32844549519`, Qt6 #63 / `32844549568`, Tauri2 #54 / `32844549393`, Integrated Windows #7 / `32844549496`, all SUCCESS.
+- R12 normalization PR #218 merged as `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`.
+- Therefore R12 is authoritatively **COMPLETE + NORMALIZED**.
 
 ## Permanent R-phase plan status synchronization rule
 
@@ -45,7 +46,7 @@ This rule applies to R13 and all later R phases unless a later accepted ADR expl
 
 ### Frozen roadmap scope
 
-The v1.0 roadmap defines R13 exactly as **Mobile / Platform / Release**:
+R13 is exactly **Mobile / Platform / Release**:
 
 - Android export/signing/AAB/APK/device tests/store;
 - interface iOS/Mac/Xcode;
@@ -53,24 +54,30 @@ The v1.0 roadmap defines R13 exactly as **Mobile / Platform / Release**:
 - KodeRelease/Updater/Diagnostics;
 - current compliance.
 
-`docs/roadmap/R13_PLAN.md` expands this frozen scope without moving R14 backend/live-service work into R13.
+R14 backend/live-service work remains outside R13.
 
-### Planning branch and source
+### Accepted planning merge
 
-- normalized planning base: `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`;
-- dedicated planning branch: `r13/00-phase-plan`;
+- normalized R13 planning base: `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`;
+- planning branch: `r13/00-phase-plan`;
+- planning candidate: `6f44e8faf8ef675dab5c8079541ce436ff55b4b2`;
+- exact-head planning gates, all SUCCESS:
+  - R0 Repository Guard #1596 / `32846530810`;
+  - Python Core #1570 / `32846530804` (Ubuntu + Windows tests and package builds SUCCESS);
+  - KodeStudio UI Smoke #1537 / `32846530786`;
+- PR #219 merged with expected head as **`9a5c678c226cb845c639b914e6365b475ab20e86`**;
 - plan file: `docs/roadmap/R13_PLAN.md`;
-- R13.1 implementation: **FORBIDDEN until planning merge + single planning normalization merge**.
+- planning normalization branch: `r13/00-planning-continuity-normalization`;
+- normalization scope: **this continuity file only**.
 
 ### Current external baseline — date-aware, not architecture constants
 
-- Google Play: new apps/updates must target Android 16 / API 36 from **2026-08-31**; R13 store-ready acceptance therefore starts at API 36 rather than accepting a target that becomes obsolete six days after planning.
-- Android Compose planning baseline: stable BOM `2026.08.00`; Compose 1.12 uses current compileSdk/AGP compatibility, but R13 capability-probes these values instead of freezing them forever.
-- New Google Play apps use Android App Bundle; signing state separates upload key and Play App Signing distribution key; no production secret may enter repo/evidence/argv.
-- Apple: App Store Connect requires Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28. Xcode 27 beta/TestFlight capability is distinct from stable production capability.
-- Apple privacy manifests and required-reason API declarations are first-class compliance data.
-- Firebase Test Lab is an optional DeviceLab provider for Android/iOS hosted devices; provider credentials/paid quota are not global phase prerequisites.
-- Google Play Data safety, target API, permissions/content ratings and Apple privacy/age-rating/SDK minimum rules are versioned compliance snapshots with official-source provenance and effective dates.
+- Google Play: new apps/updates must target Android 16 / API 36 from **2026-08-31**; R13 store-ready acceptance starts at API 36.
+- Android Compose/AGP/compileSdk values are capability-probed and versioned; mutable ecosystem versions are not frozen architecture constants.
+- Google Play publication uses Android App Bundle for new apps; upload-key and Play App Signing key states remain separate; production secrets never enter repo/evidence/argv.
+- Apple App Store Connect production uploads require Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28; Xcode 27 beta/TestFlight state is distinct from stable production state.
+- Apple privacy manifests/required-reason APIs, Google Play Data safety, target API, permissions/content ratings, Apple privacy/age-rating/SDK minimums are versioned compliance evidence with effective dates and official provenance.
+- Firebase Test Lab is an optional provider-neutral DeviceLab backend; credentials, billing/quota and physical-device availability are not global phase prerequisites.
 
 ### Frozen R13 subdivision index
 
@@ -96,9 +103,9 @@ The v1.0 roadmap defines R13 exactly as **Mobile / Platform / Release**:
 
 ### R13 phase DoD target
 
-R13 can become COMPLETE only when the existing Project Wizard creates accepted Android/iOS mobile intent; a canonical Android project builds/tests and yields validated APK/AAB release state; a canonical iOS SwiftUI/Xcode project compiles/tests on accepted hosted macOS simulator evidence; DeviceLab/release/diagnostics/compliance evidence is truthful and provider-scoped; any triggered manual gate is reviewed; canonical `R13_INTEGRATED_ACCEPTANCE.json` has `status=pass`, `blockers=[]`; the implementation/evidence merge is followed by exactly one accepted continuity-only normalization.
+R13 is COMPLETE only when the existing Project Wizard creates accepted Android/iOS intent; a canonical Android project scaffolds/builds/tests with validated APK/AAB release state; a canonical iOS SwiftUI/Xcode project scaffolds/compiles/tests on accepted hosted macOS simulator evidence; DeviceLab/release/diagnostics/compliance evidence is truthful and provider-scoped; any triggered manual gate is reviewed; canonical `R13_INTEGRATED_ACCEPTANCE.json` has `status=pass`, `blockers=[]`; and the final R13 implementation/evidence merge is followed by exactly one accepted continuity-only normalization.
 
-Actual public Play/App Store publication is explicit user-controlled behavior, never an automatic acceptance prerequisite. Live store/account/signing operations stay capability-gated and may trigger bounded manual evidence only when a frozen claim truly requires them.
+Actual public Play/App Store publication remains explicit user-controlled behavior, not an automatic core acceptance prerequisite.
 
 ## Permanent boundaries
 
@@ -106,21 +113,20 @@ Workspace/R8 Vault boundaries; ProcessSandbox + global KillSwitch; Guardian/Perm
 
 ## R13 execution rule
 
-Each subdivision: dedicated branch from normalized `main` -> start plan+continuity status sync -> implementation + focused tests -> exact-head standard and platform-specific gates -> truthful manual state -> end plan+continuity status sync -> fresh evidence/re-gates if bytes changed -> merge with `expected_head_sha` -> exactly one continuity-only post-merge normalization + exact-head gates + merge -> only then next subdivision.
+Each subdivision: dedicated branch from normalized `main` -> start plan+continuity status sync -> implementation + focused tests -> exact-head standard/platform gates -> truthful manual state -> end plan+continuity status sync -> fresh evidence/re-gates if bytes changed -> merge with `expected_head_sha` -> exactly one continuity-only post-merge normalization + exact-head gates + merge -> only then next subdivision.
 
-If a CONDITIONAL manual gate triggers, stop before the next subdivision and provide bounded prerequisites, exact commands/actions, expected evidence, recovery/privacy instructions; never request passwords/private keys/tokens in chat.
+If a CONDITIONAL manual gate triggers, stop before the next subdivision and provide bounded prerequisites, exact commands/actions, expected evidence and recovery/privacy instructions. Never request passwords/private keys/tokens in chat.
 
-## R13 planning acceptance sequence
+## R13 planning normalization rule
 
-1. Freeze one exact planning head containing `R13_PLAN.md` + this synchronized continuity.
-2. Require exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke.
-3. If any byte changes after recording evidence, re-gate the resulting final planning head.
-4. Merge planning PR with `expected_head_sha`.
-5. Create exactly one planning post-merge normalization changing only this continuity file.
-6. Require fresh exact-head R0/full Python/UI on the normalization.
-7. Merge normalization with expected SHA.
-8. Only then set R13 planning **ACCEPTED + NORMALIZED** and authorize R13.1.
+This branch contains the **single** allowed post-merge normalization for R13 planning. It MUST:
+
+1. differ from planning merge `9a5c678c226cb845c639b914e6365b475ab20e86` only in `docs/continuity/KODEPOIA_CONTINUITY.md`;
+2. freeze one exact normalization head;
+3. pass fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke;
+4. merge with `expected_head_sha`;
+5. only after merge authorize R13.1 and declare R13 planning **ACCEPTED + NORMALIZED**.
 
 ## Next authorized action
 
-**R13 planning only:** freeze the current `r13/00-phase-plan` head, open the planning PR, require exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, merge with expected SHA, then perform the single continuity-only planning normalization and the same exact-head gates. Do not start R13.1 before that normalization merges.
+**R13 planning normalization only:** verify the diff from `9a5c678c226cb845c639b914e6365b475ab20e86` contains exactly `docs/continuity/KODEPOIA_CONTINUITY.md`; open the normalization PR; require fresh exact-head R0/full Python/KodeStudio UI; merge with expected SHA. Do not start R13.1 before that merge.

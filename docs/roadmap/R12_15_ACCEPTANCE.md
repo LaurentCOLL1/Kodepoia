@@ -27,9 +27,10 @@ Branch: `r12/15-cli-kodestudio-desktop`.
 
 Start-of-subdivision plan/continuity synchronization: **DONE** — R12.1–R12.14 `COMPLETE`, R12.15 `IN_PROGRESS`, R12.16 `PLANNED`.
 
-Implementation candidate: **PENDING**.
-Candidate exact-head gates: **PENDING**.
-End-of-subdivision plan/continuity synchronization: **PENDING**.
+Implementation candidate: **ACCEPTED** — `79cda1733bc470f897a5153dcd0c4d059b948900`.
+Candidate exact-head gates: **SUCCESS** — R0 #1577 / `32834583380`; Python #1551 / `32834583390`; KodeStudio UI #1518 / `32834583399`; WPF #68 / `32834583424`; WinUI #58 / `32834583419`; Avalonia #54 / `32834583411`; Qt #49 / `32834583377`; Tauri #40 / `32834583375`.
+Candidate correction note: the earlier candidate `696ab04eda402fd77b826ef80c9cc8a98706ad75` was rejected after KodeStudio UI Smoke #1516 exposed the unregistered `r12Evidence` accessibility control and stale pseudo-locale navigation cardinality. Both defects were corrected before freezing `79cda1733bc470f897a5153dcd0c4d059b948900`; no failed evidence is reused.
+End-of-subdivision plan/continuity synchronization: **IN PROGRESS** — R12.15 must be `COMPLETE` and R12.16 remain `PLANNED` before final-documentation re-gates.
 Final-documentation exact-head gates: **PENDING**.
 Implementation merge: **PENDING**.
 Post-merge continuity normalization: **PENDING**.

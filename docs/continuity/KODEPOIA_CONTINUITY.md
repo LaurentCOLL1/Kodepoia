@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.4 COMPLETE + NORMALIZED. R13.5 COMPLETE on its accepted branch; merge + continuity-only normalization pending. R13.6 PLANNED.** R13.5 accepted candidate `1b299f5ab69bd5ac90d8ea805d59c216643f68e3` passed R0 #1643 / `32894851393`, Python #1617 / `32894851604`, UI #1584 / `32894851851`, Android Build #51 / `32894851296`, and Android Signing #4 / `32894851385`, with both Android workflows successful on Ubuntu and Windows. Manual remained CONDITIONAL / NOT TRIGGERED. End synchronization is being recorded before fresh exact-head gates; R13.6 must not start until PR #229 merges and the single continuity-only normalization is accepted and merged.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.4 COMPLETE + NORMALIZED. R13.5 COMPLETE and merged; continuity-only normalization IN_PROGRESS. R13.6 PLANNED.** R13.5 accepted implementation candidate `1b299f5ab69bd5ac90d8ea805d59c216643f68e3`; final end-synchronized head `030a3c548aebd77b736f139f995bf3951b17c33d` passed R0 #1645 / `32895748636`, Python #1619 / `32895748542`, UI #1586 / `32895748608`, Android Build #55 / `32895748735`, and Android Signing #8 / `32895748633`, with both Android workflows successful on Ubuntu and Windows. PR #229 merged with expected head as `bc354a48d6cd52b04462d58ced2a855770217d5f`. Manual remained CONDITIONAL / NOT TRIGGERED. The sole normalization branch `r13/05-continuity-normalization` is created exactly from that merge; R13.6 must not start until this normalization passes its exact-head gates and merges.
 
 ## État global
 
@@ -15,7 +15,7 @@
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.4: **COMPLETE + NORMALIZED**.
-- R13.5: **COMPLETE on accepted branch**, PR #229; merge + continuity-only normalization pending; manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.5: **COMPLETE + MERGED**, PR #229 merged as `bc354a48d6cd52b04462d58ced2a855770217d5f`; continuity-only normalization **IN_PROGRESS**; manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.6–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -93,16 +93,17 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Continuity-only normalization **`98f347616a389960c4627b424d12757fd73a4d33`** changed only `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 #1640 / `32891329175`, Python #1614 / `32891329245`, UI #1581 / `32891329226`; PR #228 merged as normalized `main` **`939565f6409a45c93d0168546c1b4bb947d13ad4`**.
 - Therefore R13.4 is authoritatively **COMPLETE + NORMALIZED**.
 
-## R13.5 completion authority — pre-merge
+## R13.5 normalization authority
 
 - Authorized normalized base: **`939565f6409a45c93d0168546c1b4bb947d13ad4`**.
-- Dedicated branch: **`r13/05-android-signing`**; PR #229.
+- Dedicated implementation branch: **`r13/05-android-signing`**; PR #229.
 - Initial technical candidate **`a58227cd21112a65710002d2e673a1466889d7ce`** passed technical gates but was not accepted as final because required subdivision artifacts `R13_5_DESIGN.md` and `R13_5_ACCEPTANCE.md` were missing.
-- Accepted implementation candidate: **`1b299f5ab69bd5ac90d8ea805d59c216643f68e3`**.
-- Accepted exact-head gates: R0 #1643 / `32894851393` SUCCESS; Python Core #1617 / `32894851604` SUCCESS; KodeStudio UI Smoke #1584 / `32894851851` SUCCESS; R13 Android Build Acceptance #51 / `32894851296` SUCCESS on Ubuntu and Windows; R13 Android Signing Acceptance #4 / `32894851385` SUCCESS on Ubuntu and Windows.
-- Manual state: **CONDITIONAL / NOT TRIGGERED**. Hosted CI proved the frozen signing/state-model semantics with an ephemeral test identity; production keystore/private-key/password material and a live Play account were not required.
+- Accepted implementation candidate **`1b299f5ab69bd5ac90d8ea805d59c216643f68e3`** passed R0 #1643 / `32894851393`, Python Core #1617 / `32894851604`, KodeStudio UI Smoke #1584 / `32894851851`, R13 Android Build Acceptance #51 / `32894851296`, and R13 Android Signing Acceptance #4 / `32894851385`; both Android workflows succeeded on Ubuntu and Windows.
+- Final end-synchronized head **`030a3c548aebd77b736f139f995bf3951b17c33d`** changed only phase-plan/continuity status evidence after the accepted implementation candidate and passed fresh exact-head R0 #1645 / `32895748636`, Python Core #1619 / `32895748542`, KodeStudio UI Smoke #1586 / `32895748608`, R13 Android Build Acceptance #55 / `32895748735`, and R13 Android Signing Acceptance #8 / `32895748633`; both Android workflows again succeeded on Ubuntu and Windows.
+- PR #229 merged with `expected_head_sha=030a3c548aebd77b736f139f995bf3951b17c33d` as **`bc354a48d6cd52b04462d58ced2a855770217d5f`**.
+- Manual state remained **CONDITIONAL / NOT TRIGGERED**. Hosted CI proved the frozen signing/state-model semantics with an ephemeral test identity; production keystore/private-key/password material and a live Play account were not required.
 - Implemented authority: truthful `UNSIGNED`, `DEBUG_SIGNED`, `TEST_SIGNED`, `UPLOAD_SIGNED`, `PLAY_APP_SIGNING_READY`, `SIGNING_UNAVAILABLE` states; public certificate fingerprints; KodeSecrets-backed references; upload-key/app-signing-key separation; rotation/recovery metadata; fail-closed certificate substitution; no private material in durable evidence.
-- End synchronization sets R13.5 to **COMPLETE** while R13.6 stays **PLANNED**. Because documentation bytes changed, the end-synchronized head must pass fresh exact-head gates before PR #229 can merge. After merge, exactly one continuity-only normalization is required before R13.6 starts.
+- Exactly one post-merge normalization branch **`r13/05-continuity-normalization`** was created from merge head **`bc354a48d6cd52b04462d58ced2a855770217d5f`**. This normalization changes only `docs/continuity/KODEPOIA_CONTINUITY.md`; `R13_PLAN.md` is intentionally untouched. R13.6 remains forbidden until this normalization passes exact-head R0/Python/UI gates and merges.
 
 ## Frozen R13 subdivision index
 
@@ -144,4 +145,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**Finish R13.5 only:** run fresh exact-head gates on the end-synchronized branch head; if all required gates are SUCCESS, merge PR #229 with `expected_head_sha`; create exactly one continuity-only normalization branch from the resulting `main`, update only this continuity file, run its required exact-head gates, and merge it. **R13.6 remains forbidden until that normalization is COMPLETE + merged.**
+**Finish R13.5 normalization only:** run exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke on the sole continuity-only normalization head; if all are SUCCESS, merge its PR with `expected_head_sha`. Only then is R13.5 authoritatively **COMPLETE + NORMALIZED** and R13.6 may begin from the resulting normalized `main`.

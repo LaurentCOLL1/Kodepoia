@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED.** R13.1 implementation source accepté: `04bee35bba58645f6ef91e8cf5530b5062c6803d`, issu exactement du planning-normalized `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`. Le premier candidat `97e3f0a48be3a888b0f2974e04bcf1317f3e6296` a été rejeté par Python #1574 et aucune preuve de ce SHA n'est réutilisée. Le candidat accepté a passé R0 #1601 / `32849189652`, Python Core #1575 / `32849189637` et KodeStudio UI #1542 / `32849189598`, tous SUCCESS. **R13.1 est COMPLETE / NOT NORMALIZED** sur la branche `r13/01-mobile-contracts`; R13.2 reste PLANNED et ne peut commencer qu'après merge exact-head de R13.1 puis sa normalisation continuity-only acceptée.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED.** R13.1 implementation source accepté: `04bee35bba58645f6ef91e8cf5530b5062c6803d`, issu exactement du planning-normalized `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`. Le premier candidat `97e3f0a48be3a888b0f2974e04bcf1317f3e6296` a été rejeté par Python #1574 et aucune preuve de ce SHA n'est réutilisée. Le candidat accepté a passé R0 #1601 / `32849189652`, Python Core #1575 / `32849189637` et KodeStudio UI #1542 / `32849189598`, tous SUCCESS. La synchronisation de fin a produit le head final `a20ff45bc62e578c3aa58c8ef41927b08bfe2d2a`, lui-même accepté par R0 #1603 / `32849778906`, Python #1577 / `32849779035` et UI #1544 / `32849778909`, tous SUCCESS. PR #221 a fusionné ce head exact comme `029a49e4d6772b2870357e0327acf470ef40e03b`. **R13.1 est COMPLETE / NORMALIZATION IN PROGRESS** sur `r13/01-continuity-normalization`; cette branche ne doit modifier que ce fichier. R13.2 reste PLANNED et ne peut commencer qu'après gates exact-head et merge de cette unique normalisation.
 
 ## État global
 
@@ -15,7 +15,8 @@
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 normalized planning `main`: `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`.
 - R13 phase status: **IN PROGRESS**.
-- R13.1: **COMPLETE / NOT NORMALIZED**, manual **NONE**.
+- R13.1 implementation PR #221: **MERGED** as `029a49e4d6772b2870357e0327acf470ef40e03b`.
+- R13.1: **COMPLETE / NORMALIZATION IN PROGRESS**, manual **NONE**.
 - R13.2–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -91,7 +92,15 @@ R14 backend/live-service work remains outside R13.
   - KodeStudio UI Smoke #1542 / `32849189598`.
 - Frozen delivered scope: framework-neutral mobile target/toolchain/device/test/release contracts; canonical identities/digests; strict capability states; Android/Apple tool identities; allowlisted roots/environment; typed argv builders; no process launch, device access, signing, network or store operation.
 - End status synchronization: **DONE** — R13.1 COMPLETE; R13.2 remains PLANNED.
-- Current state: **COMPLETE / NOT NORMALIZED** until final documentation head passes fresh exact-head gates, PR #221 merges with expected SHA, and exactly one continuity-only post-merge normalization passes and merges.
+- Final end-synchronized head: **`a20ff45bc62e578c3aa58c8ef41927b08bfe2d2a`**.
+- Final exact-head gates, all SUCCESS:
+  - R0 Repository Guard #1603 / `32849778906`;
+  - Python Core #1577 / `32849779035` — Ubuntu + Windows tests, both package builds and internal UI smoke SUCCESS;
+  - KodeStudio UI Smoke #1544 / `32849778909`.
+- PR #221 merged with expected head as **`029a49e4d6772b2870357e0327acf470ef40e03b`**.
+- Single authorized post-merge normalization branch: `r13/01-continuity-normalization`.
+- Normalization scope: **this continuity file only**. It must pass fresh exact-head R0/full Python/KodeStudio UI and merge before R13.2 starts.
+- Current state: **COMPLETE / NORMALIZATION IN PROGRESS**.
 
 ## Frozen R13 subdivision index
 
@@ -133,4 +142,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**R13.1 closure only:** freeze the final end-synchronized head, require fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, merge PR #221 with expected SHA, then create exactly one continuity-only post-merge normalization and gate/merge it. Do not start R13.2 before that normalization merges.
+**R13.1 normalization only:** verify the diff from merge `029a49e4d6772b2870357e0327acf470ef40e03b` contains exactly `docs/continuity/KODEPOIA_CONTINUITY.md`; open the normalization PR; require fresh exact-head R0/full Python/KodeStudio UI; merge with expected SHA. Do not start R13.2 before that normalization merge.

@@ -1,0 +1,98 @@
+name: R13 Android Signing Acceptance
+
+on:
+  push:
+    branches:
+      - "r13/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r13-android-signing-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-signing:
+    name: android-signing-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Kodepoia evidence dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle 9.5.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.5.0"
+
+      - name: Set up Android command line tools
+        uses: android-actions/setup-android@v3
+
+      - name: Install accepted Android SDK packages
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+
+      - name: Prepare exact-head governed Android staging
+        env:
+          R13_SOURCE_ROOT: ${{ runner.temp }}/kodepoia-r13-5-source
+          R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-5-build
+        run: >-
+          python scripts/r13_4_android_ci_acceptance.py prepare
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --source-root "${{ env.R13_SOURCE_ROOT }}"
+          --staging-root "${{ env.R13_STAGING_ROOT }}"
+
+      - name: Build exact-head APK and unsigned release AAB
+        working-directory: ${{ runner.temp }}/kodepoia-r13-5-build
+        run: gradle --no-daemon --stacktrace :app:bundleRelease :app:assembleDebug :app:testDebugUnitTest
+
+      - name: Generate ephemeral signing identity and collect evidence
+        env:
+          R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-5-build
+          R13_PRIVATE_ROOT: ${{ runner.temp }}/kodepoia-r13-5-private
+          R13_OUTPUT: ${{ runner.temp }}/R13_5_ANDROID_SIGNING_ACCEPTANCE.json
+        run: >-
+          python scripts/r13_5_android_signing_acceptance.py
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --staging-root "${{ env.R13_STAGING_ROOT }}"
+          --private-root "${{ env.R13_PRIVATE_ROOT }}"
+          --output "${{ env.R13_OUTPUT }}"
+
+      - name: Verify signing evidence is tied to this exact head
+        env:
+          R13_OUTPUT: ${{ runner.temp }}/R13_5_ANDROID_SIGNING_ACCEPTANCE.json
+        run: >-
+          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(os.environ['R13_OUTPUT']).read_text()); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['status']=='pass'; states={(i['kind'],i['state']) for i in p['inspections']}; assert ('aab','UNSIGNED') in states; assert ('apk','TEST_SIGNED') in states; assert ('aab','TEST_SIGNED') in states"
+
+      - name: Upload exact-head Android signing evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r13-5-android-signing-${{ runner.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          if-no-files-found: error
+          path: ${{ runner.temp }}/R13_5_ANDROID_SIGNING_ACCEPTANCE.json

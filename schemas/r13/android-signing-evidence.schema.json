@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r13/android-signing-evidence.schema.json",
+  "title": "Kodepoia R13.5 Android Signing Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha",
+    "runner_os",
+    "status",
+    "inspections",
+    "secret_refs"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "runner_os": {"enum": ["Linux", "Windows"]},
+    "status": {"const": "pass"},
+    "inspections": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 8,
+      "items": {"$ref": "#/$defs/inspection"}
+    },
+    "secret_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keystore", "store_password", "key_alias", "key_password"],
+      "properties": {
+        "keystore": {"$ref": "#/$defs/secret_ref"},
+        "store_password": {"$ref": "#/$defs/secret_ref"},
+        "key_alias": {"$ref": "#/$defs/secret_ref"},
+        "key_password": {"$ref": "#/$defs/secret_ref"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "secret_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["namespace", "key"],
+      "properties": {
+        "namespace": {"type": "string", "minLength": 1, "maxLength": 128},
+        "key": {"type": "string", "minLength": 1, "maxLength": 128}
+      }
+    },
+    "inspection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "artifact_sha256",
+        "state",
+        "role",
+        "certificate_sha256",
+        "verifier",
+        "blockers"
+      ],
+      "properties": {
+        "kind": {"enum": ["apk", "aab"]},
+        "artifact_sha256": {"$ref": "#/$defs/sha256"},
+        "state": {
+          "enum": [
+            "UNSIGNED",
+            "DEBUG_SIGNED",
+            "TEST_SIGNED",
+            "UPLOAD_SIGNED",
+            "PLAY_APP_SIGNING_READY",
+            "SIGNING_UNAVAILABLE"
+          ]
+        },
+        "role": {"enum": ["none", "debug", "test", "upload", "app_signing"]},
+        "certificate_sha256": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/sha256"}
+        },
+        "verifier": {
+          "type": ["string", "null"],
+          "enum": [null, "apksigner", "jarsigner+keytool", "test-verifier"]
+        },
+        "blockers": {
+          "type": "array",
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 256}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"const": "UNSIGNED"}}},
+          "then": {
+            "properties": {
+              "role": {"const": "none"},
+              "certificate_sha256": {"maxItems": 0},
+              "verifier": {"type": "null"},
+              "blockers": {"maxItems": 0}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"state": {"const": "SIGNING_UNAVAILABLE"}}},
+          "then": {
+            "properties": {
+              "role": {"const": "none"},
+              "certificate_sha256": {"maxItems": 0},
+              "blockers": {"minItems": 1}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "enum": [
+                  "DEBUG_SIGNED",
+                  "TEST_SIGNED",
+                  "UPLOAD_SIGNED",
+                  "PLAY_APP_SIGNING_READY"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "certificate_sha256": {"minItems": 1},
+              "blockers": {"maxItems": 0}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

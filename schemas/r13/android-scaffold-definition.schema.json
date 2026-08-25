@@ -65,8 +65,5 @@
         }
       }
     }
-  },
-  "allOf": [
-    {"properties": {"namespace": {"const": {"$data": "1/application_id"}}}}
-  ]
+  }
 }

@@ -2,7 +2,7 @@
 
 **Phase:** R12  
 **Roadmap title:** Desktop applications  
-**Status:** EXECUTION — R12.14 IN_PROGRESS  
+**Status:** EXECUTION — R12.14 COMPLETE / R12.15 PLANNED  
 **Phase planning started:** 2026-08-24  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`
@@ -43,7 +43,7 @@ Deliver a deterministic, auditable, local-first desktop application pipeline tha
 - produce governed package/install/update definitions with rollback, provenance and signing-state semantics;
 - expose desktop creation/status/build/test/package workflows through CLI and KodeStudio without arbitrary shell/script surfaces;
 - close R12 with adversarial hardening and an anti-circular integrated acceptance report tied to exact-head evidence;
-- prove the roadmap DoD by creating, compiling and testing at least one modern Windows application from the existing Project Wizard.
+- prove the roadmap DoD by creating, compile and test at least one modern Windows desktop application from the existing Project Wizard.
 
 R12 extends existing systems instead of replacing them:
 
@@ -216,7 +216,7 @@ Before R12.1 implementation begins:
 | R12.11 | Async/concurrency, cancellation, progress + UI-thread lifecycle safety | COMPLETE | NONE | R12.4 + adapter contracts |
 | R12.12 | Local IPC contracts, framing, authorization + lifecycle isolation | COMPLETE | CONDITIONAL | R12.1 + R12.11 + R1/R6 |
 | R12.13 | Accessibility, localization, theming, keyboard/focus + DPI/scaling QA | COMPLETE | CONDITIONAL | R12.4–R12.9 + R6 |
-| R12.14 | Packaging/install/update/signing-state + rollback model | IN_PROGRESS | CONDITIONAL | R12.5–R12.13 + R1/R6/R8 |
+| R12.14 | Packaging/install/update/signing-state + rollback model | COMPLETE | CONDITIONAL | R12.5–R12.13 + R1/R6/R8 |
 | R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | PLANNED | NONE | R12.1–R12.14 |
 | R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | PLANNED | CONDITIONAL | R12.1–R12.15 + R6/R8/R11 evidence |
 

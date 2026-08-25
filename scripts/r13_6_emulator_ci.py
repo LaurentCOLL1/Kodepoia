@@ -9,6 +9,8 @@ import subprocess
 import time
 from pathlib import Path
 
+from kodepoia.mobile.android_device import AndroidAdbState, parse_adb_devices
+
 
 def _tool(name: str) -> str:
     direct = shutil.which(name)
@@ -170,17 +172,20 @@ def launch_and_wait(
 
         completed = _run([adb, "devices", "-l"], timeout=30, check=False)
         if completed.returncode == 0:
-            lines = completed.stdout.decode("utf-8", errors="replace").splitlines()[1:]
-            emulators = [line for line in lines if line.startswith("emulator-") and line.strip()]
-            online = [line for line in emulators if "\tdevice" in line]
+            listing = completed.stdout.decode("utf-8", errors="replace")
+            try:
+                observations = parse_adb_devices(listing)
+            except ValueError as exc:
+                raise SystemExit(f"R13.6 invalid ADB device listing: {exc}") from exc
+            emulators = [item for item in observations if item.virtual]
+            online = [item for item in emulators if item.state is AndroidAdbState.DEVICE]
             if len(online) > 1:
                 raise SystemExit("multiple online Android emulators detected during bounded launch")
             if len(online) == 1:
                 print(json.dumps({"avd_name": avd_name, "pid": process.pid, "adb": "online"}))
                 return
             if emulators:
-                state = emulators[0].split()[1] if len(emulators[0].split()) > 1 else "unknown"
-                last_state = state
+                last_state = emulators[0].state.value
         time.sleep(1)
 
     tail = _bounded_log_tail(log_file)

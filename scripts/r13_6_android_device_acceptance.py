@@ -212,6 +212,29 @@ def launch_emulator(avd_name: str, system_image: str, pid_file: Path, log_file: 
     print(json.dumps({"avd_name": avd_name, "pid": process.pid}))
 
 
+def _discover_single_online_emulator(adb: str, timeout_seconds: int = 120):
+    """Wait only for ADB registration; strict single-emulator selection remains enforced."""
+    deadline = time.monotonic() + timeout_seconds
+    last_states: tuple[str, ...] = ()
+    while time.monotonic() < deadline:
+        completed = _run(build_adb_devices_argv(adb), timeout=30, check=False)
+        if completed.returncode == 0:
+            observations = parse_adb_devices(completed.stdout.decode("utf-8", errors="replace"))
+            online = [
+                item
+                for item in observations
+                if item.virtual and item.state is AndroidAdbState.DEVICE
+            ]
+            if len(online) > 1:
+                raise SystemExit("multiple online Android emulators detected during bounded discovery")
+            if len(online) == 1:
+                return select_single_online_emulator(observations)
+            last_states = tuple(sorted(item.state.value for item in observations if item.virtual))
+        time.sleep(1)
+    state_text = ",".join(last_states) if last_states else "not-visible"
+    raise SystemExit(f"R13.6 emulator did not register online in ADB: {state_text}")
+
+
 def _getprop(adb: str, serial: str, prop: str) -> str:
     completed = _run(build_adb_getprop_argv(adb, serial, prop), timeout=30)
     return completed.stdout.decode("utf-8", errors="replace").strip()
@@ -241,11 +264,7 @@ def collect(staging_root: Path, output: Path) -> None:
     metadata = json.loads(_metadata_path(staging_root).read_text(encoding="utf-8"))
     source_sha = str(metadata["source_sha"])
     adb = _tool("adb")
-    listing = _run(build_adb_devices_argv(adb), timeout=30).stdout.decode(
-        "utf-8", errors="replace"
-    )
-    observations = parse_adb_devices(listing)
-    observation = select_single_online_emulator(observations)
+    observation = _discover_single_online_emulator(adb)
     _wait_for_boot(adb, observation.serial)
 
     apk = staging_root / "app/build/outputs/apk/debug/app-debug.apk"

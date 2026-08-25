@@ -163,8 +163,16 @@ def collect(*, source_sha: str, output: Path, work_root: Path) -> WizardWindowsE
     if sentinel not in result.test.stdout:
         raise RuntimeError("WPF runtime test sentinel is missing")
 
+    built_app_root = staging_root / "app" / "Release" / WpfAdapter.TARGET
+    if not built_app_root.is_dir():
+        raise RuntimeError(f"WPF application artifact root is missing: {built_app_root}")
+    package_root = work_root / "package-artifact"
+    if package_root.exists():
+        shutil.rmtree(package_root)
+    shutil.copytree(built_app_root, package_root)
+
     package_manifest = build_artifact_manifest(
-        staging_root,
+        package_root,
         package_id="kodepoia.r12.integrated.fixture",
         version=DesktopVersion(1, 0, 0),
         framework=DesktopFramework.WPF,
@@ -173,7 +181,7 @@ def collect(*, source_sha: str, output: Path, work_root: Path) -> WizardWindowsE
         package_kind=DesktopPackageKind.ARCHIVE,
         signing_state=SigningState.UNSIGNED,
     )
-    verify_artifact_tree(staging_root, package_manifest)
+    verify_artifact_tree(package_root, package_manifest)
 
     semantic = _semantic_payload(
         source_sha=source_sha,

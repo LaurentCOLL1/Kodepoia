@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.9 COMPLETE + NORMALIZED. R12.10 implementation/final-documentation PR #205 passed exact-head gates on final head `29b86046d881c87fe77a70e7ce6a952ec13d46e6` and merged with expected SHA as `8fbec86c3137bbcc48871e7d273a71e7d86db779`. The single continuity-only R12.10 post-merge normalization is now the only authorized action. R12.10 manual state is NONE. R12.11 remains forbidden until that normalization exact head passes all required gates and merges.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.10 COMPLETE + NORMALIZED. R12.10 implementation/final-documentation PR #205 merged as `8fbec86c3137bbcc48871e7d273a71e7d86db779`; its single continuity-only normalization PR #206 exact head `15cc38b26aa23f0deda8fdfc4e6e8996d1cc7613` passed all exact-head gates and merged as `25b3e94b58d6ac08511b2510a98148354f5144f2`. This normalized merge is the sole authorized base for R12.11. R12.11 branch `r12/11-async-concurrency` is implementing bounded async/concurrency, cancellation, progress, UI-thread affinity and owner lifecycle safety. Manual R12.11 state is NONE. R12.12 remains forbidden until R12.11 implementation and its single post-merge normalization are accepted and merged.**
 
 ## État global
 
@@ -12,9 +12,9 @@
 - Architecture v1.0 gelée; normalized `main` after each accepted normalization merge is source of truth.
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
-- R12.1–R12.9 : **COMPLETE + NORMALIZED**.
-- R12.10 : **IMPLEMENTATION MERGED / POST-MERGE NORMALIZATION IN PROGRESS**.
-- R12.11–R12.16 : **PLANNED / NOT STARTED**.
+- R12.1–R12.10 : **COMPLETE + NORMALIZED**.
+- R12.11 : **IMPLEMENTATION IN PROGRESS**.
+- R12.12–R12.16 : **PLANNED / NOT STARTED**.
 
 ## R12.9 closure authority
 
@@ -30,7 +30,6 @@
 - Accepted final-documentation head `802124c8dc769c9be8db82ab53b4a58838832884`: R0 #1538 / run `32815321882`, Python #1512 / `32815321898`, UI #1479 / `32815321892`, Tauri #13 / `32815321864`, Qt #22 / `32815321852`, WPF #41 / `32815321863`, WinUI #31 / `32815321866`, Avalonia #27 / `32815321908` — all SUCCESS.
 - PR #203 merged with expected head `802124c8dc769c9be8db82ab53b4a58838832884` as merge commit `12624167af41b48438ce6601983038a0ce8fbdc3`.
 - Single post-merge normalization branch `r12/9-postmerge-continuity-normalization`; PR #204; continuity-only.
-- First normalization head `346bc3c4fb8b6992d21e37920724926073b60f67`: R0 #1540 / run `32817089231`, Python #1514 / `32817089300`, UI #1481 / `32817089228`, Tauri #14 / `32817089224`, Qt #23 / `32817089235`, WPF #42 / `32817089227`, WinUI #32 / `32817089185`, Avalonia #28 / `32817089196` — all SUCCESS.
 - Final normalization head `b16501c9362f5865d0b49d95139e207f196b66e4`: R0 #1541 / run `32817426235`, Python #1515 / `32817426223`, UI #1482 / `32817426134`, Tauri #15 / `32817426144`, Qt #24 / `32817426178`, WPF #43 / `32817426138`, WinUI #33 / `32817426145`, Avalonia #29 / `32817426180` — all SUCCESS.
 - PR #204 merged with expected head `b16501c9362f5865d0b49d95139e207f196b66e4` as merge commit `136967485e063254904269578f9ab4be23e5d599`.
 - **R12.9 COMPLETE + NORMALIZED**. Manual R12.9 CONDITIONAL was **NOT TRIGGERED**.
@@ -42,11 +41,20 @@
 - Scope: deterministic SQLite schema digests; typed/parameterized data intents; bounded migration graph; transaction, foreign-key, busy-timeout and integrity policy; online backup/recovery; exact-schema import validation; SafeChange/Backup/Recovery/Audit integration.
 - Accepted implementation candidate `464be11dd9c889336cac20208fc3fb9728ccac5f`.
 - Exact-head gates on candidate: R0 #1544 / run `32818839673`; Python #1518 / `32818839682`; UI #1485 / `32818839667`; WPF #45 / `32818839654`; WinUI #35 / `32818839609`; Avalonia #31 / `32818839711`; Qt #26 / `32818839626`; Tauri #17 / `32818839625` — all SUCCESS.
-- Focused suite `tests/test_desktop_r12_10.py` is exercised by Python Core; no separate R12.10 hosted runtime workflow is required by the frozen NONE manual state.
 - Accepted final-documentation head `29b86046d881c87fe77a70e7ce6a952ec13d46e6`: R0 #1546 / run `32821661433`; Python #1520 / `32821661437`; UI #1487 / `32821661426`; WPF #47 / `32821661420`; WinUI #37 / `32821661480`; Avalonia #33 / `32821661427`; Qt #28 / `32821661412`; Tauri #19 / `32821661394` — all SUCCESS.
 - PR #205 merged with expected head `29b86046d881c87fe77a70e7ce6a952ec13d46e6` as merge commit `8fbec86c3137bbcc48871e7d273a71e7d86db779`.
-- Single post-merge normalization branch `r12/10-postmerge-continuity-normalization`; continuity-only. Its exact head must pass R0 Repository Guard + Python Core + KodeStudio UI Smoke and the desktop adapter regression workflows before merge.
-- After that normalization merge, **R12.10 becomes COMPLETE + NORMALIZED** and its merge head is the sole authorized base for R12.11.
+- Single post-merge normalization branch `r12/10-postmerge-continuity-normalization`; PR #206; continuity-only.
+- Normalization head `15cc38b26aa23f0deda8fdfc4e6e8996d1cc7613`: R0 #1548 / run `32822110376`; Python #1522 / `32822110412`; UI #1489 / `32822110410`; WPF #48 / `32822110443`; WinUI #38 / `32822110487`; Avalonia #34 / `32822110395`; Qt #29 / `32822110737`; Tauri #20 / `32822110393` — all SUCCESS.
+- PR #206 merged with expected head `15cc38b26aa23f0deda8fdfc4e6e8996d1cc7613` as merge commit `25b3e94b58d6ac08511b2510a98148354f5144f2`.
+- **R12.10 COMPLETE + NORMALIZED**. Its merge head is the sole authorized base for R12.11.
+
+## R12.11 execution authority
+
+- Base normalized `main`: `25b3e94b58d6ac08511b2510a98148354f5144f2`.
+- Dedicated branch: `r12/11-async-concurrency`.
+- Manual state: **NONE**.
+- Frozen scope: framework-neutral async descriptors; cancellation propagation; KillSwitch bridge for governed external operations; UI dispatcher/thread-affinity intent; bounded concurrency/queue/progress; owner/disposal lifecycle; deterministic timeout/deadlock/starvation safety tests.
+- Implementation candidate and exact-head evidence: **PENDING** until branch freeze and hosted gates.
 
 ## Frozen R12 subdivision index
 
@@ -81,4 +89,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.10 normalization only:** open the single continuity-only post-merge normalization PR from `r12/10-postmerge-continuity-normalization`, gate its exact head, and merge it with `expected_head_sha`. Then and only then create the dedicated R12.11 branch from that normalized `main` merge SHA. R12.11 manual state is **NONE**.
+**R12.11 only:** finish implementation and focused tests on `r12/11-async-concurrency`, freeze one exact candidate HEAD, require R0 Repository Guard + full Python Core + KodeStudio UI Smoke plus desktop adapter regressions, record evidence, re-gate final documentation bytes, merge with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization. R12.12 is authorized only after that normalization merge. R12.11 manual state is **NONE**.

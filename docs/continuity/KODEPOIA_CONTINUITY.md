@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.3 COMPLETE + NORMALIZED. R13.4 IN_PROGRESS.** R13.3 accepted candidate `73d9024a1b06711885296775cb9f51370b52c3d0` passed R0 #1615 / `32880841487`, Python #1589 / `32880841447`, UI #1556 / `32880841420`; final head `954d907503e4fa92f7eccefd70bfe5f5808e4c11` passed R0 #1617 / `32883252890`, Python #1591 / `32883252848`, UI #1558 / `32883252862`; PR #225 merged as `e153b5d84d235b529fd8f522315467c766087b92`; continuity-only normalization `a5ddc4eacd2eaf4a78dfb4de7224a151d036b5e7` passed R0 #1619 / `32883829735`, Python #1593 / `32883829471`, UI #1560 / `32883829356`; PR #226 merged as normalized `main` `634e75cbdc0b05974781b40beecf54ad85766ed8`. R13.4 branch `r13/04-android-build-export` is created exactly from that head and is the sole active subdivision.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.3 COMPLETE + NORMALIZED. R13.4 COMPLETE, final end-synchronization/re-gates in progress.** R13.3 continuity-only normalization `a5ddc4eacd2eaf4a78dfb4de7224a151d036b5e7` passed R0 #1619 / `32883829735`, Python #1593 / `32883829471`, UI #1560 / `32883829356`; PR #226 merged as normalized `main` `634e75cbdc0b05974781b40beecf54ad85766ed8`. R13.4 branch `r13/04-android-build-export` was created exactly from that head. Accepted R13.4 implementation candidate `0a58fd4e2f255786fe10ed00b7665ea49773d52b` passed R0 #1636 / `32888926818`, Python #1610 / `32888926891`, UI #1577 / `32888926909`, and R13 Android Build Acceptance #38 / `32888926881` on both Ubuntu and Windows. Manual is CONDITIONAL / NOT TRIGGERED. The sole authorized action is final exact-head re-gating of the end-synchronized PR #227 head, then merge with `expected_head_sha` and exactly one continuity-only normalization; R13.5 remains PLANNED until that normalization merges.
 
 ## État global
 
@@ -15,7 +15,7 @@
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.3: **COMPLETE + NORMALIZED**.
-- R13.4: **IN_PROGRESS**, branch `r13/04-android-build-export`, manual **CONDITIONAL / NOT TRIGGERED** at start.
+- R13.4: **COMPLETE / NOT NORMALIZED**, PR #227 end-synchronized and awaiting exact-head documentation re-gates/merge; manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.5–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -85,11 +85,14 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 ## R13.4 execution authority
 
 - Authorized normalized base: **`634e75cbdc0b05974781b40beecf54ad85766ed8`**.
-- Dedicated branch: **`r13/04-android-build-export`**.
-- Start status: **IN_PROGRESS** before implementation.
-- Manual state: **CONDITIONAL / NOT TRIGGERED**. Hosted CI must be attempted first; no user-machine SDK install is required merely because R13.4 uses Android tooling.
-- Objective: bounded JDK/Gradle/Android SDK discovery and fixed build/export tasks; APK/AAB inspection, manifest/resources/ABI validation, bundletool/APK validation, lineage/budget evidence. Store-ready canonical fixture must target API 36+.
-- No production signing key, Play account or physical Android device is required for R13.4 core acceptance.
+- Dedicated branch: **`r13/04-android-build-export`**; PR #227.
+- Start status was **IN_PROGRESS** before implementation; end-synchronized status is **COMPLETE** while normalization remains pending.
+- Manual state: **CONDITIONAL / NOT TRIGGERED**. Hosted CI proved the frozen build/package semantics; no user-machine SDK install, production signing key, Play account or physical Android device is required for R13.4 core acceptance.
+- Rejected candidate `8c8e8dc2877f3a8de62d5e2b9fb19197f6b8a24c` failed because the hosted stable SDK manager could not provision API 37; rejected candidate `2d542963978c6eeb2c2ee7284686835f6e1323a9` failed due an ambiguous version-catalog matcher. Their evidence is not reused.
+- Accepted implementation candidate **`0a58fd4e2f255786fe10ed00b7665ea49773d52b`** passed R0 #1636 / `32888926818`, Python #1610 / `32888926891`, UI #1577 / `32888926909`, and R13 Android Build Acceptance #38 / `32888926881`.
+- Android Build Acceptance #38 succeeded on both `android-build-ubuntu-latest` and `android-build-windows-latest`, provisioning JDK 17, Gradle 9.5.0, Android platform 36/Build Tools 36.0.0, building fixed unit tests/debug APK/release AAB and validating exact-head evidence.
+- End plan+continuity synchronization changed documentation bytes after the accepted implementation candidate, therefore a fresh exact-head R0/Python/UI/R13 Android Build Acceptance pass is mandatory before PR #227 may merge.
+- Objective delivered: bounded JDK/Gradle/Android SDK discovery and fixed build/export tasks; APK/AAB inspection, manifest/resources/ABI validation, exact R13.3 source-manifest verification, isolated compatibility staging overlay, lineage/budget evidence. Store-ready hosted fixture targets API 36.
 
 ## Frozen R13 subdivision index
 
@@ -98,7 +101,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | COMPLETE | NONE |
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | COMPLETE | NONE |
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | COMPLETE | NONE |
-| R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | IN_PROGRESS | CONDITIONAL |
+| R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | COMPLETE | CONDITIONAL |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | PLANNED | CONDITIONAL |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | PLANNED | CONDITIONAL |
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | PLANNED | CONDITIONAL |
@@ -131,4 +134,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**R13.4 implementation:** add bounded Android toolchain/build/package contracts and validation plus a hosted CI Android build workflow for the canonical fixture. Attempt hosted proof first. If CI can build and validate the required APK/AAB semantics, manual remains NOT TRIGGERED; only if the frozen claim cannot be proven there may a bounded manual gate be considered.
+**R13.4 final end-synchronized re-gates:** require exact-head R0/full Python/KodeStudio UI/R13 Android Build Acceptance on PR #227 after both plan and continuity end synchronization. If all are SUCCESS, merge PR #227 with `expected_head_sha`, then create exactly one `r13/04-continuity-normalization` branch from merged `main`; change only `docs/continuity/KODEPOIA_CONTINUITY.md`, require exact-head R0/Python/UI (and any workflow triggered by the continuity-only diff), merge that normalization with `expected_head_sha`, and only then authorize R13.5.

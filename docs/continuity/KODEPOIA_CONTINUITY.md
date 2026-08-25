@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.4 COMPLETE + NORMALIZED. R13.5 COMPLETE and merged; continuity-only normalization IN_PROGRESS. R13.6 PLANNED.** R13.5 accepted implementation candidate `1b299f5ab69bd5ac90d8ea805d59c216643f68e3`; final end-synchronized head `030a3c548aebd77b736f139f995bf3951b17c33d` passed R0 #1645 / `32895748636`, Python #1619 / `32895748542`, UI #1586 / `32895748608`, Android Build #55 / `32895748735`, and Android Signing #8 / `32895748633`, with both Android workflows successful on Ubuntu and Windows. PR #229 merged with expected head as `bc354a48d6cd52b04462d58ced2a855770217d5f`. Manual remained CONDITIONAL / NOT TRIGGERED. The sole normalization branch `r13/05-continuity-normalization` is created exactly from that merge; R13.6 must not start until this normalization passes its exact-head gates and merges.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.5 COMPLETE + NORMALIZED. R13.6 IN_PROGRESS.** R13.5 accepted implementation candidate `1b299f5ab69bd5ac90d8ea805d59c216643f68e3`; final end-synchronized head `030a3c548aebd77b736f139f995bf3951b17c33d` passed R0 #1645 / `32895748636`, Python #1619 / `32895748542`, UI #1586 / `32895748608`, Android Build #55 / `32895748735`, and Android Signing #8 / `32895748633`; PR #229 merged as `bc354a48d6cd52b04462d58ced2a855770217d5f`; the single continuity-only normalization `2517fb071f091c7a2312301504126bd4c8f70bbd` passed R0 #1647 / `32896670665`, Python #1621 / `32896670704`, UI #1588 / `32896670776`; PR #230 merged as normalized `main` `56d6da4184709a54841ed36b21128477c78c6e9d`. R13.6 branch `r13/06-android-device-testing` is created exactly from that head and is the sole active subdivision.
 
 ## État global
 
@@ -14,9 +14,9 @@
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
-- R13.1–R13.4: **COMPLETE + NORMALIZED**.
-- R13.5: **COMPLETE + MERGED**, PR #229 merged as `bc354a48d6cd52b04462d58ced2a855770217d5f`; continuity-only normalization **IN_PROGRESS**; manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.6–R13.17: **PLANNED / NOT STARTED**.
+- R13.1–R13.5: **COMPLETE + NORMALIZED**.
+- R13.6: **IN_PROGRESS**, branch `r13/06-android-device-testing`, manual **CONDITIONAL / NOT TRIGGERED** at start.
+- R13.7–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -93,17 +93,25 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Continuity-only normalization **`98f347616a389960c4627b424d12757fd73a4d33`** changed only `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 #1640 / `32891329175`, Python #1614 / `32891329245`, UI #1581 / `32891329226`; PR #228 merged as normalized `main` **`939565f6409a45c93d0168546c1b4bb947d13ad4`**.
 - Therefore R13.4 is authoritatively **COMPLETE + NORMALIZED**.
 
-## R13.5 normalization authority
+## R13.5 closure authority
 
 - Authorized normalized base: **`939565f6409a45c93d0168546c1b4bb947d13ad4`**.
 - Dedicated implementation branch: **`r13/05-android-signing`**; PR #229.
 - Initial technical candidate **`a58227cd21112a65710002d2e673a1466889d7ce`** passed technical gates but was not accepted as final because required subdivision artifacts `R13_5_DESIGN.md` and `R13_5_ACCEPTANCE.md` were missing.
 - Accepted implementation candidate **`1b299f5ab69bd5ac90d8ea805d59c216643f68e3`** passed R0 #1643 / `32894851393`, Python Core #1617 / `32894851604`, KodeStudio UI Smoke #1584 / `32894851851`, R13 Android Build Acceptance #51 / `32894851296`, and R13 Android Signing Acceptance #4 / `32894851385`; both Android workflows succeeded on Ubuntu and Windows.
-- Final end-synchronized head **`030a3c548aebd77b736f139f995bf3951b17c33d`** changed only phase-plan/continuity status evidence after the accepted implementation candidate and passed fresh exact-head R0 #1645 / `32895748636`, Python Core #1619 / `32895748542`, KodeStudio UI Smoke #1586 / `32895748608`, R13 Android Build Acceptance #55 / `32895748735`, and R13 Android Signing Acceptance #8 / `32895748633`; both Android workflows again succeeded on Ubuntu and Windows.
+- Final end-synchronized head **`030a3c548aebd77b736f139f995bf3951b17c33d`** passed fresh R0 #1645 / `32895748636`, Python Core #1619 / `32895748542`, KodeStudio UI Smoke #1586 / `32895748608`, R13 Android Build Acceptance #55 / `32895748735`, and R13 Android Signing Acceptance #8 / `32895748633`; both Android workflows again succeeded on Ubuntu and Windows.
 - PR #229 merged with `expected_head_sha=030a3c548aebd77b736f139f995bf3951b17c33d` as **`bc354a48d6cd52b04462d58ced2a855770217d5f`**.
-- Manual state remained **CONDITIONAL / NOT TRIGGERED**. Hosted CI proved the frozen signing/state-model semantics with an ephemeral test identity; production keystore/private-key/password material and a live Play account were not required.
-- Implemented authority: truthful `UNSIGNED`, `DEBUG_SIGNED`, `TEST_SIGNED`, `UPLOAD_SIGNED`, `PLAY_APP_SIGNING_READY`, `SIGNING_UNAVAILABLE` states; public certificate fingerprints; KodeSecrets-backed references; upload-key/app-signing-key separation; rotation/recovery metadata; fail-closed certificate substitution; no private material in durable evidence.
-- Exactly one post-merge normalization branch **`r13/05-continuity-normalization`** was created from merge head **`bc354a48d6cd52b04462d58ced2a855770217d5f`**. This normalization changes only `docs/continuity/KODEPOIA_CONTINUITY.md`; `R13_PLAN.md` is intentionally untouched. R13.6 remains forbidden until this normalization passes exact-head R0/Python/UI gates and merges.
+- The single continuity-only normalization head **`2517fb071f091c7a2312301504126bd4c8f70bbd`** changed only `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 #1647 / `32896670665`, Python Core #1621 / `32896670704`, and KodeStudio UI Smoke #1588 / `32896670776`; PR #230 merged as normalized `main` **`56d6da4184709a54841ed36b21128477c78c6e9d`**.
+- Manual remained **CONDITIONAL / NOT TRIGGERED**. Hosted CI proved the frozen signing/state-model semantics with an ephemeral test identity; production keystore/private-key/password material and a live Play account were not required.
+- Therefore R13.5 is authoritatively **COMPLETE + NORMALIZED**.
+
+## R13.6 execution authority
+
+- Authorized normalized base: **`56d6da4184709a54841ed36b21128477c78c6e9d`**.
+- Dedicated branch: **`r13/06-android-device-testing`**.
+- Start status: **IN_PROGRESS** before implementation.
+- Manual state: **CONDITIONAL / NOT TRIGGERED**. Core R13.6 acceptance will first use a hosted Android emulator or accepted equivalent; no physical device or external account is a prerequisite. If a frozen hardware-only semantic cannot be established in accepted CI, stop and request bounded user-controlled evidence before any later subdivision.
+- Objective: governed Android runtime testing with redacted device/emulator discovery, fixed typed ADB/instrumentation operations, install/uninstall/test/log collection, bounded locale/orientation/density/network-profile matrices, timeout/cancellation, lease/cleanup, exact artifact/device binding and emulator evidence. Arbitrary `adb shell` remains forbidden; only repository-owned fixed operations may invoke specific device commands such as `am instrument`.
 
 ## Frozen R13 subdivision index
 
@@ -114,7 +122,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | COMPLETE | NONE |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | COMPLETE | CONDITIONAL |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | COMPLETE | CONDITIONAL |
-| R13.6 | Android emulator/device testing + adb/instrumentation adapter | PLANNED | CONDITIONAL |
+| R13.6 | Android emulator/device testing + adb/instrumentation adapter | IN_PROGRESS | CONDITIONAL |
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | PLANNED | CONDITIONAL |
 | R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | PLANNED | CONDITIONAL |
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | PLANNED | CONDITIONAL |
@@ -145,4 +153,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**Finish R13.5 normalization only:** run exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke on the sole continuity-only normalization head; if all are SUCCESS, merge its PR with `expected_head_sha`. Only then is R13.5 authoritatively **COMPLETE + NORMALIZED** and R13.6 may begin from the resulting normalized `main`.
+**R13.6 implementation:** after this start synchronization, implement the governed Android emulator/device testing and ADB/instrumentation adapter on `r13/06-android-device-testing`; add `R13_6_DESIGN.md`, `R13_6_ACCEPTANCE.md`, focused tests, durable evidence schema, and a hosted emulator acceptance workflow if feasible. Attempt hosted emulator evidence first. If physical hardware is not required by the frozen claim, manual remains NOT TRIGGERED.

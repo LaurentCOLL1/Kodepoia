@@ -18,16 +18,22 @@ The overlay updates only repository-owned build compatibility coordinates requir
 
 ## Current hosted toolchain evidence — 2026-08-25
 
-R13.4 deliberately treats these values as evidence, not architecture constants:
+R13.4 deliberately treats these values as evidence, not architecture constants.
+
+The accepted R13.3 source definition remains bound to the then-current Compose `2026.08.00` / compileSdk 37 evidence. Hosted R13.4 acceptance subsequently proved that the stable `sdkmanager` repository exposed to the Ubuntu runner did **not** provide `platforms;android-37`. That rejected candidate is evidence of capability unavailability, not a reason to mutate R13.3 history or request a user-machine SDK.
+
+The hosted stable R13.4 build overlay therefore uses:
 
 - Android Gradle Plugin: `9.3.1` stable release line;
 - Gradle: `9.5.0` for AGP 9.3;
 - JDK: 17;
-- SDK compile platform: API 37;
+- SDK compile platform: API 36;
 - Android Build Tools: `36.0.0`;
-- Compose BOM: `2026.08.00`;
+- Compose BOM: `2026.06.00`, the last stable Compose baseline documented before Compose 1.12 moved to compileSdk 37;
 - Compose compiler/Kotlin plugin: `2.3.21`;
 - canonical targetSdk: API 36, satisfying the Google Play mobile deadline effective 2026-08-31.
+
+AGP 9.3 can support newer API levels, but support in AGP is not treated as proof that a particular hosted SDK repository currently exposes that platform. Actual provisioning is capability evidence.
 
 The source URLs are restricted to HTTPS `developer.android.com` and are serialized in `AndroidBuildToolchainEvidence`. Dynamic versions such as `9.3.+`, `latest` or mutable unofficial URLs are not representable.
 
@@ -44,6 +50,16 @@ The source URLs are restricted to HTTPS `developer.android.com` and are serializ
 Dangerous environment injection is fail-closed. `GRADLE_OPTS`, `JAVA_TOOL_OPTIONS`, `JAVA_OPTS`, `_JAVA_OPTIONS` and every `ORG_GRADLE_PROJECT_*` variable are rejected. Only a small path/temp allowlist can be forwarded by a future runtime adapter.
 
 Hosted CI itself may install public SDK/toolchain packages as CI infrastructure. Kodepoia runtime does not silently install them.
+
+## Staging boundary
+
+Source and staging must be fully disjoint. R13.4 rejects all three dangerous shapes before deleting or creating staging content:
+
+- staging equals source;
+- staging is inside source;
+- source is inside staging.
+
+This prevents staging cleanup from deleting source-owned data and prevents generated build output from contaminating the accepted source workspace.
 
 ## Artifact inspection
 
@@ -67,7 +83,7 @@ R13.4 structural evidence does not claim a signature state; R13.5 owns that dist
 
 1. checks out the exact pull-request head;
 2. installs Python evidence dependencies;
-3. provisions JDK 17, Gradle 9.5.0 and Android SDK API 37 / Build Tools 36.0.0;
+3. provisions JDK 17, Gradle 9.5.0 and Android SDK API 36 / Build Tools 36.0.0;
 4. renders the canonical R13.3 fixture;
 5. verifies it and creates the deterministic R13.4 staging overlay;
 6. executes the three fixed Gradle tasks;
@@ -78,6 +94,13 @@ R13.4 structural evidence does not claim a signature state; R13.5 owns that dist
 
 A Linux success cannot certify Windows and vice versa; the workflow result is successful only after both matrix jobs pass.
 
+## Rejected hosted candidates
+
+- A workflow candidate was rejected before jobs because `runner.temp` was incorrectly used in job-level `env`; GitHub Actions only exposes `runner` in supported step/job keys. The paths were moved to step-level contexts.
+- Candidate `8c8e8dc2877f3a8de62d5e2b9fb19197f6b8a24c` was rejected because the stable Ubuntu `sdkmanager` repository returned `Failed to find package 'platforms;android-37'`. No success from that SHA is reused.
+
+These failures do not trigger a manual gate because both are hosted-CI configuration/capability issues with deterministic fixes.
+
 ## Manual gate
 
-Manual state starts `CONDITIONAL / NOT TRIGGERED`. It remains not triggered if hosted CI proves the frozen build/package semantics. Missing Android tools on the user's computer are irrelevant to this decision. A manual gate may be triggered only if a required real semantic cannot be established on accepted hosted runners.
+Manual state starts `CONDITIONAL / NOT TRIGGERED`. It remains not triggered if hosted CI proves the frozen build/package semantics. Missing Android tools on the user's computer are irrelevant to this decision. A manual gate may be triggered only if a required real semantic cannot be established on accepted hosted runners after supported CI paths are exhausted.

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.14 COMPLETE + NORMALIZED. R12.14 implementation PR #213 final documentation head `a1481e5b23e14b029bcf076d0433e866c6d93895` passed all required exact-head gates and merged with expected SHA as `d1a0d3831f3767d713f3288b5269fcc722bab1eb`; its single continuity-only normalization PR #214 exact head `598cd5d257c366609e084b5968c576cbde5cdd86` passed R0/Python/UI plus all five desktop adapter regressions and merged as `089e54cdbd1ac344ce71fc92eef213ad2e9589d3`. Manual R12.14 CONDITIONAL was NOT TRIGGERED. R12.15 implementation is accepted on candidate `79cda1733bc470f897a5153dcd0c4d059b948900`: R0 #1577, Python #1551, KodeStudio UI #1518, WPF #68, WinUI #58, Avalonia #54, Qt #49 and Tauri #40 all SUCCESS. The earlier candidate `696ab04eda402fd77b826ef80c9cc8a98706ad75` is rejected and its failed UI evidence is not reusable. End-of-subdivision plan/continuity synchronization now marks R12.15 COMPLETE while R12.16 remains PLANNED. Next action is final-documentation exact-head re-gating on PR #215, then merge with expected SHA, followed by exactly one continuity-only R12.15 normalization before any R12.16 branch may start.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.14 COMPLETE + NORMALIZED. R12.14 implementation PR #213 final documentation head `a1481e5b23e14b029bcf076d0433e866c6d93895` passed all required exact-head gates and merged with expected SHA as `d1a0d3831f3767d713f3288b5269fcc722bab1eb`; its single continuity-only normalization PR #214 exact head `598cd5d257c366609e084b5968c576cbde5cdd86` passed R0/Python/UI plus all five desktop adapter regressions and merged as `089e54cdbd1ac344ce71fc92eef213ad2e9589d3`. Manual R12.14 CONDITIONAL was NOT TRIGGERED. R12.15 implementation is accepted on candidate `79cda1733bc470f897a5153dcd0c4d059b948900`: R0 #1577, Python #1551, KodeStudio UI #1518, WPF #68, WinUI #58, Avalonia #57, Qt #49 and Tauri #40 all SUCCESS. The earlier candidate `696ab04eda402fd77b826ef80c9cc8a98706ad75` is rejected and its failed UI evidence is not reusable. End-of-subdivision plan/continuity synchronization marks R12.15 COMPLETE while R12.16 remains PLANNED. Synchronized documentation head `881ac7e6baee67f594f62377f3a7d1b9aee2ce72` passed R0 #1580, Python #1554, KodeStudio UI #1521, WPF #71, WinUI #61, Avalonia #57, Qt #52 and Tauri #43. Recording that evidence changed bytes, so one fresh exact-head cycle on the resulting recorded-evidence documentation head is mandatory before merge. R12.16 remains forbidden until PR #215 is merged and exactly one continuity-only R12.15 normalization is gated and merged.**
 
 ## État global
 
@@ -13,7 +13,7 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.14 : **COMPLETE + NORMALIZED**.
-- R12.15 : **COMPLETE / FINAL DOCUMENTATION RE-GATES PENDING**.
+- R12.15 : **COMPLETE / RECORDED-EVIDENCE FINAL GATES PENDING**.
 - R12.16 : **PLANNED / NOT STARTED**.
 
 ## Permanent R-phase plan status synchronization rule
@@ -57,8 +57,11 @@ This rule applies to R12.14–R12.16 and all future R-phase execution/recovery u
 - Accepted corrected implementation candidate: `79cda1733bc470f897a5153dcd0c4d059b948900`.
 - Candidate exact-head gates: R0 #1577 / `32834583380`; Python #1551 / `32834583390`; KodeStudio UI #1518 / `32834583399`; WPF #68 / `32834583424`; WinUI #58 / `32834583419`; Avalonia #54 / `32834583411`; Qt #49 / `32834583377`; Tauri #40 / `32834583375` — all SUCCESS.
 - Full Python candidate proof includes Linux and Windows tests, Linux and Windows package-build evidence, and the internal KodeStudio Windows smoke — all SUCCESS.
-- End status synchronization has now been performed: `R12_PLAN.md` marks R12.15 `COMPLETE`; R12.16 remains `PLANNED`; continuity matches that state.
-- Final-documentation exact-head gates: **PENDING on the synchronized documentation head**.
+- End status synchronization was performed: `R12_PLAN.md` marks R12.15 `COMPLETE`; R12.16 remains `PLANNED`; continuity matches that state.
+- Synchronized documentation head: `881ac7e6baee67f594f62377f3a7d1b9aee2ce72`.
+- Synchronized-documentation exact-head gates: R0 #1580 / `32836806493`; Python #1554 / `32836806644`; KodeStudio UI #1521 / `32836806507`; WPF #71 / `32836806242`; WinUI #61 / `32836806760`; Avalonia #57 / `32836806320`; Qt #52 / `32836806429`; Tauri #43 / `32836806371` — all SUCCESS.
+- Recording the synchronized-documentation evidence changed bytes; the resulting recorded-evidence documentation head must pass a fresh exact-head cycle before merge.
+- Final recorded-evidence documentation gates: **PENDING**.
 - Implementation merge: **PENDING**.
 - Single continuity-only post-merge normalization: **PENDING**.
 - R12.16 remains forbidden until the implementation merge and normalization merge are both accepted.
@@ -96,4 +99,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.15 final documentation closure only:** freeze the synchronized PR #215 head, require exact-head R0/full Python/KodeStudio UI plus WPF/WinUI/Avalonia/Qt/Tauri regressions, record the final documentation evidence without reusing stale runs, merge #215 with `expected_head_sha`, then create exactly one continuity-only R12.15 normalization branch/PR from that merge, gate and merge it. R12.16 remains forbidden until that normalization merge is authoritative.
+**R12.15 recorded-evidence closure only:** freeze the current PR #215 head after acceptance/continuity evidence recording, require a fresh exact-head R0/full Python/KodeStudio UI plus WPF/WinUI/Avalonia/Qt/Tauri cycle, merge #215 with that exact expected head only if all eight are SUCCESS, then create exactly one continuity-only R12.15 normalization branch/PR from the merge, gate and merge it. R12.16 remains forbidden until that normalization merge is authoritative.

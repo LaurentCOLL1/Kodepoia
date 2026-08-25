@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.8 COMPLETE + NORMALIZED. R12.9 implementation and final documentation were accepted and PR #203 merged as `12624167af41b48438ce6601983038a0ce8fbdc3`. R12.9 post-merge normalization is the only active operation on branch `r12/9-postmerge-continuity-normalization`. R12.10 remains forbidden until this single continuity-only normalization passes exact-head gates and merges. Manual R12.9 CONDITIONAL was NOT TRIGGERED.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.9 COMPLETE + NORMALIZED. R12.9 implementation/final documentation PR #203 merged as `12624167af41b48438ce6601983038a0ce8fbdc3`; its single continuity-only post-merge normalization PR #204 passed its first exact-head gate set on `346bc3c4fb8b6992d21e37920724926073b60f67`. This final continuity head is being re-gated before PR #204 merge. R12.10 becomes the next authorized subdivision only after that merge. Manual R12.9 CONDITIONAL was NOT TRIGGERED.**
 
 ## État global
 
@@ -12,8 +12,7 @@
 - Architecture v1.0 gelée; normalized `main` after each accepted normalization merge is source of truth.
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
-- R12.1–R12.8 : **COMPLETE + NORMALIZED**.
-- R12.9 : **IMPLEMENTATION MERGED / POST-MERGE NORMALIZATION IN PROGRESS**.
+- R12.1–R12.9 : **COMPLETE + NORMALIZED** once PR #204 final exact-head re-gate and merge complete.
 - R12.10–R12.16 : **PLANNED / NOT STARTED**.
 
 ## R12.9 closure authority
@@ -29,7 +28,9 @@
 - Tauri and tauri-build license state remains `REVIEW_REQUIRED`; Kodepoia infers no redistribution rights.
 - Accepted final-documentation head `802124c8dc769c9be8db82ab53b4a58838832884`: R0 #1538 / run `32815321882`, Python #1512 / `32815321898`, UI #1479 / `32815321892`, Tauri #13 / `32815321864`, Qt #22 / `32815321852`, WPF #41 / `32815321863`, WinUI #31 / `32815321866`, Avalonia #27 / `32815321908` — all SUCCESS.
 - PR #203 merged with expected head `802124c8dc769c9be8db82ab53b4a58838832884` as merge commit `12624167af41b48438ce6601983038a0ce8fbdc3`.
-- Exactly one continuity-only post-merge normalization is now required. Its candidate must pass exact-head standard gates before merge.
+- Single post-merge normalization branch `r12/9-postmerge-continuity-normalization`; PR #204; continuity-only.
+- First normalization head `346bc3c4fb8b6992d21e37920724926073b60f67`: R0 #1540 / run `32817089231`, Python #1514 / `32817089300`, UI #1481 / `32817089228`, Tauri #14 / `32817089224`, Qt #23 / `32817089235`, WPF #42 / `32817089227`, WinUI #32 / `32817089185`, Avalonia #28 / `32817089196` — all SUCCESS.
+- This final continuity update changes documentation bytes only; exact-head gates must succeed again before PR #204 merge. After that merge, **R12.9 is COMPLETE + NORMALIZED** and its merge head is the sole authorized base for R12.10.
 
 ## Frozen R12 subdivision index
 
@@ -64,4 +65,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.9 post-merge normalization only.** Gate the exact head of `r12/9-postmerge-continuity-normalization`, merge its continuity-only PR with `expected_head_sha`, then R12.9 becomes COMPLETE + NORMALIZED. **R12.10 remains forbidden until that merge.**
+**Finish PR #204 only:** gate this final continuity head exactly, merge PR #204 with `expected_head_sha`, and use that merge SHA as normalized `main`. Then and only then create the dedicated R12.10 branch for SQLite persistence/migrations/transactions/backup-recovery. R12.10 manual state is **NONE**.

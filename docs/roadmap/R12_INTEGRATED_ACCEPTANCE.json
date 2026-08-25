@@ -1,0 +1,126 @@
+{
+  "blockers": [],
+  "continuity": {
+    "bytes": 14168,
+    "sha256": "840b6eaa13ab03bdfd1d8ef0d4d6bfba05ae46f1934d9e596ad20cf5a7f56b33",
+    "source": "docs/continuity/KODEPOIA_CONTINUITY.md"
+  },
+  "evidence_sha256": "daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50",
+  "generated_at": "2026-08-25T11:43:16.284205Z",
+  "manual_state": "conditional_not_triggered",
+  "prior_phase": {
+    "bytes": 7334,
+    "evidence_sha256": "ed956be1aa19592b654382a209e5ca99d44d3cbcd67dd3981bdae3d865563170",
+    "phase": "R11",
+    "sha256": "916fa00d5d8d2ba6681fa2d55c7f0f04ae03f3beb5d8d95b5ab6aa98bdcc6658",
+    "source": "docs/roadmap/R11_INTEGRATED_ACCEPTANCE.json"
+  },
+  "schema_version": 1,
+  "source_sha": "1927d9ab673228101c932b1cb6b89243296ac957",
+  "status": "pass",
+  "subdivisions": [
+    {
+      "bytes": 3110,
+      "sha256": "52c1ec6004995fb2bd8bbd7f4f3498e6c2f76b55bc290de2f4c3ee1f0327cad2",
+      "source": "docs/roadmap/R12_1_ACCEPTANCE.md",
+      "subdivision": "R12.1"
+    },
+    {
+      "bytes": 2195,
+      "sha256": "3cde1c43afadc5e3c47ce6ed8d9691122c7771a7f7aa41c9e42ecfc323ff1eb8",
+      "source": "docs/roadmap/R12_2_ACCEPTANCE.md",
+      "subdivision": "R12.2"
+    },
+    {
+      "bytes": 2295,
+      "sha256": "1a91e207de8f5a9c4405db8994285230bf8fe75f5b04940fe6c75ea305a975be",
+      "source": "docs/roadmap/R12_3_ACCEPTANCE.md",
+      "subdivision": "R12.3"
+    },
+    {
+      "bytes": 1990,
+      "sha256": "6b6da0ae4face5fa0e8991f7bec297730b160929453a8712cac4fef512854dca",
+      "source": "docs/roadmap/R12_4_ACCEPTANCE.md",
+      "subdivision": "R12.4"
+    },
+    {
+      "bytes": 2964,
+      "sha256": "dbe9b635074b75c74e42aa9707f50e3e39c818e5dc20d2c220c750e2a26c92a5",
+      "source": "docs/roadmap/R12_5_ACCEPTANCE.md",
+      "subdivision": "R12.5"
+    },
+    {
+      "bytes": 3161,
+      "sha256": "18966cba99ccfee742afa4230c333b4c5c3f93403afd031337b07feb65cfa55a",
+      "source": "docs/roadmap/R12_6_ACCEPTANCE.md",
+      "subdivision": "R12.6"
+    },
+    {
+      "bytes": 2914,
+      "sha256": "bea5c21671162f416e092f78c9802874dd71df67c43439f013b7f4d439877480",
+      "source": "docs/roadmap/R12_7_ACCEPTANCE.md",
+      "subdivision": "R12.7"
+    },
+    {
+      "bytes": 4082,
+      "sha256": "ae9b2542d10f7348ee873e389532094812c9b26b34c7207d74afd02965ef1d7d",
+      "source": "docs/roadmap/R12_8_ACCEPTANCE.md",
+      "subdivision": "R12.8"
+    },
+    {
+      "bytes": 4540,
+      "sha256": "94eeb0424b1b7a5002471ab3deee5a940319eea204a1057ade9aa28a7a2dc453",
+      "source": "docs/roadmap/R12_9_ACCEPTANCE.md",
+      "subdivision": "R12.9"
+    },
+    {
+      "bytes": 3759,
+      "sha256": "ba38e6f0a98f30d28c1ca49efb53e7fda89498b5be038ffdfb9d363612b89bfb",
+      "source": "docs/roadmap/R12_10_ACCEPTANCE.md",
+      "subdivision": "R12.10"
+    },
+    {
+      "bytes": 4287,
+      "sha256": "45ce03f48d0da09f226c6412604269c6e3759a5ac9b4689586d54e4291bbcaf3",
+      "source": "docs/roadmap/R12_11_ACCEPTANCE.md",
+      "subdivision": "R12.11"
+    },
+    {
+      "bytes": 4853,
+      "sha256": "e4bdea56f3ae3645722f1ae0f2c44fa3bb17bdbd8d96f892149f52508fbd4ed6",
+      "source": "docs/roadmap/R12_12_ACCEPTANCE.md",
+      "subdivision": "R12.12"
+    },
+    {
+      "bytes": 5540,
+      "sha256": "947e0ce3bb663875804e36087b7ec0b44da4bf02af9553a42308b8b830f9d0c6",
+      "source": "docs/roadmap/R12_13_ACCEPTANCE.md",
+      "subdivision": "R12.13"
+    },
+    {
+      "bytes": 4998,
+      "sha256": "a695c7b767fb5c29dbbddf1c4c530abadf8cbfafc6e3af920aba08217bc5bcd3",
+      "source": "docs/roadmap/R12_14_ACCEPTANCE.md",
+      "subdivision": "R12.14"
+    },
+    {
+      "bytes": 3914,
+      "sha256": "38ddf6d7c5e3c1115aa134fab34977e493944b91e4e6300a3ab4f9c54ecf60da",
+      "source": "docs/roadmap/R12_15_ACCEPTANCE.md",
+      "subdivision": "R12.15"
+    },
+    {
+      "bytes": 8361,
+      "sha256": "b6609cefc95e89183c0dfa35ded2cd45ea1facb2c88c482bf2b09b421ef36969",
+      "source": "docs/roadmap/R12_16_ACCEPTANCE.md",
+      "subdivision": "R12.16"
+    }
+  ],
+  "windows_ci": {
+    "bytes": 1062,
+    "evidence_sha256": "0bbead835c2ee48f4d6a78f11f6aceaca60262eebe70c3944f6475ae82b70a24",
+    "sha256": "dddb1a106c4b8d31d60d13567f0f6d369d24b6572bec11043bc3b7f70fec5607",
+    "source": "docs/roadmap/R12_16_WINDOWS_CI_ACCEPTANCE.json",
+    "source_sha": "1927d9ab673228101c932b1cb6b89243296ac957"
+  }
+}

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1 COMPLETE + NORMALIZED.** R13.1 implementation source accepté: `04bee35bba58645f6ef91e8cf5530b5062c6803d`; final end-synchronized head `a20ff45bc62e578c3aa58c8ef41927b08bfe2d2a` a passé R0 #1603 / `32849778906`, Python #1577 / `32849779035`, UI #1544 / `32849778909`; PR #221 a fusionné comme `029a49e4d6772b2870357e0327acf470ef40e03b`. L'unique normalisation R13.1 `3bc39e88391d05cc97992881fdb8c0ba61f49457` a passé R0 #1605 / `32873745343`, Python #1579 / `32873745171`, UI #1546 / `32873745103`, puis PR #222 a fusionné comme `a63c25e0bb7dfa4f45c87f61f20de9477a64935a`. **R13.2 est IN_PROGRESS** sur `r13/02-mobile-profiles`, créée exactement depuis ce `main` normalisé. R13.3–R13.17 restent PLANNED.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1 COMPLETE + NORMALIZED.** R13.1 implementation source accepté: `04bee35bba58645f6ef91e8cf5530b5062c6803d`; final end-synchronized head `a20ff45bc62e578c3aa58c8ef41927b08bfe2d2a` a passé R0 #1603 / `32849778906`, Python #1577 / `32849779035`, UI #1544 / `32849778909`; PR #221 a fusionné comme `029a49e4d6772b2870357e0327acf470ef40e03b`. L'unique normalisation R13.1 `3bc39e88391d05cc97992881fdb8c0ba61f49457` a passé R0 #1605 / `32873745343`, Python #1579 / `32873745171`, UI #1546 / `32873745103`, puis PR #222 a fusionné comme `a63c25e0bb7dfa4f45c87f61f20de9477a64935a`. **R13.2 est COMPLETE sur sa branche d'implémentation** après acceptation du candidat `27b75959e3240f67330d901c3b4a084242ae28b0`; l'end-sync plan+continuité est en cours et doit repasser R0/Python/UI avant merge #223, puis exactement une normalisation continuity-only. R13.3–R13.17 restent PLANNED jusqu'à cette normalisation.
 
 ## État global
 
@@ -16,7 +16,7 @@
 - R13 planning-normalized `main`: `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`.
 - R13 phase status: **IN PROGRESS**.
 - R13.1: **COMPLETE + NORMALIZED**, manual **NONE**; normalized `main` `a63c25e0bb7dfa4f45c87f61f20de9477a64935a`.
-- R13.2: **IN_PROGRESS**, branch `r13/02-mobile-profiles`, manual **NONE**.
+- R13.2: **COMPLETE on implementation branch**, branch `r13/02-mobile-profiles`, manual **NONE**; final re-gates/merge/normalization pending.
 - R13.3–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -97,18 +97,24 @@ R14 backend/live-service work remains outside R13.
 ## R13.2 execution authority
 
 - Authorized base normalized `main`: **`a63c25e0bb7dfa4f45c87f61f20de9477a64935a`**.
-- Dedicated branch: `r13/02-mobile-profiles`.
+- Dedicated branch: `r13/02-mobile-profiles`; PR #223.
 - Manual state: **NONE**.
 - Start status synchronization: **IN PROGRESS** before implementation.
 - Scope: backward-compatible mobile profile fields in existing Project DNA/KodeProduct and existing Project Wizard; Android/iOS intent, minimum/target OS/API, form factor, native-app vs Godot-export source, permissions/capabilities, network intent, package/release channel, signing intent and budgets. Selection is intent only: no SDK installation/build/device/store operation.
 - External identity rules remain platform-authoritative: Android `applicationId` is the unique app identity and should remain stable once published; Apple bundle IDs uniquely identify apps and use constrained reverse-DNS-compatible strings. Mutable toolchain/store policy remains evidence, not DNA architecture.
+- Rejected candidate **`9c8820aaa8d75e88b48b6a3ed730a7e724b16605`**: R0 #1607 / `32875664321` rejected invalid JSON in `schemas/project-dna-v1.schema.json`; its evidence is not reused.
+- Rejected candidate **`4e48fc7520351b3d7445130ee691dca9d1b402c0`**: schema fixed, but Python/UI smoke rejected a regression where the initial R13 `app.py` integration removed the accepted pseudo-localized navigation minimum width; its evidence is not reused.
+- Accepted implementation candidate **`27b75959e3240f67330d901c3b4a084242ae28b0`**: full accepted R12 KodeStudio structure restored; R13 integration limited to the mobile Wizard seam.
+- Candidate exact-head gates all SUCCESS: R0 #1609 / `32876034828`; Python #1583 / `32876034855`; UI #1550 / `32876034882`.
+- Same-head R12 regression workflows all SUCCESS: WPF #92, WinUI3 #82, Avalonia #78, Qt6 #73, Tauri2 #64, Integrated Windows #17.
+- End plan+continuity synchronization now marks R13.2 **COMPLETE**; because these documentation bytes change the branch HEAD, fresh R0/Python/UI gates are mandatory before merge.
 
 ## Frozen R13 subdivision index
 
 | ID | Title | Status | Manual |
 | --- | --- | --- | --- |
 | R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | COMPLETE | NONE |
-| R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | IN_PROGRESS | NONE |
+| R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | COMPLETE | NONE |
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | PLANNED | NONE |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | PLANNED | CONDITIONAL |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | PLANNED | CONDITIONAL |
@@ -143,4 +149,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**R13.2 implementation:** after matching `R13_PLAN.md` start synchronization, extend existing Project DNA/KodeProduct/Project Wizard with deterministic mobile intent, add schemas/tests/design/acceptance, then freeze one exact candidate and require R0/full Python/KodeStudio UI. No external SDK/build/store operation is authorized in R13.2.
+**R13.2 closure:** run fresh exact-head R0/full Python/KodeStudio UI on the end-synchronized branch HEAD; if all are SUCCESS, merge PR #223 with `expected_head_sha`, then create exactly one continuity-only normalization branch from the resulting `main`, record the merge/final gate evidence, re-run R0/Python/UI and merge that normalization. Only then create `r13/03-android-scaffold`, perform R13.3 start plan+continuity synchronization before implementation, and begin the deterministic Android scaffold. No manual intervention is required for R13.2 or R13.3.

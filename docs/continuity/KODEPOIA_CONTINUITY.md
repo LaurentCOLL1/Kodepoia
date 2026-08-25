@@ -4,20 +4,19 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED.** R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`; normalized R12 `main`: `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`. **R13 planning PR #219 has been accepted and merged**: planning candidate `6f44e8faf8ef675dab5c8079541ce436ff55b4b2` passed exact-head R0 #1596 / `32846530810`, Python Core #1570 / `32846530804`, and KodeStudio UI #1537 / `32846530786`, all SUCCESS; PR #219 merged with expected head as `9a5c678c226cb845c639b914e6365b475ab20e86`. `docs/roadmap/R13_PLAN.md` freezes R13.1–R13.17, all PLANNED. This branch `r13/00-planning-continuity-normalization` is the **single authorized planning post-merge normalization** and may modify only this continuity file. R13.1 remains FORBIDDEN until this exact normalization head passes fresh R0/full Python/KodeStudio UI and its PR merges with expected SHA. After that merge, R13 planning becomes ACCEPTED + NORMALIZED and R13.1 is authorized.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED.** R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`. R13 planning candidate `6f44e8faf8ef675dab5c8079541ce436ff55b4b2` passed R0 #1596 / `32846530810`, Python #1570 / `32846530804`, UI #1537 / `32846530786`; PR #219 merged as `9a5c678c226cb845c639b914e6365b475ab20e86`. Single planning normalization `b7ca326ac6f9fbb74bdbe69fefe6faf4aaadf653` passed R0 #1598 / `32846946552`, Python #1572 / `32846946574`, UI #1539 / `32846946557`; PR #220 merged as normalized `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`. **R13.1 is now IN_PROGRESS** on dedicated branch `r13/01-mobile-contracts`, based exactly on that normalized main. R13.2–R13.17 remain PLANNED. No next subdivision may start before R13.1 exact-head acceptance, merge and its single continuity-only post-merge normalization.
 
 ## État global
 
 - Dépôt : `LaurentCOLL1/Kodepoia` — PUBLIC volontairement.
 - Architecture v1.0 : **frozen**.
-- R1–R11 : **COMPLETE + NORMALIZED**.
-- R12 : **COMPLETE + NORMALIZED**.
+- R1–R12 : **COMPLETE + NORMALIZED**.
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
-- R12 normalized final `main`: `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`.
-- R13 planning implementation PR #219: **MERGED** as `9a5c678c226cb845c639b914e6365b475ab20e86`.
-- R13 planning normalization: **IN PROGRESS, continuity-only**.
-- R13.1–R13.17: **PLANNED / NOT STARTED**.
-- R13.1 implementation: **FORBIDDEN until planning normalization passes + merges**.
+- R13 planning : **ACCEPTED + NORMALIZED**.
+- R13 normalized planning `main`: **`aef297e385dc49ad6ae0935d4f9ef25a35e5e984`**.
+- R13 phase status: **IN PROGRESS**.
+- R13.1: **IN_PROGRESS**, manual **NONE**.
+- R13.2–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -42,7 +41,7 @@ For every R phase, the phase plan is live execution authority and MUST be update
 
 This rule applies to R13 and all later R phases unless a later accepted ADR explicitly changes it.
 
-## R13 planning authority
+## R13 planning closure authority
 
 ### Frozen roadmap scope
 
@@ -56,34 +55,43 @@ R13 is exactly **Mobile / Platform / Release**:
 
 R14 backend/live-service work remains outside R13.
 
-### Accepted planning merge
+### Accepted planning and normalization
 
-- normalized R13 planning base: `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`;
+- normalized planning base: `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`;
 - planning branch: `r13/00-phase-plan`;
-- planning candidate: `6f44e8faf8ef675dab5c8079541ce436ff55b4b2`;
-- exact-head planning gates, all SUCCESS:
-  - R0 Repository Guard #1596 / `32846530810`;
-  - Python Core #1570 / `32846530804` (Ubuntu + Windows tests and package builds SUCCESS);
-  - KodeStudio UI Smoke #1537 / `32846530786`;
-- PR #219 merged with expected head as **`9a5c678c226cb845c639b914e6365b475ab20e86`**;
-- plan file: `docs/roadmap/R13_PLAN.md`;
-- planning normalization branch: `r13/00-planning-continuity-normalization`;
-- normalization scope: **this continuity file only**.
+- accepted planning candidate: `6f44e8faf8ef675dab5c8079541ce436ff55b4b2`;
+- planning gates all SUCCESS: R0 #1596 / `32846530810`; Python #1570 / `32846530804`; UI #1537 / `32846530786`;
+- planning PR #219 merged as `9a5c678c226cb845c639b914e6365b475ab20e86`;
+- single planning normalization branch: `r13/00-planning-continuity-normalization`;
+- normalization head: `b7ca326ac6f9fbb74bdbe69fefe6faf4aaadf653`;
+- normalization gates all SUCCESS: R0 #1598 / `32846946552`; Python #1572 / `32846946574`; UI #1539 / `32846946557`;
+- PR #220 merged as **`aef297e385dc49ad6ae0935d4f9ef25a35e5e984`**.
+- Therefore R13 planning is **ACCEPTED + NORMALIZED**.
 
 ### Current external baseline — date-aware, not architecture constants
 
 - Google Play: new apps/updates must target Android 16 / API 36 from **2026-08-31**; R13 store-ready acceptance starts at API 36.
 - Android Compose/AGP/compileSdk values are capability-probed and versioned; mutable ecosystem versions are not frozen architecture constants.
 - Google Play publication uses Android App Bundle for new apps; upload-key and Play App Signing key states remain separate; production secrets never enter repo/evidence/argv.
-- Apple App Store Connect production uploads require Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28; Xcode 27 beta/TestFlight state is distinct from stable production state.
+- Apple App Store Connect production uploads require Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28; beta/TestFlight state is distinct from stable production state.
 - Apple privacy manifests/required-reason APIs, Google Play Data safety, target API, permissions/content ratings, Apple privacy/age-rating/SDK minimums are versioned compliance evidence with effective dates and official provenance.
-- Firebase Test Lab is an optional provider-neutral DeviceLab backend; credentials, billing/quota and physical-device availability are not global phase prerequisites.
+- External device providers are optional; credentials, billing/quota and physical-device availability are not global phase prerequisites.
 
-### Frozen R13 subdivision index
+## R13.1 execution authority
+
+- Authorized base normalized `main`: **`aef297e385dc49ad6ae0935d4f9ef25a35e5e984`**.
+- Dedicated branch: `r13/01-mobile-contracts`.
+- Manual state: **NONE**.
+- Start status synchronization: **DONE before implementation**; `R13_PLAN.md` phase `IN PROGRESS`, R13.1 `IN_PROGRESS`, R13.2–R13.17 `PLANNED`.
+- Frozen scope: framework-neutral mobile target/toolchain/device/test/release contracts; deterministic canonical identities/digests; capability states; allowlisted Android/Apple toolchain identities and roots; typed argv/environment builders; path-safe project/staging boundaries; no process launch in the boundary layer.
+- Acceptance must reject traversal, symlink escape, executable substitution, raw-argv/environment injection and config-only manufactured `AVAILABLE`; deterministic schema round-trips; exact-head R0/full Python/KodeStudio UI.
+- No R13.2 work before R13.1 merge + single continuity-only normalization.
+
+## Frozen R13 subdivision index
 
 | ID | Title | Status | Manual |
 | --- | --- | --- | --- |
-| R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | PLANNED | NONE |
+| R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | IN_PROGRESS | NONE |
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | PLANNED | NONE |
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | PLANNED | NONE |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | PLANNED | CONDITIONAL |
@@ -117,16 +125,6 @@ Each subdivision: dedicated branch from normalized `main` -> start plan+continui
 
 If a CONDITIONAL manual gate triggers, stop before the next subdivision and provide bounded prerequisites, exact commands/actions, expected evidence and recovery/privacy instructions. Never request passwords/private keys/tokens in chat.
 
-## R13 planning normalization rule
-
-This branch contains the **single** allowed post-merge normalization for R13 planning. It MUST:
-
-1. differ from planning merge `9a5c678c226cb845c639b914e6365b475ab20e86` only in `docs/continuity/KODEPOIA_CONTINUITY.md`;
-2. freeze one exact normalization head;
-3. pass fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke;
-4. merge with `expected_head_sha`;
-5. only after merge authorize R13.1 and declare R13 planning **ACCEPTED + NORMALIZED**.
-
 ## Next authorized action
 
-**R13 planning normalization only:** verify the diff from `9a5c678c226cb845c639b914e6365b475ab20e86` contains exactly `docs/continuity/KODEPOIA_CONTINUITY.md`; open the normalization PR; require fresh exact-head R0/full Python/KodeStudio UI; merge with expected SHA. Do not start R13.1 before that merge.
+**R13.1 only:** implement mobile contracts/identities/capability reports and the secure toolchain boundary on `r13/01-mobile-contracts`; add focused tests, schemas, design and acceptance docs; freeze one exact implementation head; require exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke; if accepted, perform end status sync and final re-gates, merge with expected SHA, then exactly one continuity-only post-merge normalization and its exact-head gates. Do not start R13.2 before that normalization merges.

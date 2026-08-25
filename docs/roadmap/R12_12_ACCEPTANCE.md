@@ -4,15 +4,15 @@
 
 Versioned, bounded, authenticated local IPC contracts with deterministic framing, replay protection, authorization, explicit OS-local transports and lifecycle cleanup. No TCP/network listener fallback is introduced.
 
-Manual intervention: **CONDITIONAL**.
+Manual intervention: **CONDITIONAL / NOT TRIGGERED**.
 
-Trigger manual evidence only if the required Windows named-pipe or Unix-domain-socket semantic cannot be demonstrated by accepted hosted CI on the exact candidate SHA. If both supported transport seams pass in hosted Windows/Linux Python Core, manual intervention is **NOT TRIGGERED**.
+Hosted exact-head Python Core proved both required OS transport seams: real Windows `AF_PIPE` and Linux `AF_UNIX` request/response roundtrips passed on the accepted candidate. No bounded manual evidence is required.
 
 ## Required acceptance
 
 - protocol version, frame limits, replay window and endpoint identity are explicit and digest-stable;
 - endpoint scope is structurally `local_only=true`; no `AF_INET`/TCP fallback exists;
-- Windows uses an `AF_PIPE` address rooted at `\\.\pipe\`; non-Windows hosted Linux acceptance uses `AF_UNIX` in a private runtime directory;
+- Windows uses an `AF_PIPE` address rooted at `\\.\pipe\`; hosted Linux uses `AF_UNIX` in a private runtime directory;
 - application envelopes use deterministic canonical JSON plus SHA-256 HMAC authentication; runtime authentication keys are never serialized into envelopes/evidence;
 - the transport's `multiprocessing.connection` authentication challenge also uses the runtime auth key;
 - message length is explicitly framed and bounded before parsing; truncated, overlong, malformed and oversized messages fail closed;
@@ -41,10 +41,24 @@ Official references:
 
 Base normalized `main`: `1f2d18b01e79845473fefbda98f722485310d92a`.
 Branch: `r12/12-local-ipc`.
-Manual state: **CONDITIONAL / PENDING hosted transport evidence**.
+Accepted implementation candidate: `2ba561745f59b2701e5578df0915e58dab2345e0`.
+Manual state: **CONDITIONAL / NOT TRIGGERED**.
 
-Exact implementation SHA and workflow run IDs are **PENDING** until the branch is frozen and independently gated.
+Exact-head candidate gates:
+
+- R0 Repository Guard #1556 / run `32825111226` — SUCCESS;
+- Python Core #1530 / run `32825111135` — SUCCESS; hosted `python-core-windows-latest` and `python-core-ubuntu-latest` both completed `Test` successfully, proving the required real `AF_PIPE` and `AF_UNIX` seams;
+- KodeStudio UI Smoke #1497 / run `32825111255` — SUCCESS;
+- R12 WPF Acceptance #53 / run `32825111230` — SUCCESS;
+- R12 WinUI3 Acceptance #43 / run `32825111274` — SUCCESS;
+- R12 Avalonia Acceptance #39 / run `32825111277` — SUCCESS;
+- R12 Qt6 Acceptance #34 / run `32825111137` — SUCCESS;
+- R12 Tauri2 Acceptance #25 / run `32825111146` — SUCCESS.
+
+The focused suite `tests/test_desktop_r12_12.py` is exercised by Python Core. Because both required hosted OS transport seams passed, the conditional manual gate is **NOT TRIGGERED**.
+
+Evidence-recording documentation bytes changed after the accepted candidate. The resulting final documentation HEAD must therefore pass a fresh exact-head standard gate set plus desktop adapter regressions before merge.
 
 ## Merge / normalization rule
 
-Freeze one immutable implementation head and require exact-head standard gates plus the real Windows/Linux transport tests inside Python Core. If either supported OS transport cannot be proven, stop and trigger bounded manual evidence before any R12.13 work. If hosted evidence succeeds, record manual state **NOT TRIGGERED**, update this document and continuity, re-gate the resulting final documentation head, merge with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization. R12.13 remains forbidden until that normalization merges.
+Freeze the resulting final documentation head and require exact-head gates. Merge PR #209 with `expected_head_sha`, perform exactly one continuity-only post-merge normalization, gate that exact head and merge it. R12.13 remains forbidden until R12.12 normalization merges.

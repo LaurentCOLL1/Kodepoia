@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.14 COMPLETE + NORMALIZED. R12.14 implementation PR #213 final documentation head `a1481e5b23e14b029bcf076d0433e866c6d93895` passed all required exact-head gates and merged with expected SHA as `d1a0d3831f3767d713f3288b5269fcc722bab1eb`; its single continuity-only normalization PR #214 exact head `598cd5d257c366609e084b5968c576cbde5cdd86` passed R0/Python/UI plus all five desktop adapter regressions and merged as `089e54cdbd1ac344ce71fc92eef213ad2e9589d3`. Manual R12.14 CONDITIONAL was NOT TRIGGERED. R12.15 is now the only active subdivision on `r12/15-cli-kodestudio-desktop`, created from exact normalized base `089e54cdbd1ac344ce71fc92eef213ad2e9589d3`. Start-of-subdivision plan/continuity synchronization is mandatory and sets R12.15 IN_PROGRESS while R12.16 remains PLANNED.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.14 COMPLETE + NORMALIZED. R12.14 implementation PR #213 final documentation head `a1481e5b23e14b029bcf076d0433e866c6d93895` passed all required exact-head gates and merged with expected SHA as `d1a0d3831f3767d713f3288b5269fcc722bab1eb`; its single continuity-only normalization PR #214 exact head `598cd5d257c366609e084b5968c576cbde5cdd86` passed R0/Python/UI plus all five desktop adapter regressions and merged as `089e54cdbd1ac344ce71fc92eef213ad2e9589d3`. Manual R12.14 CONDITIONAL was NOT TRIGGERED. R12.15 implementation is accepted on candidate `79cda1733bc470f897a5153dcd0c4d059b948900`: R0 #1577, Python #1551, KodeStudio UI #1518, WPF #68, WinUI #58, Avalonia #54, Qt #49 and Tauri #40 all SUCCESS. The earlier candidate `696ab04eda402fd77b826ef80c9cc8a98706ad75` is rejected and its failed UI evidence is not reusable. End-of-subdivision plan/continuity synchronization now marks R12.15 COMPLETE while R12.16 remains PLANNED. Next action is final-documentation exact-head re-gating on PR #215, then merge with expected SHA, followed by exactly one continuity-only R12.15 normalization before any R12.16 branch may start.**
 
 ## État global
 
@@ -13,7 +13,7 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.14 : **COMPLETE + NORMALIZED**.
-- R12.15 : **IN_PROGRESS**.
+- R12.15 : **COMPLETE / FINAL DOCUMENTATION RE-GATES PENDING**.
 - R12.16 : **PLANNED / NOT STARTED**.
 
 ## Permanent R-phase plan status synchronization rule
@@ -49,11 +49,19 @@ This rule applies to R12.14–R12.16 and all future R-phase execution/recovery u
 ## R12.15 execution authority
 
 - Base normalized `main`: `089e54cdbd1ac344ce71fc92eef213ad2e9589d3`.
-- Dedicated branch: `r12/15-cli-kodestudio-desktop`.
+- Dedicated branch: `r12/15-cli-kodestudio-desktop`; PR #215.
 - Manual state: **NONE**.
 - Frozen scope: structured `kodepoia r12` desktop status/scaffold/validate/build/test/package intents; stable JSON/exit semantics; no raw executable/argv/flags/scripts/SQL/signing-key surface; KodeStudio Desktop workspace bound to Project Wizard output and read-only evidence; passive refresh performs no external process; execute actions remain explicit and governed; global KillSwitch cancellation; accessibility/localization/pseudo-localization for new controls.
-- Start status synchronization has been performed before implementation: R12.1–R12.14 `COMPLETE`, R12.15 `IN_PROGRESS`, R12.16 `PLANNED`.
-- End status synchronization must set R12.15 `COMPLETE` before final documentation re-gates; R12.16 must remain `PLANNED` until its own branch begins.
+- Start status synchronization was performed before implementation: R12.1–R12.14 `COMPLETE`, R12.15 `IN_PROGRESS`, R12.16 `PLANNED`.
+- First implementation candidate `696ab04eda402fd77b826ef80c9cc8a98706ad75` was rejected: KodeStudio UI Smoke #1516 found `r12Evidence` not registered in the accessibility contract and the pseudo-localization navigation test still fixed the main section count at 10 instead of 11. The candidate is not accepted and none of its failed UI evidence may be reused.
+- Accepted corrected implementation candidate: `79cda1733bc470f897a5153dcd0c4d059b948900`.
+- Candidate exact-head gates: R0 #1577 / `32834583380`; Python #1551 / `32834583390`; KodeStudio UI #1518 / `32834583399`; WPF #68 / `32834583424`; WinUI #58 / `32834583419`; Avalonia #54 / `32834583411`; Qt #49 / `32834583377`; Tauri #40 / `32834583375` — all SUCCESS.
+- Full Python candidate proof includes Linux and Windows tests, Linux and Windows package-build evidence, and the internal KodeStudio Windows smoke — all SUCCESS.
+- End status synchronization has now been performed: `R12_PLAN.md` marks R12.15 `COMPLETE`; R12.16 remains `PLANNED`; continuity matches that state.
+- Final-documentation exact-head gates: **PENDING on the synchronized documentation head**.
+- Implementation merge: **PENDING**.
+- Single continuity-only post-merge normalization: **PENDING**.
+- R12.16 remains forbidden until the implementation merge and normalization merge are both accepted.
 
 ## Frozen R12 subdivision index
 
@@ -73,7 +81,7 @@ This rule applies to R12.14–R12.16 and all future R-phase execution/recovery u
 | R12.12 | Local IPC contracts, framing, authorization + lifecycle isolation | COMPLETE | CONDITIONAL |
 | R12.13 | Accessibility, localization, theming, keyboard/focus + DPI/scaling QA | COMPLETE | CONDITIONAL |
 | R12.14 | Packaging/install/update/signing-state + rollback model | COMPLETE | CONDITIONAL |
-| R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | IN_PROGRESS | NONE |
+| R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | COMPLETE | NONE |
 | R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | PLANNED | CONDITIONAL |
 
 ## Permanent boundaries
@@ -88,4 +96,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.15 implementation only:** add the governed desktop CLI and KodeStudio Desktop workspace on `r12/15-cli-kodestudio-desktop`, focused tests/design/schema/acceptance, freeze one candidate and require exact-head R0/full Python/UI plus desktop adapter regressions. R12.16 remains forbidden until R12.15 implementation merge and its single continuity-only normalization merge.
+**R12.15 final documentation closure only:** freeze the synchronized PR #215 head, require exact-head R0/full Python/KodeStudio UI plus WPF/WinUI/Avalonia/Qt/Tauri regressions, record the final documentation evidence without reusing stale runs, merge #215 with `expected_head_sha`, then create exactly one continuity-only R12.15 normalization branch/PR from that merge, gate and merge it. R12.16 remains forbidden until that normalization merge is authoritative.

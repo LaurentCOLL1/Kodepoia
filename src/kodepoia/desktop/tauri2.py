@@ -26,7 +26,7 @@ from .contracts import (
 )
 
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
-_VERSION_RE = re.compile(r"^(\d+)\.(\d+)(?:\.(\d+))?")
+_VERSION_RE = re.compile(r"(\d+)\.(\d+)(?:\.(\d+))?")
 _HOST_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]{2,127}$")
 
 

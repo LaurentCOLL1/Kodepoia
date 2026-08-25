@@ -63,11 +63,13 @@ jobs:
           "emulator"
           "${{ env.R13_SYSTEM_IMAGE }}"
 
-      - name: Enable hosted KVM access when available
+      - name: Verify hosted KVM acceleration
         run: |
-          if [ -e /dev/kvm ]; then
-            sudo chmod 666 /dev/kvm
-          fi
+          test -e /dev/kvm
+          sudo chmod 666 /dev/kvm
+          test -r /dev/kvm
+          test -w /dev/kvm
+          python scripts/r13_6_emulator_ci.py probe
 
       - name: Prepare exact-head governed Android staging
         env:
@@ -96,11 +98,12 @@ jobs:
           R13_PID: ${{ runner.temp }}/kodepoia-r13-6-emulator.pid
           R13_EMULATOR_LOG: ${{ runner.temp }}/kodepoia-r13-6-emulator.log
         run: >-
-          python scripts/r13_6_android_device_acceptance.py launch-emulator
+          python scripts/r13_6_emulator_ci.py launch
           --avd-name "${{ env.R13_AVD_NAME }}"
           --system-image "${{ env.R13_SYSTEM_IMAGE }}"
           --pid-file "${{ env.R13_PID }}"
           --log-file "${{ env.R13_EMULATOR_LOG }}"
+          --timeout-seconds 120
 
       - name: Run governed ADB instrumentation and collect evidence
         env:

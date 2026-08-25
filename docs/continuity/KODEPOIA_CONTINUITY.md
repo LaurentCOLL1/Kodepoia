@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.5 COMPLETE + NORMALIZED. R13.6 COMPLETE, end-sync pending fresh exact-head gates/merge/normalization.** R13.6 accepted technical candidate `91fac3fe1f80b04b570636002f4ba98e0c64724a` passed R0 #1653 / `32903990807`, Python #1627 / `32903990720`, UI #1594 / `32903990770`, Android Build #72 / `32903990739`, Android Signing #25 / `32903990787`, and Android Device #10 / `32903990871`, all SUCCESS on the exact same head. Manual is CONDITIONAL / NOT TRIGGERED. The current authorized action is to re-gate this plan+continuity end-sync head, merge PR #231 with `expected_head_sha`, perform exactly one continuity-only normalization, gate and merge it, and only then start R13.7.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.5 COMPLETE + NORMALIZED. R13.6 COMPLETE; implementation merged, single continuity normalization IN_PROGRESS.** R13.6 accepted technical candidate `91fac3fe1f80b04b570636002f4ba98e0c64724a`; final end-synchronized head `05238743d01f71d6feaa4dc6d832efbab1633c81` passed R0 #1654 / `32906607557`, Python #1628 / `32906607562`, UI #1595 / `32906607621`, Android Build #74 / `32906607561`, Android Signing #27 / `32906607601`, and Android Device #12 / `32906607620`, all SUCCESS on the exact same head. PR #231 merged with `expected_head_sha=05238743d01f71d6feaa4dc6d832efbab1633c81` as `8c5751bfe4c795f3386ea97caa92beb9c29be23d`. Manual remained CONDITIONAL / NOT TRIGGERED. The only authorized action now is to gate and merge the single continuity-only normalization branch `r13/06-continuity-normalization`; R13.7 must remain PLANNED until that normalization is merged.
 
 ## État global
 
@@ -15,7 +15,7 @@
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.5: **COMPLETE + NORMALIZED**.
-- R13.6: **COMPLETE**, branch `r13/06-android-device-testing`; accepted technical candidate `91fac3fe1f80b04b570636002f4ba98e0c64724a`; end-sync requires fresh exact-head gates before merge; manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.6: **COMPLETE**, implementation PR #231 merged as `8c5751bfe4c795f3386ea97caa92beb9c29be23d`; single continuity-only normalization **IN_PROGRESS**; manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.7–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -105,21 +105,20 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Manual remained **CONDITIONAL / NOT TRIGGERED**. Hosted CI proved the frozen signing/state-model semantics with an ephemeral test identity; production keystore/private-key/password material and a live Play account were not required.
 - Therefore R13.5 is authoritatively **COMPLETE + NORMALIZED**.
 
-## R13.6 end-sync authority
+## R13.6 normalization authority
 
-- Authorized normalized base: **`56d6da4184709a54841ed36b21128477c78c6e9d`**.
-- Dedicated branch: **`r13/06-android-device-testing`**; PR #231 remains the implementation PR.
-- Start status was **IN_PROGRESS** before implementation; phase-plan end status is now **COMPLETE** while merge/normalization remains pending.
+- Authorized normalized base for R13.6 implementation: **`56d6da4184709a54841ed36b21128477c78c6e9d`**.
+- Dedicated implementation branch: **`r13/06-android-device-testing`**; implementation PR #231.
 - Manual state: **CONDITIONAL / NOT TRIGGERED**. Hosted emulator evidence establishes the frozen R13.6 core claim; no physical device or external account is required. Physical-only behavior remains separately scoped for later conditional evidence if a frozen claim ever requires it.
-- Objective delivered: governed Android runtime testing with redacted device/emulator discovery, fixed typed ADB/instrumentation operations, install/uninstall/test/log collection, bounded locale/orientation/density/network-profile matrices, timeout/cancellation, lease/cleanup, exact artifact/device binding and emulator evidence. Arbitrary `adb shell` remains forbidden; only repository-owned fixed operations invoke specific device commands.
-- Rejected candidate **`6367d8df1c691b3701d30f21e0cb6ffec2b468fb`**: R0 #1649 / `32899713090`, Python #1623 / `32899713034`, UI #1590 / `32899713057`, Android Build #64 / `32899713002`, and Android Signing #17 / `32899712984` succeeded, but Android Device #2 / `32899713104` failed because the collector selected an emulator before the launched process had registered ONLINE in ADB. Evidence from this head is rejected and not reused.
+- Rejected candidate **`6367d8df1c691b3701d30f21e0cb6ffec2b468fb`**: R0 #1649 / `32899713090`, Python #1623 / `32899713034`, UI #1590 / `32899713057`, Android Build #64 / `32899713002`, and Android Signing #17 / `32899712984` succeeded, but Android Device #2 / `32899713104` failed because collection began before the launched emulator had registered ONLINE in ADB. Evidence from this head is rejected and not reused.
 - Rejected candidate **`8e3092855279feaa8bfeb45350410d22cb18b6d4`**: R0 #1650 / `32900347542`, Python #1624 / `32900347547`, UI #1591 / `32900347552`, Android Build #66 / `32900347548`, and Android Signing #19 / `32900347580` succeeded, but Android Device #4 / `32900347557` timed out with `R13.6 emulator did not register online in ADB: not-visible`; cleanup succeeded. Evidence from this head is rejected and not reused.
 - Rejected candidate **`5a2869253c10d841049e78fa53f15f4d87105eec`**: hosted KVM, SDK and build were proven, but the emulator could not discover the AVD created by `avdmanager`; no evidence from this head is reused.
 - Rejected candidate **`22512f22d225c79fc69f9b7ca337d7838d13bb4d`**: controlled AVD homes and explicit creation path fixed AVD discovery; the emulator stayed alive through boot, but the CI helper missed the already-online `device` ADB state because it required a literal tab separator. No evidence from this head is reused.
-- Accepted technical candidate **`91fac3fe1f80b04b570636002f4ba98e0c64724a`** reuses governed `parse_adb_devices` parsing and passed all exact-head required gates: R0 Repository Guard #1653 / `32903990807`, Python Core #1627 / `32903990720`, KodeStudio UI Smoke #1594 / `32903990770`, R13 Android Build Acceptance #72 / `32903990739`, R13 Android Signing Acceptance #25 / `32903990787`, and R13 Android Device Acceptance #10 / `32903990871`.
-- Android Signing #25 succeeded on both Ubuntu and Windows. Android Device #10 succeeded through exact checkout, API 36 system-image provisioning, KVM acceleration, governed staging + instrumentation overlay, app + `androidTest` compilation, bounded AVD launch, ONLINE ADB registration, governed install/instrumentation/evidence collection, exact-head verification, upload and cleanup.
-- Exact-head Device evidence artifact: `r13-6-android-device-91fac3fe1f80b04b570636002f4ba98e0c64724a`; artifact id `9584226261`; digest **`sha256:f1830b279ec802f23e89b166742d104bca8ecd5cf3bbc6fb96ce9ffa90b9b4d6`**.
-- Because this plan+continuity end-sync changes bytes after technical acceptance, the resulting end-synchronized head must independently pass fresh R0, Python, UI, Android Build, Android Signing and Android Device gates before PR #231 may merge. After merge, exactly one continuity-only normalization is required before R13.7 is authorized.
+- Accepted technical candidate **`91fac3fe1f80b04b570636002f4ba98e0c64724a`** reuses governed `parse_adb_devices` parsing and passed R0 Repository Guard #1653 / `32903990807`, Python Core #1627 / `32903990720`, KodeStudio UI Smoke #1594 / `32903990770`, R13 Android Build Acceptance #72 / `32903990739`, R13 Android Signing Acceptance #25 / `32903990787`, and R13 Android Device Acceptance #10 / `32903990871`, all SUCCESS on that exact head.
+- End-synchronized head **`05238743d01f71d6feaa4dc6d832efbab1633c81`** changed only `docs/roadmap/R13_PLAN.md` and this continuity file relative to the accepted technical candidate, marked R13.6 COMPLETE while keeping R13.7 PLANNED, and passed fresh exact-head R0 Repository Guard #1654 / `32906607557`, Python Core #1628 / `32906607562`, KodeStudio UI Smoke #1595 / `32906607621`, R13 Android Build Acceptance #74 / `32906607561`, R13 Android Signing Acceptance #27 / `32906607601`, and R13 Android Device Acceptance #12 / `32906607620`, all SUCCESS.
+- Android Signing #27 succeeded on both Ubuntu and Windows. Android Device #12 again proved API 36 provisioning, KVM, governed staging + instrumentation overlay, app + `androidTest` compilation, bounded AVD launch, ONLINE ADB registration, governed instrumentation/evidence collection, exact-head verification, upload and cleanup.
+- PR #231 merged with **`expected_head_sha=05238743d01f71d6feaa4dc6d832efbab1633c81`** as implementation merge **`8c5751bfe4c795f3386ea97caa92beb9c29be23d`**.
+- Single post-merge normalization branch **`r13/06-continuity-normalization`** was created exactly from merge `8c5751bfe4c795f3386ea97caa92beb9c29be23d`. This normalization may change **only** `docs/continuity/KODEPOIA_CONTINUITY.md`; it must pass its exact-head normalization gates and merge before R13.6 becomes authoritatively `COMPLETE + NORMALIZED` and before R13.7 may start.
 
 ## Frozen R13 subdivision index
 
@@ -161,4 +160,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Run fresh exact-head **R0 Repository Guard + Python Core + KodeStudio UI Smoke + R13 Android Build Acceptance + R13 Android Signing Acceptance + R13 Android Device Acceptance** on the R13.6 end-synchronized head created from accepted technical candidate `91fac3fe1f80b04b570636002f4ba98e0c64724a`. If all six gates are SUCCESS on that same head, merge PR #231 using `expected_head_sha=<end-sync-head>`, create exactly one continuity-only normalization branch from the merge commit, update only this continuity file with final merge/normalization authority, run its required exact-head normalization gates, merge it, and only then authorize/start R13.7. No R13.7 branch exists yet.
+Run the required exact-head normalization gates on the current `r13/06-continuity-normalization` head: **R0 Repository Guard + Python Core + KodeStudio UI Smoke**. If all are SUCCESS, verify the branch differs from implementation merge `8c5751bfe4c795f3386ea97caa92beb9c29be23d` by exactly one file (`docs/continuity/KODEPOIA_CONTINUITY.md`), merge the normalization PR with its exact `expected_head_sha`, verify normalized `main`, and only then authorize/start R13.7. No R13.7 branch exists yet.

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.12 COMPLETE + NORMALIZED. R12.12 normalization PR #210 merged as `34c21c8ba6f12f6cd746dd9aea8c9b3cd7e32c41`, sole normalized base for R12.13. R12.13 branch `r12/13-accessibility-localization-qa`, PR #211, accepted implementation candidate `646b4ad079113e27bb8d091c4153b125b6673f8c`; R0 #1562, Python #1536, UI #1503, WPF #57, WinUI #47, Avalonia #43, Qt #38 and Tauri #29 are all SUCCESS. Full Python Core passed the R12.13 structural accessibility/localization/theming/keyboard-focus/DPI suite on Linux and Windows. No required unproven interactive assistive-technology semantic was discovered, therefore manual R12.13 CONDITIONAL is NOT TRIGGERED. Evidence-recording documentation bytes now require a fresh exact-head re-gate before expected-SHA merge. R12.14 remains forbidden until the single R12.13 post-merge normalization is accepted and merged.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.12 COMPLETE + NORMALIZED. R12.13 implementation/final-documentation PR #211 accepted candidate `646b4ad079113e27bb8d091c4153b125b6673f8c`; final documentation head `84f75090759e6a54da5b69c8b9b6970ac7c572ae` passed all exact-head gates and merged as `2c0f5c5c1b64747a44e5fd2b41532e469a3ae8b2`. Manual R12.13 CONDITIONAL was NOT TRIGGERED because no required unproven interactive accessibility/DPI semantic was discovered. The single continuity-only branch `r12/13-postmerge-continuity-normalization` is now the only authorized action. R12.14 remains forbidden until its exact normalization head passes all required gates and merges.**
 
 ## État global
 
@@ -13,31 +13,29 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.12 : **COMPLETE + NORMALIZED**.
-- R12.13 : **IMPLEMENTED / CANDIDATE ACCEPTED / FINAL DOCUMENTATION RE-GATE PENDING**.
+- R12.13 : **IMPLEMENTATION MERGED / POST-MERGE NORMALIZATION IN PROGRESS**.
 - R12.14–R12.16 : **PLANNED / NOT STARTED**.
 
 ## R12.12 closure authority
 
-- Implementation PR #209 final-documentation head `227a0c9ac87b464ee08889dd3f60d54faee47907` passed all required exact-head gates and merged as `e86021ff9080552dcfed5cbb3da2d4405f1cc1a2`.
-- Manual R12.12: **CONDITIONAL / NOT TRIGGERED**; hosted Windows/Linux Python Core proved real `AF_PIPE`/`AF_UNIX` roundtrips.
-- Single normalization branch `r12/12-postmerge-continuity-normalization`; PR #210; head `62874c7db6854c6ef81c9a0eb85e53cbab1da30f`.
-- Normalization gates: R0 #1560 / `32826712135`; Python #1534 / `32826712144`; UI #1501 / `32826712166`; WPF #56 / `32826712141`; WinUI #46 / `32826712139`; Avalonia #42 / `32826712108`; Qt #37 / `32826712099`; Tauri #28 / `32826712136` — all SUCCESS.
-- PR #210 merged with expected head as `34c21c8ba6f12f6cd746dd9aea8c9b3cd7e32c41`.
+- Implementation PR #209 merged as `e86021ff9080552dcfed5cbb3da2d4405f1cc1a2`; manual **CONDITIONAL / NOT TRIGGERED** with hosted real `AF_PIPE`/`AF_UNIX` roundtrips.
+- Single normalization PR #210 exact head `62874c7db6854c6ef81c9a0eb85e53cbab1da30f` passed R0 #1560, Python #1534, UI #1501, WPF #56, WinUI #46, Avalonia #42, Qt #37 and Tauri #28 and merged as `34c21c8ba6f12f6cd746dd9aea8c9b3cd7e32c41`.
 - **R12.12 COMPLETE + NORMALIZED**.
 
-## R12.13 execution authority
+## R12.13 closure authority
 
 - Base normalized `main`: `34c21c8ba6f12f6cd746dd9aea8c9b3cd7e32c41`.
-- Dedicated branch: `r12/13-accessibility-localization-qa`.
-- PR: #211.
+- Implementation branch `r12/13-accessibility-localization-qa`; PR #211.
 - Manual state: **CONDITIONAL / NOT TRIGGERED**.
-- Trigger is restricted to a required interactive accessibility/DPI runtime semantic that hosted CI cannot verify. No such required unproven semantic was discovered. R12.13 makes structural accessibility/localization/theming/keyboard/focus/DPI claims only and does not manufacture an interactive screen-reader PASS.
-- Frozen implemented scope: digest-stable `DesktopAccessibilityProfile`; mappings for WPF/WinUI3/Avalonia/Qt6/Tauri2 accessible-name/description/role/focus/localization/theme/DPI concepts; deterministic keyboard tab order and focus restoration; localization catalogs/fallback/pseudo-localization; RTL intent; light/dark/high-contrast semantics; contrast gates; Windows scale probes 100–400%; clipping/overlap/hidden-focus failures; canonical/negative fixtures.
-- Accepted implementation candidate: `646b4ad079113e27bb8d091c4153b125b6673f8c`.
-- Exact-head candidate evidence: R0 #1562 / run `32827475621`; Python #1536 / `32827475643`; UI #1503 / `32827475650`; WPF #57 / `32827475625`; WinUI #47 / `32827475686`; Avalonia #43 / `32827475711`; Qt #38 / `32827475698`; Tauri #29 / `32827475658` — all SUCCESS.
-- Full Python Core passed `tests/test_desktop_r12_13.py` on hosted Linux and Windows.
-- Evidence-recording docs changed after the accepted candidate. The final documentation HEAD must receive the same fresh exact-head gate set before PR #211 can merge with `expected_head_sha`.
-- After PR #211 merge, create exactly one continuity-only `r12/13-postmerge-continuity-normalization` PR, gate its exact HEAD and merge it. Only that normalized merge authorizes R12.14.
+- Scope: digest-stable accessibility profile; WPF/WinUI3/Avalonia/Qt6/Tauri2 accessibility/focus/localization/theme/DPI mappings; keyboard tab order and focus restoration; localization fallback and pseudo-localization; RTL intent; light/dark/high-contrast semantics; contrast gates; scale profiles 100–400%; clipping/overlap/hidden-focus negative cases.
+- Accepted implementation candidate `646b4ad079113e27bb8d091c4153b125b6673f8c`.
+- Candidate gates: R0 #1562 / `32827475621`; Python #1536 / `32827475643`; UI #1503 / `32827475650`; WPF #57 / `32827475625`; WinUI #47 / `32827475686`; Avalonia #43 / `32827475711`; Qt #38 / `32827475698`; Tauri #29 / `32827475658` — all SUCCESS.
+- Full Python Core passed the focused R12.13 suite on hosted Linux and Windows. No acceptance claim requires an unexecuted interactive screen-reader result; manual evidence did not trigger.
+- Accepted final-documentation head `84f75090759e6a54da5b69c8b9b6970ac7c572ae`.
+- Final-documentation gates: R0 #1564 / `32827958711`; Python #1538 / `32827958647`; UI #1505 / `32827958665`; WPF #59 / `32827958616`; WinUI #49 / `32827958581`; Avalonia #45 / `32827958608`; Qt #40 / `32827958615`; Tauri #31 / `32827958693` — all SUCCESS.
+- PR #211 merged with expected head `84f75090759e6a54da5b69c8b9b6970ac7c572ae` as merge commit `2c0f5c5c1b64747a44e5fd2b41532e469a3ae8b2`.
+- Single post-merge normalization branch `r12/13-postmerge-continuity-normalization`; continuity-only. Its exact head must pass the standard exact-head gate set plus desktop adapter regressions before merge.
+- After normalization merge, **R12.13 becomes COMPLETE + NORMALIZED** and the normalization merge SHA becomes the sole authorized base for R12.14.
 
 ## Frozen R12 subdivision index
 
@@ -72,4 +70,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.13 only:** re-gate the final documentation HEAD of PR #211 exactly. If all required gates remain SUCCESS, merge PR #211 with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization with fresh exact-head gates. R12.14 is authorized only after that normalization merge. Manual R12.13 is **CONDITIONAL / NOT TRIGGERED**.
+**R12.13 normalization only:** open the single continuity-only normalization PR from `r12/13-postmerge-continuity-normalization`, gate its exact head and merge it with `expected_head_sha`. Then and only then create the dedicated R12.14 branch from that normalized merge SHA. R12.14 manual state is **CONDITIONAL**.

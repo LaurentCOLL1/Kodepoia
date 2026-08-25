@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1 COMPLETE + NORMALIZED. R13.2 COMPLETE, normalization in progress.** R13.2 accepted implementation candidate `27b75959e3240f67330d901c3b4a084242ae28b0` passed R0 #1609 / `32876034828`, Python #1583 / `32876034855`, UI #1550 / `32876034882`. End-synchronized head `3cc31e2ca367bfe97866f4e33a106e9d4c0da870` passed R0 #1611 / `32878929674`, Python #1585 / `32878929659`, UI #1552 / `32878929665`; PR #223 merged as `12d55b5ed94527b619f4f8259d4443dd6e71931c`. Single continuity-only normalization branch `r13/02-continuity-normalization` is now the sole authorized action. R13.3–R13.17 remain PLANNED until that normalization passes and merges.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.2 COMPLETE + NORMALIZED. R13.3 IN_PROGRESS.** R13.2 accepted candidate `27b75959e3240f67330d901c3b4a084242ae28b0` passed R0 #1609 / `32876034828`, Python #1583 / `32876034855`, UI #1550 / `32876034882`; end-synchronized `3cc31e2ca367bfe97866f4e33a106e9d4c0da870` passed R0 #1611 / `32878929674`, Python #1585 / `32878929659`, UI #1552 / `32878929665`; PR #223 merged as `12d55b5ed94527b619f4f8259d4443dd6e71931c`. Continuity-only normalization `90eec4db1c9a8546abfa4c2046f162c48001c817` passed R0 #1613 / `32879324825`, Python #1587 / `32879324859`, UI #1554 / `32879325025`; PR #224 merged as normalized `main` `4a4985b58f449fb1bc1b2a455a41255d40fccfac`. R13.3 branch `r13/03-android-scaffold` was created exactly from that head and is now the sole active subdivision; R13.4–R13.17 remain PLANNED.
 
 ## État global
 
@@ -13,11 +13,11 @@
 - R1–R12 : **COMPLETE + NORMALIZED**.
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
-- R13 planning-normalized `main`: `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`.
 - R13 phase status: **IN PROGRESS**.
-- R13.1: **COMPLETE + NORMALIZED**, manual **NONE**; normalized `main` `a63c25e0bb7dfa4f45c87f61f20de9477a64935a`.
-- R13.2: **COMPLETE**, PR #223 merged as `12d55b5ed94527b619f4f8259d4443dd6e71931c`, manual **NONE**; single continuity-only normalization in progress.
-- R13.3–R13.17: **PLANNED / NOT STARTED**.
+- R13.1: **COMPLETE + NORMALIZED**, manual **NONE**.
+- R13.2: **COMPLETE + NORMALIZED**, manual **NONE**; normalized `main` `4a4985b58f449fb1bc1b2a455a41255d40fccfac`.
+- R13.3: **IN_PROGRESS**, branch `r13/03-android-scaffold`, manual **NONE**.
+- R13.4–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -83,15 +83,10 @@ R14 backend/live-service work remains outside R13.
 - Authorized base normalized `main`: `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`.
 - Dedicated branch: `r13/01-mobile-contracts`; PR #221.
 - Manual state: **NONE**.
-- Rejected candidate: `97e3f0a48be3a888b0f2974e04bcf1317f3e6296`; Python Core #1574 / `32849024814` rejected one symlink-escape test; no evidence from this SHA is reused.
 - Accepted implementation source: **`04bee35bba58645f6ef91e8cf5530b5062c6803d`**.
-- Candidate gates all SUCCESS: R0 #1601 / `32849189652`; Python #1575 / `32849189637`; UI #1542 / `32849189598`.
 - Final end-synchronized head: **`a20ff45bc62e578c3aa58c8ef41927b08bfe2d2a`**.
-- Final gates all SUCCESS: R0 #1603 / `32849778906`; Python #1577 / `32849779035`; UI #1544 / `32849778909`.
 - PR #221 merged as **`029a49e4d6772b2870357e0327acf470ef40e03b`**.
-- Single normalization head: **`3bc39e88391d05cc97992881fdb8c0ba61f49457`**; diff continuity-only.
-- Normalization gates all SUCCESS: R0 #1605 / `32873745343`; Python #1579 / `32873745171`; UI #1546 / `32873745103`.
-- Normalization PR #222 merged as **`a63c25e0bb7dfa4f45c87f61f20de9477a64935a`**.
+- Single normalization head: **`3bc39e88391d05cc97992881fdb8c0ba61f49457`**; PR #222 merged as normalized `main` **`a63c25e0bb7dfa4f45c87f61f20de9477a64935a`**.
 - Therefore R13.1 is authoritatively **COMPLETE + NORMALIZED**.
 
 ## R13.2 closure authority
@@ -99,13 +94,21 @@ R14 backend/live-service work remains outside R13.
 - Authorized base normalized `main`: **`a63c25e0bb7dfa4f45c87f61f20de9477a64935a`**.
 - Dedicated implementation branch: `r13/02-mobile-profiles`; PR #223.
 - Manual state: **NONE**.
-- Scope: backward-compatible mobile profile fields in existing Project DNA/KodeProduct and existing Project Wizard; Android/iOS intent, minimum/target OS/API, form factor, native-app vs Godot-export source, permissions/capabilities, network intent, package/release channel, signing intent and budgets. Selection is intent only: no SDK installation/build/device/store operation.
-- Rejected candidate **`9c8820aaa8d75e88b48b6a3ed730a7e724b16605`**: R0 #1607 / `32875664321` rejected invalid JSON in `schemas/project-dna-v1.schema.json`; its evidence is not reused.
-- Rejected candidate **`4e48fc7520351b3d7445130ee691dca9d1b402c0`**: schema fixed, but Python/UI smoke rejected a regression where the initial R13 `app.py` integration removed the accepted pseudo-localized navigation minimum width; its evidence is not reused.
-- Accepted implementation candidate **`27b75959e3240f67330d901c3b4a084242ae28b0`**: R0 #1609 / `32876034828`, Python #1583 / `32876034855`, UI #1550 / `32876034882`, all SUCCESS; same-head R12 regression workflows WPF #92, WinUI3 #82, Avalonia #78, Qt6 #73, Tauri2 #64 and Integrated Windows #17 also SUCCESS.
-- Final end-synchronized head **`3cc31e2ca367bfe97866f4e33a106e9d4c0da870`** passed exact-head R0 #1611 / `32878929674`, Python #1585 / `32878929659`, UI #1552 / `32878929665`.
-- PR #223 merged with `expected_head_sha=3cc31e2ca367bfe97866f4e33a106e9d4c0da870` as **`12d55b5ed94527b619f4f8259d4443dd6e71931c`**.
-- Exactly one post-merge normalization branch is authorized: **`r13/02-continuity-normalization`**, and it is continuity-only. After this branch passes exact-head R0/Python/UI and merges, R13.2 becomes authoritatively **COMPLETE + NORMALIZED** and R13.3 may start.
+- Rejected candidates `9c8820aaa8d75e88b48b6a3ed730a7e724b16605` and `4e48fc7520351b3d7445130ee691dca9d1b402c0` are not evidence.
+- Accepted implementation candidate **`27b75959e3240f67330d901c3b4a084242ae28b0`** passed R0 #1609 / `32876034828`, Python #1583 / `32876034855`, UI #1550 / `32876034882`.
+- Final end-synchronized head **`3cc31e2ca367bfe97866f4e33a106e9d4c0da870`** passed R0 #1611 / `32878929674`, Python #1585 / `32878929659`, UI #1552 / `32878929665`.
+- PR #223 merged as **`12d55b5ed94527b619f4f8259d4443dd6e71931c`**.
+- Continuity-only normalization head **`90eec4db1c9a8546abfa4c2046f162c48001c817`** changed only `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 #1613 / `32879324825`, Python #1587 / `32879324859`, UI #1554 / `32879325025`, and PR #224 merged as normalized `main` **`4a4985b58f449fb1bc1b2a455a41255d40fccfac`**.
+- Therefore R13.2 is authoritatively **COMPLETE + NORMALIZED**.
+
+## R13.3 execution authority
+
+- Authorized normalized base: **`4a4985b58f449fb1bc1b2a455a41255d40fccfac`**.
+- Dedicated branch: **`r13/03-android-scaffold`**.
+- Manual state: **NONE**.
+- Start status synchronization: **R13.3 IN_PROGRESS before implementation**.
+- Objective: deterministic repository-owned Android scaffold from accepted mobile DNA/Product and shared app contracts; Gradle Kotlin DSL, Kotlin/Compose mapping, application/package normalization, resources/localization, manifest, adaptive/accessibility baseline, locked dependency identity, generated/user-owned policy and a Godot Android export bridge definition without replacing R5.
+- No Gradle build, SDK installation, signing, device operation or store operation is authorized in R13.3; those belong to later subdivisions.
 
 ## Frozen R13 subdivision index
 
@@ -113,7 +116,7 @@ R14 backend/live-service work remains outside R13.
 | --- | --- | --- | --- |
 | R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | COMPLETE | NONE |
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | COMPLETE | NONE |
-| R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | PLANNED | NONE |
+| R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | IN_PROGRESS | NONE |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | PLANNED | CONDITIONAL |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | PLANNED | CONDITIONAL |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | PLANNED | CONDITIONAL |
@@ -147,4 +150,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**R13.2 normalization:** freeze the continuity-only normalization head, verify its diff changes only `docs/continuity/KODEPOIA_CONTINUITY.md`, require exact-head R0/full Python/KodeStudio UI, merge the normalization with `expected_head_sha`, then and only then create `r13/03-android-scaffold` from the resulting normalized `main`. R13.3 start synchronization must mark R13.1–R13.2 COMPLETE, R13.3 IN_PROGRESS and R13.4–R13.17 PLANNED before any scaffold code is committed. No manual intervention is required.
+**R13.3 implementation:** create deterministic Android scaffold contracts/renderer and semantic workspace manifest from accepted mobile DNA/Product; reuse R8/R12 generated/user-owned and provenance patterns; add focused adversarial/determinism tests, design and acceptance docs; do not execute Gradle or require an Android SDK in this subdivision. Freeze one exact candidate and require R0/full Python/KodeStudio UI before end synchronization.

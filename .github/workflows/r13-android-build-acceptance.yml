@@ -1,6 +1,9 @@
 name: R13 Android Build Acceptance
 
 on:
+  push:
+    branches:
+      - "r13/**"
   pull_request:
     branches:
       - main

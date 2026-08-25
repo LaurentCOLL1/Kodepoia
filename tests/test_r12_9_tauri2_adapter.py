@@ -116,6 +116,7 @@ def test_tauri_render_fixture_is_deterministic_and_security_closed(tmp_path: Pat
     cargo_text = cargo.read_text(encoding="utf-8")
     main_text = (cargo.parent / "src" / "main.rs").read_text(encoding="utf-8")
     config = json.loads((cargo.parent / "tauri.conf.json").read_text(encoding="utf-8"))
+    icon = cargo.parent / "icons" / "icon.ico"
     assert f'tauri = "={Tauri2Adapter.TAURI_VERSION}"' in cargo_text
     assert f'tauri-build = "={Tauri2Adapter.TAURI_BUILD_VERSION}"' in cargo_text
     assert "tauri::webview_version()" in main_text
@@ -127,6 +128,10 @@ def test_tauri_render_fixture_is_deterministic_and_security_closed(tmp_path: Pat
     assert config["plugins"] == {}
     assert config["build"] == {"frontendDist": "dist"}
     assert "connect-src 'none'" in config["app"]["security"]["csp"]
+    assert icon.is_file()
+    assert icon.stat().st_size == 70
+    icon_entry = next(item for item in manifest.files if item.path == "icons/icon.ico")
+    assert icon_entry.sha256 == adapter._sha(icon)
     assert manifest.digest() == adapter.render_fixture(canonical_sample_app())[1].digest()
 
 

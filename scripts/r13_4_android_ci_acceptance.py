@@ -37,25 +37,31 @@ def _sha(value: bytes) -> str:
 
 
 def _toolchain() -> AndroidBuildToolchainEvidence:
+    # Hosted stable SDK repositories used by acceptance currently expose API 36
+    # but not platforms;android-37. Keep R13.3 source lineage intact and apply a
+    # dated, deterministic build overlay that is still Google-Play ready.
     return AndroidBuildToolchainEvidence(
-        evidence_id="android.build.2026-08-25",
+        evidence_id="android.build.hosted-stable.2026-08-25",
         android_gradle_plugin="9.3.1",
         gradle_version="9.5.0",
         kotlin_version="2.3.21",
-        compose_bom="2026.08.00",
-        compile_sdk=37,
+        compose_bom="2026.06.00",
+        compile_sdk=36,
         build_tools_version="36.0.0",
         jdk_major=17,
         observed_on="2026-08-25",
         source_urls=(
             "https://developer.android.com/build/releases/agp-9-3-0-release-notes",
-            "https://developer.android.com/build/releases/about-agp",
+            "https://developer.android.com/google/play/requirements/target-sdk",
+            "https://developer.android.com/develop/ui/compose/bom",
             "https://developer.android.com/develop/ui/compose/setup-compose-dependencies-and-compiler",
         ),
     )
 
 
 def _source_dependency() -> AndroidDependencyEvidence:
+    # This is the already accepted R13.3 source definition. R13.4 verifies it
+    # byte-for-byte before applying the compatibility overlay in isolated staging.
     return AndroidDependencyEvidence(
         evidence_id="android.compose.r13-3",
         android_gradle_plugin="9.1.2",

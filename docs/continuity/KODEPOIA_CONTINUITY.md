@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.11 COMPLETE + NORMALIZED. R12.11 normalization PR #208 merged as `1f2d18b01e79845473fefbda98f722485310d92a`, sole normalized base for R12.12. R12.12 branch `r12/12-local-ipc`, PR #209, accepted candidate `2ba561745f59b2701e5578df0915e58dab2345e0`; R0 #1556, Python #1530, UI #1497, WPF #53, WinUI #43, Avalonia #39, Qt #34 and Tauri #25 are all SUCCESS. Python Core proved real hosted Windows `AF_PIPE` and Linux `AF_UNIX` roundtrips, so manual R12.12 CONDITIONAL was NOT TRIGGERED. Evidence-recording documentation bytes now require a fresh exact-head re-gate before expected-SHA merge. R12.13 remains forbidden until the single R12.12 post-merge normalization is accepted and merged.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.11 COMPLETE + NORMALIZED. R12.12 implementation/final-documentation PR #209 final head `227a0c9ac87b464ee08889dd3f60d54faee47907` passed all exact-head gates and merged as `e86021ff9080552dcfed5cbb3da2d4405f1cc1a2`. Hosted Python Core proved real Windows `AF_PIPE` and Linux `AF_UNIX`; manual R12.12 CONDITIONAL was NOT TRIGGERED. The single continuity-only R12.12 post-merge normalization is now the only authorized action. R12.13 remains forbidden until that normalization exact head passes all required gates and merges.**
 
 ## État global
 
@@ -13,29 +13,21 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.11 : **COMPLETE + NORMALIZED**.
-- R12.12 : **IMPLEMENTED / CANDIDATE ACCEPTED / FINAL DOCUMENTATION RE-GATE PENDING**.
+- R12.12 : **IMPLEMENTATION MERGED / POST-MERGE NORMALIZATION IN PROGRESS**.
 - R12.13–R12.16 : **PLANNED / NOT STARTED**.
 
-## R12.11 closure authority
-
-- Base normalized `main`: `25b3e94b58d6ac08511b2510a98148354f5144f2`.
-- PR #207 final-documentation head `4e0aaa34b1c45dd35741e7930bdbdaa06740c5e7` passed R0 #1552, Python #1526, UI #1493, WPF #51, WinUI #41, Avalonia #37, Qt #32 and Tauri #23; merged as `86e1663eb4f68f74cdba23687161c8d38849f11e`.
-- Single normalization PR #208 head `ea3244b5b031d37d7e2d4e3557c75e369aeff24b` passed R0 #1554, Python #1528, UI #1495, WPF #52, WinUI #42, Avalonia #38, Qt #33 and Tauri #24; merged as `1f2d18b01e79845473fefbda98f722485310d92a`.
-- **R12.11 COMPLETE + NORMALIZED**.
-
-## R12.12 execution authority
+## R12.12 closure authority
 
 - Base normalized `main`: `1f2d18b01e79845473fefbda98f722485310d92a`.
-- Dedicated branch: `r12/12-local-ipc`.
-- PR: #209.
-- Manual state: **CONDITIONAL / NOT TRIGGERED**.
-- Frozen scope: versioned local IPC envelope and endpoint identity; bounded length framing; HMAC authentication; peer session/role/method authorization; replay rejection; stale/malformed/oversized/truncated failure; `AF_PIPE` Windows and `AF_UNIX` Linux local transports; no network fallback; owned endpoint cleanup.
-- Accepted implementation candidate: `2ba561745f59b2701e5578df0915e58dab2345e0`.
-- Exact-head candidate evidence: R0 #1556 / run `32825111226`; Python #1530 / `32825111135`; UI #1497 / `32825111255`; WPF #53 / `32825111230`; WinUI #43 / `32825111274`; Avalonia #39 / `32825111277`; Qt #34 / `32825111137`; Tauri #25 / `32825111146` — all SUCCESS.
-- Hosted `python-core-windows-latest` and `python-core-ubuntu-latest` both completed the focused transport tests successfully. Required OS semantics are proven by hosted CI; no manual evidence is required.
-- Security claim remains bounded: Kodepoia does not claim Python's high-level `AF_PIPE` wrapper installs a custom Windows DACL. Application HMAC/session/method authorization and local-machine addressing are proven; no TCP/network fallback is present.
-- Evidence-recording docs changed after the accepted candidate; therefore the final PR #209 documentation HEAD must pass the same fresh exact-head standard and regression gates before merge with `expected_head_sha`.
-- After PR #209 merge, create exactly one continuity-only `r12/12-postmerge-continuity-normalization` PR, gate its exact HEAD, merge it, and only then authorize R12.13.
+- Implementation branch `r12/12-local-ipc`; PR #209; Manual **CONDITIONAL / NOT TRIGGERED**.
+- Accepted implementation candidate `2ba561745f59b2701e5578df0915e58dab2345e0`.
+- Candidate gates: R0 #1556 / `32825111226`; Python #1530 / `32825111135`; UI #1497 / `32825111255`; WPF #53 / `32825111230`; WinUI #43 / `32825111274`; Avalonia #39 / `32825111277`; Qt #34 / `32825111137`; Tauri #25 / `32825111146` — all SUCCESS.
+- Python #1530 hosted Windows and Ubuntu jobs both completed `Test` successfully, proving real `AF_PIPE` and `AF_UNIX` roundtrips. Manual evidence was not triggered.
+- Accepted final-documentation head `227a0c9ac87b464ee08889dd3f60d54faee47907`: R0 #1558 / `32825553323`; Python #1532 / `32825553371`; UI #1499 / `32825553431`; WPF #55 / `32825553296`; WinUI #45 / `32825553308`; Avalonia #41 / `32825553365`; Qt #36 / `32825553292`; Tauri #27 / `32825553336` — all SUCCESS.
+- PR #209 merged with expected head `227a0c9ac87b464ee08889dd3f60d54faee47907` as merge commit `e86021ff9080552dcfed5cbb3da2d4405f1cc1a2`.
+- Single post-merge normalization branch `r12/12-postmerge-continuity-normalization`; continuity-only. Its exact head must pass the standard exact-head gate set plus desktop adapter regressions before merge.
+- Security claim remains bounded: no claim of a custom Windows named-pipe DACL; proven application HMAC/session/method authorization, local-machine addressing, real local transports and no TCP fallback.
+- After normalization merge, **R12.12 becomes COMPLETE + NORMALIZED** and that merge SHA becomes the sole authorized base for R12.13.
 
 ## Frozen R12 subdivision index
 
@@ -70,4 +62,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.12 only:** re-gate the final documentation HEAD of PR #209 exactly. If all required gates remain SUCCESS, merge PR #209 with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization with fresh exact-head gates. R12.13 is authorized only after that normalization merge. Manual R12.12 is **CONDITIONAL / NOT TRIGGERED**.
+**R12.12 normalization only:** open the single continuity-only post-merge normalization PR from `r12/12-postmerge-continuity-normalization`, gate its exact head, and merge it with `expected_head_sha`. Then and only then create the dedicated R12.13 branch from that normalized merge SHA. R12.13 manual state is **CONDITIONAL**.

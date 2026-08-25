@@ -4,7 +4,7 @@ import hashlib
 import json
 import re
 import sqlite3
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -15,11 +15,11 @@ from kodepoia.core.backup import BackupManager
 from kodepoia.core.recovery import RecoveryJournal
 from kodepoia.core.safe_change import SafeChangeManager
 
-
 _IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _META_TABLE = "_kodepoia_schema"
 _MAX_MIGRATIONS = 64
-_MAX_QUERY_LIMIT = 10000
+_MAX_QUERY_LIMIT = 10_000
+_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 
 def _canonical_json(value: object) -> bytes:
@@ -28,11 +28,12 @@ def _canonical_json(value: object) -> bytes:
         ensure_ascii=False,
         sort_keys=True,
         separators=(",", ":"),
+        allow_nan=False,
     ).encode("utf-8")
 
 
 def _require_identifier(value: str, label: str = "identifier") -> None:
-    if not _IDENTIFIER.fullmatch(value):
+    if _IDENTIFIER.fullmatch(value) is None:
         raise ValueError(f"invalid {label}: {value!r}")
     if value.startswith("sqlite_"):
         raise ValueError(f"reserved SQLite {label}: {value!r}")
@@ -75,10 +76,10 @@ class ColumnDefinition:
         self.validate()
         return {
             "name": self.name,
-            "value_type": self.value_type.value,
             "nullable": self.nullable,
             "primary_key": self.primary_key,
             "unique": self.unique,
+            "value_type": self.value_type.value,
         }
 
     def sql(self) -> str:
@@ -115,9 +116,9 @@ class ForeignKeyDefinition:
         self.validate()
         return {
             "columns": list(self.columns),
-            "referenced_table": self.referenced_table,
-            "referenced_columns": list(self.referenced_columns),
             "on_delete": self.on_delete,
+            "referenced_columns": list(self.referenced_columns),
+            "referenced_table": self.referenced_table,
         }
 
     def sql(self) -> str:
@@ -142,15 +143,14 @@ class TableDefinition:
             raise ValueError("reserved Kodepoia metadata table")
         if not self.columns:
             raise ValueError("table requires at least one column")
-        names = [column.name for column in self.columns]
+        names = [item.name for item in self.columns]
         if len(names) != len(set(names)):
             raise ValueError(f"duplicate column in table {self.name}")
         for column in self.columns:
             column.validate()
-        known = set(names)
-        primary_keys = [column for column in self.columns if column.primary_key]
-        if len(primary_keys) > 1:
+        if sum(item.primary_key for item in self.columns) > 1:
             raise ValueError("only one single-column primary key is supported")
+        known = set(names)
         for foreign_key in self.foreign_keys:
             foreign_key.validate()
             if not set(foreign_key.columns) <= known:
@@ -159,9 +159,8 @@ class TableDefinition:
     def to_dict(self) -> dict[str, object]:
         self.validate()
         return {
-            "name": self.name,
             "columns": [
-                column.to_dict() for column in sorted(self.columns, key=lambda item: item.name)
+                item.to_dict() for item in sorted(self.columns, key=lambda item: item.name)
             ],
             "foreign_keys": [
                 item.to_dict()
@@ -170,6 +169,7 @@ class TableDefinition:
                     key=lambda item: (item.columns, item.referenced_table),
                 )
             ],
+            "name": self.name,
         }
 
     def create_sql(self) -> str:
@@ -190,23 +190,24 @@ class SchemaDefinition:
         names = [table.name for table in self.tables]
         if len(names) != len(set(names)):
             raise ValueError("duplicate table")
-        for table in self.tables:
-            table.validate()
         by_name = {table.name: table for table in self.tables}
         for table in self.tables:
+            table.validate()
             for foreign_key in table.foreign_keys:
                 target = by_name.get(foreign_key.referenced_table)
                 if target is None:
                     raise ValueError("foreign key references a missing table")
-                target_columns = {column.name for column in target.columns}
+                target_columns = {item.name for item in target.columns}
                 if not set(foreign_key.referenced_columns) <= target_columns:
                     raise ValueError("foreign key references a missing target column")
 
     def to_dict(self) -> dict[str, object]:
         self.validate()
         return {
+            "tables": [
+                table.to_dict() for table in sorted(self.tables, key=lambda item: item.name)
+            ],
             "version": self.version,
-            "tables": [table.to_dict() for table in sorted(self.tables, key=lambda item: item.name)],
         }
 
     @property
@@ -251,27 +252,13 @@ class MigrationOperation:
             if self.table_definition is None:
                 raise ValueError("create-table operation requires table_definition")
             self.table_definition.validate()
-            if any(
-                value is not None
-                for value in (self.table, self.column_definition, self.new_name, self.index_name)
-            ):
-                raise ValueError("create-table operation contains unrelated fields")
         elif self.kind is MigrationOperationKind.ADD_COLUMN:
             if self.table is None or self.column_definition is None:
                 raise ValueError("add-column operation requires table and column_definition")
             self.column_definition.validate()
-            if any(
-                value is not None for value in (self.table_definition, self.new_name, self.index_name)
-            ):
-                raise ValueError("add-column operation contains unrelated fields")
         elif self.kind is MigrationOperationKind.RENAME_TABLE:
             if self.table is None or self.new_name is None:
                 raise ValueError("rename-table operation requires table and new_name")
-            if any(
-                value is not None
-                for value in (self.table_definition, self.column_definition, self.index_name)
-            ):
-                raise ValueError("rename-table operation contains unrelated fields")
         elif self.kind is MigrationOperationKind.DROP_TABLE:
             if self.table is None:
                 raise ValueError("drop-table operation requires table")
@@ -284,17 +271,15 @@ class MigrationOperation:
     def to_dict(self) -> dict[str, object]:
         self.validate()
         return {
-            "kind": self.kind.value,
-            "table": self.table,
-            "table_definition": (
-                self.table_definition.to_dict() if self.table_definition is not None else None
-            ),
             "column_definition": (
-                self.column_definition.to_dict() if self.column_definition is not None else None
+                self.column_definition.to_dict() if self.column_definition else None
             ),
-            "new_name": self.new_name,
-            "index_name": self.index_name,
             "index_columns": list(self.index_columns),
+            "index_name": self.index_name,
+            "kind": self.kind.value,
+            "new_name": self.new_name,
+            "table": self.table,
+            "table_definition": self.table_definition.to_dict() if self.table_definition else None,
             "unique": self.unique,
         }
 
@@ -350,44 +335,43 @@ class MigrationStep:
         operations: Sequence[MigrationOperation],
     ) -> MigrationStep:
         provisional = cls(
-            from_version=from_version,
-            to_version=to_version,
-            source_digest=source_digest,
-            target_digest=target_digest,
-            operations=tuple(operations),
-            checksum="",
+            from_version,
+            to_version,
+            source_digest,
+            target_digest,
+            tuple(operations),
+            "",
         )
-        checksum = provisional.calculated_checksum
         return cls(
-            from_version=from_version,
-            to_version=to_version,
-            source_digest=source_digest,
-            target_digest=target_digest,
-            operations=tuple(operations),
-            checksum=checksum,
+            from_version,
+            to_version,
+            source_digest,
+            target_digest,
+            tuple(operations),
+            provisional.calculated_checksum,
         )
 
     @property
     def calculated_checksum(self) -> str:
         payload = {
             "from_version": self.from_version,
-            "to_version": self.to_version,
+            "operations": [item.to_dict() for item in self.operations],
             "source_digest": self.source_digest,
             "target_digest": self.target_digest,
-            "operations": [operation.to_dict() for operation in self.operations],
+            "to_version": self.to_version,
         }
         return hashlib.sha256(_canonical_json(payload)).hexdigest()
 
     @property
     def destructive(self) -> bool:
-        return any(operation.destructive for operation in self.operations)
+        return any(item.destructive for item in self.operations)
 
     def validate(self) -> None:
         if self.from_version < 1 or self.to_version < 1 or self.from_version == self.to_version:
             raise ValueError("migration versions must be positive and distinct")
-        if not re.fullmatch(r"[0-9a-f]{64}", self.source_digest):
+        if _SHA256.fullmatch(self.source_digest) is None:
             raise ValueError("invalid migration source digest")
-        if not re.fullmatch(r"[0-9a-f]{64}", self.target_digest):
+        if _SHA256.fullmatch(self.target_digest) is None:
             raise ValueError("invalid migration target digest")
         if not self.operations:
             raise ValueError("migration requires at least one typed operation")
@@ -407,7 +391,7 @@ class MigrationPlan:
 
 class MigrationGraph:
     def __init__(self, steps: Sequence[MigrationStep], *, max_steps: int = _MAX_MIGRATIONS) -> None:
-        if max_steps < 1 or max_steps > _MAX_MIGRATIONS:
+        if not 1 <= max_steps <= _MAX_MIGRATIONS:
             raise ValueError("invalid migration graph bound")
         if len(steps) > max_steps:
             raise ValueError("migration graph exceeds bound")
@@ -449,14 +433,13 @@ class MigrationGraph:
         for step in self.steps:
             outgoing.setdefault(step.from_version, []).append(step)
         queue: list[tuple[int, tuple[MigrationStep, ...]]] = [(current_version, ())]
-        seen: set[int] = {current_version}
+        seen = {current_version}
         while queue:
-            version, path = queue.pop(0)
+            version, current_path = queue.pop(0)
             for step in sorted(
-                outgoing.get(version, []),
-                key=lambda item: (item.to_version, item.checksum),
+                outgoing.get(version, []), key=lambda item: (item.to_version, item.checksum)
             ):
-                next_path = (*path, step)
+                next_path = (*current_path, step)
                 if len(next_path) > self.max_steps:
                     continue
                 if step.to_version == target_version:
@@ -530,14 +513,13 @@ class QueryIntent:
         elif self.operation is QueryOperation.UPDATE:
             if not self.values or self.columns or self.order_by or self.limit:
                 raise ValueError("invalid update intent")
-        elif self.operation is QueryOperation.DELETE and (
-            self.values or self.columns or self.order_by or self.limit
-        ):
+        elif self.values or self.columns or self.order_by or self.limit:
             raise ValueError("invalid delete intent")
 
     def compile(self) -> tuple[str, tuple[object, ...]]:
         self.validate()
         table = _quote_identifier(self.table)
+        parameters: list[object]
         if self.operation is QueryOperation.SELECT:
             columns = (
                 ", ".join(_quote_identifier(name) for name in self.columns)
@@ -545,28 +527,30 @@ class QueryIntent:
                 else "*"
             )
             sql = f"SELECT {columns} FROM {table}"
-            params: list[object] = []
+            parameters = []
         elif self.operation is QueryOperation.INSERT:
             names = [name for name, _ in self.values]
-            columns = ", ".join(_quote_identifier(name) for name in names)
-            placeholders = ", ".join("?" for _ in names)
-            sql = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
-            params = [value for _, value in self.values]
+            sql = (
+                f"INSERT INTO {table} "
+                f"({', '.join(_quote_identifier(name) for name in names)}) "
+                f"VALUES ({', '.join('?' for _ in names)})"
+            )
+            parameters = [value for _, value in self.values]
         elif self.operation is QueryOperation.UPDATE:
             assignments = ", ".join(
                 f"{_quote_identifier(name)} = ?" for name, _ in self.values
             )
             sql = f"UPDATE {table} SET {assignments}"
-            params = [value for _, value in self.values]
+            parameters = [value for _, value in self.values]
         else:
             sql = f"DELETE FROM {table}"
-            params = []
+            parameters = []
         if self.filters:
             sql += " WHERE " + " AND ".join(
                 f"{_quote_identifier(item.column)} {item.operator.value} ?"
                 for item in self.filters
             )
-            params.extend(item.value for item in self.filters)
+            parameters.extend(item.value for item in self.filters)
         if self.operation is QueryOperation.SELECT and self.order_by:
             direction = " DESC" if self.descending else " ASC"
             sql += " ORDER BY " + ", ".join(
@@ -574,8 +558,8 @@ class QueryIntent:
             )
         if self.operation is QueryOperation.SELECT and self.limit is not None:
             sql += " LIMIT ?"
-            params.append(self.limit)
-        return sql, tuple(params)
+            parameters.append(self.limit)
+        return sql, tuple(parameters)
 
 
 class DatabaseState(StrEnum):
@@ -604,7 +588,7 @@ class SQLitePolicy:
     backup_sleep_seconds: float = 0.05
 
     def validate(self) -> None:
-        if not 1 <= self.busy_timeout_ms <= 60000:
+        if not 1 <= self.busy_timeout_ms <= 60_000:
             raise ValueError("busy timeout out of bounds")
         if not 1 <= self.backup_pages <= 4096:
             raise ValueError("backup page batch out of bounds")
@@ -633,19 +617,17 @@ class SQLitePersistenceService:
         governance: PersistenceGovernance | None = None,
     ) -> None:
         schema.validate()
-        policy = policy or SQLitePolicy()
-        governance = governance or PersistenceGovernance()
-        policy.validate()
+        self.policy = policy or SQLitePolicy()
+        self.policy.validate()
         self.database_path = database_path.resolve(strict=False)
         self.schema = schema
         self.graph = MigrationGraph(migrations)
-        self.policy = policy
         self.backup_root = (
             backup_root.resolve(strict=False)
             if backup_root is not None
             else self.database_path.parent / ".kodepoia" / "sqlite-backups"
         )
-        self.governance = governance
+        self.governance = governance or PersistenceGovernance()
 
     def _connect_path(self, path: Path) -> sqlite3.Connection:
         connection = sqlite3.connect(
@@ -679,28 +661,24 @@ class SQLitePersistenceService:
                 raise AssertionError("existing database cannot be absent")
             return status
         self.database_path.parent.mkdir(parents=True, exist_ok=True)
-        with self.connect() as connection, self.transaction(connection):
+        with closing(self.connect()) as connection, self.transaction(connection):
             self._create_metadata(connection)
             for table in sorted(self.schema.tables, key=lambda item: item.name):
                 connection.execute(table.create_sql())
             self._write_metadata(connection, self.schema.version, self.schema.digest)
         return self.inspect()
 
-    def _create_metadata(self, connection: sqlite3.Connection) -> None:
+    @staticmethod
+    def _create_metadata(connection: sqlite3.Connection) -> None:
         connection.execute(
             f'CREATE TABLE "{_META_TABLE}" ('
             '"singleton" INTEGER PRIMARY KEY CHECK ("singleton" = 1), '
             '"version" INTEGER NOT NULL CHECK ("version" >= 1), '
-            '"digest" TEXT NOT NULL'
-            ")"
+            '"digest" TEXT NOT NULL)'
         )
 
-    def _write_metadata(
-        self,
-        connection: sqlite3.Connection,
-        version: int,
-        digest: str,
-    ) -> None:
+    @staticmethod
+    def _write_metadata(connection: sqlite3.Connection, version: int, digest: str) -> None:
         connection.execute(
             f'INSERT INTO "{_META_TABLE}" ("singleton", "version", "digest") '
             "VALUES (1, ?, ?) "
@@ -709,12 +687,13 @@ class SQLitePersistenceService:
             (version, digest),
         )
 
-    def _read_metadata(self, connection: sqlite3.Connection) -> tuple[int, str] | None:
-        table = connection.execute(
+    @staticmethod
+    def _read_metadata(connection: sqlite3.Connection) -> tuple[int, str] | None:
+        exists = connection.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
             (_META_TABLE,),
         ).fetchone()
-        if table is None:
+        if exists is None:
             return None
         row = connection.execute(
             f'SELECT "version", "digest" FROM "{_META_TABLE}" WHERE "singleton" = 1'
@@ -738,7 +717,7 @@ class SQLitePersistenceService:
                 self.schema.digest,
             )
         try:
-            with self.connect() as connection:
+            with closing(self.connect()) as connection:
                 if not self._integrity_ok(connection):
                     return DatabaseStatus(
                         DatabaseState.CORRUPT,
@@ -787,19 +766,14 @@ class SQLitePersistenceService:
     def dry_run_migration(self) -> MigrationPlan:
         status = self.inspect()
         if status.state is DatabaseState.READY:
-            return MigrationPlan(
-                self.schema.version,
-                self.schema.version,
-                (),
-                False,
-            )
+            return MigrationPlan(self.schema.version, self.schema.version, (), False)
         if status.state is not DatabaseState.MIGRATION_REQUIRED:
             raise ValueError(f"database is not migratable: {status.state.value}")
         assert status.current_version is not None
         path = self.graph.path(status.current_version, self.schema.version)
         current_digest = status.current_digest
         for step in path:
-            if current_digest != step.source_digest:
+            if step.source_digest != current_digest:
                 raise ValueError("migration source schema digest mismatch")
             current_digest = step.target_digest
         if current_digest != self.schema.digest:
@@ -816,14 +790,14 @@ class SQLitePersistenceService:
         if status.state is not DatabaseState.READY:
             raise RuntimeError(f"database not ready: {status.state.value}")
         sql, parameters = intent.compile()
-        with self.connect() as connection, self.transaction(connection):
+        with closing(self.connect()) as connection, self.transaction(connection):
             cursor = connection.execute(sql, parameters)
             if intent.operation is QueryOperation.SELECT:
                 return list(cursor.fetchall())
             return cursor.rowcount
 
     def create_online_backup(self, label: str = "snapshot") -> Path:
-        if not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", label):
+        if re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", label) is None:
             raise ValueError("invalid backup label")
         status = self.inspect()
         if status.state not in {DatabaseState.READY, DatabaseState.MIGRATION_REQUIRED}:
@@ -835,26 +809,33 @@ class SQLitePersistenceService:
         destination = self.backup_root / f"{label}-{token}.sqlite3"
         temporary = destination.with_suffix(".tmp.sqlite3")
         temporary.unlink(missing_ok=True)
-        with self.connect() as source, self._connect_path(temporary) as target:
-            source.backup(
-                target,
-                pages=self.policy.backup_pages,
-                sleep=self.policy.backup_sleep_seconds,
-            )
-        with self._connect_path(temporary) as check:
-            if not self._integrity_ok(check):
-                temporary.unlink(missing_ok=True)
-                raise OSError("online SQLite backup failed integrity check")
-        temporary.replace(destination)
+        try:
+            with closing(self.connect()) as source, closing(
+                self._connect_path(temporary)
+            ) as target:
+                source.backup(
+                    target,
+                    pages=self.policy.backup_pages,
+                    sleep=self.policy.backup_sleep_seconds,
+                )
+            with closing(self._connect_path(temporary)) as check:
+                if not self._integrity_ok(check):
+                    raise OSError("online SQLite backup failed integrity check")
+            temporary.replace(destination)
+        except BaseException:
+            temporary.unlink(missing_ok=True)
+            raise
         return destination
 
     def _restore_online_backup(self, backup_path: Path) -> None:
         backup_path = backup_path.resolve(strict=True)
-        if self.backup_root != backup_path.parent:
+        if backup_path.parent != self.backup_root:
             raise ValueError("backup path escapes configured backup root")
         for suffix in ("", "-wal", "-shm"):
             Path(f"{self.database_path}{suffix}").unlink(missing_ok=True)
-        with self._connect_path(backup_path) as source, self.connect() as target:
+        with closing(self._connect_path(backup_path)) as source, closing(
+            self.connect()
+        ) as target:
             source.backup(
                 target,
                 pages=self.policy.backup_pages,
@@ -908,11 +889,11 @@ class SQLitePersistenceService:
                 task_id,
                 "sqlite_migration",
                 {
-                    "database_path": str(self.database_path),
                     "backup_path": str(backup),
                     "backup_sha256": backup_digest,
-                    "pre_version": status.current_version,
+                    "database_path": str(self.database_path),
                     "pre_digest": status.current_digest,
+                    "pre_version": status.current_version,
                 },
             )
         self._audit(
@@ -921,7 +902,7 @@ class SQLitePersistenceService:
             {"from": status.current_version, "to": self.schema.version},
         )
         try:
-            with self.connect() as connection, self.transaction(connection):
+            with closing(self.connect()) as connection, self.transaction(connection):
                 current_version = status.current_version
                 current_digest = status.current_digest
                 for step in path:
@@ -970,8 +951,7 @@ class SQLitePersistenceService:
         backup = Path(str(state.get("backup_path", ""))).resolve(strict=True)
         if backup.parent != self.backup_root:
             raise ValueError("recovery backup escapes configured root")
-        expected_digest = str(state.get("backup_sha256", ""))
-        if _sha256(backup) != expected_digest:
+        if _sha256(backup) != str(state.get("backup_sha256", "")):
             raise ValueError("recovery backup checksum mismatch")
         self._restore_online_backup(backup)
         status = self.inspect()
@@ -987,7 +967,7 @@ class SQLitePersistenceService:
         source_path = source_path.resolve(strict=True)
         if source_path == self.database_path:
             raise ValueError("cannot import database from itself")
-        with self._connect_path(source_path) as source:
+        with closing(self._connect_path(source_path)) as source:
             if not self._integrity_ok(source):
                 raise ValueError("import database failed integrity check")
             metadata = self._read_metadata(source)
@@ -999,7 +979,9 @@ class SQLitePersistenceService:
         try:
             for suffix in ("", "-wal", "-shm"):
                 Path(f"{self.database_path}{suffix}").unlink(missing_ok=True)
-            with self._connect_path(source_path) as source, self.connect() as target:
+            with closing(self._connect_path(source_path)) as source, closing(
+                self.connect()
+            ) as target:
                 source.backup(
                     target,
                     pages=self.policy.backup_pages,

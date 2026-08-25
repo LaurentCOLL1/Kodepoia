@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.8 COMPLETE + NORMALIZED. R12.8 normalization PR #202 merged as `1cd32eb0cf78dbf468a9921955bbc8695cedab89`. R12.9 is the only active subdivision on branch `r12/9-tauri2-rust-webview2-adapter`, PR #203, based exactly on that normalized main. Accepted implementation candidate `2664b65903e3f9dc1399bbbfad10cac772ce5b75`: R0 #1537, Python #1511, UI #1478, Tauri #12 / run `32814261183`, Qt #21, WPF #40, WinUI #30, Avalonia #26 — all SUCCESS. Hosted Tauri evidence proves Rust/Cargo 1.97.1 MSVC, Tauri 2.11.5 and WebView2 131.0.2903.86 with build/runtime return codes 0. Manual R12.9 CONDITIONAL was NOT TRIGGERED. Acceptance evidence is now recorded; re-gate the resulting final documentation head, merge #203 with expected SHA, then perform exactly one continuity-only post-merge normalization. R12.10 remains forbidden until that normalization merges.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.9 COMPLETE + NORMALIZED. R12.9 implementation/final documentation PR #203 merged as `12624167af41b48438ce6601983038a0ce8fbdc3`; its single continuity-only post-merge normalization PR #204 passed its first exact-head gate set on `346bc3c4fb8b6992d21e37920724926073b60f67`. This final continuity head is being re-gated before PR #204 merge. R12.10 becomes the next authorized subdivision only after that merge. Manual R12.9 CONDITIONAL was NOT TRIGGERED.**
 
 ## État global
 
@@ -12,33 +12,25 @@
 - Architecture v1.0 gelée; normalized `main` after each accepted normalization merge is source of truth.
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
-- R12.1–R12.8 : **COMPLETE + NORMALIZED**.
-- R12.9 : **IMPLEMENTATION ACCEPTED / FINAL-DOC REGATE REQUIRED**.
+- R12.1–R12.9 : **COMPLETE + NORMALIZED** once PR #204 final exact-head re-gate and merge complete.
 - R12.10–R12.16 : **PLANNED / NOT STARTED**.
 
-## Recent closure authority
-
-### R12.8
-- Base normalized `main`: `306d0b6fafb6d8c9c069936799e0c82bf94be1c7`.
-- Implementation branch `r12/8-qt6-cmake-adapter`; PR #201; Manual **CONDITIONAL / NOT TRIGGERED**.
-- Accepted implementation candidate `7d59d1e1320f18f0173d4df0374b174075b8d3fa`: R0 #1519 / `32791617782`, Python #1493 / `32791617851`, UI #1460 / `32791617772`, Qt #5 / `32791617789`, Avalonia #10 / `32791617798`, WPF #24 / `32791617714`, WinUI #14 / `32791617839` — SUCCESS.
-- Accepted Qt route: hosted macOS ARM64, Homebrew `qtbase`, Qt `6.11.1`, CMake `4.4.0`, Ninja, AppleClang `21.0.0.21000101`; configure/build/runtime return codes `0`.
-- Final documentation head `091a356b42328b169b37ca1601d922e1720ef3e1`: R0 #1522 / `32791843505`, Python #1496 / `32791843496`, UI #1463 / `32791843461`, Qt #8 / `32791843472`, Avalonia #13 / `32791843614`, WPF #27 / `32791843555`, WinUI #17 / `32791843482` — SUCCESS; PR #201 merge `8d18f95740c33820ae79362f388471cd587629da`.
-- Single continuity normalization `a926f0a3bfd713c668554b14d673582db981b7bf`: R0 #1524 / `32811363092`, Python #1498 / `32811363187`, UI #1465 / `32811363114`, Qt #9 / `32811363119`, Avalonia #14 / `32811363132`, WPF #28 / `32811363023`, WinUI #18 / `32811363023` — SUCCESS; PR #202 merge `1cd32eb0cf78dbf468a9921955bbc8695cedab89`.
-- Manual CONDITIONAL NOT TRIGGERED. **R12.8 COMPLETE + NORMALIZED.**
-
-## R12.9 accepted implementation / final-doc regate
+## R12.9 closure authority
 
 - Base normalized `main`: `1cd32eb0cf78dbf468a9921955bbc8695cedab89`.
-- Branch `r12/9-tauri2-rust-webview2-adapter`; PR #203; Manual **CONDITIONAL / NOT TRIGGERED**.
+- Implementation branch `r12/9-tauri2-rust-webview2-adapter`; PR #203; Manual **CONDITIONAL / NOT TRIGGERED**.
 - Accepted implementation SHA `2664b65903e3f9dc1399bbbfad10cac772ce5b75`.
-- Exact-head gates on that SHA: R0 Repository Guard #1537 SUCCESS; Python Core #1511 SUCCESS on Linux+Windows; KodeStudio UI Smoke #1478 SUCCESS; R12 Tauri2 Acceptance #12 / run `32814261183` SUCCESS; Qt #21 SUCCESS; WPF #40 SUCCESS; WinUI #30 SUCCESS; Avalonia #26 SUCCESS.
+- Exact-head gates on implementation SHA: R0 Repository Guard #1537 SUCCESS; Python Core #1511 SUCCESS on Linux+Windows; KodeStudio UI Smoke #1478 SUCCESS; R12 Tauri2 Acceptance #12 / run `32814261183` SUCCESS; Qt #21 SUCCESS; WPF #40 SUCCESS; WinUI #30 SUCCESS; Avalonia #26 SUCCESS.
 - Hosted artifact `r12-9-tauri2-windows-2664b65903e3f9dc1399bbbfad10cac772ce5b75`, id `9551033181`, ZIP digest `sha256:67e49aba4a1bb99d9f93e0ad2a13beb3d636a63bf2f6a29287e345974169d407`.
 - Proven runtime/toolchain: Windows x64, host `x86_64-pc-windows-msvc`, Cargo `1.97.1`, rustc `1.97.1`, Tauri `2.11.5`, WebView2 `131.0.2903.86`; authoritative build and runtime return codes `0`.
 - Runtime sentinel: `KODEPOIA_TAURI2_RUNTIME_PASS:3feb7493c8fa969e638bb9c4454161edea8d1f36f49f2f93a72a99c3b4ca0da0:2.11.5:131.0.2903.86`.
-- Security boundaries proved by candidate: no Node/dev server, empty Tauri capability set, no custom IPC commands/plugins, `withGlobalTauri=false`, restrictive CSP, no installer target, governed Cargo build remains `--locked --offline` after CI preload, MSVC environment is narrowed to build-system variables.
+- Security boundaries proved by candidate: no Node/dev server, empty Tauri capability set, no custom IPC commands/plugins, `withGlobalTauri=false`, restrictive CSP, no installer target, governed Cargo build remains `--locked --offline` after CI preload, MSVC environment narrowed to build-system variables.
 - Tauri and tauri-build license state remains `REVIEW_REQUIRED`; Kodepoia infers no redistribution rights.
-- Evidence recording changes bytes: final documentation head must pass exact-head R0 + Python + UI + Tauri and all triggered R12 regression workflows before expected-SHA merge of #203.
+- Accepted final-documentation head `802124c8dc769c9be8db82ab53b4a58838832884`: R0 #1538 / run `32815321882`, Python #1512 / `32815321898`, UI #1479 / `32815321892`, Tauri #13 / `32815321864`, Qt #22 / `32815321852`, WPF #41 / `32815321863`, WinUI #31 / `32815321866`, Avalonia #27 / `32815321908` — all SUCCESS.
+- PR #203 merged with expected head `802124c8dc769c9be8db82ab53b4a58838832884` as merge commit `12624167af41b48438ce6601983038a0ce8fbdc3`.
+- Single post-merge normalization branch `r12/9-postmerge-continuity-normalization`; PR #204; continuity-only.
+- First normalization head `346bc3c4fb8b6992d21e37920724926073b60f67`: R0 #1540 / run `32817089231`, Python #1514 / `32817089300`, UI #1481 / `32817089228`, Tauri #14 / `32817089224`, Qt #23 / `32817089235`, WPF #42 / `32817089227`, WinUI #32 / `32817089185`, Avalonia #28 / `32817089196` — all SUCCESS.
+- This final continuity update changes documentation bytes only; exact-head gates must succeed again before PR #204 merge. After that merge, **R12.9 is COMPLETE + NORMALIZED** and its merge head is the sole authorized base for R12.10.
 
 ## Frozen R12 subdivision index
 
@@ -73,4 +65,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.9 final-documentation re-gate only.** Re-gate the evidence-recording head, merge PR #203 with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization and exact-head gate/merge it. **R12.10 remains forbidden until that normalization merges.**
+**Finish PR #204 only:** gate this final continuity head exactly, merge PR #204 with `expected_head_sha`, and use that merge SHA as normalized `main`. Then and only then create the dedicated R12.10 branch for SQLite persistence/migrations/transactions/backup-recovery. R12.10 manual state is **NONE**.

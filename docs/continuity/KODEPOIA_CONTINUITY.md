@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.9 COMPLETE + NORMALIZED. R12.9 implementation/final documentation PR #203 merged as `12624167af41b48438ce6601983038a0ce8fbdc3`; its single continuity-only post-merge normalization PR #204 passed its first exact-head gate set on `346bc3c4fb8b6992d21e37920724926073b60f67`. This final continuity head is being re-gated before PR #204 merge. R12.10 becomes the next authorized subdivision only after that merge. Manual R12.9 CONDITIONAL was NOT TRIGGERED.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.9 COMPLETE + NORMALIZED. R12.9 normalization PR #204 final head `b16501c9362f5865d0b49d95139e207f196b66e4` passed the exact-head gate set and merged as `136967485e063254904269578f9ab4be23e5d599`, which is the sole normalized base for R12.10. R12.10 implementation candidate `464be11dd9c889336cac20208fc3fb9728ccac5f` passed its exact-head standard gates and all five desktop adapter regressions. Evidence has been recorded on PR #205; its resulting final documentation HEAD must now be re-gated before expected-SHA merge. R12.10 manual state is NONE. R12.11 remains forbidden until the single R12.10 post-merge continuity normalization is merged.**
 
 ## État global
 
@@ -12,8 +12,9 @@
 - Architecture v1.0 gelée; normalized `main` after each accepted normalization merge is source of truth.
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
-- R12.1–R12.9 : **COMPLETE + NORMALIZED** once PR #204 final exact-head re-gate and merge complete.
-- R12.10–R12.16 : **PLANNED / NOT STARTED**.
+- R12.1–R12.9 : **COMPLETE + NORMALIZED**.
+- R12.10 : **IMPLEMENTED / CANDIDATE ACCEPTED / FINAL DOCUMENTATION RE-GATE PENDING**.
+- R12.11–R12.16 : **PLANNED / NOT STARTED**.
 
 ## R12.9 closure authority
 
@@ -30,7 +31,20 @@
 - PR #203 merged with expected head `802124c8dc769c9be8db82ab53b4a58838832884` as merge commit `12624167af41b48438ce6601983038a0ce8fbdc3`.
 - Single post-merge normalization branch `r12/9-postmerge-continuity-normalization`; PR #204; continuity-only.
 - First normalization head `346bc3c4fb8b6992d21e37920724926073b60f67`: R0 #1540 / run `32817089231`, Python #1514 / `32817089300`, UI #1481 / `32817089228`, Tauri #14 / `32817089224`, Qt #23 / `32817089235`, WPF #42 / `32817089227`, WinUI #32 / `32817089185`, Avalonia #28 / `32817089196` — all SUCCESS.
-- This final continuity update changes documentation bytes only; exact-head gates must succeed again before PR #204 merge. After that merge, **R12.9 is COMPLETE + NORMALIZED** and its merge head is the sole authorized base for R12.10.
+- Final normalization head `b16501c9362f5865d0b49d95139e207f196b66e4`: R0 #1541 / run `32817426235`, Python #1515 / `32817426223`, UI #1482 / `32817426134`, Tauri #15 / `32817426144`, Qt #24 / `32817426178`, WPF #43 / `32817426138`, WinUI #33 / `32817426145`, Avalonia #29 / `32817426180` — all SUCCESS.
+- PR #204 merged with expected head `b16501c9362f5865d0b49d95139e207f196b66e4` as merge commit `136967485e063254904269578f9ab4be23e5d599`.
+- **R12.9 COMPLETE + NORMALIZED**. Manual R12.9 CONDITIONAL was **NOT TRIGGERED**.
+
+## R12.10 closure authority
+
+- Base normalized `main`: `136967485e063254904269578f9ab4be23e5d599`.
+- Implementation branch `r12/10-sqlite-persistence`; PR #205; Manual **NONE**.
+- Scope: deterministic SQLite schema digests; typed/parameterized data intents; bounded migration graph; transaction, foreign-key, busy-timeout and integrity policy; online backup/recovery; exact-schema import validation; SafeChange/Backup/Recovery/Audit integration.
+- Accepted implementation candidate `464be11dd9c889336cac20208fc3fb9728ccac5f`.
+- Exact-head gates on candidate: R0 #1544 / run `32818839673`; Python #1518 / `32818839682`; UI #1485 / `32818839667`; WPF #45 / `32818839654`; WinUI #35 / `32818839609`; Avalonia #31 / `32818839711`; Qt #26 / `32818839626`; Tauri #17 / `32818839625` — all SUCCESS.
+- Focused suite `tests/test_desktop_r12_10.py` is exercised by Python Core; no separate R12.10 hosted runtime workflow is required by the frozen NONE manual state.
+- Evidence-recording documentation bytes changed after the accepted candidate. The resulting PR #205 final documentation HEAD must pass a fresh exact-head standard gate set plus adapter regressions before merge with `expected_head_sha`.
+- After PR #205 merge, create exactly one continuity-only R12.10 post-merge normalization PR, gate its exact HEAD, merge it, and only then authorize R12.11.
 
 ## Frozen R12 subdivision index
 
@@ -65,4 +79,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**Finish PR #204 only:** gate this final continuity head exactly, merge PR #204 with `expected_head_sha`, and use that merge SHA as normalized `main`. Then and only then create the dedicated R12.10 branch for SQLite persistence/migrations/transactions/backup-recovery. R12.10 manual state is **NONE**.
+**R12.10 only:** re-gate the final documentation HEAD of PR #205 exactly. If all required gates remain SUCCESS, merge PR #205 with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization with fresh exact-head gates. R12.11 is authorized only after that normalization merge. R12.10 manual state is **NONE**.

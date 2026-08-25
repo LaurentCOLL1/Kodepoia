@@ -26,9 +26,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      R13_SOURCE_ROOT: ${{ runner.temp }}/kodepoia-r13-4-source
-      R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-4-build
-      R13_OUTPUT: ${{ runner.temp }}/R13_4_ANDROID_CI_ACCEPTANCE.json
     steps:
       - name: Checkout exact evidence source
         uses: actions/checkout@v4
@@ -62,6 +59,9 @@ jobs:
         run: sdkmanager "platforms;android-37" "build-tools;36.0.0" "platform-tools"
 
       - name: Prepare exact-head governed Android staging
+        env:
+          R13_SOURCE_ROOT: ${{ runner.temp }}/kodepoia-r13-4-source
+          R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-4-build
         run: >-
           python scripts/r13_4_android_ci_acceptance.py prepare
           --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
@@ -69,16 +69,21 @@ jobs:
           --staging-root "${{ env.R13_STAGING_ROOT }}"
 
       - name: Build fixed Android test APK and release AAB
-        working-directory: ${{ env.R13_STAGING_ROOT }}
+        working-directory: ${{ runner.temp }}/kodepoia-r13-4-build
         run: gradle --no-daemon --stacktrace :app:bundleRelease :app:assembleDebug :app:testDebugUnitTest
 
       - name: Collect and schema-validate Android evidence
+        env:
+          R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-4-build
+          R13_OUTPUT: ${{ runner.temp }}/R13_4_ANDROID_CI_ACCEPTANCE.json
         run: >-
           python scripts/r13_4_android_ci_acceptance.py collect
           --staging-root "${{ env.R13_STAGING_ROOT }}"
           --output "${{ env.R13_OUTPUT }}"
 
-      - name: Verify evidence is tied to this pull-request head
+      - name: Verify evidence is tied to this exact head
+        env:
+          R13_OUTPUT: ${{ runner.temp }}/R13_4_ANDROID_CI_ACCEPTANCE.json
         run: >-
           python -c "import json,os,pathlib; p=json.loads(pathlib.Path(os.environ['R13_OUTPUT']).read_text()); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['status']=='pass'; assert {a['kind'] for a in p['artifacts']}=={'apk','aab'}"
 
@@ -87,4 +92,4 @@ jobs:
         with:
           name: r13-4-android-${{ runner.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
           if-no-files-found: error
-          path: ${{ env.R13_OUTPUT }}
+          path: ${{ runner.temp }}/R13_4_ANDROID_CI_ACCEPTANCE.json

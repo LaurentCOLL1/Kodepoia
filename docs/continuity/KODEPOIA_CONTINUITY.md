@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.9 COMPLETE + NORMALIZED. R12.9 normalization PR #204 final head `b16501c9362f5865d0b49d95139e207f196b66e4` passed the exact-head gate set and merged as `136967485e063254904269578f9ab4be23e5d599`, which is the sole normalized base for R12.10. R12.10 implementation candidate `464be11dd9c889336cac20208fc3fb9728ccac5f` passed its exact-head standard gates and all five desktop adapter regressions. Evidence has been recorded on PR #205; its resulting final documentation HEAD must now be re-gated before expected-SHA merge. R12.10 manual state is NONE. R12.11 remains forbidden until the single R12.10 post-merge continuity normalization is merged.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.9 COMPLETE + NORMALIZED. R12.10 implementation/final-documentation PR #205 passed exact-head gates on final head `29b86046d881c87fe77a70e7ce6a952ec13d46e6` and merged with expected SHA as `8fbec86c3137bbcc48871e7d273a71e7d86db779`. The single continuity-only R12.10 post-merge normalization is now the only authorized action. R12.10 manual state is NONE. R12.11 remains forbidden until that normalization exact head passes all required gates and merges.**
 
 ## État global
 
@@ -13,7 +13,7 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.9 : **COMPLETE + NORMALIZED**.
-- R12.10 : **IMPLEMENTED / CANDIDATE ACCEPTED / FINAL DOCUMENTATION RE-GATE PENDING**.
+- R12.10 : **IMPLEMENTATION MERGED / POST-MERGE NORMALIZATION IN PROGRESS**.
 - R12.11–R12.16 : **PLANNED / NOT STARTED**.
 
 ## R12.9 closure authority
@@ -43,8 +43,10 @@
 - Accepted implementation candidate `464be11dd9c889336cac20208fc3fb9728ccac5f`.
 - Exact-head gates on candidate: R0 #1544 / run `32818839673`; Python #1518 / `32818839682`; UI #1485 / `32818839667`; WPF #45 / `32818839654`; WinUI #35 / `32818839609`; Avalonia #31 / `32818839711`; Qt #26 / `32818839626`; Tauri #17 / `32818839625` — all SUCCESS.
 - Focused suite `tests/test_desktop_r12_10.py` is exercised by Python Core; no separate R12.10 hosted runtime workflow is required by the frozen NONE manual state.
-- Evidence-recording documentation bytes changed after the accepted candidate. The resulting PR #205 final documentation HEAD must pass a fresh exact-head standard gate set plus adapter regressions before merge with `expected_head_sha`.
-- After PR #205 merge, create exactly one continuity-only R12.10 post-merge normalization PR, gate its exact HEAD, merge it, and only then authorize R12.11.
+- Accepted final-documentation head `29b86046d881c87fe77a70e7ce6a952ec13d46e6`: R0 #1546 / run `32821661433`; Python #1520 / `32821661437`; UI #1487 / `32821661426`; WPF #47 / `32821661420`; WinUI #37 / `32821661480`; Avalonia #33 / `32821661427`; Qt #28 / `32821661412`; Tauri #19 / `32821661394` — all SUCCESS.
+- PR #205 merged with expected head `29b86046d881c87fe77a70e7ce6a952ec13d46e6` as merge commit `8fbec86c3137bbcc48871e7d273a71e7d86db779`.
+- Single post-merge normalization branch `r12/10-postmerge-continuity-normalization`; continuity-only. Its exact head must pass R0 Repository Guard + Python Core + KodeStudio UI Smoke and the desktop adapter regression workflows before merge.
+- After that normalization merge, **R12.10 becomes COMPLETE + NORMALIZED** and its merge head is the sole authorized base for R12.11.
 
 ## Frozen R12 subdivision index
 
@@ -79,4 +81,4 @@ If any CONDITIONAL manual gate triggers, stop before the next subdivision and pr
 
 ## Next authorized action
 
-**R12.10 only:** re-gate the final documentation HEAD of PR #205 exactly. If all required gates remain SUCCESS, merge PR #205 with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization with fresh exact-head gates. R12.11 is authorized only after that normalization merge. R12.10 manual state is **NONE**.
+**R12.10 normalization only:** open the single continuity-only post-merge normalization PR from `r12/10-postmerge-continuity-normalization`, gate its exact head, and merge it with `expected_head_sha`. Then and only then create the dedicated R12.11 branch from that normalized `main` merge SHA. R12.11 manual state is **NONE**.

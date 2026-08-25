@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED.** R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`. R13 planning candidate `6f44e8faf8ef675dab5c8079541ce436ff55b4b2` passed R0 #1596 / `32846530810`, Python #1570 / `32846530804`, UI #1537 / `32846530786`; PR #219 merged as `9a5c678c226cb845c639b914e6365b475ab20e86`. Single planning normalization `b7ca326ac6f9fbb74bdbe69fefe6faf4aaadf653` passed R0 #1598 / `32846946552`, Python #1572 / `32846946574`, UI #1539 / `32846946557`; PR #220 merged as normalized `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`. **R13.1 is now IN_PROGRESS** on dedicated branch `r13/01-mobile-contracts`, based exactly on that normalized main. R13.2–R13.17 remain PLANNED. No next subdivision may start before R13.1 exact-head acceptance, merge and its single continuity-only post-merge normalization.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED.** R13.1 implementation source accepté: `04bee35bba58645f6ef91e8cf5530b5062c6803d`, issu exactement du planning-normalized `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`. Le premier candidat `97e3f0a48be3a888b0f2974e04bcf1317f3e6296` a été rejeté par Python #1574 et aucune preuve de ce SHA n'est réutilisée. Le candidat accepté a passé R0 #1601 / `32849189652`, Python Core #1575 / `32849189637` et KodeStudio UI #1542 / `32849189598`, tous SUCCESS. **R13.1 est COMPLETE / NOT NORMALIZED** sur la branche `r13/01-mobile-contracts`; R13.2 reste PLANNED et ne peut commencer qu'après merge exact-head de R13.1 puis sa normalisation continuity-only acceptée.
 
 ## État global
 
@@ -13,9 +13,9 @@
 - R1–R12 : **COMPLETE + NORMALIZED**.
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
-- R13 normalized planning `main`: **`aef297e385dc49ad6ae0935d4f9ef25a35e5e984`**.
+- R13 normalized planning `main`: `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`.
 - R13 phase status: **IN PROGRESS**.
-- R13.1: **IN_PROGRESS**, manual **NONE**.
+- R13.1: **COMPLETE / NOT NORMALIZED**, manual **NONE**.
 - R13.2–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -65,7 +65,7 @@ R14 backend/live-service work remains outside R13.
 - single planning normalization branch: `r13/00-planning-continuity-normalization`;
 - normalization head: `b7ca326ac6f9fbb74bdbe69fefe6faf4aaadf653`;
 - normalization gates all SUCCESS: R0 #1598 / `32846946552`; Python #1572 / `32846946574`; UI #1539 / `32846946557`;
-- PR #220 merged as **`aef297e385dc49ad6ae0935d4f9ef25a35e5e984`**.
+- PR #220 merged as `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`.
 - Therefore R13 planning is **ACCEPTED + NORMALIZED**.
 
 ### Current external baseline — date-aware, not architecture constants
@@ -77,21 +77,27 @@ R14 backend/live-service work remains outside R13.
 - Apple privacy manifests/required-reason APIs, Google Play Data safety, target API, permissions/content ratings, Apple privacy/age-rating/SDK minimums are versioned compliance evidence with effective dates and official provenance.
 - External device providers are optional; credentials, billing/quota and physical-device availability are not global phase prerequisites.
 
-## R13.1 execution authority
+## R13.1 closure authority
 
-- Authorized base normalized `main`: **`aef297e385dc49ad6ae0935d4f9ef25a35e5e984`**.
-- Dedicated branch: `r13/01-mobile-contracts`.
+- Authorized base normalized `main`: `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`.
+- Dedicated branch: `r13/01-mobile-contracts`; PR #221.
 - Manual state: **NONE**.
-- Start status synchronization: **DONE before implementation**; `R13_PLAN.md` phase `IN PROGRESS`, R13.1 `IN_PROGRESS`, R13.2–R13.17 `PLANNED`.
-- Frozen scope: framework-neutral mobile target/toolchain/device/test/release contracts; deterministic canonical identities/digests; capability states; allowlisted Android/Apple toolchain identities and roots; typed argv/environment builders; path-safe project/staging boundaries; no process launch in the boundary layer.
-- Acceptance must reject traversal, symlink escape, executable substitution, raw-argv/environment injection and config-only manufactured `AVAILABLE`; deterministic schema round-trips; exact-head R0/full Python/KodeStudio UI.
-- No R13.2 work before R13.1 merge + single continuity-only normalization.
+- Start status synchronization: DONE before implementation.
+- Rejected candidate: `97e3f0a48be3a888b0f2974e04bcf1317f3e6296`; Python Core #1574 / `32849024814` rejected one symlink-escape test because error classification checked resolved basename before runtime-root escape. The symlink itself was rejected; no evidence from this SHA is reused.
+- Accepted implementation source: **`04bee35bba58645f6ef91e8cf5530b5062c6803d`**.
+- Exact-head candidate gates, all SUCCESS:
+  - R0 Repository Guard #1601 / `32849189652`;
+  - Python Core #1575 / `32849189637` — Ubuntu + Windows tests, package builds and internal UI smoke SUCCESS;
+  - KodeStudio UI Smoke #1542 / `32849189598`.
+- Frozen delivered scope: framework-neutral mobile target/toolchain/device/test/release contracts; canonical identities/digests; strict capability states; Android/Apple tool identities; allowlisted roots/environment; typed argv builders; no process launch, device access, signing, network or store operation.
+- End status synchronization: **DONE** — R13.1 COMPLETE; R13.2 remains PLANNED.
+- Current state: **COMPLETE / NOT NORMALIZED** until final documentation head passes fresh exact-head gates, PR #221 merges with expected SHA, and exactly one continuity-only post-merge normalization passes and merges.
 
 ## Frozen R13 subdivision index
 
 | ID | Title | Status | Manual |
 | --- | --- | --- | --- |
-| R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | IN_PROGRESS | NONE |
+| R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | COMPLETE | NONE |
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | PLANNED | NONE |
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | PLANNED | NONE |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | PLANNED | CONDITIONAL |
@@ -127,4 +133,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**R13.1 only:** implement mobile contracts/identities/capability reports and the secure toolchain boundary on `r13/01-mobile-contracts`; add focused tests, schemas, design and acceptance docs; freeze one exact implementation head; require exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke; if accepted, perform end status sync and final re-gates, merge with expected SHA, then exactly one continuity-only post-merge normalization and its exact-head gates. Do not start R13.2 before that normalization merges.
+**R13.1 closure only:** freeze the final end-synchronized head, require fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, merge PR #221 with expected SHA, then create exactly one continuity-only post-merge normalization and gate/merge it. Do not start R13.2 before that normalization merges.

@@ -15,6 +15,7 @@ from kodepoia.mobile.android_build import (
     AndroidBuildEvidence,
     AndroidBuildRequest,
     AndroidBuildStatus,
+    AndroidBuildTask,
     AndroidBuildToolchainEvidence,
     inspect_android_artifact,
     prepare_build_staging,
@@ -39,17 +40,19 @@ def _sha(text: bytes) -> str:
 
 def _toolchain() -> AndroidBuildToolchainEvidence:
     return AndroidBuildToolchainEvidence(
-        evidence_id="android.build.2026-08-25",
+        evidence_id="android.build.hosted-stable.2026-08-25",
         android_gradle_plugin="9.3.1",
         gradle_version="9.5.0",
         kotlin_version="2.3.21",
-        compose_bom="2026.08.00",
-        compile_sdk=37,
+        compose_bom="2026.06.00",
+        compile_sdk=36,
         build_tools_version="36.0.0",
         jdk_major=17,
         observed_on="2026-08-25",
         source_urls=(
             "https://developer.android.com/build/releases/agp-9-3-0-release-notes",
+            "https://developer.android.com/google/play/requirements/target-sdk",
+            "https://developer.android.com/develop/ui/compose/bom",
             "https://developer.android.com/develop/ui/compose/setup-compose-dependencies-and-compiler",
         ),
     )
@@ -114,10 +117,16 @@ def test_r13_4_toolchain_and_request_are_explicit_and_fixed() -> None:
     toolchain = _toolchain()
     assert toolchain.gradle_version == "9.5.0"
     assert toolchain.jdk_major == 17
+    assert toolchain.compile_sdk == 36
     argv = _request("a" * 64).argv()
     assert set(argv[2:]) == {":app:testDebugUnitTest", ":app:assembleDebug", ":app:bundleRelease"}
     assert argv[:2] == ("--no-daemon", "--stacktrace")
     assert all("-P" not in item and "init" not in item.casefold() for item in argv)
+    assert set(AndroidBuildTask) == {
+        AndroidBuildTask.UNIT_TEST,
+        AndroidBuildTask.APK_DEBUG,
+        AndroidBuildTask.AAB_RELEASE,
+    }
 
 
 def test_r13_4_dynamic_versions_and_unofficial_sources_fail_closed() -> None:
@@ -160,12 +169,13 @@ def test_r13_4_build_overlay_is_deterministic_and_isolated(tmp_path: Path) -> No
     app_build = (tmp_path / "build-a/app/build.gradle.kts").read_text(encoding="utf-8")
     assert 'agp = "9.3.1"' in catalog
     assert 'kotlin = "2.3.21"' in catalog
-    assert 'compose-bom = "2026.08.00"' in catalog
+    assert 'compose-bom = "2026.06.00"' in catalog
     assert "compose-compiler" in catalog
     assert "libs.plugins.compose.compiler" in root_build
     assert "libs.plugins.compose.compiler" in app_build
-    assert "compileSdk = 37" in app_build
+    assert "compileSdk = 36" in app_build
     assert 'agp = "9.1.2"' in (source / "gradle/libs.versions.toml").read_text(encoding="utf-8")
+    assert 'compose-bom = "2026.08.00"' in (source / "gradle/libs.versions.toml").read_text(encoding="utf-8")
 
 
 def test_r13_4_staging_inside_source_is_rejected(tmp_path: Path) -> None:
@@ -208,7 +218,7 @@ def test_r13_4_fake_or_traversing_packages_fail_closed(tmp_path: Path) -> None:
         inspect_android_artifact(escaping, AndroidArtifactKind.AAB)
 
 
-def test_r13_4_pass_requires_both_artifacts_and_api_36() -> None:
+def test_r13_4_pass_requires_both_artifacts_and_api_36(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="APK and AAB"):
         AndroidBuildEvidence(
             schema_version=1, source_sha="a" * 40, runner_os="Linux",
@@ -224,20 +234,20 @@ def test_r13_4_pass_requires_both_artifacts_and_api_36() -> None:
             toolchain=_toolchain(), request=_request("b" * 64, target_sdk=35), status=AndroidBuildStatus.PASS,
             duration_seconds=1.0,
             artifacts=(
-                inspect_android_artifact(_make_apk_for_pass(ROOT), AndroidArtifactKind.APK),
-                inspect_android_artifact(_make_aab_for_pass(ROOT), AndroidArtifactKind.AAB),
+                inspect_android_artifact(_make_apk_for_pass(tmp_path), AndroidArtifactKind.APK),
+                inspect_android_artifact(_make_aab_for_pass(tmp_path), AndroidArtifactKind.AAB),
             ),
         )
 
 
 def _make_apk_for_pass(root: Path) -> Path:
-    path = root / ".r13_4_test_pass.apk"
+    path = root / "r13_4_test_pass.apk"
     _zip(path, {"AndroidManifest.xml": b"m", "classes.dex": b"d", "resources.arsc": b"r"})
     return path
 
 
 def _make_aab_for_pass(root: Path) -> Path:
-    path = root / ".r13_4_test_pass.aab"
+    path = root / "r13_4_test_pass.aab"
     _zip(path, {"base/manifest/AndroidManifest.xml": b"m", "base/dex/classes.dex": b"d", "base/resources.pb": b"r"})
     return path
 

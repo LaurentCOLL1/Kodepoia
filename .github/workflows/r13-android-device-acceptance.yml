@@ -1,0 +1,129 @@
+name: R13 Android Device Acceptance
+
+on:
+  push:
+    branches:
+      - "r13/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r13-android-device-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-emulator:
+    name: android-emulator-ubuntu-latest
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      R13_SYSTEM_IMAGE: system-images;android-36;google_apis;x86_64
+      R13_AVD_NAME: kodepoia-r13-6-api36
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Kodepoia evidence dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle 9.5.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.5.0"
+
+      - name: Set up Android command line tools
+        uses: android-actions/setup-android@v3
+
+      - name: Install accepted Android SDK, emulator and API 36 image
+        run: >-
+          sdkmanager
+          "platforms;android-36"
+          "build-tools;36.0.0"
+          "platform-tools"
+          "emulator"
+          "${{ env.R13_SYSTEM_IMAGE }}"
+
+      - name: Enable hosted KVM access when available
+        run: |
+          if [ -e /dev/kvm ]; then
+            sudo chmod 666 /dev/kvm
+          fi
+
+      - name: Prepare exact-head governed Android staging
+        env:
+          R13_SOURCE_ROOT: ${{ runner.temp }}/kodepoia-r13-6-source
+          R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-6-build
+        run: >-
+          python scripts/r13_4_android_ci_acceptance.py prepare
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --source-root "${{ env.R13_SOURCE_ROOT }}"
+          --staging-root "${{ env.R13_STAGING_ROOT }}"
+
+      - name: Add governed instrumentation overlay
+        env:
+          R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-6-build
+        run: >-
+          python scripts/r13_6_android_device_acceptance.py prepare
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --staging-root "${{ env.R13_STAGING_ROOT }}"
+
+      - name: Build exact-head app and instrumentation APKs
+        working-directory: ${{ runner.temp }}/kodepoia-r13-6-build
+        run: gradle --no-daemon --stacktrace :app:assembleDebug :app:assembleDebugAndroidTest
+
+      - name: Launch bounded API 36 headless emulator
+        env:
+          R13_PID: ${{ runner.temp }}/kodepoia-r13-6-emulator.pid
+          R13_EMULATOR_LOG: ${{ runner.temp }}/kodepoia-r13-6-emulator.log
+        run: >-
+          python scripts/r13_6_android_device_acceptance.py launch-emulator
+          --avd-name "${{ env.R13_AVD_NAME }}"
+          --system-image "${{ env.R13_SYSTEM_IMAGE }}"
+          --pid-file "${{ env.R13_PID }}"
+          --log-file "${{ env.R13_EMULATOR_LOG }}"
+
+      - name: Run governed ADB instrumentation and collect evidence
+        env:
+          R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-6-build
+          R13_OUTPUT: ${{ runner.temp }}/R13_6_ANDROID_DEVICE_ACCEPTANCE.json
+        run: >-
+          python scripts/r13_6_android_device_acceptance.py collect
+          --staging-root "${{ env.R13_STAGING_ROOT }}"
+          --output "${{ env.R13_OUTPUT }}"
+
+      - name: Verify evidence is tied to this exact head
+        env:
+          R13_OUTPUT: ${{ runner.temp }}/R13_6_ANDROID_DEVICE_ACCEPTANCE.json
+        run: >-
+          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(os.environ['R13_OUTPUT']).read_text()); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['status']=='pass'; assert p['snapshot']['virtual'] is True; assert p['physical_device_claim'] is False; assert p['instrumentation']['passed'] is True; assert p['cleanup_complete'] is True"
+
+      - name: Upload exact-head Android device acceptance evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r13-6-android-device-${{ env.KODEPOIA_SOURCE_SHA }}
+          if-no-files-found: error
+          path: ${{ runner.temp }}/R13_6_ANDROID_DEVICE_ACCEPTANCE.json
+
+      - name: Cleanup owned emulator
+        if: always()
+        run: python scripts/r13_6_android_device_acceptance.py cleanup-emulator

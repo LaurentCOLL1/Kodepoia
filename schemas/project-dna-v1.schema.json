@@ -4,9 +4,24 @@
   "title": "Kodepoia Project DNA v1",
   "type": "object",
   "required": [
-    "schema_version", "name", "project_type", "platforms", "engine", "engine_version",
-    "dimension", "genres", "inputs", "graphics_style", "online", "multiplayer",
-    "performance", "tools", "download_policy", "install_policy", "lineage", "capabilities"
+    "schema_version",
+    "name",
+    "project_type",
+    "platforms",
+    "engine",
+    "engine_version",
+    "dimension",
+    "genres",
+    "inputs",
+    "graphics_style",
+    "online",
+    "multiplayer",
+    "performance",
+    "tools",
+    "download_policy",
+    "install_policy",
+    "lineage",
+    "capabilities"
   ],
   "properties": {
     "schema_version": {"const": 1},
@@ -39,23 +54,53 @@
   },
   "allOf": [
     {
-      "if": {"properties": {"project_type": {"const": "game"}}, "required": ["project_type"]},
-      "then": {"properties": {"dimension": {"enum": ["2d", "2.5d", "3d", "hybrid"]}}},
-      "else": {"properties": {"dimension": {"type": "null"}}}
+      "if": {
+        "properties": {"project_type": {"const": "game"}},
+        "required": ["project_type"]
+      },
+      "then": {
+        "properties": {"dimension": {"enum": ["2d", "2.5d", "3d", "hybrid"]}}
+      },
+      "else": {
+        "properties": {"dimension": {"type": "null"}}
+      }
     },
     {
-      "if": {"properties": {"platforms": {"not": {"contains": {"enum": ["android", "ios"]}}}}, "required": ["platforms"]},
-      "then": {"properties": {"inputs": {"not": {"contains": {"enum": ["touch", "gyro", "accelerometer"]}}, "mobile": false}}
+      "if": {
+        "properties": {
+          "platforms": {
+            "not": {"contains": {"enum": ["android", "ios"]}}
+          }
+        },
+        "required": ["platforms"]
+      },
+      "then": {
+        "properties": {
+          "inputs": {
+            "not": {"contains": {"enum": ["touch", "gyro", "accelerometer"]}}
+          },
+          "mobile": false
+        }
+      }
     },
     {
-      "if": {"properties": {"project_type": {"const": "mobile_app"}}, "required": ["project_type"]},
+      "if": {
+        "properties": {"project_type": {"const": "mobile_app"}},
+        "required": ["project_type"]
+      },
       "then": {
         "required": ["mobile"],
         "properties": {
           "engine": {"type": "null"},
           "engine_version": {"type": "null"},
-          "platforms": {"items": {"enum": ["android", "ios"]}},
-          "mobile": {"allOf": [{"properties": {"source_kind": {"const": "native"}}}]}
+          "platforms": {
+            "items": {"enum": ["android", "ios"]}
+          },
+          "mobile": {
+            "allOf": [
+              {"properties": {"source_kind": {"const": "native"}}}
+            ]
+          }
         }
       }
     }
@@ -101,23 +146,66 @@
     "mobileProfile": {
       "type": "object",
       "required": [
-        "source_kind", "form_factors", "android_application_id", "android_min_api",
-        "android_target_api", "apple_bundle_id", "apple_min_version", "apple_target_version",
-        "package_kinds", "permissions", "requested_capabilities", "network_intent",
-        "release_channel", "signing_intent", "budget"
+        "source_kind",
+        "form_factors",
+        "android_application_id",
+        "android_min_api",
+        "android_target_api",
+        "apple_bundle_id",
+        "apple_min_version",
+        "apple_target_version",
+        "package_kinds",
+        "permissions",
+        "requested_capabilities",
+        "network_intent",
+        "release_channel",
+        "signing_intent",
+        "budget"
       ],
       "properties": {
         "source_kind": {"enum": ["native", "godot_export"]},
-        "form_factors": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["phone", "tablet"]}},
-        "android_application_id": {"type": ["string", "null"], "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"},
+        "form_factors": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["phone", "tablet"]}
+        },
+        "android_application_id": {
+          "type": ["string", "null"],
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+        },
         "android_min_api": {"type": ["integer", "null"], "minimum": 1, "maximum": 1000},
         "android_target_api": {"type": ["integer", "null"], "minimum": 1, "maximum": 1000},
-        "apple_bundle_id": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*(\\.[A-Za-z0-9][A-Za-z0-9-]*)+$"},
-        "apple_min_version": {"type": ["string", "null"], "pattern": "^[0-9]+(\\.[0-9]+){0,3}$"},
-        "apple_target_version": {"type": ["string", "null"], "pattern": "^[0-9]+(\\.[0-9]+){0,3}$"},
-        "package_kinds": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["apk", "aab", "app", "xcarchive", "ipa"]}},
-        "permissions": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"}},
-        "requested_capabilities": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"}},
+        "apple_bundle_id": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*(\\.[A-Za-z0-9][A-Za-z0-9-]*)+$"
+        },
+        "apple_min_version": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9]+(\\.[0-9]+){0,3}$"
+        },
+        "apple_target_version": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9]+(\\.[0-9]+){0,3}$"
+        },
+        "package_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["apk", "aab", "app", "xcarchive", "ipa"]}
+        },
+        "permissions": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"}
+        },
+        "requested_capabilities": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"}
+        },
         "network_intent": {"enum": ["offline", "optional", "required"]},
         "release_channel": {"enum": ["development", "internal", "beta", "production"]},
         "signing_intent": {"enum": ["unsigned", "debug", "test", "distribution"]},

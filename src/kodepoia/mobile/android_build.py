@@ -65,9 +65,19 @@ def _inside(root: Path, relative: str) -> Path:
 
 def _replace_exact_line(text: str, prefix: str, replacement: str) -> str:
     lines = text.replace("\r\n", "\n").replace("\r", "\n").splitlines()
-    matches = [index for index, line in enumerate(lines) if line.strip().startswith(prefix)]
+    matches: list[int] = []
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped.startswith(prefix):
+            continue
+        remainder = stripped[len(prefix):].lstrip()
+        # R13.3's version catalog can legitimately reuse an alias name in a
+        # different TOML section (for example `compose-bom = { ... }` under
+        # [libraries]).  R13.4 may mutate only quoted scalar version assignments.
+        if remainder.startswith('"'):
+            matches.append(index)
     if len(matches) != 1:
-        raise ValueError(f"expected exactly one controlled build line for {prefix!r}")
+        raise ValueError(f"expected exactly one controlled version line for {prefix!r}")
     lines[matches[0]] = replacement
     return "\n".join(lines) + "\n"
 

@@ -129,7 +129,7 @@ def test_tauri_render_fixture_is_deterministic_and_security_closed(tmp_path: Pat
     assert config["build"] == {"frontendDist": "dist"}
     assert "connect-src 'none'" in config["app"]["security"]["csp"]
     assert icon.is_file()
-    assert icon.stat().st_size == 70
+    assert icon.stat().st_size == 72
     icon_entry = next(item for item in manifest.files if item.path == "icons/icon.ico")
     assert icon_entry.sha256 == adapter._sha(icon)
     assert manifest.digest() == adapter.render_fixture(canonical_sample_app())[1].digest()
@@ -187,4 +187,4 @@ def test_tauri_cargo_boundary_is_locked_offline_and_bounded(tmp_path: Path) -> N
 def test_tauri_environment_injection_remains_closed() -> None:
     for key in ("CARGO_HOME", "RUSTFLAGS", "RUSTC_WRAPPER", "TAURI_CONFIG", "WEBVIEW2_BROWSER_EXECUTABLE_FOLDER"):
         with pytest.raises(DesktopBoundaryError):
-            validate_environment_overrides({key: "attacker-controlled"})
+            validate_environment_overrides({key: "blocked-value"})

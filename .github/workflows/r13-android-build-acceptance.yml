@@ -1,0 +1,87 @@
+name: R13 Android Build Acceptance
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r13-android-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-build:
+    name: android-build-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      R13_SOURCE_ROOT: ${{ runner.temp }}/kodepoia-r13-4-source
+      R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-4-build
+      R13_OUTPUT: ${{ runner.temp }}/R13_4_ANDROID_CI_ACCEPTANCE.json
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Kodepoia evidence dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle 9.5.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.5.0"
+
+      - name: Set up Android command line tools
+        uses: android-actions/setup-android@v3
+
+      - name: Install accepted Android SDK packages
+        run: sdkmanager "platforms;android-37" "build-tools;36.0.0" "platform-tools"
+
+      - name: Prepare exact-head governed Android staging
+        run: >-
+          python scripts/r13_4_android_ci_acceptance.py prepare
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --source-root "${{ env.R13_SOURCE_ROOT }}"
+          --staging-root "${{ env.R13_STAGING_ROOT }}"
+
+      - name: Build fixed Android test APK and release AAB
+        working-directory: ${{ env.R13_STAGING_ROOT }}
+        run: gradle --no-daemon --stacktrace :app:bundleRelease :app:assembleDebug :app:testDebugUnitTest
+
+      - name: Collect and schema-validate Android evidence
+        run: >-
+          python scripts/r13_4_android_ci_acceptance.py collect
+          --staging-root "${{ env.R13_STAGING_ROOT }}"
+          --output "${{ env.R13_OUTPUT }}"
+
+      - name: Verify evidence is tied to this pull-request head
+        run: >-
+          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(os.environ['R13_OUTPUT']).read_text()); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['status']=='pass'; assert {a['kind'] for a in p['artifacts']}=={'apk','aab'}"
+
+      - name: Upload exact-head Android acceptance evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r13-4-android-${{ runner.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          if-no-files-found: error
+          path: ${{ env.R13_OUTPUT }}

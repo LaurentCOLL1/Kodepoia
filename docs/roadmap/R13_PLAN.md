@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1 `COMPLETE + NORMALIZED` on `main` `a63c25e0bb7dfa4f45c87f61f20de9477a64935a`; R13.2 `COMPLETE` on its dedicated implementation branch after exact-head acceptance; R13.3 remains `PLANNED` until the R13.2 merge and single continuity-only normalization complete.
+**Execution checkpoint:** R13.1–R13.2 `COMPLETE + NORMALIZED`; R13.3 `COMPLETE` on its dedicated branch after exact-head acceptance of `73d9024a1b06711885296775cb9f51370b52c3d0`; R13.4 remains `PLANNED` until R13.3 merge and continuity-only normalization complete.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1 is **COMPLETE + NORMALIZED** on `main` `a63c25e0bb7dfa4f45c87f61f20de9477a64935a`; R13.2 is **COMPLETE** on its implementation branch and awaits final documentation re-gates, merge and the single post-merge continuity normalization before R13.3 may start.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.2 are **COMPLETE + NORMALIZED**; R13.3 is **COMPLETE / NOT NORMALIZED** pending its final documentation re-gates, merge and single continuity-only normalization.
 
 ## Permanent subdivision status synchronization rule
 
@@ -156,7 +156,7 @@ Before R13.1 implementation:
 | --- | --- | --- | --- | --- |
 | R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | COMPLETE | NONE | R12 COMPLETE + normalized planning |
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | COMPLETE | NONE | R13.1 + R2 |
-| R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | PLANNED | NONE | R13.1–R13.2 + R8/R12 patterns |
+| R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | COMPLETE | NONE | R13.1–R13.2 + R8/R12 patterns |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | PLANNED | CONDITIONAL | R13.1–R13.3 + R6 |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | PLANNED | CONDITIONAL | R13.4 + R1/R6/R12 |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | PLANNED | CONDITIONAL | R13.4–R13.5 |
@@ -196,7 +196,7 @@ Before R13.1 implementation:
 
 **Manual:** NONE.
 
-**Completion record:** rejected candidate `9c8820aaa8d75e88b48b6a3ed730a7e724b16605` failed R0 #1607 / `32875664321` because `schemas/project-dna-v1.schema.json` was invalid JSON; no evidence from that head is reused. Rejected candidate `4e48fc7520351b3d7445130ee691dca9d1b402c0` fixed the schema but failed the Python/UI smoke because the first R13 `app.py` integration regressed the accepted pseudo-localized navigation minimum width; no evidence from that head is reused. Accepted implementation candidate **`27b75959e3240f67330d901c3b4a084242ae28b0`** restored the full accepted R12 KodeStudio structure and limited R13 integration to the mobile Wizard seam. Exact-head gates are all SUCCESS: R0 #1609 / `32876034828`, Python #1583 / `32876034855`, UI #1550 / `32876034882`; R12 WPF #92, WinUI3 #82, Avalonia #78, Qt6 #73, Tauri2 #64 and Integrated Windows #17 also passed on the same head. R13.2 is **COMPLETE** on the implementation branch, manual state **NONE**, pending this end synchronization's fresh exact-head re-gates, merge and the single continuity-only post-merge normalization.
+**Completion record:** rejected candidate `9c8820aaa8d75e88b48b6a3ed730a7e724b16605` failed R0 #1607 / `32875664321` because `schemas/project-dna-v1.schema.json` was invalid JSON; no evidence from that head is reused. Rejected candidate `4e48fc7520351b3d7445130ee691dca9d1b402c0` fixed the schema but failed the Python/UI smoke because the first R13 `app.py` integration regressed the accepted pseudo-localized navigation minimum width; no evidence from that head is reused. Accepted implementation candidate **`27b75959e3240f67330d901c3b4a084242ae28b0`** passed R0 #1609 / `32876034828`, Python #1583 / `32876034855`, UI #1550 / `32876034882`; final end-synchronized head **`3cc31e2ca367bfe97866f4e33a106e9d4c0da870`** passed R0 #1611 / `32878929674`, Python #1585 / `32878929659`, UI #1552 / `32878929665`; PR #223 merged as `12d55b5ed94527b619f4f8259d4443dd6e71931c`. Continuity-only normalization **`90eec4db1c9a8546abfa4c2046f162c48001c817`** passed R0 #1613 / `32879324825`, Python #1587 / `32879324859`, UI #1554 / `32879325025`; PR #224 merged as normalized `main` **`4a4985b58f449fb1bc1b2a455a41255d40fccfac`**. R13.2 is **COMPLETE + NORMALIZED**.
 
 # R13.3 — Android deterministic native scaffold + Kotlin/Compose shared app model
 
@@ -207,6 +207,8 @@ Before R13.1 implementation:
 **Acceptance:** identical definition -> identical semantic workspace manifest; path/resource/identifier/template injection rejected; no arbitrary Gradle script execution during render; current stable Compose dependency set represented by capability evidence, not mutable unbounded `latest`; exact-head gates.
 
 **Manual:** NONE.
+
+**Completion record:** accepted implementation candidate **`73d9024a1b06711885296775cb9f51370b52c3d0`** passed R0 #1615 / `32880841487`, Python #1589 / `32880841447`, UI #1556 / `32880841420`; same-head R12 WPF/Avalonia/WinUI3/Tauri2/Qt6/Integrated Windows regressions also passed. End plan+continuity synchronization marks R13.3 COMPLETE; fresh exact-head R0/Python/UI is required on the resulting documentation head before merge #225. Manual state remains NONE.
 
 # R13.4 — Android Gradle build/export, APK/AAB, manifest/resources/ABI validation
 

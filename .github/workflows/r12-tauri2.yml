@@ -36,6 +36,32 @@ jobs:
           rustup default stable-msvc
           rustc -vV
           cargo --version
+      - name: Initialize hosted MSVC C++ environment
+        shell: pwsh
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vswhere)) { throw "vswhere.exe missing on hosted Windows runner" }
+          $installation = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $installation) { throw "Visual Studio C++ Build Tools installation not found" }
+          $devcmd = Join-Path $installation "Common7\Tools\VsDevCmd.bat"
+          if (-not (Test-Path $devcmd)) { throw "VsDevCmd.bat missing" }
+          $environment = & cmd.exe /d /s /c "`"$devcmd`" -no_logo -arch=x64 -host_arch=x64 >nul && set"
+          $captured = @{}
+          foreach ($line in $environment) {
+            $separator = $line.IndexOf("=")
+            if ($separator -le 0) { continue }
+            $name = $line.Substring(0, $separator)
+            $value = $line.Substring($separator + 1)
+            $captured[$name.ToUpperInvariant()] = $value
+          }
+          foreach ($name in @("INCLUDE", "LIB", "LIBPATH")) {
+            if (-not $captured.ContainsKey($name) -or -not $captured[$name]) { throw "MSVC $name environment missing" }
+            "$name=$($captured[$name])" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+          $link = Get-ChildItem -Path (Join-Path $installation "VC\Tools\MSVC\*\bin\Hostx64\x64\link.exe") -File | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $link) { throw "MSVC link.exe missing" }
+          $link.Directory.FullName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          Write-Host "MSVC linker: $($link.FullName)"
       - name: Render deterministic Tauri fixture
         run: python scripts/r12_9_tauri_acceptance.py --prepare-only
       - name: Preload locked Rust dependencies as CI infrastructure

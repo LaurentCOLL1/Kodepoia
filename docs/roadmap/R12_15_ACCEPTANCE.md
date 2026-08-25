@@ -30,8 +30,10 @@ Start-of-subdivision plan/continuity synchronization: **DONE** — R12.1–R12.1
 Implementation candidate: **ACCEPTED** — `79cda1733bc470f897a5153dcd0c4d059b948900`.
 Candidate exact-head gates: **SUCCESS** — R0 #1577 / `32834583380`; Python #1551 / `32834583390`; KodeStudio UI #1518 / `32834583399`; WPF #68 / `32834583424`; WinUI #58 / `32834583419`; Avalonia #54 / `32834583411`; Qt #49 / `32834583377`; Tauri #40 / `32834583375`.
 Candidate correction note: the earlier candidate `696ab04eda402fd77b826ef80c9cc8a98706ad75` was rejected after KodeStudio UI Smoke #1516 exposed the unregistered `r12Evidence` accessibility control and stale pseudo-locale navigation cardinality. Both defects were corrected before freezing `79cda1733bc470f897a5153dcd0c4d059b948900`; no failed evidence is reused.
-End-of-subdivision plan/continuity synchronization: **IN PROGRESS** — R12.15 must be `COMPLETE` and R12.16 remain `PLANNED` before final-documentation re-gates.
-Final-documentation exact-head gates: **PENDING**.
+End-of-subdivision plan/continuity synchronization: **DONE** — R12.15 is `COMPLETE`; R12.16 remains `PLANNED`.
+Synchronized documentation head: **ACCEPTED FOR RECORDING** — `881ac7e6baee67f594f62377f3a7d1b9aee2ce72`.
+Synchronized-documentation exact-head gates: **SUCCESS** — R0 #1580 / `32836806493`; Python #1554 / `32836806644`; KodeStudio UI #1521 / `32836806507`; WPF #71 / `32836806242`; WinUI #61 / `32836806760`; Avalonia #57 / `32836806320`; Qt #52 / `32836806429`; Tauri #43 / `32836806371`.
+Final recorded-evidence documentation head: **PENDING** — this record changes bytes and therefore requires one fresh exact-head gate cycle before merge.
 Implementation merge: **PENDING**.
 Post-merge continuity normalization: **PENDING**.
 
@@ -41,7 +43,7 @@ Post-merge continuity normalization: **PENDING**.
 2. require exact-head R0 + full Python Core + KodeStudio UI Smoke + five desktop adapter regressions;
 3. because manual state is NONE, no user-local evidence is required;
 4. update `R12_PLAN.md` and continuity so R12.15 is `COMPLETE` while R12.16 remains `PLANNED`;
-5. record candidate evidence; re-gate the resulting documentation head if bytes change;
-6. merge with `expected_head_sha`;
+5. record candidate and synchronized-documentation evidence; re-gate the resulting recorded-evidence documentation head because bytes changed;
+6. merge with `expected_head_sha` only after that final exact-head cycle is green;
 7. perform exactly one continuity-only post-merge normalization, gate it on its exact SHA, merge it;
 8. only then authorize the R12.16 branch.

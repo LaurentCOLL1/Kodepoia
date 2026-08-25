@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1–R13.4 `COMPLETE + NORMALIZED`; R13.5 `COMPLETE` on dedicated branch after exact-head acceptance; R13.6 `PLANNED`. R13.5 merge and continuity-only normalization remain required before R13.6 may start.
+**Execution checkpoint:** R13.1–R13.5 `COMPLETE + NORMALIZED`; R13.5 normalized `main` is `56d6da4184709a54841ed36b21128477c78c6e9d`; R13.6 `IN_PROGRESS` from that exact head.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.4 are **COMPLETE + NORMALIZED**; R13.5 is **COMPLETE** on its accepted branch and awaits merge plus continuity-only normalization. No later subdivision is active.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.5 are **COMPLETE + NORMALIZED**; R13.6 is the sole active subdivision.
 
 ## Permanent subdivision status synchronization rule
 
@@ -159,7 +159,7 @@ Before R13.1 implementation:
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | COMPLETE | NONE | R13.1–R13.2 + R8/R12 patterns |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | COMPLETE | CONDITIONAL | R13.1–R13.3 + R6 |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | COMPLETE | CONDITIONAL | R13.4 + R1/R6/R12 |
-| R13.6 | Android emulator/device testing + adb/instrumentation adapter | PLANNED | CONDITIONAL | R13.4–R13.5 |
+| R13.6 | Android emulator/device testing + adb/instrumentation adapter | IN_PROGRESS | CONDITIONAL | R13.4–R13.5 |
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | PLANNED | CONDITIONAL | R13.4–R13.6 + R7 |
 | R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | PLANNED | CONDITIONAL | R13.1–R13.2 + R6 |
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | PLANNED | CONDITIONAL | R13.8 + R8/R12 patterns |
@@ -234,7 +234,7 @@ Before R13.1 implementation:
 
 **Start record:** branch **`r13/05-android-signing`** created exactly from normalized `main` **`939565f6409a45c93d0168546c1b4bb947d13ad4`**. Status **IN_PROGRESS** before implementation. Manual state starts **CONDITIONAL / NOT TRIGGERED**; production keystore/private-key/password material and a live Play account are not core prerequisites.
 
-**Completion record:** initial technical candidate **`a58227cd21112a65710002d2e673a1466889d7ce`** passed its technical gates but was not accepted as the final R13.5 candidate because the phase-required `R13_5_DESIGN.md` and `R13_5_ACCEPTANCE.md` artifacts were still absent. Corrected accepted implementation candidate **`1b299f5ab69bd5ac90d8ea805d59c216643f68e3`** adds exactly those required documents and passed R0 #1643 / `32894851393`, Python Core #1617 / `32894851604`, KodeStudio UI Smoke #1584 / `32894851851`, R13 Android Build Acceptance #51 / `32894851296`, and R13 Android Signing Acceptance #4 / `32894851385`; Android Build and Android Signing both completed successfully on Ubuntu and Windows. Manual remained **CONDITIONAL / NOT TRIGGERED**: hosted CI proved test-signing/state-model semantics without production keystore/private-key/password material or a live Play account. R13.5 is **COMPLETE** on the implementation branch; merge plus exactly one continuity-only normalization are still required before R13.6 starts.
+**Completion record:** initial technical candidate **`a58227cd21112a65710002d2e673a1466889d7ce`** passed its technical gates but was not accepted as the final R13.5 candidate because the phase-required `R13_5_DESIGN.md` and `R13_5_ACCEPTANCE.md` artifacts were still absent. Corrected accepted implementation candidate **`1b299f5ab69bd5ac90d8ea805d59c216643f68e3`** added exactly those required documents and passed R0 #1643 / `32894851393`, Python Core #1617 / `32894851604`, KodeStudio UI Smoke #1584 / `32894851851`, R13 Android Build Acceptance #51 / `32894851296`, and R13 Android Signing Acceptance #4 / `32894851385`; Android Build and Android Signing both completed successfully on Ubuntu and Windows. Final end-synchronized head **`030a3c548aebd77b736f139f995bf3951b17c33d`** passed fresh R0 #1645 / `32895748636`, Python Core #1619 / `32895748542`, KodeStudio UI Smoke #1586 / `32895748608`, R13 Android Build Acceptance #55 / `32895748735`, and R13 Android Signing Acceptance #8 / `32895748633`, again with both Android workflows SUCCESS on Ubuntu and Windows. PR #229 merged as **`bc354a48d6cd52b04462d58ced2a855770217d5f`**. The single continuity-only normalization head **`2517fb071f091c7a2312301504126bd4c8f70bbd`** changed only `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 #1647 / `32896670665`, Python Core #1621 / `32896670704`, and KodeStudio UI Smoke #1588 / `32896670776`; PR #230 merged as normalized `main` **`56d6da4184709a54841ed36b21128477c78c6e9d`**. Manual remained **CONDITIONAL / NOT TRIGGERED**. R13.5 is authoritatively **COMPLETE + NORMALIZED**.
 
 # R13.6 — Android emulator/device testing + adb/instrumentation adapter
 
@@ -245,6 +245,8 @@ Before R13.1 implementation:
 **Acceptance:** hosted emulator or accepted equivalent runs canonical tests; stale/offline/wrong-device substitution fails; no arbitrary `adb shell`; KillSwitch cleanup leaves no owned test process; physical-only claims remain separate.
 
 **Manual:** CONDITIONAL — only for hardware-only behavior unavailable in CI.
+
+**Start record:** branch **`r13/06-android-device-testing`** created exactly from normalized `main` **`56d6da4184709a54841ed36b21128477c78c6e9d`**. Status **IN_PROGRESS** before implementation. Manual state starts **CONDITIONAL / NOT TRIGGERED**: core acceptance will first use a hosted Android emulator or accepted equivalent, and no physical device/account is required unless a hardware-only frozen claim cannot be proven in CI.
 
 # R13.7 — Google Play release tracks, metadata + policy/compliance readiness
 

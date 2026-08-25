@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.15 COMPLETE + NORMALIZED. R12.15 final recorded-evidence head `095c8f5eafd67e7c23f7a38700b053ae634b6bc5` passed R0 #1583 / `32837368878`, Python #1557 / `32837368733`, KodeStudio UI #1524 / `32837368999`, WPF #74 / `32837368788`, WinUI #64 / `32837368932`, Avalonia #60 / `32837368735`, Qt #55 / `32837368921`, Tauri #46 / `32837368783`, then PR #215 merged with expected SHA as `bfd957a1f9de5493c927ab50f6875a54ee3f4ed9`. Its single continuity-only normalization head `965d21235171a260f9d97002c585142c5cafd094` passed R0 #1585 / `32837907058`, Python #1559 / `32837906972`, KodeStudio UI #1526 / `32837907051`, WPF #75 / `32837906956`, WinUI #65 / `32837906989`, Avalonia #61 / `32837907001`, Qt #56 / `32837906941`, Tauri #47 / `32837906926`, and PR #216 merged as normalized `main` `30095003ab5fa61328319be320122ff647ce351a`. R12.16 is now the sole active subdivision on `r12/16-adversarial-integrated-acceptance`, created exactly from that normalized base. Start-of-subdivision plan/continuity synchronization sets R12.16 IN_PROGRESS before implementation. Manual state is CONDITIONAL / NOT TRIGGERED at subdivision start; trigger only if a real interactive/runtime/install Windows semantic required by the frozen DoD cannot be established by accepted hosted CI.**
+> Kodepoia, architecture v1.0 gelée. **R1–R11 COMPLETE + NORMALIZED. R12 planning ACCEPTED + NORMALIZED. R12.1–R12.15 COMPLETE + NORMALIZED. R12.16 a un implementation source accepté `1927d9ab673228101c932b1cb6b89243296ac957`, issu exactement du `main` normalisé `30095003ab5fa61328319be320122ff647ce351a`. Ce SHA a passé R0 #1590 / `32842609351`, Python #1564 / `32842609414`, KodeStudio UI #1531 / `32842609362`, WPF #79 / `32842609356`, WinUI3 #69 / `32842609315`, Avalonia #65 / `32842609365`, Qt #60 / `32842609324`, Tauri2 #51 / `32842609391` et Integrated Windows #4 / `32842609416`, tous SUCCESS. La preuve Windows CI exacte a `source_sha=1927d9ab...`, `status=pass`, `blockers=[]`, digest sémantique `0bbead835c2ee48f4d6a78f11f6aceaca60262eebe70c3944f6475ae82b70a24`, package-manifest digest `4debf90eddd3dca3f3af05c6ab245b06246e6d6eb538bd3b769c575a8a1401e1` et 5 artefacts applicatifs isolés. Le manuel R12.16 est CONDITIONAL / NOT TRIGGERED : le DoD gelé create/compile/test est établi par hosted Windows CI et aucune revendication install/Store/signature production n'est faite. La synchronisation de fin marque R12.16 COMPLETE avant génération du rapport canonique. R12 est COMPLETE mais NOT NORMALIZED tant que PR #217 n'est pas fusionnée puis suivie d'exactement une normalisation continuity-only acceptée.**
 
 ## État global
 
@@ -13,8 +13,9 @@
 - R1–R11 : **COMPLETE + NORMALIZED**.
 - R12 planning : **ACCEPTED + NORMALIZED**.
 - R12.1–R12.15 : **COMPLETE + NORMALIZED**.
-- R12.16 : **IN_PROGRESS**.
-- R13 planning : **FORBIDDEN until R12.16 implementation/evidence merge + its single accepted continuity-only normalization merge**.
+- R12.16 : **COMPLETE — accepted implementation/evidence source; final evidence merge + normalization pending**.
+- R12 phase : **COMPLETE / NOT NORMALIZED**.
+- R13 planning : **FORBIDDEN until PR #217 merges on an accepted final evidence head and exactly one continuity-only R12.16 normalization passes exact-head gates and merges**.
 
 ## Permanent R-phase plan status synchronization rule
 
@@ -61,13 +62,20 @@ This rule applies to all future R-phase execution/recovery unless a later accept
 ## R12.16 execution authority
 
 - Base normalized `main`: `30095003ab5fa61328319be320122ff647ce351a`.
-- Dedicated branch: `r12/16-adversarial-integrated-acceptance`, created exactly from that SHA.
-- Manual state: **CONDITIONAL / NOT TRIGGERED at subdivision start**.
-- Trigger: only if the final frozen Wizard-to-Windows DoD requires an interactive/runtime/install Windows semantic not established by accepted hosted Windows CI. If triggered, freeze one exact candidate SHA and stop before any next phase; provide one bounded local collector with prerequisites, exact commands, expected evidence path, privacy/recovery instructions, and review the evidence before proceeding.
-- Start status synchronization: **DONE in this work cycle** — R12.1–R12.15 `COMPLETE`, R12.15 `COMPLETE + NORMALIZED`, R12.16 `IN_PROGRESS` in both `R12_PLAN.md` and continuity before implementation.
-- Frozen deliverables: adversarial suite across Project DNA → template → adapter → build/test → SQLite/async/IPC → package/update; canonical `R12_INTEGRATED_ACCEPTANCE.json` schema/model/verifier; anti-circular report creation only after the implementation head independently passes gates; evidence binding R12.1–R12.16 plus prior canonical integrated evidence; canonical Project Wizard Windows desktop fixture scaffolded, compiled and tested with a modern Windows adapter; package artifact validation.
-- Runtime launch/install smoke is not automatically part of the claim. It remains conditional; do not manufacture PASS if later required and not CI-provable.
-- Required acceptance ordering remains: immutable implementation head with canonical report absent → exact-head R0/full Python/UI (plus relevant desktop adapter regressions) → triggered manual gate if any → freeze implementation SHA/run IDs → generate canonical integrated report → end-of-subdivision plan/continuity update to R12.16 `COMPLETE` → fresh exact-head final documentation/evidence gates → merge with expected head → exactly one continuity-only R12.16 normalization + exact-head gates + merge → only then R12 COMPLETE + NORMALIZED.
+- Dedicated branch: `r12/16-adversarial-integrated-acceptance`; PR #217.
+- Start-of-subdivision plan + continuity synchronization: **DONE before implementation**.
+- Rejected candidate 1: `64035fc92757e275bdf13eda60d6a47596b22c2e` — Python Core exposed only a mismatched expected error-message regex in one adversarial test; no failed/stale evidence reused.
+- Rejected candidate 2: `af2daa01d4c98c2a6ce7ba48830819f513d8e741` — Integrated Windows acceptance exposed package verification against mutable global staging rather than a dedicated application artifact tree; no failed/stale evidence reused.
+- Accepted immutable implementation source: **`1927d9ab673228101c932b1cb6b89243296ac957`**.
+- Exact-head accepted gates — all SUCCESS: R0 #1590 / `32842609351`; Python Core #1564 / `32842609414`; KodeStudio UI #1531 / `32842609362`; WPF #79 / `32842609356`; WinUI3 #69 / `32842609315`; Avalonia #65 / `32842609365`; Qt6 #60 / `32842609324`; Tauri2 #51 / `32842609391`; Integrated Windows #4 / `32842609416`.
+- Manual state after accepted implementation gates: **CONDITIONAL / NOT TRIGGERED** (`conditional_not_triggered`). Hosted Windows CI establishes the frozen Project Wizard -> persisted DNA/Product -> deterministic scaffold -> WPF compile/runtime-test -> package-manifest verification claim. R12 does not claim interactive install, Store publication, production signing or Developer Mode launch semantics.
+- Exact Windows CI artifact: `r12-16-windows-ci-1927d9ab673228101c932b1cb6b89243296ac957`, artifact id `9561095185`, archive digest `sha256:1ca4e2f65f7fa9563598de93c6e0c90a984231554fa6d0d982ff4690baa6a21e`.
+- Accepted Windows CI evidence: `source_sha=1927d9ab673228101c932b1cb6b89243296ac957`, `status=pass`, `blockers=[]`, build/test return codes 0, semantic digest `0bbead835c2ee48f4d6a78f11f6aceaca60262eebe70c3944f6475ae82b70a24`, shared-model digest `3feb7493c8fa969e638bb9c4454161edea8d1f36f49f2f93a72a99c3b4ca0da0`, package-manifest digest `4debf90eddd3dca3f3af05c6ab245b06246e6d6eb538bd3b769c575a8a1401e1`, 5 isolated application artifacts.
+- End-of-subdivision synchronization: **R12.16 COMPLETE** in both `R12_PLAN.md` and this continuity before canonical report generation.
+- Checked-in Windows CI source evidence is now authorized at `docs/roadmap/R12_16_WINDOWS_CI_ACCEPTANCE.json` exactly from the accepted artifact.
+- Canonical report generation must use `scripts/r12_16_build_integrated_report.py --source-sha 1927d9ab673228101c932b1cb6b89243296ac957`; it must bind the now-frozen R12.1–R12.16 acceptance bytes, this end-synchronized continuity, exact Windows evidence, and canonical R11 digest `ed956be1aa19592b654382a209e5ca99d44d3cbcd67dd3981bdae3d865563170`.
+- After this end-sync evidence-input commit, **do not mutate R12.16 acceptance, R12 plan, continuity or checked-in Windows CI evidence before report generation/import**, because the integrated report binds those bytes.
+- R12 is **COMPLETE / NOT NORMALIZED** until final evidence PR #217 merges and exactly one continuity-only normalization is accepted and merged.
 
 ## Frozen R12 subdivision index
 
@@ -88,7 +96,7 @@ This rule applies to all future R-phase execution/recovery unless a later accept
 | R12.13 | Accessibility, localization, theming, keyboard/focus + DPI/scaling QA | COMPLETE | CONDITIONAL |
 | R12.14 | Packaging/install/update/signing-state + rollback model | COMPLETE | CONDITIONAL |
 | R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | COMPLETE | NONE |
-| R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | IN_PROGRESS | CONDITIONAL |
+| R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | COMPLETE | CONDITIONAL |
 
 ## Permanent boundaries
 
@@ -96,10 +104,10 @@ Workspace/R8 Vault boundaries; ProcessSandbox + KillSwitch; Guardian/PermissionS
 
 ## Execution rule
 
-Each R12 subdivision: dedicated branch from normalized `main` → **start-of-subdivision plan + continuity status synchronization** → implementation + focused tests → exact-head standard + subdivision-specific gates → satisfy triggered manual state → **end-of-subdivision plan + continuity status synchronization** → evidence/re-gate if bytes change → merge with `expected_head_sha` → exactly one continuity-only post-merge normalization + exact-head gates + merge → only then next subdivision/phase.
+Each R12 subdivision: dedicated branch from normalized `main` -> **start-of-subdivision plan + continuity status synchronization** -> implementation + focused tests -> exact-head standard + subdivision-specific gates -> satisfy triggered manual state -> **end-of-subdivision plan + continuity status synchronization** -> evidence/re-gate if bytes change -> merge with `expected_head_sha` -> exactly one continuity-only post-merge normalization + exact-head gates + merge -> only then next subdivision/phase.
 
 If any CONDITIONAL manual gate triggers, stop before R13 planning and provide exact bounded user commands, prerequisites, expected evidence path and recovery/privacy instructions.
 
 ## Next authorized action
 
-**R12.16 implementation only:** inspect and reuse the accepted R11 anti-circular integrated-acceptance pattern; implement R12.16 adversarial verifier/schema/tests and canonical Wizard-to-Windows CI acceptance while keeping `R12_INTEGRATED_ACCEPTANCE.json` absent from the first immutable implementation candidate. Freeze that candidate and require exact-head gates before any canonical PASS report is created. R13 planning remains forbidden.
+**R12.16 evidence closure only:** commit the exact accepted Windows CI artifact together with the frozen end-of-subdivision acceptance/plan/continuity inputs; generate and verify `R12_INTEGRATED_ACCEPTANCE.json` from those exact bytes with implementation source `1927d9ab673228101c932b1cb6b89243296ac957`; import the generated report unchanged; require fresh exact-head R0/full Python/UI + WPF/WinUI/Avalonia/Qt/Tauri + Integrated Windows gates on the final report head; merge PR #217 with `expected_head_sha`; create exactly one continuity-only R12.16 normalization from the merge; gate and merge it. Only after that is R12 **COMPLETE + NORMALIZED** and R13 planning authorized.

@@ -1,0 +1,22 @@
+{
+  "architecture": "x64",
+  "artifact_count": 5,
+  "blockers": [],
+  "build_returncode": 0,
+  "evidence_sha256": "0bbead835c2ee48f4d6a78f11f6aceaca60262eebe70c3944f6475ae82b70a24",
+  "framework": "wpf",
+  "generated_at": "2026-08-25T11:30:45.007810Z",
+  "model_sha256": "3feb7493c8fa969e638bb9c4454161edea8d1f36f49f2f93a72a99c3b4ca0da0",
+  "package_kind": "archive",
+  "package_manifest_sha256": "4debf90eddd3dca3f3af05c6ab245b06246e6d6eb538bd3b769c575a8a1401e1",
+  "platform": "windows",
+  "product_sha256": "2e06dfb99a5d9d251f0f91cb40f9885e59c084c95dc4cbb520083a53971c2a77",
+  "project_dna_sha256": "a82e35334f0678d6e21dcf3537bc57767232041e9e211e841fc37b67e251a30c",
+  "project_type": "desktop_app",
+  "schema_version": 1,
+  "source_sha": "1927d9ab673228101c932b1cb6b89243296ac957",
+  "status": "pass",
+  "test_returncode": 0,
+  "test_sentinel": "KODEPOIA_WPF_TEST_PASS:3feb7493c8fa969e638bb9c4454161edea8d1f36f49f2f93a72a99c3b4ca0da0",
+  "workspace_manifest_sha256": "44b22e052edc22f9b723b9bf74d55c4d70f2e85445996020986ede6c93b4b1ac"
+}

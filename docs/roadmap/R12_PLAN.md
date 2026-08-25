@@ -2,7 +2,7 @@
 
 **Phase:** R12  
 **Roadmap title:** Desktop applications  
-**Status:** EXECUTION — R12.16 IN_PROGRESS  
+**Status:** COMPLETE — R12.16 accepted; post-merge normalization pending  
 **Phase planning started:** 2026-08-24  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`
@@ -218,7 +218,7 @@ Before R12.1 implementation begins:
 | R12.13 | Accessibility, localization, theming, keyboard/focus + DPI/scaling QA | COMPLETE | CONDITIONAL | R12.4–R12.9 + R6 |
 | R12.14 | Packaging/install/update/signing-state + rollback model | COMPLETE | CONDITIONAL | R12.5–R12.13 + R1/R6/R8 |
 | R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | COMPLETE | NONE | R12.1–R12.14 |
-| R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | IN_PROGRESS | CONDITIONAL | R12.1–R12.15 + R6/R8/R11 evidence |
+| R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | COMPLETE | CONDITIONAL | R12.1–R12.15 + R6/R8/R11 evidence |
 
 ## R12.1 — Desktop contracts, identities, capability model + secure toolchain boundaries
 
@@ -548,13 +548,19 @@ Execution checkpoint — 2026-08-25:
 
 Trigger if the final roadmap DoD requires an interactive/real Windows runtime semantic not established by the accepted hosted Windows runner. If triggered, freeze one exact candidate SHA, one bounded local collector, prerequisites, exact commands, expected output, privacy/recovery instructions and review the resulting evidence before proceeding.
 
-Execution checkpoint — 2026-08-25 subdivision start:
+Execution checkpoint — 2026-08-25 accepted implementation:
 
 - normalized base: `30095003ab5fa61328319be320122ff647ce351a`;
 - dedicated branch: `r12/16-adversarial-integrated-acceptance`;
-- start-of-subdivision plan/continuity synchronization: **IN_PROGRESS → this commit must land before implementation**;
-- R12.1–R12.15 are COMPLETE; R12.15 is COMPLETE + NORMALIZED; R12.16 is the sole active subdivision and is `IN_PROGRESS`;
-- manual state: **CONDITIONAL / NOT TRIGGERED at subdivision start**. Hosted Windows CI is an accepted path for the frozen compile/test DoD; runtime launch/install smoke remains conditional and will trigger manual evidence only if later implementation proves it is required for a claim that CI cannot establish.
+- start-of-subdivision plan/continuity synchronization completed before implementation;
+- accepted immutable implementation source: `1927d9ab673228101c932b1cb6b89243296ac957`;
+- exact-head gates all SUCCESS: R0 #1590 / `32842609351`; Python #1564 / `32842609414`; KodeStudio UI #1531 / `32842609362`; WPF #79 / `32842609356`; WinUI3 #69 / `32842609315`; Avalonia #65 / `32842609365`; Qt #60 / `32842609324`; Tauri2 #51 / `32842609391`; Integrated Windows #4 / `32842609416`;
+- rejected candidate `64035fc92757e275bdf13eda60d6a47596b22c2e`: one adversarial test asserted the wrong error-message regex; failed/stale evidence not reused;
+- rejected candidate `af2daa01d4c98c2a6ce7ba48830819f513d8e741`: package verification covered mutable global staging instead of an isolated application artifact tree; failed/stale evidence not reused;
+- manual state after accepted gates: **CONDITIONAL / NOT TRIGGERED** (`conditional_not_triggered`); hosted Windows CI proves the frozen create/compile/test DoD and no interactive install/Store/production-signing claim is made;
+- accepted Windows CI semantic evidence digest: `0bbead835c2ee48f4d6a78f11f6aceaca60262eebe70c3944f6475ae82b70a24`; exact source `1927d9ab673228101c932b1cb6b89243296ac957`; package-manifest digest `4debf90eddd3dca3f3af05c6ab245b06246e6d6eb538bd3b769c575a8a1401e1`; 5 isolated application artifacts;
+- end-of-subdivision status synchronization: **R12.16 COMPLETE in this plan before canonical report generation**;
+- R12 is not `COMPLETE + NORMALIZED` until the implementation/evidence PR is accepted and followed by exactly one successful continuity-only normalization merge.
 
 Deliver:
 

@@ -1,13 +1,29 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import Mapping, Protocol, Sequence
 
 
 class SecretBackend(Protocol):
     def set(self, namespace: str, key: str, value: str) -> None: ...
     def get(self, namespace: str, key: str) -> str | None: ...
     def delete(self, namespace: str, key: str) -> None: ...
+
+
+@dataclass(frozen=True, slots=True)
+class SecretRef:
+    namespace: str
+    key: str
+
+    def __post_init__(self) -> None:
+        if not self.namespace.strip() or not self.key.strip():
+            raise ValueError("Secret references require non-empty namespace and key")
+        if any(ch in self.namespace + self.key for ch in "\r\n\x00"):
+            raise ValueError("Secret references cannot contain control delimiters")
+
+    def to_dict(self) -> dict[str, str]:
+        return {"namespace": self.namespace, "key": self.key}
 
 
 class KeyringSecretBackend:
@@ -56,6 +72,12 @@ class KodeSecrets:
         self.backend.set(namespace, key, value)
         self._known_values.add(value)
 
+    def ref(self, namespace: str, key: str) -> SecretRef:
+        return SecretRef(namespace=namespace, key=key)
+
+    def resolve(self, ref: SecretRef) -> str | None:
+        return self.delegated_get(ref.namespace, ref.key)
+
     def delegated_get(self, namespace: str, key: str) -> str | None:
         value = self.backend.get(namespace, key)
         if value:
@@ -68,3 +90,25 @@ class KodeSecrets:
             if value:
                 result = result.replace(value, "***REDACTED***")
         return result
+
+    def known_values(self) -> tuple[str, ...]:
+        return tuple(sorted(self._known_values, key=len, reverse=True))
+
+
+def find_secret_leaks(payload: object, known_values: Sequence[str]) -> tuple[str, ...]:
+    serialized = json.dumps(payload, sort_keys=True, ensure_ascii=False)
+    return tuple(value for value in known_values if value and value in serialized)
+
+
+def assert_secret_refs_only(
+    payload: Mapping[str, object],
+    refs: Sequence[SecretRef],
+    known_values: Sequence[str],
+) -> None:
+    leaks = find_secret_leaks(payload, known_values)
+    if leaks:
+        raise ValueError("raw secret material leaked into durable payload")
+    serialized = json.dumps(payload, sort_keys=True, ensure_ascii=False)
+    for ref in refs:
+        if ref.namespace not in serialized or ref.key not in serialized:
+            raise ValueError("durable payload lost a required KodeSecrets reference")

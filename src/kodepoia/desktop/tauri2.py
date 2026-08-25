@@ -28,6 +28,11 @@ from .contracts import (
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _VERSION_RE = re.compile(r"(\d+)\.(\d+)(?:\.(\d+))?")
 _HOST_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]{2,127}$")
+_WINDOW_ICON_BYTES = bytes.fromhex(
+    "00000100010001010000010020003000000016000000280000000100000002000000"
+    "0100200000000000040000000000000000000000000000000000000000000066ccff"
+    "00000000"
+)
 
 
 class TauriLicenseState(StrEnum):
@@ -395,6 +400,7 @@ class Tauri2Adapter:
         config = root / "tauri.conf.json"
         html = root / "dist" / "index.html"
         model_file = root / "dist" / "model.txt"
+        icon = root / "icons" / "icon.ico"
 
         self._write(
             cargo,
@@ -470,7 +476,9 @@ class Tauri2Adapter:
             "<!doctype html><html><head><meta charset=\"utf-8\"><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; connect-src 'none'; object-src 'none'; frame-src 'none'\"><title>Kodepoia</title></head><body><main id=\"app\">Kodepoia Tauri R12.9</main></body></html>\n",
         )
         self._write(model_file, model_sha + "\n")
-        paths = (cargo, build_rs, main_rs, config, html, model_file)
+        icon.parent.mkdir(parents=True, exist_ok=True)
+        icon.write_bytes(_WINDOW_ICON_BYTES)
+        paths = (cargo, build_rs, main_rs, config, html, model_file, icon)
         files = tuple(
             TauriGeneratedFile(path.relative_to(root).as_posix(), self._sha(path))
             for path in paths

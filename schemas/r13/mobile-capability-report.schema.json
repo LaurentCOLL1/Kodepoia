@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r13/mobile-capability-report.schema.json",
+  "title": "R13 MobileCapabilityReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["adapter_id", "platform", "state", "toolchains", "capabilities", "blockers"],
+  "properties": {
+    "adapter_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "platform": {"enum": ["android", "ios", "ipados"]},
+    "state": {"enum": ["NOT_PROBED", "AVAILABLE", "UNAVAILABLE", "UNSUPPORTED", "BLOCKED", "FAILED"]},
+    "toolchains": {
+      "type": "array", "maxItems": 32,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["tool_kind", "executable_name", "executable_sha256", "version", "host_os", "architecture", "capabilities"],
+        "properties": {
+          "tool_kind": {"enum": ["java", "gradle", "adb", "sdkmanager", "apksigner", "keytool", "bundletool", "xcodebuild", "xcrun"]},
+          "executable_name": {"type": "string", "minLength": 1, "maxLength": 128},
+          "executable_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "version": {"type": "string", "minLength": 1, "maxLength": 128},
+          "host_os": {"enum": ["windows", "linux", "macos"]},
+          "architecture": {"enum": ["arm64", "x86_64"]},
+          "capabilities": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"}}
+        }
+      }
+    },
+    "capabilities": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"}},
+    "blockers": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"}}
+  },
+  "allOf": [
+    {"if": {"properties": {"state": {"const": "AVAILABLE"}}}, "then": {"properties": {"toolchains": {"minItems": 1}, "blockers": {"maxItems": 0}}}},
+    {"if": {"properties": {"state": {"const": "NOT_PROBED"}}}, "then": {"properties": {"toolchains": {"maxItems": 0}, "capabilities": {"maxItems": 0}, "blockers": {"maxItems": 0}}}},
+    {"if": {"properties": {"state": {"enum": ["UNAVAILABLE", "UNSUPPORTED", "BLOCKED", "FAILED"]}}}, "then": {"properties": {"blockers": {"minItems": 1}}}}
+  ]
+}

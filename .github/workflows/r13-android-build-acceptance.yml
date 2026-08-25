@@ -56,7 +56,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install accepted Android SDK packages
-        run: sdkmanager "platforms;android-37" "build-tools;36.0.0" "platform-tools"
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
 
       - name: Prepare exact-head governed Android staging
         env:

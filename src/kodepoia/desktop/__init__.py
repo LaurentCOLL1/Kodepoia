@@ -26,6 +26,11 @@ from .scaffold import (
     RenderedFile, ScaffoldLineage, ScaffoldPreview, TemplateFile, TemplateValue,
     TemplateValueKind, WorkspaceManifest,
 )
+from .tauri2 import (
+    Tauri2Adapter, TauriAcceptanceResult, TauriArtifact, TauriDependencyDeclaration,
+    TauriGeneratedFile, TauriKitIdentity, TauriLicenseState, TauriProjectManifest,
+    TauriToolchainDiscovery, write_tauri_acceptance_report,
+)
 from .winui3 import (
     WinUi3Adapter, WinUiAcceptanceResult, WinUiArtifact, WinUiDeploymentContract,
     WinUiDeploymentMode, canonical_winui_deployment, write_winui_acceptance_report,
@@ -43,13 +48,16 @@ __all__ = [
     "QtAcceptanceResult", "QtArtifact", "QtDependencyDeclaration", "QtGeneratedFile",
     "QtKitIdentity", "QtLicenseState", "QtProjectManifest", "RenderedFile",
     "RouteContract", "ScaffoldLineage", "ScaffoldPreview", "ServiceContract",
-    "ServiceLifetime", "StateField", "StateValueKind", "TemplateFile", "TemplateValue",
+    "ServiceLifetime", "StateField", "StateValueKind", "Tauri2Adapter",
+    "TauriAcceptanceResult", "TauriArtifact", "TauriDependencyDeclaration",
+    "TauriGeneratedFile", "TauriKitIdentity", "TauriLicenseState",
+    "TauriProjectManifest", "TauriToolchainDiscovery", "TemplateFile", "TemplateValue",
     "TemplateValueKind", "ValidationKind", "ValidationRule", "ViewContract",
     "ViewModelContract", "WinUi3Adapter", "WinUiAcceptanceResult", "WinUiArtifact",
     "WinUiDeploymentContract", "WinUiDeploymentMode", "WorkspaceManifest",
     "WpfAcceptanceResult", "WpfAdapter", "WpfArtifact", "canonical_avalonia_matrix",
     "canonical_sample_app", "canonical_sha256", "canonical_winui_deployment",
     "validate_environment_overrides", "write_avalonia_acceptance_report",
-    "write_qt_acceptance_report", "write_winui_acceptance_report",
-    "write_wpf_acceptance_report",
+    "write_qt_acceptance_report", "write_tauri_acceptance_report",
+    "write_winui_acceptance_report", "write_wpf_acceptance_report",
 ]

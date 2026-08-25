@@ -199,7 +199,7 @@ def test_r12_16_report_digest_rejects_forgery_and_timestamp_is_not_semantic() ->
     with pytest.raises(ValueError, match="semantic digest mismatch"):
         R12IntegratedReport.from_dict(forged)
 
-    with pytest.raises(ValueError, match="repository path"):
+    with pytest.raises(ValueError, match="escapes repository boundary"):
         EvidenceBinding("../escape", "a" * 64, 1)
 
 

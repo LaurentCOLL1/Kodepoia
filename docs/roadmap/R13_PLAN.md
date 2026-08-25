@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1 `IN_PROGRESS` from normalized planning `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`
+**Execution checkpoint:** R13.1 `COMPLETE` on accepted implementation source `04bee35bba58645f6ef91e8cf5530b5062c6803d`; R13.2 remains `PLANNED` pending R13.1 merge + normalization.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1 is the sole active subdivision.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1 is accepted and awaiting merge/normalization before R13.2 may start.
 
 ## Permanent subdivision status synchronization rule
 
@@ -154,7 +154,7 @@ Before R13.1 implementation:
 
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
-| R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | IN_PROGRESS | NONE | R12 COMPLETE + normalized planning |
+| R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | COMPLETE | NONE | R12 COMPLETE + normalized planning |
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | PLANNED | NONE | R13.1 + R2 |
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | PLANNED | NONE | R13.1–R13.2 + R8/R12 patterns |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | PLANNED | CONDITIONAL | R13.1–R13.3 + R6 |
@@ -183,6 +183,8 @@ Before R13.1 implementation:
 **Acceptance:** traversal/symlink/executable substitution/raw-argv/env injection rejected; capability cannot become AVAILABLE from config text alone; schema round-trips deterministic; R0 + full Python + KodeStudio UI exact-head gates.
 
 **Manual:** NONE.
+
+**Completion record (candidate acceptance):** accepted implementation source `04bee35bba58645f6ef91e8cf5530b5062c6803d`; rejected predecessor `97e3f0a48be3a888b0f2974e04bcf1317f3e6296` is not reused; candidate gates R0 #1601 / `32849189652`, Python Core #1575 / `32849189637`, KodeStudio UI #1542 / `32849189598`, all SUCCESS. Final end-synchronized head must still receive fresh exact-head gates, merge, and the single continuity-only normalization before R13.1 is normalized.
 
 # R13.2 — Project DNA/KodeProduct mobile profiles + Project Wizard target selection
 
@@ -385,7 +387,7 @@ Planning and every R13 subdivision use the same anti-drift rule:
 3. accepted planning candidate `6f44e8faf8ef675dab5c8079541ce436ff55b4b2` passed R0 #1596 / `32846530810`, Python #1570 / `32846530804`, UI #1537 / `32846530786`;
 4. planning PR #219 merged with expected head as `9a5c678c226cb845c639b914e6365b475ab20e86`;
 5. single continuity-only planning normalization head `b7ca326ac6f9fbb74bdbe69fefe6faf4aaadf653` passed R0 #1598 / `32846946552`, Python #1572 / `32846946574`, UI #1539 / `32846946557`;
-6. normalization PR #220 merged as **`aef297e385dc49ad6ae0935d4f9ef25a35e5e984`**;
+6. normalization PR #220 merged as `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`;
 7. therefore R13 planning is **ACCEPTED + NORMALIZED** and R13.1 is authorized.
 
 ## Phase completion rule

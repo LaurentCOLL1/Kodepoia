@@ -2,7 +2,7 @@
 
 **Phase:** R12  
 **Roadmap title:** Desktop applications  
-**Status:** PLANNING  
+**Status:** EXECUTION — R12.14 IN_PROGRESS  
 **Phase planning started:** 2026-08-24  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`
@@ -14,6 +14,18 @@ R12 implements Kodepoia's governed desktop-application generation, build, test, 
 This file is the exhaustive execution/recovery plan for R12. The R12.1–R12.16 subdivision structure becomes frozen when this plan is merged. No subdivision may be silently added, removed, merged, split or renumbered. Any R12 scope change must update this plan and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R11 foundation requires an ADR.
 
 R12.1 MUST NOT begin before this plan is merged to `main` with R0 Repository Guard, full Python Core and KodeStudio UI Smoke successful on the exact final planning head, followed by the single continuity-only planning normalization required by the phase-start rule.
+
+## Subdivision status synchronization rule
+
+The phase plan is live execution authority, not a planning-only snapshot. For every R subdivision, including R12, the corresponding `R<n>_PLAN.md` MUST be updated twice in the subdivision branch and synchronized with `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle:
+
+1. **At subdivision start, before implementation:** update the phase-level `Status`, the `Complete subdivision index`, and any execution checkpoint so all prior normalized subdivisions are `COMPLETE`, the active subdivision is `IN_PROGRESS`, and later subdivisions remain `PLANNED`/`NOT STARTED`.
+2. **At subdivision end, before final documentation re-gates and merge:** update the same plan fields so the accepted subdivision is `COMPLETE` and the next subdivision is still `PLANNED` until its own dedicated branch begins.
+3. If a subdivision is blocked or a conditional manual gate triggers, its plan status becomes `BLOCKED`/`MANUAL_REQUIRED` rather than falsely becoming `COMPLETE`.
+4. A post-merge continuity-only normalization MUST NOT silently rewrite phase-plan status. The plan reaches `COMPLETE` in the implementation branch before merge; the normalization records the authoritative merge/base SHA in continuity.
+5. Stale `Complete subdivision index` states are governance defects and must be corrected before the active subdivision can be accepted.
+
+This rule is permanent and must also be recorded in continuity so a future LLM cannot treat an R-phase plan as immutable after its initial planning merge.
 
 ## Phase objective
 
@@ -191,20 +203,20 @@ Before R12.1 implementation begins:
 
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
-| R12.1 | Desktop contracts, identities, capability model + secure toolchain boundaries | PLANNED | NONE | R11 COMPLETE + planning PR merged |
-| R12.2 | Project DNA/KodeProduct desktop profiles + Project Wizard target selection | PLANNED | NONE | R12.1 + R2 |
-| R12.3 | Deterministic desktop scaffold/template/workspace manifest engine | PLANNED | NONE | R12.1–R12.2 + R8 |
-| R12.4 | Framework-neutral MVVM/state/navigation/command/service contracts | PLANNED | NONE | R12.1–R12.3 |
-| R12.5 | WPF/.NET desktop adapter + build/test bridge | PLANNED | CONDITIONAL | R12.1–R12.4 + R6 |
-| R12.6 | WinUI 3/Windows App SDK adapter + Windows identity/deployment bridge | PLANNED | CONDITIONAL | R12.1–R12.5 |
-| R12.7 | Avalonia cross-platform desktop adapter | PLANNED | CONDITIONAL | R12.1–R12.4 + R12.5 evidence patterns |
-| R12.8 | Qt 6/CMake desktop adapter | PLANNED | CONDITIONAL | R12.1–R12.4 + R6/R8 |
-| R12.9 | Tauri v2/Rust/WebView2 desktop adapter | PLANNED | CONDITIONAL | R12.1–R12.4 + R6/R8 |
-| R12.10 | SQLite persistence, schema migrations, transactions + backup/recovery | PLANNED | NONE | R12.1–R12.4 + R1/R6 |
-| R12.11 | Async/concurrency, cancellation, progress + UI-thread lifecycle safety | PLANNED | NONE | R12.4 + adapter contracts |
-| R12.12 | Local IPC contracts, framing, authorization + lifecycle isolation | PLANNED | CONDITIONAL | R12.1 + R12.11 + R1/R6 |
-| R12.13 | Accessibility, localization, theming, keyboard/focus + DPI/scaling QA | PLANNED | CONDITIONAL | R12.4–R12.9 + R6 |
-| R12.14 | Packaging/install/update/signing-state + rollback model | PLANNED | CONDITIONAL | R12.5–R12.13 + R1/R6/R8 |
+| R12.1 | Desktop contracts, identities, capability model + secure toolchain boundaries | COMPLETE | NONE | R11 COMPLETE + planning PR merged |
+| R12.2 | Project DNA/KodeProduct desktop profiles + Project Wizard target selection | COMPLETE | NONE | R12.1 + R2 |
+| R12.3 | Deterministic desktop scaffold/template/workspace manifest engine | COMPLETE | NONE | R12.1–R12.2 + R8 |
+| R12.4 | Framework-neutral MVVM/state/navigation/command/service contracts | COMPLETE | NONE | R12.1–R12.3 |
+| R12.5 | WPF/.NET desktop adapter + build/test bridge | COMPLETE | CONDITIONAL | R12.1–R12.4 + R6 |
+| R12.6 | WinUI 3/Windows App SDK adapter + Windows identity/deployment bridge | COMPLETE | CONDITIONAL | R12.1–R12.5 |
+| R12.7 | Avalonia cross-platform desktop adapter | COMPLETE | CONDITIONAL | R12.1–R12.4 + R12.5 evidence patterns |
+| R12.8 | Qt 6/CMake desktop adapter | COMPLETE | CONDITIONAL | R12.1–R12.4 + R6/R8 |
+| R12.9 | Tauri v2/Rust/WebView2 desktop adapter | COMPLETE | CONDITIONAL | R12.1–R12.4 + R6/R8 |
+| R12.10 | SQLite persistence, schema migrations, transactions + backup/recovery | COMPLETE | NONE | R12.1–R12.4 + R1/R6 |
+| R12.11 | Async/concurrency, cancellation, progress + UI-thread lifecycle safety | COMPLETE | NONE | R12.4 + adapter contracts |
+| R12.12 | Local IPC contracts, framing, authorization + lifecycle isolation | COMPLETE | CONDITIONAL | R12.1 + R12.11 + R1/R6 |
+| R12.13 | Accessibility, localization, theming, keyboard/focus + DPI/scaling QA | COMPLETE | CONDITIONAL | R12.4–R12.9 + R6 |
+| R12.14 | Packaging/install/update/signing-state + rollback model | IN_PROGRESS | CONDITIONAL | R12.5–R12.13 + R1/R6/R8 |
 | R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | PLANNED | NONE | R12.1–R12.14 |
 | R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | PLANNED | CONDITIONAL | R12.1–R12.15 + R6/R8/R11 evidence |
 
@@ -588,10 +600,12 @@ Every R12.x implementation must include:
 
 For the planning PR and every R12 subdivision/final normalization:
 
+- at subdivision start, update `R12_PLAN.md` and continuity before implementation so the active row is `IN_PROGRESS` and prior normalized rows are `COMPLETE`;
 - R0 Repository Guard must be SUCCESS;
 - full Python Core must be SUCCESS, including Ubuntu/Windows matrices and package build evidence where the workflow defines them;
 - KodeStudio UI Smoke must be SUCCESS;
 - all three top-level runs must refer to the same exact head SHA;
+- before final documentation re-gates, update `R12_PLAN.md` and continuity again so the accepted active row is `COMPLETE` and the next row remains `PLANNED` until its branch begins;
 - if final acceptance/documentation changes the head after implementation gates, the resulting exact documentation head is re-gated before merge;
 - merge always uses `expected_head_sha`;
 - after every accepted implementation merge, exactly one continuity-only normalization is permitted before the next subdivision;

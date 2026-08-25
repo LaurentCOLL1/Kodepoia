@@ -2,18 +2,19 @@
 
 **Phase:** R13  
 **Roadmap title:** Mobile / Platform / Release  
-**Status:** PLANNING  
+**Status:** IN PROGRESS  
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
-**Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`
+**Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
+**Execution checkpoint:** R13.1 `IN_PROGRESS` from normalized planning `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`
 
 ## Purpose and authority
 
 R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK/device tests/store; interface iOS/Mac/Xcode; DeviceLab; KodeRelease/Updater/Diagnostics and current compliance.”** It extends, and does not replace, the accepted R1–R12 foundations.
 
-This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 becomes frozen when this planning PR is accepted and normalized. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
+This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13.1 MUST NOT begin until this plan has passed exact-head planning gates, merged to `main`, and the single required continuity-only planning normalization has itself passed exact-head gates and merged.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1 is the sole active subdivision.
 
 ## Permanent subdivision status synchronization rule
 
@@ -153,7 +154,7 @@ Before R13.1 implementation:
 
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
-| R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | PLANNED | NONE | R12 COMPLETE + normalized planning |
+| R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | IN_PROGRESS | NONE | R12 COMPLETE + normalized planning |
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | PLANNED | NONE | R13.1 + R2 |
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | PLANNED | NONE | R13.1–R13.2 + R8/R12 patterns |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | PLANNED | CONDITIONAL | R13.1–R13.3 + R6 |
@@ -380,16 +381,12 @@ Planning and every R13 subdivision use the same anti-drift rule:
 ## Planning acceptance / recovery sequence
 
 1. branch `r13/00-phase-plan` from normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`;
-2. create this `docs/roadmap/R13_PLAN.md` and synchronize continuity in the same planning candidate;
-3. freeze one exact planning candidate head;
-4. require R0 Repository Guard + full Python Core + KodeStudio UI Smoke SUCCESS on that head;
-5. record accepted planning evidence without changing scope; if bytes change, re-gate the new final documentation head;
-6. merge planning PR with `expected_head_sha`;
-7. create exactly one post-merge planning continuity normalization changing only `docs/continuity/KODEPOIA_CONTINUITY.md`;
-8. run exact-head R0/full Python/UI on normalization and merge with expected SHA;
-9. only then mark R13 planning **ACCEPTED + NORMALIZED** and authorize R13.1.
-
-If any planning gate fails, correct only the planning defect, create a new head, and restart all required exact-head planning gates. R13.1 remains forbidden throughout recovery.
+2. create `docs/roadmap/R13_PLAN.md` and synchronize continuity in the same planning candidate;
+3. accepted planning candidate `6f44e8faf8ef675dab5c8079541ce436ff55b4b2` passed R0 #1596 / `32846530810`, Python #1570 / `32846530804`, UI #1537 / `32846530786`;
+4. planning PR #219 merged with expected head as `9a5c678c226cb845c639b914e6365b475ab20e86`;
+5. single continuity-only planning normalization head `b7ca326ac6f9fbb74bdbe69fefe6faf4aaadf653` passed R0 #1598 / `32846946552`, Python #1572 / `32846946574`, UI #1539 / `32846946557`;
+6. normalization PR #220 merged as **`aef297e385dc49ad6ae0935d4f9ef25a35e5e984`**;
+7. therefore R13 planning is **ACCEPTED + NORMALIZED** and R13.1 is authorized.
 
 ## Phase completion rule
 

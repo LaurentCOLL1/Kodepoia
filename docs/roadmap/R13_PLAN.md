@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1–R13.3 `COMPLETE + NORMALIZED`; R13.4 `COMPLETE` on its dedicated branch after exact-head acceptance of `0a58fd4e2f255786fe10ed00b7665ea49773d52b`, manual `CONDITIONAL / NOT TRIGGERED`; R13.5 remains `PLANNED` until R13.4 merge and continuity-only normalization complete.
+**Execution checkpoint:** R13.1–R13.4 `COMPLETE + NORMALIZED`; R13.4 normalized `main` is `939565f6409a45c93d0168546c1b4bb947d13ad4`; R13.5 `IN_PROGRESS` from that exact head.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.3 are **COMPLETE + NORMALIZED**; R13.4 is **COMPLETE / NOT NORMALIZED** pending final documentation re-gates, merge and its single continuity-only normalization; R13.5 remains **PLANNED**.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.4 are **COMPLETE + NORMALIZED**; R13.5 is the sole active subdivision.
 
 ## Permanent subdivision status synchronization rule
 
@@ -158,7 +158,7 @@ Before R13.1 implementation:
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | COMPLETE | NONE | R13.1 + R2 |
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | COMPLETE | NONE | R13.1–R13.2 + R8/R12 patterns |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | COMPLETE | CONDITIONAL | R13.1–R13.3 + R6 |
-| R13.5 | Android signing states, keystore boundary + Play App Signing model | PLANNED | CONDITIONAL | R13.4 + R1/R6/R12 |
+| R13.5 | Android signing states, keystore boundary + Play App Signing model | IN_PROGRESS | CONDITIONAL | R13.4 + R1/R6/R12 |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | PLANNED | CONDITIONAL | R13.4–R13.5 |
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | PLANNED | CONDITIONAL | R13.4–R13.6 + R7 |
 | R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | PLANNED | CONDITIONAL | R13.1–R13.2 + R6 |
@@ -220,7 +220,7 @@ Before R13.1 implementation:
 
 **Manual:** CONDITIONAL — only if a required real Android build/device semantic cannot be proven in accepted hosted CI. Toolchain installation on the user machine is never silently requested.
 
-**Completion record:** accepted implementation candidate **`0a58fd4e2f255786fe10ed00b7665ea49773d52b`** passed R0 #1636 / `32888926818`, Python #1610 / `32888926891`, UI #1577 / `32888926909`, and R13 Android Build Acceptance #38 / `32888926881` with both `android-build-ubuntu-latest` and `android-build-windows-latest` SUCCESS. Manual state is **CONDITIONAL / NOT TRIGGERED** because the frozen hosted build/package claim was proven without user-machine tooling. End plan+continuity synchronization marks R13.4 COMPLETE; fresh exact-head R0/Python/UI/Android gates are required on the resulting documentation head before merge #227.
+**Completion record:** accepted implementation candidate **`0a58fd4e2f255786fe10ed00b7665ea49773d52b`** passed R0 #1636 / `32888926818`, Python #1610 / `32888926891`, UI #1577 / `32888926909`, and R13 Android Build Acceptance #38 / `32888926881` with both `android-build-ubuntu-latest` and `android-build-windows-latest` SUCCESS. Final end-synchronized head **`c479d429540b4941d96d3fcc39b8d85561917750`** passed R0 #1638 / `32890540226`, Python #1612 / `32890540400`, UI #1579 / `32890540232`, and Android Build #42 / `32890540329`; PR #227 merged as `b212ae166ee7eceac59ef3c39d56272acfdfdfa6`. Continuity-only normalization **`98f347616a389960c4627b424d12757fd73a4d33`** changed only `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 #1640 / `32891329175`, Python #1614 / `32891329245`, UI #1581 / `32891329226`, and PR #228 merged as normalized `main` **`939565f6409a45c93d0168546c1b4bb947d13ad4`**. Manual remained **CONDITIONAL / NOT TRIGGERED**. R13.4 is **COMPLETE + NORMALIZED**.
 
 # R13.5 — Android signing states, keystore boundary + Play App Signing model
 
@@ -231,6 +231,8 @@ Before R13.1 implementation:
 **Acceptance:** APK/AAB unsigned/signed state detected truthfully; secret/path/password leakage tests; wrong certificate/substitution rejected; test keystore may be CI-generated and ephemeral; no production key required for phase acceptance.
 
 **Manual:** CONDITIONAL — production upload/distribution signing requires user/account-owned credentials if that claim is explicitly requested; otherwise acceptance remains test-signing/state-model based.
+
+**Start record:** branch **`r13/05-android-signing`** created exactly from normalized `main` **`939565f6409a45c93d0168546c1b4bb947d13ad4`**. Status **IN_PROGRESS** before implementation. Manual state starts **CONDITIONAL / NOT TRIGGERED**; production keystore/private-key/password material and a live Play account are not core prerequisites.
 
 # R13.6 — Android emulator/device testing + adb/instrumentation adapter
 

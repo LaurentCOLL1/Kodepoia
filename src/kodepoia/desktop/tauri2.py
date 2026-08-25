@@ -262,6 +262,16 @@ class Tauri2Adapter:
             return (0, 0, 0)
         return tuple(int(part or 0) for part in match.groups())  # type: ignore[return-value]
 
+    @staticmethod
+    def _msvc_env() -> dict[str, str]:
+        if platform.system() != "Windows":
+            return {}
+        return {
+            key: value
+            for key in ("INCLUDE", "LIB", "LIBPATH")
+            if (value := os.environ.get(key))
+        }
+
     def _failure(
         self,
         identity: DesktopToolchainIdentity | None,
@@ -524,6 +534,7 @@ class Tauri2Adapter:
             ),
             cwd=self.project_root,
             timeout=900,
+            env=self._msvc_env(),
         )
         if build.returncode != 0:
             return self._failure(discovered.report_identity, "tauri_offline_build_failed", build)

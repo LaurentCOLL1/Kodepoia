@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.2 COMPLETE + NORMALIZED. R13.3 IN_PROGRESS.** R13.2 accepted candidate `27b75959e3240f67330d901c3b4a084242ae28b0` passed R0 #1609 / `32876034828`, Python #1583 / `32876034855`, UI #1550 / `32876034882`; end-synchronized `3cc31e2ca367bfe97866f4e33a106e9d4c0da870` passed R0 #1611 / `32878929674`, Python #1585 / `32878929659`, UI #1552 / `32878929665`; PR #223 merged as `12d55b5ed94527b619f4f8259d4443dd6e71931c`. Continuity-only normalization `90eec4db1c9a8546abfa4c2046f162c48001c817` passed R0 #1613 / `32879324825`, Python #1587 / `32879324859`, UI #1554 / `32879325025`; PR #224 merged as normalized `main` `4a4985b58f449fb1bc1b2a455a41255d40fccfac`. R13.3 branch `r13/03-android-scaffold` was created exactly from that head and is now the sole active subdivision; R13.4–R13.17 remain PLANNED.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.2 COMPLETE + NORMALIZED. R13.3 COMPLETE / NOT NORMALIZED.** R13.3 accepted implementation candidate `73d9024a1b06711885296775cb9f51370b52c3d0` passed R0 #1615 / `32880841487`, Python #1589 / `32880841447`, UI #1556 / `32880841420`; same-head R12 regressions were also SUCCESS. The end plan+continuity synchronization is now committed on `r13/03-android-scaffold`; fresh exact-head R0/Python/UI must pass before merge #225, followed by exactly one continuity-only normalization. R13.4–R13.17 remain PLANNED until that normalization merges.
 
 ## État global
 
@@ -14,9 +14,8 @@
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
-- R13.1: **COMPLETE + NORMALIZED**, manual **NONE**.
-- R13.2: **COMPLETE + NORMALIZED**, manual **NONE**; normalized `main` `4a4985b58f449fb1bc1b2a455a41255d40fccfac`.
-- R13.3: **IN_PROGRESS**, branch `r13/03-android-scaffold`, manual **NONE**.
+- R13.1–R13.2: **COMPLETE + NORMALIZED**, manual **NONE**.
+- R13.3: **COMPLETE / NOT NORMALIZED**, branch `r13/03-android-scaffold`, manual **NONE**; final documentation re-gates/merge/normalization pending.
 - R13.4–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -104,11 +103,13 @@ R14 backend/live-service work remains outside R13.
 ## R13.3 execution authority
 
 - Authorized normalized base: **`4a4985b58f449fb1bc1b2a455a41255d40fccfac`**.
-- Dedicated branch: **`r13/03-android-scaffold`**.
+- Dedicated branch: **`r13/03-android-scaffold`**; PR #225.
 - Manual state: **NONE**.
-- Start status synchronization: **R13.3 IN_PROGRESS before implementation**.
-- Objective: deterministic repository-owned Android scaffold from accepted mobile DNA/Product and shared app contracts; Gradle Kotlin DSL, Kotlin/Compose mapping, application/package normalization, resources/localization, manifest, adaptive/accessibility baseline, locked dependency identity, generated/user-owned policy and a Godot Android export bridge definition without replacing R5.
-- No Gradle build, SDK installation, signing, device operation or store operation is authorized in R13.3; those belong to later subdivisions.
+- Start status synchronization occurred before implementation.
+- Accepted implementation candidate **`73d9024a1b06711885296775cb9f51370b52c3d0`** passed R0 #1615 / `32880841487`, Python #1589 / `32880841447`, UI #1556 / `32880841420`; R12 WPF/Avalonia/WinUI3/Tauri2/Qt6/Integrated Windows regressions on the same SHA also passed.
+- Scope delivered: deterministic repository-owned Android scaffold from accepted mobile DNA/Product and shared app contracts; Gradle Kotlin DSL, version catalog, Compose projection, application/package normalization, manifest/resources/localization, adaptive/accessibility baseline, explicit dependency evidence, semantic workspace manifest, generated/user ownership, SafeChange/backup/audit regeneration.
+- R13.3 executes no Gradle/JDK/SDK process and makes no signing/device/store claim; those remain later subdivisions.
+- End status synchronization now marks **R13.3 COMPLETE**. The resulting documentation HEAD must pass fresh R0/Python/UI before PR #225 may merge, then exactly one continuity-only normalization is required.
 
 ## Frozen R13 subdivision index
 
@@ -116,7 +117,7 @@ R14 backend/live-service work remains outside R13.
 | --- | --- | --- | --- |
 | R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | COMPLETE | NONE |
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | COMPLETE | NONE |
-| R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | IN_PROGRESS | NONE |
+| R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | COMPLETE | NONE |
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | PLANNED | CONDITIONAL |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | PLANNED | CONDITIONAL |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | PLANNED | CONDITIONAL |
@@ -150,4 +151,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**R13.3 implementation:** create deterministic Android scaffold contracts/renderer and semantic workspace manifest from accepted mobile DNA/Product; reuse R8/R12 generated/user-owned and provenance patterns; add focused adversarial/determinism tests, design and acceptance docs; do not execute Gradle or require an Android SDK in this subdivision. Freeze one exact candidate and require R0/full Python/KodeStudio UI before end synchronization.
+**R13.3 closure:** require fresh exact-head R0/full Python/KodeStudio UI on the end-synchronized branch HEAD; if all pass, merge PR #225 with `expected_head_sha`, create exactly one continuity-only normalization from the resulting `main`, re-run R0/Python/UI and merge it. Only then may `r13/04-android-build-export` be created and R13.4 marked `IN_PROGRESS` before implementation.

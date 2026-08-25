@@ -4,9 +4,9 @@
 
 Framework-neutral accessibility, localization, theming, keyboard/focus and DPI/scaling QA contracts mapped to every frozen R12 desktop adapter. R12.13 integrates with the existing R6 quality/governance model; it does not create a second accessibility authority and it does not manufacture interactive screen-reader PASS from structural metadata.
 
-Manual intervention: **CONDITIONAL**.
+Manual intervention: **CONDITIONAL / NOT TRIGGERED**.
 
-Manual evidence is triggered only if acceptance discovers a required interactive accessibility/DPI/runtime semantic that hosted CI cannot verify, for example an actual Narrator/focus announcement discrepancy that cannot be reduced to structural automation metadata. Structural metadata, localization, contrast, keyboard order, focus restoration intent and deterministic layout probes are machine-verifiable and do not by themselves require user intervention.
+The trigger is restricted to a required interactive accessibility/DPI/runtime semantic that hosted CI cannot verify, for example an actual assistive-technology announcement discrepancy that cannot be reduced to structural automation metadata. No such discrepancy or required unproven runtime claim was discovered on the accepted candidate. Structural metadata, localization, contrast, keyboard order, focus restoration intent and deterministic layout probes were machine-verified.
 
 ## Required acceptance
 
@@ -26,9 +26,9 @@ Manual evidence is triggered only if acceptance discovers a required interactive
 
 ## Web-researched implementation basis
 
-Microsoft's current Windows accessibility guidance centers on three pillars: programmatic access (names/roles/values), keyboard navigation, and color/contrast. Microsoft also requires visible keyboard focus, logical tab order, high-contrast support and DPI-safe layout. Current Windows guidance uses minimum text contrast of 4.5:1 for normal text and 3:1 for large text. Windows resource guidance uses language/scale/contrast qualifiers and recommends scale-aware assets.
+Microsoft's Windows accessibility guidance centers on programmatic access (names/roles/values), keyboard navigation, and color/contrast. Windows guidance also requires visible/logical focus behavior, high-contrast support and scale-safe UI. Current Windows guidance uses minimum text contrast of 4.5:1 for normal text and 3:1 for large text and provides language/scale/contrast resource qualifiers.
 
-Qt 6 documents device-independent pixels and device pixel ratios for high-DPI support, and its internationalization model separates application internationalization from locale-specific resources. R12.13 records framework mapping identities but does not claim an interactive assistive-technology result that was not executed.
+Qt 6 documents device-independent pixels/device pixel ratios for high-DPI support and separates internationalization/resource concerns. R12.13 records framework mapping identities but does not claim an interactive assistive-technology result that was not executed.
 
 Official references:
 
@@ -39,14 +39,27 @@ Official references:
 - https://doc.qt.io/qt-6/highdpi.html
 - https://doc.qt.io/qt-6/internationalization.html
 
-## Evidence state
+## Accepted evidence
 
 Base normalized `main`: `34c21c8ba6f12f6cd746dd9aea8c9b3cd7e32c41`.
 Branch: `r12/13-accessibility-localization-qa`.
-Manual state: **CONDITIONAL / NOT TRIGGERED unless an interactive runtime discrepancy is discovered**.
+PR: #211.
+Accepted implementation candidate: `646b4ad079113e27bb8d091c4153b125b6673f8c`.
+Manual state: **CONDITIONAL / NOT TRIGGERED**.
 
-Exact implementation SHA and workflow run IDs are **PENDING** until the branch is frozen and independently gated.
+Exact-head candidate gates:
+
+- R0 Repository Guard #1562 / run `32827475621` — SUCCESS;
+- Python Core #1536 / run `32827475643` — SUCCESS, including `python-core-ubuntu-latest` and `python-core-windows-latest` Test steps;
+- KodeStudio UI Smoke #1503 / run `32827475650` — SUCCESS;
+- R12 WPF Acceptance #57 / run `32827475625` — SUCCESS;
+- R12 WinUI3 Acceptance #47 / run `32827475686` — SUCCESS;
+- R12 Avalonia Acceptance #43 / run `32827475711` — SUCCESS;
+- R12 Qt6 Acceptance #38 / run `32827475698` — SUCCESS;
+- R12 Tauri2 Acceptance #29 / run `32827475658` — SUCCESS.
+
+The focused suite `tests/test_desktop_r12_13.py` is exercised by full Python Core on Linux and Windows. It proves canonical PASS plus negative failure cases for missing accessible names/resources, hard-coded translatable strings, duplicate/missing keyboard tab stops, invalid focus restoration, RTL declaration mismatch, low contrast, missing system high-contrast semantics, missing scale probes, clipping, overlap and hidden focus. No acceptance requirement depends on an unexecuted interactive screen-reader claim.
 
 ## Merge / normalization rule
 
-Freeze one immutable implementation head and require exact-head standard gates plus desktop adapter regressions. If a required interactive accessibility/DPI semantic cannot be demonstrated and becomes part of the acceptance claim, stop and trigger bounded manual evidence before any R12.14 work. Otherwise record manual state **NOT TRIGGERED**, re-gate any evidence-recording documentation bytes, merge with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization. R12.14 remains forbidden until that normalization merges.
+These evidence-recording documentation bytes changed after the accepted implementation candidate. The resulting final documentation HEAD must pass the same fresh exact-head standard gates and desktop adapter regressions before PR #211 may merge with `expected_head_sha`. After merge, perform exactly one continuity-only `r12/13-postmerge-continuity-normalization` PR, gate its exact HEAD and merge it. R12.14 remains forbidden until that normalization merges.

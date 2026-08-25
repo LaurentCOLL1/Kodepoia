@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.dev/schemas/r13/android-device-evidence.schema.json",
+  "title": "Kodepoia R13.6 Android device acceptance evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha",
+    "runner_os",
+    "snapshot",
+    "lease",
+    "test_apk_sha256",
+    "test_overlay_sha256",
+    "matrix",
+    "instrumentation",
+    "logcat_sha256",
+    "logcat_lines",
+    "cleanup_complete",
+    "physical_device_claim",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "runner_os": {"enum": ["Linux", "Windows"]},
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["device_sha256", "state", "virtual", "boot_completed", "os_version", "model", "abi", "locale", "density_dpi"],
+      "properties": {
+        "device_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "state": {"const": "device"},
+        "virtual": {"const": true},
+        "boot_completed": {"const": true},
+        "os_version": {"type": "string", "minLength": 1, "maxLength": 128},
+        "model": {"type": "string", "minLength": 1, "maxLength": 128},
+        "abi": {"type": "string", "minLength": 1, "maxLength": 128},
+        "locale": {"type": "string", "minLength": 1, "maxLength": 128},
+        "density_dpi": {"type": "integer", "minimum": 72, "maximum": 1000}
+      }
+    },
+    "lease": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lease_id", "device_sha256", "artifact_sha256", "timeout_seconds"],
+      "properties": {
+        "lease_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+        "device_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 1800}
+      }
+    },
+    "test_apk_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "test_overlay_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "matrix": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["locale", "orientation", "density_dpi", "network"],
+        "properties": {
+          "locale": {"type": "string", "pattern": "^[A-Za-z]{2,3}(?:[-_][A-Za-z0-9]{2,8})*$"},
+          "orientation": {"enum": ["portrait", "landscape"]},
+          "density_dpi": {"type": "integer", "minimum": 72, "maximum": 1000},
+          "network": {"enum": ["default", "offline", "wifi"]}
+        }
+      }
+    },
+    "instrumentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "tests_run", "output_sha256"],
+      "properties": {
+        "passed": {"const": true},
+        "tests_run": {"type": "integer", "minimum": 1, "maximum": 100000},
+        "output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "logcat_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "logcat_lines": {"type": "integer", "minimum": 0, "maximum": 20000},
+    "cleanup_complete": {"const": true},
+    "physical_device_claim": {"const": false},
+    "status": {"const": "pass"}
+  }
+}

@@ -125,9 +125,9 @@ def build_window(
         )
 
         def open_wizard() -> None:
-            from kodepoia.kodestudio.r12_project_wizard import create_project_dialog
+            from kodepoia.kodestudio.r13_project_wizard import create_project_dialog
 
-            create_project_dialog(window).exec()
+            create_project_dialog(window, locale=locale).exec()
 
         create.clicked.connect(open_wizard)
         layout.addWidget(create)
@@ -219,30 +219,34 @@ def build_window(
         if factory is not None:
             pages.addWidget(factory())
         else:
-            pages.addWidget(QLabel(f"<h2>{title}</h2><p>{tr.text('app.page.foundation')}</p>"))
+            placeholder = QWidget()
+            placeholder_layout = QVBoxLayout(placeholder)
+            placeholder_layout.addWidget(QLabel(f"<h2>{title}</h2>"))
+            placeholder_layout.addWidget(QLabel(tr.text("app.page.foundation")))
+            placeholder_layout.addStretch(1)
+            pages.addWidget(placeholder)
 
-    nav.setMinimumWidth(max(nav.sizeHintForColumn(0) + 24, 160))
-    nav.currentRowChanged.connect(pages.setCurrentIndex)
+    def select_page(row: int) -> None:
+        pages.setCurrentIndex(row)
+        item = nav.item(row)
+        if item is not None:
+            status.showMessage(item.text())
+
+    nav.currentRowChanged.connect(select_page)
     nav.setCurrentRow(0)
+
     splitter = QSplitter()
-    splitter.setObjectName("mainSplitter")
-    splitter.setAccessibleName("KodeStudio navigation and content")
     splitter.addWidget(nav)
     splitter.addWidget(pages)
     splitter.setStretchFactor(1, 1)
     window.setCentralWidget(splitter)
-
-    status.showMessage(tr.text("app.status.ready"))
     window.setStatusBar(status)
+    status.showMessage(tr.text("app.status.ready"))
     return window
 
 
 def main() -> int:
-    try:
-        from PySide6.QtWidgets import QApplication
-    except ImportError:
-        print("KodeStudio requires the optional UI extra: pip install -e .[ui]", file=sys.stderr)
-        return 2
+    from PySide6.QtWidgets import QApplication
 
     app = QApplication.instance() or QApplication(sys.argv)
     window = build_window()

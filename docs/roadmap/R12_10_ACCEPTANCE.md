@@ -31,8 +31,25 @@ Manual intervention: **NONE**.
 
 Base normalized `main`: `136967485e063254904269578f9ab4be23e5d599`.
 Branch: `r12/10-sqlite-persistence`.
+PR: #205.
+Manual state: **NONE**.
 
-Exact implementation SHA and workflow run IDs are **PENDING** until the branch is frozen and independently gated. Manual evidence is not required for R12.10.
+Accepted implementation candidate: `464be11dd9c889336cac20208fc3fb9728ccac5f`.
+
+Exact-head workflow evidence on that candidate:
+
+- R0 Repository Guard #1544 / run `32818839673` — SUCCESS;
+- Python Core #1518 / run `32818839682` — SUCCESS;
+- KodeStudio UI Smoke #1485 / run `32818839667` — SUCCESS;
+- R12 WPF Acceptance #45 / run `32818839654` — SUCCESS;
+- R12 WinUI3 Acceptance #35 / run `32818839609` — SUCCESS;
+- R12 Avalonia Acceptance #31 / run `32818839711` — SUCCESS;
+- R12 Qt6 Acceptance #26 / run `32818839626` — SUCCESS;
+- R12 Tauri2 Acceptance #17 / run `32818839625` — SUCCESS.
+
+The focused R12.10 suite is `tests/test_desktop_r12_10.py` and is exercised by Python Core. No separate R12.10 hosted runtime workflow is required because R12.10 is framework-neutral and its frozen manual state is NONE.
+
+This evidence-recording change modifies documentation bytes. The resulting final documentation HEAD must therefore pass a fresh exact-head standard gate set plus the adapter regression workflows before PR #205 may merge with `expected_head_sha`.
 
 ## Merge / normalization rule
 

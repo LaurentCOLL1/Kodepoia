@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1–R13.2 `COMPLETE + NORMALIZED`; R13.3 `COMPLETE` on its dedicated branch after exact-head acceptance of `73d9024a1b06711885296775cb9f51370b52c3d0`; R13.4 remains `PLANNED` until R13.3 merge and continuity-only normalization complete.
+**Execution checkpoint:** R13.1–R13.3 `COMPLETE + NORMALIZED`; R13.4 `COMPLETE` on its dedicated branch after exact-head acceptance of `0a58fd4e2f255786fe10ed00b7665ea49773d52b`, manual `CONDITIONAL / NOT TRIGGERED`; R13.5 remains `PLANNED` until R13.4 merge and continuity-only normalization complete.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.2 are **COMPLETE + NORMALIZED**; R13.3 is **COMPLETE / NOT NORMALIZED** pending its final documentation re-gates, merge and single continuity-only normalization.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.3 are **COMPLETE + NORMALIZED**; R13.4 is **COMPLETE / NOT NORMALIZED** pending final documentation re-gates, merge and its single continuity-only normalization; R13.5 remains **PLANNED**.
 
 ## Permanent subdivision status synchronization rule
 
@@ -157,7 +157,7 @@ Before R13.1 implementation:
 | R13.1 | Mobile contracts, identities, capability model + secure toolchain boundaries | COMPLETE | NONE | R12 COMPLETE + normalized planning |
 | R13.2 | Project DNA/KodeProduct mobile profiles + Project Wizard target selection | COMPLETE | NONE | R13.1 + R2 |
 | R13.3 | Android deterministic native scaffold + Kotlin/Compose shared app model | COMPLETE | NONE | R13.1–R13.2 + R8/R12 patterns |
-| R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | PLANNED | CONDITIONAL | R13.1–R13.3 + R6 |
+| R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | COMPLETE | CONDITIONAL | R13.1–R13.3 + R6 |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | PLANNED | CONDITIONAL | R13.4 + R1/R6/R12 |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | PLANNED | CONDITIONAL | R13.4–R13.5 |
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | PLANNED | CONDITIONAL | R13.4–R13.6 + R7 |
@@ -208,7 +208,7 @@ Before R13.1 implementation:
 
 **Manual:** NONE.
 
-**Completion record:** accepted implementation candidate **`73d9024a1b06711885296775cb9f51370b52c3d0`** passed R0 #1615 / `32880841487`, Python #1589 / `32880841447`, UI #1556 / `32880841420`; same-head R12 WPF/Avalonia/WinUI3/Tauri2/Qt6/Integrated Windows regressions also passed. End plan+continuity synchronization marks R13.3 COMPLETE; fresh exact-head R0/Python/UI is required on the resulting documentation head before merge #225. Manual state remains NONE.
+**Completion record:** accepted implementation candidate **`73d9024a1b06711885296775cb9f51370b52c3d0`** passed R0 #1615 / `32880841487`, Python #1589 / `32880841447`, UI #1556 / `32880841420`; final end-synchronized head **`954d907503e4fa92f7eccefd70bfe5f5808e4c11`** passed R0 #1617 / `32883252890`, Python #1591 / `32883252848`, UI #1558 / `32883252862`; PR #225 merged as `e153b5d84d235b529fd8f522315467c766087b92`. Continuity-only normalization **`a5ddc4eacd2eaf4a78dfb4de7224a151d036b5e7`** passed R0 #1619 / `32883829735`, Python #1593 / `32883829471`, UI #1560 / `32883829356`; PR #226 merged as normalized `main` **`634e75cbdc0b05974781b40beecf54ad85766ed8`**. R13.3 is **COMPLETE + NORMALIZED**.
 
 # R13.4 — Android Gradle build/export, APK/AAB, manifest/resources/ABI validation
 
@@ -219,6 +219,8 @@ Before R13.1 implementation:
 **Acceptance:** hosted Linux/Windows Android build where supported; store-ready fixture targets API 36+; canonical release AAB and test/install APK validate; missing/incompatible SDK is not PASS; dependency/Gradle property/env substitution attacks fail closed.
 
 **Manual:** CONDITIONAL — only if a required real Android build/device semantic cannot be proven in accepted hosted CI. Toolchain installation on the user machine is never silently requested.
+
+**Completion record:** accepted implementation candidate **`0a58fd4e2f255786fe10ed00b7665ea49773d52b`** passed R0 #1636 / `32888926818`, Python #1610 / `32888926891`, UI #1577 / `32888926909`, and R13 Android Build Acceptance #38 / `32888926881` with both `android-build-ubuntu-latest` and `android-build-windows-latest` SUCCESS. Manual state is **CONDITIONAL / NOT TRIGGERED** because the frozen hosted build/package claim was proven without user-machine tooling. End plan+continuity synchronization marks R13.4 COMPLETE; fresh exact-head R0/Python/UI/Android gates are required on the resulting documentation head before merge #227.
 
 # R13.5 — Android signing states, keystore boundary + Play App Signing model
 

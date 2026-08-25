@@ -18,6 +18,7 @@ def build_window(
     comfy_service=None,
     blender_service=None,
     r11_service=None,
+    r12_service=None,
 ):
     from PySide6.QtWidgets import (
         QLabel,
@@ -184,8 +185,21 @@ def build_window(
             kill_switch=switch,
         )
 
+    def r12_page() -> QWidget:
+        from kodepoia.kodestudio.r12_localization import R12Translator
+        from kodepoia.kodestudio.r12_workspace import create_r12_workspace_page
+
+        return create_r12_workspace_page(
+            root,
+            translator=R12Translator(locale),
+            service=r12_service,
+            status_bar=status,
+            kill_switch=switch,
+        )
+
     from kodepoia.kodestudio.blender_localization import blender_nav_text
     from kodepoia.kodestudio.r11_localization import r11_nav_text
+    from kodepoia.kodestudio.r12_localization import r12_nav_text
 
     sections = (
         (tr.text("app.nav.chat"), None),
@@ -195,6 +209,7 @@ def build_window(
         (tr.text("app.nav.comfy"), comfy_page),
         (blender_nav_text(locale), blender_page),
         (r11_nav_text(locale), r11_page),
+        (r12_nav_text(locale), r12_page),
         (tr.text("app.nav.security"), security_page),
         (tr.text("app.nav.audit"), None),
         (tr.text("app.nav.settings"), None),

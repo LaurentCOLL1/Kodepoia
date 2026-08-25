@@ -2,7 +2,7 @@
 
 **Phase:** R12  
 **Roadmap title:** Desktop applications  
-**Status:** EXECUTION — R12.14 COMPLETE / R12.15 PLANNED  
+**Status:** EXECUTION — R12.15 COMPLETE; R12.16 PLANNED  
 **Phase planning started:** 2026-08-24  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`
@@ -51,7 +51,7 @@ R12 extends existing systems instead of replacing them:
 - R1 ProcessSandbox, KillSwitch, Guardian/PermissionSet, SafeChange, Backup/Recovery, Audit and secret handling remain authoritative for external processes and durable writes.
 - R6 remains authoritative for Health, Budget, Tests, Regression, VisualQA, Accessibility, Localization, Privacy, AppSecurity, License/BOM and package/build evidence.
 - R7 remains authoritative for external documentation/template/package metadata trust and provenance.
-- R8 remains authoritative for Vault/source-vs-derived identity, transform lineage, cache/rebuild and governed export.
+- R8 remains authoritative for Vault/source-vs-derived identity, transform lineage, cache/rebuild, provenance and governed export.
 - R9 remains authoritative for local AI runtime scheduling when desktop projects consume model capabilities; R12 does not create a second AI scheduler.
 - R11 remains authoritative for media/voice/cinematic/franchise/persistence contracts where desktop products consume them.
 
@@ -217,7 +217,7 @@ Before R12.1 implementation begins:
 | R12.12 | Local IPC contracts, framing, authorization + lifecycle isolation | COMPLETE | CONDITIONAL | R12.1 + R12.11 + R1/R6 |
 | R12.13 | Accessibility, localization, theming, keyboard/focus + DPI/scaling QA | COMPLETE | CONDITIONAL | R12.4–R12.9 + R6 |
 | R12.14 | Packaging/install/update/signing-state + rollback model | COMPLETE | CONDITIONAL | R12.5–R12.13 + R1/R6/R8 |
-| R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | PLANNED | NONE | R12.1–R12.14 |
+| R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | COMPLETE | NONE | R12.1–R12.14 |
 | R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | PLANNED | CONDITIONAL | R12.1–R12.15 + R6/R8/R11 evidence |
 
 ## R12.1 — Desktop contracts, identities, capability model + secure toolchain boundaries
@@ -531,6 +531,13 @@ Acceptance:
 - read-only evidence cannot be edited into PASS;
 - no external process on passive refresh;
 - exact-head gates.
+
+Execution checkpoint — 2026-08-25:
+
+- accepted implementation candidate `79cda1733bc470f897a5153dcd0c4d059b948900`;
+- candidate gates R0 #1577, Python #1551, KodeStudio UI #1518, WPF #68, WinUI #58, Avalonia #54, Qt #49 and Tauri #40 all SUCCESS on that exact candidate;
+- earlier candidate `696ab04eda402fd77b826ef80c9cc8a98706ad75` was rejected after UI Smoke exposed an accessibility-contract registration defect and stale pseudo-locale navigation cardinality; no failed evidence is reused;
+- manual state NONE; end-of-subdivision authority marks R12.15 COMPLETE while R12.16 remains PLANNED pending final-documentation re-gates, merge and post-merge normalization.
 
 ## R12.16 — Adversarial hardening + Wizard-to-Windows integrated acceptance
 

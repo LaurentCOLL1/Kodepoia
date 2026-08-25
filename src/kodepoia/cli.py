@@ -12,6 +12,7 @@ from kodepoia.bench.baseline import BaselineBench, BenchmarkRole
 from kodepoia.blender3d.blender_cli import register_blender_commands
 from kodepoia.brain.ollama import OllamaClient
 from kodepoia.comfyui.comfy_cli import register_comfy_commands
+from kodepoia.desktop.r12_cli import register_r12_commands
 from kodepoia.intelligence.research.media import (
     AcceptanceStatus,
     LocalMediaAcceptance,
@@ -312,6 +313,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_comfy_commands(commands)
     register_blender_commands(commands)
     register_r11_commands(commands)
+    register_r12_commands(commands)
     return parser
 
 

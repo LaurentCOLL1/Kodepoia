@@ -25,13 +25,13 @@ Manual intervention: **NONE**.
 
 ## Web-researched implementation basis
 
-- Python 3.12 asyncio documents that task cancellation raises `CancelledError` at the next opportunity and that caught cancellation should generally be re-propagated after cleanup; `asyncio.timeout()` uses cancellation internally;
-- Windows App SDK `DispatcherQueue` is explicitly the mechanism for serial work on a thread and for background threads to enqueue code onto a thread with UI object affinity;
+- Python asyncio documents that task cancellation raises `CancelledError` at the next opportunity and that caught cancellation should generally be re-propagated after cleanup; structured concurrency primitives use cancellation internally;
+- Windows App SDK `DispatcherQueue` serializes tasks on its owning thread and permits background threads to enqueue work on the UI-affine thread;
 - framework-specific dispatcher names are identity/mapping metadata only in R12.11; R12.11 does not claim new native runtime behavior beyond the already accepted R12.5–R12.9 adapter evidence.
 
 Official references:
 
-- https://docs.python.org/3.12/library/asyncio-task.html
+- https://docs.python.org/3/library/asyncio-task.html
 - https://learn.microsoft.com/windows/apps/develop/dispatcherqueue
 - https://docs.avaloniaui.net/docs/guides/development-guides/accessing-the-ui-thread
 - https://doc.qt.io/qt-6/qobject.html#thread-affinity
@@ -43,8 +43,23 @@ Base normalized `main`: `25b3e94b58d6ac08511b2510a98148354f5144f2`.
 Branch: `r12/11-async-concurrency`.
 Manual state: **NONE**.
 
-Exact implementation SHA and workflow run IDs are **PENDING** until the branch is frozen and independently gated.
+Accepted implementation candidate: `39461205919b4fbb01354ea39af9a58638cfcd8c`.
+
+Exact-head gates on the accepted candidate:
+
+- R0 Repository Guard #1550 / run `32823338030` — SUCCESS;
+- Python Core #1524 / run `32823338014` — SUCCESS, including Linux and Windows test jobs;
+- KodeStudio UI Smoke #1491 / run `32823337990` — SUCCESS;
+- R12 WPF Acceptance #49 / run `32823337991` — SUCCESS;
+- R12 WinUI3 Acceptance #39 / run `32823338016` — SUCCESS;
+- R12 Avalonia Acceptance #35 / run `32823338024` — SUCCESS;
+- R12 Qt6 Acceptance #30 / run `32823337983` — SUCCESS;
+- R12 Tauri2 Acceptance #21 / run `32823338040` — SUCCESS.
+
+The focused suite `tests/test_desktop_r12_11.py` is exercised by Python Core. No manual evidence is required or triggered for R12.11.
+
+Evidence-recording documentation bytes change after the accepted candidate. The resulting final documentation HEAD must therefore pass a fresh exact-head standard gate set plus desktop adapter regressions before merge.
 
 ## Merge / normalization rule
 
-Freeze one immutable implementation head and require exact-head gates. Record accepted run IDs here and in continuity, then re-gate the resulting final documentation head because bytes changed. Merge with `expected_head_sha`, perform exactly one continuity-only post-merge normalization, gate that exact head and merge it. R12.12 remains forbidden until R12.11 normalization merges.
+Freeze the final documentation head and require exact-head gates. Merge PR #207 with `expected_head_sha`, perform exactly one continuity-only post-merge normalization, gate that exact head and merge it. R12.12 remains forbidden until R12.11 normalization merges.

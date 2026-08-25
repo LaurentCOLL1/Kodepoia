@@ -68,10 +68,15 @@ def create_r12_workspace_page(
 
     evidence = QPlainTextEdit()
     evidence.setReadOnly(True)
-    evidence.setObjectName("r12Evidence")
-    evidence.setAccessibleName(translator.text("r12.evidence"))
-    evidence.setAccessibleDescription(
-        "Read-only evidence snapshot. Reported status fields are displayed as data and cannot be edited into workspace PASS."
+    mark_accessible(
+        evidence,
+        object_name="r12Evidence",
+        name=translator.text("r12.evidence"),
+        description=(
+            "Read-only evidence snapshot. Reported status fields are displayed as data "
+            "and cannot be edited into workspace PASS."
+        ),
+        description_required=True,
     )
     layout.addWidget(evidence)
 
@@ -118,7 +123,6 @@ def create_r12_workspace_page(
             ),
             description_required=True,
         )
-        button.setFocusPolicy(button.focusPolicy())
         button.clicked.connect(lambda _checked=False, op=operation: run(op))
         buttons.addWidget(button)
 

@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r12/desktop-packaging.schema.json",
+  "title": "Kodepoia R12 Desktop Packaging and Update Contracts",
+  "type": "object",
+  "oneOf": [
+    {"$ref": "#/$defs/artifactManifest"},
+    {"$ref": "#/$defs/packageDefinition"},
+    {"$ref": "#/$defs/updateManifest"},
+    {"$ref": "#/$defs/updatePolicy"}
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]{1,5}\\.[0-9]{1,5}\\.[0-9]{1,5}\\.[0-9]{1,5}$"
+    },
+    "stableToken": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "framework": {
+      "enum": ["wpf", "winui3", "avalonia", "qt6", "tauri2"]
+    },
+    "platform": {
+      "enum": ["windows", "linux", "macos"]
+    },
+    "architecture": {
+      "enum": ["x64", "arm64", "x86"]
+    },
+    "packageKind": {
+      "enum": ["unpackaged", "msix", "msi", "archive"]
+    },
+    "signingState": {
+      "enum": ["UNSIGNED", "TEST_SIGNED", "SIGNED", "SIGNING_UNAVAILABLE"]
+    },
+    "signingIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject", "fingerprint_sha256", "production"],
+      "properties": {
+        "subject": {"type": "string", "minLength": 1, "maxLength": 256},
+        "fingerprint_sha256": {"$ref": "#/$defs/sha256"},
+        "production": {"type": "boolean"}
+      }
+    },
+    "artifactFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "size", "sha256", "role"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "size": {"type": "integer", "minimum": 0, "maximum": 2147483648},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "role": {"enum": ["executable", "library", "resource", "metadata", "other"]}
+      }
+    },
+    "artifactManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_id", "version", "framework", "platform", "architecture",
+        "package_kind", "signing_state", "signing_identity", "files", "total_bytes"
+      ],
+      "properties": {
+        "package_id": {"$ref": "#/$defs/stableToken"},
+        "version": {"$ref": "#/$defs/version"},
+        "framework": {"$ref": "#/$defs/framework"},
+        "platform": {"$ref": "#/$defs/platform"},
+        "architecture": {"$ref": "#/$defs/architecture"},
+        "package_kind": {"$ref": "#/$defs/packageKind"},
+        "signing_state": {"$ref": "#/$defs/signingState"},
+        "signing_identity": {
+          "oneOf": [{"type": "null"}, {"$ref": "#/$defs/signingIdentity"}]
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10000,
+          "items": {"$ref": "#/$defs/artifactFile"}
+        },
+        "total_bytes": {"type": "integer", "minimum": 0, "maximum": 8589934592}
+      }
+    },
+    "packageDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "definition_id", "package_id", "version", "framework", "platform",
+        "architecture", "package_kind", "capability_state", "signing_state", "signing_identity"
+      ],
+      "properties": {
+        "definition_id": {"$ref": "#/$defs/stableToken"},
+        "package_id": {"$ref": "#/$defs/stableToken"},
+        "version": {"$ref": "#/$defs/version"},
+        "framework": {"$ref": "#/$defs/framework"},
+        "platform": {"$ref": "#/$defs/platform"},
+        "architecture": {"$ref": "#/$defs/architecture"},
+        "package_kind": {"$ref": "#/$defs/packageKind"},
+        "capability_state": {
+          "enum": ["SUPPORTED_DEFINITION", "TOOLCHAIN_REQUIRED", "UNSUPPORTED"]
+        },
+        "signing_state": {"$ref": "#/$defs/signingState"},
+        "signing_identity": {
+          "oneOf": [{"type": "null"}, {"$ref": "#/$defs/signingIdentity"}]
+        }
+      }
+    },
+    "updateManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "update_id", "channel", "source_manifest_digest", "target_manifest_digest",
+        "package_id", "source_version", "target_version", "framework", "platform",
+        "architecture", "package_kind", "signing_state", "signer_fingerprint_sha256"
+      ],
+      "properties": {
+        "update_id": {"$ref": "#/$defs/stableToken"},
+        "channel": {"$ref": "#/$defs/stableToken"},
+        "source_manifest_digest": {"$ref": "#/$defs/sha256"},
+        "target_manifest_digest": {"$ref": "#/$defs/sha256"},
+        "package_id": {"$ref": "#/$defs/stableToken"},
+        "source_version": {"$ref": "#/$defs/version"},
+        "target_version": {"$ref": "#/$defs/version"},
+        "framework": {"$ref": "#/$defs/framework"},
+        "platform": {"$ref": "#/$defs/platform"},
+        "architecture": {"$ref": "#/$defs/architecture"},
+        "package_kind": {"$ref": "#/$defs/packageKind"},
+        "signing_state": {"$ref": "#/$defs/signingState"},
+        "signer_fingerprint_sha256": {
+          "oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}]
+        }
+      }
+    },
+    "updatePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_id", "channel", "allow_downgrade", "accepted_signing_states", "allow_signer_rotation"
+      ],
+      "properties": {
+        "policy_id": {"$ref": "#/$defs/stableToken"},
+        "channel": {"$ref": "#/$defs/stableToken"},
+        "allow_downgrade": {"type": "boolean"},
+        "accepted_signing_states": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["UNSIGNED", "TEST_SIGNED", "SIGNED"]}
+        },
+        "allow_signer_rotation": {"type": "boolean"}
+      }
+    }
+  }
+}

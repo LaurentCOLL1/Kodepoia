@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r12/tauri2-kit.schema.json",
+  "title": "Kodepoia R12.9 Tauri v2 Kit Identity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "platform", "architecture", "cargo_version", "cargo_sha256",
+    "rustc_version", "rustc_sha256", "host_triple", "tauri_version",
+    "webview_version", "cargo_lock_sha256", "capability_policy_sha256"
+  ],
+  "properties": {
+    "platform": {"const": "windows"},
+    "architecture": {"const": "x64"},
+    "cargo_version": {"type": "string", "minLength": 1, "maxLength": 128},
+    "cargo_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "rustc_version": {"type": "string", "minLength": 1, "maxLength": 128},
+    "rustc_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "host_triple": {"type": "string", "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]{2,127}$"},
+    "tauri_version": {"const": "2.11.5"},
+    "webview_version": {"type": "string", "minLength": 1, "maxLength": 128},
+    "cargo_lock_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "capability_policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

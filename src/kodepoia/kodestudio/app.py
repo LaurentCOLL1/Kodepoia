@@ -219,34 +219,30 @@ def build_window(
         if factory is not None:
             pages.addWidget(factory())
         else:
-            placeholder = QWidget()
-            placeholder_layout = QVBoxLayout(placeholder)
-            placeholder_layout.addWidget(QLabel(f"<h2>{title}</h2>"))
-            placeholder_layout.addWidget(QLabel(tr.text("app.page.foundation")))
-            placeholder_layout.addStretch(1)
-            pages.addWidget(placeholder)
+            pages.addWidget(QLabel(f"<h2>{title}</h2><p>{tr.text('app.page.foundation')}</p>"))
 
-    def select_page(row: int) -> None:
-        pages.setCurrentIndex(row)
-        item = nav.item(row)
-        if item is not None:
-            status.showMessage(item.text())
-
-    nav.currentRowChanged.connect(select_page)
+    nav.setMinimumWidth(max(nav.sizeHintForColumn(0) + 24, 160))
+    nav.currentRowChanged.connect(pages.setCurrentIndex)
     nav.setCurrentRow(0)
-
     splitter = QSplitter()
+    splitter.setObjectName("mainSplitter")
+    splitter.setAccessibleName("KodeStudio navigation and content")
     splitter.addWidget(nav)
     splitter.addWidget(pages)
     splitter.setStretchFactor(1, 1)
     window.setCentralWidget(splitter)
-    window.setStatusBar(status)
+
     status.showMessage(tr.text("app.status.ready"))
+    window.setStatusBar(status)
     return window
 
 
 def main() -> int:
-    from PySide6.QtWidgets import QApplication
+    try:
+        from PySide6.QtWidgets import QApplication
+    except ImportError:
+        print("KodeStudio requires the optional UI extra: pip install -e .[ui]", file=sys.stderr)
+        return 2
 
     app = QApplication.instance() or QApplication(sys.argv)
     window = build_window()

@@ -2,7 +2,7 @@
 
 **Phase:** R12  
 **Roadmap title:** Desktop applications  
-**Status:** EXECUTION — R12.15 COMPLETE; R12.16 PLANNED  
+**Status:** COMPLETE — R12.16 accepted; post-merge normalization pending  
 **Phase planning started:** 2026-08-24  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `6d3c7eb557d940641977d18384e4f6d2bad42f3c`
@@ -218,7 +218,7 @@ Before R12.1 implementation begins:
 | R12.13 | Accessibility, localization, theming, keyboard/focus + DPI/scaling QA | COMPLETE | CONDITIONAL | R12.4–R12.9 + R6 |
 | R12.14 | Packaging/install/update/signing-state + rollback model | COMPLETE | CONDITIONAL | R12.5–R12.13 + R1/R6/R8 |
 | R12.15 | CLI + KodeStudio Desktop workspace and governed Wizard workflow | COMPLETE | NONE | R12.1–R12.14 |
-| R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | PLANNED | CONDITIONAL | R12.1–R12.15 + R6/R8/R11 evidence |
+| R12.16 | Adversarial hardening + Wizard-to-Windows integrated acceptance | COMPLETE | CONDITIONAL | R12.1–R12.15 + R6/R8/R11 evidence |
 
 ## R12.1 — Desktop contracts, identities, capability model + secure toolchain boundaries
 
@@ -537,13 +537,30 @@ Execution checkpoint — 2026-08-25:
 - accepted implementation candidate `79cda1733bc470f897a5153dcd0c4d059b948900`;
 - candidate gates R0 #1577, Python #1551, KodeStudio UI #1518, WPF #68, WinUI #58, Avalonia #54, Qt #49 and Tauri #40 all SUCCESS on that exact candidate;
 - earlier candidate `696ab04eda402fd77b826ef80c9cc8a98706ad75` was rejected after UI Smoke exposed an accessibility-contract registration defect and stale pseudo-locale navigation cardinality; no failed evidence is reused;
-- manual state NONE; end-of-subdivision authority marks R12.15 COMPLETE while R12.16 remains PLANNED pending final-documentation re-gates, merge and post-merge normalization.
+- final recorded-evidence head `095c8f5eafd67e7c23f7a38700b053ae634b6bc5` passed R0 #1583, Python #1557, KodeStudio UI #1524, WPF #74, WinUI #64, Avalonia #60, Qt #55 and Tauri #46;
+- PR #215 merged as `bfd957a1f9de5493c927ab50f6875a54ee3f4ed9`;
+- single continuity-only normalization head `965d21235171a260f9d97002c585142c5cafd094` passed R0 #1585, Python #1559, KodeStudio UI #1526, WPF #75, WinUI #65, Avalonia #61, Qt #56 and Tauri #47 and merged as normalized `main` `30095003ab5fa61328319be320122ff647ce351a`;
+- R12.15 is COMPLETE + NORMALIZED; `30095003ab5fa61328319be320122ff647ce351a` is the sole authorized base for R12.16.
 
 ## R12.16 — Adversarial hardening + Wizard-to-Windows integrated acceptance
 
 **Manual intervention:** CONDITIONAL.
 
 Trigger if the final roadmap DoD requires an interactive/real Windows runtime semantic not established by the accepted hosted Windows runner. If triggered, freeze one exact candidate SHA, one bounded local collector, prerequisites, exact commands, expected output, privacy/recovery instructions and review the resulting evidence before proceeding.
+
+Execution checkpoint — 2026-08-25 accepted implementation:
+
+- normalized base: `30095003ab5fa61328319be320122ff647ce351a`;
+- dedicated branch: `r12/16-adversarial-integrated-acceptance`;
+- start-of-subdivision plan/continuity synchronization completed before implementation;
+- accepted immutable implementation source: `1927d9ab673228101c932b1cb6b89243296ac957`;
+- exact-head gates all SUCCESS: R0 #1590 / `32842609351`; Python #1564 / `32842609414`; KodeStudio UI #1531 / `32842609362`; WPF #79 / `32842609356`; WinUI3 #69 / `32842609315`; Avalonia #65 / `32842609365`; Qt #60 / `32842609324`; Tauri2 #51 / `32842609391`; Integrated Windows #4 / `32842609416`;
+- rejected candidate `64035fc92757e275bdf13eda60d6a47596b22c2e`: one adversarial test asserted the wrong error-message regex; failed/stale evidence not reused;
+- rejected candidate `af2daa01d4c98c2a6ce7ba48830819f513d8e741`: package verification covered mutable global staging instead of an isolated application artifact tree; failed/stale evidence not reused;
+- manual state after accepted gates: **CONDITIONAL / NOT TRIGGERED** (`conditional_not_triggered`); hosted Windows CI proves the frozen create/compile/test DoD and no interactive install/Store/production-signing claim is made;
+- accepted Windows CI semantic evidence digest: `0bbead835c2ee48f4d6a78f11f6aceaca60262eebe70c3944f6475ae82b70a24`; exact source `1927d9ab673228101c932b1cb6b89243296ac957`; package-manifest digest `4debf90eddd3dca3f3af05c6ab245b06246e6d6eb538bd3b769c575a8a1401e1`; 5 isolated application artifacts;
+- end-of-subdivision status synchronization: **R12.16 COMPLETE in this plan before canonical report generation**;
+- R12 is not `COMPLETE + NORMALIZED` until the implementation/evidence PR is accepted and followed by exactly one successful continuity-only normalization merge.
 
 Deliver:
 

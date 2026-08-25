@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r12/r12-integrated-acceptance.schema.json",
+  "title": "Kodepoia R12 integrated acceptance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "generated_at",
+    "source_sha",
+    "continuity",
+    "subdivisions",
+    "windows_ci",
+    "prior_phase",
+    "manual_state",
+    "status",
+    "blockers",
+    "evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "minLength": 1, "maxLength": 128},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "continuity": {"$ref": "#/$defs/fileBinding"},
+    "subdivisions": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["subdivision", "source", "sha256", "bytes"],
+        "properties": {
+          "subdivision": {"type": "string", "pattern": "^R12\\.(?:[1-9]|1[0-6])$"},
+          "source": {"type": "string", "pattern": "^docs/roadmap/R12_(?:[1-9]|1[0-6])_ACCEPTANCE\\.md$"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "windows_ci": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "sha256", "bytes", "source_sha", "evidence_sha256"],
+      "properties": {
+        "source": {"const": "docs/roadmap/R12_16_WINDOWS_CI_ACCEPTANCE.json"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "prior_phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phase", "source", "sha256", "bytes", "evidence_sha256"],
+      "properties": {
+        "phase": {"const": "R11"},
+        "source": {"const": "docs/roadmap/R11_INTEGRATED_ACCEPTANCE.json"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "evidence_sha256": {"const": "ed956be1aa19592b654382a209e5ca99d44d3cbcd67dd3981bdae3d865563170"}
+      }
+    },
+    "manual_state": {"enum": ["conditional_not_triggered", "conditional_satisfied"]},
+    "status": {"const": "pass"},
+    "blockers": {"type": "array", "maxItems": 0},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "sha256", "bytes"],
+      "properties": {
+        "source": {"const": "docs/continuity/KODEPOIA_CONTINUITY.md"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

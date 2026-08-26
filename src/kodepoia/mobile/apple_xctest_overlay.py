@@ -18,6 +18,8 @@ _RELEASE_REPLACEMENT = (
     "\t\t\t\tGENERATE_INFOPLIST_FILE = NO;"
 )
 _COMMON_MARKER = "\t\t\t\tCURRENT_PROJECT_VERSION = 1;\n\t\t\t\tGENERATE_INFOPLIST_FILE = NO;"
+_TEST_TARGET_MARKER = "E30000000000000000000001 /* KodepoiaIOSTests */"
+_TEST_SCHEME_MARKER = 'BlueprintIdentifier="E30000000000000000000001"'
 
 
 def render_xctest_overlay(
@@ -34,6 +36,8 @@ def render_xctest_overlay(
     renderer drift fails closed instead of selecting a build setting by position.
     """
 
+    if _TEST_TARGET_MARKER in pbxproj or _TEST_SCHEME_MARKER in scheme:
+        raise ValueError("R13.11 XCTest overlay is already present")
     if pbxproj.count(_COMMON_MARKER) != 2:
         raise ValueError("canonical R13.9 app configuration cardinality drift detected")
     if pbxproj.count(_RELEASE_PREFIX) != 1:

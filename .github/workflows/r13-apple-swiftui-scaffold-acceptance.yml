@@ -1,0 +1,59 @@
+name: R13 Apple SwiftUI Scaffold Acceptance
+
+on:
+  push:
+    branches:
+      - "r13/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r13-apple-swiftui-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hosted-swiftui-simulator-build:
+    name: apple-swiftui-simulator-macos-26
+    runs-on: macos-26
+    timeout-minutes: 20
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Kodepoia evidence dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run focused R13.9 Apple scaffold tests
+        run: python -m pytest tests/test_r13_9_ios_swiftui_scaffold.py -q
+
+      - name: Build canonical SwiftUI fixture on iOS Simulator toolchain
+        run: >-
+          python scripts/r13_9_apple_swiftui_acceptance.py
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --output "${{ runner.temp }}/R13_9_APPLE_SWIFTUI_BUILD.json"
+
+      - name: Verify exact-head no-signing simulator evidence
+        run: >-
+          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(r'${{ runner.temp }}/R13_9_APPLE_SWIFTUI_BUILD.json').read_text(encoding='utf-8')); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['destination']=='generic/platform=iOS Simulator'; assert p['scheme']=='KodepoiaIOS'; assert p['build_succeeded'] is True; assert p['app_bundle_present'] is True; assert p['code_signing_allowed'] is False; assert p['code_signing_required'] is False; assert p['account_or_signing_credential_used'] is False; assert p['physical_device_capability_proven'] is False; assert p['blockers']==[]"
+
+      - name: Upload exact-head Apple SwiftUI build evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r13-9-apple-swiftui-${{ runner.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          if-no-files-found: error
+          path: ${{ runner.temp }}/R13_9_APPLE_SWIFTUI_BUILD.json

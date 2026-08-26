@@ -15,6 +15,13 @@ R13.9 is accepted only if one exact implementation head proves all of the follow
 9. The hosted invocation has signing disabled by fixed repository-owned argv; evidence contains no Apple account, private key, certificate identity, provisioning profile, team ID, password or App Store Connect token.
 10. Simulator evidence does not claim physical-device behavior.
 
+Official Apple references used by this acceptance boundary:
+
+- SwiftUI Observation support and model-data guidance: https://developer.apple.com/documentation/swiftui/managing-model-data-in-your-app
+- pre-iOS/iPadOS 17 `ObservableObject` compatibility guidance: https://developer.apple.com/documentation/swiftui/monitoring-model-data-changes-in-your-app
+- Simulator/device run-destination separation: https://developer.apple.com/documentation/xcode/running-your-app-on-simulated-or-physical-devices
+- command-line generic Simulator destination example: https://developer.apple.com/documentation/xcode/creating-a-multi-platform-binary-framework-bundle
+
 ## Required exact-head gates
 
 The final accepted technical candidate must have SUCCESS on the same SHA for:

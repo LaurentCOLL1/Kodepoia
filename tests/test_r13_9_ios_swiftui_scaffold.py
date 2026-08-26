@@ -113,7 +113,9 @@ def test_r13_9_project_contains_swiftui_xcode_assets_localizations_and_shared_mo
     assert "import SwiftUI" in by_path["KodepoiaIOS/KodepoiaIOSApp.swift"]
     assert "@Observable" in by_path["KodepoiaIOS/AppState.swift"]
     assert model.digest() in by_path["KodepoiaIOS/AppModelContract.swift"]
-    assert "PRODUCT_BUNDLE_IDENTIFIER = com.kodepoia.fixture" in by_path["KodepoiaIOS.xcodeproj/project.pbxproj"]
+    assert 'PRODUCT_BUNDLE_IDENTIFIER = "com.kodepoia.fixture";' in by_path[
+        "KodepoiaIOS.xcodeproj/project.pbxproj"
+    ]
     assert 'TARGETED_DEVICE_FAMILY = "1,2"' in by_path["KodepoiaIOS.xcodeproj/project.pbxproj"]
     assert manifest.state_strategy is AppleStateStrategy.OBSERVATION
 

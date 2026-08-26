@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.7 COMPLETE + NORMALIZED. R13.8 IN_PROGRESS.** R13.7 accepted technical candidate `b0179797628058670417e6f76e7f4e48a3dda365`; final end-synchronized head `fceae9acfd6f7bb82410682798c4da236ecf37c5` passed R0 #1660 / `32932172947`, Python #1634 / `32932172980`, UI #1601 / `32932172949`, Android Build #85 / `32932172950`, Android Signing #38 / `32932172996`, and Google Play Readiness #6 / `32932172955`; PR #233 merged as `8d5afe50e270cd25f92f5c746ab42e2623ea28eb`; the single continuity-only normalization `a128bfc22f13693f2a7c6a20ffe86017bfbb3fef` passed R0 #1662 / `32932799221`, Python #1636 / `32932799240`, UI #1603 / `32932799192`; PR #234 merged as normalized `main` `3a88f944a1424648fd4d1477c7c88b5da38e86dd`. R13.8 branch `r13/08-apple-xcode-bridge` is created exactly from that normalized head and is the sole active subdivision.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.7 COMPLETE + NORMALIZED. R13.8 COMPLETE pending final end-sync gates/merge/normalization. R13.9 PLANNED / NOT STARTED.** R13.8 accepted technical candidate `d4aad2fdd3b632ebef52de6b9082e5562d95108b` passed R0 #1665 / `32934771636`, Python #1639 / `32934771679`, UI #1606 / `32934771709`, and Apple Xcode #11 / `32934771666`, all SUCCESS on that exact head. Apple #11 ran on hosted `macos-26`, proved stable current Xcode/SDK/simulator capability without Apple credentials or physical-device claims, and uploaded exact-head artifact `r13-8-apple-xcode-macOS-d4aad2fdd3b632ebef52de6b9082e5562d95108b` with digest `sha256:95beca0c015947120d653e6ee12fac4b79efdf010ce7a157bb94e19ba5679ce9`. Manual remains CONDITIONAL / NOT TRIGGERED. The current end-sync branch head must receive fresh exact-head R0/Python/UI/Apple-Xcode gates before PR #235 may merge. Do not start R13.9 until PR #235 and the single continuity-only normalization are merged.
 
 ## État global
 
@@ -15,7 +15,7 @@
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.7: **COMPLETE + NORMALIZED**.
-- R13.8: **IN_PROGRESS**, branch `r13/08-apple-xcode-bridge`, manual **CONDITIONAL / NOT TRIGGERED** at start.
+- R13.8: **COMPLETE pending final exact-head end-sync gates, merge and normalization**, branch `r13/08-apple-xcode-bridge`, accepted technical candidate `d4aad2fdd3b632ebef52de6b9082e5562d95108b`, manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.9–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -61,7 +61,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Android Compose/AGP/compileSdk values are capability-probed and versioned; mutable ecosystem versions are not frozen architecture constants.
 - Google Play publication uses Android App Bundle for new apps; upload-key and Play App Signing key states remain separate; production secrets never enter repo/evidence/argv.
 - Apple App Store Connect production uploads require Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28; Xcode 27 beta 6 is accepted for internal/external TestFlight testing as of 2026-08-25, but beta/TestFlight state is distinct from stable production state.
-- GitHub macOS 26 runner-image documentation advertises the stable Xcode 26.x family and Xcode 26.6 as the current default line, but the runtime probe remains authoritative rather than runner-image documentation.
+- GitHub macOS 26 runner-image documentation advertises the stable Xcode 26.x family and Xcode 26.6 as the current default line, but exact runtime probe evidence remains authoritative.
 - External device providers are optional; credentials, billing/quota and physical-device availability are not global phase prerequisites.
 
 ## R13.1 closure authority
@@ -139,11 +139,15 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 ## R13.8 execution authority
 
 - Authorized normalized base: **`3a88f944a1424648fd4d1477c7c88b5da38e86dd`**.
-- Dedicated branch: **`r13/08-apple-xcode-bridge`**.
+- Dedicated branch: **`r13/08-apple-xcode-bridge`**; implementation PR #235.
 - Start status: **IN_PROGRESS** before implementation.
-- Manual state: **CONDITIONAL / NOT TRIGGERED**. Core R13.8 acceptance first uses accepted hosted macOS CI and must not require Apple Developer membership, signing certificates/private keys, provisioning profiles, App Store Connect credentials, a physical Apple device, or user-machine Xcode installation. If a frozen Xcode/macOS semantic cannot be demonstrated by hosted CI, stop before R13.9 and request a bounded user-controlled collector rather than credentials in chat.
 - Objective: model truthful macOS/Xcode/SDK identities and capabilities; fixed `xcodebuild`/`xcrun`/`simctl` operations; stable-vs-beta channel separation; a provider-neutral hosted/remote execution contract; bounded staging/output/cancellation; and fail-closed validation against executable, build-setting, destination and command substitution.
-- Current versioned evidence baseline: Apple production uploads require Xcode 26+ and iOS/iPadOS 26 SDK+ since 2026-04-28; Xcode 27 beta 6 builds are accepted for internal/external TestFlight testing as of 2026-08-25 but cannot imply stable production readiness; GitHub macOS 26 runner-image documentation advertises Xcode 26.6 as the stable default line, but R13.8 capability state is derived from runtime probe evidence, not documentation alone.
+- Current versioned evidence baseline: Apple production uploads require Xcode 26+ and iOS/iPadOS 26 SDK+ since 2026-04-28; Xcode 27 beta 6 builds are accepted for internal/external TestFlight testing as of 2026-08-25 but cannot imply stable production readiness; GitHub macOS 26 runner-image documentation is advisory while runtime probe evidence is authoritative.
+- Rejected predecessor **`6ca7ab7aea9cfd8fbe69c6626bfbcd294bdf3e44`** failed R13 Apple Xcode Acceptance #9 / `32934587012` during focused tests before capability collection. Its R0/Python/UI or any other evidence is rejected and not reused.
+- Accepted technical candidate **`d4aad2fdd3b632ebef52de6b9082e5562d95108b`** passed R0 Repository Guard #1665 / `32934771636`, Python Core #1639 / `32934771679`, KodeStudio UI Smoke #1606 / `32934771709`, and R13 Apple Xcode Acceptance #11 / `32934771666`, all SUCCESS on that exact head.
+- Apple #11 ran on hosted `macos-26`, passed the focused adversarial suite, collected actual Xcode/XCRUN/iPhoneOS/iPhoneSimulator/simctl capability evidence, verified current stable production-upload toolchain readiness without signing/account/device claims, and uploaded `r13-8-apple-xcode-macOS-d4aad2fdd3b632ebef52de6b9082e5562d95108b` with digest **`sha256:95beca0c015947120d653e6ee12fac4b79efdf010ce7a157bb94e19ba5679ce9`**.
+- Manual remains **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing certificate/private key, provisioning profile, App Store Connect credential, physical Apple device or user-machine Xcode installation was required for the frozen R13.8 core acceptance.
+- End synchronization marks R13.8 **COMPLETE** while R13.9 remains **PLANNED / NOT STARTED**. Because `R13_PLAN.md` and continuity changed after the accepted technical candidate, the resulting final branch head must pass fresh exact-head R0 + Python + UI + R13 Apple Xcode Acceptance before PR #235 may merge. No predecessor/intermediate run may be reused for that final decision.
 
 ## Frozen R13 subdivision index
 
@@ -156,7 +160,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | COMPLETE | CONDITIONAL |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | COMPLETE | CONDITIONAL |
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | COMPLETE | CONDITIONAL |
-| R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | IN_PROGRESS | CONDITIONAL |
+| R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | COMPLETE | CONDITIONAL |
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | PLANNED | CONDITIONAL |
 | R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | PLANNED | CONDITIONAL |
 | R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | PLANNED | CONDITIONAL |
@@ -185,4 +189,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**R13.8 implementation:** on `r13/08-apple-xcode-bridge`, add `R13_8_DESIGN.md`, `R13_8_ACCEPTANCE.md`, focused tests, strict durable schema(s), and a real hosted macOS acceptance workflow. Extend the existing mobile boundary rather than creating a parallel authority. Probe actual `xcodebuild`, `xcrun`, SDK and `simctl` capabilities; represent stable/beta states truthfully; allow only repository-owned fixed operation builders and bounded destinations/outputs; reject arbitrary command/build-setting/destination/executable injection. Run exact-head R0 + Python + UI + the new Apple/Xcode acceptance gate. If accepted hosted macOS CI cannot prove a frozen R13.8 semantic, set manual REQUIRED/BLOCKED and stop before R13.9.
+Complete R13.8 closure only. Treat the current continuity-update commit as the sole final end-synchronized branch head. Verify that `d4aad2fdd3b632ebef52de6b9082e5562d95108b..HEAD` changes only `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`, then require fresh exact-head R0 Repository Guard + Python Core + KodeStudio UI Smoke + R13 Apple Xcode Acceptance. If and only if all four are SUCCESS and manual remains **CONDITIONAL / NOT TRIGGERED**, merge PR #235 with `expected_head_sha=HEAD`, create exactly one continuity-only R13.8 normalization branch from the implementation merge, prove that only `docs/continuity/KODEPOIA_CONTINUITY.md` changed, pass exact-head R0 + Python + UI, and merge that normalization. Only the resulting normalized `main` may authorize the dedicated R13.9 start-sync branch.

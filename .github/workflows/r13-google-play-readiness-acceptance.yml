@@ -1,0 +1,63 @@
+name: R13 Google Play Readiness Acceptance
+
+on:
+  push:
+    branches:
+      - "r13/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r13-google-play-readiness-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dry-run-readiness:
+    name: google-play-dry-run-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Kodepoia evidence dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run focused R13.7 policy/readiness tests
+        run: python -m pytest tests/test_r13_7_google_play_readiness.py -q
+
+      - name: Generate exact-head dry-run readiness evidence
+        run: >-
+          python scripts/r13_7_google_play_acceptance.py
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --output "${{ runner.temp }}/R13_7_GOOGLE_PLAY_READINESS.json"
+
+      - name: Verify evidence is exact-head and non-publishing
+        run: >-
+          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(r'${{ runner.temp }}/R13_7_GOOGLE_PLAY_READINESS.json').read_text(encoding='utf-8')); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['dry_run'] is True; assert p['publish_attempted'] is False; assert p['policy_freshness']=='CURRENT'; assert p['store_status']['readiness']=='STORE_READY'"
+
+      - name: Upload exact-head Google Play readiness evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r13-7-google-play-${{ runner.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          if-no-files-found: error
+          path: ${{ runner.temp }}/R13_7_GOOGLE_PLAY_READINESS.json

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r13/google-play-readiness.schema.json",
+  "title": "Kodepoia R13.7 Google Play readiness evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha",
+    "evaluated_on",
+    "dry_run",
+    "publish_attempted",
+    "policy_freshness",
+    "policy_snapshot_sha256",
+    "release",
+    "candidate",
+    "metadata_sha256",
+    "data_safety_sha256",
+    "content_rating_sha256",
+    "permissions_sha256",
+    "sdks_sha256",
+    "account_context_sha256",
+    "findings",
+    "store_status"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "evaluated_on": {"type": "string", "format": "date"},
+    "dry_run": {"const": true},
+    "publish_attempted": {"const": false},
+    "policy_freshness": {"enum": ["CURRENT", "STALE"]},
+    "policy_snapshot_sha256": {"$ref": "#/$defs/sha256"},
+    "release": {"$ref": "#/$defs/release"},
+    "candidate": {"$ref": "#/$defs/candidate"},
+    "metadata_sha256": {"$ref": "#/$defs/sha256"},
+    "data_safety_sha256": {"$ref": "#/$defs/sha256"},
+    "content_rating_sha256": {"$ref": "#/$defs/sha256"},
+    "permissions_sha256": {"$ref": "#/$defs/sha256"},
+    "sdks_sha256": {"$ref": "#/$defs/sha256"},
+    "account_context_sha256": {
+      "oneOf": [
+        {"$ref": "#/$defs/sha256"},
+        {"type": "null"}
+      ]
+    },
+    "findings": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {"$ref": "#/$defs/finding"}
+    },
+    "store_status": {"$ref": "#/$defs/storeStatus"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "stableId": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "release_id",
+        "application_id",
+        "track",
+        "release_kind",
+        "rollout_percent",
+        "planned_tester_count"
+      ],
+      "properties": {
+        "release_id": {"$ref": "#/$defs/stableId"},
+        "application_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"},
+        "track": {"enum": ["internal", "closed", "open", "production"]},
+        "release_kind": {"enum": ["first_release", "update"]},
+        "rollout_percent": {
+          "oneOf": [
+            {"type": "integer", "minimum": 1, "maximum": 100},
+            {"type": "null"}
+          ]
+        },
+        "planned_tester_count": {
+          "oneOf": [
+            {"type": "integer", "minimum": 1, "maximum": 1000000},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "application_id",
+        "artifact_sha256",
+        "target_sdk",
+        "build_evidence_sha256",
+        "signing_state",
+        "signing_artifact_sha256"
+      ],
+      "properties": {
+        "application_id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"},
+        "artifact_sha256": {"$ref": "#/$defs/sha256"},
+        "target_sdk": {"type": "integer", "minimum": 1, "maximum": 1000},
+        "build_evidence_sha256": {"$ref": "#/$defs/sha256"},
+        "signing_state": {
+          "enum": [
+            "UNSIGNED",
+            "DEBUG_SIGNED",
+            "TEST_SIGNED",
+            "UPLOAD_SIGNED",
+            "PLAY_APP_SIGNING_READY",
+            "SIGNING_UNAVAILABLE"
+          ]
+        },
+        "signing_artifact_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "message"],
+      "properties": {
+        "code": {"$ref": "#/$defs/stableId"},
+        "severity": {"enum": ["warning", "blocker"]},
+        "message": {"type": "string", "minLength": 1, "maxLength": 512}
+      }
+    },
+    "storeStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "release_id",
+        "platform",
+        "readiness",
+        "artifact_digest",
+        "compliance_snapshot_digest",
+        "blockers"
+      ],
+      "properties": {
+        "release_id": {"$ref": "#/$defs/stableId"},
+        "platform": {"const": "android"},
+        "readiness": {
+          "enum": ["NOT_EVALUATED", "LOCAL_ONLY", "TEST_READY", "STORE_READY", "BLOCKED"]
+        },
+        "artifact_digest": {"$ref": "#/$defs/sha256"},
+        "compliance_snapshot_digest": {"$ref": "#/$defs/sha256"},
+        "blockers": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/stableId"}
+        }
+      }
+    }
+  }
+}

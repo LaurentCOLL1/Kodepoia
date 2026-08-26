@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.10 COMPLETE + NORMALIZED upon acceptance/merge of the single R13.10 continuity-only normalization candidate. R13.11–R13.17 PLANNED / NOT STARTED.** R13.9 normalization PR #238 merged as normalized `main` `e85faee11f6a3116e7cf4a1a99872c530ac76d26`. R13.10 accepted technical candidate `35e0e9c8e15c7ac5f5d9d2407f2e7c72c32af4f4` passed its six exact-head gates. Final end-synchronized head `0e2f98e3b5e74086782287aeb34fcacd1c10f97c` changed only `R13_PLAN.md` and continuity relative to that candidate and passed fresh R0 #1682 / `33006842222`, Python Core #1656 / `33006842300`, KodeStudio UI Smoke #1623 / `33006842253`, Apple Xcode #60 / `33006842191`, Apple SwiftUI Scaffold #31 / `33006842189`, and Apple Signing Archive #6 / `33006842187`, all SUCCESS. PR #239 merged with `expected_head_sha=0e2f98e3b5e74086782287aeb34fcacd1c10f97c` as implementation merge `738ee5a82dad81f49192aa9a223209940e4cd35a`. This branch is the single allowed R13.10 continuity-only normalization from that merge. Manual remains CONDITIONAL / NOT TRIGGERED. R13.11 may start only after this normalization candidate passes R0 + Python Core + UI Smoke and its PR merges.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.10 COMPLETE + NORMALIZED. R13.11 IN_PROGRESS. R13.12–R13.17 PLANNED / NOT STARTED.** R13.10 accepted technical candidate `35e0e9c8e15c7ac5f5d9d2407f2e7c72c32af4f4`; final end-synchronized head `0e2f98e3b5e74086782287aeb34fcacd1c10f97c` passed all six required exact-head gates; implementation PR #239 merged as `738ee5a82dad81f49192aa9a223209940e4cd35a`. Single continuity-only normalization head `f3cb9f815a594dbcd935d512746d5a74c555e2d8` passed R0 #1684 / `33007431653`, Python Core #1658 / `33007431612`, and KodeStudio UI Smoke #1625 / `33007431638`, all SUCCESS; normalization PR #240 merged as normalized `main` `5c92b43cb407fb359bd692ba60a9862cb19b4201`. R13.11 branch `r13/11-ios-simulator-xctest-testflight` was created exactly from that normalized main and is start-synchronized before implementation. Core R13.11 acceptance is hosted macOS iOS Simulator + XCTest + bounded `.xcresult` evidence; physical-device and live TestFlight/App Store Connect claims remain separate and unavailable without explicit user-owned capability. Manual is CONDITIONAL / NOT TRIGGERED.
 
 ## État global
 
@@ -14,10 +14,10 @@
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
-- R13.1–R13.9: **COMPLETE + NORMALIZED**.
-- R13.9: **COMPLETE + NORMALIZED**. Normalization head `a314962cddca9544442b52a3d6e8fb4d3deb221f` passed R0 #1678 / `32996925610`, Python Core #1652 / `32996925689`, and KodeStudio UI Smoke #1619 / `32996925659`; normalization PR #238 merged as normalized `main` `e85faee11f6a3116e7cf4a1a99872c530ac76d26`. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.10: **COMPLETE + NORMALIZED upon acceptance/merge of this single continuity-only normalization candidate**. Accepted technical candidate `35e0e9c8e15c7ac5f5d9d2407f2e7c72c32af4f4`; final end-synchronized head `0e2f98e3b5e74086782287aeb34fcacd1c10f97c`; implementation PR #239 merged as `738ee5a82dad81f49192aa9a223209940e4cd35a`. Final required implementation gates were all SUCCESS. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.11–R13.17: **PLANNED / NOT STARTED**.
+- R13.1–R13.10: **COMPLETE + NORMALIZED**.
+- R13.10: **COMPLETE + NORMALIZED**. Normalization head `f3cb9f815a594dbcd935d512746d5a74c555e2d8` passed R0 #1684 / `33007431653`, Python Core #1658 / `33007431612`, and KodeStudio UI Smoke #1625 / `33007431638`; normalization PR #240 merged as normalized `main` `5c92b43cb407fb359bd692ba60a9862cb19b4201`. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.11: **IN_PROGRESS** on `r13/11-ios-simulator-xctest-testflight`, authorized base `5c92b43cb407fb359bd692ba60a9862cb19b4201`. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.12–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -168,10 +168,19 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Accepted exact-head technical candidate **`35e0e9c8e15c7ac5f5d9d2407f2e7c72c32af4f4`** passed R0 Repository Guard #1680 / `33005940105`, Python Core #1654 / `33005940043`, KodeStudio UI Smoke #1621 / `33005940111`, R13 Apple Xcode Acceptance #56 / `33005940108`, R13 Apple SwiftUI Scaffold Acceptance #27 / `33005940057`, and R13 Apple Signing Archive Acceptance #2 / `33005940040`, all SUCCESS on that exact head.
 - Final end-synchronized head **`0e2f98e3b5e74086782287aeb34fcacd1c10f97c`** changed only `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the accepted technical candidate and passed fresh R0 Repository Guard #1682 / `33006842222`, Python Core #1656 / `33006842300`, KodeStudio UI Smoke #1623 / `33006842253`, R13 Apple Xcode Acceptance #60 / `33006842191`, R13 Apple SwiftUI Scaffold Acceptance #31 / `33006842189`, and R13 Apple Signing Archive Acceptance #6 / `33006842187`, all SUCCESS.
 - PR #239 merged with **`expected_head_sha=0e2f98e3b5e74086782287aeb34fcacd1c10f97c`** as implementation merge **`738ee5a82dad81f49192aa9a223209940e4cd35a`**.
+- Single continuity-only normalization **`f3cb9f815a594dbcd935d512746d5a74c555e2d8`** changed exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 Repository Guard #1684 / `33007431653`, Python Core #1658 / `33007431612`, and KodeStudio UI Smoke #1625 / `33007431638`, all SUCCESS. Normalization PR #240 merged with `expected_head_sha=f3cb9f815a594dbcd935d512746d5a74c555e2d8` as normalized **`main` `5c92b43cb407fb359bd692ba60a9862cb19b4201`**.
 - Core R13.10 semantics are non-production and fail closed: simulator build and unsigned generic-iOS archive are independent of distribution credentials; Team/profile/certificate/entitlement substitutions are bounded; `KodeSecrets` retains only secret references; missing production credentials remain `DISTRIBUTION_CREDENTIALS_REQUIRED`; no live export/upload, physical-device capability, TestFlight acceptance or App Store acceptance is synthesized.
 - Manual remained **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, distribution certificate/private key, provisioning secret, App Store Connect credential/token, physical Apple device, or live upload was required for the frozen core claim.
-- This branch **`r13/10-apple-signing-archive-normalize`** is the one and only post-merge continuity normalization for R13.10 and changes only `docs/continuity/KODEPOIA_CONTINUITY.md` relative to implementation merge `738ee5a82dad81f49192aa9a223209940e4cd35a`. Its exact normalization SHA and merge SHA will be recorded during the mandatory R13.11 start synchronization after this candidate passes R0/Python/UI and merges.
-- Therefore R13.10 is **COMPLETE + NORMALIZED upon acceptance and merge of this normalization candidate**; R13.11 remains forbidden until that happens.
+- Therefore R13.10 is authoritatively **COMPLETE + NORMALIZED**.
+
+## R13.11 execution authority
+
+- Authorized normalized base: **`5c92b43cb407fb359bd692ba60a9862cb19b4201`**.
+- Dedicated implementation branch: **`r13/11-ios-simulator-xctest-testflight`**, created exactly from that base.
+- Status: **IN_PROGRESS** before implementation. R13.12 remains **PLANNED** and forbidden until R13.11 implementation merge plus its single continuity-only normalization are accepted.
+- Core frozen acceptance path: render/bind the canonical R13.9 SwiftUI fixture, select a bounded available iOS Simulator deterministically, execute real XCTest on hosted `macos-26` with signing disabled, retain an `.xcresult` bundle and derive bounded structured test evidence using the supported `xcresulttool` test-results interface. Simulator evidence is explicitly virtual and cannot certify physical sensors, hardware performance or physical-device behavior.
+- TestFlight/App Store Connect is a separate optional remote capability seam. Without an explicit authorized credential reference, adapter state is `UNAVAILABLE`, live query/upload is not attempted, and no remote build/beta-group/tester state is synthesized. A TestFlight build is only remote evidence after a build is uploaded and processed by App Store Connect; local XCTest success is never equivalent to TestFlight availability.
+- Manual state: **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing identity/private key, provisioning profile, App Store Connect credential/token, physical device, live upload, beta group or tester enrollment is required for the frozen core claim. If implementation discovers that a required frozen claim cannot be established without physical-device or live TestFlight-only evidence, stop before R13.12 and provide bounded prerequisites/actions/evidence instructions without requesting secrets in chat.
 
 ## Frozen R13 subdivision index
 
@@ -187,7 +196,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | COMPLETE | CONDITIONAL |
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | COMPLETE | CONDITIONAL |
 | R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | COMPLETE | CONDITIONAL |
-| R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | PLANNED | CONDITIONAL |
+| R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | IN_PROGRESS | CONDITIONAL |
 | R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | PLANNED | CONDITIONAL |
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | PLANNED | NONE |
 | R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | PLANNED | CONDITIONAL |
@@ -213,4 +222,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Validate the single continuity-only R13.10 normalization candidate on exact head with R0 Repository Guard + full Python Core + KodeStudio UI Smoke. If all three are SUCCESS, merge its normalization PR with `expected_head_sha`. Immediately afterward, R13.10 is authoritatively COMPLETE + NORMALIZED and R13.11 becomes the next permitted subdivision; create its dedicated branch from that normalized `main` and perform the mandatory R13.11 start plan+continuity synchronization before any implementation. Manual remains CONDITIONAL / NOT TRIGGERED unless a frozen R13.11 claim truly requires physical-device or live TestFlight evidence.
+Implement R13.11 on `r13/11-ios-simulator-xctest-testflight` without changing frozen R1–R12 architecture: add deterministic simulator/XCTest/TestFlight evidence contracts, strict schemas and focused adversarial tests, a hosted `macos-26` XCTest acceptance workflow that binds the canonical R13.9 SwiftUI fixture to exact-head `.xcresult` evidence, and a fail-closed optional TestFlight/App Store Connect capability interface. Run R0 + full Python Core + KodeStudio UI Smoke + relevant Apple workflows on the exact implementation head. Manual remains CONDITIONAL / NOT TRIGGERED unless a frozen R13.11 claim truly requires physical-device or live TestFlight evidence.

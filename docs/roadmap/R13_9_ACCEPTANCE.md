@@ -35,7 +35,7 @@ Any byte change after those runs invalidates them for merge acceptance.
 
 ## Rejected candidate record
 
-Candidate `dff635c527471b7d1b9f84a7bc005e24c27885f6` is rejected and none of its evidence is reusable. R0 and R13 Apple Xcode were healthy, but Python Core #1646 and KodeStudio UI Smoke #1613 failed because eager re-export of `ios_scaffold` from `kodepoia.mobile.__init__` created the circular import `project.dna -> mobile.__init__ -> ios_scaffold -> project.dna`. R13 Apple SwiftUI Scaffold Acceptance #8 also failed before Xcode build because a focused test expected an unquoted `PRODUCT_BUNDLE_IDENTIFIER` even though the deterministic PBX renderer emits the valid quoted form. The corrective head must remove the eager package re-export and validate the quoted PBX setting, then rerun every required gate on a new exact SHA.
+Candidate `dff635c527471b7d1b9f84a7bc005e24c27885f6` is rejected and none of its evidence is reusable. R0 and R13 Apple Xcode were healthy, but Python Core #1646 and KodeStudio UI Smoke #1613 failed because eager re-export of `ios_scaffold` from `kodepoia.mobile.__init__` created the circular import `project.dna -> mobile.__init__ -> ios_scaffold -> project.dna`. R13 Apple SwiftUI Scaffold Acceptance #8 also failed before Xcode build because a focused test expected an unquoted `PRODUCT_BUNDLE_IDENTIFIER` even though the deterministic PBX renderer emits the valid quoted form. The corrective head removes the eager package re-export and validates the quoted PBX setting; every required gate must rerun on the new exact SHA.
 
 ## Focused tests
 
@@ -73,9 +73,9 @@ Candidate `dff635c527471b7d1b9f84a7bc005e24c27885f6` is rejected and none of its
 
 Initial state: **CONDITIONAL / NOT TRIGGERED**.
 
-If the hosted macOS workflow proves the frozen Simulator compile claim, no user action is required. If accepted hosted CI cannot provide the required Simulator/Xcode semantic, R13.9 becomes `MANUAL_REQUIRED`, later subdivisions stop, and one bounded collector/action set must be provided. Production Apple credentials are never a substitute for a missing core Simulator proof.
+If the hosted macOS workflow proves the frozen Simulator compile claim, no Apple/Xcode user action is required. If accepted hosted CI cannot provide the required Simulator/Xcode semantic, R13.9 becomes `MANUAL_REQUIRED`, later subdivisions stop, and one bounded collector/action set must be provided. Production Apple credentials are never a substitute for a missing core Simulator proof.
 
-A user-originated empty Git commit may be requested solely to trigger GitHub Actions when repository mutations made through the connected integration do not enqueue `push` workflows. Such a trigger is infrastructure-only evidence plumbing; it is not an Apple/Xcode manual acceptance requirement and must not be confused with device/signing/account evidence.
+A user-originated empty Git commit may be requested solely to trigger GitHub Actions when repository mutations made through the connected integration do not enqueue `push` workflows. Such a trigger is infrastructure-only evidence plumbing; it does **not** change the R13.9 Apple manual state and must not be confused with device/signing/account evidence.
 
 ## Closure sequence
 

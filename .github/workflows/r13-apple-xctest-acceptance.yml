@@ -1,0 +1,62 @@
+name: R13 Apple XCTest Acceptance
+
+on:
+  push:
+    branches:
+      - "r13/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r13-apple-xctest-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hosted-ios-simulator-xctest:
+    name: apple-xctest-simulator-macos-26
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Kodepoia evidence dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run focused R13.11 Apple XCTest tests
+        run: python -m pytest tests/test_r13_11_apple_testing.py -q
+
+      - name: Run canonical hosted iOS Simulator XCTest acceptance
+        run: >-
+          python scripts/r13_11_apple_xctest_acceptance.py
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --output "${{ runner.temp }}/R13_11_APPLE_XCTEST.json"
+          --result-bundle "${{ runner.temp }}/R13_11_RESULTS.xcresult"
+
+      - name: Verify exact-head simulator-only evidence
+        run: >-
+          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(r'${{ runner.temp }}/R13_11_APPLE_XCTEST.json').read_text(encoding='utf-8')); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['scope']=='SIMULATOR'; assert p['summary']['result']=='PASSED'; assert p['summary']['total_test_count']>=2; assert p['summary']['failed_tests']==0; assert p['physical_device_capability_proven'] is False; assert p['signing_credential_used'] is False; assert p['testflight']['state']=='UNAVAILABLE'; assert p['testflight']['live_query_attempted'] is False; assert p['testflight']['remote_build_state_proven'] is False; assert p['blockers']==[]"
+
+      - name: Upload exact-head Apple XCTest evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r13-11-apple-xctest-${{ runner.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/R13_11_APPLE_XCTEST.json
+            ${{ runner.temp }}/R13_11_RESULTS.xcresult

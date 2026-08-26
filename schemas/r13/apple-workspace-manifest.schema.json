@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r13/apple-workspace-manifest.schema.json",
+  "title": "Kodepoia R13.9 Apple Workspace Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "definition_sha256", "app_model_sha256", "dna_sha256", "product_sha256", "state_strategy", "files"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "definition_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "app_model_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "dna_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "product_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "state_strategy": {"enum": ["observation", "observable_object_compat"]},
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "ownership"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1, "maxLength": 512},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "ownership": {"enum": ["kodepoia", "user"]}
+        }
+      }
+    }
+  }
+}

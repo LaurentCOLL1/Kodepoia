@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1–R13.6 `COMPLETE + NORMALIZED`; R13.6 normalized `main` is `6b943e29528245318904c86913eb5783d238797c`; R13.7 `IN_PROGRESS` from that exact head.
+**Execution checkpoint:** R13.1–R13.6 `COMPLETE + NORMALIZED`; R13.7 is `COMPLETE` on accepted technical candidate `b0179797628058670417e6f76e7f4e48a3dda365` with final exact-head end-sync re-gates/merge/normalization still pending; R13.8 remains `PLANNED / NOT STARTED`.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.6 are **COMPLETE + NORMALIZED**; R13.7 is the sole active subdivision.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.6 are **COMPLETE + NORMALIZED**; R13.7 is **COMPLETE pending final end-sync gates, merge and normalization**; R13.8 is not yet authorized.
 
 ## Permanent subdivision status synchronization rule
 
@@ -160,7 +160,7 @@ Before R13.1 implementation:
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | COMPLETE | CONDITIONAL | R13.1–R13.3 + R6 |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | COMPLETE | CONDITIONAL | R13.4 + R1/R6/R12 |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | COMPLETE | CONDITIONAL | R13.4–R13.5 |
-| R13.7 | Google Play release tracks, metadata + policy/compliance readiness | IN_PROGRESS | CONDITIONAL | R13.4–R13.6 + R7 |
+| R13.7 | Google Play release tracks, metadata + policy/compliance readiness | COMPLETE | CONDITIONAL | R13.4–R13.6 + R7 |
 | R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | PLANNED | CONDITIONAL | R13.1–R13.2 + R6 |
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | PLANNED | CONDITIONAL | R13.8 + R8/R12 patterns |
 | R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | PLANNED | CONDITIONAL | R13.8–R13.9 + R1/R6/R12 |
@@ -261,6 +261,8 @@ Before R13.1 implementation:
 **Manual:** CONDITIONAL — live Play Console/API account operations require explicit authorized credentials and may be omitted from core readiness acceptance.
 
 **Start record:** branch **`r13/07-google-play-readiness`** created exactly from normalized `main` **`6b943e29528245318904c86913eb5783d238797c`**. Status **IN_PROGRESS** before implementation. Manual starts **CONDITIONAL / NOT TRIGGERED**: core R13.7 acceptance is a local/dry-run readiness evaluation using versioned official-policy evidence and accepted Android AAB/signing metadata. A Play Console account, service-account credential, API token, live upload, tester enrollment or publication action is not a core prerequisite; if a frozen live-account-only claim becomes necessary, stop before R13.8 and request bounded user-controlled evidence rather than credentials in chat.
+
+**End-sync record:** accepted technical candidate **`b0179797628058670417e6f76e7f4e48a3dda365`** passed R0 Repository Guard #1658 / `32909573868`, Python Core #1632 / `32909573856`, KodeStudio UI Smoke #1599 / `32909573888`, R13 Android Build Acceptance #81 / `32909573855`, R13 Android Signing Acceptance #34 / `32909573847`, and R13 Google Play Readiness Acceptance #2 / `32909573884`, all SUCCESS on that exact candidate. Google Play #2 succeeded on Ubuntu and Windows, generated exact-head dry-run readiness evidence with `publish_attempted=false`, and uploaded artifacts `r13-7-google-play-Linux-b0179797628058670417e6f76e7f4e48a3dda365` (`sha256:ad8b6c90db8a67a6dd6cfcdab6ea31025605ebbd4cfcdc66b757b1438a098523`) and `r13-7-google-play-Windows-b0179797628058670417e6f76e7f4e48a3dda365` (`sha256:2432063cde90dae29d1da5798257ed468ad8a21504523c72a1b914a8f399224e`). Manual remains **CONDITIONAL / NOT TRIGGERED**: no Play credential, account mutation, live upload, tester enrollment or publication was required. R13.7 is now marked **COMPLETE** for end synchronization; R13.8 remains **PLANNED / NOT STARTED**. Because these documentation bytes changed, fresh exact-head R0 + Python + UI + Android Build + Android Signing + Google Play Readiness gates are mandatory before PR #233 may merge.
 
 # R13.8 — Apple platform/Xcode capability bridge + macOS execution boundary
 

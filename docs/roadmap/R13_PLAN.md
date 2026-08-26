@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1–R13.6 `COMPLETE + NORMALIZED`; R13.7 is `COMPLETE` on accepted technical candidate `b0179797628058670417e6f76e7f4e48a3dda365` with final exact-head end-sync re-gates/merge/normalization still pending; R13.8 remains `PLANNED / NOT STARTED`.
+**Execution checkpoint:** R13.1–R13.7 `COMPLETE + NORMALIZED`; R13.8 `COMPLETE` on accepted technical candidate `d4aad2fdd3b632ebef52de6b9082e5562d95108b`, pending final end-sync re-gates/merge/normalization; R13.9 remains `PLANNED / NOT STARTED`.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.6 are **COMPLETE + NORMALIZED**; R13.7 is **COMPLETE pending final end-sync gates, merge and normalization**; R13.8 is not yet authorized.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.7 are **COMPLETE + NORMALIZED**; R13.8 is **COMPLETE pending final end-sync gates, merge and normalization**; R13.9 is not yet authorized.
 
 ## Permanent subdivision status synchronization rule
 
@@ -50,7 +50,7 @@ R13 does **not** implement R14 backend/live services: authoritative auth, cloud 
 
 Also out of scope unless separately accepted by ADR: Flutter/React Native as new primary frameworks; arbitrary package-manager scripts; model-supplied Gradle/Xcode flags; automatic production store publication; unattended certificate/key creation; Apple notarization for non-mobile macOS distribution beyond the interface needed by this roadmap phase; bypassing App Store/Play policies; self-modifying mobile binaries; mandatory paid cloud accounts for core acceptance.
 
-## Current external compatibility baseline — 2026-08-25
+## Current external compatibility baseline — 2026-08-26
 
 External requirements are **versioned/effective-date evidence**, not permanent architecture constants. R13 must capability-probe tools and evaluate current compliance rules rather than hard-coding one mutable ecosystem version forever.
 
@@ -73,8 +73,9 @@ Official planning references:
 
 ### Apple / Xcode / App Store Connect
 
-- Since 2026-04-28, App Store Connect uploads must be built with **Xcode 26 or later** using the iOS/iPadOS 26 SDK or later. Stable production capability and beta/TestFlight capability must remain distinct.
-- Xcode 27 beta builds are currently accepted for TestFlight testing, but beta acceptance does not manufacture a production App Store-ready claim.
+- Since 2026-04-28, App Store Connect uploads must be built with **Xcode 26 or later** using the iOS/iPadOS 26 SDK or later. Stable production capability and beta/TestFlight capability remain distinct.
+- Since 2026-08-25, App Store Connect release notes accept builds made with **Xcode 27 beta 6 / iOS 27 beta 6 SDK** for internal and external TestFlight testing. Beta/TestFlight acceptance does not manufacture a stable production App Store-ready claim.
+- GitHub-hosted macOS 26 runner-image documentation currently exposes the stable Xcode 26.x toolchain family and announced Xcode 26.6 as the macOS 26 default from 2026-07-21. This is CI capability evidence only: R13.8 probes the actual runtime rather than freezing one runner-image version or Xcode patch as architecture.
 - SwiftUI remains declarative and architecture-agnostic; R13 maps existing Kodepoia state/navigation/service contracts rather than inventing a second global architecture.
 - Apps/SDKs using covered required-reason APIs must declare approved reasons in `PrivacyInfo.xcprivacy`; privacy manifests are first-class generated/validated data.
 - App Store privacy details, privacy policy URL, age rating and other metadata are explicit compliance state. Current age-rating rules are versioned and region-sensitive.
@@ -82,12 +83,14 @@ Official planning references:
 Official planning references:
 
 - https://developer.apple.com/news/upcoming-requirements/
+- https://developer.apple.com/help/app-store-connect/release-notes/
 - https://developer.apple.com/app-store/submitting/
 - https://developer.apple.com/documentation/swiftui
 - https://developer.apple.com/documentation/bundleresources/privacy-manifest-files
 - https://developer.apple.com/documentation/bundleresources/describing-use-of-required-reason-api
 - https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy/
 - https://developer.apple.com/help/app-store-connect/manage-app-information/set-an-app-age-rating
+- https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md
 
 ### Device testing baseline
 
@@ -161,7 +164,7 @@ Before R13.1 implementation:
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | COMPLETE | CONDITIONAL | R13.4 + R1/R6/R12 |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | COMPLETE | CONDITIONAL | R13.4–R13.5 |
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | COMPLETE | CONDITIONAL | R13.4–R13.6 + R7 |
-| R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | PLANNED | CONDITIONAL | R13.1–R13.2 + R6 |
+| R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | COMPLETE | CONDITIONAL | R13.1–R13.2 + R6 |
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | PLANNED | CONDITIONAL | R13.8 + R8/R12 patterns |
 | R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | PLANNED | CONDITIONAL | R13.8–R13.9 + R1/R6/R12 |
 | R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | PLANNED | CONDITIONAL | R13.9–R13.10 |
@@ -262,7 +265,7 @@ Before R13.1 implementation:
 
 **Start record:** branch **`r13/07-google-play-readiness`** created exactly from normalized `main` **`6b943e29528245318904c86913eb5783d238797c`**. Status **IN_PROGRESS** before implementation. Manual starts **CONDITIONAL / NOT TRIGGERED**: core R13.7 acceptance is a local/dry-run readiness evaluation using versioned official-policy evidence and accepted Android AAB/signing metadata. A Play Console account, service-account credential, API token, live upload, tester enrollment or publication action is not a core prerequisite; if a frozen live-account-only claim becomes necessary, stop before R13.8 and request bounded user-controlled evidence rather than credentials in chat.
 
-**End-sync record:** accepted technical candidate **`b0179797628058670417e6f76e7f4e48a3dda365`** passed R0 Repository Guard #1658 / `32909573868`, Python Core #1632 / `32909573856`, KodeStudio UI Smoke #1599 / `32909573888`, R13 Android Build Acceptance #81 / `32909573855`, R13 Android Signing Acceptance #34 / `32909573847`, and R13 Google Play Readiness Acceptance #2 / `32909573884`, all SUCCESS on that exact candidate. Google Play #2 succeeded on Ubuntu and Windows, generated exact-head dry-run readiness evidence with `publish_attempted=false`, and uploaded artifacts `r13-7-google-play-Linux-b0179797628058670417e6f76e7f4e48a3dda365` (`sha256:ad8b6c90db8a67a6dd6cfcdab6ea31025605ebbd4cfcdc66b757b1438a098523`) and `r13-7-google-play-Windows-b0179797628058670417e6f76e7f4e48a3dda365` (`sha256:2432063cde90dae29d1da5798257ed468ad8a21504523c72a1b914a8f399224e`). Manual remains **CONDITIONAL / NOT TRIGGERED**: no Play credential, account mutation, live upload, tester enrollment or publication was required. R13.7 is now marked **COMPLETE** for end synchronization; R13.8 remains **PLANNED / NOT STARTED**. Because these documentation bytes changed, fresh exact-head R0 + Python + UI + Android Build + Android Signing + Google Play Readiness gates are mandatory before PR #233 may merge.
+**Completion record:** accepted technical candidate **`b0179797628058670417e6f76e7f4e48a3dda365`** passed R0 Repository Guard #1658 / `32909573868`, Python Core #1632 / `32909573856`, KodeStudio UI Smoke #1599 / `32909573888`, R13 Android Build Acceptance #81 / `32909573855`, R13 Android Signing Acceptance #34 / `32909573847`, and R13 Google Play Readiness Acceptance #2 / `32909573884`, all SUCCESS on that exact candidate. Google Play #2 succeeded on Ubuntu and Windows, generated exact-head dry-run readiness evidence with `publish_attempted=false`, and uploaded artifacts `r13-7-google-play-Linux-b0179797628058670417e6f76e7f4e48a3dda365` (`sha256:ad8b6c90db8a67a6dd6cfcdab6ea31025605ebbd4cfcdc66b757b1438a098523`) and `r13-7-google-play-Windows-b0179797628058670417e6f76e7f4e48a3dda365` (`sha256:2432063cde90dae29d1da5798257ed468ad8a21504523c72a1b914a8f399224e`). Final end-synchronized head **`fceae9acfd6f7bb82410682798c4da236ecf37c5`** passed fresh exact-head R0 Repository Guard #1660 / `32932172947`, Python Core #1634 / `32932172980`, KodeStudio UI Smoke #1601 / `32932172949`, R13 Android Build Acceptance #85 / `32932172950`, R13 Android Signing Acceptance #38 / `32932172996`, and R13 Google Play Readiness Acceptance #6 / `32932172955`, all SUCCESS. PR #233 merged with `expected_head_sha=fceae9acfd6f7bb82410682798c4da236ecf37c5` as **`8d5afe50e270cd25f92f5c746ab42e2623ea28eb`**. Single continuity-only normalization **`a128bfc22f13693f2a7c6a20ffe86017bfbb3fef`** changed exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 #1662 / `32932799221`, Python Core #1636 / `32932799240`, and KodeStudio UI Smoke #1603 / `32932799192`; normalization PR #234 merged as normalized **`main` `3a88f944a1424648fd4d1477c7c88b5da38e86dd`**. Manual remained **CONDITIONAL / NOT TRIGGERED**. R13.7 is authoritatively **COMPLETE + NORMALIZED**.
 
 # R13.8 — Apple platform/Xcode capability bridge + macOS execution boundary
 
@@ -273,6 +276,10 @@ Before R13.1 implementation:
 **Acceptance:** hosted macOS CI capability probe proves supported Xcode/SDK state; beta toolchain cannot manufacture production-ready state; raw build settings/destination/command injection rejected.
 
 **Manual:** CONDITIONAL — only if a required Xcode/device semantic cannot be demonstrated by accepted hosted macOS CI.
+
+**Start record:** branch **`r13/08-apple-xcode-bridge`** created exactly from normalized `main` **`3a88f944a1424648fd4d1477c7c88b5da38e86dd`**. Status **IN_PROGRESS** before implementation. Manual starts **CONDITIONAL / NOT TRIGGERED**: core R13.8 acceptance uses a hosted macOS capability probe for `xcodebuild`, `xcrun`, SDKs and `simctl`; no Apple Developer account, signing certificate/private key, provisioning profile, App Store Connect credential or physical Apple device is a core prerequisite. Stable-vs-beta classification is evidence-driven: Apple production-upload minimum is Xcode 26+/iOS-iPadOS 26 SDK+ since 2026-04-28, while Xcode 27 beta 6 is currently accepted for TestFlight internal/external testing only. GitHub runner-image documentation is advisory capability input; the exact hosted runtime probe remains authoritative.
+
+**Completion record:** predecessor candidate **`6ca7ab7aea9cfd8fbe69c6626bfbcd294bdf3e44`** is rejected and none of its evidence is reused: R13 Apple Xcode Acceptance #9 / `32934587012` failed during the focused-test step before Xcode capability collection. Corrected accepted technical candidate **`d4aad2fdd3b632ebef52de6b9082e5562d95108b`** passed exact-head R0 Repository Guard #1665 / `32934771636`, Python Core #1639 / `32934771679`, KodeStudio UI Smoke #1606 / `32934771709`, and R13 Apple Xcode Acceptance #11 / `32934771666`, all SUCCESS. Apple #11 ran on hosted `macos-26`, passed focused adversarial tests, collected real `xcodebuild`/`xcrun`/`iphoneos`/`iphonesimulator`/`simctl` capability evidence, verified `policy_freshness=CURRENT`, `channel=STABLE`, `capability_state=AVAILABLE`, `readiness=PRODUCTION_UPLOAD_TOOLCHAIN_READY`, `production_upload_toolchain_capable=true`, `testflight_beta_toolchain_capable=false`, `physical_device_capability_proven=false`, `blockers=[]`, and uploaded exact-head artifact **`r13-8-apple-xcode-macOS-d4aad2fdd3b632ebef52de6b9082e5562d95108b`** with digest **`sha256:95beca0c015947120d653e6ee12fac4b79efdf010ce7a157bb94e19ba5679ce9`**. Manual remains **CONDITIONAL / NOT TRIGGERED**: no Apple account, signing/provisioning credential, physical device or user-machine Xcode installation was required. End synchronization marks R13.8 **COMPLETE** while R13.9 remains **PLANNED / NOT STARTED**; because documentation bytes now change, this end-synchronized head must receive fresh exact-head R0 + Python + UI + R13 Apple Xcode Acceptance before PR #235 may merge.
 
 # R13.9 — iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model
 

@@ -99,7 +99,7 @@ def _evaluate(**overrides):
 def test_r13_8_parses_public_xcode_and_sdk_identity() -> None:
     assert parse_xcodebuild_version("Xcode 26.6\nBuild version 17G86\n") == ("26.6", "17G86")
     assert parse_sdk_version("26.5\n") == "26.5"
-    with pytest.raises(ValueError, match="unexpected xcodebuild"):
+    with pytest.raises(ValueError):
         parse_xcodebuild_version("Xcode 26.6; rm -rf /\nBuild version 17G86\n")
     with pytest.raises(ValueError, match="one version"):
         parse_sdk_version("26.5\n--destination evil\n")

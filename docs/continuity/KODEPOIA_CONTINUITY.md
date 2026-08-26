@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.10 COMPLETE + NORMALIZED. R13.11 COMPLETE; implementation PR #241 merged; single continuity-only normalization IN_PROGRESS. R13.12–R13.17 PLANNED / NOT STARTED.** R13.10 normalization PR #240 merged as normalized `main` `5c92b43cb407fb359bd692ba60a9862cb19b4201`. R13.11 branch `r13/11-ios-simulator-xctest-testflight` was created exactly from that normalized main. Rejected candidate `88f58c798cd1329fddb3df131ae622311fd31ec4` is not reusable. Corrected accepted technical candidate `c90a5804473dfbc7ed5da9b739dfd345dfa3a598` passed exact-head R0 #1687 / `33011155725`, Python Core #1661 / `33011155704`, KodeStudio UI Smoke #1628 / `33011155662`, Apple Xcode #78 / `33011155694`, Apple SwiftUI #49 / `33011155773`, Apple Signing Archive #24 / `33011155762`, and Apple XCTest #4 / `33011155751`, all SUCCESS. Final end-synchronized head `1f0e0e47bae3c0cea27127f5e2071c1a2a72db1c` changed exactly `R13_PLAN.md`, `R13_11_ACCEPTANCE.md` and continuity, then passed fresh R0 #1688 / `33013883587`, Python Core #1662 / `33013883599`, KodeStudio UI Smoke #1629 / `33013883520`, Apple Xcode #80 / `33013883547`, Apple SwiftUI #51 / `33013883510`, Apple Signing Archive #26 / `33013883513`, and Apple XCTest #6 / `33013883546`, all SUCCESS. PR #241 merged with `expected_head_sha=1f0e0e47bae3c0cea27127f5e2071c1a2a72db1c` as implementation merge `1b3c127925b2775d77ab0d491e7fb16e800fe741`. Apple XCTest evidence remains simulator-only; no physical-device or live TestFlight state is synthesized. Manual is CONDITIONAL / NOT TRIGGERED. The only remaining R13.11 action is this single continuity-only normalization: fresh R0 + Python + UI on its exact head, merge with `expected_head_sha`, then R13.12 may start from normalized `main`.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.11 COMPLETE + NORMALIZED. R13.12 IN_PROGRESS. R13.13–R13.17 PLANNED / NOT STARTED.** R13.11 accepted technical candidate `c90a5804473dfbc7ed5da9b739dfd345dfa3a598` passed its seven exact-head gates; final end-sync `1f0e0e47bae3c0cea27127f5e2071c1a2a72db1c` passed fresh R0 #1688 / `33013883587`, Python Core #1662 / `33013883599`, KodeStudio UI Smoke #1629 / `33013883520`, Apple Xcode #80 / `33013883547`, Apple SwiftUI #51 / `33013883510`, Apple Signing Archive #26 / `33013883513`, and Apple XCTest #6 / `33013883546`, all SUCCESS. PR #241 merged as `1b3c127925b2775d77ab0d491e7fb16e800fe741`. Single continuity-only normalization head `02364597f34459edc12a1e911832477df109b78f` passed R0 #1690 / `33014801858`, Python Core #1664 / `33014801948`, and KodeStudio UI Smoke #1631 / `33014801867`, all SUCCESS; PR #242 merged as normalized `main` `fb05135c4a5e1b7177dd4c68e6f05f61a489594e`. R13.12 branch `r13/12-devicelab-matrices` was created exactly from that normalized main. Core R13.12 acceptance is provider-neutral and must reuse accepted local/hosted Android emulator and iOS Simulator evidence without upgrading virtual evidence into physical-device proof. Firebase Test Lab remains optional/account-capability-gated. Manual is CONDITIONAL / NOT TRIGGERED.
 
 ## État global
 
@@ -14,10 +14,10 @@
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
-- R13.1–R13.10: **COMPLETE + NORMALIZED**.
-- R13.10: **COMPLETE + NORMALIZED**. Normalization head `f3cb9f815a594dbcd935d512746d5a74c555e2d8` passed R0 #1684 / `33007431653`, Python Core #1658 / `33007431612`, and KodeStudio UI Smoke #1625 / `33007431638`; normalization PR #240 merged as normalized `main` `5c92b43cb407fb359bd692ba60a9862cb19b4201`. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.11: **COMPLETE, normalization IN_PROGRESS**. Authorized base `5c92b43cb407fb359bd692ba60a9862cb19b4201`; accepted technical candidate `c90a5804473dfbc7ed5da9b739dfd345dfa3a598`; final end-sync `1f0e0e47bae3c0cea27127f5e2071c1a2a72db1c`; implementation PR #241 merged as `1b3c127925b2775d77ab0d491e7fb16e800fe741`. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.12–R13.17: **PLANNED / NOT STARTED**.
+- R13.1–R13.11: **COMPLETE + NORMALIZED**.
+- R13.11 normalized `main`: **`fb05135c4a5e1b7177dd4c68e6f05f61a489594e`** after implementation PR #241 and normalization PR #242. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.12: **IN_PROGRESS** on `r13/12-devicelab-matrices`, created exactly from normalized `main` `fb05135c4a5e1b7177dd4c68e6f05f61a489594e`. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.13–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -64,6 +64,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Apple App Store Connect production uploads require Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28; beta/TestFlight capability remains distinct from stable production capability.
 - SwiftUI Observation support is available from iOS 17/iPadOS 17; R13.9 uses Observation-compatible state mapping while deployment target remains explicit project intent rather than a hidden mutable default.
 - GitHub macOS 26 runner-image/runtime evidence is capability input; exact hosted runtime probes remain authoritative.
+- Firebase Test Lab models a matrix as devices × test executions; device configurations include model, OS version, orientation and locale. Android can target physical or virtual Test Lab devices, while the current iOS Test Lab offering is physical-device based. Quotas/costs are project-scoped and remain explicit capability evidence.
 - External device providers are optional; credentials, billing/quota and physical-device availability are not global phase prerequisites.
 
 ## R13.1 closure authority
@@ -183,10 +184,21 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Exact-head technical artifact **`r13-11-apple-xctest-macOS-c90a5804473dfbc7ed5da9b739dfd345dfa3a598`** has artifact ID **`9622789696`** and uploaded ZIP SHA-256 **`2b35b9470e7af218688f7b805cc2dabbd3ad5a6f012dcfa38df54bd5276c2b28`**. Bounded evidence binds app-model digest `3feb7493c8fa969e638bb9c4454161edea8d1f36f49f2f93a72a99c3b4ca0da0`, XCTest-plan digest `2cd0ca39fcdd8fef33cdc1c5e49c3210e569c234dcf5d62764bf04dfe9009137`, workspace-manifest digest `6403b900068c70e59a985e351ac20ef5856f599b65027c1fa1ad2dc242112835`, and `.xcresult` tree digest `4bcb4519d3461b07c652961130167aa08de9ef3b0c5a978e5ffc68efddc9444d`.
 - Final end-synchronized head **`1f0e0e47bae3c0cea27127f5e2071c1a2a72db1c`** changed exactly `docs/roadmap/R13_PLAN.md`, `docs/roadmap/R13_11_ACCEPTANCE.md`, and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the technical candidate and passed fresh R0 Repository Guard #1688 / `33013883587`, Python Core #1662 / `33013883599`, KodeStudio UI Smoke #1629 / `33013883520`, R13 Apple Xcode Acceptance #80 / `33013883547`, R13 Apple SwiftUI Scaffold Acceptance #51 / `33013883510`, R13 Apple Signing Archive Acceptance #26 / `33013883513`, and R13 Apple XCTest Acceptance #6 / `33013883546`, all SUCCESS.
 - PR #241 merged with **`expected_head_sha=1f0e0e47bae3c0cea27127f5e2071c1a2a72db1c`** as implementation merge **`1b3c127925b2775d77ab0d491e7fb16e800fe741`**.
-- Single continuity-only normalization branch **`r13/11-continuity-normalization`** was created exactly from that implementation merge. This normalization changes only `docs/continuity/KODEPOIA_CONTINUITY.md`; fresh R0 + Python Core + KodeStudio UI Smoke on its exact head and merge with `expected_head_sha` are the only remaining R13.11 steps before R13.12 may start.
+- Single continuity-only normalization head **`02364597f34459edc12a1e911832477df109b78f`** changed only `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 Repository Guard #1690 / `33014801858`, Python Core #1664 / `33014801948`, and KodeStudio UI Smoke #1631 / `33014801867`, all SUCCESS. Normalization PR #242 merged with **`expected_head_sha=02364597f34459edc12a1e911832477df109b78f`** as normalized **`main` `fb05135c4a5e1b7177dd4c68e6f05f61a489594e`**.
 - Core frozen acceptance is fully established by hosted CI: canonical R13.9 fixture binding, deterministic simulator selection, real `xcodebuild test`, bounded `.xcresult` parsing/evidence, simulator-only partitioning, no signing credential, and fail-closed TestFlight state without credentials.
-- TestFlight/App Store Connect remains a separate optional remote capability seam. Apple requires a build to be uploaded and processed before it appears in App Store Connect/TestFlight; local XCTest success is never equivalent to remote TestFlight availability.
-- Manual state: **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing identity/private key, provisioning profile, App Store Connect credential/token, physical Apple device, live upload, beta group or tester enrollment was required for the frozen core claim.
+- Manual remained **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing identity/private key, provisioning profile, App Store Connect credential/token, physical Apple device, live upload, beta group or tester enrollment was required.
+- Therefore R13.11 is authoritatively **COMPLETE + NORMALIZED**.
+
+## R13.12 execution authority
+
+- Authorized normalized base: **`fb05135c4a5e1b7177dd4c68e6f05f61a489594e`**.
+- Dedicated implementation branch: **`r13/12-devicelab-matrices`**, created exactly from that normalized main.
+- Status: **IN_PROGRESS** before implementation. R13.13 remains **PLANNED**.
+- Core architecture: provider-neutral `DeviceLab` identity/routing layer over accepted R13.6 Android and R13.11 Apple test seams; deterministic provider selection; explicit physical-vs-virtual target class; matrix identity binds provider/platform/model/OS/locale/orientation/test execution/artifact digest; result provenance cannot be replayed against a different artifact or matrix identity.
+- Local/hosted providers are core: accepted Android emulator/ADB and iOS Simulator/XCTest evidence can satisfy virtual/simulator claims. Hosted CI is a routing/execution context, not a magical physical-device certification source.
+- Optional Firebase Test Lab provider semantics are versioned capability evidence, not architecture constants. Official Test Lab currently models matrices as devices × test executions, identifies configurations by model/OS/orientation/locale, supports Android physical/virtual targets, and exposes iOS through physical devices. Quotas and billing are project-scoped and must fail closed as explicit unavailable/quota/budget states.
+- Provider account credentials, service-account material, billing state, physical-device quota and live external matrix execution are **not** core prerequisites. Network remains off by default and any provider call is explicit, credential-referenced through KodeSecrets, endpoint-bounded, budgeted and permissioned.
+- Manual state: **CONDITIONAL / NOT TRIGGERED**. Trigger only if a frozen R13.12 acceptance claim cannot be established by deterministic local/hosted evidence and specifically requires a real physical provider run. If triggered, stop before R13.13 and request bounded user-controlled evidence without requesting passwords/private keys/tokens in chat.
 
 ## Frozen R13 subdivision index
 
@@ -203,7 +215,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | COMPLETE | CONDITIONAL |
 | R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | COMPLETE | CONDITIONAL |
 | R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | COMPLETE | CONDITIONAL |
-| R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | PLANNED | CONDITIONAL |
+| R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | IN_PROGRESS | CONDITIONAL |
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | PLANNED | NONE |
 | R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | PLANNED | CONDITIONAL |
 | R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | PLANNED | NONE |
@@ -228,4 +240,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the single continuity-only normalization head from branch `r13/11-continuity-normalization`. If and only if all three are SUCCESS and comparison to implementation merge `1b3c127925b2775d77ab0d491e7fb16e800fe741` confirms that only `docs/continuity/KODEPOIA_CONTINUITY.md` changed, merge the normalization PR with `expected_head_sha`. The resulting `main` is then the normalized R13.11 authority; only then create the dedicated R13.12 branch from that exact normalized `main`, start-sync R13.12 in `R13_PLAN.md` + continuity, and begin DeviceLab provider-neutral implementation. Manual remains CONDITIONAL / NOT TRIGGERED.
+Implement R13.12 on `r13/12-devicelab-matrices` after this start synchronization: add the provider-neutral DeviceLab contracts, deterministic provider routing, matrix/result identities with artifact-digest binding, physical/virtual partitioning, bounded retry/lease/quota/cost states, local Android emulator and Xcode Simulator adapters over existing R13.6/R13.11 evidence, optional Firebase Test Lab capability model with no live account prerequisite, durable schema, required `R13_12_DESIGN.md` + `R13_12_ACCEPTANCE.md`, and focused adversarial tests. Run R0 Repository Guard + full Python Core + KodeStudio UI Smoke plus any newly introduced DeviceLab acceptance workflow on the exact technical candidate. If a required real physical/provider-account semantic proves impossible in accepted CI, stop before R13.13 and trigger the bounded manual gate; otherwise continue through end-sync, fresh exact-head gates, merge, and exactly one continuity-only normalization.

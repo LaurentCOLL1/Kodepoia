@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.7 COMPLETE + NORMALIZED. R13.8 COMPLETE pending final end-sync gates/merge/normalization. R13.9 PLANNED / NOT STARTED.** R13.8 accepted technical candidate `d4aad2fdd3b632ebef52de6b9082e5562d95108b` passed R0 #1665 / `32934771636`, Python #1639 / `32934771679`, UI #1606 / `32934771709`, and Apple Xcode #11 / `32934771666`, all SUCCESS on that exact head. Apple #11 ran on hosted `macos-26`, proved stable current Xcode/SDK/simulator capability without Apple credentials or physical-device claims, and uploaded exact-head artifact `r13-8-apple-xcode-macOS-d4aad2fdd3b632ebef52de6b9082e5562d95108b` with digest `sha256:95beca0c015947120d653e6ee12fac4b79efdf010ce7a157bb94e19ba5679ce9`. Manual remains CONDITIONAL / NOT TRIGGERED. The current end-sync branch head must receive fresh exact-head R0/Python/UI/Apple-Xcode gates before PR #235 may merge. Do not start R13.9 until PR #235 and the single continuity-only normalization are merged.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.7 COMPLETE + NORMALIZED. R13.8 COMPLETE; implementation merged, single continuity normalization pending exact-head gates/merge. R13.9 PLANNED / NOT STARTED.** R13.8 accepted technical candidate `d4aad2fdd3b632ebef52de6b9082e5562d95108b` passed R0 #1665 / `32934771636`, Python #1639 / `32934771679`, UI #1606 / `32934771709`, and Apple Xcode #11 / `32934771666`. Final end-synchronized head `46512808ebc77b2762849f50157676d5d9ecd95d` passed fresh R0 #1667 / `32935142434`, Python #1641 / `32935142396`, UI #1608 / `32935142443`, and Apple Xcode #15 / `32935142412`, all SUCCESS; PR #235 merged with `expected_head_sha=46512808ebc77b2762849f50157676d5d9ecd95d` as `42e4450afc095542d722e6c3f1b671361565af23`. Manual remains CONDITIONAL / NOT TRIGGERED. The only authorized next action is to gate and merge the single continuity-only branch `r13/08-continuity-normalization`; do not start R13.9 until that merge completes.
 
 ## État global
 
@@ -15,7 +15,7 @@
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.7: **COMPLETE + NORMALIZED**.
-- R13.8: **COMPLETE pending final exact-head end-sync gates, merge and normalization**, branch `r13/08-apple-xcode-bridge`, accepted technical candidate `d4aad2fdd3b632ebef52de6b9082e5562d95108b`, manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.8: **COMPLETE**, implementation PR #235 merged as `42e4450afc095542d722e6c3f1b671361565af23`; single continuity-only normalization pending; manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.9–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -136,7 +136,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Single continuity-only normalization **`a128bfc22f13693f2a7c6a20ffe86017bfbb3fef`** changed exactly one file (`docs/continuity/KODEPOIA_CONTINUITY.md`) relative to the implementation merge, passed R0 #1662 / `32932799221`, Python Core #1636 / `32932799240`, and KodeStudio UI Smoke #1603 / `32932799192`, all SUCCESS. Normalization PR #234 merged with `expected_head_sha=a128bfc22f13693f2a7c6a20ffe86017bfbb3fef` as normalized **`main` `3a88f944a1424648fd4d1477c7c88b5da38e86dd`**.
 - Therefore R13.7 is authoritatively **COMPLETE + NORMALIZED**.
 
-## R13.8 execution authority
+## R13.8 closure authority
 
 - Authorized normalized base: **`3a88f944a1424648fd4d1477c7c88b5da38e86dd`**.
 - Dedicated branch: **`r13/08-apple-xcode-bridge`**; implementation PR #235.
@@ -146,8 +146,10 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Rejected predecessor **`6ca7ab7aea9cfd8fbe69c6626bfbcd294bdf3e44`** failed R13 Apple Xcode Acceptance #9 / `32934587012` during focused tests before capability collection. Its R0/Python/UI or any other evidence is rejected and not reused.
 - Accepted technical candidate **`d4aad2fdd3b632ebef52de6b9082e5562d95108b`** passed R0 Repository Guard #1665 / `32934771636`, Python Core #1639 / `32934771679`, KodeStudio UI Smoke #1606 / `32934771709`, and R13 Apple Xcode Acceptance #11 / `32934771666`, all SUCCESS on that exact head.
 - Apple #11 ran on hosted `macos-26`, passed the focused adversarial suite, collected actual Xcode/XCRUN/iPhoneOS/iPhoneSimulator/simctl capability evidence, verified current stable production-upload toolchain readiness without signing/account/device claims, and uploaded `r13-8-apple-xcode-macOS-d4aad2fdd3b632ebef52de6b9082e5562d95108b` with digest **`sha256:95beca0c015947120d653e6ee12fac4b79efdf010ce7a157bb94e19ba5679ce9`**.
-- Manual remains **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing certificate/private key, provisioning profile, App Store Connect credential, physical Apple device or user-machine Xcode installation was required for the frozen R13.8 core acceptance.
-- End synchronization marks R13.8 **COMPLETE** while R13.9 remains **PLANNED / NOT STARTED**. Because `R13_PLAN.md` and continuity changed after the accepted technical candidate, the resulting final branch head must pass fresh exact-head R0 + Python + UI + R13 Apple Xcode Acceptance before PR #235 may merge. No predecessor/intermediate run may be reused for that final decision.
+- Final end-synchronized head **`46512808ebc77b2762849f50157676d5d9ecd95d`** changed only `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the accepted technical candidate and passed fresh R0 Repository Guard #1667 / `32935142434`, Python Core #1641 / `32935142396`, KodeStudio UI Smoke #1608 / `32935142443`, and R13 Apple Xcode Acceptance #15 / `32935142412`, all SUCCESS on that exact head.
+- PR #235 merged with **`expected_head_sha=46512808ebc77b2762849f50157676d5d9ecd95d`** as **`42e4450afc095542d722e6c3f1b671361565af23`**.
+- Manual remained **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing certificate/private key, provisioning profile, App Store Connect credential, physical Apple device or user-machine Xcode installation was required for the frozen R13.8 core acceptance.
+- Single continuity-only normalization branch **`r13/08-continuity-normalization`** was created exactly from the implementation merge. It must change only `docs/continuity/KODEPOIA_CONTINUITY.md`, pass exact-head R0 Repository Guard + Python Core + KodeStudio UI Smoke, and merge before R13.9 may start.
 
 ## Frozen R13 subdivision index
 
@@ -189,4 +191,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Complete R13.8 closure only. Treat the current continuity-update commit as the sole final end-synchronized branch head. Verify that `d4aad2fdd3b632ebef52de6b9082e5562d95108b..HEAD` changes only `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`, then require fresh exact-head R0 Repository Guard + Python Core + KodeStudio UI Smoke + R13 Apple Xcode Acceptance. If and only if all four are SUCCESS and manual remains **CONDITIONAL / NOT TRIGGERED**, merge PR #235 with `expected_head_sha=HEAD`, create exactly one continuity-only R13.8 normalization branch from the implementation merge, prove that only `docs/continuity/KODEPOIA_CONTINUITY.md` changed, pass exact-head R0 + Python + UI, and merge that normalization. Only the resulting normalized `main` may authorize the dedicated R13.9 start-sync branch.
+Complete R13.8 normalization only. Treat the current head of `r13/08-continuity-normalization` as the sole normalization candidate. Verify that `42e4450afc095542d722e6c3f1b671361565af23..HEAD` changes exactly one file, `docs/continuity/KODEPOIA_CONTINUITY.md`, then require fresh exact-head R0 Repository Guard + Python Core + KodeStudio UI Smoke. If and only if all three are SUCCESS and manual remains **CONDITIONAL / NOT TRIGGERED**, merge the normalization PR with `expected_head_sha=HEAD`. Any content change after a gate run invalidates that run for normalization acceptance. Only the resulting normalized `main` may authorize the dedicated R13.9 start-sync branch.

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.6 COMPLETE + NORMALIZED. R13.7 IN_PROGRESS.** R13.6 accepted technical candidate `91fac3fe1f80b04b570636002f4ba98e0c64724a`; final end-synchronized head `05238743d01f71d6feaa4dc6d832efbab1633c81` passed R0 #1654 / `32906607557`, Python #1628 / `32906607562`, UI #1595 / `32906607621`, Android Build #74 / `32906607561`, Android Signing #27 / `32906607601`, and Android Device #12 / `32906607620`; PR #231 merged as `8c5751bfe4c795f3386ea97caa92beb9c29be23d`; the single continuity-only normalization `4c97fea1d7e47cdb85aed6d9c096012592a6a11c` passed R0 #1656 / `32907230177`, Python #1630 / `32907230212`, UI #1597 / `32907230236`; PR #232 merged as normalized `main` `6b943e29528245318904c86913eb5783d238797c`. R13.7 branch `r13/07-google-play-readiness` is created exactly from that normalized head and is the sole active subdivision.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.6 COMPLETE + NORMALIZED. R13.7 COMPLETE pending final end-sync gates/merge/normalization. R13.8 PLANNED / NOT STARTED.** R13.7 accepted technical candidate `b0179797628058670417e6f76e7f4e48a3dda365` passed R0 #1658 / `32909573868`, Python #1632 / `32909573856`, UI #1599 / `32909573888`, Android Build #81 / `32909573855`, Android Signing #34 / `32909573847`, and Google Play Readiness #2 / `32909573884`, all SUCCESS on that exact head. Manual remains CONDITIONAL / NOT TRIGGERED. The plan end-sync commit is `7d5939c49047eee1644da25d9dfd28f627294fba`; continuity end-sync must be the final branch head and then receive fresh exact-head R0/Python/UI/Build/Signing/Google-Play gates before PR #233 may merge. Do not start R13.8 until PR #233 and the single continuity-only normalization are merged.
 
 ## État global
 
@@ -15,7 +15,7 @@
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.6: **COMPLETE + NORMALIZED**.
-- R13.7: **IN_PROGRESS**, branch `r13/07-google-play-readiness`, manual **CONDITIONAL / NOT TRIGGERED** at start.
+- R13.7: **COMPLETE pending final exact-head end-sync gates, merge and normalization**, branch `r13/07-google-play-readiness`, accepted technical candidate `b0179797628058670417e6f76e7f4e48a3dda365`, manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.8–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -124,11 +124,14 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 ## R13.7 execution authority
 
 - Authorized normalized base: **`6b943e29528245318904c86913eb5783d238797c`**.
-- Dedicated branch: **`r13/07-google-play-readiness`**.
+- Dedicated branch: **`r13/07-google-play-readiness`**; implementation PR #233.
 - Start status: **IN_PROGRESS** before implementation.
-- Manual state: **CONDITIONAL / NOT TRIGGERED**. Core R13.7 acceptance is local/dry-run and must not require Play Console login, service-account credentials, API tokens, tester enrollment, billing or real publication. If a frozen live-account-only semantic becomes necessary, stop before R13.8 and request bounded user-controlled evidence; never request credentials in chat.
 - Objective: model Google Play track intent, staged rollout, AAB upload-candidate identity, localized listing metadata/assets, date-aware official-policy evidence, Data safety/content-rating/permission/SDK findings, Play App Signing readiness and an optional credential-gated API capability boundary without automatic upload or publication.
 - Current official policy facts used as **versioned evidence**, not architecture constants: ordinary new apps/updates must target Android 16/API 36+ from 2026-08-31; current listing maximums are 30 characters for app name, 80 for short description and 4000 for full description; published apps require IARC content rating/questionnaire. These values must remain source/effective-date scoped and cannot silently claim CURRENT when stale.
+- Accepted technical candidate **`b0179797628058670417e6f76e7f4e48a3dda365`** passed exact-head R0 Repository Guard #1658 / `32909573868`, Python Core #1632 / `32909573856`, KodeStudio UI Smoke #1599 / `32909573888`, R13 Android Build Acceptance #81 / `32909573855`, R13 Android Signing Acceptance #34 / `32909573847`, and R13 Google Play Readiness Acceptance #2 / `32909573884`, all SUCCESS.
+- Google Play Readiness #2 passed on Ubuntu and Windows and uploaded exact-head dry-run evidence artifacts `r13-7-google-play-Linux-b0179797628058670417e6f76e7f4e48a3dda365` with digest **`sha256:ad8b6c90db8a67a6dd6cfcdab6ea31025605ebbd4cfcdc66b757b1438a098523`** and `r13-7-google-play-Windows-b0179797628058670417e6f76e7f4e48a3dda365` with digest **`sha256:2432063cde90dae29d1da5798257ed468ad8a21504523c72a1b914a8f399224e`**. The evidence is dry-run/non-publishing and did not mutate a Play account.
+- Manual state remains **CONDITIONAL / NOT TRIGGERED**. No Play Console login, service-account credential, API token, live upload, tester enrollment, billing, or publication action was required for the frozen R13.7 core acceptance.
+- End synchronization marks R13.7 **COMPLETE** while R13.8 remains **PLANNED / NOT STARTED**. Plan end-sync is commit `7d5939c49047eee1644da25d9dfd28f627294fba`; this continuity update becomes the final end-sync branch head. Because documentation bytes changed after the accepted technical candidate, the final branch head must pass fresh exact-head R0 + Python + UI + Android Build + Android Signing + Google Play Readiness before PR #233 can merge. No predecessor/intermediate run may be reused for that final decision.
 
 ## Frozen R13 subdivision index
 
@@ -140,7 +143,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.4 | Android Gradle build/export, APK/AAB, manifest/resources/ABI validation | COMPLETE | CONDITIONAL |
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | COMPLETE | CONDITIONAL |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | COMPLETE | CONDITIONAL |
-| R13.7 | Google Play release tracks, metadata + policy/compliance readiness | IN_PROGRESS | CONDITIONAL |
+| R13.7 | Google Play release tracks, metadata + policy/compliance readiness | COMPLETE | CONDITIONAL |
 | R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | PLANNED | CONDITIONAL |
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | PLANNED | CONDITIONAL |
 | R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | PLANNED | CONDITIONAL |
@@ -170,4 +173,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-**R13.7 implementation:** after this start synchronization, implement the local/dry-run Google Play readiness model on `r13/07-google-play-readiness`: add `R13_7_DESIGN.md`, `R13_7_ACCEPTANCE.md`, focused tests, strict durable schema(s), date-aware official-policy snapshot/readiness evaluation, store-listing/Data-safety/content-rating/policy findings, AAB/signing binding, and optional non-executing/capability-gated Play API request descriptors if needed. Do not perform live Play API calls or publication. Run exact-head R0 + Python + UI and affected Android build/signing/readiness gates. If a live-account-only requirement appears, mark manual REQUIRED/BLOCKED and stop before R13.8.
+Complete R13.7 closure only. Treat the resulting continuity-update commit as the sole final end-synchronized head. Verify that `b0179797628058670417e6f76e7f4e48a3dda365..HEAD` changes only `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`, then require fresh exact-head R0 Repository Guard + Python Core + KodeStudio UI Smoke + R13 Android Build Acceptance + R13 Android Signing Acceptance + R13 Google Play Readiness Acceptance. If and only if all six are SUCCESS and manual remains **CONDITIONAL / NOT TRIGGERED**, merge PR #233 with `expected_head_sha=HEAD`, create exactly one continuity-only R13.7 normalization branch from the implementation merge, prove that only `docs/continuity/KODEPOIA_CONTINUITY.md` changed, pass exact-head R0 + Python + UI, and merge that normalization. Only the resulting normalized `main` may authorize the dedicated R13.8 start-sync branch. Do not perform live Play API calls or publication.

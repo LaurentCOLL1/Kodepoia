@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r13/apple-xctest-evidence.schema.json",
+  "title": "Kodepoia R13.11 Apple XCTest evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha",
+    "scope",
+    "plan_sha256",
+    "workspace_manifest_sha256",
+    "app_model_sha256",
+    "simulator",
+    "summary",
+    "xcresult_tree_sha256",
+    "physical_device_capability_proven",
+    "signing_credential_used",
+    "testflight",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "scope": {"const": "SIMULATOR"},
+    "plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "workspace_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "app_model_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "simulator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "device_id_sha256",
+        "name",
+        "runtime_identifier",
+        "os_version",
+        "device_type_identifier",
+        "virtual"
+      ],
+      "properties": {
+        "device_id_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 128},
+        "runtime_identifier": {"type": "string", "pattern": "^com\\.apple\\.CoreSimulator\\.SimRuntime\\.[A-Za-z0-9._-]{1,128}$"},
+        "os_version": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+){0,3}$"},
+        "device_type_identifier": {"type": "string", "pattern": "^com\\.apple\\.CoreSimulator\\.SimDeviceType\\.[A-Za-z0-9._-]{1,128}$"},
+        "virtual": {"const": true}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "total_test_count", "passed_tests", "failed_tests", "skipped_tests", "expected_failures"],
+      "properties": {
+        "result": {"const": "PASSED"},
+        "total_test_count": {"type": "integer", "minimum": 1, "maximum": 1000000},
+        "passed_tests": {"type": "integer", "minimum": 1, "maximum": 1000000},
+        "failed_tests": {"const": 0},
+        "skipped_tests": {"type": "integer", "minimum": 0, "maximum": 1000000},
+        "expected_failures": {"type": "integer", "minimum": 0, "maximum": 1000000}
+      }
+    },
+    "xcresult_tree_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "physical_device_capability_proven": {"const": false},
+    "signing_credential_used": {"const": false},
+    "testflight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "credential_reference_present", "live_query_attempted", "remote_build_state_proven", "blockers"],
+      "properties": {
+        "state": {"enum": ["UNAVAILABLE", "READY_TO_QUERY", "QUERY_FAILED", "REMOTE_STATE_PROVEN"]},
+        "credential_reference_present": {"type": "boolean"},
+        "live_query_attempted": {"type": "boolean"},
+        "remote_build_state_proven": {"type": "boolean"},
+        "blockers": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 32,
+          "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"}
+        }
+      }
+    },
+    "blockers": {"type": "array", "maxItems": 0}
+  }
+}

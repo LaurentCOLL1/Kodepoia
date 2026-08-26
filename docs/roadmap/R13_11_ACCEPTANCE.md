@@ -2,7 +2,7 @@
 
 ## Status
 
-Subdivision status: **IN_PROGRESS**. This document defines the acceptance contract; it does not predeclare PASS.
+Subdivision status: **COMPLETE** for end synchronization. R13.12 remains **PLANNED / NOT STARTED** until R13.11 implementation merge and its single continuity-only normalization are accepted.
 
 Manual state: **CONDITIONAL / NOT TRIGGERED**.
 
@@ -67,6 +67,26 @@ It must execute on `macos-26` and:
 
 The native `.xcresult` is evidence data, not a checked-in PASS artifact.
 
+## Accepted technical candidate
+
+Accepted exact-head technical candidate: **`c90a5804473dfbc7ed5da9b739dfd345dfa3a598`**.
+
+Required gates on that exact SHA all completed **SUCCESS**:
+
+- R0 Repository Guard #1687 / `33011155725`;
+- Python Core #1661 / `33011155704`;
+- KodeStudio UI Smoke #1628 / `33011155662`;
+- R13 Apple Xcode Acceptance #78 / `33011155694`;
+- R13 Apple SwiftUI Scaffold Acceptance #49 / `33011155773`;
+- R13 Apple Signing Archive Acceptance #24 / `33011155762`;
+- R13 Apple XCTest Acceptance #4 / `33011155751`.
+
+Apple XCTest #4 ran job `98317467434` on hosted `macos-26`, passed all 8 focused R13.11 Python tests, executed the canonical simulator XCTest acceptance, and produced structured evidence with `scope=SIMULATOR`, `summary.result=PASSED`, `total_test_count=2`, `passed_tests=2`, `failed_tests=0`, `physical_device_capability_proven=false`, `signing_credential_used=false`, `blockers=[]`, and TestFlight `state=UNAVAILABLE`, `live_query_attempted=false`, `remote_build_state_proven=false` because App Store Connect credentials were absent.
+
+The selected hosted simulator was `iPhone Air` on iOS `26.5`; durable evidence stores a hashed device identity rather than the raw simulator UDID. The run uploaded exact-head artifact **`r13-11-apple-xctest-macOS-c90a5804473dfbc7ed5da9b739dfd345dfa3a598`**, artifact ID **`9622789696`**, ZIP SHA-256 **`2b35b9470e7af218688f7b805cc2dabbd3ad5a6f012dcfa38df54bd5276c2b28`**. The evidence also binds app-model digest `3feb7493c8fa969e638bb9c4454161edea8d1f36f49f2f93a72a99c3b4ca0da0`, XCTest-plan digest `2cd0ca39fcdd8fef33cdc1c5e49c3210e569c234dcf5d62764bf04dfe9009137`, workspace-manifest digest `6403b900068c70e59a985e351ac20ef5856f599b65027c1fa1ad2dc242112835`, and `.xcresult` tree digest `4bcb4519d3461b07c652961130167aa08de9ef3b0c5a978e5ffc68efddc9444d`.
+
+Rejected predecessor **`88f58c798cd1329fddb3df131ae622311fd31ec4`** is not reusable: its focused R13.11 test run failed because duplicate-overlay detection happened after canonical-PBX cardinality checks. The corrected candidate checks the already-present XCTest target/scheme marker first and then applies the fail-closed canonical drift checks.
+
 ## Exact-head required gates
 
 The accepted technical candidate must have, on the **same exact SHA**:
@@ -83,17 +103,17 @@ Any byte change after those results creates a new candidate and invalidates them
 
 ## End synchronization and merge
 
-After a technical candidate passes the gates above:
+The technical candidate has passed. This end-synchronization marks R13.11 `COMPLETE` while R13.12 remains `PLANNED` and records the accepted candidate/run/artifact identities above.
 
-1. update `R13_PLAN.md` and continuity in the same work cycle so R13.11 becomes `COMPLETE` and R13.12 remains `PLANNED`;
-2. record the accepted exact-head run identities and hosted XCTest artifact digest;
-3. rerun all required gates on the new end-synchronized exact head;
-4. merge the implementation PR using `expected_head_sha` only if every required gate is SUCCESS;
-5. create exactly one continuity-only post-merge normalization branch/PR;
-6. require fresh exact-head R0 + Python Core + KodeStudio UI Smoke on that normalization head;
-7. merge normalization with `expected_head_sha`;
-8. only then may R13.12 start.
+After this documentation change:
+
+1. rerun all seven required gates on the new end-synchronized exact head;
+2. merge implementation PR #241 using `expected_head_sha` only if every required gate is SUCCESS;
+3. create exactly one continuity-only post-merge normalization branch/PR;
+4. require fresh exact-head R0 + Python Core + KodeStudio UI Smoke on that normalization head;
+5. merge normalization with `expected_head_sha`;
+6. only then may R13.12 start.
 
 ## Manual gate
 
-**CONDITIONAL / NOT TRIGGERED** unless hosted CI proves unable to establish a frozen required R13.11 claim that specifically requires a physical Apple device or live TestFlight state. If triggered, stop before R13.12 and provide bounded prerequisites/actions/evidence instructions. Never request passwords, private keys or tokens in chat.
+**CONDITIONAL / NOT TRIGGERED.** Hosted CI established every frozen required R13.11 core claim. A physical Apple device and live TestFlight/App Store Connect state remain explicit non-claims, so no user intervention is required for R13.11 acceptance. Never request passwords, private keys or tokens in chat.

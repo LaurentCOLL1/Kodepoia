@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.7 COMPLETE + NORMALIZED. R13.8 COMPLETE; implementation merged, single continuity normalization pending exact-head gates/merge. R13.9 PLANNED / NOT STARTED.** R13.8 accepted technical candidate `d4aad2fdd3b632ebef52de6b9082e5562d95108b` passed R0 #1665 / `32934771636`, Python #1639 / `32934771679`, UI #1606 / `32934771709`, and Apple Xcode #11 / `32934771666`. Final end-synchronized head `46512808ebc77b2762849f50157676d5d9ecd95d` passed fresh R0 #1667 / `32935142434`, Python #1641 / `32935142396`, UI #1608 / `32935142443`, and Apple Xcode #15 / `32935142412`, all SUCCESS; PR #235 merged with `expected_head_sha=46512808ebc77b2762849f50157676d5d9ecd95d` as `42e4450afc095542d722e6c3f1b671361565af23`. Manual remains CONDITIONAL / NOT TRIGGERED. The only authorized next action is to gate and merge the single continuity-only branch `r13/08-continuity-normalization`; do not start R13.9 until that merge completes.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.8 COMPLETE + NORMALIZED. R13.9 IN_PROGRESS. R13.10–R13.17 PLANNED / NOT STARTED.** R13.8 accepted technical candidate `d4aad2fdd3b632ebef52de6b9082e5562d95108b`; final end-synchronized head `46512808ebc77b2762849f50157676d5d9ecd95d` passed R0 #1667 / `32935142434`, Python #1641 / `32935142396`, UI #1608 / `32935142443`, and Apple Xcode #15 / `32935142412`; PR #235 merged as `42e4450afc095542d722e6c3f1b671361565af23`. Single continuity-only normalization head `1c4a718f757f8973afe60f000a8c6aa9b3239122` passed R0 #1670 / `32983561564`, Python #1644 / `32983561750`, UI #1611 / `32983561686`; PR #236 merged as normalized `main` `cd1e34321c57a7f6e25d1d1c17d084469761c8a3`. R13.9 branch `r13/09-ios-swiftui-scaffold` was created exactly from that normalized head and is the sole active subdivision. Manual starts CONDITIONAL / NOT TRIGGERED.
 
 ## État global
 
@@ -14,9 +14,9 @@
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
-- R13.1–R13.7: **COMPLETE + NORMALIZED**.
-- R13.8: **COMPLETE**, implementation PR #235 merged as `42e4450afc095542d722e6c3f1b671361565af23`; single continuity-only normalization pending; manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.9–R13.17: **PLANNED / NOT STARTED**.
+- R13.1–R13.8: **COMPLETE + NORMALIZED**.
+- R13.9: **IN_PROGRESS**, branch `r13/09-ios-swiftui-scaffold`, exact base `cd1e34321c57a7f6e25d1d1c17d084469761c8a3`, manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.10–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -60,8 +60,9 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Google Play: new apps/updates must target Android 16 / API 36 from **2026-08-31**; R13 store-ready acceptance starts at API 36.
 - Android Compose/AGP/compileSdk values are capability-probed and versioned; mutable ecosystem versions are not frozen architecture constants.
 - Google Play publication uses Android App Bundle for new apps; upload-key and Play App Signing key states remain separate; production secrets never enter repo/evidence/argv.
-- Apple App Store Connect production uploads require Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28; Xcode 27 beta 6 is accepted for internal/external TestFlight testing as of 2026-08-25, but beta/TestFlight state is distinct from stable production state.
-- GitHub macOS 26 runner-image documentation advertises the stable Xcode 26.x family and Xcode 26.6 as the current default line, but exact runtime probe evidence remains authoritative.
+- Apple App Store Connect production uploads require Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28; beta/TestFlight capability remains distinct from stable production capability.
+- SwiftUI Observation support is available from iOS 17/iPadOS 17; R13.9 may use Observation-compatible state mapping while deployment target remains explicit project intent rather than a hidden mutable default.
+- GitHub macOS 26 runner-image/runtime evidence is capability input; exact hosted runtime probes remain authoritative.
 - External device providers are optional; credentials, billing/quota and physical-device availability are not global phase prerequisites.
 
 ## R13.1 closure authority
@@ -140,16 +141,21 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 
 - Authorized normalized base: **`3a88f944a1424648fd4d1477c7c88b5da38e86dd`**.
 - Dedicated branch: **`r13/08-apple-xcode-bridge`**; implementation PR #235.
-- Start status: **IN_PROGRESS** before implementation.
-- Objective: model truthful macOS/Xcode/SDK identities and capabilities; fixed `xcodebuild`/`xcrun`/`simctl` operations; stable-vs-beta channel separation; a provider-neutral hosted/remote execution contract; bounded staging/output/cancellation; and fail-closed validation against executable, build-setting, destination and command substitution.
-- Current versioned evidence baseline: Apple production uploads require Xcode 26+ and iOS/iPadOS 26 SDK+ since 2026-04-28; Xcode 27 beta 6 builds are accepted for internal/external TestFlight testing as of 2026-08-25 but cannot imply stable production readiness; GitHub macOS 26 runner-image documentation is advisory while runtime probe evidence is authoritative.
-- Rejected predecessor **`6ca7ab7aea9cfd8fbe69c6626bfbcd294bdf3e44`** failed R13 Apple Xcode Acceptance #9 / `32934587012` during focused tests before capability collection. Its R0/Python/UI or any other evidence is rejected and not reused.
-- Accepted technical candidate **`d4aad2fdd3b632ebef52de6b9082e5562d95108b`** passed R0 Repository Guard #1665 / `32934771636`, Python Core #1639 / `32934771679`, KodeStudio UI Smoke #1606 / `32934771709`, and R13 Apple Xcode Acceptance #11 / `32934771666`, all SUCCESS on that exact head.
-- Apple #11 ran on hosted `macos-26`, passed the focused adversarial suite, collected actual Xcode/XCRUN/iPhoneOS/iPhoneSimulator/simctl capability evidence, verified current stable production-upload toolchain readiness without signing/account/device claims, and uploaded `r13-8-apple-xcode-macOS-d4aad2fdd3b632ebef52de6b9082e5562d95108b` with digest **`sha256:95beca0c015947120d653e6ee12fac4b79efdf010ce7a157bb94e19ba5679ce9`**.
-- Final end-synchronized head **`46512808ebc77b2762849f50157676d5d9ecd95d`** changed only `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the accepted technical candidate and passed fresh R0 Repository Guard #1667 / `32935142434`, Python Core #1641 / `32935142396`, KodeStudio UI Smoke #1608 / `32935142443`, and R13 Apple Xcode Acceptance #15 / `32935142412`, all SUCCESS on that exact head.
-- PR #235 merged with **`expected_head_sha=46512808ebc77b2762849f50157676d5d9ecd95d`** as **`42e4450afc095542d722e6c3f1b671361565af23`**.
-- Manual remained **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing certificate/private key, provisioning profile, App Store Connect credential, physical Apple device or user-machine Xcode installation was required for the frozen R13.8 core acceptance.
-- Single continuity-only normalization branch **`r13/08-continuity-normalization`** was created exactly from the implementation merge. It must change only `docs/continuity/KODEPOIA_CONTINUITY.md`, pass exact-head R0 Repository Guard + Python Core + KodeStudio UI Smoke, and merge before R13.9 may start.
+- Rejected predecessor **`6ca7ab7aea9cfd8fbe69c6626bfbcd294bdf3e44`** failed R13 Apple Xcode Acceptance #9 / `32934587012` during focused tests before capability collection. Its evidence is rejected and not reused.
+- Accepted technical candidate **`d4aad2fdd3b632ebef52de6b9082e5562d95108b`** passed R0 #1665 / `32934771636`, Python #1639 / `32934771679`, UI #1606 / `32934771709`, and Apple Xcode #11 / `32934771666`, all SUCCESS on exact head.
+- Final end-synchronized head **`46512808ebc77b2762849f50157676d5d9ecd95d`** passed R0 #1667 / `32935142434`, Python #1641 / `32935142396`, UI #1608 / `32935142443`, and Apple Xcode #15 / `32935142412`, all SUCCESS; PR #235 merged with expected head as **`42e4450afc095542d722e6c3f1b671361565af23`**.
+- Single continuity-only normalization head **`1c4a718f757f8973afe60f000a8c6aa9b3239122`** changed only `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 #1670 / `32983561564`, Python #1644 / `32983561750`, and UI #1611 / `32983561686`, all SUCCESS. Normalization PR #236 merged with `expected_head_sha=1c4a718f757f8973afe60f000a8c6aa9b3239122` as normalized **`main` `cd1e34321c57a7f6e25d1d1c17d084469761c8a3`**.
+- Manual remained **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing certificate/private key, provisioning profile, App Store Connect credential, physical Apple device or user-machine Xcode installation was required.
+- Therefore R13.8 is authoritatively **COMPLETE + NORMALIZED**.
+
+## R13.9 execution authority
+
+- Authorized normalized base: **`cd1e34321c57a7f6e25d1d1c17d084469761c8a3`**.
+- Dedicated branch: **`r13/09-ios-swiftui-scaffold`**.
+- Status: **IN_PROGRESS** before implementation; R13.10+ remain **PLANNED / NOT STARTED**.
+- Objective: generate a deterministic iOS/iPadOS SwiftUI/Xcode project from accepted Wizard/DNA/shared app contracts, with Observation-compatible state mapping, resources/localizations/assets, deterministic project settings, deployment-target intent, generated/user-owned file policy and optional Godot iOS bridge metadata.
+- Current Apple baseline is evidence, not architecture: App Store Connect upload minimum is Xcode 26+/iOS-iPadOS 26 SDK+ since 2026-04-28; SwiftUI Observation support exists from iOS/iPadOS 17. Core R13.9 acceptance is hosted simulator compile/build evidence, not App Store submission evidence.
+- Manual state starts **CONDITIONAL / NOT TRIGGERED**. Hosted `macos-26`/accepted Xcode simulator evidence is attempted first. No Apple account, signing identity, provisioning profile, App Store Connect token, physical device, raw Xcode setting/destination or user-machine toolchain is required for the frozen core claim.
 
 ## Frozen R13 subdivision index
 
@@ -163,7 +169,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | COMPLETE | CONDITIONAL |
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | COMPLETE | CONDITIONAL |
 | R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | COMPLETE | CONDITIONAL |
-| R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | PLANNED | CONDITIONAL |
+| R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | IN_PROGRESS | CONDITIONAL |
 | R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | PLANNED | CONDITIONAL |
 | R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | PLANNED | CONDITIONAL |
 | R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | PLANNED | CONDITIONAL |
@@ -191,4 +197,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Complete R13.8 normalization only. Treat the current head of `r13/08-continuity-normalization` as the sole normalization candidate. Verify that `42e4450afc095542d722e6c3f1b671361565af23..HEAD` changes exactly one file, `docs/continuity/KODEPOIA_CONTINUITY.md`, then require fresh exact-head R0 Repository Guard + Python Core + KodeStudio UI Smoke. If and only if all three are SUCCESS and manual remains **CONDITIONAL / NOT TRIGGERED**, merge the normalization PR with `expected_head_sha=HEAD`. Any content change after a gate run invalidates that run for normalization acceptance. Only the resulting normalized `main` may authorize the dedicated R13.9 start-sync branch.
+Implement R13.9 only on `r13/09-ios-swiftui-scaffold`. Reuse the accepted R13.8 Xcode/macOS boundary and the existing Wizard/DNA/shared application contracts. Render a deterministic canonical iOS/iPadOS SwiftUI scaffold, generate strict durable manifest/schema evidence, reject project/bundle/path/raw-build-setting/destination injection, and prove a no-signing simulator build on accepted hosted macOS if possible. Add `R13_9_DESIGN.md`, `R13_9_ACCEPTANCE.md`, focused tests and a real Apple scaffold acceptance workflow because this subdivision introduces a new compile seam. If hosted CI cannot establish the frozen simulator compile claim, set manual truthfully and stop before R13.10 rather than fabricating PASS.

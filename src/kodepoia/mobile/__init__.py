@@ -1,5 +1,23 @@
 """Governed mobile/platform/release contracts and boundaries for R13."""
 
+from .apple_xcode import (
+    AppleExecutorDescriptor,
+    AppleExecutorKind,
+    ApplePolicyFreshness,
+    AppleSDKIdentity,
+    AppleSDKKind,
+    AppleSimulatorRuntime,
+    AppleToolchainReadiness,
+    AppleXcodeCapabilityEvidence,
+    AppleXcodeChannel,
+    AppleXcodePolicySnapshot,
+    current_apple_xcode_policy_snapshot,
+    evaluate_apple_xcode_capability,
+    parse_sdk_version,
+    parse_simctl_device_count,
+    parse_simctl_runtimes,
+    parse_xcodebuild_version,
+)
 from .boundary import MobileBoundaryError, MobileToolchainBoundary
 from .contracts import (
     DeviceIdentity,
@@ -24,6 +42,16 @@ from .contracts import (
 )
 
 __all__ = [
+    "AppleExecutorDescriptor",
+    "AppleExecutorKind",
+    "ApplePolicyFreshness",
+    "AppleSDKIdentity",
+    "AppleSDKKind",
+    "AppleSimulatorRuntime",
+    "AppleToolchainReadiness",
+    "AppleXcodeCapabilityEvidence",
+    "AppleXcodeChannel",
+    "AppleXcodePolicySnapshot",
     "DeviceIdentity",
     "DeviceTestMatrix",
     "MobileApplicationIdentity",
@@ -45,4 +73,10 @@ __all__ = [
     "StoreReleaseStatus",
     "canonical_json_bytes",
     "canonical_sha256",
+    "current_apple_xcode_policy_snapshot",
+    "evaluate_apple_xcode_capability",
+    "parse_sdk_version",
+    "parse_simctl_device_count",
+    "parse_simctl_runtimes",
+    "parse_xcodebuild_version",
 ]

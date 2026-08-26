@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.8 COMPLETE + NORMALIZED. R13.9 COMPLETE at end-sync, pending fresh exact-head documentation gates, PR #237 merge and single continuity-only normalization. R13.10–R13.17 PLANNED / NOT STARTED.** R13.9 accepted exact-head technical candidate `5bd50590c312d32a1e1d8c6162ab491a8b2733f6` passed R0 #1675 / `32995414520`, Python #1649 / `32995414548`, UI #1616 / `32995414622`, Apple Xcode #45 / `32995414551`, and Apple SwiftUI Scaffold #16 / `32995414601`. SwiftUI #16 built the canonical fixture on hosted `macos-26` for the iOS Simulator with signing disabled and uploaded exact-head artifact `r13-9-apple-swiftui-macOS-5bd50590c312d32a1e1d8c6162ab491a8b2733f6`, digest `sha256:d679b56020fdc90ddad20cfcd4ccdd208d33b12fcf14878161598e773d424e26`. Manual remains CONDITIONAL / NOT TRIGGERED. Do not start R13.10 until R13.9 merge + normalization are complete.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.9 COMPLETE + NORMALIZED once this single continuity-only normalization is merged. R13.10–R13.17 PLANNED / NOT STARTED.** R13.9 accepted exact-head technical candidate `5bd50590c312d32a1e1d8c6162ab491a8b2733f6` passed R0 #1675 / `32995414520`, Python #1649 / `32995414548`, UI #1616 / `32995414622`, Apple Xcode #45 / `32995414551`, and Apple SwiftUI Scaffold #16 / `32995414601`. End-synchronized head `812283ecc64ad21a3f55656fc7bc6185ca67616f` changed only `R13_PLAN.md` and continuity and passed fresh R0 #1676 / `32996307641`, Python #1650 / `32996307621`, UI #1617 / `32996307617`, Apple Xcode #47 / `32996307538`, and Apple SwiftUI Scaffold #18 / `32996307609`, all SUCCESS. PR #237 merged with expected head as `178e94fdad85ce8345fbd5bb1d34c54074bc67df`. The present branch is the unique continuity-only post-merge normalization and changes only `docs/continuity/KODEPOIA_CONTINUITY.md`. Manual remains CONDITIONAL / NOT TRIGGERED. R13.10 may start only from normalized `main` after this normalization passes and merges.
 
 ## État global
 
@@ -15,7 +15,7 @@
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.8: **COMPLETE + NORMALIZED**.
-- R13.9: **COMPLETE at end-sync**, accepted technical candidate `5bd50590c312d32a1e1d8c6162ab491a8b2733f6`; final documentation re-gates, merge and normalization still required; manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.9: **COMPLETE**, implementation PR #237 merged as `178e94fdad85ce8345fbd5bb1d34c54074bc67df`; this branch is the single continuity-only post-merge normalization candidate. After its exact-head gates and merge, R13.9 is authoritatively **COMPLETE + NORMALIZED**. Manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.10–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -148,15 +148,17 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Manual remained **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing certificate/private key, provisioning profile, App Store Connect credential, physical Apple device or user-machine Xcode installation was required.
 - Therefore R13.8 is authoritatively **COMPLETE + NORMALIZED**.
 
-## R13.9 completion authority
+## R13.9 closure authority
 
 - Authorized normalized base: **`cd1e34321c57a7f6e25d1d1c17d084469761c8a3`**.
-- Dedicated branch: **`r13/09-ios-swiftui-scaffold`**; implementation PR #237.
+- Dedicated implementation branch: **`r13/09-ios-swiftui-scaffold`**; implementation PR #237.
 - Rejected candidate **`dff635c527471b7d1b9f84a7bc005e24c27885f6`** is not reusable: Python Core #1646 / `32988110826` and UI #1613 / `32988110898` failed on a circular import caused by eager `ios_scaffold` re-export from `kodepoia.mobile.__init__`; Apple SwiftUI Scaffold #7 / `32988110841` failed before Xcode on an over-strict unquoted-PBX assertion. Both defects were corrected before the accepted candidate.
 - Accepted exact-head technical candidate **`5bd50590c312d32a1e1d8c6162ab491a8b2733f6`** passed R0 Repository Guard #1675 / `32995414520`, Python Core #1649 / `32995414548`, KodeStudio UI Smoke #1616 / `32995414622`, R13 Apple Xcode Acceptance #45 / `32995414551`, and R13 Apple SwiftUI Scaffold Acceptance #16 / `32995414601`, all SUCCESS.
-- Apple SwiftUI #16 ran on hosted **`macos-26`**, passed focused R13.9 tests, built the canonical SwiftUI fixture against the iOS Simulator toolchain with `CODE_SIGNING_ALLOWED=NO` / no production signing requirement, verified exact-head evidence, and uploaded **`r13-9-apple-swiftui-macOS-5bd50590c312d32a1e1d8c6162ab491a8b2733f6`**, digest **`sha256:d679b56020fdc90ddad20cfcd4ccdd208d33b12fcf14878161598e773d424e26`**.
+- Apple SwiftUI #16 ran on hosted **`macos-26`**, passed focused R13.9 tests, built the canonical SwiftUI fixture against the iOS Simulator toolchain with signing disabled, verified exact-head evidence, and uploaded **`r13-9-apple-swiftui-macOS-5bd50590c312d32a1e1d8c6162ab491a8b2733f6`**, digest **`sha256:d679b56020fdc90ddad20cfcd4ccdd208d33b12fcf14878161598e773d424e26`**.
+- End-synchronized head **`812283ecc64ad21a3f55656fc7bc6185ca67616f`** changed only `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the accepted technical candidate and passed fresh exact-head R0 #1676 / `32996307641`, Python #1650 / `32996307621`, UI #1617 / `32996307617`, Apple Xcode #47 / `32996307538`, and Apple SwiftUI Scaffold #18 / `32996307609`, all SUCCESS.
+- PR #237 merged with **`expected_head_sha=812283ecc64ad21a3f55656fc7bc6185ca67616f`** as implementation merge **`178e94fdad85ce8345fbd5bb1d34c54074bc67df`**.
+- The present branch **`r13/09-continuity-normalization`** is the one and only post-merge normalization for R13.9 and changes only `docs/continuity/KODEPOIA_CONTINUITY.md`. Its exact-head R0/Python/UI gates must pass before it is merged; once merged, R13.9 is authoritatively **COMPLETE + NORMALIZED**.
 - Manual remains **CONDITIONAL / NOT TRIGGERED**. Hosted macOS established the frozen simulator compile/build claim. No Apple Developer account, signing certificate/private key, provisioning profile, App Store Connect credential/token, physical Apple device, raw destination/build setting or user-machine Xcode installation was required.
-- Status at end-sync: **COMPLETE**. R13.10 remains **PLANNED / NOT STARTED** until this documentation sync passes fresh exact-head gates, PR #237 merges with `expected_head_sha`, and the single continuity-only normalization passes and merges.
 
 ## Frozen R13 subdivision index
 
@@ -198,4 +200,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Run fresh exact-head gates on the R13.9 end-synchronized documentation head: R0 Repository Guard, full Python Core, KodeStudio UI Smoke, R13 Apple Xcode Acceptance and R13 Apple SwiftUI Scaffold Acceptance. If all are SUCCESS, merge PR #237 with `expected_head_sha`, create exactly one continuity-only post-merge normalization changing only `docs/continuity/KODEPOIA_CONTINUITY.md`, run the required normalization gates on that exact head, and merge it. Only after normalized `main` is authoritative may R13.10 begin on a dedicated branch with its own start plan+continuity sync.
+Validate this single continuity-only R13.9 normalization on its exact head with R0 Repository Guard, full Python Core and KodeStudio UI Smoke; merge the normalization PR with `expected_head_sha` if and only if all three are SUCCESS. Then treat the resulting `main` as the normalized R13.9 authority and start R13.10 on a dedicated branch from that exact head, with the mandatory start `R13_PLAN.md` + continuity synchronization before implementation.

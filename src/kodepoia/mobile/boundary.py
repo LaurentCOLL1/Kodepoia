@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 
@@ -21,6 +22,8 @@ _GENERIC_ENV_KEYS = frozenset({"KODEPOIA_RUN_ID", "TEMP", "TMP"})
 _PATH_ENV_KEYS = frozenset(
     {"JAVA_HOME", "ANDROID_HOME", "ANDROID_SDK_ROOT", "GRADLE_USER_HOME", "DEVELOPER_DIR"}
 )
+_APPLE_SDKS = frozenset({"iphoneos", "iphonesimulator"})
+_XCODE_SCHEME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _MAX_ENV_VALUE = 4096
 
 
@@ -86,6 +89,17 @@ class MobileToolchainBoundary:
             raise MobileBoundaryError("mobile project input name is not allowlisted")
         if suffixes and resolved.suffix.casefold() not in suffixes:
             raise MobileBoundaryError("mobile project input suffix is not allowlisted")
+        return resolved
+
+    def validate_xcode_container(self, path: Path) -> Path:
+        try:
+            resolved = Path(path).resolve(strict=True)
+        except OSError as exc:
+            raise MobileBoundaryError("Xcode container is unavailable") from exc
+        if not resolved.is_dir() or not _within(resolved, self.project_root):
+            raise MobileBoundaryError("Xcode container escapes project root")
+        if resolved.suffix.casefold() not in {".xcodeproj", ".xcworkspace"}:
+            raise MobileBoundaryError("Xcode container suffix is not allowlisted")
         return resolved
 
     def validate_staging_path(self, path: Path) -> Path:
@@ -190,13 +204,41 @@ class MobileToolchainBoundary:
         project_file: Path,
     ) -> tuple[str, ...]:
         tool = self.validate_tool(MobileToolKind.XCODEBUILD, xcodebuild)
-        project = self.validate_project_file(
-            project_file,
-            suffixes=frozenset({".xcodeproj", ".xcworkspace"}),
-        )
+        project = self.validate_xcode_container(project_file)
         selector = "-workspace" if project.suffix == ".xcworkspace" else "-project"
         return (str(tool), selector, str(project), "-list", "-json")
+
+    def build_xcodebuild_show_destinations_argv(
+        self,
+        xcodebuild: Path,
+        *,
+        project_file: Path,
+        scheme: str,
+    ) -> tuple[str, ...]:
+        if not isinstance(scheme, str) or _XCODE_SCHEME_RE.fullmatch(scheme) is None:
+            raise MobileBoundaryError("Xcode scheme is not a bounded stable identifier")
+        tool = self.validate_tool(MobileToolKind.XCODEBUILD, xcodebuild)
+        project = self.validate_xcode_container(project_file)
+        selector = "-workspace" if project.suffix == ".xcworkspace" else "-project"
+        return (
+            str(tool),
+            selector,
+            str(project),
+            "-scheme",
+            scheme,
+            "-showdestinations",
+        )
+
+    def build_xcrun_sdk_version_argv(self, xcrun: Path, *, sdk: str) -> tuple[str, ...]:
+        if sdk not in _APPLE_SDKS:
+            raise MobileBoundaryError("Apple SDK is not allowlisted")
+        tool = self.validate_tool(MobileToolKind.XCRUN, xcrun)
+        return (str(tool), "--sdk", sdk, "--show-sdk-version")
 
     def build_xcrun_simctl_list_argv(self, xcrun: Path) -> tuple[str, ...]:
         tool = self.validate_tool(MobileToolKind.XCRUN, xcrun)
         return (str(tool), "simctl", "list", "devices", "--json")
+
+    def build_xcrun_simctl_runtimes_argv(self, xcrun: Path) -> tuple[str, ...]:
+        tool = self.validate_tool(MobileToolKind.XCRUN, xcrun)
+        return (str(tool), "simctl", "list", "runtimes", "--json")

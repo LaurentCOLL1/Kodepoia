@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.6 COMPLETE + NORMALIZED. R13.7 COMPLETE; implementation merged, single continuity normalization pending exact-head gates/merge. R13.8 PLANNED / NOT STARTED.** R13.7 accepted technical candidate `b0179797628058670417e6f76e7f4e48a3dda365` passed R0 #1658 / `32909573868`, Python #1632 / `32909573856`, UI #1599 / `32909573888`, Android Build #81 / `32909573855`, Android Signing #34 / `32909573847`, and Google Play Readiness #2 / `32909573884`. Final end-synchronized head `fceae9acfd6f7bb82410682798c4da236ecf37c5` passed fresh R0 #1660 / `32932172947`, Python #1634 / `32932172980`, UI #1601 / `32932172949`, Android Build #85 / `32932172950`, Android Signing #38 / `32932172996`, and Google Play Readiness #6 / `32932172955`, all SUCCESS; PR #233 merged as `8d5afe50e270cd25f92f5c746ab42e2623ea28eb`. Manual remained CONDITIONAL / NOT TRIGGERED. The only authorized next action is to gate and merge the single continuity-only branch `r13/07-continuity-normalization`; do not start R13.8 until that merge completes.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.7 COMPLETE + NORMALIZED. R13.8 IN_PROGRESS.** R13.7 accepted technical candidate `b0179797628058670417e6f76e7f4e48a3dda365`; final end-synchronized head `fceae9acfd6f7bb82410682798c4da236ecf37c5` passed R0 #1660 / `32932172947`, Python #1634 / `32932172980`, UI #1601 / `32932172949`, Android Build #85 / `32932172950`, Android Signing #38 / `32932172996`, and Google Play Readiness #6 / `32932172955`; PR #233 merged as `8d5afe50e270cd25f92f5c746ab42e2623ea28eb`; the single continuity-only normalization `a128bfc22f13693f2a7c6a20ffe86017bfbb3fef` passed R0 #1662 / `32932799221`, Python #1636 / `32932799240`, UI #1603 / `32932799192`; PR #234 merged as normalized `main` `3a88f944a1424648fd4d1477c7c88b5da38e86dd`. R13.8 branch `r13/08-apple-xcode-bridge` is created exactly from that normalized head and is the sole active subdivision.
 
 ## État global
 
@@ -14,9 +14,9 @@
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
-- R13.1–R13.6: **COMPLETE + NORMALIZED**.
-- R13.7: **COMPLETE**, implementation PR #233 merged as `8d5afe50e270cd25f92f5c746ab42e2623ea28eb`; single continuity-only normalization pending; manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.8–R13.17: **PLANNED / NOT STARTED**.
+- R13.1–R13.7: **COMPLETE + NORMALIZED**.
+- R13.8: **IN_PROGRESS**, branch `r13/08-apple-xcode-bridge`, manual **CONDITIONAL / NOT TRIGGERED** at start.
+- R13.9–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -60,7 +60,8 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Google Play: new apps/updates must target Android 16 / API 36 from **2026-08-31**; R13 store-ready acceptance starts at API 36.
 - Android Compose/AGP/compileSdk values are capability-probed and versioned; mutable ecosystem versions are not frozen architecture constants.
 - Google Play publication uses Android App Bundle for new apps; upload-key and Play App Signing key states remain separate; production secrets never enter repo/evidence/argv.
-- Apple App Store Connect production uploads require Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28; beta/TestFlight state is distinct from stable production state.
+- Apple App Store Connect production uploads require Xcode 26+ with iOS/iPadOS 26 SDK+ since 2026-04-28; Xcode 27 beta 6 is accepted for internal/external TestFlight testing as of 2026-08-25, but beta/TestFlight state is distinct from stable production state.
+- GitHub macOS 26 runner-image documentation advertises the stable Xcode 26.x family and Xcode 26.6 as the current default line, but the runtime probe remains authoritative rather than runner-image documentation.
 - External device providers are optional; credentials, billing/quota and physical-device availability are not global phase prerequisites.
 
 ## R13.1 closure authority
@@ -132,7 +133,17 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Final end-synchronized head **`fceae9acfd6f7bb82410682798c4da236ecf37c5`** changed only `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the accepted technical candidate and passed fresh R0 Repository Guard #1660 / `32932172947`, Python Core #1634 / `32932172980`, KodeStudio UI Smoke #1601 / `32932172949`, R13 Android Build Acceptance #85 / `32932172950`, R13 Android Signing Acceptance #38 / `32932172996`, and R13 Google Play Readiness Acceptance #6 / `32932172955`, all SUCCESS on that exact head.
 - PR #233 merged with **`expected_head_sha=fceae9acfd6f7bb82410682798c4da236ecf37c5`** as **`8d5afe50e270cd25f92f5c746ab42e2623ea28eb`**.
 - Manual remained **CONDITIONAL / NOT TRIGGERED**. No Play Console login, service-account credential, API token, live upload, tester enrollment, billing or publication action was required for the frozen R13.7 core acceptance.
-- Single normalization branch **`r13/07-continuity-normalization`** was created exactly from implementation merge `8d5afe50e270cd25f92f5c746ab42e2623ea28eb`. This branch may modify only `docs/continuity/KODEPOIA_CONTINUITY.md`; it must pass exact-head R0 + Python + UI and merge before R13.7 becomes authoritatively `COMPLETE + NORMALIZED` and before R13.8 starts.
+- Single continuity-only normalization **`a128bfc22f13693f2a7c6a20ffe86017bfbb3fef`** changed exactly one file (`docs/continuity/KODEPOIA_CONTINUITY.md`) relative to the implementation merge, passed R0 #1662 / `32932799221`, Python Core #1636 / `32932799240`, and KodeStudio UI Smoke #1603 / `32932799192`, all SUCCESS. Normalization PR #234 merged with `expected_head_sha=a128bfc22f13693f2a7c6a20ffe86017bfbb3fef` as normalized **`main` `3a88f944a1424648fd4d1477c7c88b5da38e86dd`**.
+- Therefore R13.7 is authoritatively **COMPLETE + NORMALIZED**.
+
+## R13.8 execution authority
+
+- Authorized normalized base: **`3a88f944a1424648fd4d1477c7c88b5da38e86dd`**.
+- Dedicated branch: **`r13/08-apple-xcode-bridge`**.
+- Start status: **IN_PROGRESS** before implementation.
+- Manual state: **CONDITIONAL / NOT TRIGGERED**. Core R13.8 acceptance first uses accepted hosted macOS CI and must not require Apple Developer membership, signing certificates/private keys, provisioning profiles, App Store Connect credentials, a physical Apple device, or user-machine Xcode installation. If a frozen Xcode/macOS semantic cannot be demonstrated by hosted CI, stop before R13.9 and request a bounded user-controlled collector rather than credentials in chat.
+- Objective: model truthful macOS/Xcode/SDK identities and capabilities; fixed `xcodebuild`/`xcrun`/`simctl` operations; stable-vs-beta channel separation; a provider-neutral hosted/remote execution contract; bounded staging/output/cancellation; and fail-closed validation against executable, build-setting, destination and command substitution.
+- Current versioned evidence baseline: Apple production uploads require Xcode 26+ and iOS/iPadOS 26 SDK+ since 2026-04-28; Xcode 27 beta 6 builds are accepted for internal/external TestFlight testing as of 2026-08-25 but cannot imply stable production readiness; GitHub macOS 26 runner-image documentation advertises Xcode 26.6 as the stable default line, but R13.8 capability state is derived from runtime probe evidence, not documentation alone.
 
 ## Frozen R13 subdivision index
 
@@ -145,7 +156,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.5 | Android signing states, keystore boundary + Play App Signing model | COMPLETE | CONDITIONAL |
 | R13.6 | Android emulator/device testing + adb/instrumentation adapter | COMPLETE | CONDITIONAL |
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | COMPLETE | CONDITIONAL |
-| R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | PLANNED | CONDITIONAL |
+| R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | IN_PROGRESS | CONDITIONAL |
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | PLANNED | CONDITIONAL |
 | R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | PLANNED | CONDITIONAL |
 | R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | PLANNED | CONDITIONAL |
@@ -174,4 +185,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Complete the single R13.7 continuity normalization only. Verify `8d5afe50e270cd25f92f5c746ab42e2623ea28eb..HEAD` changes exactly one file, `docs/continuity/KODEPOIA_CONTINUITY.md`; open the normalization PR; require exact-head R0 Repository Guard + Python Core + KodeStudio UI Smoke. If all three are SUCCESS, merge with `expected_head_sha=HEAD`. Only the resulting normalized `main` may be used as the base of the dedicated R13.8 start-sync branch. R13.8 must begin by synchronizing `R13_PLAN.md` + continuity in the same work cycle before any Apple/Xcode implementation.
+**R13.8 implementation:** on `r13/08-apple-xcode-bridge`, add `R13_8_DESIGN.md`, `R13_8_ACCEPTANCE.md`, focused tests, strict durable schema(s), and a real hosted macOS acceptance workflow. Extend the existing mobile boundary rather than creating a parallel authority. Probe actual `xcodebuild`, `xcrun`, SDK and `simctl` capabilities; represent stable/beta states truthfully; allow only repository-owned fixed operation builders and bounded destinations/outputs; reject arbitrary command/build-setting/destination/executable injection. Run exact-head R0 + Python + UI + the new Apple/Xcode acceptance gate. If accepted hosted macOS CI cannot prove a frozen R13.8 semantic, set manual REQUIRED/BLOCKED and stop before R13.9.

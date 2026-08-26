@@ -2,7 +2,7 @@
 
 ## Status
 
-Subdivision status: **IN_PROGRESS**. This document defines the acceptance contract and does not predeclare PASS.
+Subdivision status: **COMPLETE for end synchronization**. The technical candidate has satisfied the frozen core acceptance claim; implementation merge and the single continuity-only post-merge normalization remain pending.
 
 Manual state: **CONDITIONAL / NOT TRIGGERED**.
 
@@ -24,6 +24,22 @@ R13.12 is accepted only when one exact source head proves all of the following:
 12. accepted R13.6 Android emulator/device and R13.11 iOS Simulator/XCTest workflows remain green on the exact technical candidate, proving the provider-neutral layer did not regress the underlying real tool seams;
 13. no live Firebase account, credential, billing mutation, cloud test submission or physical provider allocation is required for core acceptance.
 
+## Accepted technical candidate
+
+Exact source SHA: **`250c179590bc2b63b625b806cb5b1f1d618bd640`**.
+
+Required exact-head gates on that SHA:
+
+- R0 Repository Guard #1692 / `33016321788` — SUCCESS;
+- Python Core #1666 / `33016321879` — SUCCESS;
+- KodeStudio UI Smoke #1633 / `33016321824` — SUCCESS;
+- R13 Android Device Acceptance #130 / `33016321843` — SUCCESS;
+- R13 Apple XCTest Acceptance #22 / `33016321680` — SUCCESS.
+
+The underlying real runtime seams also completed their exact-head evidence and cleanup paths. Android Device #130 provisioned the accepted API 36 toolchain/image, verified hosted KVM, built app + instrumentation APKs, launched the bounded emulator, ran governed ADB instrumentation, verified exact-head evidence, uploaded it and cleaned up. Apple XCTest #22 ran the accepted hosted `macos-26` simulator XCTest path, verified simulator-only exact-head evidence and uploaded it. No live Firebase/provider account or physical cloud execution was required.
+
+Because this acceptance document now changes bytes after the technical candidate, this record is historical evidence only for `250c179...`; all five required gates must be rerun on the final end-synchronized head before merge.
+
 ## Explicit non-claims
 
 R13.12 core acceptance does **not** claim:
@@ -39,7 +55,7 @@ Those states remain conditional provider evidence.
 
 ## Focused deterministic/adversarial tests
 
-`tests/test_r13_12_devicelab.py` and `tests/test_r13_12_devicelab_evidence.py` must pass and cover at minimum:
+`tests/test_r13_12_devicelab.py` and `tests/test_r13_12_devicelab_evidence.py` pass as part of the accepted full Python gate and cover at minimum:
 
 - deterministic matrix canonicalization;
 - duplicate configuration rejection;
@@ -76,7 +92,7 @@ Official sources:
 
 ## Exact-head required gates
 
-The accepted technical candidate must have, on the **same exact SHA**:
+The accepted final end-synchronized candidate must have, on the **same exact SHA**:
 
 - R0 Repository Guard — SUCCESS;
 - Python Core — SUCCESS;
@@ -90,12 +106,10 @@ Any byte change after decision-making results creates a new candidate and invali
 
 ## End synchronization and merge
 
-After a technical candidate passes the required gates:
-
-1. update `R13_PLAN.md` and continuity in the same work cycle so R13.12 becomes `COMPLETE` and R13.13 remains `PLANNED`;
-2. record the exact-head run identities and any durable provider-neutral evidence digest;
-3. rerun all required gates on the new end-synchronized exact head;
-4. merge the implementation PR using `expected_head_sha` only if every required gate is SUCCESS;
+1. update `R13_PLAN.md` and continuity in the same work cycle so R13.12 is `COMPLETE` and R13.13 remains `PLANNED`;
+2. record the accepted technical candidate and the exact-head run identities above;
+3. rerun all five required gates on the new end-synchronized exact head;
+4. merge PR #243 using `expected_head_sha` only if every required gate is SUCCESS;
 5. create exactly one continuity-only post-merge normalization branch/PR;
 6. require fresh exact-head R0 + Python Core + KodeStudio UI Smoke on the normalization head;
 7. merge normalization with `expected_head_sha`;
@@ -103,4 +117,4 @@ After a technical candidate passes the required gates:
 
 ## Manual gate
 
-**CONDITIONAL / NOT TRIGGERED** unless the frozen R13.12 acceptance claim is found to require physical-provider behavior that cannot be proven using accepted local/hosted seams. If triggered, stop before R13.13 and provide bounded prerequisites, commands/actions, expected evidence path and recovery/privacy instructions. Never request passwords, private keys, service-account JSON or tokens in chat.
+**CONDITIONAL / NOT TRIGGERED.** The frozen R13.12 core claim was established using deterministic provider-neutral validation plus the accepted hosted Android emulator and iOS Simulator seams. No physical provider/account-only behavior became required. If a later change before merge introduces such a frozen requirement, stop before R13.13 and provide bounded prerequisites, commands/actions, expected evidence path and recovery/privacy instructions. Never request passwords, private keys, service-account JSON or tokens in chat.

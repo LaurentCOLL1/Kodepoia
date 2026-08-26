@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1–R13.9 `COMPLETE + NORMALIZED`; R13.9 continuity-only normalization `a314962cddca9544442b52a3d6e8fb4d3deb221f` passed R0 #1678 / `32996925610`, Python Core #1652 / `32996925689`, and KodeStudio UI Smoke #1619 / `32996925659`, and PR #238 merged as normalized `main` `e85faee11f6a3116e7cf4a1a99872c530ac76d26`; R13.10 is `IN_PROGRESS` on dedicated branch `r13/10-apple-signing-archive` exactly from that normalized main; R13.11–R13.17 remain `PLANNED`.
+**Execution checkpoint:** R13.1–R13.9 `COMPLETE + NORMALIZED`; R13.10 accepted exact-head technical candidate `35e0e9c8e15c7ac5f5d9d2407f2e7c72c32af4f4` passed R0 #1680 / `33005940105`, Python Core #1654 / `33005940043`, KodeStudio UI Smoke #1621 / `33005940111`, R13 Apple Xcode Acceptance #56 / `33005940108`, R13 Apple SwiftUI Scaffold Acceptance #27 / `33005940057`, and R13 Apple Signing Archive Acceptance #2 / `33005940040`, all SUCCESS; R13.10 is `COMPLETE` pending its implementation merge and continuity-only normalization; R13.11–R13.17 remain `PLANNED`.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.9 are **COMPLETE + NORMALIZED**; R13.10 is **IN_PROGRESS**; R13.11–R13.17 remain **PLANNED / NOT STARTED**.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.9 are **COMPLETE + NORMALIZED**; R13.10 is **COMPLETE pending merge + normalization**; R13.11–R13.17 remain **PLANNED / NOT STARTED**.
 
 ## Permanent subdivision status synchronization rule
 
@@ -166,7 +166,7 @@ Before R13.1 implementation:
 | R13.7 | Google Play release tracks, metadata + policy/compliance readiness | COMPLETE | CONDITIONAL | R13.4–R13.6 + R7 |
 | R13.8 | Apple platform/Xcode capability bridge + macOS execution boundary | COMPLETE | CONDITIONAL | R13.1–R13.2 + R6 |
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | COMPLETE | CONDITIONAL | R13.8 + R8/R12 patterns |
-| R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | IN_PROGRESS | CONDITIONAL | R13.8–R13.9 + R1/R6/R12 |
+| R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | COMPLETE | CONDITIONAL | R13.8–R13.9 + R1/R6/R12 |
 | R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | PLANNED | CONDITIONAL | R13.9–R13.10 |
 | R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | PLANNED | CONDITIONAL | R13.6 + R13.11 |
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | PLANNED | NONE | R13.4–R13.12 + R8/R12 |
@@ -306,6 +306,8 @@ Before R13.1 implementation:
 **Manual:** CONDITIONAL — device/distribution signing or live archive export may require an Apple Developer account and user-owned credentials; phase acceptance does not require production secrets unless such a claim is explicitly frozen.
 
 **Start record:** branch **`r13/10-apple-signing-archive`** starts exactly from normalized `main` **`e85faee11f6a3116e7cf4a1a99872c530ac76d26`**. Status **IN_PROGRESS** before implementation. Manual starts **CONDITIONAL / NOT TRIGGERED**: core acceptance will model and adversarially validate Apple public signing/provisioning identities, entitlements, archive/export metadata, KodeSecrets references, privacy-manifest inclusion and unsigned simulator independence, using hosted macOS/Xcode where a real tool seam is required. No Apple Developer membership, distribution certificate/private key, provisioning credential, App Store Connect credential/token, physical Apple device, or live App Store upload is a core prerequisite; if a frozen claim truly requires user-owned distribution credentials or live device/export evidence, stop before R13.11 and request bounded user-controlled evidence without requesting secrets in chat.
+
+**Completion record:** accepted exact-head technical candidate **`35e0e9c8e15c7ac5f5d9d2407f2e7c72c32af4f4`** passed R0 Repository Guard #1680 / `33005940105`, Python Core #1654 / `33005940043`, KodeStudio UI Smoke #1621 / `33005940111`, R13 Apple Xcode Acceptance #56 / `33005940108`, R13 Apple SwiftUI Scaffold Acceptance #27 / `33005940057`, and R13 Apple Signing Archive Acceptance #2 / `33005940040`, all SUCCESS. The core hosted macOS claim remains non-production: simulator build and unsigned generic-iOS archive are proven without production signing; public signing metadata truthfully reports distribution credentials required; no Apple account, private signing material, physical device, export upload or live App Store/TestFlight acceptance is claimed. Manual remains **CONDITIONAL / NOT TRIGGERED**. End status is synchronized to **COMPLETE** before fresh final exact-head documentation re-gates; R13.11 remains **PLANNED** until R13.10 merge plus its single continuity-only normalization are accepted.
 
 # R13.11 — iOS Simulator/XCTest, device/TestFlight evidence adapter
 

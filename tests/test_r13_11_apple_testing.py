@@ -23,9 +23,9 @@ from kodepoia.mobile.apple_testing import (
     build_xctest_argv,
     parse_simctl_devices,
     parse_xcresult_summary,
-    render_xctest_overlay,
     select_simulator,
 )
+from kodepoia.mobile.apple_xctest_overlay import render_xctest_overlay
 from kodepoia.mobile.boundary import MobileBoundaryError, MobileToolchainBoundary
 from kodepoia.mobile.contracts import MobileFormFactor, MobilePackageKind, MobileSourceKind
 from kodepoia.mobile.ios_scaffold import AppleScaffoldDefinition, AppleScaffoldEngine, AppleScaffoldLineage
@@ -238,7 +238,10 @@ def test_r13_11_xctest_overlay_is_deterministic_and_binds_r13_9_model() -> None:
     overlay_a = render_xctest_overlay(**kwargs)
     overlay_b = render_xctest_overlay(**kwargs)
     assert overlay_a == overlay_b
-    assert "KodepoiaIOSTests" in overlay_a["KodepoiaIOS.xcodeproj/project.pbxproj"]
+    pbx = overlay_a["KodepoiaIOS.xcodeproj/project.pbxproj"]
+    assert "KodepoiaIOSTests" in pbx
+    assert "ENABLE_TESTABILITY = YES" in pbx
+    assert "ENABLE_TESTABILITY = NO" in pbx
     assert "E30000000000000000000001" in overlay_a[
         "KodepoiaIOS.xcodeproj/xcshareddata/xcschemes/KodepoiaIOS.xcscheme"
     ]

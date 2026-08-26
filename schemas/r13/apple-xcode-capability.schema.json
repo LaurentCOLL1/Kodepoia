@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r13/apple-xcode-capability.schema.json",
+  "title": "Kodepoia R13.8 Apple Xcode capability evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha",
+    "probed_on",
+    "policy",
+    "policy_sha256",
+    "policy_freshness",
+    "xcode_version",
+    "xcode_build",
+    "channel",
+    "tools",
+    "sdks",
+    "simulator_runtimes",
+    "simulator_device_count",
+    "executor",
+    "capability_state",
+    "readiness",
+    "production_upload_toolchain_capable",
+    "testflight_beta_toolchain_capable",
+    "physical_device_capability_proven",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "probed_on": {"type": "string", "format": "date"},
+    "policy": {"$ref": "#/$defs/policy"},
+    "policy_sha256": {"$ref": "#/$defs/sha256"},
+    "policy_freshness": {"enum": ["CURRENT", "STALE"]},
+    "xcode_version": {"$ref": "#/$defs/version"},
+    "xcode_build": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "channel": {"enum": ["STABLE", "BETA", "UNVERIFIED"]},
+    "tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["xcodebuild", "xcrun"],
+      "properties": {
+        "xcodebuild": {"$ref": "#/$defs/tool"},
+        "xcrun": {"$ref": "#/$defs/tool"}
+      }
+    },
+    "sdks": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sdk"}
+    },
+    "simulator_runtimes": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {"$ref": "#/$defs/runtime"}
+    },
+    "simulator_device_count": {"type": "integer", "minimum": 0, "maximum": 2048},
+    "executor": {"$ref": "#/$defs/executor"},
+    "capability_state": {
+      "enum": ["NOT_PROBED", "AVAILABLE", "UNAVAILABLE", "UNSUPPORTED", "BLOCKED", "FAILED"]
+    },
+    "readiness": {
+      "enum": [
+        "DEVELOPMENT_READY",
+        "PRODUCTION_UPLOAD_TOOLCHAIN_READY",
+        "TESTFLIGHT_BETA_TOOLCHAIN_READY",
+        "BLOCKED"
+      ]
+    },
+    "production_upload_toolchain_capable": {"type": "boolean"},
+    "testflight_beta_toolchain_capable": {"type": "boolean"},
+    "physical_device_capability_proven": {"const": false},
+    "blockers": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/stable_id"}
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "version": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+){0,3}$"},
+    "stable_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_id",
+        "retrieved_on",
+        "expires_on",
+        "production_effective_on",
+        "production_min_xcode_major",
+        "production_min_sdk_major",
+        "stable_xcode_major",
+        "testflight_beta_xcode_major",
+        "sources"
+      ],
+      "properties": {
+        "snapshot_id": {"$ref": "#/$defs/stable_id"},
+        "retrieved_on": {"type": "string", "format": "date"},
+        "expires_on": {"type": "string", "format": "date"},
+        "production_effective_on": {"type": "string", "format": "date"},
+        "production_min_xcode_major": {"type": "integer", "minimum": 1, "maximum": 999},
+        "production_min_sdk_major": {"type": "integer", "minimum": 1, "maximum": 999},
+        "stable_xcode_major": {"type": "integer", "minimum": 1, "maximum": 999},
+        "testflight_beta_xcode_major": {"type": "integer", "minimum": 1, "maximum": 999},
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {"type": "string", "format": "uri", "pattern": "^https://"}
+        }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool_kind",
+        "executable_name",
+        "executable_sha256",
+        "version",
+        "host_os",
+        "architecture",
+        "capabilities"
+      ],
+      "properties": {
+        "tool_kind": {"enum": ["xcodebuild", "xcrun"]},
+        "executable_name": {"type": "string", "minLength": 1, "maxLength": 128},
+        "executable_sha256": {"$ref": "#/$defs/sha256"},
+        "version": {"type": "string", "minLength": 1, "maxLength": 128},
+        "host_os": {"const": "macos"},
+        "architecture": {"enum": ["arm64", "x86_64"]},
+        "capabilities": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/stable_id"}
+        }
+      }
+    },
+    "sdk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "version"],
+      "properties": {
+        "kind": {"enum": ["iphoneos", "iphonesimulator"]},
+        "version": {"$ref": "#/$defs/version"}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identifier", "name", "version", "available"],
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,255}$"
+        },
+        "name": {"type": "string", "minLength": 1, "maxLength": 128},
+        "version": {"$ref": "#/$defs/version"},
+        "available": {"type": "boolean"}
+      }
+    },
+    "executor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "provider",
+        "host_os_version",
+        "architecture",
+        "timeout_seconds",
+        "cancellation_supported",
+        "interactive",
+        "network_allowed",
+        "staging_scope",
+        "output_scope"
+      ],
+      "properties": {
+        "kind": {"enum": ["GITHUB_HOSTED", "LOCAL_GOVERNED", "REMOTE_GOVERNED"]},
+        "provider": {"$ref": "#/$defs/stable_id"},
+        "host_os_version": {"$ref": "#/$defs/version"},
+        "architecture": {"enum": ["arm64", "x86_64"]},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 3600},
+        "cancellation_supported": {"type": "boolean"},
+        "interactive": {"const": false},
+        "network_allowed": {"type": "boolean"},
+        "staging_scope": {"$ref": "#/$defs/stable_id"},
+        "output_scope": {"$ref": "#/$defs/stable_id"}
+      }
+    }
+  }
+}

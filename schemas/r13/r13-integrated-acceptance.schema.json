@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r13/r13-integrated-acceptance.schema.json",
+  "title": "Kodepoia R13 Integrated Acceptance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "source_sha", "continuity", "subdivisions", "ci", "prior_phase", "manual_state", "status", "blockers", "evidence_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "minLength": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "continuity": {"$ref": "#/$defs/fileBinding"},
+    "subdivisions": {
+      "type": "array",
+      "minItems": 17,
+      "maxItems": 17,
+      "items": {"$ref": "#/$defs/subdivision"}
+    },
+    "ci": {"$ref": "#/$defs/ciBinding"},
+    "prior_phase": {"$ref": "#/$defs/priorBinding"},
+    "manual_state": {"enum": ["conditional_not_triggered", "conditional_satisfied"]},
+    "status": {"const": "pass"},
+    "blockers": {"type": "array", "maxItems": 0},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "sha256", "bytes"],
+      "properties": {
+        "source": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "subdivision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subdivision", "source", "sha256", "bytes"],
+      "properties": {
+        "subdivision": {"type": "string", "pattern": "^R13\\.(?:[1-9]|1[0-7])$"},
+        "source": {"type": "string", "pattern": "^docs/roadmap/R13_(?:[1-9]|1[0-7])_ACCEPTANCE\\.md$"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "ciBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "sha256", "bytes", "source_sha", "evidence_sha256"],
+      "properties": {
+        "source": {"const": "docs/roadmap/R13_17_CI_ACCEPTANCE.json"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "priorBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phase", "source", "sha256", "bytes", "evidence_sha256"],
+      "properties": {
+        "phase": {"const": "R12"},
+        "source": {"const": "docs/roadmap/R12_INTEGRATED_ACCEPTANCE.json"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "evidence_sha256": {"const": "daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50"}
+      }
+    }
+  }
+}

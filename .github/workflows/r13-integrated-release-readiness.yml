@@ -1,0 +1,139 @@
+name: R13 Integrated Release Readiness
+
+on:
+  push:
+    branches:
+      - "r13/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r13-integrated-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-integrated:
+    name: r13-integrated-android-ubuntu-latest
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Kodepoia evidence dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run focused R13.17 adversarial tests
+        run: python -m pytest tests/test_mobile_r13_17_integrated_acceptance.py -q
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle 9.5.0
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.5.0"
+
+      - name: Set up Android command line tools
+        uses: android-actions/setup-android@v3
+
+      - name: Install accepted Android SDK packages
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+
+      - name: Prepare governed exact-head Android workspace
+        env:
+          R13_SOURCE_ROOT: ${{ runner.temp }}/kodepoia-r13-17-source
+          R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-17-android
+        run: >-
+          python scripts/r13_4_android_ci_acceptance.py prepare
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --source-root "${{ env.R13_SOURCE_ROOT }}"
+          --staging-root "${{ env.R13_STAGING_ROOT }}"
+
+      - name: Build canonical APK AAB and unit tests
+        working-directory: ${{ runner.temp }}/kodepoia-r13-17-android
+        run: gradle --no-daemon --stacktrace :app:bundleRelease :app:assembleDebug :app:testDebugUnitTest
+
+      - name: Collect canonical Android evidence
+        env:
+          R13_STAGING_ROOT: ${{ runner.temp }}/kodepoia-r13-17-android
+          R13_OUTPUT: ${{ runner.temp }}/R13_17_ANDROID_INTEGRATED.json
+        run: >-
+          python scripts/r13_4_android_ci_acceptance.py collect
+          --staging-root "${{ env.R13_STAGING_ROOT }}"
+          --output "${{ env.R13_OUTPUT }}"
+
+      - name: Verify exact-head Android integrated claims
+        env:
+          R13_OUTPUT: ${{ runner.temp }}/R13_17_ANDROID_INTEGRATED.json
+        run: >-
+          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(os.environ['R13_OUTPUT']).read_text()); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['status']=='pass'; assert p['request']['target_sdk']==36; assert {a['kind'] for a in p['artifacts']}=={'apk','aab'}; assert p['blockers']==[]"
+
+      - name: Upload Android integrated evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r13-17-integrated-android-${{ env.KODEPOIA_SOURCE_SHA }}
+          if-no-files-found: error
+          path: ${{ runner.temp }}/R13_17_ANDROID_INTEGRATED.json
+
+  apple-integrated:
+    name: r13-integrated-apple-macos-26
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Kodepoia evidence dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run focused R13.17 adversarial tests
+        run: python -m pytest tests/test_mobile_r13_17_integrated_acceptance.py -q
+
+      - name: Run canonical hosted iOS Simulator XCTest acceptance
+        run: >-
+          python scripts/r13_11_apple_xctest_acceptance.py
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --output "${{ runner.temp }}/R13_17_APPLE_INTEGRATED.json"
+          --result-bundle "${{ runner.temp }}/R13_17_RESULTS.xcresult"
+
+      - name: Verify exact-head simulator-only Apple claims
+        run: >-
+          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(r'${{ runner.temp }}/R13_17_APPLE_INTEGRATED.json').read_text(encoding='utf-8')); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['scope']=='SIMULATOR'; assert p['summary']['result']=='PASSED'; assert p['summary']['failed_tests']==0; assert p['physical_device_capability_proven'] is False; assert p['signing_credential_used'] is False; assert p['testflight']['live_query_attempted'] is False; assert p['testflight']['remote_build_state_proven'] is False; assert p['blockers']==[]"
+
+      - name: Upload Apple integrated evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r13-17-integrated-apple-${{ env.KODEPOIA_SOURCE_SHA }}
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/R13_17_APPLE_INTEGRATED.json
+            ${{ runner.temp }}/R13_17_RESULTS.xcresult

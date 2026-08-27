@@ -1,0 +1,132 @@
+{
+  "blockers": [],
+  "ci": {
+    "bytes": 3346,
+    "evidence_sha256": "23d3cf13b92f4a1e172c7611f69cba90ea9259c6914051ea444d83d505c6ea6b",
+    "sha256": "1005d15c5a9ff5b0240922c0e4cee56dac2817af9c0bb8e65cf0a95fc5c990ab",
+    "source": "docs/roadmap/R13_17_CI_ACCEPTANCE.json",
+    "source_sha": "56f829f4395138bf90a1a8e0003bff95b67dd878"
+  },
+  "continuity": {
+    "bytes": 53049,
+    "sha256": "d218b9a76bf61ff9791b86072c45d1f102344f91363f81dfc506879d0443b360",
+    "source": "docs/continuity/KODEPOIA_CONTINUITY.md"
+  },
+  "evidence_sha256": "831b155fce200eae6b9fbe91c8eb44e992ea036c0922e508171644b497a4c3c7",
+  "generated_at": "2026-08-27T22:05:59.784536Z",
+  "manual_state": "conditional_not_triggered",
+  "prior_phase": {
+    "bytes": 4347,
+    "evidence_sha256": "daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50",
+    "phase": "R12",
+    "sha256": "48e6476dd897bc9346670bd41410d297c9812e1f4e28189131c4759812007a01",
+    "source": "docs/roadmap/R12_INTEGRATED_ACCEPTANCE.json"
+  },
+  "schema_version": 1,
+  "source_sha": "56f829f4395138bf90a1a8e0003bff95b67dd878",
+  "status": "pass",
+  "subdivisions": [
+    {
+      "bytes": 1966,
+      "sha256": "e52ebd3616ec4575a8801ec6893dd7de9f06f837dd938aa917ba82e825aee51b",
+      "source": "docs/roadmap/R13_1_ACCEPTANCE.md",
+      "subdivision": "R13.1"
+    },
+    {
+      "bytes": 3489,
+      "sha256": "7387ae0761fd9157d17ab1fef4229de8b86c89a3f06335332ab8428842c9152b",
+      "source": "docs/roadmap/R13_2_ACCEPTANCE.md",
+      "subdivision": "R13.2"
+    },
+    {
+      "bytes": 4335,
+      "sha256": "c7305a1aa323eee74de19085623dd42a0303f2f6bdf1e6648e38de36e75abea3",
+      "source": "docs/roadmap/R13_3_ACCEPTANCE.md",
+      "subdivision": "R13.3"
+    },
+    {
+      "bytes": 3191,
+      "sha256": "064819399d79c7135c037757f279534ce9b9af7576d13076d0f4b0977534cb67",
+      "source": "docs/roadmap/R13_4_ACCEPTANCE.md",
+      "subdivision": "R13.4"
+    },
+    {
+      "bytes": 5661,
+      "sha256": "5afe6416080ec0ef56ddd7ba1cf343d32f2b775d15d2045f681e31a05f282b1e",
+      "source": "docs/roadmap/R13_5_ACCEPTANCE.md",
+      "subdivision": "R13.5"
+    },
+    {
+      "bytes": 3523,
+      "sha256": "da8b257c2e4312732a7444f7f348db04013fa45d6713afaecb28913a359a453e",
+      "source": "docs/roadmap/R13_6_ACCEPTANCE.md",
+      "subdivision": "R13.6"
+    },
+    {
+      "bytes": 4173,
+      "sha256": "9787d722ab841a5488a201e5e1ca10b2811e8a38816fe50e7cb80760541f7bb2",
+      "source": "docs/roadmap/R13_7_ACCEPTANCE.md",
+      "subdivision": "R13.7"
+    },
+    {
+      "bytes": 4472,
+      "sha256": "9e8497adfb14e63280f53ca4724a7d8084ec2e66482dc64fffcdc6aeb089f1e9",
+      "source": "docs/roadmap/R13_8_ACCEPTANCE.md",
+      "subdivision": "R13.8"
+    },
+    {
+      "bytes": 5350,
+      "sha256": "23673b09607779f9c1013ad4a372b8663735fc4e8faa7bfa295171a79d0f9023",
+      "source": "docs/roadmap/R13_9_ACCEPTANCE.md",
+      "subdivision": "R13.9"
+    },
+    {
+      "bytes": 3611,
+      "sha256": "d6eb5c13769651065a9b645f521469c41d64ff94bbc10c610a18bbb0bb577337",
+      "source": "docs/roadmap/R13_10_ACCEPTANCE.md",
+      "subdivision": "R13.10"
+    },
+    {
+      "bytes": 7275,
+      "sha256": "064c0d54c68e125454abb822ccae4ecbe064165d0bf7316b5d78681027760138",
+      "source": "docs/roadmap/R13_11_ACCEPTANCE.md",
+      "subdivision": "R13.11"
+    },
+    {
+      "bytes": 7446,
+      "sha256": "5316f584b6799e44092714c1805a2c1beb9856f251e33edaa2191a43cd6942d2",
+      "source": "docs/roadmap/R13_12_ACCEPTANCE.md",
+      "subdivision": "R13.12"
+    },
+    {
+      "bytes": 5886,
+      "sha256": "01eb9f901c60991a38443cb56a19ad65477d463aef97e27d29d0c0c789b93dac",
+      "source": "docs/roadmap/R13_13_ACCEPTANCE.md",
+      "subdivision": "R13.13"
+    },
+    {
+      "bytes": 7187,
+      "sha256": "9d53638b994c3b29d9f1269cbea962c75938265481864ccea012805bcf30c261",
+      "source": "docs/roadmap/R13_14_ACCEPTANCE.md",
+      "subdivision": "R13.14"
+    },
+    {
+      "bytes": 9177,
+      "sha256": "483249904e8611d2cea811275d54a114d1ca356dea224b7354bc955fc8f7233c",
+      "source": "docs/roadmap/R13_15_ACCEPTANCE.md",
+      "subdivision": "R13.15"
+    },
+    {
+      "bytes": 6269,
+      "sha256": "56fba7bfdf7262a29c1c28cac88da7211aee491a7eef1b5f76abc5734b109f05",
+      "source": "docs/roadmap/R13_16_ACCEPTANCE.md",
+      "subdivision": "R13.16"
+    },
+    {
+      "bytes": 6764,
+      "sha256": "292134c58d398f392270f25fd32b44198a7b616ebd87aa67648df525067f2adb",
+      "source": "docs/roadmap/R13_17_ACCEPTANCE.md",
+      "subdivision": "R13.17"
+    }
+  ]
+}

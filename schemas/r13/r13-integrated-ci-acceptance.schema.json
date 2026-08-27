@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r13/r13-integrated-ci-acceptance.schema.json",
+  "title": "Kodepoia R13.17 Integrated CI Acceptance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "source_sha", "runs", "artifacts", "claims", "manual_state", "status", "blockers", "evidence_sha256"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "generated_at": {"type": "string", "minLength": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "runs": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {"$ref": "#/$defs/run"}
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/artifact"}
+    },
+    "claims": {"$ref": "#/$defs/claims"},
+    "manual_state": {"enum": ["conditional_not_triggered", "conditional_satisfied"]},
+    "status": {"const": "pass"},
+    "blockers": {"type": "array", "maxItems": 0},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "run_id", "run_number", "conclusion"],
+      "properties": {
+        "name": {
+          "enum": [
+            "R0 Repository Guard",
+            "Python Core",
+            "KodeStudio UI Smoke",
+            "R13 Android Build Acceptance",
+            "R13 Android Signing Acceptance",
+            "R13 Android Device Acceptance",
+            "R13 Google Play Readiness Acceptance",
+            "R13 Apple Xcode Acceptance",
+            "R13 Apple SwiftUI Scaffold Acceptance",
+            "R13 Apple Signing Archive Acceptance",
+            "R13 Apple XCTest Acceptance",
+            "R13 Integrated Release Readiness"
+          ]
+        },
+        "run_id": {"type": "integer", "minimum": 1},
+        "run_number": {"type": "integer", "minimum": 1},
+        "conclusion": {"const": "success"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "run_name", "artifact_id", "name", "sha256"],
+      "properties": {
+        "kind": {"enum": ["android_build", "android_device", "apple_xctest"]},
+        "run_name": {"type": "string", "minLength": 1},
+        "artifact_id": {"type": "integer", "minimum": 1},
+        "name": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "android_hosted_build", "android_target_api", "android_package_kinds", "android_device_scope",
+        "android_physical_device_claim", "ios_hosted_build_test", "ios_scope", "apple_physical_device_claim",
+        "live_store_query_attempted", "production_signing_credential_used"
+      ],
+      "properties": {
+        "android_hosted_build": {"const": true},
+        "android_target_api": {"const": 36},
+        "android_package_kinds": {"const": ["aab", "apk"]},
+        "android_device_scope": {"const": "VIRTUAL"},
+        "android_physical_device_claim": {"const": false},
+        "ios_hosted_build_test": {"const": true},
+        "ios_scope": {"const": "SIMULATOR"},
+        "apple_physical_device_claim": {"const": false},
+        "live_store_query_attempted": {"const": false},
+        "production_signing_credential_used": {"const": false}
+      }
+    }
+  }
+}

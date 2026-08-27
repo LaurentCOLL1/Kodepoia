@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.16 COMPLETE + NORMALIZED. R13.17 IN_PROGRESS on `r13/17-integrated-release-readiness`.** R13.16 final end-synchronized implementation head `a4c4185f6b11d4574e9ecf2f2b735c2d623155b4` passed R0 #1726 / `33113280399`, Python Core #1700 / `33113280512`, and KodeStudio UI Smoke #1667 / `33113280468`, all SUCCESS; PR #251 merged as `b1865ffff26de58f63606952f5c7b8de774e01fa`. Its single continuity-only normalization head `9bcee3c9359f8a2340878c8310b1572f38d614df` changed exactly continuity and passed fresh R0 #1728 / `33113689078`, Python Core #1702 / `33113689208`, and UI #1669 / `33113689114`, all SUCCESS; PR #252 merged as normalized `main` `b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`. R13.17 branch was created exactly from that normalized main; START plan + continuity synchronization is being completed before any implementation. Manual starts CONDITIONAL / NOT TRIGGERED. R14 planning remains forbidden until R13 is COMPLETE + NORMALIZED.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.16 COMPLETE + NORMALIZED. R13.17 COMPLETE / FINAL EVIDENCE RE-GATES PENDING on `r13/17-integrated-release-readiness`. R13 phase implementation/evidence is COMPLETE but post-merge normalization remains pending.** Accepted immutable technical source `56f829f4395138bf90a1a8e0003bff95b67dd878` passed all 12 required exact-head gates. `R13_17_CI_ACCEPTANCE.json` binds those runs and immutable Android Build/Device + Apple XCTest artifacts with semantic digest `23d3cf13b92f4a1e172c7611f69cba90ea9259c6914051ea444d83d505c6ea6b`. Manual is CONDITIONAL / NOT TRIGGERED; Android evidence is VIRTUAL, Apple evidence SIMULATOR, with no physical-device, live-store or production-signing claim. Generate/verify the canonical R13 integrated report from these end-synchronized bytes, then require fresh exact-head final gates before PR #253 merge. After merge, exactly one continuity-only normalization must pass R0 + full Python Core + KodeStudio UI Smoke and merge before R13 is COMPLETE + NORMALIZED and R14 planning is authorized.
 
 ## État global
 
@@ -13,12 +13,12 @@
 - R1–R12 : **COMPLETE + NORMALIZED**.
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
-- R13 phase status: **IN PROGRESS**.
+- R13 phase status: **COMPLETE / NORMALIZATION PENDING**.
 - R13.1–R13.14: **COMPLETE + NORMALIZED**.
 - R13.14 normalized `main`: **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after implementation PR #247 and continuity-only normalization PR #248. Manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.15: **COMPLETE + NORMALIZED**. Final normalization head **`2122fd685fd20973ae045658e79d94295bb389cb`** passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and KodeStudio UI Smoke #1661 / `33099024892`; normalization PR #250 merged as normalized `main` **`dce60a60b58ff2c069d689144291f8c682b7e21f`**. Manual **NONE**.
 - R13.16: **COMPLETE + NORMALIZED**. Final end-synchronized implementation head **`a4c4185f6b11d4574e9ecf2f2b735c2d623155b4`** passed R0 #1726 / `33113280399`, Python Core #1700 / `33113280512`, and UI #1667 / `33113280468`; PR #251 merged as **`b1865ffff26de58f63606952f5c7b8de774e01fa`**. Single continuity-only normalization head **`9bcee3c9359f8a2340878c8310b1572f38d614df`** passed R0 #1728 / `33113689078`, Python Core #1702 / `33113689208`, and UI #1669 / `33113689114`; PR #252 merged as normalized **`main` `b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`**. Manual **NONE**.
-- R13.17: **IN_PROGRESS** on dedicated branch **`r13/17-integrated-release-readiness`**, created exactly from normalized `main` **`b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`**. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.17: **COMPLETE / FINAL EVIDENCE RE-GATES PENDING** on `r13/17-integrated-release-readiness`. Accepted immutable technical source **`56f829f4395138bf90a1a8e0003bff95b67dd878`** passed all 12 required exact-head gates; CI semantic digest **`23d3cf13b92f4a1e172c7611f69cba90ea9259c6914051ea444d83d505c6ea6b`**. Manual **CONDITIONAL / NOT TRIGGERED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -256,7 +256,8 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 
 - Authorized normalized base: **`b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`**, produced by R13.16 normalization PR #252.
 - Dedicated implementation branch: **`r13/17-integrated-release-readiness`**, created exactly from that normalized main.
-- Status: **IN_PROGRESS**. START plan + continuity status synchronization is completed before implementation. Manual starts **CONDITIONAL / NOT TRIGGERED**.
+- Status: **COMPLETE / FINAL EVIDENCE RE-GATES PENDING**. START synchronization is complete; accepted immutable technical source **`56f829f4395138bf90a1a8e0003bff95b67dd878`** passed all 12 required exact-head gates. Manual remains **CONDITIONAL / NOT TRIGGERED**.
+- Accepted technical authority: predecessor `e6d7cb3768d80944692596ef6705f3f95a24c8da` rejected; corrected source **`56f829f4395138bf90a1a8e0003bff95b67dd878`** accepted after R0 #1731, Python #1705, UI #1672, Android Build #301, Signing #254, Device #239, Play #222, Xcode #205, SwiftUI #176, Apple Signing #151, XCTest #131 and Integrated #4 all SUCCESS. `R13_17_CI_ACCEPTANCE.json` semantic digest is **`23d3cf13b92f4a1e172c7611f69cba90ea9259c6914051ea444d83d505c6ea6b`** and binds Android Build artifact `9665811449`, Android Device `9665845148`, Apple XCTest `9665853659`.
 - Frozen objective: close R13 with adversarial, anti-circular integrated acceptance spanning Project DNA -> mobile scaffold -> Android/iOS build/test/package/signing state -> DeviceLab -> current compliance -> KodeRelease promotion -> diagnostics, while preserving platform/evidence boundaries and never upgrading simulator/virtual or account-free evidence into physical-device/live-store proof.
 - Required durable authority: `R13_INTEGRATED_ACCEPTANCE.json` plus schema/model/verifier must bind the exact implementation source, the prior R12 canonical digest **`daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`**, canonical Android and iOS evidence, DeviceLab/release/compliance/diagnostics identities/digests, explicit capability limitations and a stable semantic digest. Identifier/path/Gradle/Xcode/signing/device/store-track/policy/evidence substitutions must fail closed.
 - Anti-circular rule: existing accepted R13.1–R13.16 evidence is an input pool, not authority for a new integrated PASS by itself. No checked-in `status=pass` R13 integrated report may be created until an exact R13.17 implementation source independently passes the required standard and affected Android/macOS/device workflows. Any report/document byte change after that source evidence creates a new head and requires fresh exact-head gates before merge.
@@ -283,7 +284,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | COMPLETE | CONDITIONAL |
 | R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | COMPLETE | NONE |
 | R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | COMPLETE | NONE |
-| R13.17 | Adversarial hardening + Android/iOS integrated release-readiness acceptance | IN_PROGRESS | CONDITIONAL |
+| R13.17 | Adversarial hardening + Android/iOS integrated release-readiness acceptance | COMPLETE | CONDITIONAL |
 
 ### R13 phase DoD target
 
@@ -303,4 +304,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Verify the START-sync diff on `r13/17-integrated-release-readiness` against normalized `main` `b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`; it must contain exactly `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`. Then implement the frozen R13.17 adversarial integrated-acceptance model/schema/verifier/tests/docs and hosted Android+iOS integrated workflow without creating a checked-in PASS report. Run exact-head standard + affected platform gates on that implementation source. Manual remains CONDITIONAL / NOT TRIGGERED unless a frozen phase claim proves otherwise; do not start R14.
+Generate and verify `docs/roadmap/R13_INTEGRATED_ACCEPTANCE.json` from the end-synchronized repository bytes with immutable source `56f829f4395138bf90a1a8e0003bff95b67dd878`, then freeze the resulting documentation/evidence head. Require fresh exact-head R0 Repository Guard, full Python Core, KodeStudio UI Smoke, Android Build/Signing/Device/Google Play, Apple Xcode/SwiftUI/Signing/XCTest, and R13 Integrated Release Readiness on that final head. If every gate is SUCCESS, merge PR #253 with `expected_head_sha` equal to that exact final head. Then create exactly one continuity-only R13 normalization branch from the merge; it must pass fresh R0 + full Python Core + KodeStudio UI Smoke and merge before R13 is `COMPLETE + NORMALIZED` and R14 planning becomes authorized. Manual remains CONDITIONAL / NOT TRIGGERED unless a frozen claim unexpectedly requires physical/live-account proof.

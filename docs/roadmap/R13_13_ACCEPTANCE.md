@@ -1,6 +1,6 @@
 # R13.13 — KodeRelease acceptance
 
-**Status:** PENDING EXACT-HEAD ACCEPTANCE  
+**Status:** TECHNICAL CANDIDATE ACCEPTED / FINAL END-SYNC GATES PENDING  
 **Authorized base:** `bad4790bbc6a34c42bbc86d45db013722a25fdae`  
 **Branch:** `r13/13-koderelease`  
 **Manual:** NONE
@@ -53,21 +53,29 @@ External facts are not PASS evidence for implementation; they only define truthf
 - Google Play full rollout halt: https://support.google.com/googleplay/android-developer/answer/16285429
 - Apple phased release: https://developer.apple.com/help/app-store-connect/update-your-app/release-a-version-update-in-phases
 
-## Required exact-head technical gates
+## Accepted technical candidate
 
-The technical candidate must have all of the following on the **same exact SHA**:
+Exact technical candidate **`3381caa21573f44c47d354f36b0e00c4d82e454e`** passed all frozen R13.13 technical gates on that exact SHA:
+
+- R0 Repository Guard **#1699 / `33075296657` — SUCCESS**;
+- Python Core **#1673 / `33075296667` — SUCCESS**, including Ubuntu/Windows full tests, package-build Ubuntu/Windows and KodeStudio smoke job;
+- KodeStudio UI Smoke **#1640 / `33075296615` — SUCCESS**.
+
+Python Core executed the focused R13.13 tests as part of the complete suite. Additional automatically triggered regression workflows, including Apple Xcode, Apple Signing Archive, Apple SwiftUI Scaffold and Google Play Readiness, also succeeded on this candidate, but they are supplemental and do not replace the three frozen R13.13 decision gates.
+
+No external credential, account, physical device, production signing secret or live store mutation was used or required. Manual remains **NONE**.
+
+## Final end synchronization and merge rule
+
+This document, `R13_PLAN.md` and continuity now end-synchronize the accepted technical facts. These documentary byte changes create a new final head, so the technical-candidate gate results above are historical evidence only for the implementation candidate and **must not** be reused to authorize merge of the final head.
+
+The final end-synchronized head must freshly pass on one exact SHA:
 
 - R0 Repository Guard — SUCCESS;
 - Python Core — SUCCESS, including complete OS/package matrix;
 - KodeStudio UI Smoke — SUCCESS.
 
-Focused R13.13 tests must be included in Python Core and pass on supported CI platforms.
-
-## End synchronization and merge rule
-
-After one technical candidate passes, this document, `R13_PLAN.md` and continuity may record the accepted technical facts. Any such documentary byte change produces a new final head. The same three required gates must then pass freshly on that exact final head before merge.
-
-Implementation merge must use `expected_head_sha=<final-head>`.
+Implementation PR #245 must merge with `expected_head_sha=<final-head>` only after all three are SUCCESS.
 
 After implementation merge, exactly one continuity-only normalization is permitted. Its exact head must pass fresh R0 Repository Guard + Python Core + KodeStudio UI Smoke before normalization merge. R13.14 stays `PLANNED` until normalized main is established.
 

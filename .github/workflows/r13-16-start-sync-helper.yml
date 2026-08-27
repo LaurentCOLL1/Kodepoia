@@ -1,0 +1,95 @@
+name: R13.16 Start Sync Helper
+
+on:
+  push:
+    branches:
+      - r13/16-cli-kodestudio-mobile-release
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    if: github.event.head_commit.message != 'R13.16 start-sync via CI'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r13/16-cli-kodestudio-mobile-release
+          fetch-depth: 0
+      - name: Patch plan and continuity exactly
+        shell: python
+        run: |
+          from pathlib import Path
+
+          BASE = 'dce60a60b58ff2c069d689144291f8c682b7e21f'
+          FINAL15 = 'a6109e2d6f1a093bc709eb8385d8f0ce8dac0341'
+          MERGE15 = 'a92f5b1e31f09f37320e0759f7633569b9125487'
+          NORM15 = '2122fd685fd20973ae045658e79d94295bb389cb'
+
+          def one(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected exactly one match, got {count}')
+              return text.replace(old, new, 1)
+
+          plan_path = Path('docs/roadmap/R13_PLAN.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          old_checkpoint = "**Execution checkpoint:** R13.1–R13.14 are `COMPLETE + NORMALIZED`. R13.15 is `COMPLETE / END-SYNCED` on dedicated branch `r13/15-store-compliance-engine`; accepted technical candidate `dc9e04b1d0170b889ae02231a68304e7b7a11c60` passed exact-head R0 #1715 / `33097922318`, Python Core #1689 / `33097922338`, and KodeStudio UI Smoke #1656 / `33097922322`, all SUCCESS. Google Play Readiness #179 / `33097922247` and Apple Xcode Acceptance #162 / `33097922206` also passed as directly relevant regression evidence. Because this end-sync changes documentation bytes, PR #249 remains merge-pending until fresh R0 + full Python Core + UI Smoke pass on the same final end-synchronized head. R13.16–R13.17 remain `PLANNED`."
+          new_checkpoint = f"**Execution checkpoint:** R13.1–R13.15 are `COMPLETE + NORMALIZED`. R13.15 final end-synchronized head `{FINAL15}` passed R0 #1718 / `33098494117`, Python Core #1692 / `33098494367`, and KodeStudio UI Smoke #1659 / `33098494215`; PR #249 merged as `{MERGE15}`. Single continuity-only normalization head `{NORM15}` passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and UI #1661 / `33099024892`, and PR #250 merged as normalized `main` `{BASE}`. R13.16 is `IN_PROGRESS` on dedicated branch `r13/16-cli-kodestudio-mobile-release`; R13.17 remains `PLANNED`."
+          plan = one(plan, old_checkpoint, new_checkpoint, 'plan checkpoint')
+          plan = one(
+              plan,
+              "R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.14 are **COMPLETE + NORMALIZED**; R13.15 is **COMPLETE / END-SYNCED, MERGE + NORMALIZATION PENDING**; R13.16–R13.17 remain **PLANNED / NOT STARTED**.",
+              "R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.15 are **COMPLETE + NORMALIZED**; R13.16 is **IN_PROGRESS**; R13.17 remains **PLANNED / NOT STARTED**.",
+              'plan phase summary',
+          )
+          plan = one(
+              plan,
+              "| R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | PLANNED | NONE | R13.1–R13.15 |",
+              "| R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | IN_PROGRESS | NONE | R13.1–R13.15 |",
+              'plan table',
+          )
+          manual = "**Manual:** NONE."
+          start = f"**Start record:** branch **`r13/16-cli-kodestudio-mobile-release`** created exactly from normalized `main` **`{BASE}`** after R13.15 normalization PR #250. Status **IN_PROGRESS** before implementation. Manual is **NONE**. Frozen R13.16 exposes only accepted structured R13 contracts: `kodepoia r13` status/scaffold/build/test/package/device/compliance/release intents plus KodeStudio Mobile/DeviceLab/Release read-only workspace state. Passive refresh must be pure and launch no external process; execute actions remain explicit structured intents with no raw executable path, argv, Gradle/Xcode setting, signing material, store token or editable evidence-to-PASS surface. Missing capability remains explicit BLOCKED/UNAVAILABLE. UI and CLI outputs must remain deterministic, bounded, accessible and localizable."
+          plan = one(plan, manual + "\n\n# R13.17", manual + "\n\n" + start + "\n\n# R13.17", 'plan start record')
+          plan_path.write_text(plan, encoding='utf-8')
+
+          cpath = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          c = cpath.read_text(encoding='utf-8')
+          old_prompt = "> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.14 COMPLETE + NORMALIZED. R13.15 COMPLETE / IMPLEMENTATION MERGED; single continuity-only normalization IN_PROGRESS on `r13/15-normalize-continuity`. R13.16–R13.17 PLANNED / NOT STARTED.** Final R13.15 end-synchronized head `a6109e2d6f1a093bc709eb8385d8f0ce8dac0341` passed exact-head R0 #1718 / `33098494117`, Python Core #1692 / `33098494367`, and UI #1659 / `33098494215`, all SUCCESS; implementation PR #249 merged with `expected_head_sha=a6109e2d6f1a093bc709eb8385d8f0ce8dac0341` as `a92f5b1e31f09f37320e0759f7633569b9125487`. This branch is the single allowed continuity-only normalization and must change exactly `docs/continuity/KODEPOIA_CONTINUITY.md`; only after this normalization head passes fresh R0 + full Python Core + UI Smoke and its PR merges with `expected_head_sha` may R13.16 start. Manual remains NONE."
+          new_prompt = f"> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.15 COMPLETE + NORMALIZED. R13.16 IN_PROGRESS on dedicated branch `r13/16-cli-kodestudio-mobile-release`; R13.17 PLANNED / NOT STARTED.** R13.15 final head `{FINAL15}` passed R0 #1718 / `33098494117`, Python #1692 / `33098494367`, UI #1659 / `33098494215`; PR #249 merged as `{MERGE15}`. Continuity-only normalization `{NORM15}` passed R0 #1720 / `33099025034`, Python #1694 / `33099024801`, UI #1661 / `33099024892`; PR #250 merged as normalized `main` `{BASE}`. R13.16 starts exactly there. Frozen core exposes accepted R13 capabilities through structured CLI/KodeStudio surfaces only: passive refresh is process-free/read-only, execute remains explicit typed intent, evidence cannot be edited into PASS, and raw executable/argv/Gradle/Xcode/signing/store-token inputs remain forbidden. Manual NONE."
+          c = one(c, old_prompt, new_prompt, 'continuity prompt')
+          c = one(
+              c,
+              "- R13.15: **COMPLETE / IMPLEMENTATION MERGED; SINGLE CONTINUITY-ONLY NORMALIZATION IN PROGRESS**. Final accepted end-synchronized head **`a6109e2d6f1a093bc709eb8385d8f0ce8dac0341`**; implementation merge **`a92f5b1e31f09f37320e0759f7633569b9125487`** from PR #249. Manual **NONE**.\n- R13.16–R13.17: **PLANNED / NOT STARTED**.",
+              f"- R13.15: **COMPLETE + NORMALIZED**. Final end-synchronized head **`{FINAL15}`**, implementation merge **`{MERGE15}`**, normalization head **`{NORM15}`**, normalized `main` **`{BASE}`**. Manual **NONE**.\n- R13.16: **IN_PROGRESS** on `r13/16-cli-kodestudio-mobile-release`, created exactly from normalized `main` `{BASE}`. Manual **NONE**.\n- R13.17: **PLANNED / NOT STARTED**.",
+              'continuity global status',
+          )
+          c = one(
+              c,
+              "- Status: **COMPLETE / IMPLEMENTATION MERGED; SINGLE CONTINUITY-ONLY NORMALIZATION IN PROGRESS**. R13.16–R13.17 remain **PLANNED / NOT STARTED**.",
+              f"- Status: **COMPLETE + NORMALIZED**. Normalization head `{NORM15}` passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and KodeStudio UI Smoke #1661 / `33099024892`, all SUCCESS; PR #250 merged as normalized `main` `{BASE}`. R13.16 is now IN_PROGRESS; R13.17 remains PLANNED / NOT STARTED.",
+              'R13.15 normalized status',
+          )
+          c = one(
+              c,
+              "| R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | PLANNED | NONE |",
+              "| R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | IN_PROGRESS | NONE |",
+              'continuity frozen index',
+          )
+          authority = f"## R13.16 start authority\n\n- Authorized normalized base: **`{BASE}`** after R13.15 normalization PR #250.\n- Dedicated implementation branch: **`r13/16-cli-kodestudio-mobile-release`**, created exactly from that normalized main.\n- Status: **IN_PROGRESS** before implementation. R13.17 remains **PLANNED / NOT STARTED**.\n- Frozen core: structured `kodepoia r13` status/scaffold/build/test/package/device/compliance/release intents with stable JSON/exit codes, plus KodeStudio Mobile/DeviceLab/Release read-only workspace state driven by accepted Wizard/R13 evidence. Passive refresh is process-free and read-only; execution is explicit typed intent only. No raw executable/argv, Gradle/Xcode setting, signing material, store token, arbitrary endpoint or editable evidence-to-PASS surface is allowed. Missing capability remains BLOCKED/UNAVAILABLE. Accessibility, localization and pseudo-localization stay explicit.\n- Manual: **NONE**. No external account, credential, physical device, production signing material or user-machine SDK/Xcode installation is required for the frozen UI/CLI orchestration claim.\n\n"
+          c = one(c, "## Frozen R13 subdivision index", authority + "## Frozen R13 subdivision index", 'continuity authority')
+          old_next = "Freeze this single R13.15 continuity-only normalization head and verify its diff against implementation merge `a92f5b1e31f09f37320e0759f7633569b9125487` is exactly `docs/continuity/KODEPOIA_CONTINUITY.md`. Run fresh exact-head **R0 Repository Guard + full Python Core + KodeStudio UI Smoke**. If all three are SUCCESS, merge the normalization PR with `expected_head_sha`. Only the resulting normalized `main` authorizes R13.16 to start on its own dedicated branch with start plan+continuity synchronization. If any normalization gate fails, correct only continuity and rerun all three; manual remains NONE."
+          next_new = "Complete R13.16 on dedicated branch `r13/16-cli-kodestudio-mobile-release`: expose the accepted R13 model through structured `kodepoia r13` CLI intents and KodeStudio Mobile/DeviceLab/Release workspace state; preserve passive-refresh purity, stable JSON/exit codes, read-only evidence, explicit blockers/capability matrix, cancellation and accessibility/localization; add required design/acceptance docs and focused adversarial tests. Manual is NONE. Run exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke; after accepted technical evidence, perform end plan+continuity sync, fresh exact-head re-gates if bytes changed, merge with `expected_head_sha`, then exactly one continuity-only normalization before R13.17."
+          c = one(c, old_next, next_new, 'continuity next action')
+          cpath.write_text(c, encoding='utf-8')
+      - name: Commit start sync
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R13_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --quiet && exit 0
+          git commit -m "R13.16 start-sync via CI"
+          git push origin HEAD:r13/16-cli-kodestudio-mobile-release

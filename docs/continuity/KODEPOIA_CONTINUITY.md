@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.15 COMPLETE + NORMALIZED. R13.16 IN_PROGRESS on `r13/16-cli-kodestudio-workspace`. R13.17 PLANNED / NOT STARTED.** R13.15 normalization head `2122fd685fd20973ae045658e79d94295bb389cb` passed exact-head R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and KodeStudio UI Smoke #1661 / `33099024892`, all SUCCESS; normalization PR #250 merged with `expected_head_sha=2122fd685fd20973ae045658e79d94295bb389cb` as normalized `main` `dce60a60b58ff2c069d689144291f8c682b7e21f`. R13.16 branch was created exactly from that normalized main; start plan+continuity synchronization is in progress before implementation. Manual is NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.15 COMPLETE + NORMALIZED. R13.16 COMPLETE / END-SYNCHRONIZED, PENDING FRESH GATES + MERGE + NORMALIZATION on `r13/16-cli-kodestudio-workspace`. R13.17 PLANNED / NOT STARTED.** R13.15 normalization PR #250 merged as normalized `main` `dce60a60b58ff2c069d689144291f8c682b7e21f`. R13.16 accepted exact-head technical candidate `1b2eec0e97467b8ddc3dd1c100b86140a7f4453d` passed R0 Repository Guard #1723 / `33111158773`, Python Core #1697 / `33111158821`, and KodeStudio UI Smoke #1664 / `33111158807`, all SUCCESS. The first candidate `8325b29a237078c7c6a333c04a9c1947e6737f7c` is rejected because UI #1663 failed on a stale 11-entry pseudo-localization navigation expectation after R13.16 legitimately added the twelfth workspace entry. End plan + acceptance + continuity synchronization now changes documentation bytes, so fresh exact-head R0 + full Python Core + KodeStudio UI Smoke must pass before PR #251 may merge with `expected_head_sha`; then exactly one continuity-only normalization must pass and merge before R13.17 is authorized. Manual is NONE.
 
 ## État global
 
@@ -17,8 +17,8 @@
 - R13.1–R13.14: **COMPLETE + NORMALIZED**.
 - R13.14 normalized `main`: **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after implementation PR #247 and continuity-only normalization PR #248. Manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.15: **COMPLETE + NORMALIZED**. Final normalization head **`2122fd685fd20973ae045658e79d94295bb389cb`** passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and KodeStudio UI Smoke #1661 / `33099024892`; normalization PR #250 merged as normalized `main` **`dce60a60b58ff2c069d689144291f8c682b7e21f`**. Manual **NONE**.
-- R13.16: **IN_PROGRESS** on `r13/16-cli-kodestudio-workspace`, created exactly from normalized `main` `dce60a60b58ff2c069d689144291f8c682b7e21f`. Manual **NONE**.
-- R13.17: **PLANNED / NOT STARTED**.
+- R13.16: **COMPLETE / END-SYNCHRONIZED, PENDING FRESH GATES + MERGE + NORMALIZATION** on `r13/16-cli-kodestudio-workspace`. Accepted technical candidate **`1b2eec0e97467b8ddc3dd1c100b86140a7f4453d`** passed R0 #1723 / `33111158773`, Python Core #1697 / `33111158821`, and UI #1664 / `33111158807`, all SUCCESS. Manual **NONE**. R13.16 is not yet `COMPLETE + NORMALIZED`.
+- R13.17: **PLANNED / NOT STARTED** and **NOT AUTHORIZED** until R13.16 implementation merge plus its single accepted continuity-only normalization complete.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -242,11 +242,15 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 ## R13.16 execution authority
 
 - Authorized normalized base: **`dce60a60b58ff2c069d689144291f8c682b7e21f`**, produced by R13.15 normalization PR #250.
-- Dedicated implementation branch: **`r13/16-cli-kodestudio-workspace`**, created exactly from that normalized main.
-- Status: **IN_PROGRESS**. R13.17 remains **PLANNED / NOT STARTED**.
+- Dedicated implementation branch: **`r13/16-cli-kodestudio-workspace`**, created exactly from that normalized main; implementation PR **#251**.
+- Status: **COMPLETE / END-SYNCHRONIZED, PENDING FRESH GATES + MERGE + NORMALIZATION**. R13.17 remains **PLANNED / NOT STARTED** and is not authorized yet.
 - Objective: expose the already accepted R13 mobile/DeviceLab/release/compliance capabilities through structured CLI and KodeStudio surfaces without raw executable/argv/Gradle/Xcode/signing/store-token parameters.
-- Start acceptance boundaries: passive refresh is read-only and launches no external process; execute actions are explicit governed intents; unavailable backends/capabilities return `BLOCKED`; evidence is read-only and cannot be edited into PASS; cancellation uses the global KillSwitch; accessibility/localization/pseudo-localization remain mandatory.
-- Manual: **NONE**. No physical device, store account, credential, production signing secret or local SDK/Xcode installation is required for the frozen R13.16 workspace/CLI core.
+- Frozen boundaries: passive refresh is read-only and launches no external process; execute actions are explicit governed intents; unavailable backends/capabilities return `BLOCKED`; evidence is read-only and cannot be edited into PASS; cancellation uses the global KillSwitch; accessibility/localization/pseudo-localization remain mandatory.
+- Rejected technical candidate **`8325b29a237078c7c6a333c04a9c1947e6737f7c`** is not reusable for decision evidence. R0 #1722 succeeded, but KodeStudio UI Smoke #1663 / `33111023452` failed because `tests/test_r6_6_localization_ui.py` still asserted 11 registered navigation entries after R13.16 legitimately added the twelfth Mobile/DeviceLab/Release entry. The branch corrected the stale expectation and explicitly pseudo-localized the new R13 controls.
+- Accepted exact-head technical candidate **`1b2eec0e97467b8ddc3dd1c100b86140a7f4453d`** passed R0 Repository Guard #1723 / **`33111158773`**, Python Core #1697 / **`33111158821`**, and KodeStudio UI Smoke #1664 / **`33111158807`**, all SUCCESS. Same-candidate supplemental existing-platform regressions also passed: R13 Google Play Readiness #206, Android Build #285, Android Signing #238, Android Device #223, Apple Xcode #189, Apple SwiftUI Scaffold #160, Apple Signing Archive #135 and Apple XCTest #115. These regressions add confidence but do not let the R13.16 orchestration layer re-claim platform semantics already owned by earlier subdivisions.
+- Accepted core behavior: `kodepoia r13` exposes only structured `status/scaffold/build/test/package/device/compliance/release` intents; passive status remains process/network-authority free; passive evidence reporting `PASS` remains read-only data and cannot promote workspace state; no governed executor returns `BLOCKED / EXECUTION_BACKEND_UNAVAILABLE`; active global KillSwitch returns `CANCELLED` before executor dispatch; injected executors receive only bounded Project-DNA-derived context; KodeStudio separates Refresh from explicit execute actions and keeps evidence/capability display read-only, localized, pseudo-localized and accessibility-aware.
+- End synchronization updates `R13_16_ACCEPTANCE.md`, `R13_PLAN.md` and this continuity file after the accepted technical candidate. Therefore those prior successes do not authorize merge of the new documentation head: fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke must all be SUCCESS before PR #251 may merge with `expected_head_sha`.
+- Manual: **NONE**. No physical device, store account, credential, production signing secret, local Android SDK/Xcode installation, paid provider quota or live publication is required for the frozen R13.16 core.
 
 ## Frozen R13 subdivision index
 
@@ -267,7 +271,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | COMPLETE | NONE |
 | R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | COMPLETE | CONDITIONAL |
 | R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | COMPLETE | NONE |
-| R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | IN_PROGRESS | NONE |
+| R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | COMPLETE | NONE |
 | R13.17 | Adversarial hardening + Android/iOS integrated release-readiness acceptance | PLANNED | CONDITIONAL |
 
 ### R13 phase DoD target
@@ -288,4 +292,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Complete the R13.16 start synchronization on branch `r13/16-cli-kodestudio-workspace`, then implement the structured `kodepoia r13` intents and KodeStudio Mobile/DeviceLab/Release workspace with focused tests and required design/acceptance docs. Passive refresh must remain process-free and read-only; unavailable execution capability must return explicit `BLOCKED`; no raw executable/argv/Gradle/Xcode/signing/store-token parameter is allowed. Manual remains NONE.
+Obtain fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke SUCCESS on the final end-synchronized PR #251 head. Then merge PR #251 with `expected_head_sha=<that exact head>`, create exactly one branch `r13/16-normalize-continuity` from the implementation merge, change exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, verify that single-file diff, pass fresh exact-head R0 + Python Core + KodeStudio UI Smoke, and merge the normalization PR with `expected_head_sha`. **Do not start R13.17 before the resulting normalized `main` exists.** Manual remains NONE.

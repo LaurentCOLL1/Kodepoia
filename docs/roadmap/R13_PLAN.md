@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1–R13.11 are `COMPLETE + NORMALIZED`. R13.11 implementation PR #241 merged as `1b3c127925b2775d77ab0d491e7fb16e800fe741`; its single continuity-only normalization head `02364597f34459edc12a1e911832477df109b78f` passed R0 #1690 / `33014801858`, Python Core #1664 / `33014801948`, and KodeStudio UI Smoke #1631 / `33014801867`, all SUCCESS, and normalization PR #242 merged as normalized `main` `fb05135c4a5e1b7177dd4c68e6f05f61a489594e`. R13.12 is `IN_PROGRESS` on branch `r13/12-devicelab-matrices` created exactly from that normalized main; R13.13–R13.17 remain `PLANNED`.
+**Execution checkpoint:** R13.1–R13.11 are `COMPLETE + NORMALIZED`. R13.12 has completed its technical implementation and exact-head acceptance on candidate `250c179590bc2b63b625b806cb5b1f1d618bd640`; end synchronization is now `COMPLETE` on branch `r13/12-devicelab-matrices`, with implementation merge and the single continuity-only post-merge normalization still pending. R13.13–R13.17 remain `PLANNED`.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.11 are **COMPLETE + NORMALIZED**; R13.12 is **IN_PROGRESS**; R13.13–R13.17 remain **PLANNED / NOT STARTED**.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.11 are **COMPLETE + NORMALIZED**; R13.12 is **COMPLETE / END-SYNCED, MERGE + NORMALIZATION PENDING**; R13.13–R13.17 remain **PLANNED / NOT STARTED**.
 
 ## Permanent subdivision status synchronization rule
 
@@ -172,7 +172,7 @@ Before R13.1 implementation:
 | R13.9 | iOS/iPadOS SwiftUI/Xcode deterministic scaffold + shared app model | COMPLETE | CONDITIONAL | R13.8 + R8/R12 patterns |
 | R13.10 | Apple identity, entitlements, signing/provisioning, archive/export model | COMPLETE | CONDITIONAL | R13.8–R13.9 + R1/R6/R12 |
 | R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | COMPLETE | CONDITIONAL | R13.9–R13.10 |
-| R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | IN_PROGRESS | CONDITIONAL | R13.6 + R13.11 |
+| R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | COMPLETE | CONDITIONAL | R13.6 + R13.11 |
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | PLANNED | NONE | R13.4–R13.12 + R8/R12 |
 | R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | PLANNED | CONDITIONAL | R13.6/R13.11/R13.12 + R6 |
 | R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | PLANNED | NONE | R13.7/R13.10 + R7/R6 |
@@ -338,6 +338,8 @@ Before R13.1 implementation:
 **Manual:** CONDITIONAL when a frozen acceptance claim requires a real physical device/provider account unavailable to CI.
 
 **Start record:** branch **`r13/12-devicelab-matrices`** created exactly from normalized `main` **`fb05135c4a5e1b7177dd4c68e6f05f61a489594e`**. Status **IN_PROGRESS** before implementation. Manual starts **CONDITIONAL / NOT TRIGGERED**: core acceptance will reuse the accepted R13.6 Android emulator/device evidence and R13.11 iOS Simulator/XCTest evidence through provider-neutral routing without upgrading virtual/simulator evidence into physical-device proof. Firebase Test Lab remains optional and credential/account/quota/cost capability-gated; no paid Firebase/Google Cloud account, physical-device allocation, service-account credential, billing state, or live cloud matrix execution is a core prerequisite. Official Test Lab semantics are represented as versioned provider capability evidence: matrices bind model/OS/orientation/locale, Android may route to physical or virtual targets, iOS Test Lab targets are physical, and quotas/costs are project-scoped. If a frozen R13.12 claim is found to require a real physical provider run unavailable to accepted CI, stop before R13.13 and request bounded user-controlled evidence without requesting secrets in chat.
+
+**Completion record:** accepted technical candidate **`250c179590bc2b63b625b806cb5b1f1d618bd640`** passed R0 Repository Guard #1692 / `33016321788`, Python Core #1666 / `33016321879`, KodeStudio UI Smoke #1633 / `33016321824`, R13 Android Device Acceptance #130 / `33016321843`, and R13 Apple XCTest Acceptance #22 / `33016321680`, all SUCCESS on that exact head. The provider-neutral layer reuses the existing real seams without a credentialed external execution path: Android Device #130 proved the hosted API 36 emulator/instrumentation/evidence/cleanup path; Apple XCTest #22 proved the hosted `macos-26` simulator XCTest/exact-head evidence path. No Firebase/Google Cloud account, service-account credential, billing mutation, physical provider allocation or live cloud matrix was required, so manual remained **CONDITIONAL / NOT TRIGGERED**. `R13_12_ACCEPTANCE.md` records that candidate as historical technical evidence; because end-sync documentation changes bytes, all five required gates must pass again on the final end-synchronized head before PR #243 may merge. R13.12 is **COMPLETE for end synchronization**; R13.13 remains **PLANNED** until implementation merge plus the single accepted continuity-only normalization are complete.
 
 # R13.13 — KodeRelease versioning, release trains, promotion, rollout + rollback
 

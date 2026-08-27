@@ -1,0 +1,84 @@
+name: R13.15 Start Sync Helper
+
+on:
+  push:
+    branches:
+      - r13/15-store-compliance-engine
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    if: github.event.head_commit.message != 'R13.15 start-sync via CI'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r13/15-store-compliance-engine
+          fetch-depth: 0
+      - name: Patch plan and continuity exactly
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def one(text: str, old: str, new: str, label: str) -> str:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{label}: expected exactly one match, got {count}")
+              return text.replace(old, new, 1)
+
+          plan_path = Path('docs/roadmap/R13_PLAN.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          old_checkpoint = "**Execution checkpoint:** R13.1–R13.13 are `COMPLETE + NORMALIZED`. R13.14 is `COMPLETE / END-SYNCED` on dedicated branch `r13/14-mobile-diagnostics`; accepted technical candidate `ebb446daf6a6c38cff71b0834151ace74ff46099` passed exact-head R0 #1707 / `33094260088`, Python Core #1681 / `33094260123`, and KodeStudio UI Smoke #1648 / `33094260179`, all SUCCESS. Because end-sync documentation changes bytes, PR #247 remains merge-pending until fresh R0 + full Python Core + UI Smoke pass on the final end-synchronized head. R13.15–R13.17 remain `PLANNED`."
+          new_checkpoint = "**Execution checkpoint:** R13.1–R13.14 are `COMPLETE + NORMALIZED`. R13.14 final end-synchronized head `42b500d3a4a19fad9370fb4b56fa528f5ed742eb` passed R0 #1711 / `33095039101`, Python Core #1685 / `33095038903`, and KodeStudio UI Smoke #1652 / `33095038908`; PR #247 merged as `a7a6fc43823c53e78d31d71e20c110abbc35196d`, then single continuity-only normalization head `0c990e8d68c1940a092d589bd6b864299d064eeb` passed R0 #1713 / `33095670861`, Python Core #1687 / `33095670808`, and UI #1654 / `33095670718`, and PR #248 merged as normalized `main` `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`. R13.15 is `IN_PROGRESS` on dedicated branch `r13/15-store-compliance-engine`; R13.16–R13.17 remain `PLANNED`."
+          plan = one(plan, old_checkpoint, new_checkpoint, 'plan checkpoint')
+          plan = one(
+              plan,
+              "R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.13 are **COMPLETE + NORMALIZED**; R13.14 is **COMPLETE / END-SYNCED, MERGE + NORMALIZATION PENDING**; R13.15–R13.17 remain **PLANNED / NOT STARTED**.",
+              "R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.14 are **COMPLETE + NORMALIZED**; R13.15 is **IN_PROGRESS**; R13.16–R13.17 remain **PLANNED / NOT STARTED**.",
+              'plan phase summary',
+          )
+          plan = one(
+              plan,
+              "| R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | PLANNED | NONE | R13.7/R13.10 + R7/R6 |",
+              "| R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | IN_PROGRESS | NONE | R13.7/R13.10 + R7/R6 |",
+              'plan table',
+          )
+          r1315_manual = "**Manual:** NONE for deterministic compliance evaluation. Account-only forms may remain `NEEDS_ACCOUNT_CONFIRMATION` without blocking non-live readiness."
+          start_record = "**Start record:** branch **`r13/15-store-compliance-engine`** created exactly from normalized `main` **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after R13.14 normalization PR #248. Status **IN_PROGRESS** before implementation. Manual is **NONE** for the frozen core: R13.15 evaluates deterministic local/versioned compliance evidence and does not require a Play Console/App Store Connect account, credential, production signing material, physical device, live form submission or publication. Official-source baseline retrieved 2026-08-27 remains evidence, not architecture constants: Google Play new apps/updates require Android 16 / API 36 from 2026-08-31 with provider-documented exceptions by form factor and an extension path to 2026-11-01; Google User Data/permissions policy applies to app and integrated SDK behavior and includes future-effective policy changes; Apple App Store Connect uploads require Xcode 26+ / SDK 26+ since 2026-04-28; Apple required-reason API declarations must use approved reasons; App Privacy must include third-party partner practices and a privacy-policy URL; age rating is required and region-sensitive. Stale, unofficial-only, conflicting, future-effective, expired or account-only evidence must stay explicit and must never synthesize CURRENT/legal-certification claims."
+          plan = one(plan, r1315_manual + "\n\n# R13.16", r1315_manual + "\n\n" + start_record + "\n\n# R13.16", 'plan R13.15 start record')
+          plan_path.write_text(plan, encoding='utf-8')
+
+          cpath = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          c = cpath.read_text(encoding='utf-8')
+          old_prompt = "> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.14 COMPLETE + NORMALIZED. R13.15–R13.17 PLANNED / NOT STARTED.** R13.14 accepted technical candidate `ebb446daf6a6c38cff71b0834151ace74ff46099` passed exact-head R0 #1707 / `33094260088`, Python Core #1681 / `33094260123`, and UI #1648 / `33094260179`. Final end-synchronized head `42b500d3a4a19fad9370fb4b56fa528f5ed742eb` then passed fresh R0 Repository Guard #1711 / `33095039101`, Python Core #1685 / `33095038903`, and KodeStudio UI Smoke #1652 / `33095038908`, all SUCCESS on that exact SHA. PR #247 merged with `expected_head_sha=42b500d3a4a19fad9370fb4b56fa528f5ed742eb` as implementation merge `a7a6fc43823c53e78d31d71e20c110abbc35196d`. This branch `r13/14-normalize-continuity` is the single continuity-only normalization. Core remains deterministic/local, redacted before persistence/export, release/artifact-bound, bounded, and `continuous_hidden_telemetry=false`. Manual remained CONDITIONAL / NOT TRIGGERED. R13.15 may start only after this normalization exact head passes R0 + full Python Core + UI Smoke and the normalization PR merges with `expected_head_sha`."
+          new_prompt = "> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.14 COMPLETE + NORMALIZED. R13.15 IN_PROGRESS on dedicated branch `r13/15-store-compliance-engine`; R13.16–R13.17 PLANNED / NOT STARTED.** R13.14 normalization head `0c990e8d68c1940a092d589bd6b864299d064eeb` passed R0 #1713 / `33095670861`, Python Core #1687 / `33095670808`, and UI #1654 / `33095670718`, all SUCCESS; PR #248 merged as normalized `main` `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`. R13.15 branch starts exactly there. Frozen R13.15 core is deterministic/versioned current-store compliance evidence: dated/provider-scoped official rules, effective/expiry windows, conflicts/staleness, Google target API/Data safety/permissions/content rating, Apple SDK/privacy manifest/required-reason API/App Privacy/privacy-policy/age rating, third-party SDK declarations, localization/accessibility/assets and ResearchGuard provenance. Manual is NONE; account-only forms remain explicit `NEEDS_ACCOUNT_CONFIRMATION`."
+          c = one(c, old_prompt, new_prompt, 'continuity prompt')
+          c = one(
+              c,
+              "- R13.14 implementation merge: **`a7a6fc43823c53e78d31d71e20c110abbc35196d`** from final accepted head **`42b500d3a4a19fad9370fb4b56fa528f5ed742eb`** after PR #247. Single continuity-only normalization is **IN_PROGRESS** on `r13/14-normalize-continuity`. Manual **CONDITIONAL / NOT TRIGGERED**.\n- R13.15–R13.17: **PLANNED / NOT STARTED**.",
+              "- R13.14 normalized `main`: **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after implementation PR #247 and continuity-only normalization PR #248. Manual **CONDITIONAL / NOT TRIGGERED**.\n- R13.15: **IN_PROGRESS** on `r13/15-store-compliance-engine`, created exactly from normalized main `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`. Manual **NONE**.\n- R13.16–R13.17: **PLANNED / NOT STARTED**.",
+              'continuity global status',
+          )
+          c = one(
+              c,
+              "- Status: **COMPLETE / IMPLEMENTATION MERGED; SINGLE CONTINUITY-ONLY NORMALIZATION IN PROGRESS**. R13.15–R13.17 remain **PLANNED / NOT STARTED**.",
+              "- Status: **COMPLETE + NORMALIZED**. Final normalization head `0c990e8d68c1940a092d589bd6b864299d064eeb` passed R0 #1713 / `33095670861`, Python Core #1687 / `33095670808`, and KodeStudio UI Smoke #1654 / `33095670718`, all SUCCESS; PR #248 merged as normalized `main` `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`. R13.15 is now IN_PROGRESS; R13.16–R13.17 remain PLANNED / NOT STARTED.",
+              'continuity R13.14 normalized status',
+          )
+          next_old = "Freeze this single R13.14 continuity-only normalization head and verify its diff against implementation merge `a7a6fc43823c53e78d31d71e20c110abbc35196d` is exactly `docs/continuity/KODEPOIA_CONTINUITY.md`. Run fresh exact-head **R0 Repository Guard + full Python Core + KodeStudio UI Smoke**. If all three are SUCCESS, merge the normalization PR with `expected_head_sha`. Only the resulting normalized `main` authorizes R13.15 to start on its own dedicated branch with start plan+continuity synchronization. If any normalization gate fails, correct only continuity and rerun all three; manual remains CONDITIONAL / NOT TRIGGERED."
+          next_new = "Complete R13.15 on dedicated branch `r13/15-store-compliance-engine`: implement the frozen provider-rule schema/currentness/conflict engine, Google + Apple checks, third-party SDK inventory, store-asset/accessibility/localization checks, ResearchGuard provenance, required design/acceptance docs and focused adversarial tests. Manual is NONE for deterministic evaluation. Run exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke; after accepted technical evidence, perform end plan+continuity sync, fresh exact-head re-gates if bytes changed, merge with `expected_head_sha`, then exactly one continuity-only normalization before R13.16."
+          c = one(c, next_old, next_new, 'continuity next action')
+          authority = "## R13.15 start authority\n\n- Authorized normalized base: **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after R13.14 normalization PR #248.\n- Dedicated implementation branch: **`r13/15-store-compliance-engine`**, created exactly from that normalized main.\n- Status: **IN_PROGRESS** before implementation. R13.16–R13.17 remain **PLANNED / NOT STARTED**.\n- Frozen core: versioned provider rules with official-source provenance, retrieved/effective/expires windows, platform/region/category scope, severity/remediation, deterministic currentness and conflict handling; Google target API/Data safety/permissions/content rating; Apple SDK minimum/privacy manifest/required-reason APIs/App Privacy/privacy policy/age rating; third-party SDK declarations; localization/accessibility/store assets. Compliance output is advisory readiness evidence, never legal certification.\n- Official evidence baseline retrieved **2026-08-27**: Google Play API 36 deadline **2026-08-31** for ordinary new apps/updates, provider-specific form-factor exceptions and extension path to **2026-11-01**; future-effective sensitive-permission changes remain future until their own effective date. Apple production uploads require Xcode 26+/SDK 26+ since **2026-04-28**; required-reason APIs require approved reasons; App Privacy includes integrated third-party partner practices and a required privacy-policy URL; age rating is required and region-sensitive. Mutable facts remain rule data, not architecture constants.\n- Manual: **NONE**. Account-only forms may remain `NEEDS_ACCOUNT_CONFIRMATION`; no store account, token, credential, live upload/publication, production key or physical device is needed for core acceptance.\n\n"
+          c = one(c, "## Frozen R13 subdivision index", authority + "## Frozen R13 subdivision index", 'continuity R13.15 authority')
+          cpath.write_text(c, encoding='utf-8')
+      - name: Commit start sync
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R13_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --quiet && exit 0
+          git commit -m "R13.15 start-sync via CI"
+          git push origin HEAD:r13/15-store-compliance-engine

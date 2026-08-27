@@ -3,7 +3,7 @@
 **Subdivision:** R13.14  
 **Branch:** `r13/14-mobile-diagnostics`  
 **Authorized normalized base:** `69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`  
-**Status:** IN_PROGRESS / TECHNICAL CANDIDATE NOT YET ACCEPTED  
+**Status:** COMPLETE / END-SYNC IN PROGRESS  
 **Manual:** CONDITIONAL / NOT TRIGGERED
 
 ## Frozen acceptance claim
@@ -23,16 +23,16 @@ The acceptance claim does **not** require or imply:
 
 ## Required implementation artifacts
 
-The candidate must contain:
+The candidate contains:
 
 - `src/kodepoia/mobile/diagnostics.py`;
 - `schemas/mobile-diagnostics-v1.schema.json`;
 - `tests/test_mobile_r13_14_diagnostics.py`;
 - `docs/roadmap/R13_14_DESIGN.md`;
 - this acceptance document;
-- start-synchronized `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`.
+- synchronized `docs/roadmap/R13_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`.
 
-No dedicated external-tool workflow is required unless implementation introduces a new real device/account/tool seam. The current core implementation does not.
+No dedicated external-tool workflow is required unless implementation introduces a new real device/account/tool seam. The accepted core implementation does not.
 
 ## Focused acceptance matrix
 
@@ -79,28 +79,37 @@ A technical candidate is accepted only when all of the following refer to the **
 
 If repository policy also runs Android/Apple/R12 workflows, their failures must be investigated when they indicate a regression caused by this branch, but their success cannot replace the three required standard gates.
 
-Any byte change after these runs creates a new candidate and invalidates the previous exact-head qualification.
+Any byte change after these runs creates a new candidate and invalidates the previous exact-head qualification for merge.
 
 ## End synchronization and merge rule
 
-After an exact implementation candidate succeeds:
+The technical implementation candidate is accepted. End synchronization now marks R13.14 COMPLETE and keeps R13.15 PLANNED. Because these documentary bytes differ from the technical candidate, the final end-synchronized head must freshly pass R0 + full Python Core + UI Smoke before implementation PR #247 may merge with `expected_head_sha`.
 
-1. update `R13_PLAN.md` and continuity in the same work cycle to mark R13.14 COMPLETE and R13.15 PLANNED;
-2. record the exact accepted candidate SHA and exact gate run numbers/IDs;
-3. because the end-sync changes bytes, run fresh R0 + full Python Core + UI Smoke on the final end-synchronized head;
-4. merge the implementation PR only with `expected_head_sha=<final-end-sync-head>`;
-5. create exactly one continuity-only normalization branch from the implementation merge;
-6. change no plan/code/schema/test bytes during normalization;
-7. run fresh R0 + Python Core + UI Smoke on the normalization head;
-8. merge normalization with `expected_head_sha`;
-9. only then may R13.15 start from the resulting normalized main.
+After that merge:
+
+1. create exactly one continuity-only normalization branch from the implementation merge;
+2. change no plan/code/schema/test bytes during normalization;
+3. record final exact-head gate and implementation-merge authority in continuity;
+4. run fresh R0 + Python Core + UI Smoke on the normalization head;
+5. merge normalization with `expected_head_sha`;
+6. only then may R13.15 start from the resulting normalized main.
 
 ## Manual gate
 
 Current state: **CONDITIONAL / NOT TRIGGERED**.
 
-The frozen core acceptance is fully testable with repository-owned synthetic diagnostic material and exact digests. No physical-device-only diagnostic claim has been frozen. If such a requirement is discovered, R13.14 must stop before R13.15 and document exact bounded user actions/evidence without requesting credentials or private keys in chat.
+The frozen core acceptance is fully testable with repository-owned synthetic diagnostic material and exact digests. No physical-device-only diagnostic claim has been frozen. No Play/App Store/Firebase account, production credential, physical device or live telemetry source was required. If a later claim is changed to require device-only evidence unavailable to accepted CI, stop before R13.15 and document exact bounded user actions/evidence without requesting credentials or private keys in chat.
 
 ## Candidate record
 
-Pending. Do not populate a PASS/accepted SHA until the exact candidate has independently passed the required gates.
+Accepted technical candidate: **`ebb446daf6a6c38cff71b0834151ace74ff46099`**.
+
+Exact-head required gates:
+
+- R0 Repository Guard **#1707** / workflow run **`33094260088`** — SUCCESS on Ubuntu and Windows repository-bootstrap jobs;
+- Python Core **#1681** / workflow run **`33094260123`** — SUCCESS, including Ubuntu and Windows full tests, package builds and KodeStudio job; focused `tests/test_mobile_r13_14_diagnostics.py` passed inside the full test suite;
+- KodeStudio UI Smoke **#1648** / workflow run **`33094260179`** — SUCCESS.
+
+Supplementary automatically triggered regressions observed successful on the same candidate include R13 Apple Xcode #146, Apple SwiftUI Scaffold #117, Apple Signing Archive #92 and Google Play Readiness #163, plus multiple R12 acceptance workflows. These supplementary runs do not replace the required standard gates.
+
+The technical candidate is accepted for R13.14 semantics. It is **not** the implementation merge head because end-sync documentation now changes bytes; PR #247 must merge only after fresh required gates succeed on the final end-synchronized head.

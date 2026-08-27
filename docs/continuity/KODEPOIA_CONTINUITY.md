@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.14 COMPLETE + NORMALIZED. R13.15–R13.17 PLANNED / NOT STARTED.** R13.14 accepted technical candidate `ebb446daf6a6c38cff71b0834151ace74ff46099` passed exact-head R0 #1707 / `33094260088`, Python Core #1681 / `33094260123`, and UI #1648 / `33094260179`. Final end-synchronized head `42b500d3a4a19fad9370fb4b56fa528f5ed742eb` then passed fresh R0 Repository Guard #1711 / `33095039101`, Python Core #1685 / `33095038903`, and KodeStudio UI Smoke #1652 / `33095038908`, all SUCCESS on that exact SHA. PR #247 merged with `expected_head_sha=42b500d3a4a19fad9370fb4b56fa528f5ed742eb` as implementation merge `a7a6fc43823c53e78d31d71e20c110abbc35196d`. This branch `r13/14-normalize-continuity` is the single continuity-only normalization. Core remains deterministic/local, redacted before persistence/export, release/artifact-bound, bounded, and `continuous_hidden_telemetry=false`. Manual remained CONDITIONAL / NOT TRIGGERED. R13.15 may start only after this normalization exact head passes R0 + full Python Core + UI Smoke and the normalization PR merges with `expected_head_sha`.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.14 COMPLETE + NORMALIZED. R13.15 IN_PROGRESS on dedicated branch `r13/15-store-compliance-engine`; R13.16–R13.17 PLANNED / NOT STARTED.** R13.14 normalization head `0c990e8d68c1940a092d589bd6b864299d064eeb` passed R0 #1713 / `33095670861`, Python Core #1687 / `33095670808`, and UI #1654 / `33095670718`, all SUCCESS; PR #248 merged as normalized `main` `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`. R13.15 branch starts exactly there. Frozen R13.15 core is deterministic/versioned current-store compliance evidence: dated/provider-scoped official rules, effective/expiry windows, conflicts/staleness, Google target API/Data safety/permissions/content rating, Apple SDK/privacy manifest/required-reason API/App Privacy/privacy-policy/age rating, third-party SDK declarations, localization/accessibility/assets and ResearchGuard provenance. Manual is NONE; account-only forms remain explicit `NEEDS_ACCOUNT_CONFIRMATION`.
 
 ## État global
 
@@ -15,8 +15,9 @@
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.14: **COMPLETE + NORMALIZED**.
-- R13.14 implementation merge: **`a7a6fc43823c53e78d31d71e20c110abbc35196d`** from final accepted head **`42b500d3a4a19fad9370fb4b56fa528f5ed742eb`** after PR #247. Single continuity-only normalization is **IN_PROGRESS** on `r13/14-normalize-continuity`. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.15–R13.17: **PLANNED / NOT STARTED**.
+- R13.14 normalized `main`: **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after implementation PR #247 and continuity-only normalization PR #248. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.15: **IN_PROGRESS** on `r13/15-store-compliance-engine`, created exactly from normalized main `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`. Manual **NONE**.
+- R13.16–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -218,13 +219,22 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 
 - Authorized normalized base: **`69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`**.
 - Dedicated implementation branch: **`r13/14-mobile-diagnostics`**, created exactly from that normalized main.
-- Status: **COMPLETE / IMPLEMENTATION MERGED; SINGLE CONTINUITY-ONLY NORMALIZATION IN PROGRESS**. R13.15–R13.17 remain **PLANNED / NOT STARTED**.
+- Status: **COMPLETE + NORMALIZED**. Final normalization head `0c990e8d68c1940a092d589bd6b864299d064eeb` passed R0 #1713 / `33095670861`, Python Core #1687 / `33095670808`, and KodeStudio UI Smoke #1654 / `33095670718`, all SUCCESS; PR #248 merged as normalized `main` `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`. R13.15 is now IN_PROGRESS; R13.16–R13.17 remain PLANNED / NOT STARTED.
 - Frozen core claim: deterministic/local structured mobile-diagnostic ingestion and evidence only. Android logcat/crash/ANR/test/performance sources and Apple XCTest/result/log/crash/Jetsam/console-style sources stay platform/source explicit; no provider timeout, cluster threshold or report type is promoted to a universal architecture constant.
 - Diagnostic payloads are bounded and redacted before any persisted/exportable representation; source digests, device/toolchain/artifact and release correlation remain explicit; crash/ANR fingerprinting and dedup must be deterministic; corrupt/oversized inputs fail closed; cross-release substitution is rejected; no continuous hidden telemetry, background surveillance, secret collection or silent network uploader is introduced.
 - Accepted exact-head technical candidate **`ebb446daf6a6c38cff71b0834151ace74ff46099`** passed R0 Repository Guard #1707 / `33094260088`, Python Core #1681 / `33094260123`, and KodeStudio UI Smoke #1648 / `33094260179`, all SUCCESS. Python Core passed full Ubuntu/Windows tests and package builds including focused R13.14 diagnostics tests. Durable schema/model enforce source digest verification, strict bounded input, deterministic redaction, provider/platform/source separation, release/artifact/device/toolchain/test-run binding, deterministic fingerprinting, bounded performance snapshots and retention/export, and `continuous_hidden_telemetry=false`.
 - Final end-synchronized head **`42b500d3a4a19fad9370fb4b56fa528f5ed742eb`** changed no implementation semantics after the accepted technical candidate and passed fresh exact-head R0 Repository Guard #1711 / `33095039101`, Python Core #1685 / `33095038903`, and KodeStudio UI Smoke #1652 / `33095038908`, all SUCCESS. PR #247 merged with **`expected_head_sha=42b500d3a4a19fad9370fb4b56fa528f5ed742eb`** as implementation merge **`a7a6fc43823c53e78d31d71e20c110abbc35196d`**.
 - This branch **`r13/14-normalize-continuity`** was created exactly from implementation merge `a7a6fc43823c53e78d31d71e20c110abbc35196d` and is the single allowed continuity-only normalization. It changes no plan/code/schema/test bytes. No live external account/device/credential seam was introduced; manual remains **CONDITIONAL / NOT TRIGGERED**. R13.15 stays PLANNED until this normalization exact head passes fresh R0 + full Python Core + UI Smoke and its PR merges with `expected_head_sha`.
 - Manual starts **CONDITIONAL / NOT TRIGGERED**. A physical device, Play Console/Firebase account, Apple Developer/TestFlight/App Store Connect account, production signing material or user-machine Xcode/Android SDK is not a core prerequisite. If a frozen claim is discovered that truly requires device-only diagnostics unavailable to accepted hosted CI, stop before R13.15 and request only bounded user-controlled evidence, never credentials/secrets in chat.
+
+## R13.15 start authority
+
+- Authorized normalized base: **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after R13.14 normalization PR #248.
+- Dedicated implementation branch: **`r13/15-store-compliance-engine`**, created exactly from that normalized main.
+- Status: **IN_PROGRESS** before implementation. R13.16–R13.17 remain **PLANNED / NOT STARTED**.
+- Frozen core: versioned provider rules with official-source provenance, retrieved/effective/expires windows, platform/region/category scope, severity/remediation, deterministic currentness and conflict handling; Google target API/Data safety/permissions/content rating; Apple SDK minimum/privacy manifest/required-reason APIs/App Privacy/privacy policy/age rating; third-party SDK declarations; localization/accessibility/store assets. Compliance output is advisory readiness evidence, never legal certification.
+- Official evidence baseline retrieved **2026-08-27**: Google Play API 36 deadline **2026-08-31** for ordinary new apps/updates, provider-specific form-factor exceptions and extension path to **2026-11-01**; future-effective sensitive-permission changes remain future until their own effective date. Apple production uploads require Xcode 26+/SDK 26+ since **2026-04-28**; required-reason APIs require approved reasons; App Privacy includes integrated third-party partner practices and a required privacy-policy URL; age rating is required and region-sensitive. Mutable facts remain rule data, not architecture constants.
+- Manual: **NONE**. Account-only forms may remain `NEEDS_ACCOUNT_CONFIRMATION`; no store account, token, credential, live upload/publication, production key or physical device is needed for core acceptance.
 
 ## Frozen R13 subdivision index
 
@@ -266,4 +276,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Freeze this single R13.14 continuity-only normalization head and verify its diff against implementation merge `a7a6fc43823c53e78d31d71e20c110abbc35196d` is exactly `docs/continuity/KODEPOIA_CONTINUITY.md`. Run fresh exact-head **R0 Repository Guard + full Python Core + KodeStudio UI Smoke**. If all three are SUCCESS, merge the normalization PR with `expected_head_sha`. Only the resulting normalized `main` authorizes R13.15 to start on its own dedicated branch with start plan+continuity synchronization. If any normalization gate fails, correct only continuity and rerun all three; manual remains CONDITIONAL / NOT TRIGGERED.
+Complete R13.15 on dedicated branch `r13/15-store-compliance-engine`: implement the frozen provider-rule schema/currentness/conflict engine, Google + Apple checks, third-party SDK inventory, store-asset/accessibility/localization checks, ResearchGuard provenance, required design/acceptance docs and focused adversarial tests. Manual is NONE for deterministic evaluation. Run exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke; after accepted technical evidence, perform end plan+continuity sync, fresh exact-head re-gates if bytes changed, merge with `expected_head_sha`, then exactly one continuity-only normalization before R13.16.

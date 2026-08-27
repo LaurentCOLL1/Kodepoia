@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.12 COMPLETE + NORMALIZED. R13.13 COMPLETE / END-SYNCED on dedicated branch `r13/13-koderelease`; implementation merge + single continuity-only normalization PENDING. R13.14–R13.17 PLANNED / NOT STARTED.** Authorized normalized base is `bad4790bbc6a34c42bbc86d45db013722a25fdae`. R13.13 accepted technical candidate `3381caa21573f44c47d354f36b0e00c4d82e454e` passed exact-head R0 Repository Guard #1699 / `33075296657`, Python Core #1673 / `33075296667`, and KodeStudio UI Smoke #1640 / `33075296615`, all SUCCESS. Core is deterministic/local release authority only: strict version/build mapping, release train/channel/candidate identities, immutable artifact/evidence binding, promotion concurrency, provider-scoped rollout intent and local rollback points. Manual is NONE; no live Play/App Store publication, credential, production signing secret, external account or physical device is required. Because end-sync documentation changed bytes, PR #245 may merge only after fresh R0 + full Python Core + KodeStudio UI Smoke all succeed on the same final exact head, followed by exactly one continuity-only normalization and its own fresh R0 + Python + UI before R13.14 starts.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.12 COMPLETE + NORMALIZED. R13.13 COMPLETE / implementation merged; single continuity-only normalization IN_PROGRESS on branch `r13/13-normalize-continuity`. R13.14–R13.17 PLANNED / NOT STARTED.** Authorized normalized base before R13.13 is `bad4790bbc6a34c42bbc86d45db013722a25fdae`. R13.13 accepted technical candidate `3381caa21573f44c47d354f36b0e00c4d82e454e` passed exact-head R0 Repository Guard #1699 / `33075296657`, Python Core #1673 / `33075296667`, and KodeStudio UI Smoke #1640 / `33075296615`, all SUCCESS. Final end-synchronized head `8fd1b548129b73ceff5bc665001ce4a4bd59fa79` then passed fresh R0 Repository Guard #1703 / `33081597102`, Python Core #1677 / `33081597094`, and KodeStudio UI Smoke #1644 / `33081597217`, all SUCCESS on that exact SHA. PR #245 merged with `expected_head_sha=8fd1b548129b73ceff5bc665001ce4a4bd59fa79` as implementation merge `627c7e5b21c71ae33652493660c7933e81634929`. This branch `r13/13-normalize-continuity` is the single allowed continuity-only normalization from that merge. Manual remains NONE. R13.14 may not start until this normalization head passes R0 + Python Core + KodeStudio UI Smoke and the normalization PR merges with `expected_head_sha`.
 
 ## État global
 
@@ -16,7 +16,7 @@
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.12: **COMPLETE + NORMALIZED**.
 - R13.12 normalized `main`: **`bad4790bbc6a34c42bbc86d45db013722a25fdae`** after implementation PR #243 and normalization PR #244. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.13: **COMPLETE / END-SYNCED; MERGE + NORMALIZATION PENDING** on `r13/13-koderelease`. Accepted technical candidate **`3381caa21573f44c47d354f36b0e00c4d82e454e`**. Manual **NONE**.
+- R13.13: **COMPLETE / IMPLEMENTATION MERGED; NORMALIZATION IN PROGRESS**. Final accepted implementation head **`8fd1b548129b73ceff5bc665001ce4a4bd59fa79`**; implementation PR #245 merged as **`627c7e5b21c71ae33652493660c7933e81634929`**. Manual **NONE**.
 - R13.14–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -202,15 +202,17 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - The implementation remains provider-neutral and local/hosted-first. Firebase Test Lab is optional capability state only; no live external execution seam, Firebase/Google Cloud account, service-account credential, billing mutation, physical-provider allocation or cloud matrix was required. Manual remained **CONDITIONAL / NOT TRIGGERED**.
 - Therefore R13.12 is authoritatively **COMPLETE + NORMALIZED**.
 
-## R13.13 end-sync authority
+## R13.13 normalization authority
 
 - Authorized normalized base: **`bad4790bbc6a34c42bbc86d45db013722a25fdae`**.
 - Dedicated implementation branch: **`r13/13-koderelease`**, created exactly from that normalized main; implementation PR **#245**.
 - Accepted exact-head technical candidate **`3381caa21573f44c47d354f36b0e00c4d82e454e`** passed R0 Repository Guard #1699 / `33075296657`, Python Core #1673 / `33075296667`, and KodeStudio UI Smoke #1640 / `33075296615`, all SUCCESS on that exact SHA. Python Core passed the complete Ubuntu/Windows tests, package builds and included focused R13.13 tests.
+- Final end-synchronized head **`8fd1b548129b73ceff5bc665001ce4a4bd59fa79`** passed fresh R0 Repository Guard #1703 / `33081597102`, Python Core #1677 / `33081597094`, and KodeStudio UI Smoke #1644 / `33081597217`, all SUCCESS on that exact SHA.
+- PR #245 merged with **`expected_head_sha=8fd1b548129b73ceff5bc665001ce4a4bd59fa79`** as implementation merge **`627c7e5b21c71ae33652493660c7933e81634929`**.
 - Frozen implementation provides strict SemVer/product version mapping, Android `versionCode` and Apple build number validation, release train/channel/candidate identities, immutable artifact/provenance/evidence/changelog/SBOM/compliance bindings, optimistic promotion revisions, released-version seals, provider-scoped rollout intent/policy evidence and local rollback points.
 - Failed or stale promotions fail closed and leave prior authority unchanged. Rollback restores only a known immutable local release authority and does not claim remote store mutation or downgrade already-installed clients.
 - No network publication seam, store credential, external account, production signing secret, physical device or self-updater was introduced. Manual is **NONE**.
-- Status: **COMPLETE / END-SYNCED; IMPLEMENTATION MERGE + SINGLE NORMALIZATION PENDING**. The technical-candidate runs are historical implementation evidence only: because end-sync documentation changed bytes, the final branch head must freshly pass R0 Repository Guard + full Python Core + KodeStudio UI Smoke on one exact SHA before PR #245 may merge with `expected_head_sha`. R13.14 remains **PLANNED** until that merge and the one continuity-only normalization both complete.
+- This branch **`r13/13-normalize-continuity`** was created exactly from implementation merge `627c7e5b21c71ae33652493660c7933e81634929` and is the single allowed continuity-only normalization. It must change no plan/code/schema/test bytes. R13.14 remains **PLANNED** until this normalization exact head passes fresh R0 + full Python Core + KodeStudio UI Smoke and its PR merges with `expected_head_sha`.
 
 ## Frozen R13 subdivision index
 
@@ -252,4 +254,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Freeze the final R13.13 end-synchronized branch head. Run fresh exact-head **R0 Repository Guard + full Python Core + KodeStudio UI Smoke** on that same SHA. If all three are SUCCESS, merge implementation PR #245 with `expected_head_sha=<final-head>`. Then create exactly one branch from the implementation merge for **continuity-only normalization**, change no plan/code/schema/test bytes, verify the diff is exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, run fresh exact-head R0 + Python + UI, and merge that normalization PR with `expected_head_sha`. Only the resulting normalized `main` authorizes R13.14 to start on its own dedicated branch. If any gate fails, correct the affected R13.13 branch bytes and rerun all required exact-head gates; manual remains NONE unless a genuinely external prerequisite is newly discovered.
+Freeze this continuity-only normalization head. Run **R0 Repository Guard + full Python Core + KodeStudio UI Smoke** on that exact SHA. If all three are SUCCESS, merge the normalization PR with `expected_head_sha`. Only after that merge establishes normalized `main` is R13.13 authoritatively **COMPLETE + NORMALIZED** and R13.14 authorized to start on a dedicated branch from the normalized main. If any normalization gate fails, correct only the continuity normalization and rerun all three exact-head gates before merge; manual remains NONE.

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.12 COMPLETE + NORMALIZED. R13.13 COMPLETE / implementation merged; single continuity-only normalization IN_PROGRESS on branch `r13/13-normalize-continuity`. R13.14–R13.17 PLANNED / NOT STARTED.** Authorized normalized base before R13.13 is `bad4790bbc6a34c42bbc86d45db013722a25fdae`. R13.13 accepted technical candidate `3381caa21573f44c47d354f36b0e00c4d82e454e` passed exact-head R0 Repository Guard #1699 / `33075296657`, Python Core #1673 / `33075296667`, and KodeStudio UI Smoke #1640 / `33075296615`, all SUCCESS. Final end-synchronized head `8fd1b548129b73ceff5bc665001ce4a4bd59fa79` then passed fresh R0 Repository Guard #1703 / `33081597102`, Python Core #1677 / `33081597094`, and KodeStudio UI Smoke #1644 / `33081597217`, all SUCCESS on that exact SHA. PR #245 merged with `expected_head_sha=8fd1b548129b73ceff5bc665001ce4a4bd59fa79` as implementation merge `627c7e5b21c71ae33652493660c7933e81634929`. This branch `r13/13-normalize-continuity` is the single allowed continuity-only normalization from that merge. Manual remains NONE. R13.14 may not start until this normalization head passes R0 + Python Core + KodeStudio UI Smoke and the normalization PR merges with `expected_head_sha`.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.13 COMPLETE + NORMALIZED. R13.14 COMPLETE / END-SYNCED on dedicated branch `r13/14-mobile-diagnostics`; implementation merge + single continuity-only normalization PENDING. R13.15–R13.17 PLANNED / NOT STARTED.** Authorized normalized base for R13.14 is `69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`. Accepted technical candidate `ebb446daf6a6c38cff71b0834151ace74ff46099` passed exact-head R0 Repository Guard #1707 / `33094260088`, Python Core #1681 / `33094260123`, and KodeStudio UI Smoke #1648 / `33094260179`, all SUCCESS. Core is deterministic/local mobile diagnostic evidence only: source SHA verification, redaction before persistence/export, bounded Android/Apple source taxonomy, immutable release/artifact/device/toolchain/test-run binding, deterministic fingerprints, performance observations and bounded retention/export; `continuous_hidden_telemetry=false`. Manual remains CONDITIONAL / NOT TRIGGERED. Because end-sync documentation changed bytes, PR #247 may merge only after fresh R0 + full Python Core + UI Smoke succeed on the same final exact head, followed by exactly one continuity-only normalization before R13.15 starts.
 
 ## État global
 
@@ -14,10 +14,10 @@
 - R12 canonical integrated digest: `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 planning : **ACCEPTED + NORMALIZED**.
 - R13 phase status: **IN PROGRESS**.
-- R13.1–R13.12: **COMPLETE + NORMALIZED**.
-- R13.12 normalized `main`: **`bad4790bbc6a34c42bbc86d45db013722a25fdae`** after implementation PR #243 and normalization PR #244. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.13: **COMPLETE / IMPLEMENTATION MERGED; NORMALIZATION IN PROGRESS**. Final accepted implementation head **`8fd1b548129b73ceff5bc665001ce4a4bd59fa79`**; implementation PR #245 merged as **`627c7e5b21c71ae33652493660c7933e81634929`**. Manual **NONE**.
-- R13.14–R13.17: **PLANNED / NOT STARTED**.
+- R13.1–R13.13: **COMPLETE + NORMALIZED**.
+- R13.13 normalized `main`: **`69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`** after implementation PR #245 and normalization PR #246. Manual **NONE**.
+- R13.14: **COMPLETE / END-SYNCED; MERGE + NORMALIZATION PENDING** on `r13/14-mobile-diagnostics`. Accepted technical candidate **`ebb446daf6a6c38cff71b0834151ace74ff46099`**. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.15–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
 ## R12 final closure authority
@@ -67,6 +67,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Firebase Test Lab models a matrix as devices × test executions; device configurations include model, OS version, orientation and locale. Android can target physical or virtual Test Lab devices, while the current iOS Test Lab offering is physical-device based. Quotas/costs are project-scoped and remain explicit capability evidence.
 - External device providers are optional; credentials, billing/quota and physical-device availability are not global phase prerequisites.
 - Release-provider behavior is likewise versioned evidence: SemVer 2.0.0 forbids modifying the contents of an already released version; Google Play staged rollouts apply to updates and support percentage changes plus halt/resume, while an eligible previous fully rolled-out version may replace a halted 100% rollout; Apple phased release currently uses a seven-day provider-defined schedule and permits cumulative pauses up to 30 days. None of these mutable provider facts is a permanent architecture constant.
+- Diagnostic-provider behavior is also versioned evidence: Android ANR categories/timeouts are platform/OEM-sensitive rather than universal constants; Apple crash reports, Jetsam reports and console logs remain distinct source types, and privacy-sensitive data must not be introduced into app logs.
 
 ## R13.1 closure authority
 
@@ -202,17 +203,27 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - The implementation remains provider-neutral and local/hosted-first. Firebase Test Lab is optional capability state only; no live external execution seam, Firebase/Google Cloud account, service-account credential, billing mutation, physical-provider allocation or cloud matrix was required. Manual remained **CONDITIONAL / NOT TRIGGERED**.
 - Therefore R13.12 is authoritatively **COMPLETE + NORMALIZED**.
 
-## R13.13 normalization authority
+## R13.13 closure authority
 
 - Authorized normalized base: **`bad4790bbc6a34c42bbc86d45db013722a25fdae`**.
-- Dedicated implementation branch: **`r13/13-koderelease`**, created exactly from that normalized main; implementation PR **#245**.
-- Accepted exact-head technical candidate **`3381caa21573f44c47d354f36b0e00c4d82e454e`** passed R0 Repository Guard #1699 / `33075296657`, Python Core #1673 / `33075296667`, and KodeStudio UI Smoke #1640 / `33075296615`, all SUCCESS on that exact SHA. Python Core passed the complete Ubuntu/Windows tests, package builds and included focused R13.13 tests.
+- Dedicated implementation branch: **`r13/13-koderelease`**; implementation PR **#245**.
+- Accepted exact-head technical candidate **`3381caa21573f44c47d354f36b0e00c4d82e454e`** passed R0 Repository Guard #1699 / `33075296657`, Python Core #1673 / `33075296667`, and KodeStudio UI Smoke #1640 / `33075296615`, all SUCCESS.
 - Final end-synchronized head **`8fd1b548129b73ceff5bc665001ce4a4bd59fa79`** passed fresh R0 Repository Guard #1703 / `33081597102`, Python Core #1677 / `33081597094`, and KodeStudio UI Smoke #1644 / `33081597217`, all SUCCESS on that exact SHA.
 - PR #245 merged with **`expected_head_sha=8fd1b548129b73ceff5bc665001ce4a4bd59fa79`** as implementation merge **`627c7e5b21c71ae33652493660c7933e81634929`**.
-- Frozen implementation provides strict SemVer/product version mapping, Android `versionCode` and Apple build number validation, release train/channel/candidate identities, immutable artifact/provenance/evidence/changelog/SBOM/compliance bindings, optimistic promotion revisions, released-version seals, provider-scoped rollout intent/policy evidence and local rollback points.
-- Failed or stale promotions fail closed and leave prior authority unchanged. Rollback restores only a known immutable local release authority and does not claim remote store mutation or downgrade already-installed clients.
-- No network publication seam, store credential, external account, production signing secret, physical device or self-updater was introduced. Manual is **NONE**.
-- This branch **`r13/13-normalize-continuity`** was created exactly from implementation merge `627c7e5b21c71ae33652493660c7933e81634929` and is the single allowed continuity-only normalization. It must change no plan/code/schema/test bytes. R13.14 remains **PLANNED** until this normalization exact head passes fresh R0 + full Python Core + KodeStudio UI Smoke and its PR merges with `expected_head_sha`.
+- Single continuity-only normalization head **`5bfacd4d554f8245f7939c20691825c8cc9a25d2`** changed exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, passed R0 Repository Guard #1705 / `33089274530`, Python Core #1679 / `33089274603`, and KodeStudio UI Smoke #1646 / `33089274597`, all SUCCESS. Normalization PR #246 merged with **`expected_head_sha=5bfacd4d554f8245f7939c20691825c8cc9a25d2`** as normalized **`main` `69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`**.
+- Frozen implementation provides strict SemVer/product version mapping, Android `versionCode` and Apple build number validation, release train/channel/candidate identities, immutable artifact/provenance/evidence/changelog/SBOM/compliance bindings, optimistic promotion revisions, released-version seals, provider-scoped rollout intent/policy evidence and local rollback points. Failed/stale promotions fail closed; rollback restores only a known immutable local release authority and does not claim remote store mutation or installed-client downgrade.
+- No network publication seam, store credential, external account, production signing secret, physical device or self-updater was introduced. Manual remained **NONE**.
+- Therefore R13.13 is authoritatively **COMPLETE + NORMALIZED**.
+
+## R13.14 end-sync authority
+
+- Authorized normalized base: **`69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`**.
+- Dedicated implementation branch: **`r13/14-mobile-diagnostics`**, created exactly from that normalized main.
+- Status: **COMPLETE / END-SYNCED; IMPLEMENTATION MERGE + SINGLE NORMALIZATION PENDING**. R13.15–R13.17 remain **PLANNED / NOT STARTED**.
+- Frozen core claim: deterministic/local structured mobile-diagnostic ingestion and evidence only. Android logcat/crash/ANR/test/performance sources and Apple XCTest/result/log/crash/Jetsam/console-style sources stay platform/source explicit; no provider timeout, cluster threshold or report type is promoted to a universal architecture constant.
+- Diagnostic payloads are bounded and redacted before any persisted/exportable representation; source digests, device/toolchain/artifact and release correlation remain explicit; crash/ANR fingerprinting and dedup must be deterministic; corrupt/oversized inputs fail closed; cross-release substitution is rejected; no continuous hidden telemetry, background surveillance, secret collection or silent network uploader is introduced.
+- Accepted exact-head technical candidate **`ebb446daf6a6c38cff71b0834151ace74ff46099`** passed R0 Repository Guard #1707 / `33094260088`, Python Core #1681 / `33094260123`, and KodeStudio UI Smoke #1648 / `33094260179`, all SUCCESS. Python Core passed full Ubuntu/Windows tests and package builds including focused R13.14 diagnostics tests. Durable schema/model enforce source digest verification, strict bounded input, deterministic redaction, provider/platform/source separation, release/artifact/device/toolchain/test-run binding, deterministic fingerprinting, bounded performance snapshots and retention/export, and `continuous_hidden_telemetry=false`. No live external account/device/credential seam was introduced. Because end-sync documentation changes bytes, this final branch head must freshly pass R0 + full Python Core + UI Smoke before PR #247 may merge with `expected_head_sha`; then exactly one continuity-only normalization is required before R13.15.
+- Manual starts **CONDITIONAL / NOT TRIGGERED**. A physical device, Play Console/Firebase account, Apple Developer/TestFlight/App Store Connect account, production signing material or user-machine Xcode/Android SDK is not a core prerequisite. If a frozen claim is discovered that truly requires device-only diagnostics unavailable to accepted hosted CI, stop before R13.15 and request only bounded user-controlled evidence, never credentials/secrets in chat.
 
 ## Frozen R13 subdivision index
 
@@ -231,7 +242,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | COMPLETE | CONDITIONAL |
 | R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | COMPLETE | CONDITIONAL |
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | COMPLETE | NONE |
-| R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | PLANNED | CONDITIONAL |
+| R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | COMPLETE | CONDITIONAL |
 | R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | PLANNED | NONE |
 | R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | PLANNED | NONE |
 | R13.17 | Adversarial hardening + Android/iOS integrated release-readiness acceptance | PLANNED | CONDITIONAL |
@@ -254,4 +265,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Freeze this continuity-only normalization head. Run **R0 Repository Guard + full Python Core + KodeStudio UI Smoke** on that exact SHA. If all three are SUCCESS, merge the normalization PR with `expected_head_sha`. Only after that merge establishes normalized `main` is R13.13 authoritatively **COMPLETE + NORMALIZED** and R13.14 authorized to start on a dedicated branch from the normalized main. If any normalization gate fails, correct only the continuity normalization and rerun all three exact-head gates before merge; manual remains NONE.
+Freeze the final R13.14 end-synchronized branch head. Run fresh exact-head **R0 Repository Guard + full Python Core + KodeStudio UI Smoke** on that same SHA. If all three are SUCCESS, merge implementation PR #247 with `expected_head_sha=<final-head>`. Then create exactly one branch from the implementation merge for **continuity-only normalization**, change no plan/code/schema/test bytes, verify the diff is exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, run fresh exact-head R0 + Python + UI, and merge that normalization PR with `expected_head_sha`. Only the resulting normalized `main` authorizes R13.15 to start. If any gate fails, correct the affected R13.14 bytes and rerun all required exact-head gates; manual remains CONDITIONAL / NOT TRIGGERED unless a genuinely device-only prerequisite is newly discovered.

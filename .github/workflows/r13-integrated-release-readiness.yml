@@ -85,7 +85,7 @@ jobs:
         env:
           R13_OUTPUT: ${{ runner.temp }}/R13_17_ANDROID_INTEGRATED.json
         run: >-
-          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(os.environ['R13_OUTPUT']).read_text()); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['status']=='pass'; assert p['target_sdk']==36; assert {a['kind'] for a in p['artifacts']}=={'apk','aab'}"
+          python -c "import json,os,pathlib; p=json.loads(pathlib.Path(os.environ['R13_OUTPUT']).read_text()); assert p['source_sha']==os.environ['KODEPOIA_SOURCE_SHA']; assert p['status']=='pass'; assert p['request']['target_sdk']==36; assert {a['kind'] for a in p['artifacts']}=={'apk','aab'}; assert p['blockers']==[]"
 
       - name: Upload Android integrated evidence
         uses: actions/upload-artifact@v4

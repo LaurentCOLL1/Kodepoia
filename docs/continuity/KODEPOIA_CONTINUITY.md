@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.14 COMPLETE + NORMALIZED. R13.15 COMPLETE / END-SYNCED on dedicated branch `r13/15-store-compliance-engine`; implementation merge + single continuity-only normalization PENDING. R13.16–R13.17 PLANNED / NOT STARTED.** Authorized normalized base is `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`. Accepted technical candidate `dc9e04b1d0170b889ae02231a68304e7b7a11c60` passed exact-head R0 #1715 / `33097922318`, Python Core #1689 / `33097922338`, and UI #1656 / `33097922322`, all SUCCESS. Core is deterministic/versioned store-readiness evidence with source provenance/dates/scopes, current/future/expired/stale/unofficial truthfulness, conflicts, Google/Apple facts, SDK inventory, account-only confirmations and no legal/live-account claim. Manual remains NONE. Because end-sync documentation changed bytes, PR #249 may merge only after fresh R0 + full Python Core + UI Smoke pass on the same final exact head, followed by exactly one continuity-only normalization before R13.16.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.14 COMPLETE + NORMALIZED. R13.15 COMPLETE / IMPLEMENTATION MERGED; single continuity-only normalization IN_PROGRESS on `r13/15-normalize-continuity`. R13.16–R13.17 PLANNED / NOT STARTED.** Final R13.15 end-synchronized head `a6109e2d6f1a093bc709eb8385d8f0ce8dac0341` passed exact-head R0 #1718 / `33098494117`, Python Core #1692 / `33098494367`, and UI #1659 / `33098494215`, all SUCCESS; implementation PR #249 merged with `expected_head_sha=a6109e2d6f1a093bc709eb8385d8f0ce8dac0341` as `a92f5b1e31f09f37320e0759f7633569b9125487`. This branch is the single allowed continuity-only normalization and must change exactly `docs/continuity/KODEPOIA_CONTINUITY.md`; only after this normalization head passes fresh R0 + full Python Core + UI Smoke and its PR merges with `expected_head_sha` may R13.16 start. Manual remains NONE.
 
 ## État global
 
@@ -16,7 +16,7 @@
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.14: **COMPLETE + NORMALIZED**.
 - R13.14 normalized `main`: **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after implementation PR #247 and continuity-only normalization PR #248. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.15: **COMPLETE / END-SYNCED; MERGE + NORMALIZATION PENDING** on `r13/15-store-compliance-engine`. Accepted technical candidate **`dc9e04b1d0170b889ae02231a68304e7b7a11c60`**. Manual **NONE**.
+- R13.15: **COMPLETE / IMPLEMENTATION MERGED; SINGLE CONTINUITY-ONLY NORMALIZATION IN PROGRESS**. Final accepted end-synchronized head **`a6109e2d6f1a093bc709eb8385d8f0ce8dac0341`**; implementation merge **`a92f5b1e31f09f37320e0759f7633569b9125487`** from PR #249. Manual **NONE**.
 - R13.16–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -227,15 +227,15 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - This branch **`r13/14-normalize-continuity`** was created exactly from implementation merge `a7a6fc43823c53e78d31d71e20c110abbc35196d` and is the single allowed continuity-only normalization. It changes no plan/code/schema/test bytes. No live external account/device/credential seam was introduced; manual remains **CONDITIONAL / NOT TRIGGERED**. R13.15 stays PLANNED until this normalization exact head passes fresh R0 + full Python Core + UI Smoke and its PR merges with `expected_head_sha`.
 - Manual starts **CONDITIONAL / NOT TRIGGERED**. A physical device, Play Console/Firebase account, Apple Developer/TestFlight/App Store Connect account, production signing material or user-machine Xcode/Android SDK is not a core prerequisite. If a frozen claim is discovered that truly requires device-only diagnostics unavailable to accepted hosted CI, stop before R13.15 and request only bounded user-controlled evidence, never credentials/secrets in chat.
 
-## R13.15 end-sync authority
+## R13.15 normalization authority
 
 - Authorized normalized base: **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after R13.14 normalization PR #248.
 - Dedicated implementation branch: **`r13/15-store-compliance-engine`**, created exactly from that normalized main.
-- Status: **COMPLETE / END-SYNCED; IMPLEMENTATION MERGE + SINGLE NORMALIZATION PENDING**. R13.16–R13.17 remain **PLANNED / NOT STARTED**.
+- Status: **COMPLETE / IMPLEMENTATION MERGED; SINGLE CONTINUITY-ONLY NORMALIZATION IN PROGRESS**. R13.16–R13.17 remain **PLANNED / NOT STARTED**.
 - Frozen core: versioned provider rules with official-source provenance, retrieved/effective/expires windows, platform/region/category scope, severity/remediation, deterministic currentness and conflict handling; Google target API/Data safety/permissions/content rating; Apple SDK minimum/privacy manifest/required-reason APIs/App Privacy/privacy policy/age rating; third-party SDK declarations; localization/accessibility/store assets. Compliance output is advisory readiness evidence, never legal certification.
 - Official evidence baseline retrieved **2026-08-27**: Google Play API 36 deadline **2026-08-31** for ordinary new apps/updates, provider-specific form-factor exceptions and extension path to **2026-11-01**; future-effective sensitive-permission changes remain future until their own effective date. Apple production uploads require Xcode 26+/SDK 26+ since **2026-04-28**; required-reason APIs require approved reasons; App Privacy includes integrated third-party partner practices and a required privacy-policy URL; age rating is required and region-sensitive. Mutable facts remain rule data, not architecture constants.
 - Manual: **NONE**. Account-only forms may remain `NEEDS_ACCOUNT_CONFIRMATION`; no store account, token, credential, live upload/publication, production key or physical device is needed for core acceptance.
-- Accepted exact-head technical candidate **`dc9e04b1d0170b889ae02231a68304e7b7a11c60`** passed R0 Repository Guard #1715 / `33097922318`, Python Core #1689 / `33097922338`, and KodeStudio UI Smoke #1656 / `33097922322`, all SUCCESS. Full Python Core passed Ubuntu/Windows tests, both package builds and internal UI smoke. Google Play Readiness #179 / `33097922247` and Apple Xcode Acceptance #162 / `33097922206` also passed as directly relevant regressions. Durable `store-compliance-v1` output embeds applicable source evidence and enforces currentness/conflict/account boundaries, SDK accounting, deterministic digests, `legal_certification=false` and `live_account_query_attempted=false`. Because end-sync documentation changes bytes, fresh R0 + full Python Core + UI Smoke must pass on the final head before PR #249 may merge with `expected_head_sha`; then exactly one continuity-only normalization is required before R13.16.
+- Accepted technical candidate **`dc9e04b1d0170b889ae02231a68304e7b7a11c60`** first passed R0 #1715 / `33097922318`, Python Core #1689 / `33097922338`, and UI #1656 / `33097922322`. Final end-synchronized head **`a6109e2d6f1a093bc709eb8385d8f0ce8dac0341`** then passed fresh exact-head R0 #1718 / `33098494117`, Python Core #1692 / `33098494367`, and KodeStudio UI Smoke #1659 / `33098494215`, all SUCCESS; Google Play Readiness #184 / `33098494495` and Apple Xcode Acceptance #167 / `33098494315` also passed as directly relevant regressions. PR #249 merged with **`expected_head_sha=a6109e2d6f1a093bc709eb8385d8f0ce8dac0341`** as implementation merge **`a92f5b1e31f09f37320e0759f7633569b9125487`**. This branch **`r13/15-normalize-continuity`** was created exactly from that merge and is the single allowed continuity-only normalization. Durable `store-compliance-v1` semantics remain unchanged: provider-scoped dated evidence, explicit current/future/expired/stale/unofficial states, fail-closed conflicts, SDK accounting, account-only confirmations, deterministic digests, `legal_certification=false`, and `live_account_query_attempted=false`.
 
 ## Frozen R13 subdivision index
 
@@ -255,7 +255,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | COMPLETE | CONDITIONAL |
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | COMPLETE | NONE |
 | R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | COMPLETE | CONDITIONAL |
-| R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | PLANNED | NONE |
+| R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | COMPLETE | NONE |
 | R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | PLANNED | NONE |
 | R13.17 | Adversarial hardening + Android/iOS integrated release-readiness acceptance | PLANNED | CONDITIONAL |
 
@@ -277,4 +277,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Freeze the final R13.15 end-synchronized branch head. Run fresh exact-head **R0 Repository Guard + full Python Core + KodeStudio UI Smoke** on that same SHA. If all three are SUCCESS, merge implementation PR #249 with `expected_head_sha=<final-head>`. Then create exactly one branch from the implementation merge for continuity-only normalization, verify the diff is exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, run fresh exact-head R0 + Python + UI, and merge that normalization PR with `expected_head_sha`. Only the resulting normalized `main` authorizes R13.16. Manual remains NONE.
+Freeze this single R13.15 continuity-only normalization head and verify its diff against implementation merge `a92f5b1e31f09f37320e0759f7633569b9125487` is exactly `docs/continuity/KODEPOIA_CONTINUITY.md`. Run fresh exact-head **R0 Repository Guard + full Python Core + KodeStudio UI Smoke**. If all three are SUCCESS, merge the normalization PR with `expected_head_sha`. Only the resulting normalized `main` authorizes R13.16 to start on its own dedicated branch with start plan+continuity synchronization. If any normalization gate fails, correct only continuity and rerun all three; manual remains NONE.

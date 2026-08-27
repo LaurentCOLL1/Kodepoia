@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.13 COMPLETE + NORMALIZED. R13.14 IN_PROGRESS on dedicated branch `r13/14-mobile-diagnostics`; R13.15–R13.17 PLANNED / NOT STARTED.** R13.13 final end-synchronized head `8fd1b548129b73ceff5bc665001ce4a4bd59fa79` passed R0 Repository Guard #1703 / `33081597102`, Python Core #1677 / `33081597094`, and KodeStudio UI Smoke #1644 / `33081597217`, all SUCCESS; PR #245 merged as `627c7e5b21c71ae33652493660c7933e81634929`. Its single continuity-only normalization head `5bfacd4d554f8245f7939c20691825c8cc9a25d2` changed only this file, passed R0 #1705 / `33089274530`, Python Core #1679 / `33089274603`, and UI #1646 / `33089274597`, then PR #246 merged as normalized `main` `69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`. R13.14 starts exactly from that normalized main. Frozen core scope: structured Android logcat/crash/ANR/test/performance diagnostics and Apple XCTest/result/log/crash/Jetsam-style diagnostic ingestion through a common provider/platform-explicit envelope; deterministic fingerprint/dedup; device/toolchain/artifact/release binding; redaction before persistence/export; bounded retention/size; performance snapshots; no hidden continuous telemetry. Manual is CONDITIONAL / NOT TRIGGERED and becomes required only if a frozen claim truly depends on device-only diagnostics unavailable to accepted CI.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.13 COMPLETE + NORMALIZED. R13.14 COMPLETE / END-SYNCED on dedicated branch `r13/14-mobile-diagnostics`; implementation merge + single continuity-only normalization PENDING. R13.15–R13.17 PLANNED / NOT STARTED.** Authorized normalized base for R13.14 is `69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`. Accepted technical candidate `ebb446daf6a6c38cff71b0834151ace74ff46099` passed exact-head R0 Repository Guard #1707 / `33094260088`, Python Core #1681 / `33094260123`, and KodeStudio UI Smoke #1648 / `33094260179`, all SUCCESS. Core is deterministic/local mobile diagnostic evidence only: source SHA verification, redaction before persistence/export, bounded Android/Apple source taxonomy, immutable release/artifact/device/toolchain/test-run binding, deterministic fingerprints, performance observations and bounded retention/export; `continuous_hidden_telemetry=false`. Manual remains CONDITIONAL / NOT TRIGGERED. Because end-sync documentation changed bytes, PR #247 may merge only after fresh R0 + full Python Core + UI Smoke succeed on the same final exact head, followed by exactly one continuity-only normalization before R13.15 starts.
 
 ## État global
 
@@ -16,7 +16,7 @@
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.13: **COMPLETE + NORMALIZED**.
 - R13.13 normalized `main`: **`69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`** after implementation PR #245 and normalization PR #246. Manual **NONE**.
-- R13.14: **IN_PROGRESS** on `r13/14-mobile-diagnostics`, created exactly from normalized `main` **`69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`**. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.14: **COMPLETE / END-SYNCED; MERGE + NORMALIZATION PENDING** on `r13/14-mobile-diagnostics`. Accepted technical candidate **`ebb446daf6a6c38cff71b0834151ace74ff46099`**. Manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.15–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -215,13 +215,14 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - No network publication seam, store credential, external account, production signing secret, physical device or self-updater was introduced. Manual remained **NONE**.
 - Therefore R13.13 is authoritatively **COMPLETE + NORMALIZED**.
 
-## R13.14 start authority
+## R13.14 end-sync authority
 
 - Authorized normalized base: **`69efa1f5cf92ae3c3ce4040fe5abe54faae2ed8b`**.
 - Dedicated implementation branch: **`r13/14-mobile-diagnostics`**, created exactly from that normalized main.
-- Status: **IN_PROGRESS** before implementation. R13.15–R13.17 remain **PLANNED / NOT STARTED**.
+- Status: **COMPLETE / END-SYNCED; IMPLEMENTATION MERGE + SINGLE NORMALIZATION PENDING**. R13.15–R13.17 remain **PLANNED / NOT STARTED**.
 - Frozen core claim: deterministic/local structured mobile-diagnostic ingestion and evidence only. Android logcat/crash/ANR/test/performance sources and Apple XCTest/result/log/crash/Jetsam/console-style sources stay platform/source explicit; no provider timeout, cluster threshold or report type is promoted to a universal architecture constant.
 - Diagnostic payloads are bounded and redacted before any persisted/exportable representation; source digests, device/toolchain/artifact and release correlation remain explicit; crash/ANR fingerprinting and dedup must be deterministic; corrupt/oversized inputs fail closed; cross-release substitution is rejected; no continuous hidden telemetry, background surveillance, secret collection or silent network uploader is introduced.
+- Accepted exact-head technical candidate **`ebb446daf6a6c38cff71b0834151ace74ff46099`** passed R0 Repository Guard #1707 / `33094260088`, Python Core #1681 / `33094260123`, and KodeStudio UI Smoke #1648 / `33094260179`, all SUCCESS. Python Core passed full Ubuntu/Windows tests and package builds including focused R13.14 diagnostics tests. Durable schema/model enforce source digest verification, strict bounded input, deterministic redaction, provider/platform/source separation, release/artifact/device/toolchain/test-run binding, deterministic fingerprinting, bounded performance snapshots and retention/export, and `continuous_hidden_telemetry=false`. No live external account/device/credential seam was introduced. Because end-sync documentation changes bytes, this final branch head must freshly pass R0 + full Python Core + UI Smoke before PR #247 may merge with `expected_head_sha`; then exactly one continuity-only normalization is required before R13.15.
 - Manual starts **CONDITIONAL / NOT TRIGGERED**. A physical device, Play Console/Firebase account, Apple Developer/TestFlight/App Store Connect account, production signing material or user-machine Xcode/Android SDK is not a core prerequisite. If a frozen claim is discovered that truly requires device-only diagnostics unavailable to accepted hosted CI, stop before R13.15 and request only bounded user-controlled evidence, never credentials/secrets in chat.
 
 ## Frozen R13 subdivision index
@@ -241,7 +242,7 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 | R13.11 | iOS Simulator/XCTest, device/TestFlight evidence adapter | COMPLETE | CONDITIONAL |
 | R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | COMPLETE | CONDITIONAL |
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | COMPLETE | NONE |
-| R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | IN_PROGRESS | CONDITIONAL |
+| R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | COMPLETE | CONDITIONAL |
 | R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | PLANNED | NONE |
 | R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | PLANNED | NONE |
 | R13.17 | Adversarial hardening + Android/iOS integrated release-readiness acceptance | PLANNED | CONDITIONAL |
@@ -264,4 +265,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Complete the matching R13.14 **start synchronization in `docs/roadmap/R13_PLAN.md` before implementation**. Then implement the frozen R13.14 core on this dedicated branch with required `R13_14_DESIGN.md`, `R13_14_ACCEPTANCE.md`, a durable diagnostics schema, focused tests, deterministic redaction/fingerprint/binding/retention logic, and no new live external seam unless the frozen claim genuinely requires one. Run exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke (plus any existing affected platform workflow required by the final diff). If device-only evidence becomes required, stop and mark MANUAL_REQUIRED before R13.15; otherwise keep manual CONDITIONAL / NOT TRIGGERED.
+Freeze the final R13.14 end-synchronized branch head. Run fresh exact-head **R0 Repository Guard + full Python Core + KodeStudio UI Smoke** on that same SHA. If all three are SUCCESS, merge implementation PR #247 with `expected_head_sha=<final-head>`. Then create exactly one branch from the implementation merge for **continuity-only normalization**, change no plan/code/schema/test bytes, verify the diff is exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, run fresh exact-head R0 + Python + UI, and merge that normalization PR with `expected_head_sha`. Only the resulting normalized `main` authorizes R13.15 to start. If any gate fails, correct the affected R13.14 bytes and rerun all required exact-head gates; manual remains CONDITIONAL / NOT TRIGGERED unless a genuinely device-only prerequisite is newly discovered.

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.11 COMPLETE + NORMALIZED. R13.12 COMPLETE / END-SYNCED, implementation merge + single continuity-only normalization pending. R13.13–R13.17 PLANNED / NOT STARTED.** R13.12 accepted technical candidate `250c179590bc2b63b625b806cb5b1f1d618bd640` passed R0 Repository Guard #1692 / `33016321788`, Python Core #1666 / `33016321879`, KodeStudio UI Smoke #1633 / `33016321824`, R13 Android Device Acceptance #130 / `33016321843`, and R13 Apple XCTest Acceptance #22 / `33016321680`, all SUCCESS on that exact head. Acceptance was recorded in commit `b936e01c5ffdcab4fd964ed3b082cdf7b0bb6570`; the phase plan was end-synchronized in `ff933a2faa0ed46eff9b3b40cbb8d655c61ea1e6`. This continuity update completes the same end-sync work cycle and therefore creates the final documentary head that must freshly pass those same five required gates before PR #243 may merge. Core R13.12 is provider-neutral, reuses accepted Android emulator/ADB and iOS Simulator/XCTest seams, never upgrades virtual evidence into physical-device proof, and keeps Firebase Test Lab optional/account/quota/budget capability-gated. Manual is CONDITIONAL / NOT TRIGGERED.
+> Kodepoia, architecture v1.0 gelée. **R1–R12 COMPLETE + NORMALIZED. R13 planning ACCEPTED + NORMALIZED. R13.1–R13.11 COMPLETE + NORMALIZED. R13.12 COMPLETE / implementation merged; single continuity-only normalization IN_PROGRESS. R13.13–R13.17 PLANNED / NOT STARTED.** R13.12 accepted technical candidate `250c179590bc2b63b625b806cb5b1f1d618bd640` passed R0 Repository Guard #1692 / `33016321788`, Python Core #1666 / `33016321879`, KodeStudio UI Smoke #1633 / `33016321824`, R13 Android Device Acceptance #130 / `33016321843`, and R13 Apple XCTest Acceptance #22 / `33016321680`, all SUCCESS. Final end-synchronized head `bda11ed6d4f0fa68f79b669d00ed13e7197cd389` then passed fresh R0 #1695 / `33035203327`, Python Core #1669 / `33035203377`, KodeStudio UI Smoke #1636 / `33035203316`, R13 Android Device Acceptance #136 / `33035203355`, and R13 Apple XCTest Acceptance #28 / `33035203317`, all SUCCESS on that exact head. PR #243 merged with `expected_head_sha=bda11ed6d4f0fa68f79b669d00ed13e7197cd389` as implementation merge `fff7283194eaba74281e6e66963b4369cf1cb4cc`. This branch `r13/12-devicelab-normalization` is the single allowed continuity-only normalization from that merge. Manual remains CONDITIONAL / NOT TRIGGERED. R13.13 may not start until this normalization head passes R0 + Python Core + KodeStudio UI Smoke and the normalization PR merges with `expected_head_sha`.
 
 ## État global
 
@@ -16,7 +16,7 @@
 - R13 phase status: **IN PROGRESS**.
 - R13.1–R13.11: **COMPLETE + NORMALIZED**.
 - R13.11 normalized `main`: **`fb05135c4a5e1b7177dd4c68e6f05f61a489594e`** after implementation PR #241 and normalization PR #242. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R13.12: **COMPLETE / END-SYNCED, MERGE + NORMALIZATION PENDING** on `r13/12-devicelab-matrices`, created exactly from normalized `main` `fb05135c4a5e1b7177dd4c68e6f05f61a489594e`. Accepted technical candidate **`250c179590bc2b63b625b806cb5b1f1d618bd640`**; manual **CONDITIONAL / NOT TRIGGERED**.
+- R13.12: **COMPLETE / IMPLEMENTATION MERGED; NORMALIZATION IN PROGRESS**. Final accepted implementation head **`bda11ed6d4f0fa68f79b669d00ed13e7197cd389`**; implementation PR #243 merged as **`fff7283194eaba74281e6e66963b4369cf1cb4cc`**. Manual **CONDITIONAL / NOT TRIGGERED**.
 - R13.13–R13.17: **PLANNED / NOT STARTED**.
 - R14 planning: **FORBIDDEN until R13 COMPLETE + NORMALIZED**.
 
@@ -189,18 +189,17 @@ R13 is exactly **Mobile / Platform / Release**: Android export/signing/AAB/APK/d
 - Manual remained **CONDITIONAL / NOT TRIGGERED**. No Apple Developer membership, signing identity/private key, provisioning profile, App Store Connect credential/token, physical Apple device, live upload, beta group or tester enrollment was required.
 - Therefore R13.11 is authoritatively **COMPLETE + NORMALIZED**.
 
-## R13.12 end-sync authority
+## R13.12 normalization authority
 
-- Authorized normalized base: **`fb05135c4a5e1b7177dd4c68e6f05f61a489594e`**.
-- Dedicated implementation branch: **`r13/12-devicelab-matrices`**, created exactly from that normalized main; implementation PR **#243**.
-- Accepted technical candidate: **`250c179590bc2b63b625b806cb5b1f1d618bd640`**.
-- Required technical-candidate gates: R0 Repository Guard #1692 / `33016321788`, Python Core #1666 / `33016321879`, KodeStudio UI Smoke #1633 / `33016321824`, R13 Android Device Acceptance #130 / `33016321843`, and R13 Apple XCTest Acceptance #22 / `33016321680` — all **SUCCESS** on exactly `250c179...`.
-- The accepted implementation introduces provider-neutral matrix/route/result/lease/evidence contracts, durable JSON Schema, deterministic local-first routing, explicit physical-vs-virtual partitioning, artifact/matrix anti-replay, bounded quota/cost/retry/lease state and an optional Firebase Test Lab capability model without a live network execution seam.
-- Accepted real runtime seams remain the existing R13.6/R13.11 authorities: Android Device #130 completed API 36 SDK/image provisioning, KVM, app+instrumentation APK build, bounded emulator launch, governed ADB instrumentation, exact-head evidence upload and cleanup; Apple XCTest #22 completed the hosted `macos-26` real simulator XCTest, exact-head simulator-only evidence verification and upload.
-- Firebase/provider external facts remain versioned capability evidence: matrix = devices × executions; model/OS/orientation/locale identity; Android physical/virtual support; iOS Test Lab physical-device offering; project-scoped quota/cost state. No account/config text may manufacture AVAILABLE or PASS.
-- `docs/roadmap/R13_12_ACCEPTANCE.md` recorded technical acceptance in commit **`b936e01c5ffdcab4fd964ed3b082cdf7b0bb6570`**. `docs/roadmap/R13_PLAN.md` was end-synchronized in **`ff933a2faa0ed46eff9b3b40cbb8d655c61ea1e6`**. This continuity change completes the end-sync work cycle and therefore creates the **final end-synchronized candidate head**; all five required gates above must be rerun on that exact resulting head before merge.
-- Manual state: **CONDITIONAL / NOT TRIGGERED**. Hosted virtual/simulator evidence establishes every frozen core R13.12 claim; no Firebase/Google Cloud account, service-account JSON/token, billing mutation, physical-provider allocation or live cloud matrix is required.
-- Status: **COMPLETE / END-SYNCED, IMPLEMENTATION MERGE + NORMALIZATION PENDING**. R13.13 remains **PLANNED** and may not start until PR #243 merges and exactly one continuity-only normalization passes and merges.
+- Authorized normalized base before R13.12: **`fb05135c4a5e1b7177dd4c68e6f05f61a489594e`**.
+- Dedicated implementation branch: **`r13/12-devicelab-matrices`**; implementation PR **#243**.
+- Accepted technical candidate **`250c179590bc2b63b625b806cb5b1f1d618bd640`** passed R0 Repository Guard #1692 / `33016321788`, Python Core #1666 / `33016321879`, KodeStudio UI Smoke #1633 / `33016321824`, R13 Android Device Acceptance #130 / `33016321843`, and R13 Apple XCTest Acceptance #22 / `33016321680`, all SUCCESS on exact head.
+- Final end-synchronized candidate **`bda11ed6d4f0fa68f79b669d00ed13e7197cd389`** passed fresh R0 Repository Guard #1695 / `33035203327`, Python Core #1669 / `33035203377`, KodeStudio UI Smoke #1636 / `33035203316`, R13 Android Device Acceptance #136 / `33035203355`, and R13 Apple XCTest Acceptance #28 / `33035203317`, all SUCCESS on that exact head.
+- Android Device #136 completed the full hosted API 36 path: accepted SDK/image installation, KVM verification, governed staging + instrumentation overlay, app/instrumentation APK build, bounded headless emulator launch, ADB instrumentation/evidence collection, exact-head verification, evidence upload and owned cleanup. Apple XCTest #28 completed focused tests, the canonical hosted `macos-26` real simulator XCTest, exact-head simulator-only evidence verification and upload.
+- PR #243 merged with **`expected_head_sha=bda11ed6d4f0fa68f79b669d00ed13e7197cd389`** as implementation merge **`fff7283194eaba74281e6e66963b4369cf1cb4cc`**.
+- The implementation remains provider-neutral and local/hosted-first. Firebase Test Lab is optional capability state only; no live external execution seam, Firebase/Google Cloud account, service-account credential, billing mutation, physical-provider allocation or cloud matrix was required. Manual remained **CONDITIONAL / NOT TRIGGERED**.
+- This branch **`r13/12-devicelab-normalization`** is the single permitted post-merge normalization and changes only this continuity file. Its exact head must pass R0 Repository Guard + Python Core + KodeStudio UI Smoke before normalization merge.
+- Status: **R13.12 COMPLETE / NORMALIZATION IN PROGRESS**. R13.13 remains **PLANNED** until the normalization PR merges with `expected_head_sha`.
 
 ## Frozen R13 subdivision index
 
@@ -242,4 +241,4 @@ If a CONDITIONAL manual gate triggers, stop before the next subdivision and prov
 
 ## Next authorized action
 
-Freeze the exact head produced by this continuity end-sync. Run **R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R13 Android Device Acceptance + R13 Apple XCTest Acceptance** on that exact SHA. If all five are SUCCESS, merge PR #243 with `expected_head_sha`; then create exactly one continuity-only normalization branch from the implementation merge, record the authoritative R13.12 final-gate/merge facts, run fresh exact-head R0 + Python Core + KodeStudio UI Smoke, and merge the normalization with `expected_head_sha`. Only after normalized `main` is established may R13.13 start. If any required physical/provider-account semantic unexpectedly becomes necessary before merge, stop before R13.13 and trigger the bounded manual gate instead.
+Freeze this continuity-only normalization head. Run **R0 Repository Guard + full Python Core + KodeStudio UI Smoke** on that exact SHA. If all three are SUCCESS, merge the normalization PR with `expected_head_sha`. Only after that merge establishes normalized `main` is R13.12 authoritatively **COMPLETE + NORMALIZED** and R13.13 authorized to start on a dedicated branch from the normalized main. If any normalization gate fails, correct only the continuity normalization and rerun all three exact-head gates before merge.

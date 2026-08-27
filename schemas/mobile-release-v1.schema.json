@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/mobile-release-v1.schema.json",
+  "title": "Kodepoia Mobile Release Candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "candidate_id",
+    "train_id",
+    "channel",
+    "version",
+    "artifacts",
+    "evidence_sha256",
+    "changelog_sha256",
+    "sbom_sha256",
+    "compliance_sha256",
+    "rollout_intent"
+  ],
+  "properties": {
+    "candidate_id": { "$ref": "#/$defs/stableId" },
+    "train_id": { "$ref": "#/$defs/stableId" },
+    "channel": { "enum": ["INTERNAL", "BETA", "PRODUCTION"] },
+    "version": { "$ref": "#/$defs/version" },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "evidence_sha256": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/sha256" }
+    },
+    "changelog_sha256": { "$ref": "#/$defs/sha256" },
+    "sbom_sha256": { "$ref": "#/$defs/sha256" },
+    "compliance_sha256": { "$ref": "#/$defs/sha256" },
+    "rollout_intent": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/rolloutIntent" }
+      ]
+    }
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "semver": {
+      "type": "string",
+      "maxLength": 256,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+    },
+    "version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["product_version", "android_version_code", "apple_build_number"],
+      "properties": {
+        "product_version": { "$ref": "#/$defs/semver" },
+        "android_version_code": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 1, "maximum": 2147483647 }
+          ]
+        },
+        "apple_build_number": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "string",
+              "pattern": "^(?:0|[1-9][0-9]*)(?:\\.(?:0|[1-9][0-9]*)){0,3}$"
+            }
+          ]
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "platform", "package_kind", "artifact_sha256", "provenance_sha256"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/stableId" },
+        "platform": { "enum": ["android", "ios", "ipados"] },
+        "package_kind": { "enum": ["apk", "aab", "app", "xcarchive", "ipa"] },
+        "artifact_sha256": { "$ref": "#/$defs/sha256" },
+        "provenance_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "rolloutIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "mode", "action", "percentage_basis_points", "policy_evidence_sha256"],
+      "properties": {
+        "provider": { "enum": ["LOCAL", "GOOGLE_PLAY", "APP_STORE"] },
+        "mode": { "enum": ["IMMEDIATE", "STAGED_PERCENT", "PROVIDER_PHASED"] },
+        "action": { "enum": ["START", "PAUSE", "RESUME", "HALT", "COMPLETE"] },
+        "percentage_basis_points": {
+          "oneOf": [
+            { "type": "null" },
+            { "type": "integer", "minimum": 1, "maximum": 10000 }
+          ]
+        },
+        "policy_evidence_sha256": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/sha256" }
+          ]
+        }
+      }
+    }
+  }
+}

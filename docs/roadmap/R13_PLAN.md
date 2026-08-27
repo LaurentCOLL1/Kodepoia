@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1–R13.14 are `COMPLETE + NORMALIZED`. R13.14 final end-synchronized head `42b500d3a4a19fad9370fb4b56fa528f5ed742eb` passed R0 #1711 / `33095039101`, Python Core #1685 / `33095038903`, and KodeStudio UI Smoke #1652 / `33095038908`; PR #247 merged as `a7a6fc43823c53e78d31d71e20c110abbc35196d`, then single continuity-only normalization head `0c990e8d68c1940a092d589bd6b864299d064eeb` passed R0 #1713 / `33095670861`, Python Core #1687 / `33095670808`, and UI #1654 / `33095670718`, and PR #248 merged as normalized `main` `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`. R13.15 is `IN_PROGRESS` on dedicated branch `r13/15-store-compliance-engine`; R13.16–R13.17 remain `PLANNED`.
+**Execution checkpoint:** R13.1–R13.14 are `COMPLETE + NORMALIZED`. R13.15 is `COMPLETE / END-SYNCED` on dedicated branch `r13/15-store-compliance-engine`; accepted technical candidate `dc9e04b1d0170b889ae02231a68304e7b7a11c60` passed exact-head R0 #1715 / `33097922318`, Python Core #1689 / `33097922338`, and KodeStudio UI Smoke #1656 / `33097922322`, all SUCCESS. Google Play Readiness #179 / `33097922247` and Apple Xcode Acceptance #162 / `33097922206` also passed as directly relevant regression evidence. Because this end-sync changes documentation bytes, PR #249 remains merge-pending until fresh R0 + full Python Core + UI Smoke pass on the same final end-synchronized head. R13.16–R13.17 remain `PLANNED`.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.14 are **COMPLETE + NORMALIZED**; R13.15 is **IN_PROGRESS**; R13.16–R13.17 remain **PLANNED / NOT STARTED**.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.14 are **COMPLETE + NORMALIZED**; R13.15 is **COMPLETE / END-SYNCED, MERGE + NORMALIZATION PENDING**; R13.16–R13.17 remain **PLANNED / NOT STARTED**.
 
 ## Permanent subdivision status synchronization rule
 
@@ -175,7 +175,7 @@ Before R13.1 implementation:
 | R13.12 | DeviceLab provider-neutral matrices, physical/virtual routing + evidence | COMPLETE | CONDITIONAL | R13.6 + R13.11 |
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | COMPLETE | NONE | R13.4–R13.12 + R8/R12 |
 | R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | COMPLETE | CONDITIONAL | R13.6/R13.11/R13.12 + R6 |
-| R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | IN_PROGRESS | NONE | R13.7/R13.10 + R7/R6 |
+| R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | COMPLETE | NONE | R13.7/R13.10 + R7/R6 |
 | R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | PLANNED | NONE | R13.1–R13.15 |
 | R13.17 | Adversarial hardening + Android/iOS integrated release-readiness acceptance | PLANNED | CONDITIONAL | R13.1–R13.16 + R6/R8/R12 evidence |
 
@@ -382,6 +382,8 @@ Before R13.1 implementation:
 **Manual:** NONE for deterministic compliance evaluation. Account-only forms may remain `NEEDS_ACCOUNT_CONFIRMATION` without blocking non-live readiness.
 
 **Start record:** branch **`r13/15-store-compliance-engine`** created exactly from normalized `main` **`80e9ae84f4c9edd8b2e41eadb93310abae6e442f`** after R13.14 normalization PR #248. Status **IN_PROGRESS** before implementation. Manual is **NONE** for the frozen core: R13.15 evaluates deterministic local/versioned compliance evidence and does not require a Play Console/App Store Connect account, credential, production signing material, physical device, live form submission or publication. Official-source baseline retrieved 2026-08-27 remains evidence, not architecture constants: Google Play new apps/updates require Android 16 / API 36 from 2026-08-31 with provider-documented exceptions by form factor and an extension path to 2026-11-01; Google User Data/permissions policy applies to app and integrated SDK behavior and includes future-effective policy changes; Apple App Store Connect uploads require Xcode 26+ / SDK 26+ since 2026-04-28; Apple required-reason API declarations must use approved reasons; App Privacy must include third-party partner practices and a privacy-policy URL; age rating is required and region-sensitive. Stale, unofficial-only, conflicting, future-effective, expired or account-only evidence must stay explicit and must never synthesize CURRENT/legal-certification claims.
+
+**Completion record:** accepted exact-head technical candidate **`dc9e04b1d0170b889ae02231a68304e7b7a11c60`** passed R0 Repository Guard #1715 / `33097922318`, Python Core #1689 / `33097922338`, and KodeStudio UI Smoke #1656 / `33097922322`, all SUCCESS. Python Core passed complete Ubuntu/Windows tests, both package builds and its internal UI smoke, including the focused R13.15 compliance tests. Google Play Readiness #179 / `33097922247` passed Ubuntu+Windows exact-head dry-run/non-publishing regression, and Apple Xcode Acceptance #162 / `33097922206` passed hosted macOS exact-head stable capability regression without account/device claims. Core adds durable `store-compliance-v1` evidence plus provider-neutral dated rule evaluation, official-host currentness, future/expired/stale/unofficial separation, scoped conflict detection, bounded Google/Apple facts, third-party SDK accounting, store surface facts, explicit account-only confirmations, deterministic digests, `legal_certification=false`, and `live_account_query_attempted=false`. Manual remains **NONE**. This end synchronization marks R13.15 COMPLETE; because these documentary bytes changed, fresh R0 + full Python Core + KodeStudio UI Smoke must pass on the final end-synchronized head before PR #249 may merge with `expected_head_sha`. R13.16 remains PLANNED until implementation merge plus exactly one continuity-only normalization complete.
 
 # R13.16 — CLI + KodeStudio Mobile/DeviceLab/Release workspace
 

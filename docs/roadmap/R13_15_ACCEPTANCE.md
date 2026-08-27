@@ -4,7 +4,7 @@
 **Branch:** `r13/15-store-compliance-engine`  
 **Authorized normalized base:** `80e9ae84f4c9edd8b2e41eadb93310abae6e442f`  
 **Manual:** NONE  
-**Status:** technical acceptance pending exact-head CI
+**Status:** technical candidate ACCEPTED; final end-sync exact-head re-gates pending
 
 ## Frozen claim under test
 
@@ -124,6 +124,12 @@ Every durable snapshot enforces `legal_certification=false` and `live_account_qu
 ## Required exact-head CI
 
 A candidate is accepted only when the **same exact Git SHA** has R0 Repository Guard SUCCESS, full Python Core SUCCESS and KodeStudio UI Smoke SUCCESS. If end-sync changes bytes, all three must rerun on the final end-synchronized SHA before merge.
+
+## Accepted technical candidate
+
+Exact Git SHA **`dc9e04b1d0170b889ae02231a68304e7b7a11c60`** passed R0 Repository Guard #1715 / `33097922318`, full Python Core #1689 / `33097922338`, and KodeStudio UI Smoke #1656 / `33097922322`, all SUCCESS on that exact SHA. Full Python Core includes Ubuntu/Windows tests, Ubuntu/Windows package builds and the internal KodeStudio smoke; focused R13.15 tests are part of the repository suite. Directly relevant existing regressions also passed: Google Play Readiness #179 / `33097922247` on Ubuntu+Windows and Apple Xcode Acceptance #162 / `33097922206` on hosted macOS. No live account/device/publication evidence is claimed.
+
+Because this acceptance/end-sync documentation changes bytes after the technical candidate, these records are not themselves merge authority. Fresh R0 + full Python Core + KodeStudio UI Smoke must pass on the final end-synchronized SHA before PR #249 merges with `expected_head_sha`. Manual remains **NONE**.
 
 ## Merge/normalization rule
 

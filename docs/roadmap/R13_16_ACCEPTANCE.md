@@ -1,7 +1,7 @@
 # R13.16 Acceptance — CLI + KodeStudio Mobile/DeviceLab/Release workspace
 
 **Subdivision:** R13.16  
-**Status:** CANDIDATE / NOT YET ACCEPTED  
+**Status:** TECHNICAL CANDIDATE ACCEPTED / END-SYNCHRONIZATION IN PROGRESS  
 **Manual:** NONE
 
 ## Frozen acceptance claim
@@ -48,6 +48,20 @@ The final technical candidate must pass on one exact SHA:
 
 R13.16 introduces no new external Android/Apple/provider execution seam, so a new platform workflow is not required solely for this subdivision. If standard gates reveal an affected existing platform regression, the relevant existing R13 workflow must also be rerun and succeed before acceptance.
 
+## Technical candidate authority
+
+The initial implementation candidate **`8325b29a237078c7c6a333c04a9c1947e6737f7c`** is rejected and none of its decision evidence is reused. R0 Repository Guard #1722 succeeded, but KodeStudio UI Smoke #1663 failed because the pre-existing pseudo-localization navigation regression test was still frozen at 11 registered main-surface entries after R13.16 legitimately introduced the twelfth Mobile/DeviceLab/Release workspace entry. The branch corrected that stale expectation and added explicit pseudo-localized coverage for the R13 surface.
+
+Accepted exact-head technical candidate **`1b2eec0e97467b8ddc3dd1c100b86140a7f4453d`** passed:
+
+- R0 Repository Guard **#1723 / `33111158773`** — SUCCESS;
+- Python Core **#1697 / `33111158821`** — SUCCESS;
+- KodeStudio UI Smoke **#1664 / `33111158807`** — SUCCESS.
+
+Supplemental existing-platform regressions on the same exact candidate also completed successfully: R13 Google Play Readiness #206, Android Build #285, Android Signing #238, Android Device #223, Apple Xcode #189, Apple SwiftUI Scaffold #160, Apple Signing Archive #135 and Apple XCTest #115. They provide regression confidence only; R13.16 does not claim that its orchestration layer independently re-proves their platform semantics.
+
+The accepted technical candidate proves the frozen R13.16 core: passive refresh stays process-free/read-only, a passive evidence `PASS` cannot promote workspace state, missing execution authority is `BLOCKED`, active KillSwitch cancels before dispatch, only structured bounded execution context reaches an injected governed backend, and the KodeStudio surface remains localized/pseudo-localized/accessibility-aware. Manual remains **NONE**.
+
 ## Manual state
 
 **NONE.** No physical device, Play Console/App Store Connect account, service credential, production signing material, Android SDK/Xcode installation on the user machine, paid provider quota or live publication action is needed for the frozen R13.16 core claim.
@@ -65,4 +79,4 @@ After an exact-head technical candidate passes all required gates:
 7. pass fresh exact-head R0 + Python Core + UI Smoke and merge normalization with `expected_head_sha`;
 8. only the resulting normalized `main` authorizes R13.17.
 
-No PASS evidence or completion SHA is recorded here before those facts exist.
+The technical candidate is now accepted, but R13.16 is not yet `COMPLETE + NORMALIZED`: this acceptance-file update plus the synchronized plan/continuity updates create a new final documentation head whose fresh gates must succeed before PR #251 may merge. Merge and post-merge normalization authority will be recorded in continuity after those facts exist.

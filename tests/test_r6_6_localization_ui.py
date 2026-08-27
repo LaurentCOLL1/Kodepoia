@@ -22,9 +22,10 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         nav = window.findChild(QListWidget, "mainNavigation")
         assert nav is not None
         texts = [nav.item(index).text() for index in range(nav.count())]
-        # R10.11 added Blender / 3D, R11.13 added Media / Franchise, and
-        # R12.15 intentionally adds the governed Desktop workspace.
-        assert len(texts) == 11
+        # R10.11 added Blender / 3D, R11.13 added Media / Franchise,
+        # R12.15 added the governed Desktop workspace, and R13.16 adds
+        # the governed Mobile / DeviceLab / Release workspace.
+        assert len(texts) == 12
         assert all(text.startswith("⟦") and text.endswith("⟧") for text in texts)
         assert nav.minimumWidth() >= nav.sizeHintForColumn(0) + 24
 
@@ -38,6 +39,8 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         r11_cancel = window.findChild(QPushButton, "r11CancelButton")
         r12_refresh = window.findChild(QPushButton, "r12Refresh")
         r12_cancel = window.findChild(QPushButton, "r12Cancel")
+        r13_refresh = window.findChild(QPushButton, "r13Refresh")
+        r13_cancel = window.findChild(QPushButton, "r13Cancel")
         assert new_project is not None and new_project.text().startswith("⟦")
         assert stop is not None and stop.text().startswith("⟦")
         assert reset is not None and reset.text().startswith("⟦")
@@ -48,6 +51,8 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         assert r11_cancel is not None and r11_cancel.text().startswith("⟦")
         assert r12_refresh is not None and r12_refresh.text().startswith("⟦")
         assert r12_cancel is not None and r12_cancel.text().startswith("⟦")
+        assert r13_refresh is not None and r13_refresh.text().startswith("⟦")
+        assert r13_cancel is not None and r13_cancel.text().startswith("⟦")
 
         assert window.windowTitle().startswith("⟦")
         assert window.size().width() >= 1100

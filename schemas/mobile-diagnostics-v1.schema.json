@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/mobile-diagnostics-v1.schema.json",
+  "title": "Kodepoia Mobile Diagnostic Bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_id",
+    "collection_mode",
+    "release_candidate_sha256",
+    "artifact_sha256",
+    "retention",
+    "entries",
+    "fingerprints",
+    "performance_snapshots",
+    "continuous_hidden_telemetry"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "bundle_id": {"$ref": "#/$defs/stableId"},
+    "collection_mode": {
+      "enum": ["ON_DEMAND", "TEST_RUN", "EXPLICIT_USER_EXPORT"]
+    },
+    "release_candidate_sha256": {"$ref": "#/$defs/sha256"},
+    "artifact_sha256": {"$ref": "#/$defs/sha256"},
+    "retention": {"$ref": "#/$defs/retention"},
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {"$ref": "#/$defs/entry"}
+    },
+    "fingerprints": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {"$ref": "#/$defs/fingerprint"}
+    },
+    "performance_snapshots": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {"$ref": "#/$defs/performanceSnapshot"}
+    },
+    "continuous_hidden_telemetry": {"const": false}
+  },
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "capturedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "platform": {
+      "enum": ["android", "ios", "ipados"]
+    },
+    "sourceKind": {
+      "enum": [
+        "ANDROID_LOGCAT",
+        "ANDROID_CRASH",
+        "ANDROID_ANR",
+        "ANDROID_TEST",
+        "ANDROID_PERFORMANCE",
+        "APPLE_CRASH",
+        "APPLE_JETSAM",
+        "APPLE_CONSOLE",
+        "APPLE_XCTEST",
+        "APPLE_PERFORMANCE"
+      ]
+    },
+    "provider": {
+      "enum": [
+        "LOCAL_FILE",
+        "ADB",
+        "ANDROID_RUNTIME",
+        "GOOGLE_PLAY",
+        "FIREBASE_CRASHLYTICS",
+        "XCODE",
+        "APP_STORE",
+        "TESTFLIGHT",
+        "DEVICE_EXPORT"
+      ]
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "release_candidate_sha256",
+        "artifact_sha256",
+        "device_snapshot_sha256",
+        "toolchain_sha256",
+        "test_run_sha256"
+      ],
+      "properties": {
+        "release_candidate_sha256": {"$ref": "#/$defs/sha256"},
+        "artifact_sha256": {"$ref": "#/$defs/sha256"},
+        "device_snapshot_sha256": {"$ref": "#/$defs/sha256"},
+        "toolchain_sha256": {"$ref": "#/$defs/sha256"},
+        "test_run_sha256": {
+          "oneOf": [
+            {"$ref": "#/$defs/sha256"},
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "redactionCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "count"],
+      "properties": {
+        "category": {"$ref": "#/$defs/stableId"},
+        "count": {"type": "integer", "minimum": 1, "maximum": 1000000}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry_id",
+        "platform",
+        "source_kind",
+        "provider",
+        "captured_at_utc",
+        "completeness",
+        "binding",
+        "source_sha256",
+        "source_size_bytes",
+        "source_digest_verified",
+        "redacted_text",
+        "redacted_sha256",
+        "redactions"
+      ],
+      "properties": {
+        "entry_id": {"$ref": "#/$defs/stableId"},
+        "platform": {"$ref": "#/$defs/platform"},
+        "source_kind": {"$ref": "#/$defs/sourceKind"},
+        "provider": {"$ref": "#/$defs/provider"},
+        "captured_at_utc": {"$ref": "#/$defs/capturedAt"},
+        "completeness": {"enum": ["COMPLETE", "PARTIAL"]},
+        "binding": {"$ref": "#/$defs/binding"},
+        "source_sha256": {"$ref": "#/$defs/sha256"},
+        "source_size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2097152
+        },
+        "source_digest_verified": {"const": true},
+        "redacted_text": {"type": "string"},
+        "redacted_sha256": {"$ref": "#/$defs/sha256"},
+        "redactions": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/redactionCount"}
+        }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fingerprint_id",
+        "kind",
+        "platform",
+        "source_kind",
+        "signature_sha256",
+        "component_count"
+      ],
+      "properties": {
+        "fingerprint_id": {"$ref": "#/$defs/stableId"},
+        "kind": {
+          "enum": ["CRASH", "ANR", "MEMORY_TERMINATION", "TEST_FAILURE", "PERFORMANCE"]
+        },
+        "platform": {"$ref": "#/$defs/platform"},
+        "source_kind": {"$ref": "#/$defs/sourceKind"},
+        "signature_sha256": {"$ref": "#/$defs/sha256"},
+        "component_count": {"type": "integer", "minimum": 1, "maximum": 64}
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "unit", "value"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,63}$"
+        },
+        "unit": {
+          "enum": [
+            "MILLISECONDS",
+            "BYTES",
+            "PERCENT",
+            "COUNT",
+            "FPS",
+            "MILLIWATTS",
+            "BYTES_PER_SECOND"
+          ]
+        },
+        "value": {"type": "number", "minimum": 0, "maximum": 1e18}
+      }
+    },
+    "performanceSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_id",
+        "platform",
+        "captured_at_utc",
+        "binding",
+        "source_entry_sha256",
+        "metrics"
+      ],
+      "properties": {
+        "snapshot_id": {"$ref": "#/$defs/stableId"},
+        "platform": {"$ref": "#/$defs/platform"},
+        "captured_at_utc": {"$ref": "#/$defs/capturedAt"},
+        "binding": {"$ref": "#/$defs/binding"},
+        "source_entry_sha256": {"$ref": "#/$defs/sha256"},
+        "metrics": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {"$ref": "#/$defs/metric"}
+        }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["retention_days", "max_bundle_bytes", "max_entries", "export_allowed"],
+      "properties": {
+        "retention_days": {"type": "integer", "minimum": 1, "maximum": 90},
+        "max_bundle_bytes": {"type": "integer", "minimum": 1, "maximum": 16777216},
+        "max_entries": {"type": "integer", "minimum": 1, "maximum": 256},
+        "export_allowed": {"type": "boolean"}
+      }
+    }
+  }
+}

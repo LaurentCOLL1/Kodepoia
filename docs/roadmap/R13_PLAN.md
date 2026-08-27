@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-25  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `997db5a5ad9f847037de79057bcdc7aefd1ddeb9`  
-**Execution checkpoint:** R13.1–R13.14 are `COMPLETE + NORMALIZED`. R13.15 is `COMPLETE / END-SYNCED` on dedicated branch `r13/15-store-compliance-engine`; accepted technical candidate `dc9e04b1d0170b889ae02231a68304e7b7a11c60` passed exact-head R0 #1715 / `33097922318`, Python Core #1689 / `33097922338`, and KodeStudio UI Smoke #1656 / `33097922322`, all SUCCESS. Google Play Readiness #179 / `33097922247` and Apple Xcode Acceptance #162 / `33097922206` also passed as directly relevant regression evidence. Because this end-sync changes documentation bytes, PR #249 remains merge-pending until fresh R0 + full Python Core + UI Smoke pass on the same final end-synchronized head. R13.16–R13.17 remain `PLANNED`.
+**Execution checkpoint:** R13.1–R13.15 are `COMPLETE + NORMALIZED`. R13.15 final end-synchronized head `a6109e2d6f1a093bc709eb8385d8f0ce8dac0341` passed R0 #1718 / `33098494117`, Python Core #1692 / `33098494367`, and KodeStudio UI Smoke #1659 / `33098494215`; PR #249 merged as `a92f5b1e31f09f37320e0759f7633569b9125487`. Single continuity-only normalization head `2122fd685fd20973ae045658e79d94295bb389cb` passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and UI #1661 / `33099024892`, and PR #250 merged as normalized `main` `dce60a60b58ff2c069d689144291f8c682b7e21f`. R13.16 is `IN_PROGRESS` on dedicated branch `r13/16-cli-kodestudio-mobile-release`; R13.17 remains `PLANNED`.
 
 ## Purpose and authority
 
@@ -14,7 +14,7 @@ R13 implements the frozen-roadmap capability **“Android export/signing/AAB/APK
 
 This plan is the exhaustive execution and recovery authority for R13. The subdivision list R13.1–R13.17 became frozen when the planning PR and its single normalization were accepted and merged. No subdivision may be silently added, removed, merged, split, or renumbered. Any scope/status/manual-state change must update this file and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same work cycle; any change to a frozen R1–R12 architecture boundary requires an ADR.
 
-R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.14 are **COMPLETE + NORMALIZED**; R13.15 is **COMPLETE / END-SYNCED, MERGE + NORMALIZATION PENDING**; R13.16–R13.17 remain **PLANNED / NOT STARTED**.
+R13 planning is **ACCEPTED + NORMALIZED** on `main` `aef297e385dc49ad6ae0935d4f9ef25a35e5e984`; R13.1–R13.15 are **COMPLETE + NORMALIZED**; R13.16 is **IN_PROGRESS**; R13.17 remains **PLANNED / NOT STARTED**.
 
 ## Permanent subdivision status synchronization rule
 
@@ -176,7 +176,7 @@ Before R13.1 implementation:
 | R13.13 | KodeRelease versioning, release trains, promotion, rollout + rollback | COMPLETE | NONE | R13.4–R13.12 + R8/R12 |
 | R13.14 | Mobile diagnostics: logs, crash/ANR/test/performance bundles + redaction | COMPLETE | CONDITIONAL | R13.6/R13.11/R13.12 + R6 |
 | R13.15 | Current store compliance engine: privacy, ratings, permissions, SDK/policy evidence | COMPLETE | NONE | R13.7/R13.10 + R7/R6 |
-| R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | PLANNED | NONE | R13.1–R13.15 |
+| R13.16 | CLI + KodeStudio Mobile/DeviceLab/Release workspace | IN_PROGRESS | NONE | R13.1–R13.15 |
 | R13.17 | Adversarial hardening + Android/iOS integrated release-readiness acceptance | PLANNED | CONDITIONAL | R13.1–R13.16 + R6/R8/R12 evidence |
 
 ---
@@ -394,6 +394,8 @@ Before R13.1 implementation:
 **Acceptance:** no raw executable/argv/Gradle/Xcode/signing/store-token parameter; passive refresh launches no external process; unavailable capability returns explicit blocked state; evidence cannot be edited into PASS; UI smoke exact-head.
 
 **Manual:** NONE.
+
+**Start record:** branch **`r13/16-cli-kodestudio-mobile-release`** created exactly from normalized `main` **`dce60a60b58ff2c069d689144291f8c682b7e21f`** after R13.15 normalization PR #250. Status **IN_PROGRESS** before implementation. Manual is **NONE**. Frozen R13.16 exposes only accepted structured R13 contracts: `kodepoia r13` status/scaffold/build/test/package/device/compliance/release intents plus KodeStudio Mobile/DeviceLab/Release read-only workspace state. Passive refresh must be pure and launch no external process; execute actions remain explicit structured intents with no raw executable path, argv, Gradle/Xcode setting, signing material, store token or editable evidence-to-PASS surface. Missing capability remains explicit BLOCKED/UNAVAILABLE. UI and CLI outputs must remain deterministic, bounded, accessible and localizable.
 
 # R13.17 — Adversarial hardening + Android/iOS integrated release-readiness acceptance
 

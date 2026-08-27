@@ -30,6 +30,12 @@ jobs:
       - name: Generate end-sync evidence
         run: python scripts/r13_17_end_sync_temp.py
 
+      - name: Normalize generated documentation whitespace and rebuild report
+        shell: bash
+        run: |
+          sed -i 's/[[:blank:]]\+$//' docs/roadmap/R13_17_ACCEPTANCE.md docs/roadmap/R13_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          python scripts/r13_17_build_integrated_report.py --source-sha 56f829f4395138bf90a1a8e0003bff95b67dd878
+
       - name: Validate R13.17
         run: python -m pytest tests/test_mobile_r13_17_integrated_acceptance.py -q
 

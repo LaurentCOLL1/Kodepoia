@@ -1,0 +1,121 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": 9665811449,
+      "kind": "android_build",
+      "name": "r13-4-android-Linux-56f829f4395138bf90a1a8e0003bff95b67dd878",
+      "run_name": "R13 Android Build Acceptance",
+      "sha256": "4675ea1f8c1adcfc6821b66dcc88a4dec5cba1779dbef45d3d729856fc63dc8d"
+    },
+    {
+      "artifact_id": 9665845148,
+      "kind": "android_device",
+      "name": "r13-6-android-device-56f829f4395138bf90a1a8e0003bff95b67dd878",
+      "run_name": "R13 Android Device Acceptance",
+      "sha256": "eb7aa4f43b19a519e85e93e288bc349d41ba2c9369e4c529b73460690081517d"
+    },
+    {
+      "artifact_id": 9665853659,
+      "kind": "apple_xctest",
+      "name": "r13-11-apple-xctest-macOS-56f829f4395138bf90a1a8e0003bff95b67dd878",
+      "run_name": "R13 Apple XCTest Acceptance",
+      "sha256": "f40307954d44d38e80099128b43b5334c8079a72142bfada0d445eb66558cb1b"
+    }
+  ],
+  "blockers": [],
+  "claims": {
+    "android_device_scope": "VIRTUAL",
+    "android_hosted_build": true,
+    "android_package_kinds": [
+      "aab",
+      "apk"
+    ],
+    "android_physical_device_claim": false,
+    "android_target_api": 36,
+    "apple_physical_device_claim": false,
+    "ios_hosted_build_test": true,
+    "ios_scope": "SIMULATOR",
+    "live_store_query_attempted": false,
+    "production_signing_credential_used": false
+  },
+  "evidence_sha256": "23d3cf13b92f4a1e172c7611f69cba90ea9259c6914051ea444d83d505c6ea6b",
+  "generated_at": "2026-08-27T21:53:29Z",
+  "manual_state": "conditional_not_triggered",
+  "runs": [
+    {
+      "conclusion": "success",
+      "name": "R0 Repository Guard",
+      "run_id": 33118952255,
+      "run_number": 1731
+    },
+    {
+      "conclusion": "success",
+      "name": "Python Core",
+      "run_id": 33118952290,
+      "run_number": 1705
+    },
+    {
+      "conclusion": "success",
+      "name": "KodeStudio UI Smoke",
+      "run_id": 33118952751,
+      "run_number": 1672
+    },
+    {
+      "conclusion": "success",
+      "name": "R13 Android Build Acceptance",
+      "run_id": 33118952332,
+      "run_number": 301
+    },
+    {
+      "conclusion": "success",
+      "name": "R13 Android Signing Acceptance",
+      "run_id": 33118952213,
+      "run_number": 254
+    },
+    {
+      "conclusion": "success",
+      "name": "R13 Android Device Acceptance",
+      "run_id": 33118952330,
+      "run_number": 239
+    },
+    {
+      "conclusion": "success",
+      "name": "R13 Google Play Readiness Acceptance",
+      "run_id": 33118952293,
+      "run_number": 222
+    },
+    {
+      "conclusion": "success",
+      "name": "R13 Apple Xcode Acceptance",
+      "run_id": 33118952217,
+      "run_number": 205
+    },
+    {
+      "conclusion": "success",
+      "name": "R13 Apple SwiftUI Scaffold Acceptance",
+      "run_id": 33118953127,
+      "run_number": 176
+    },
+    {
+      "conclusion": "success",
+      "name": "R13 Apple Signing Archive Acceptance",
+      "run_id": 33118952223,
+      "run_number": 151
+    },
+    {
+      "conclusion": "success",
+      "name": "R13 Apple XCTest Acceptance",
+      "run_id": 33118952229,
+      "run_number": 131
+    },
+    {
+      "conclusion": "success",
+      "name": "R13 Integrated Release Readiness",
+      "run_id": 33118952219,
+      "run_number": 4
+    }
+  ],
+  "schema_version": 1,
+  "source_sha": "56f829f4395138bf90a1a8e0003bff95b67dd878",
+  "status": "pass"
+}

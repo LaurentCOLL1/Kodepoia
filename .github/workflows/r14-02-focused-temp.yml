@@ -1,0 +1,58 @@
+name: R14.2 Focused Prevalidation Temp
+
+on:
+  push:
+    branches:
+      - r14/02-backend-service-intent
+    paths:
+      - .r14_2_focused_trigger
+
+permissions:
+  contents: write
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R14.2 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/02-backend-service-intent
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Apply final wiring patch
+        run: |
+          python scripts/_r14_2_finalize_patch_temp.py
+          git diff --check
+
+      - name: Install focused test dependencies
+        run: python -m pip install -e ".[dev,code]"
+
+      - name: Compile
+        run: python -m compileall -q src tests
+
+      - name: R14.2 focused and compatibility tests
+        run: |
+          pytest -q \
+            tests/test_r14_2_backend_profiles.py \
+            tests/test_r2_acceptance.py \
+            tests/test_r13_2_mobile_profiles.py
+
+      - name: Prepare final implementation tree
+        run: |
+          rm scripts/_r14_2_finalize_patch_temp.py
+          rm .github/workflows/r14-02-focused-temp.yml
+          rm .r14_2_focused_trigger
+          git add src/kodepoia/kodestudio/app.py tests/fixtures/r14_2/offline_project.yaml tests/fixtures/r14_2/online_project.yaml tests/fixtures/r14_2/contradictory_billing.yaml
+          git add -u -- scripts/_r14_2_finalize_patch_temp.py .github/workflows/r14-02-focused-temp.yml .r14_2_focused_trigger
+          git diff --cached --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "R14.2 wire KodeStudio backend intent and validated fixtures"
+          git push origin HEAD:r14/02-backend-service-intent

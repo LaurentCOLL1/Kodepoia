@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.4 are COMPLETE + NORMALIZED. R14.5 accepted immutable technical source `3273ac50b43b64f6f365522f170765f44f45eedf` passed R0 #1787 / `33190672723`, Python Core #1761 / `33190672676`, KodeStudio UI Smoke #1728 / `33190672761`, and R14 PostgreSQL Acceptance #1 / `33190672769`, all SUCCESS. R14.5 is COMPLETE at technical/evidence level on PR #265; R14.6–R14.17 remain PLANNED until final END-head re-gates, expected-head merge and the single continuity-only normalization. R14.5 core manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.5 are COMPLETE + NORMALIZED. R14.5 continuity-only normalization head `721c9949914a0952b2afe8543dd37da5f8146545` passed R0 #1793 / `33191649309`, Python Core #1767 / `33191649218`, and UI #1734 / `33191649134`, all SUCCESS; normalization PR #266 merged as normalized `main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`. R14.6 is IN_PROGRESS on `r14/06-authoritative-server-state` from that exact normalized main; R14.7–R14.17 remain PLANNED. R14.6 manual state is NONE.
 
 ## Purpose and authority
 
@@ -203,7 +203,7 @@ Before R14.1 implementation:
 | R14.3 | Deterministic local backend scaffold/runtime + environments/config/secrets/health | COMPLETE | NONE | R14.1–R14.2 + R8/R12 patterns |
 | R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.1–R14.3 + R1/R6/R7 |
 | R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | COMPLETE | NONE | R14.1–R14.3 + R8/R12 |
-| R14.6 | Authoritative server command/state model + real-time transport/trust boundary | PLANNED | NONE | R14.4–R14.5 |
+| R14.6 | Authoritative server command/state model + real-time transport/trust boundary | IN_PROGRESS | NONE | R14.4–R14.5 |
 | R14.7 | Matchmaking, lobby, reservations, presence + reconnect | PLANNED | NONE | R14.6 |
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | PLANNED | NONE | R14.5–R14.6 |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | PLANNED | NONE | R14.5–R14.6 |

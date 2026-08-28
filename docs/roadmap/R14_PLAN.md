@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.2 are COMPLETE + NORMALIZED on normalized `main` `bf66970f358df580d5fe15b1ac1f8ed2cb13b09d`. R14.3 accepted immutable technical source `4de5036e7a37f949ec64ae68d9ee45e57ac99631` passed R0 #1770 / `33146235062`, Python Core #1744 / `33146235104`, and UI #1711 / `33146235181`, all SUCCESS; Ubuntu full Python suite recorded 1477 passed / 13 skipped / 46 warnings and Windows Core also passed. R14.3 is COMPLETE at technical/evidence level on `r14/03-local-backend-runtime`; final END-synchronized exact-head re-gates and PR #261 merge remain pending. R14.4–R14.17 remain PLANNED. Manual state for R14.3 is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.4 are COMPLETE + NORMALIZED. R14.5 accepted immutable technical source `3273ac50b43b64f6f365522f170765f44f45eedf` passed R0 #1787 / `33190672723`, Python Core #1761 / `33190672676`, KodeStudio UI Smoke #1728 / `33190672761`, and R14 PostgreSQL Acceptance #1 / `33190672769`, all SUCCESS. R14.5 is COMPLETE at technical/evidence level on PR #265; R14.6–R14.17 remain PLANNED until final END-head re-gates, expected-head merge and the single continuity-only normalization. R14.5 core manual state is NONE.
 
 ## Purpose and authority
 
@@ -202,7 +202,7 @@ Before R14.1 implementation:
 | R14.2 | Project DNA/KodeProduct backend profiles + Wizard conditional service intent | COMPLETE | NONE | R14.1 + R2/R13 profile patterns |
 | R14.3 | Deterministic local backend scaffold/runtime + environments/config/secrets/health | COMPLETE | NONE | R14.1–R14.2 + R8/R12 patterns |
 | R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.1–R14.3 + R1/R6/R7 |
-| R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | PLANNED | NONE | R14.1–R14.3 + R8/R12 |
+| R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | COMPLETE | NONE | R14.1–R14.3 + R8/R12 |
 | R14.6 | Authoritative server command/state model + real-time transport/trust boundary | PLANNED | NONE | R14.4–R14.5 |
 | R14.7 | Matchmaking, lobby, reservations, presence + reconnect | PLANNED | NONE | R14.6 |
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | PLANNED | NONE | R14.5–R14.6 |
@@ -449,7 +449,9 @@ Token confusion, open redirect, weak algorithm acceptance, long-lived bearer lea
 - Cross-platform focused prevalidation `33187554520`: 29 R14.4/R14.3 tests passed on Ubuntu and Windows after compileall.
 - Standards evidence: RFC 9700 OAuth 2.0 Security BCP; OpenID Connect Core validation semantics; W3C WebAuthn Level 3 Candidate Recommendation Snapshot dated 26 May 2026; OWASP session guidance.
 - Manual intervention: CONDITIONAL / NOT TRIGGERED. Core acceptance used deterministic local providers only.
-- Current subdivision status: `COMPLETE` at technical/evidence level. R14.5 remains `PLANNED` until final END re-gates, PR #263 merge and one continuity-only normalization.
+- Final END-head `05b16a796bb65d513de0b631eca432195ee01461` passed R0 #1783 / `33189022908`, Python Core #1757 / `33189022727`, and UI #1724 / `33189022765`; PR #263 merged as `cae2a1ddcaa79390ff923336ee331eba81937e84`.
+- Single continuity-only normalization head `8601ac19b87635648aef1c5f5c37a6cb899c26be` passed R0 #1785 / `33189536524`, Python Core #1759 / `33189536553`, and UI #1726 / `33189536543`; PR #264 merged as normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.5 is authorized and starts from that exact normalized main.
 
 ---
 
@@ -501,7 +503,15 @@ Schema drift, non-idempotent retries, migration partial apply, connection exhaus
 
 ## Completion record
 
-To be appended when accepted.
+- Accepted immutable technical source: `3273ac50b43b64f6f365522f170765f44f45eedf`.
+- Technical exact-head gates: R0 Repository Guard #1787 / `33190672723` SUCCESS; Python Core #1761 / `33190672676` SUCCESS; KodeStudio UI Smoke #1728 / `33190672761` SUCCESS; R14 PostgreSQL Acceptance #1 / `33190672769` SUCCESS.
+- Ubuntu full Python suite: 1509 passed, 13 skipped, 46 warnings; Windows Core suite also SUCCESS; both package builds and Python internal UI smoke SUCCESS.
+- PostgreSQL focused acceptance: 44 R14.5/R14.4/R14.3 tests passed against PostgreSQL 18.6 (`server_version_num=180006`, stable_supported=true).
+- Real PostgreSQL acceptance checks all true: fresh apply, rollback/reapply, transaction atomicity, optimistic conflict, row lock, idempotency, bounded retry and backup/restore. A real PostgreSQL `40P01` deadlock was provoked and detected.
+- Migration plan digest: `b96484ae6d56fe54b013b975572310d8daf44cf43116c5c43edc73845856b71b`; restore digest: `bcc5ae8b707231568263e0f52c8426dd956a67e4e131bcf97becb4b45ccb9f6e`; evidence reports `secrets_exposed=false`.
+- Stable external baseline at acceptance: PostgreSQL 18.6 released 2026-08-13; PostgreSQL 19 Beta 3 remains pre-release/testing-only.
+- Manual intervention: NONE.
+- Current subdivision status: `COMPLETE` at technical/evidence level. R14.6 remains `PLANNED` until final END re-gates, PR #265 expected-head merge and exactly one continuity-only normalization.
 
 ---
 

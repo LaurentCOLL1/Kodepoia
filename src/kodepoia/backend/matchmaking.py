@@ -53,6 +53,19 @@ def _bounded_int(value: int, *, field: str, minimum: int, maximum: int) -> int:
     return value
 
 
+def _reject_reserved_fields(value: Any, *, path: str) -> None:
+    if isinstance(value, Mapping):
+        for key, nested in value.items():
+            if not isinstance(key, str):
+                raise MatchmakingPolicyError(f"{path} keys must be strings")
+            if key in _RESERVED_CLIENT_FIELDS:
+                raise MatchmakingPolicyError(f"client data cannot set reserved field {key!r}")
+            _reject_reserved_fields(nested, path=f"{path}.{key}")
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for index, nested in enumerate(value):
+            _reject_reserved_fields(nested, path=f"{path}[{index}]")
+
+
 def _canonical_mapping(value: Mapping[str, Any], *, field: str, max_bytes: int) -> dict[str, Any]:
     if not isinstance(value, Mapping):
         raise MatchmakingPolicyError(f"{field} must be a mapping")
@@ -65,19 +78,6 @@ def _canonical_mapping(value: Mapping[str, Any], *, field: str, max_bytes: int) 
         raise MatchmakingPolicyError(f"{field} exceeds {max_bytes} bytes")
     _reject_reserved_fields(normalized, path=field)
     return normalized
-
-
-def _reject_reserved_fields(value: Any, *, path: str) -> None:
-    if isinstance(value, Mapping):
-        for key, nested in value.items():
-            if not isinstance(key, str):
-                raise MatchmakingPolicyError(f"{path} keys must be strings")
-            if key in _RESERVED_CLIENT_FIELDS:
-                raise MatchmakingPolicyError(f"client data cannot set reserved field {key!r}")
-            _reject_reserved_fields(nested, path=f"{path}.{key}")
-    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
-        for index, nested in enumerate(value):
-            _reject_reserved_fields(nested, path=f"{path}[{index}]")
 
 
 def _now(clock_ms: Callable[[], int]) -> int:
@@ -154,11 +154,9 @@ class LobbySnapshot:
         _stable_id(self.lobby_id, field="lobby_id")
         _bounded_int(self.revision, field="revision", minimum=1, maximum=2**63 - 1)
         _bounded_int(self.max_members, field="max_members", minimum=1, maximum=512)
-        if not self.members:
-            raise MatchmakingPolicyError("lobby must contain an owner")
-        if len(self.members) > self.max_members:
-            raise MatchmakingPolicyError("lobby membership exceeds max_members")
-        accounts = [member.account_id for member in self.members]
+        if not self.members or len(self.members) > self.max_members:
+            raise MatchmakingPolicyError("invalid lobby membership size")
+        accounts = tuple(member.account_id for member in self.members)
         if len(accounts) != len(set(accounts)):
             raise MatchmakingPolicyError("lobby member accounts must be unique")
         if sum(member.role is LobbyRole.OWNER for member in self.members) != 1:
@@ -177,10 +175,7 @@ class LobbySnapshot:
         return canonical_sha256(self.canonical())
 
     def member(self, account_id: str) -> LobbyMember | None:
-        for member in self.members:
-            if member.account_id == account_id:
-                return member
-        return None
+        return next((member for member in self.members if member.account_id == account_id), None)
 
 
 @dataclass(frozen=True, slots=True)
@@ -203,15 +198,14 @@ class MatchmakingTicket:
             _stable_id(getattr(self, field), field=field)
         criteria = _canonical_mapping(self.criteria, field="criteria", max_bytes=16 * 1024)
         object.__setattr__(self, "criteria", criteria)
-        expected_digest = canonical_sha256(criteria)
-        if self.criteria_digest != expected_digest:
+        if self.criteria_digest != canonical_sha256(criteria):
             raise MatchmakingPolicyError("criteria_digest does not match criteria")
         _bounded_int(self.created_at_ms, field="created_at_ms", minimum=0, maximum=2**63 - 1)
         _bounded_int(self.expires_at_ms, field="expires_at_ms", minimum=1, maximum=2**63 - 1)
-        if self.expires_at_ms <= self.created_at_ms:
-            raise MatchmakingPolicyError("ticket expiry must follow creation")
         _bounded_int(self.queue_sequence, field="queue_sequence", minimum=1, maximum=2**63 - 1)
         _bounded_int(self.revision, field="revision", minimum=1, maximum=2**63 - 1)
+        if self.expires_at_ms <= self.created_at_ms:
+            raise MatchmakingPolicyError("ticket expiry must follow creation")
         if self.status is TicketStatus.MATCHED:
             if self.match_id is None or self.reservation_id is None:
                 raise MatchmakingPolicyError("matched ticket requires match and reservation identities")
@@ -258,9 +252,10 @@ class MatchReservation:
     def __post_init__(self) -> None:
         _stable_id(self.reservation_id, field="reservation_id")
         _stable_id(self.match_id, field="match_id")
-        if not self.ticket_ids or len(self.ticket_ids) != len(self.account_ids) or len(self.ticket_ids) != len(self.session_ids):
+        size = len(self.ticket_ids)
+        if size == 0 or size != len(self.account_ids) or size != len(self.session_ids):
             raise MatchmakingPolicyError("reservation identities must be non-empty and aligned")
-        if len(set(self.ticket_ids)) != len(self.ticket_ids) or len(set(self.account_ids)) != len(self.account_ids):
+        if len(set(self.ticket_ids)) != size or len(set(self.account_ids)) != size:
             raise MatchmakingPolicyError("reservation ticket/account identities must be unique")
         for value in self.ticket_ids:
             _stable_id(value, field="ticket_id")
@@ -272,9 +267,9 @@ class MatchReservation:
             raise MatchmakingPolicyError("criteria_digest must be lowercase SHA-256")
         _bounded_int(self.created_at_ms, field="created_at_ms", minimum=0, maximum=2**63 - 1)
         _bounded_int(self.expires_at_ms, field="expires_at_ms", minimum=1, maximum=2**63 - 1)
+        _bounded_int(self.revision, field="revision", minimum=1, maximum=2**63 - 1)
         if self.expires_at_ms <= self.created_at_ms:
             raise MatchmakingPolicyError("reservation expiry must follow creation")
-        _bounded_int(self.revision, field="revision", minimum=1, maximum=2**63 - 1)
 
     def canonical(self) -> dict[str, Any]:
         return {
@@ -363,12 +358,7 @@ class ReconnectGrant:
 
 
 class InMemoryMatchmakingService:
-    """Deterministic authoritative R14.7 fixture service.
-
-    The service is intentionally provider-neutral. All authoritative mutations happen
-    under one lock so local/core acceptance can prove lifecycle invariants without
-    pretending this fixture is an Internet-scale distributed matcher.
-    """
+    """Deterministic authoritative fixture; not an Internet-scale capacity claim."""
 
     def __init__(
         self,
@@ -400,10 +390,7 @@ class InMemoryMatchmakingService:
     def lobby(self, lobby_id: str) -> LobbySnapshot:
         _stable_id(lobby_id, field="lobby_id")
         with self._lock:
-            lobby = self._lobbies.get(lobby_id)
-            if lobby is None:
-                raise MatchmakingStateError("lobby_not_found")
-            return lobby
+            return self._require_lobby_locked(lobby_id)
 
     def ticket(self, ticket_id: str) -> MatchmakingTicket:
         _stable_id(ticket_id, field="ticket_id")
@@ -451,11 +438,11 @@ class InMemoryMatchmakingService:
                 raise MatchmakingStateError("lobby_exists")
             now = _now(self._clock_ms)
             lobby = LobbySnapshot(
-                lobby_id=lobby_id,
-                revision=1,
-                status=LobbyStatus.OPEN,
-                max_members=max_members,
-                members=(LobbyMember(actor.account_id, actor.session_id, LobbyRole.OWNER, now),),
+                lobby_id,
+                1,
+                LobbyStatus.OPEN,
+                max_members,
+                (LobbyMember(actor.account_id, actor.session_id, LobbyRole.OWNER, now),),
             )
             self._lobbies[lobby_id] = lobby
             return lobby
@@ -493,8 +480,11 @@ class InMemoryMatchmakingService:
                 raise MatchmakingStateError("owner_cannot_be_removed")
             if actor.account_id != member_account_id and requester.role is not LobbyRole.OWNER:
                 raise MatchmakingAuthorizationError("owner_required")
-            members = tuple(item for item in lobby.members if item.account_id != member_account_id)
-            updated = replace(lobby, revision=lobby.revision + 1, members=members)
+            updated = replace(
+                lobby,
+                revision=lobby.revision + 1,
+                members=tuple(item for item in lobby.members if item.account_id != member_account_id),
+            )
             self._lobbies[lobby_id] = updated
             return updated
 
@@ -524,14 +514,15 @@ class InMemoryMatchmakingService:
         _authorize(actor, "matchmaking.ticket.create", ticket_id)
         ttl_ms = _bounded_int(ttl_ms, field="ttl_ms", minimum=1, maximum=self.max_ticket_ttl_ms)
         criteria = _canonical_mapping(criteria, field="criteria", max_bytes=16 * 1024)
-        request = {
-            "ticket_id": ticket_id,
-            "account_id": actor.account_id,
-            "session_id": actor.session_id,
-            "criteria": criteria,
-            "ttl_ms": ttl_ms,
-        }
-        request_digest = canonical_sha256(request)
+        request_digest = canonical_sha256(
+            {
+                "ticket_id": ticket_id,
+                "account_id": actor.account_id,
+                "session_id": actor.session_id,
+                "criteria": criteria,
+                "ttl_ms": ttl_ms,
+            }
+        )
         with self._lock:
             now = _now(self._clock_ms)
             self._expire_locked(now)
@@ -588,21 +579,20 @@ class InMemoryMatchmakingService:
         with self._lock:
             now = _now(self._clock_ms)
             self._expire_locked(now)
-            available_slots = self.max_active_reservations - self._active_reservation_count_locked()
-            if available_slots <= 0 and self._queued_count_locked() >= group_size:
+            available = self.max_active_reservations - self._active_reservation_count_locked()
+            if available <= 0 and self._queued_count_locked() >= group_size:
                 raise MatchmakingCapacityError("reservation_capacity")
-
             grouped: dict[str, list[MatchmakingTicket]] = {}
             for ticket in self._tickets.values():
                 if ticket.status is TicketStatus.QUEUED:
                     grouped.setdefault(ticket.criteria_digest, []).append(ticket)
-            for tickets in grouped.values():
-                tickets.sort(key=lambda item: (item.queue_sequence, item.ticket_id))
+            for candidates in grouped.values():
+                candidates.sort(key=lambda item: (item.queue_sequence, item.ticket_id))
 
             created: list[MatchReservation] = []
             for criteria_digest in sorted(grouped):
                 candidates = grouped[criteria_digest]
-                while len(candidates) >= group_size and len(created) < available_slots:
+                while len(candidates) >= group_size and len(created) < available:
                     selected = candidates[:group_size]
                     del candidates[:group_size]
                     self._match_sequence += 1
@@ -647,36 +637,32 @@ class InMemoryMatchmakingService:
         match_id: str | None = None,
     ) -> PresenceSnapshot:
         _authorize(actor, "presence.update", actor.account_id)
-        expected_revision = _bounded_int(
-            expected_revision,
-            field="expected_revision",
-            minimum=0,
-            maximum=2**63 - 1,
-        )
+        expected_revision = _bounded_int(expected_revision, field="expected_revision", minimum=0, maximum=2**63 - 1)
         if lobby_id is not None:
             _stable_id(lobby_id, field="lobby_id")
         if match_id is not None:
             _stable_id(match_id, field="match_id")
         with self._lock:
+            now = _now(self._clock_ms)
+            self._expire_locked(now)
             current = self._presence.get(actor.account_id)
             current_revision = 0 if current is None else current.revision
             if expected_revision != current_revision:
                 raise MatchmakingStateError("stale_presence_revision")
             if lobby_id is not None:
-                lobby = self._require_lobby_locked(lobby_id)
-                member = lobby.member(actor.account_id)
+                member = self._require_lobby_locked(lobby_id).member(actor.account_id)
                 if member is None or member.session_id != actor.session_id:
                     raise MatchmakingAuthorizationError("lobby_membership_required")
             if match_id is not None and not self._actor_has_active_match_locked(actor, match_id):
                 raise MatchmakingAuthorizationError("match_reservation_required")
             snapshot = PresenceSnapshot(
-                account_id=actor.account_id,
-                session_id=actor.session_id,
-                revision=current_revision + 1,
-                state=state,
-                lobby_id=lobby_id,
-                match_id=match_id,
-                server_time_ms=_now(self._clock_ms),
+                actor.account_id,
+                actor.session_id,
+                current_revision + 1,
+                state,
+                lobby_id,
+                match_id,
+                now,
             )
             self._presence[actor.account_id] = snapshot
             return snapshot
@@ -693,7 +679,6 @@ class InMemoryMatchmakingService:
             remaining = reservation.expires_at_ms - now
             if remaining <= 0:
                 raise MatchmakingStateError("reservation_expired")
-            effective_ttl = min(ttl_ms, remaining)
             self._grant_sequence += 1
             grant_id = "recon-" + canonical_sha256(
                 {
@@ -705,13 +690,13 @@ class InMemoryMatchmakingService:
                 }
             )[:24]
             grant = ReconnectGrant(
-                grant_id=grant_id,
-                account_id=actor.account_id,
-                session_id=actor.session_id,
-                reservation_id=reservation_id,
-                match_id=reservation.match_id,
-                issued_at_ms=now,
-                expires_at_ms=now + effective_ttl,
+                grant_id,
+                actor.account_id,
+                actor.session_id,
+                reservation_id,
+                reservation.match_id,
+                now,
+                now + min(ttl_ms, remaining),
             )
             self._reconnect[grant_id] = grant
             return grant
@@ -770,11 +755,9 @@ class InMemoryMatchmakingService:
     def _actor_has_active_match_locked(self, actor: AuthorityActorContext, match_id: str) -> bool:
         for reservation in self._reservations.values():
             if reservation.status is ReservationStatus.ACTIVE and reservation.match_id == match_id:
-                try:
-                    self._require_reservation_actor_locked(reservation, actor)
-                except MatchmakingAuthorizationError:
-                    return False
-                return True
+                return (actor.account_id, actor.session_id) in set(
+                    zip(reservation.account_ids, reservation.session_ids, strict=True)
+                )
         return False
 
     def _queued_count_locked(self) -> int:
@@ -786,11 +769,7 @@ class InMemoryMatchmakingService:
     def _expire_locked(self, now: int) -> None:
         for ticket_id, ticket in tuple(self._tickets.items()):
             if ticket.status is TicketStatus.QUEUED and now >= ticket.expires_at_ms:
-                self._tickets[ticket_id] = replace(
-                    ticket,
-                    revision=ticket.revision + 1,
-                    status=TicketStatus.EXPIRED,
-                )
+                self._tickets[ticket_id] = replace(ticket, revision=ticket.revision + 1, status=TicketStatus.EXPIRED)
         for reservation_id, reservation in tuple(self._reservations.items()):
             if reservation.status is ReservationStatus.ACTIVE and now >= reservation.expires_at_ms:
                 self._reservations[reservation_id] = replace(

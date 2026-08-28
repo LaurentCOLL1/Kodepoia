@@ -1,0 +1,82 @@
+name: R14 PostgreSQL Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "src/kodepoia/backend/postgres.py"
+      - "src/kodepoia/backend/__init__.py"
+      - "scripts/r14_5_postgres_acceptance.py"
+      - "tests/test_r14_5_postgresql_persistence.py"
+      - "schemas/r14/backend-postgres-*.json"
+      - "pyproject.toml"
+      - ".github/workflows/r14-postgresql-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EVIDENCE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  postgres-18-acceptance:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kodepoia_r14
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kodepoia_r14"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      KODEPOIA_R14_5_DSN: postgresql://postgres:postgres@127.0.0.1:5432/kodepoia_r14
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EVIDENCE_SOURCE_SHA }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PostgreSQL acceptance dependencies
+        run: python -m pip install -e ".[dev,postgres]"
+      - name: Compile
+        run: python -m compileall -q src tests scripts/r14_5_postgres_acceptance.py
+      - name: Focused unit tests
+        run: python -m pytest -q tests/test_r14_5_postgresql_persistence.py tests/test_r14_4_auth_identity_sessions.py tests/test_r14_3_local_backend_runtime.py
+      - name: PostgreSQL 18 integration acceptance
+        run: >-
+          python scripts/r14_5_postgres_acceptance.py
+          --source-sha "${EVIDENCE_SOURCE_SHA}"
+          --output docs/roadmap/R14_5_POSTGRES_ACCEPTANCE.json
+      - name: Validate evidence schema and exact source
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          evidence = json.loads(Path("docs/roadmap/R14_5_POSTGRES_ACCEPTANCE.json").read_text(encoding="utf-8"))
+          schema = json.loads(Path("schemas/r14/backend-postgres-evidence.schema.json").read_text(encoding="utf-8"))
+          Draft202012Validator.check_schema(schema)
+          Draft202012Validator(schema).validate(evidence)
+          assert evidence["source_sha"] == os.environ["EVIDENCE_SOURCE_SHA"]
+          assert evidence["server"]["server_major"] == 18
+          assert evidence["server"]["stable_supported"] is True
+          assert evidence["secrets_exposed"] is False
+          PY
+      - name: Upload redacted PostgreSQL evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r14-5-postgresql-evidence-${{ env.EVIDENCE_SOURCE_SHA }}
+          path: docs/roadmap/R14_5_POSTGRES_ACCEPTANCE.json
+          if-no-files-found: error

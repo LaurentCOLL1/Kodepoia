@@ -1,0 +1,35 @@
+name: R14.1 START Sync Temp
+on:
+  push:
+    paths:
+      - 'docs/roadmap/R14_1_START_SYNC_TRIGGER.md'
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R14.1 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/01-backend-contracts-boundaries
+          fetch-depth: 0
+      - name: Apply deterministic START-sync
+        run: python scripts/r14_1_start_sync.py
+      - name: Prepare final START-sync tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check
+          git rm -f scripts/r14_1_start_sync.py .github/workflows/r14-01-start-sync-temp.yml docs/roadmap/R14_1_START_SYNC_TRIGGER.md
+          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'R14.1 START-sync plan and continuity'
+          BASE=27af7b80072678f509f7092cf2759683efe1224f
+          mapfile -t changed < <(git diff --name-only "$BASE" HEAD | sort)
+          printf '%s\n' "${changed[@]}"
+          test "${#changed[@]}" -eq 2
+          test "${changed[0]}" = 'docs/continuity/KODEPOIA_CONTINUITY.md'
+          test "${changed[1]}" = 'docs/roadmap/R14_PLAN.md'
+          git push origin HEAD:r14/01-backend-contracts-boundaries

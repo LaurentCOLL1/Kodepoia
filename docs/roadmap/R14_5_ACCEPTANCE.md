@@ -64,7 +64,18 @@ Evidence must validate against `schemas/r14/backend-postgres-evidence.schema.jso
 
 ## Technical evidence
 
-To be filled only after the immutable technical head passes all fresh exact-head gates.
+- Immutable source SHA: `3273ac50b43b64f6f365522f170765f44f45eedf`.
+- R0 Repository Guard #1787 / `33190672723`: SUCCESS on Ubuntu and Windows.
+- Python Core #1761 / `33190672676`: SUCCESS; Ubuntu full suite 1509 passed / 13 skipped / 46 warnings; Windows Core, both package builds and internal UI smoke also SUCCESS.
+- KodeStudio UI Smoke #1728 / `33190672761`: SUCCESS.
+- R14 PostgreSQL Acceptance #1 / `33190672769`: SUCCESS against PostgreSQL 18.6 (`server_version_num=180006`, `stable_supported=true`).
+- Focused PostgreSQL gate: 44 tests passed.
+- Functional checks: `fresh_apply=true`, `rollback_reapply=true`, `atomicity=true`, `optimistic_conflict=true`, `row_lock=true`, `idempotency=true`, `bounded_retry=true`, `backup_restore=true`.
+- PostgreSQL server logs confirm a real `40P01` deadlock was generated and detected during acceptance.
+- Migration-plan digest: `b96484ae6d56fe54b013b975572310d8daf44cf43116c5c43edc73845856b71b`.
+- Restore digest: `bcc5ae8b707231568263e0f52c8426dd956a67e4e131bcf97becb4b45ccb9f6e`.
+- Evidence is bound to the immutable source SHA, validates against the Draft 2020-12 evidence schema and reports `secrets_exposed=false`.
+- Manual intervention: NONE.
 
 ## END synchronization
 

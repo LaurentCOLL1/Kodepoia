@@ -33,7 +33,7 @@ class Clock:
 
 
 def admin() -> AuthorityActorContext:
-    return AuthorityActorContext("ops", "sess-ops", ("*",), ("*",))
+    return AuthorityActorContext("ops", "sess-ops", ("*",), ("points", "ach", "board", "time-ms", "classic", "recurring", "fastest", "other", "missing", "tiny", "score-10"))
 
 
 def actor(

@@ -40,7 +40,7 @@ def actor(account_id: str, *permissions: str, objects: tuple[str, ...] | None = 
 
 
 def admin() -> AuthorityActorContext:
-    return AuthorityActorContext("ops", "sess-ops", ("*",), ("*",))
+    return AuthorityActorContext("ops", "sess-ops", ("*",), ("points", "ach", "board", "time-ms", "classic", "recurring", "fastest", "other", "missing", "tiny", "score-10"))
 
 
 def viewer(account_id: str = "viewer", *, private: bool = False) -> AuthorityActorContext:

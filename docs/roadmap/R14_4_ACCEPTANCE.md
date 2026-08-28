@@ -2,7 +2,7 @@
 
 ## Current state
 
-**Status: IMPLEMENTATION_CANDIDATE_PENDING**
+**Status: TECHNICAL_ACCEPTED_FINAL_REGATES_PENDING**
 
 R14.4 starts exactly from normalized R14.3 `main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2` on `r14/04-auth-identity-sessions`. Mandatory START-sync completed before implementation and changed only `docs/roadmap/R14_PLAN.md` plus continuity.
 
@@ -55,6 +55,16 @@ After focused prevalidation, the accepted immutable implementation candidate mus
 3. KodeStudio UI Smoke — COMPLETED / SUCCESS.
 
 Then END-sync may change only `R14_PLAN.md`, this ledger and continuity before fresh exact-head re-gates, merge with expected-head protection and exactly one continuity-only post-merge normalization.
+
+## Accepted technical source
+
+- SHA: `3660f351649e85450324df25888d577afb02b19a`.
+- R0 Repository Guard #1779 / `33187747722`: SUCCESS.
+- Python Core #1753 / `33187747723`: SUCCESS.
+- KodeStudio UI Smoke #1720 / `33187747872`: SUCCESS.
+- Ubuntu full suite: 1494 passed, 13 skipped, 46 warnings. Windows Core, both package builds and Python internal UI smoke also SUCCESS.
+- Focused cross-platform prevalidation `33187554520`: 29 tests passed on Ubuntu and Windows.
+- The technical tree is immutable. This END-sync changes documentation/evidence only.
 
 ## Manual intervention
 

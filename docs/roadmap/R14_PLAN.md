@@ -201,7 +201,7 @@ Before R14.1 implementation:
 | R14.1 | Backend contracts, identities, capability model + secure network/runtime boundaries | COMPLETE | NONE | R13 COMPLETE + normalized R14 planning |
 | R14.2 | Project DNA/KodeProduct backend profiles + Wizard conditional service intent | COMPLETE | NONE | R14.1 + R2/R13 profile patterns |
 | R14.3 | Deterministic local backend scaffold/runtime + environments/config/secrets/health | COMPLETE | NONE | R14.1–R14.2 + R8/R12 patterns |
-| R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R14.1–R14.3 + R1/R6/R7 |
+| R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.1–R14.3 + R1/R6/R7 |
 | R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | PLANNED | NONE | R14.1–R14.3 + R8/R12 |
 | R14.6 | Authoritative server command/state model + real-time transport/trust boundary | PLANNED | NONE | R14.4–R14.5 |
 | R14.7 | Matchmaking, lobby, reservations, presence + reconnect | PLANNED | NONE | R14.6 |
@@ -443,7 +443,13 @@ Token confusion, open redirect, weak algorithm acceptance, long-lived bearer lea
 
 ## Completion record
 
-To be appended when accepted.
+- Accepted immutable technical head: `3660f351649e85450324df25888d577afb02b19a`.
+- Technical exact-head gates: R0 Repository Guard #1779 / `33187747722` SUCCESS; Python Core #1753 / `33187747723` SUCCESS; KodeStudio UI Smoke #1720 / `33187747872` SUCCESS.
+- Ubuntu full Python suite: 1494 passed, 13 skipped, 46 warnings; Windows Core suite also SUCCESS; both package builds and Python internal UI smoke SUCCESS.
+- Cross-platform focused prevalidation `33187554520`: 29 R14.4/R14.3 tests passed on Ubuntu and Windows after compileall.
+- Standards evidence: RFC 9700 OAuth 2.0 Security BCP; OpenID Connect Core validation semantics; W3C WebAuthn Level 3 Candidate Recommendation Snapshot dated 26 May 2026; OWASP session guidance.
+- Manual intervention: CONDITIONAL / NOT TRIGGERED. Core acceptance used deterministic local providers only.
+- Current subdivision status: `COMPLETE` at technical/evidence level. R14.5 remains `PLANNED` until final END re-gates, PR #263 merge and one continuity-only normalization.
 
 ---
 

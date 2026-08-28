@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.3 COMPLETE + NORMALIZED. R14.4 IN_PROGRESS on `r14/04-auth-identity-sessions`; R14.5–R14.17 remain PLANNED.** R14.3 final END-head `8411ce92da962a37cb9a5936bdac740d9a132204` passed R0 #1775 / `33146496788`, Python #1749 / `33146496859`, UI #1716 / `33146496739`; PR #261 merged as `d288772a90d5877cabe35adb6e71f0ede32f6b8d`; normalization head `b8151f3729d2648d5f1e4d6ecd3bc9afb3c3c401` passed R0 #1777 / `33186628042`, Python #1751 / `33186628118`, UI #1718 / `33186628151`; PR #262 merged as normalized `main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`. R14.4 starts exactly there. Manual state: CONDITIONAL / NOT TRIGGERED.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.3 COMPLETE + NORMALIZED. R14.4 COMPLETE at technical/evidence level on `r14/04-auth-identity-sessions`; R14.5–R14.17 remain PLANNED.** R14.4 immutable technical source `3660f351649e85450324df25888d577afb02b19a` passed R0 #1779 / `33187747722`, Python Core #1753 / `33187747723`, and UI #1720 / `33187747872`, all SUCCESS; Ubuntu full suite recorded 1494 passed / 13 skipped / 46 warnings; cross-platform focused prevalidation `33187554520` passed 29 tests on Ubuntu and Windows. Final END-sync may change only plan/R14.4 acceptance/continuity, then fresh R0/Python/UI, PR #263 merge and one continuity-only normalization are required before R14.5. Manual state: CONDITIONAL / NOT TRIGGERED.
 
 ## État global
 
@@ -19,7 +19,7 @@
 - R13.15: **COMPLETE + NORMALIZED**. Final normalization head **`2122fd685fd20973ae045658e79d94295bb389cb`** passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and KodeStudio UI Smoke #1661 / `33099024892`; normalization PR #250 merged as normalized `main` **`dce60a60b58ff2c069d689144291f8c682b7e21f`**. Manual **NONE**.
 - R13.16: **COMPLETE + NORMALIZED**. Final end-synchronized implementation head **`a4c4185f6b11d4574e9ecf2f2b735c2d623155b4`** passed R0 #1726 / `33113280399`, Python Core #1700 / `33113280512`, and UI #1667 / `33113280468`; PR #251 merged as **`b1865ffff26de58f63606952f5c7b8de774e01fa`**. Single continuity-only normalization head **`9bcee3c9359f8a2340878c8310b1572f38d614df`** passed R0 #1728 / `33113689078`, Python Core #1702 / `33113689208`, and UI #1669 / `33113689114`; PR #252 merged as normalized **`main` `b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`**. Manual **NONE**.
 - R13.17: **COMPLETE + NORMALIZED**. Final documentation/evidence head **`cb0c63bcdcbaf2b58b3066d311780843c2598575`** passed all 12 fresh exact-head final gates; PR #253 merged as **`f56c61dbc82efd93c08e2b29ad1acff33219689f`**. Single continuity-only normalization head **`1bc52616e5e527dadfe8feafdc0d137433b37a48`** passed R0 #1746 / `33135420877`, Python Core #1720 / `33135420870`, and UI #1687 / `33135420823`; PR #254 merged as normalized **`main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`**. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.3 are **COMPLETE + NORMALIZED**. R14.3 normalization head **`b8151f3729d2648d5f1e4d6ecd3bc9afb3c3c401`** passed R0 #1777 / `33186628042`, Python #1751 / `33186628118`, UI #1718 / `33186628151`; PR #262 merged as normalized **`main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`**. R14.4 is **IN_PROGRESS** on `r14/04-auth-identity-sessions`; R14.5–R14.17 remain PLANNED. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.3 are **COMPLETE + NORMALIZED**. R14.4 immutable technical source **`3660f351649e85450324df25888d577afb02b19a`** passed R0 #1779 / `33187747722`, Python #1753 / `33187747723`, UI #1720 / `33187747872`; R14.4 is **COMPLETE / FINAL_DOCUMENTATION_REGATES_PENDING** on `r14/04-auth-identity-sessions`. R14.5–R14.17 remain PLANNED. Manual **CONDITIONAL / NOT TRIGGERED**.
 
 ## R14 planning closure and R14.1 start authority
 
@@ -72,6 +72,8 @@
 - Current standards basis: OAuth 2.0 Security BCP RFC 9700; OIDC issuer/audience/nonce policy; WebAuthn Level 3 current published Candidate Recommendation; strict session lifecycle and token redaction.
 - Core acceptance uses only deterministic local providers. No real IdP tenant, public domain, production TLS, provider client secret or authenticator registration is required. Conditional manual intervention is **NOT TRIGGERED**.
 - Frozen R14.4 scope: typed auth/account/realm identities, deterministic local provider, session/access/refresh lifecycle, rotation/revocation, PKCE/state/nonce/redirect/issuer/audience/algorithm policy, passkey public-credential contracts and explicit OIDC adapter boundary; no external tenant provisioning or generalized federation.
+- Accepted immutable technical source: `3660f351649e85450324df25888d577afb02b19a`. Technical gates: R0 #1779 / `33187747722`, Python Core #1753 / `33187747723`, UI #1720 / `33187747872`, all SUCCESS. Ubuntu full suite: 1494 passed / 13 skipped / 46 warnings; focused `33187554520`: 29 tests passed on Ubuntu and Windows.
+- R14.4 is COMPLETE at technical/evidence level; R14.5 remains PLANNED pending final END re-gates, PR #263 merge and one continuity-only normalization.
 
 ## R14.1 post-merge normalization authority
 

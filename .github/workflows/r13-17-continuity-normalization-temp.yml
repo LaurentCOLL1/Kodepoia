@@ -1,0 +1,46 @@
+name: R13.17 Continuity Normalization Temp
+
+on:
+  push:
+    branches:
+      - "r13/17-continuity-normalization"
+    paths:
+      - ".r13_17_normalization_trigger"
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r13/17-continuity-normalization
+          fetch-depth: 0
+
+      - name: Apply deterministic continuity normalization
+        run: python scripts/r13_17_normalize_continuity_temp.py
+
+      - name: Enforce continuity-only final diff
+        shell: bash
+        run: |
+          rm -f scripts/r13_17_normalize_continuity_temp.py
+          rm -f .r13_17_normalization_trigger
+          rm -f .github/workflows/r13-17-continuity-normalization-temp.yml
+          git diff --check
+          git diff --name-only f56c61dbc82efd93c08e2b29ad1acff33219689f...HEAD > /tmp/before.txt
+          git status --short
+
+      - name: Commit normalized continuity
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          test "$(git diff --cached --name-only | sort)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git commit -m "R13.17 continuity-only normalization"
+          git push origin HEAD:r13/17-continuity-normalization

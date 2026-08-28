@@ -4,7 +4,7 @@ import re
 import threading
 from dataclasses import dataclass, replace
 from enum import StrEnum
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any, Callable, Mapping, Protocol, Sequence
 
 from .contracts import canonical_json_bytes, canonical_sha256
 
@@ -305,6 +305,22 @@ AuthorityHandler = Callable[
 ]
 
 
+class AuthorityStore(Protocol):
+    def snapshot(self, domain_id: str, target_id: str) -> AuthorityStateSnapshot: ...
+
+    def events(self) -> tuple[AuthorityEvent, ...]: ...
+
+    def last_session_sequence(self, domain_id: str, session_id: str) -> int: ...
+
+    def process_atomic(
+        self,
+        command: AuthorityCommand,
+        handler: AuthorityHandler,
+        *,
+        server_time_ms: int,
+    ) -> AuthorityCommandOutcome: ...
+
+
 class InMemoryAuthorityStore:
     """Deterministic transactional fixture store used by local/core acceptance."""
 
@@ -333,7 +349,7 @@ class InMemoryAuthorityStore:
         with self._lock:
             return self._session_sequences.get((domain_id, session_id), 0)
 
-    def _process_atomic(
+    def process_atomic(
         self,
         command: AuthorityCommand,
         handler: AuthorityHandler,
@@ -429,7 +445,7 @@ class InMemoryAuthorityStore:
 class AuthoritativeCommandProcessor:
     def __init__(
         self,
-        store: InMemoryAuthorityStore,
+        store: AuthorityStore,
         *,
         clock_ms: Callable[[], int],
         max_pending_commands: int = 128,
@@ -494,7 +510,7 @@ class AuthoritativeCommandProcessor:
                 )
             now = self._clock_ms()
             _bounded_int(now, field="server clock", minimum=0, maximum=2**63 - 1)
-            return self.store._process_atomic(command, handler, server_time_ms=now)
+            return self.store.process_atomic(command, handler, server_time_ms=now)
         finally:
             with self._pending_lock:
                 self._pending -= 1

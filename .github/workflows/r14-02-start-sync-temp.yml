@@ -30,6 +30,7 @@ jobs:
           rm scripts/_r14_2_start_sync_temp.py
           rm .github/workflows/r14-02-start-sync-temp.yml
           rm .r14_2_start_sync_trigger
+          git restore --source=HEAD --worktree -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           git add -A
           git diff --cached --check
           changed="$(git diff --cached --name-only 41f0775731c405a6b208baec8910bdb36a78d10e -- | sort)"

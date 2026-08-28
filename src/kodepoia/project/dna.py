@@ -8,6 +8,8 @@ from typing import Any
 
 import yaml
 
+from kodepoia.backend.contracts import BackendServiceKind
+from kodepoia.backend.intent import BackendProjectProfile
 from kodepoia.desktop.contracts import (
     DesktopArchitecture,
     DesktopFramework,
@@ -330,6 +332,7 @@ class ProjectDNA:
     capabilities: dict[str, DecisionState] = field(default_factory=dict)
     desktop: DesktopProjectProfile | None = None
     mobile: MobileProjectProfile | None = None
+    backend: BackendProjectProfile | None = None
 
     def validate(self) -> None:
         if self.schema_version != 1:
@@ -355,6 +358,9 @@ class ProjectDNA:
             self.mobile.validate(self.platforms, self.project_type, self.engine)
         elif self.project_type is ProjectType.MOBILE_APP:
             raise ValueError("mobile_app projects require an explicit mobile profile")
+
+        if self.backend is not None:
+            self.backend.validate()
 
         normalized_inputs = {item.lower() for item in self.inputs}
         if not selected_mobile:
@@ -401,6 +407,8 @@ class ProjectDNA:
             payload.pop("desktop", None)
         if self.mobile is None:
             payload.pop("mobile", None)
+        if self.backend is None:
+            payload.pop("backend", None)
         return payload
 
     def save(self, path: Path) -> None:
@@ -472,6 +480,29 @@ class ProjectDNA:
                 budget=MobileProjectBudget(**raw_budget),
             )
 
+        raw_backend = raw.get("backend")
+        backend = None
+        if raw_backend is not None:
+            if not isinstance(raw_backend, dict):
+                raise ValueError("Backend Project DNA profile must be an object")
+            allowed_backend_keys = {"enabled", "services"}
+            unknown_backend_keys = set(raw_backend) - allowed_backend_keys
+            if unknown_backend_keys:
+                raise ValueError(
+                    "Backend Project DNA profile contains unsupported fields: "
+                    + ", ".join(sorted(str(item) for item in unknown_backend_keys))
+                )
+            enabled = raw_backend.get("enabled", False)
+            if not isinstance(enabled, bool):
+                raise ValueError("Backend Project DNA enabled must be boolean")
+            raw_services = raw_backend.get("services", [])
+            if not isinstance(raw_services, list):
+                raise ValueError("Backend Project DNA services must be an array")
+            backend = BackendProjectProfile(
+                enabled=enabled,
+                services=tuple(BackendServiceKind(item) for item in raw_services),
+            )
+
         dna = cls(
             schema_version=int(raw["schema_version"]),
             name=str(raw["name"]),
@@ -496,6 +527,7 @@ class ProjectDNA:
             },
             desktop=desktop,
             mobile=mobile,
+            backend=backend,
         )
         dna.validate()
         return dna

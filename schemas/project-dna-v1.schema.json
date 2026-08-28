@@ -24,60 +24,193 @@
     "capabilities"
   ],
   "properties": {
-    "schema_version": {"const": 1},
-    "name": {"type": "string", "minLength": 1},
+    "schema_version": {
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
     "project_type": {
-      "enum": ["game", "desktop_app", "mobile_app", "tool", "plugin", "library", "ai_project", "other"]
+      "enum": [
+        "game",
+        "desktop_app",
+        "mobile_app",
+        "tool",
+        "plugin",
+        "library",
+        "ai_project",
+        "other"
+      ]
     },
     "platforms": {
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": {"enum": ["windows", "linux", "macos", "android", "ios", "web", "steam_deck", "xr"]}
+      "items": {
+        "enum": [
+          "windows",
+          "linux",
+          "macos",
+          "android",
+          "ios",
+          "web",
+          "steam_deck",
+          "xr"
+        ]
+      }
     },
-    "engine": {"type": ["string", "null"]},
-    "engine_version": {"type": ["string", "null"]},
-    "dimension": {"enum": ["2d", "2.5d", "3d", "hybrid", null]},
-    "genres": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-    "inputs": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-    "graphics_style": {"type": ["string", "null"]},
-    "online": {"$ref": "#/$defs/decision"},
-    "multiplayer": {"$ref": "#/$defs/decision"},
-    "performance": {"type": "object", "additionalProperties": {"$ref": "#/$defs/performanceBudget"}},
-    "tools": {"type": "object", "additionalProperties": {"type": "boolean"}},
-    "download_policy": {"$ref": "#/$defs/approvalPolicy"},
-    "install_policy": {"$ref": "#/$defs/approvalPolicy"},
-    "lineage": {"type": "object", "additionalProperties": {"type": "string"}},
-    "capabilities": {"type": "object", "additionalProperties": {"$ref": "#/$defs/decision"}},
-    "desktop": {"$ref": "#/$defs/desktopProfile"},
-    "mobile": {"$ref": "#/$defs/mobileProfile"}
+    "engine": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "engine_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dimension": {
+      "enum": [
+        "2d",
+        "2.5d",
+        "3d",
+        "hybrid",
+        null
+      ]
+    },
+    "genres": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "graphics_style": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "online": {
+      "$ref": "#/$defs/decision"
+    },
+    "multiplayer": {
+      "$ref": "#/$defs/decision"
+    },
+    "performance": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/performanceBudget"
+      }
+    },
+    "tools": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "download_policy": {
+      "$ref": "#/$defs/approvalPolicy"
+    },
+    "install_policy": {
+      "$ref": "#/$defs/approvalPolicy"
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/decision"
+      }
+    },
+    "desktop": {
+      "$ref": "#/$defs/desktopProfile"
+    },
+    "mobile": {
+      "$ref": "#/$defs/mobileProfile"
+    },
+    "backend": {
+      "$ref": "#/$defs/backendProfile"
+    }
   },
   "allOf": [
     {
       "if": {
-        "properties": {"project_type": {"const": "game"}},
-        "required": ["project_type"]
+        "properties": {
+          "project_type": {
+            "const": "game"
+          }
+        },
+        "required": [
+          "project_type"
+        ]
       },
       "then": {
-        "properties": {"dimension": {"enum": ["2d", "2.5d", "3d", "hybrid"]}}
+        "properties": {
+          "dimension": {
+            "enum": [
+              "2d",
+              "2.5d",
+              "3d",
+              "hybrid"
+            ]
+          }
+        }
       },
       "else": {
-        "properties": {"dimension": {"type": "null"}}
+        "properties": {
+          "dimension": {
+            "type": "null"
+          }
+        }
       }
     },
     {
       "if": {
         "properties": {
           "platforms": {
-            "not": {"contains": {"enum": ["android", "ios"]}}
+            "not": {
+              "contains": {
+                "enum": [
+                  "android",
+                  "ios"
+                ]
+              }
+            }
           }
         },
-        "required": ["platforms"]
+        "required": [
+          "platforms"
+        ]
       },
       "then": {
         "properties": {
           "inputs": {
-            "not": {"contains": {"enum": ["touch", "gyro", "accelerometer"]}}
+            "not": {
+              "contains": {
+                "enum": [
+                  "touch",
+                  "gyro",
+                  "accelerometer"
+                ]
+              }
+            }
           },
           "mobile": false
         }
@@ -85,20 +218,43 @@
     },
     {
       "if": {
-        "properties": {"project_type": {"const": "mobile_app"}},
-        "required": ["project_type"]
+        "properties": {
+          "project_type": {
+            "const": "mobile_app"
+          }
+        },
+        "required": [
+          "project_type"
+        ]
       },
       "then": {
-        "required": ["mobile"],
+        "required": [
+          "mobile"
+        ],
         "properties": {
-          "engine": {"type": "null"},
-          "engine_version": {"type": "null"},
+          "engine": {
+            "type": "null"
+          },
+          "engine_version": {
+            "type": "null"
+          },
           "platforms": {
-            "items": {"enum": ["android", "ios"]}
+            "items": {
+              "enum": [
+                "android",
+                "ios"
+              ]
+            }
           },
           "mobile": {
             "allOf": [
-              {"properties": {"source_kind": {"const": "native"}}}
+              {
+                "properties": {
+                  "source_kind": {
+                    "const": "native"
+                  }
+                }
+              }
             ]
           }
         }
@@ -106,40 +262,131 @@
     }
   ],
   "$defs": {
-    "decision": {"enum": ["yes", "no", "undecided"]},
-    "approvalPolicy": {"enum": ["deny", "ask", "allow_trusted"]},
+    "decision": {
+      "enum": [
+        "yes",
+        "no",
+        "undecided"
+      ]
+    },
+    "approvalPolicy": {
+      "enum": [
+        "deny",
+        "ask",
+        "allow_trusted"
+      ]
+    },
     "performanceBudget": {
       "type": "object",
-      "required": ["target_fps", "min_fps", "max_vram_mb", "max_ram_mb", "max_build_mb"],
+      "required": [
+        "target_fps",
+        "min_fps",
+        "max_vram_mb",
+        "max_ram_mb",
+        "max_build_mb"
+      ],
       "properties": {
-        "target_fps": {"type": "integer", "minimum": 1},
-        "min_fps": {"type": "integer", "minimum": 1},
-        "max_vram_mb": {"type": ["integer", "null"], "minimum": 1},
-        "max_ram_mb": {"type": ["integer", "null"], "minimum": 1},
-        "max_build_mb": {"type": ["integer", "null"], "minimum": 1}
+        "target_fps": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "min_fps": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_vram_mb": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "max_ram_mb": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "max_build_mb": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
       },
       "additionalProperties": false
     },
     "desktopProfile": {
       "type": "object",
-      "required": ["framework", "architecture", "package_kind", "persistence", "ipc", "updates"],
+      "required": [
+        "framework",
+        "architecture",
+        "package_kind",
+        "persistence",
+        "ipc",
+        "updates"
+      ],
       "properties": {
-        "framework": {"enum": ["wpf", "winui3", "avalonia", "qt6", "tauri2"]},
-        "architecture": {"enum": ["x64", "arm64"]},
-        "package_kind": {"enum": ["unpackaged", "msix", "msi", "archive"]},
-        "persistence": {"$ref": "#/$defs/decision"},
-        "ipc": {"$ref": "#/$defs/decision"},
-        "updates": {"$ref": "#/$defs/decision"}
+        "framework": {
+          "enum": [
+            "wpf",
+            "winui3",
+            "avalonia",
+            "qt6",
+            "tauri2"
+          ]
+        },
+        "architecture": {
+          "enum": [
+            "x64",
+            "arm64"
+          ]
+        },
+        "package_kind": {
+          "enum": [
+            "unpackaged",
+            "msix",
+            "msi",
+            "archive"
+          ]
+        },
+        "persistence": {
+          "$ref": "#/$defs/decision"
+        },
+        "ipc": {
+          "$ref": "#/$defs/decision"
+        },
+        "updates": {
+          "$ref": "#/$defs/decision"
+        }
       },
       "additionalProperties": false
     },
     "mobileBudget": {
       "type": "object",
-      "required": ["max_package_mb", "max_build_seconds", "max_device_matrix_runs"],
+      "required": [
+        "max_package_mb",
+        "max_build_seconds",
+        "max_device_matrix_runs"
+      ],
       "properties": {
-        "max_package_mb": {"type": "integer", "minimum": 1, "maximum": 20480},
-        "max_build_seconds": {"type": "integer", "minimum": 1, "maximum": 86400},
-        "max_device_matrix_runs": {"type": "integer", "minimum": 1, "maximum": 1000}
+        "max_package_mb": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20480
+        },
+        "max_build_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        },
+        "max_device_matrix_runs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        }
       },
       "additionalProperties": false
     },
@@ -163,55 +410,255 @@
         "budget"
       ],
       "properties": {
-        "source_kind": {"enum": ["native", "godot_export"]},
+        "source_kind": {
+          "enum": [
+            "native",
+            "godot_export"
+          ]
+        },
         "form_factors": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"enum": ["phone", "tablet"]}
+          "items": {
+            "enum": [
+              "phone",
+              "tablet"
+            ]
+          }
         },
         "android_application_id": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
         },
-        "android_min_api": {"type": ["integer", "null"], "minimum": 1, "maximum": 1000},
-        "android_target_api": {"type": ["integer", "null"], "minimum": 1, "maximum": 1000},
+        "android_min_api": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "android_target_api": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 1000
+        },
         "apple_bundle_id": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*(\\.[A-Za-z0-9][A-Za-z0-9-]*)+$"
         },
         "apple_min_version": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "pattern": "^[0-9]+(\\.[0-9]+){0,3}$"
         },
         "apple_target_version": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "pattern": "^[0-9]+(\\.[0-9]+){0,3}$"
         },
         "package_kinds": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"enum": ["apk", "aab", "app", "xcarchive", "ipa"]}
+          "items": {
+            "enum": [
+              "apk",
+              "aab",
+              "app",
+              "xcarchive",
+              "ipa"
+            ]
+          }
         },
         "permissions": {
           "type": "array",
           "maxItems": 64,
           "uniqueItems": true,
-          "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"}
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"
+          }
         },
         "requested_capabilities": {
           "type": "array",
           "maxItems": 64,
           "uniqueItems": true,
-          "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"}
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,127}$"
+          }
         },
-        "network_intent": {"enum": ["offline", "optional", "required"]},
-        "release_channel": {"enum": ["development", "internal", "beta", "production"]},
-        "signing_intent": {"enum": ["unsigned", "debug", "test", "distribution"]},
-        "budget": {"$ref": "#/$defs/mobileBudget"}
+        "network_intent": {
+          "enum": [
+            "offline",
+            "optional",
+            "required"
+          ]
+        },
+        "release_channel": {
+          "enum": [
+            "development",
+            "internal",
+            "beta",
+            "production"
+          ]
+        },
+        "signing_intent": {
+          "enum": [
+            "unsigned",
+            "debug",
+            "test",
+            "distribution"
+          ]
+        },
+        "budget": {
+          "$ref": "#/$defs/mobileBudget"
+        }
       },
       "additionalProperties": false
+    },
+    "backendProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "services"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "services": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "auth",
+              "authoritative_server",
+              "matchmaking",
+              "cloud_save",
+              "progression",
+              "catalog",
+              "entitlement",
+              "billing",
+              "remote_config",
+              "content_delivery",
+              "events"
+            ]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": false
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          },
+          "then": {
+            "properties": {
+              "services": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          },
+          "then": {
+            "properties": {
+              "services": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "services": {
+                "contains": {
+                  "const": "matchmaking"
+                }
+              }
+            },
+            "required": [
+              "services"
+            ]
+          },
+          "then": {
+            "properties": {
+              "services": {
+                "contains": {
+                  "const": "authoritative_server"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "services": {
+                "contains": {
+                  "const": "billing"
+                }
+              }
+            },
+            "required": [
+              "services"
+            ]
+          },
+          "then": {
+            "properties": {
+              "services": {
+                "allOf": [
+                  {
+                    "contains": {
+                      "const": "catalog"
+                    }
+                  },
+                  {
+                    "contains": {
+                      "const": "entitlement"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "additionalProperties": false

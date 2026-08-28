@@ -1,6 +1,6 @@
 # R14.7 — Matchmaking, lobby, reservations, presence + reconnect acceptance
 
-**Status:** TECHNICAL ACCEPTED — END synchronization pending final exact-head re-gates  
+**Status:** END-SYNCED — final exact-head re-gates required  
 **Immutable technical source:** `d04c841fcef9eb9f963085da68e579dbb58186da`  
 **Normalized R14.6 base:** `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`  
 **Implementation PR:** #269  

@@ -61,3 +61,5 @@ jobs:
           name: r14-9-progression-evidence-${{ matrix.os }}-${{ env.EVIDENCE_SOURCE_SHA }}
           path: ${{ env.EVIDENCE_PATH }}
           if-no-files-found: error
+
+# Exact-head provider-neutral acceptance; provider publication is intentionally out of scope.

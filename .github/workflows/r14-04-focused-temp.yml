@@ -1,0 +1,46 @@
+name: R14.4 Focused Cross-platform Temp
+on:
+  push:
+    branches: [r14/04-auth-identity-sessions]
+    paths: [.r14_4_focused_trigger]
+permissions:
+  contents: write
+jobs:
+  focused:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/04-auth-identity-sessions
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e ".[dev,code]"
+      - name: Compile
+        run: python -m compileall -q src tests
+      - name: Focused R14.4 + R14.3 regressions
+        run: python -m pytest -q tests/test_r14_4_auth_identity_sessions.py tests/test_r14_3_local_backend_runtime.py
+  cleanup:
+    needs: focused
+    if: ${{ always() && needs.focused.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/04-auth-identity-sessions
+          fetch-depth: 0
+      - name: Remove temporary focused validation
+        shell: bash
+        run: |
+          rm -f .github/workflows/r14-04-focused-temp.yml .r14_4_focused_trigger
+          git add -u -- .github/workflows/r14-04-focused-temp.yml .r14_4_focused_trigger
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'R14.4 remove focused prevalidation temporaries'
+          git push origin HEAD:r14/04-auth-identity-sessions

@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-operation-intent.schema.json",
+  "title": "R14 Backend Operation Intent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "operation_id",
+    "operation_kind",
+    "risk",
+    "environment_id",
+    "service_id",
+    "endpoint_id",
+    "request_digest",
+    "expected_environment_digest",
+    "required_capability"
+  ],
+  "properties": {
+    "operation_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "operation_kind": {"enum": ["probe", "connect", "deploy", "migrate", "mutate", "promote", "rollback"]},
+    "risk": {"enum": ["network_active", "mutating", "destructive"]},
+    "environment_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "service_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "endpoint_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "request_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "expected_environment_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "required_capability": {"const": "network"}
+  }
+}

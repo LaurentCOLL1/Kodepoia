@@ -261,6 +261,15 @@ class PostgresMigrationPlan:
     def digest(self) -> str:
         return canonical_sha256(self.canonical())
 
+    def prefix_digest(self, sequence: int) -> str:
+        if isinstance(sequence, bool) or not isinstance(sequence, int) or not 1 <= sequence <= len(self.migrations):
+            raise PostgresPolicyError("migration prefix sequence is out of range")
+        payload = {
+            "schema_id": self.schema_id,
+            "migrations": [item.canonical() for item in self.migrations[:sequence]],
+        }
+        return canonical_sha256(payload)
+
 
 @dataclass(frozen=True, slots=True)
 class PostgresMigrationRecord:
@@ -412,21 +421,20 @@ class PostgresAdapter:
         dsn = self._secret_resolver(self.policy.dsn_ref)
         if not isinstance(dsn, str) or not dsn.strip():
             raise PostgresStateError("resolved PostgreSQL DSN is unavailable")
+        options = (
+            f"-c statement_timeout={self.policy.statement_timeout_ms} "
+            f"-c lock_timeout={self.policy.lock_timeout_ms} "
+            f"-c idle_in_transaction_session_timeout={self.policy.idle_transaction_timeout_ms}"
+        )
         kwargs: dict[str, Any] = {
             "connect_timeout": self.policy.connect_timeout_s,
             "application_name": self.policy.application_name,
+            "options": options,
         }
         if self.policy.ssl_required:
             kwargs["sslmode"] = "require"
         conn = self._connect_callable()(dsn, **kwargs)
         try:
-            with conn.cursor() as cur:
-                cur.execute("SET statement_timeout = %s", (self.policy.statement_timeout_ms,))
-                cur.execute("SET lock_timeout = %s", (self.policy.lock_timeout_ms,))
-                cur.execute(
-                    "SET idle_in_transaction_session_timeout = %s",
-                    (self.policy.idle_transaction_timeout_ms,),
-                )
             yield conn
         finally:
             conn.close()
@@ -487,7 +495,7 @@ class PostgresAdapter:
                 raise PostgresStateError("migration identity drift detected")
             if record.checksum != expected.checksum:
                 raise PostgresStateError("migration checksum drift detected")
-            if record.schema_digest != plan.digest():
+            if record.schema_digest != plan.prefix_digest(record.sequence):
                 raise PostgresStateError("migration schema digest drift detected")
 
     def apply_migrations(self, conn: ConnectionLike, plan: PostgresMigrationPlan) -> int:
@@ -500,7 +508,7 @@ class PostgresAdapter:
                 conn.execute(
                     "INSERT INTO kodepoia_schema_migrations "
                     "(migration_id, sequence, checksum, schema_digest) VALUES (%s, %s, %s, %s)",
-                    (migration.migration_id, migration.sequence, migration.checksum, plan.digest()),
+                    (migration.migration_id, migration.sequence, migration.checksum, plan.prefix_digest(migration.sequence)),
                 )
                 count += 1
             conn.commit()
@@ -552,7 +560,7 @@ class PostgresAdapter:
                     conn.rollback()
                     last_sqlstate = getattr(exc, "sqlstate", None)
                     retryable = last_sqlstate in {_SQLSTATE_DEADLOCK, _SQLSTATE_SERIALIZATION}
-                    if not retryable or attempts > policy.max_retries + 1:
+                    if not retryable or attempts > policy.max_retries:
                         raise
             self._sleeper((policy.retry_backoff_ms * attempts) / 1000.0)
 

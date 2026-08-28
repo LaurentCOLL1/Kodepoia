@@ -93,6 +93,13 @@ def _int_value(value: int, *, field: str) -> int:
     return value
 
 
+def _server_now_ms(clock_ms: Callable[[], int]) -> int:
+    value = clock_ms()
+    if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= 2**63 - 1:
+        raise ProgressionPolicyError("invalid_server_clock")
+    return value
+
+
 def _metadata(value: Mapping[str, Any] | None, *, max_bytes: int) -> dict[str, Any]:
     if value is None:
         return {}
@@ -133,6 +140,8 @@ class StatDefinition:
     def __post_init__(self) -> None:
         object.__setattr__(self, "stat_id", _stable_id(self.stat_id, field="stat_id"))
         _positive_version(self.version)
+        if not isinstance(self.aggregation, StatAggregation):
+            raise ProgressionPolicyError("invalid_stat_aggregation")
         _int_value(self.minimum, field="minimum")
         _int_value(self.maximum, field="maximum")
         if self.minimum > self.maximum:
@@ -166,6 +175,8 @@ class AchievementDefinition:
         object.__setattr__(self, "stat_id", _stable_id(self.stat_id, field="stat_id"))
         _positive_version(self.version)
         _positive_version(self.stat_version, field="stat_version")
+        if not isinstance(self.threshold_mode, AchievementThreshold):
+            raise ProgressionPolicyError("invalid_threshold_mode")
         _int_value(self.threshold, field="threshold")
         if not isinstance(self.hidden, bool):
             raise ProgressionPolicyError("invalid_hidden")
@@ -223,6 +234,14 @@ class LeaderboardDefinition:
         object.__setattr__(self, "stat_id", _stable_id(self.stat_id, field="stat_id"))
         _positive_version(self.version)
         _positive_version(self.stat_version, field="stat_version")
+        if not isinstance(self.order, LeaderboardOrder):
+            raise ProgressionPolicyError("invalid_leaderboard_order")
+        if not isinstance(self.score_policy, LeaderboardScorePolicy):
+            raise ProgressionPolicyError("invalid_score_policy")
+        if not isinstance(self.tie_policy, LeaderboardTiePolicy):
+            raise ProgressionPolicyError("invalid_tie_policy")
+        if not isinstance(self.period_kind, LeaderboardPeriodKind):
+            raise ProgressionPolicyError("invalid_period_kind")
         if self.period_kind is LeaderboardPeriodKind.CLASSIC:
             if self.starts_at_ms is not None or self.period_ms is not None:
                 raise ProgressionPolicyError("classic_period_fields_forbidden")
@@ -672,6 +691,30 @@ class InMemoryProgressionService:
             return candidate > previous
         return candidate < previous
 
+    @staticmethod
+    def _leaderboard_candidate(
+        stat_definition: StatDefinition,
+        leaderboard: LeaderboardDefinition,
+        previous: LeaderboardScore | None,
+        input_value: int,
+        lifetime_value: int,
+    ) -> int:
+        if leaderboard.period_kind is LeaderboardPeriodKind.CLASSIC:
+            candidate = lifetime_value
+        elif previous is None:
+            candidate = input_value
+        elif stat_definition.aggregation is StatAggregation.SUM:
+            candidate = previous.score + input_value
+        elif stat_definition.aggregation is StatAggregation.MAX:
+            candidate = max(previous.score, input_value)
+        elif stat_definition.aggregation is StatAggregation.MIN:
+            candidate = min(previous.score, input_value)
+        else:
+            raise ProgressionPolicyError("unsupported_stat_aggregation")
+        if candidate < stat_definition.minimum or candidate > stat_definition.maximum:
+            raise ProgressionStateError("leaderboard_stat_bounds")
+        return candidate
+
     def _period_entry_count(self, leaderboard_id: str, version: int, period_id: str) -> int:
         return sum(
             key[0] == leaderboard_id and key[1] == version and key[2] == period_id
@@ -731,7 +774,7 @@ class InMemoryProgressionService:
             if account_id not in self._accounts and len(self._accounts) >= self.max_accounts:
                 raise ProgressionCapacityError("account_capacity")
 
-            now_ms = int(self.clock_ms())
+            now_ms = _server_now_ms(self.clock_ms)
             value_key = (account_id, stat_id, stat_version)
             current = self._values.get(value_key)
             resulting = self._aggregate(definition, current, value)
@@ -796,11 +839,14 @@ class InMemoryProgressionService:
             for leaderboard, period in affected_leaderboards:
                 score_key = (leaderboard.leaderboard_id, leaderboard.version, period.period_id, account_id)
                 previous = self._scores.get(score_key)
+                candidate = self._leaderboard_candidate(
+                    definition, leaderboard, previous, value, resulting
+                )
                 should_update = previous is None
                 if previous is not None:
                     should_update = (
                         leaderboard.score_policy is LeaderboardScorePolicy.FORCE_UPDATE
-                        or self._better(leaderboard, resulting, previous.score)
+                        or self._better(leaderboard, candidate, previous.score)
                     )
                 if should_update:
                     score = LeaderboardScore(
@@ -808,7 +854,7 @@ class InMemoryProgressionService:
                         leaderboard.version,
                         period.period_id,
                         account_id,
-                        resulting,
+                        candidate,
                         sequence,
                         now_ms,
                     )
@@ -842,6 +888,8 @@ class InMemoryProgressionService:
     ) -> ProgressionVisibility:
         leaderboard_id = _stable_id(leaderboard_id, field="leaderboard_id")
         _positive_version(version)
+        if not isinstance(visibility, ProgressionVisibility):
+            raise ProgressionPolicyError("invalid_visibility")
         self._authorize(actor, "progression.privacy", actor.account_id)
         with self._lock:
             if (leaderboard_id, version) not in self._leaderboards:
@@ -944,7 +992,7 @@ class InMemoryProgressionService:
             definition = self._leaderboards.get((leaderboard_id, version))
             if definition is None:
                 raise ProgressionStateError("leaderboard_definition_not_found")
-            now_ms = int(self.clock_ms())
+            now_ms = _server_now_ms(self.clock_ms)
             period = self._leaderboard_period(definition, now_ms, period_index)
             scores = [
                 score

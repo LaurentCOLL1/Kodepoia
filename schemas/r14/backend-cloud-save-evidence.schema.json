@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.dev/schemas/r14/backend-cloud-save-evidence.schema.json",
+  "title": "R14.8 Cloud Save Acceptance Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "source_sha",
+    "checks",
+    "state_digest",
+    "trace_digest",
+    "slot_digest",
+    "current_revision_digest",
+    "resolved_conflict_digest",
+    "revision_count",
+    "retained_bytes",
+    "budgets",
+    "external_reference_posture",
+    "provider_live_claim",
+    "secrets_exposed"
+  ],
+  "properties": {
+    "status": {"const": "pass"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "immutable_revision",
+        "idempotent_replay",
+        "idempotency_rebind_rejected",
+        "explicit_conflict",
+        "conflict_replay",
+        "deterministic_resolution",
+        "double_resolution_rejected",
+        "explicit_migration",
+        "silent_schema_change_rejected",
+        "append_only_rollback",
+        "object_authorization",
+        "function_authorization",
+        "integrity_guard",
+        "bounded_quota"
+      ],
+      "properties": {
+        "immutable_revision": {"const": true},
+        "idempotent_replay": {"const": true},
+        "idempotency_rebind_rejected": {"const": true},
+        "explicit_conflict": {"const": true},
+        "conflict_replay": {"const": true},
+        "deterministic_resolution": {"const": true},
+        "double_resolution_rejected": {"const": true},
+        "explicit_migration": {"const": true},
+        "silent_schema_change_rejected": {"const": true},
+        "append_only_rollback": {"const": true},
+        "object_authorization": {"const": true},
+        "function_authorization": {"const": true},
+        "integrity_guard": {"const": true},
+        "bounded_quota": {"const": true}
+      }
+    },
+    "state_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "trace_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "slot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "current_revision_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "resolved_conflict_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "revision_count": {"type": "integer", "minimum": 1},
+    "retained_bytes": {"type": "integer", "minimum": 0},
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_payload_bytes",
+        "max_revisions_per_slot",
+        "max_retained_bytes_per_slot",
+        "max_open_conflicts_per_slot"
+      ],
+      "properties": {
+        "max_payload_bytes": {"type": "integer", "minimum": 1},
+        "max_revisions_per_slot": {"type": "integer", "minimum": 1},
+        "max_retained_bytes_per_slot": {"type": "integer", "minimum": 1},
+        "max_open_conflicts_per_slot": {"type": "integer", "minimum": 1}
+      }
+    },
+    "external_reference_posture": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "provider_live_claim": {"const": false},
+    "secrets_exposed": {"const": false}
+  }
+}

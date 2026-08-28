@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.7 COMPLETE + NORMALIZED. R14.8–R14.17 PLANNED.** R14.7 a été fusionnée par PR #269 depuis le HEAD exact `a9376ad7aee4e4683fe9d7d98ef52d19ec2184e2` après R0 #1808, Python Core #1782, KodeStudio UI Smoke #1749 et R14 Matchmaking Acceptance #9, tous SUCCESS. Merge R14.7 : `763ce96c4f82da2eaec167b56ffb62d9e548b300`. Cette branche `r14/07-continuity-normalization` est l’unique normalisation post-merge et ne modifie que ce fichier. R14.8 n’est autorisée qu’après R0 + Python Core + UI Smoke SUCCESS sur le HEAD exact de cette normalisation puis merge avec expected-head protection. Manual intervention : NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.7 COMPLETE + NORMALIZED. R14.8 COMPLETE (END-SYNCED; normalization pending). R14.9–R14.17 PLANNED.** R14.8 source technique immuable `8132c4029983f693a32e0d26903d05e347313bf6` sur `r14/08-cloud-saves`; R0 #1822, Python Core #1796, UI #1763 et Cloud Save Acceptance #6 sont SUCCESS. Re-gater l’END-head exact, merger PR #271 avec expected-head, puis effectuer exactement une normalisation continuity-only avant toute R14.9. Manual intervention : NONE.
 
 ## État global
 
@@ -14,8 +14,9 @@
 - R12 canonical integrated digest : `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 canonical integrated digest : `831b155fce200eae6b9fbe91c8eb44e992ea036c0922e508171644b497a4c3c7`.
 - R14 planning : **ACCEPTED + NORMALIZED**.
-- R14.1–R14.7 : **COMPLETE + NORMALIZED**, sous réserve du merge de cette unique normalisation R14.7 après ses trois gates frais.
-- R14.8–R14.17 : **PLANNED**.
+- R14.1–R14.7 : **COMPLETE + NORMALIZED**.
+- R14.8 : **COMPLETE (END-SYNCED; normalization pending)** sur `r14/08-cloud-saves`; source technique immuable `8132c4029983f693a32e0d26903d05e347313bf6`, base exacte `24e40db2781db8e42591c6ffa8fbdb8f0bf84108`.
+- R14.9–R14.17 : **PLANNED**.
 - Manual state actuel : **NONE**.
 
 ## Permanent R-phase execution rule
@@ -58,7 +59,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.5 | COMPLETE + NORMALIZED | NONE |
 | R14.6 | COMPLETE + NORMALIZED | NONE |
 | R14.7 | COMPLETE + NORMALIZED | NONE |
-| R14.8 | PLANNED | NONE |
+| R14.8 | COMPLETE | NONE |
 | R14.9 | PLANNED | NONE |
 | R14.10 | PLANNED | CONDITIONAL |
 | R14.11 | PLANNED | NONE |
@@ -90,6 +91,20 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - PR #269 fusionnée avec `expected_head_sha=a9376ad7aee4e4683fe9d7d98ef52d19ec2184e2` comme merge `763ce96c4f82da2eaec167b56ffb62d9e548b300`.
 - Provider posture : `provider_live_claim=false`, `secrets_exposed=false`, manual NONE.
 
+## R14.8 END-sync authority
+
+- Dedicated branch: **`r14/08-cloud-saves`**.
+- Exact branch point: normalized R14.7 `main` **`24e40db2781db8e42591c6ffa8fbdb8f0bf84108`**.
+- Immutable technical source: **`8132c4029983f693a32e0d26903d05e347313bf6`**.
+- Technical gates: R0 #1822 / `33206330276`, Python Core #1796 / `33206330171`, UI #1763 / `33206330345`, Cloud Save Acceptance #6 / `33206330291` — all SUCCESS.
+- Python Core Ubuntu: **1564 passed / 13 skipped / 46 warnings**; Windows Core SUCCESS; package builds Ubuntu/Windows SUCCESS.
+- Focused R14.8→R14.5: **70 passed Ubuntu + 70 passed Windows**; fourteen cloud-save checks PASS cross-platform.
+- Semantic digests: state `984bf5fc88d5ca537cd3a4d938c0aa6d890e8f1794f5485467726331331ce345`; trace `f071636d1c5c99614b91817d328bab43ec406daaf315621affecd45af42df5e8`; slot `24c423bfc661d2f8d207364c9d7058cb45413b7e15347beb78b50ca10c7345d1`; current revision `4603e4e2a7d7d708cf689eb6cd4502b9809993b7245fc3ac64bf05eee1f34d7e`; resolved conflict `be2d6808b13bd40aa4a04d003d8d47df315a4461a67647746b87b26d1e6c0eca`.
+- Artifacts: Ubuntu `9699802370` / `sha256:bfd9d7cadb002a822f5c0f399f32dc7410b62318a1dee7a0c3d480bd1c8398d8`; Windows `9699818533` / `sha256:748f1b5572d679e619d82aeda314a1fa1f4c688d7edfe6f84e41fe54424c5a0d`.
+- Provider posture: `provider_live_claim=false`, `secrets_exposed=false`; RFC 9110 / Google Play Games / OWASP are informative evidence only.
+- Current state: R14.8 **COMPLETE** at END-sync; R14.9–R14.17 **PLANNED**.
+- Manual intervention: **NONE**.
+
 ## External research baseline relevant to R14.8
 
 - RFC 9110 §13 définit les requêtes conditionnelles ; `If-Match` permet de faire échouer une mutation lorsque la représentation courante ne correspond plus à la version observée, afin d’éviter le problème de “lost update”. Cette sémantique est un bon repère pour le compare-and-swap/base-revision de R14.8, sans imposer HTTP comme architecture interne.
@@ -97,4 +112,4 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 
 ## Next authorized action
 
-Cette branche est l’unique normalisation `r14/07-continuity-normalization` depuis le merge `763ce96c4f82da2eaec167b56ffb62d9e548b300` et ne doit modifier que `docs/continuity/KODEPOIA_CONTINUITY.md`. Exiger R0 Repository Guard + full Python Core + KodeStudio UI Smoke SUCCESS sur son HEAD exact, puis merger la PR de normalisation uniquement avec `expected_head_sha`. Le `main` résultant devient alors l’unique base autorisée de R14.8. Pour R14.8 : créer une branche dédiée depuis ce `main`, START-sync `R14_PLAN.md` + continuité avant toute implémentation, puis implémenter immutable save revisions, base-revision/CAS, explicit conflicts, idempotency, quota/integrity checks et rollback/recovery. Manual intervention : **NONE**.
+Treat `8132c4029983f693a32e0d26903d05e347313bf6` as the only immutable R14.8 technical source. The END-sync head may differ only by `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_8_ACCEPTANCE.md` and this continuity file. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Cloud Save Acceptance. If all are SUCCESS, merge PR #271 only with `expected_head_sha` equal to that exact END-head. Then perform exactly one continuity-only post-merge normalization, fresh R0/Python/UI, and protected merge. Do not start R14.9 until normalized `main` exists. Manual intervention remains **NONE**.

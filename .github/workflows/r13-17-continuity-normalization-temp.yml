@@ -30,8 +30,8 @@ jobs:
           rm -f scripts/r13_17_normalize_continuity_temp.py
           rm -f .r13_17_normalization_trigger
           rm -f .github/workflows/r13-17-continuity-normalization-temp.yml
+          git checkout -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           git diff --check
-          git diff --name-only f56c61dbc82efd93c08e2b29ad1acff33219689f...HEAD > /tmp/before.txt
           git status --short
 
       - name: Commit normalized continuity

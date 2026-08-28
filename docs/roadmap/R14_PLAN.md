@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.5 are COMPLETE + NORMALIZED. R14.5 continuity-only normalization head `721c9949914a0952b2afe8543dd37da5f8146545` passed R0 #1793 / `33191649309`, Python Core #1767 / `33191649218`, and UI #1734 / `33191649134`, all SUCCESS; normalization PR #266 merged as normalized `main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`. R14.6 is IN_PROGRESS on `r14/06-authoritative-server-state` from that exact normalized main; R14.7–R14.17 remain PLANNED. R14.6 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.5 are COMPLETE + NORMALIZED. R14.5 continuity-only normalization head `721c9949914a0952b2afe8543dd37da5f8146545` passed R0 #1793 / `33191649309`, Python Core #1767 / `33191649218`, and UI #1734 / `33191649134`, all SUCCESS; normalization PR #266 merged as normalized `main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`. R14.6 immutable technical source `a1425b53e1228f9c88ba373cdfabf1459393a7cf` passed R0 #1795 / `33193110717`, Python Core #1769 / `33193110651`, UI #1736 / `33193110643`, and R14 Authority Acceptance #3 / `33193110695`, all SUCCESS. R14.6 is COMPLETE at technical/evidence level on `r14/06-authoritative-server-state`; R14.7–R14.17 remain PLANNED pending final END re-gates, PR #267 expected-head merge and exactly one continuity-only normalization. R14.6 manual state is NONE.
 
 ## Purpose and authority
 
@@ -203,7 +203,7 @@ Before R14.1 implementation:
 | R14.3 | Deterministic local backend scaffold/runtime + environments/config/secrets/health | COMPLETE | NONE | R14.1–R14.2 + R8/R12 patterns |
 | R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.1–R14.3 + R1/R6/R7 |
 | R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | COMPLETE | NONE | R14.1–R14.3 + R8/R12 |
-| R14.6 | Authoritative server command/state model + real-time transport/trust boundary | IN_PROGRESS | NONE | R14.4–R14.5 |
+| R14.6 | Authoritative server command/state model + real-time transport/trust boundary | COMPLETE | NONE | R14.4–R14.5 |
 | R14.7 | Matchmaking, lobby, reservations, presence + reconnect | PLANNED | NONE | R14.6 |
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | PLANNED | NONE | R14.5–R14.6 |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | PLANNED | NONE | R14.5–R14.6 |
@@ -511,7 +511,9 @@ Schema drift, non-idempotent retries, migration partial apply, connection exhaus
 - Migration plan digest: `b96484ae6d56fe54b013b975572310d8daf44cf43116c5c43edc73845856b71b`; restore digest: `bcc5ae8b707231568263e0f52c8426dd956a67e4e131bcf97becb4b45ccb9f6e`; evidence reports `secrets_exposed=false`.
 - Stable external baseline at acceptance: PostgreSQL 18.6 released 2026-08-13; PostgreSQL 19 Beta 3 remains pre-release/testing-only.
 - Manual intervention: NONE.
-- Current subdivision status: `COMPLETE` at technical/evidence level. R14.6 remains `PLANNED` until final END re-gates, PR #265 expected-head merge and exactly one continuity-only normalization.
+- Final END-head `9606436453c6cc2bed90120bc3f9069311ef65e0` passed fresh R0 #1791 / `33191315047`, Python Core #1765 / `33191315090`, UI #1732 / `33191315092`, and PostgreSQL Acceptance #5 / `33191315129`, all SUCCESS; PR #265 merged with `expected_head_sha=9606436453c6cc2bed90120bc3f9069311ef65e0` as `39d8aa12e3d36a618376f7060d1088f9fe61ba32`.
+- Single continuity-only normalization head `721c9949914a0952b2afe8543dd37da5f8146545` passed R0 #1793 / `33191649309`, Python Core #1767 / `33191649218`, and UI #1734 / `33191649134`, all SUCCESS; PR #266 merged as normalized `main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.6 was authorized and started from that exact normalized main.
 
 ---
 
@@ -563,7 +565,13 @@ Client authority leakage, race conditions, duplicate commands, clock dependence,
 
 ## Completion record
 
-To be appended when accepted.
+- Accepted immutable technical source: `a1425b53e1228f9c88ba373cdfabf1459393a7cf`.
+- Technical exact-head gates: R0 Repository Guard #1795 / `33193110717` SUCCESS; Python Core #1769 / `33193110651` SUCCESS; KodeStudio UI Smoke #1736 / `33193110643` SUCCESS; R14 Authority Acceptance #3 / `33193110695` SUCCESS.
+- Authority acceptance succeeded on both Ubuntu and Windows. All ten frozen adversarial/semantic checks passed: forgery rejection, stale-revision rejection, mutation-free duplicate replay, out-of-order rejection, reconnect/resync behavior, bounded backpressure, transaction/event consistency, deterministic multi-client conflict handling, server-clock lease expiry and recursive reserved-field rejection.
+- Cross-platform semantic results are identical: final state digest `59c1afb567245df4f3521052564d0bdfbaa4a5423eb7db7997c1e20160a988a3`; event digest `3adad95a513ee4812126d7d9695cc297d2f57287263a5686ee1ee5c08a15e4a1`; trace digest `839f65c4ffbe019c43f6aad988ee8258945c328f348135ffef9320955102f178`; `secrets_exposed=false`.
+- Ubuntu artifact id `9694600447`, ZIP digest `sha256:ec252c2e055cdb8aa9f94b0f6273f87e6e2724b22f715b8a8e986047766b194a`; Windows artifact id `9694625857`, ZIP digest `sha256:5a2b0ad3d0841649ee3d20cc8057b3def7644f208d44e7a5bfc8154053409464`.
+- Manual intervention: NONE.
+- Current subdivision status: `COMPLETE` at technical/evidence level. R14.7 remains `PLANNED` until this END synchronization passes fresh exact-head R0 + full Python Core + KodeStudio UI Smoke + R14 Authority Acceptance, PR #267 merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

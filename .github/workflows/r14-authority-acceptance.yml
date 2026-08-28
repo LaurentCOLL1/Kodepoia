@@ -34,7 +34,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       EVIDENCE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      EVIDENCE_PATH: docs/roadmap/R14_6_AUTHORITY_ACCEPTANCE-${{ runner.os }}.json
+      EVIDENCE_PATH: docs/roadmap/R14_6_AUTHORITY_ACCEPTANCE-${{ matrix.os }}.json
     steps:
       - name: Checkout exact evidence source
         uses: actions/checkout@v4
@@ -58,6 +58,6 @@ jobs:
       - name: Upload redacted authority evidence
         uses: actions/upload-artifact@v4
         with:
-          name: r14-6-authority-evidence-${{ runner.os }}-${{ env.EVIDENCE_SOURCE_SHA }}
+          name: r14-6-authority-evidence-${{ matrix.os }}-${{ env.EVIDENCE_SOURCE_SHA }}
           path: ${{ env.EVIDENCE_PATH }}
           if-no-files-found: error

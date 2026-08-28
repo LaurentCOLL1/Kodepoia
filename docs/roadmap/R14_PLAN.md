@@ -201,7 +201,7 @@ Before R14.1 implementation:
 | R14.1 | Backend contracts, identities, capability model + secure network/runtime boundaries | COMPLETE | NONE | R13 COMPLETE + normalized R14 planning |
 | R14.2 | Project DNA/KodeProduct backend profiles + Wizard conditional service intent | COMPLETE | NONE | R14.1 + R2/R13 profile patterns |
 | R14.3 | Deterministic local backend scaffold/runtime + environments/config/secrets/health | COMPLETE | NONE | R14.1–R14.2 + R8/R12 patterns |
-| R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | PLANNED | CONDITIONAL | R14.1–R14.3 + R1/R6/R7 |
+| R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R14.1–R14.3 + R1/R6/R7 |
 | R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | PLANNED | NONE | R14.1–R14.3 + R8/R12 |
 | R14.6 | Authoritative server command/state model + real-time transport/trust boundary | PLANNED | NONE | R14.4–R14.5 |
 | R14.7 | Matchmaking, lobby, reservations, presence + reconnect | PLANNED | NONE | R14.6 |
@@ -389,7 +389,9 @@ Binding `0.0.0.0` by default, zombie processes, port hijack, config drift, logs 
 - Focused implementation/compatibility prevalidation `33146069094`: 36 passed after compileall.
 - Cross-platform focused runtime validation `33146135676`: Ubuntu SUCCESS and Windows SUCCESS. A duplicate cleanup invocation later failed only because another invocation had already removed the temporary workflow/trigger; the tested implementation tree remained unchanged and the cumulative implementation diff contains no temporary files.
 - Manual intervention: NONE.
-- Current subdivision status: `COMPLETE` at technical/evidence level. R14.4 remains `PLANNED` until R14.3 implementation/evidence merge and single continuity-only normalization are accepted.
+- Final END-head `8411ce92da962a37cb9a5936bdac740d9a132204` passed R0 #1775 / `33146496788`, Python Core #1749 / `33146496859`, and UI #1716 / `33146496739`; PR #261 merged as `d288772a90d5877cabe35adb6e71f0ede32f6b8d`.
+- Single continuity-only normalization head `b8151f3729d2648d5f1e4d6ecd3bc9afb3c3c401` passed R0 #1777 / `33186628042`, Python Core #1751 / `33186628118`, and UI #1718 / `33186628151`; PR #262 merged as normalized `main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.4 is authorized and starts from that exact normalized main.
 
 ---
 

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.3 COMPLETE + NORMALIZED upon merge of the single continuity-only normalization PR; R14.4–R14.17 remain PLANNED.** R14.3 immutable technical source `4de5036e7a37f949ec64ae68d9ee45e57ac99631` passed R0 #1770 / `33146235062`, Python Core #1744 / `33146235104`, and UI #1711 / `33146235181`; final END-head `8411ce92da962a37cb9a5936bdac740d9a132204` passed fresh R0 #1775 / `33146496788`, Python Core #1749 / `33146496859`, and UI #1716 / `33146496739`, all SUCCESS; PR #261 merged with expected-head protection as `d288772a90d5877cabe35adb6e71f0ede32f6b8d`. Single authorized post-merge normalization branch is `r14/03-continuity-normalization`; after its fresh R0/Python/UI gates and merge, R14.4 is authorized. Manual state is NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.3 COMPLETE + NORMALIZED. R14.4 IN_PROGRESS on `r14/04-auth-identity-sessions`; R14.5–R14.17 remain PLANNED.** R14.3 final END-head `8411ce92da962a37cb9a5936bdac740d9a132204` passed R0 #1775 / `33146496788`, Python #1749 / `33146496859`, UI #1716 / `33146496739`; PR #261 merged as `d288772a90d5877cabe35adb6e71f0ede32f6b8d`; normalization head `b8151f3729d2648d5f1e4d6ecd3bc9afb3c3c401` passed R0 #1777 / `33186628042`, Python #1751 / `33186628118`, UI #1718 / `33186628151`; PR #262 merged as normalized `main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`. R14.4 starts exactly there. Manual state: CONDITIONAL / NOT TRIGGERED.
 
 ## État global
 
@@ -19,7 +19,7 @@
 - R13.15: **COMPLETE + NORMALIZED**. Final normalization head **`2122fd685fd20973ae045658e79d94295bb389cb`** passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and KodeStudio UI Smoke #1661 / `33099024892`; normalization PR #250 merged as normalized `main` **`dce60a60b58ff2c069d689144291f8c682b7e21f`**. Manual **NONE**.
 - R13.16: **COMPLETE + NORMALIZED**. Final end-synchronized implementation head **`a4c4185f6b11d4574e9ecf2f2b735c2d623155b4`** passed R0 #1726 / `33113280399`, Python Core #1700 / `33113280512`, and UI #1667 / `33113280468`; PR #251 merged as **`b1865ffff26de58f63606952f5c7b8de774e01fa`**. Single continuity-only normalization head **`9bcee3c9359f8a2340878c8310b1572f38d614df`** passed R0 #1728 / `33113689078`, Python Core #1702 / `33113689208`, and UI #1669 / `33113689114`; PR #252 merged as normalized **`main` `b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`**. Manual **NONE**.
 - R13.17: **COMPLETE + NORMALIZED**. Final documentation/evidence head **`cb0c63bcdcbaf2b58b3066d311780843c2598575`** passed all 12 fresh exact-head final gates; PR #253 merged as **`f56c61dbc82efd93c08e2b29ad1acff33219689f`**. Single continuity-only normalization head **`1bc52616e5e527dadfe8feafdc0d137433b37a48`** passed R0 #1746 / `33135420877`, Python Core #1720 / `33135420870`, and UI #1687 / `33135420823`; PR #254 merged as normalized **`main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`**. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.2 are **COMPLETE + NORMALIZED**. R14.3 technical source **`4de5036e7a37f949ec64ae68d9ee45e57ac99631`** passed R0 #1770 / `33146235062`, Python Core #1744 / `33146235104`, UI #1711 / `33146235181`; END-head **`8411ce92da962a37cb9a5936bdac740d9a132204`** passed R0 #1775 / `33146496788`, Python #1749 / `33146496859`, UI #1716 / `33146496739`; PR #261 merged as **`d288772a90d5877cabe35adb6e71f0ede32f6b8d`**. R14.3 is **COMPLETE / NORMALIZATION_IN_PROGRESS** on `r14/03-continuity-normalization`; R14.4–R14.17 remain PLANNED until this single normalization merges. Manual **NONE**.
+- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.3 are **COMPLETE + NORMALIZED**. R14.3 normalization head **`b8151f3729d2648d5f1e4d6ecd3bc9afb3c3c401`** passed R0 #1777 / `33186628042`, Python #1751 / `33186628118`, UI #1718 / `33186628151`; PR #262 merged as normalized **`main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`**. R14.4 is **IN_PROGRESS** on `r14/04-auth-identity-sessions`; R14.5–R14.17 remain PLANNED. Manual **CONDITIONAL / NOT TRIGGERED**.
 
 ## R14 planning closure and R14.1 start authority
 
@@ -63,6 +63,15 @@
 - Implementation/evidence PR #261 merged with `expected_head_sha=8411ce92da962a37cb9a5936bdac740d9a132204` as `d288772a90d5877cabe35adb6e71f0ede32f6b8d`.
 - Single authorized normalization branch: `r14/03-continuity-normalization`, created exactly from that merge. Its cumulative diff MUST contain exactly `docs/continuity/KODEPOIA_CONTINUITY.md`. After fresh R0 + full Python Core + KodeStudio UI Smoke and merge with expected-head protection, R14.3 is authoritatively **COMPLETE + NORMALIZED** and R14.4 is authorized.
 - Manual intervention: **NONE**.
+
+## R14.4 start authority
+
+- Dedicated branch: `r14/04-auth-identity-sessions`.
+- Exact branch point: normalized `main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`.
+- R14.1–R14.3 are COMPLETE + NORMALIZED; R14.4 is IN_PROGRESS; R14.5–R14.17 remain PLANNED.
+- Current standards basis: OAuth 2.0 Security BCP RFC 9700; OIDC issuer/audience/nonce policy; WebAuthn Level 3 current published Candidate Recommendation; strict session lifecycle and token redaction.
+- Core acceptance uses only deterministic local providers. No real IdP tenant, public domain, production TLS, provider client secret or authenticator registration is required. Conditional manual intervention is **NOT TRIGGERED**.
+- Frozen R14.4 scope: typed auth/account/realm identities, deterministic local provider, session/access/refresh lifecycle, rotation/revocation, PKCE/state/nonce/redirect/issuer/audience/algorithm policy, passkey public-credential contracts and explicit OIDC adapter boundary; no external tenant provisioning or generalized federation.
 
 ## R14.1 post-merge normalization authority
 

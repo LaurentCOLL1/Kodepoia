@@ -9,8 +9,8 @@ dimension: null
 genres: []
 inputs: []
 graphics_style: null
-online: no
-multiplayer: no
+online: "no"
+multiplayer: "no"
 performance: {}
 tools: {}
 download_policy: ask

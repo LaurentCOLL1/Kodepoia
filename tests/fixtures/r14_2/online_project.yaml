@@ -12,8 +12,8 @@ inputs:
   - keyboard
   - mouse
 graphics_style: realistic
-online: yes
-multiplayer: yes
+online: "yes"
+multiplayer: "yes"
 performance: {}
 tools: {}
 download_policy: ask

@@ -1,0 +1,130 @@
+name: R14.8 START Sync
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/r14-8-start-sync.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    if: github.head_ref == 'r14/08-cloud-saves'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/08-cloud-saves
+          fetch-depth: 0
+      - name: Synchronize R14.8 START state
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          normalized_main = "24e40db2781db8e42591c6ffa8fbdb8f0bf84108"
+          branch = "r14/08-cloud-saves"
+          plan_path = Path("docs/roadmap/R14_PLAN.md")
+          continuity_path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+
+          plan = plan_path.read_text(encoding="utf-8")
+          checkpoint = (
+              "**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. "
+              "R14.1–R14.7 are COMPLETE + NORMALIZED. R14.7 implementation/evidence PR #269 merged as "
+              "`763ce96c4f82da2eaec167b56ffb62d9e548b300`; its single continuity-only normalization PR #270 "
+              "merged as normalized `main` `24e40db2781db8e42591c6ffa8fbdb8f0bf84108` after R0 #1810, "
+              "Python Core #1784 and UI #1751, all SUCCESS. R14.8 is IN_PROGRESS on `r14/08-cloud-saves`; "
+              "R14.9–R14.17 remain PLANNED. R14.8 manual state is NONE."
+          )
+          plan, count = re.subn(r"\*\*Execution checkpoint:\*\*.*", checkpoint, plan, count=1)
+          if count != 1:
+              raise SystemExit("execution checkpoint marker not found")
+          old_row = "| R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | PLANNED | NONE | R14.5–R14.6 |"
+          new_row = "| R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | IN_PROGRESS | NONE | R14.5–R14.6 |"
+          if old_row not in plan:
+              raise SystemExit("R14.8 status row not found")
+          plan = plan.replace(old_row, new_row, 1)
+          section_re = re.compile(
+              r"(# R14\.8 — Cloud saves: immutable revisions, sync, conflicts, idempotency \+ recovery.*?## Completion record\n\n)(.*?)(\n---\n\n# R14\.9)",
+              re.S,
+          )
+          start_record = f"""- Dedicated branch: `{branch}`.
+- Exact branch point: normalized `main` `{normalized_main}` after the single accepted R14.7 continuity normalization.
+- START state: R14.1–R14.7 COMPLETE + NORMALIZED; R14.8 IN_PROGRESS; R14.9–R14.17 PLANNED.
+- Frozen R14.8 scope: server-authoritative save slots, immutable append-only revisions, payload/schema/content digests, explicit client base revision / compare-and-swap semantics, duplicate-safe idempotency, first-class conflict objects, deterministic resolution, quotas/retention bounds, integrity validation and append-only rollback/recovery. No silent last-write-wins, no provider lock-in and no production cloud account requirement.
+- External evidence baseline: RFC 9110 conditional-request semantics are used only as a provider-neutral lost-update/CAS reference; Google Play Games Saved Games is evidence that multi-device cloud saves require explicit conflict handling rather than silent overwrite; OWASP API1:2023 remains the object-authorization baseline.
+- Manual intervention: NONE.
+"""
+          match = section_re.search(plan)
+          if not match:
+              raise SystemExit("R14.8 completion section not found")
+          plan = plan[:match.start()] + match.group(1) + start_record.rstrip() + match.group(3) + plan[match.end():]
+          plan_path.write_text(plan, encoding="utf-8")
+
+          continuity = continuity_path.read_text(encoding="utf-8")
+          prompt_re = re.compile(r"> Kodepoia, architecture v1\.0 gelée\..*?Manual intervention : NONE\.", re.S)
+          prompt = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. "
+              "R14.1–R14.7 COMPLETE + NORMALIZED. R14.8 IN_PROGRESS. R14.9–R14.17 PLANNED.** "
+              f"R14.8 démarre exactement du `main` normalisé `{normalized_main}` sur `{branch}`. "
+              "Le START-sync plan + continuité doit être complet avant toute implémentation. Frozen scope : immutable save revisions, "
+              "base-revision/CAS, explicit conflicts, idempotency, integrity/schema checks, quotas/retention and append-only rollback/recovery. "
+              "Manual intervention : NONE."
+          )
+          continuity, count = prompt_re.subn(prompt, continuity, count=1)
+          if count != 1:
+              raise SystemExit("continuity prompt marker not found")
+          continuity = continuity.replace(
+              "- R14.1–R14.7 : **COMPLETE + NORMALIZED**, sous réserve du merge de cette unique normalisation R14.7 après ses trois gates frais.\n- R14.8–R14.17 : **PLANNED**.",
+              "- R14.1–R14.7 : **COMPLETE + NORMALIZED**.\n- R14.8 : **IN_PROGRESS** sur `r14/08-cloud-saves`, base exacte `24e40db2781db8e42591c6ffa8fbdb8f0bf84108`.\n- R14.9–R14.17 : **PLANNED**.",
+              1,
+          )
+          continuity = continuity.replace(
+              "| R14.8 | PLANNED | NONE |",
+              "| R14.8 | IN_PROGRESS | NONE |",
+              1,
+          )
+          start_authority = f"""
+## R14.8 start authority
+
+- Dedicated branch: **`{branch}`**.
+- Exact branch point: normalized R14.7 `main` **`{normalized_main}`**.
+- Prior state: R14.1–R14.7 **COMPLETE + NORMALIZED**.
+- Active state: R14.8 **IN_PROGRESS**; R14.9–R14.17 **PLANNED**.
+- Required authority: authenticated account/session plus object-level authorization for every save slot/revision; client-supplied slot/revision IDs never confer authority.
+- Revision rule: accepted payloads create immutable append-only revisions; current state is a pointer/identity, not in-place mutation of historical bytes.
+- Concurrency rule: client supplies its base revision; a stale base creates an explicit conflict and never silently overwrites the current server revision. RFC 9110 `If-Match`/lost-update semantics are reference evidence only, not an HTTP dependency.
+- Conflict rule: both competing states/digests remain identifiable until a deterministic resolution is recorded. Google Play Games Saved Games is provider evidence that multi-device conflicts require explicit resolution.
+- Idempotency rule: replay with the same key and identical request is mutation-free; same key with different request fails closed.
+- Recovery rule: rollback creates a new authoritative revision derived from a retained prior revision; historical revisions remain immutable.
+- Manual intervention: **NONE**.
+"""
+          marker = "\n## External research baseline relevant to R14.8\n"
+          if marker not in continuity:
+              raise SystemExit("R14.8 external baseline marker not found")
+          continuity = continuity.replace(marker, start_authority + marker, 1)
+          next_re = re.compile(r"## Next authorized action\n\n.*\Z", re.S)
+          next_text = """## Next authorized action
+
+Implement R14.8 only on `r14/08-cloud-saves` from normalized `main` `24e40db2781db8e42591c6ffa8fbdb8f0bf84108`. Add provider-neutral cloud-save contracts/service, immutable revision lineage, base-revision/CAS conflict detection, idempotency, integrity/schema/quota checks, deterministic conflict resolution and append-only rollback/recovery. Add focused adversarial tests and a dedicated exact-head cross-platform acceptance workflow/evidence if needed. Do not start R14.9 until R14.8 has immutable technical acceptance, END-sync, protected merge and exactly one continuity-only normalization. Manual intervention remains **NONE**.
+"""
+          if not next_re.search(continuity):
+              raise SystemExit("next action marker not found")
+          continuity = next_re.sub(next_text, continuity)
+          continuity_path.write_text(continuity, encoding="utf-8")
+          PY
+      - name: Remove temporary START-sync workflow
+        run: git rm .github/workflows/r14-8-start-sync.yml
+      - name: Commit and push synchronized START state
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = "docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_PLAN.md "
+          git commit -m "docs(r14.8): synchronize START state"
+          git push origin HEAD:r14/08-cloud-saves

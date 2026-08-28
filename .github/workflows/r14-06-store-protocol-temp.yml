@@ -13,6 +13,9 @@ jobs:
         with:
           ref: r14/06-authoritative-server-state
           fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Add provider-neutral authority store protocol
         shell: bash
         run: |
@@ -27,17 +30,26 @@ jobs:
           if marker not in text:
               raise SystemExit('authority store insertion marker not found')
           text = text.replace(marker, replacement, 1)
+          if '    def _process_atomic(\n' not in text:
+              raise SystemExit('process_atomic rename marker not found')
           text = text.replace('    def _process_atomic(\n', '    def process_atomic(\n', 1)
+          if '        store: InMemoryAuthorityStore,\n' not in text:
+              raise SystemExit('processor store type marker not found')
           text = text.replace('        store: InMemoryAuthorityStore,\n', '        store: AuthorityStore,\n', 1)
+          if 'return self.store._process_atomic(command, handler, server_time_ms=now)' not in text:
+              raise SystemExit('processor call marker not found')
           text = text.replace('return self.store._process_atomic(command, handler, server_time_ms=now)', 'return self.store.process_atomic(command, handler, server_time_ms=now)', 1)
           p.write_text(text, encoding='utf-8', newline='\n')
 
           p = Path('src/kodepoia/backend/__init__.py')
           text = p.read_text(encoding='utf-8')
-          text = text.replace('    AuthorityStateSnapshot,\n', '    AuthorityStateSnapshot,\n    AuthorityStore,\n', 1)
-          text = text.replace('    "AuthorityStateSnapshot",\n', '    "AuthorityStateSnapshot",\n    "AuthorityStore",\n', 1)
+          if '    AuthorityStore,\n' not in text:
+              text = text.replace('    AuthorityStateSnapshot,\n', '    AuthorityStateSnapshot,\n    AuthorityStore,\n', 1)
+          if '    "AuthorityStore",\n' not in text:
+              text = text.replace('    "AuthorityStateSnapshot",\n', '    "AuthorityStateSnapshot",\n    "AuthorityStore",\n', 1)
           p.write_text(text, encoding='utf-8', newline='\n')
           PY
+          python -m pip install -e ".[dev]"
           python -m compileall -q src tests/test_r14_6_authoritative_server.py
           python -m pytest -q tests/test_r14_6_authoritative_server.py
           git rm .github/workflows/r14-06-store-protocol-temp.yml .github/r14-06-store-protocol.trigger

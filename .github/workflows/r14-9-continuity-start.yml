@@ -1,0 +1,31 @@
+name: R14.9 Continuity START Sync
+
+on:
+  push:
+    branches:
+      - r14/09-progression-leaderboards
+    paths:
+      - .github/workflows/r14-9-continuity-start.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/09-progression-leaderboards
+          fetch-depth: 0
+      - name: Apply R14.9 continuity START patch
+        run: python .github/r14_9_continuity_start.py
+      - name: Commit continuity START state
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git commit -m "docs(r14.9): START-sync progression continuity"
+          git push origin HEAD:r14/09-progression-leaderboards

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.6 COMPLETE + NORMALIZED. R14.7 IN_PROGRESS sur `r14/07-matchmaking-lobby-presence`; R14.8–R14.17 PLANNED.** R14.7 est partie exactement du `main` normalisé `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`. Le START-sync du plan est `8dc25375e40c045b8831278faa0f55ad74cf6df1`; la continuité est synchronisée dans le même work cycle avant toute implémentation. Frozen scope R14.7 : matchmaking provider-neutral déterministe, lobbies, memberships/roles, tickets/criteria, queueing borné, reservations/expiry, match identity, authoritative presence revisions, short-lived reconnect leases/tokens, cancellation, concurrency/fairness/budget evidence. Manual intervention: NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.6 COMPLETE + NORMALIZED. R14.7 COMPLETE at technical/evidence level on immutable source `d04c841fcef9eb9f963085da68e579dbb58186da`; R14.8–R14.17 PLANNED pending final END re-gates, merge and normalization.** R14.7 est partie exactement du `main` normalisé `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`. Le START-sync du plan est `8dc25375e40c045b8831278faa0f55ad74cf6df1`; la continuité est synchronisée dans le même work cycle avant toute implémentation. Frozen scope R14.7 : matchmaking provider-neutral déterministe, lobbies, memberships/roles, tickets/criteria, queueing borné, reservations/expiry, match identity, authoritative presence revisions, short-lived reconnect leases/tokens, cancellation, concurrency/fairness/budget evidence. Manual intervention: NONE.
 
 ## État global
 
@@ -17,7 +17,7 @@
 - R13 normalized phase main : `b5b75b826bedabf64957494f7e2228ec1c9ff2d3` after implementation/evidence PR #253 and normalization PR #254.
 - R14 planning : **ACCEPTED + NORMALIZED**.
 - R14.1–R14.6 : **COMPLETE + NORMALIZED**.
-- R14.7 : **IN_PROGRESS**, branch `r14/07-matchmaking-lobby-presence`, base exact `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`.
+- R14.7 : **COMPLETE at technical/evidence level**, immutable source `d04c841fcef9eb9f963085da68e579dbb58186da`; final END re-gates/merge/normalization still required before COMPLETE + NORMALIZED.
 - R14.8–R14.17 : **PLANNED**.
 - R14.7 manual state : **NONE**.
 
@@ -75,7 +75,7 @@ Frozen R14 index:
 | R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | COMPLETE + NORMALIZED | NONE |
 | R14.6 | Authoritative server command/state model + real-time transport/trust boundary | COMPLETE + NORMALIZED | NONE |
-| R14.7 | Matchmaking, lobby, reservations, presence + reconnect | IN_PROGRESS | NONE |
+| R14.7 | Matchmaking, lobby, reservations, presence + reconnect | COMPLETE | NONE |
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | PLANNED | NONE |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | PLANNED | NONE |
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | PLANNED | CONDITIONAL |
@@ -173,6 +173,19 @@ R14 planning itself was accepted on candidate `343b7834d8b5826d5012bf78926102725
 - External reference posture is evidence only, never provider lock-in: ticket/pool separation and assignment-style semantics may be compared with Open Match; unique ticket/status/reservation/player-session concepts may be compared with GameLift/FlexMatch; object authorization remains governed by the accepted R14.6/OWASP boundary. No provider account is required.
 - Manual intervention : **NONE**.
 
+## R14.7 technical acceptance authority
+
+- Initial candidate `12071ee561717ac436f4ffa0457361685214c989` is **REJECTED** and MUST NOT be reused as decision evidence. R14 Matchmaking Acceptance #2 found a real expiry-authority bug: `update_presence(IN_MATCH)` did not sweep server-clock reservation expiry before checking active-match authority.
+- Corrected and accepted immutable technical source: **`d04c841fcef9eb9f963085da68e579dbb58186da`**.
+- Required technical gates on that source: R0 #1803 / `33203286519`, Python Core #1777 / `33203286537`, UI #1744 / `33203286514`, R14 Matchmaking Acceptance #4 / `33203286510` — all **SUCCESS**.
+- Full Ubuntu suite: **1543 passed / 13 skipped / 46 warnings**. Windows Core and both package builds are SUCCESS. Focused R14.7→R14.4 suite: **66 passed on Ubuntu and 66 passed on Windows**.
+- All fourteen frozen lifecycle/security checks are true on both OS: lobby lifecycle, object authorization, duplicate join, recursive reserved-field rejection, duplicate ticket, deterministic matching, incompatible criteria isolation, no double assignment, cancel terminality, reservation expiry, stale presence rejection, reconnect binding, reconnect expiry and bounded capacity.
+- Identical cross-platform digests: state `ae9ecc0893537e5c12cc8a78247197ed53d094b1a811c386c17161fac10c0c19`; lobby `27bcd90471e3775b859ce21e977c5ac534909a898deab0eb2c27cd44b86db0cf`; reservation `e8423de1a2d1a92873bbfa466111ab4a07168adeafca4bde4d62c64a70a9f690`; presence `5f2ca6c7402bba1a3b2d195d9f63d1c8b758c01d577d4581785559d92de24f0f`; trace `5f25c8f15da7e4f9dd45fbf072dd72101d3f32deef349c28069beeb83d954bd3`.
+- Ubuntu artifact `9698619713` / `sha256:f8bd9f43b431bb9a5f9b194da245a57381b000795a5c8ccacb51a866c371b1df`; Windows artifact `9698629064` / `sha256:1e3b191e9d1de0844b49c62bcd36c79798a23315e93edf20393b862d1fb44c1c`.
+- Evidence is provider-neutral and explicitly states `provider_live_claim=false` and `secrets_exposed=false`.
+- Manual intervention: **NONE**.
+- R14.7 is now COMPLETE only at technical/evidence level. R14.8 remains locked until END-sync docs are freshly re-gated, PR #269 merges with expected-head protection, and exactly one continuity-only normalization passes fresh R0/Python/UI and merges.
+
 ## R14.7 acceptance target
 
 Before R14.7 can become COMPLETE at technical/evidence level, the immutable candidate must prove at minimum:
@@ -209,4 +222,4 @@ These are versioned evidence/context, not frozen architecture constants:
 
 ## Next authorized action
 
-On `r14/07-matchmaking-lobby-presence`, verify the cumulative START-sync diff from normalized base `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2` contains exactly `docs/roadmap/R14_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`. Then implement R14.7 provider-neutral matchmaking/lobby/reservation/presence/reconnect contracts on top of accepted R14.6 authority, add focused adversarial/unit tests and exact-head evidence. Do **not** start R14.8 until R14.7 technical acceptance, END-sync, fresh final gates, implementation/evidence merge, and exactly one continuity-only normalization are complete. Manual intervention remains **NONE**.
+Treat `d04c841fcef9eb9f963085da68e579dbb58186da` as immutable technical authority. Complete this END synchronization with exactly `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_7_ACCEPTANCE.md`, and `docs/continuity/KODEPOIA_CONTINUITY.md` changed relative to that source. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Matchmaking Acceptance. If all are SUCCESS, merge PR #269 only with `expected_head_sha=<final END-head>`. Then create exactly one `r14/07-continuity-normalization` branch from that merge, change continuity only, require fresh R0/Python/UI, merge with expected-head protection, and only then authorize R14.8. Manual intervention remains **NONE**.

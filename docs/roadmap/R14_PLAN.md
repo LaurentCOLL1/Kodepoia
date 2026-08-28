@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.6 are COMPLETE + NORMALIZED. R14.6 immutable technical source `a1425b53e1228f9c88ba373cdfabf1459393a7cf` passed R0 #1795 / `33193110717`, Python Core #1769 / `33193110651`, UI #1736 / `33193110643`, and R14 Authority Acceptance #3 / `33193110695`; final END-head `cf5a14295fdc3ff92ca72384b061e3a2c844e725` passed fresh R0 #1798 / `33195032726`, Python Core #1772 / `33195032703`, UI #1739 / `33195032677`, and Authority #6 / `33195032645`; PR #267 merged as `6033e5610a811a690a2998eb07183f19183fa557`. Single continuity-only normalization head `9dafc361e909157dedf5cb89d7a39cdbb6ffff14` passed fresh R0 #1800 / `33195413481`, Python Core #1774 / `33195413472`, and UI #1741 / `33195413558`, all SUCCESS; normalization PR #268 merged as normalized `main` `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`. R14.7 is IN_PROGRESS on `r14/07-matchmaking-lobby-presence`; R14.8–R14.17 remain PLANNED. R14.7 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.6 are COMPLETE + NORMALIZED. R14.6 immutable technical source `a1425b53e1228f9c88ba373cdfabf1459393a7cf` passed R0 #1795 / `33193110717`, Python Core #1769 / `33193110651`, UI #1736 / `33193110643`, and R14 Authority Acceptance #3 / `33193110695`; final END-head `cf5a14295fdc3ff92ca72384b061e3a2c844e725` passed fresh R0 #1798 / `33195032726`, Python Core #1772 / `33195032703`, UI #1739 / `33195032677`, and Authority #6 / `33195032645`; PR #267 merged as `6033e5610a811a690a2998eb07183f19183fa557`. Single continuity-only normalization head `9dafc361e909157dedf5cb89d7a39cdbb6ffff14` passed fresh R0 #1800 / `33195413481`, Python Core #1774 / `33195413472`, and UI #1741 / `33195413558`, all SUCCESS; normalization PR #268 merged as normalized `main` `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`. R14.7 immutable technical source `d04c841fcef9eb9f963085da68e579dbb58186da` passed R0 #1803 / `33203286519`, Python Core #1777 / `33203286537`, UI #1744 / `33203286514`, and R14 Matchmaking Acceptance #4 / `33203286510`, all SUCCESS. R14.7 is COMPLETE at technical/evidence level; R14.8–R14.17 remain PLANNED pending final END exact-head re-gates, PR #269 expected-head merge and exactly one continuity-only post-merge normalization. R14.7 manual state is NONE.
 
 ## Purpose and authority
 
@@ -204,7 +204,7 @@ Before R14.1 implementation:
 | R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.1–R14.3 + R1/R6/R7 |
 | R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | COMPLETE | NONE | R14.1–R14.3 + R8/R12 |
 | R14.6 | Authoritative server command/state model + real-time transport/trust boundary | COMPLETE | NONE | R14.4–R14.5 |
-| R14.7 | Matchmaking, lobby, reservations, presence + reconnect | IN_PROGRESS | NONE | R14.6 |
+| R14.7 | Matchmaking, lobby, reservations, presence + reconnect | COMPLETE | NONE | R14.6 |
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | PLANNED | NONE | R14.5–R14.6 |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | PLANNED | NONE | R14.5–R14.6 |
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | PLANNED | CONDITIONAL | R14.4–R14.6 + R13 store contracts |
@@ -628,10 +628,18 @@ Double assignment, ghost lobby members, unbounded queue, unfair nondeterministic
 
 - Dedicated branch: `r14/07-matchmaking-lobby-presence`.
 - Exact branch point: normalized `main` `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`.
-- START synchronization declares R14.1–R14.6 COMPLETE + NORMALIZED, R14.7 IN_PROGRESS, and R14.8–R14.17 PLANNED before implementation.
-- Frozen R14.7 scope is limited to deterministic/provider-neutral lobby membership and roles, matchmaking ticket lifecycle/criteria, bounded queueing, reservation/match identity, authoritative presence revisions, short-lived reconnect leases/tokens, cancellation and concurrency/fairness/budget evidence. No commercial provider, game-specific MMR tuning, cloud-save or later R14 semantics are introduced.
+- Mandatory START-sync completed before implementation: plan head `8dc25375e40c045b8831278faa0f55ad74cf6df1`, continuity head `63c41c51ad6fb4adb981d284c3753ea5a26c9eb6`.
+- Initial candidate `12071ee561717ac436f4ffa0457361685214c989` is REJECTED and is not decision evidence. Dedicated acceptance #2 detected that `update_presence(IN_MATCH)` did not sweep server-clock reservation expiry before authorization; the implementation, not the test, was corrected.
+- Accepted immutable technical source: `d04c841fcef9eb9f963085da68e579dbb58186da`.
+- Technical exact-source gates: R0 Repository Guard #1803 / `33203286519` SUCCESS; Python Core #1777 / `33203286537` SUCCESS; KodeStudio UI Smoke #1744 / `33203286514` SUCCESS; R14 Matchmaking Acceptance #4 / `33203286510` SUCCESS.
+- Full Ubuntu Python suite: 1543 passed, 13 skipped, 46 warnings; Windows Core, both package builds and Python internal UI smoke also SUCCESS.
+- Focused R14.7/R14.6/R14.5/R14.4 regression suite: 66 tests passed on Ubuntu and 66 on Windows.
+- All fourteen frozen matchmaking checks are true on both OS: lobby lifecycle, object authorization, duplicate join, recursive reserved-field rejection, duplicate ticket, deterministic match, incompatible criteria isolation, no double assignment, cancel terminality, reservation expiry, stale presence rejection, reconnect binding, reconnect expiry and bounded capacity.
+- Cross-platform semantic digests are identical: state `ae9ecc0893537e5c12cc8a78247197ed53d094b1a811c386c17161fac10c0c19`; lobby `27bcd90471e3775b859ce21e977c5ac534909a898deab0eb2c27cd44b86db0cf`; reservation `e8423de1a2d1a92873bbfa466111ab4a07168adeafca4bde4d62c64a70a9f690`; presence `5f2ca6c7402bba1a3b2d195d9f63d1c8b758c01d577d4581785559d92de24f0f`; trace `5f25c8f15da7e4f9dd45fbf072dd72101d3f32deef349c28069beeb83d954bd3`.
+- Ubuntu artifact `9698619713`, ZIP digest `sha256:f8bd9f43b431bb9a5f9b194da245a57381b000795a5c8ccacb51a866c371b1df`; Windows artifact `9698629064`, ZIP digest `sha256:1e3b191e9d1de0844b49c62bcd36c79798a23315e93edf20393b862d1fb44c1c`.
+- Evidence reports `provider_live_claim=false` and `secrets_exposed=false`. External provider documentation is comparison evidence only; no provider account or Internet-scale capacity claim is part of R14.7 core acceptance.
 - Manual intervention: NONE.
-
+- Current subdivision status: `COMPLETE` at technical/evidence level. R14.8 remains `PLANNED` until this END synchronization passes fresh exact-head R0 + full Python Core + KodeStudio UI Smoke + R14 Matchmaking Acceptance, PR #269 merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 ---
 
 # R14.8 — Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery

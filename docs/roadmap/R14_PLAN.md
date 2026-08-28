@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.6 are COMPLETE + NORMALIZED. R14.6 immutable technical source `a1425b53e1228f9c88ba373cdfabf1459393a7cf` passed R0 #1795 / `33193110717`, Python Core #1769 / `33193110651`, UI #1736 / `33193110643`, and R14 Authority Acceptance #3 / `33193110695`; final END-head `cf5a14295fdc3ff92ca72384b061e3a2c844e725` passed fresh R0 #1798 / `33195032726`, Python Core #1772 / `33195032703`, UI #1739 / `33195032677`, and Authority #6 / `33195032645`; PR #267 merged as `6033e5610a811a690a2998eb07183f19183fa557`. Single continuity-only normalization head `9dafc361e909157dedf5cb89d7a39cdbb6ffff14` passed fresh R0 #1800 / `33195413481`, Python Core #1774 / `33195413472`, and UI #1741 / `33195413558`, all SUCCESS; normalization PR #268 merged as normalized `main` `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`. R14.7 immutable technical source `d04c841fcef9eb9f963085da68e579dbb58186da` passed R0 #1803 / `33203286519`, Python Core #1777 / `33203286537`, UI #1744 / `33203286514`, and R14 Matchmaking Acceptance #4 / `33203286510`, all SUCCESS. R14.7 is COMPLETE at technical/evidence level; R14.8–R14.17 remain PLANNED pending final END exact-head re-gates, PR #269 expected-head merge and exactly one continuity-only post-merge normalization. R14.7 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.7 are COMPLETE + NORMALIZED. R14.7 implementation/evidence PR #269 merged as `763ce96c4f82da2eaec167b56ffb62d9e548b300`; its single continuity-only normalization PR #270 merged as normalized `main` `24e40db2781db8e42591c6ffa8fbdb8f0bf84108` after R0 #1810, Python Core #1784 and UI #1751, all SUCCESS. R14.8 is IN_PROGRESS on `r14/08-cloud-saves`; R14.9–R14.17 remain PLANNED. R14.8 manual state is NONE.
 
 ## Purpose and authority
 
@@ -205,7 +205,7 @@ Before R14.1 implementation:
 | R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | COMPLETE | NONE | R14.1–R14.3 + R8/R12 |
 | R14.6 | Authoritative server command/state model + real-time transport/trust boundary | COMPLETE | NONE | R14.4–R14.5 |
 | R14.7 | Matchmaking, lobby, reservations, presence + reconnect | COMPLETE | NONE | R14.6 |
-| R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | PLANNED | NONE | R14.5–R14.6 |
+| R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | IN_PROGRESS | NONE | R14.5–R14.6 |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | PLANNED | NONE | R14.5–R14.6 |
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | PLANNED | CONDITIONAL | R14.4–R14.6 + R13 store contracts |
 | R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | PLANNED | NONE | R14.5–R14.6 |
@@ -690,8 +690,12 @@ Silent data loss, cross-user access, unbounded save growth, schema mismatch, con
 
 ## Completion record
 
-To be appended when accepted.
-
+- Dedicated branch: `r14/08-cloud-saves`.
+- Exact branch point: normalized `main` `24e40db2781db8e42591c6ffa8fbdb8f0bf84108` after the single accepted R14.7 continuity normalization.
+- START state: R14.1–R14.7 COMPLETE + NORMALIZED; R14.8 IN_PROGRESS; R14.9–R14.17 PLANNED.
+- Frozen R14.8 scope: server-authoritative save slots, immutable append-only revisions, payload/schema/content digests, explicit client base revision / compare-and-swap semantics, duplicate-safe idempotency, first-class conflict objects, deterministic resolution, quotas/retention bounds, integrity validation and append-only rollback/recovery. No silent last-write-wins, no provider lock-in and no production cloud account requirement.
+- External evidence baseline: RFC 9110 conditional-request semantics are used only as a provider-neutral lost-update/CAS reference; Google Play Games Saved Games is evidence that multi-device cloud saves require explicit conflict handling rather than silent overwrite; OWASP API1:2023 remains the object-authorization baseline.
+- Manual intervention: NONE.
 ---
 
 # R14.9 — Achievements, stats, leaderboards + authoritative progression

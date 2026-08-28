@@ -1,0 +1,36 @@
+schema_version: 1
+name: Online Game
+project_type: game
+platforms:
+  - windows
+engine: Godot
+engine_version: "4.7"
+dimension: 3d
+genres:
+  - multiplayer
+inputs:
+  - keyboard
+  - mouse
+graphics_style: realistic
+online: yes
+multiplayer: yes
+performance: {}
+tools: {}
+download_policy: ask
+install_policy: ask
+lineage: {}
+capabilities: {}
+backend:
+  enabled: true
+  services:
+    - auth
+    - authoritative_server
+    - matchmaking
+    - cloud_save
+    - progression
+    - catalog
+    - entitlement
+    - billing
+    - remote_config
+    - content_delivery
+    - events

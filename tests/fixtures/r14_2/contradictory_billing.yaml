@@ -1,0 +1,23 @@
+schema_version: 1
+name: Invalid Billing Tool
+project_type: tool
+platforms:
+  - windows
+engine: null
+engine_version: null
+dimension: null
+genres: []
+inputs: []
+graphics_style: null
+online: no
+multiplayer: no
+performance: {}
+tools: {}
+download_policy: ask
+install_policy: ask
+lineage: {}
+capabilities: {}
+backend:
+  enabled: true
+  services:
+    - billing

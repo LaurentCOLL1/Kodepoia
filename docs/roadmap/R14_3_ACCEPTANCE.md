@@ -2,7 +2,7 @@
 
 ## Current state
 
-**Status: IMPLEMENTATION_CANDIDATE_PENDING**
+**Status: TECHNICAL_CANDIDATE_ACCEPTED / FINAL_REGATES_PENDING**
 
 R14.3 starts exactly from R14.2 normalized `main` `bf66970f358df580d5fe15b1ac1f8ed2cb13b09d` on `r14/03-local-backend-runtime`. Mandatory START-sync completed before implementation on head `86dd7e43a2d2895909f8ecd95a743099fc37c55f`; cumulative START-sync changes are exactly `docs/roadmap/R14_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`.
 
@@ -48,6 +48,22 @@ After focused prevalidation, the first accepted immutable implementation candida
 3. KodeStudio UI Smoke — COMPLETED / SUCCESS.
 
 Then END-sync may change only `R14_PLAN.md`, this ledger and continuity before fresh exact-head re-gates, merge with expected-head protection and exactly one continuity-only post-merge normalization.
+
+## Accepted technical candidate record
+
+- Immutable source SHA: `4de5036e7a37f949ec64ae68d9ee45e57ac99631`.
+- R0 Repository Guard #1770 / `33146235062`: COMPLETED / SUCCESS.
+- Python Core #1744 / `33146235104`: COMPLETED / SUCCESS; Ubuntu full `pytest` = **1477 passed, 13 skipped, 46 warnings**; Windows Core = SUCCESS; both package builds and Python internal KodeStudio smoke = SUCCESS.
+- KodeStudio UI Smoke #1711 / `33146235181`: COMPLETED / SUCCESS.
+- Focused implementation/compatibility prevalidation `33146069094`: **36 passed** after compileall; diagnostic only and non-authoritative for merge acceptance.
+- Cross-platform focused runtime prevalidation `33146135676`: Ubuntu SUCCESS and Windows SUCCESS. A second duplicate cleanup invocation failed only because the temporary files had already been deleted by the first invocation; no implementation test failed and no temporary file remains in the accepted tree.
+- Accepted implementation tree: `693662541c60387ecbb14d0994c66266696a9153`.
+- Manual intervention: NONE.
+- Next authority: END-synchronized documentation/evidence head changing only plan, this ledger and continuity, followed by fresh exact-head R0/Python/UI.
+
+## End synchronization and normalization
+
+The accepted technical source is immutable. END-sync may change only `docs/roadmap/R14_PLAN.md`, this ledger and `docs/continuity/KODEPOIA_CONTINUITY.md`. That final head must pass fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke before PR #261 may merge with expected-head protection. Then exactly one continuity-only post-merge normalization must pass another fresh exact-head R0/Python/UI before R14.3 is COMPLETE + NORMALIZED and R14.4 is authorized.
 
 ## Manual intervention
 

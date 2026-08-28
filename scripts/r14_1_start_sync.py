@@ -5,7 +5,7 @@ CONT = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
 
 plan = PLAN.read_text(encoding="utf-8")
 old_status = "**Status:** PLANNING  "
-new_status = "**Status:** IN PROGRESS  "
+new_status = "**Status:** IN PROGRESS"
 if plan.count(old_status) != 1:
     raise SystemExit(f"expected exactly one phase status marker, got {plan.count(old_status)}")
 plan = plan.replace(old_status, new_status, 1)

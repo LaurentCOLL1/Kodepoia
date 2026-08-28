@@ -12,6 +12,14 @@ from .contracts import (
     canonical_json_bytes,
     canonical_sha256,
 )
+from .governance import (
+    BackendGovernanceAuthorization,
+    BackendGovernanceBoundary,
+    BackendOperationIntent,
+    BackendOperationKind,
+    BackendOperationRisk,
+    BackendProviderRequest,
+)
 
 __all__ = [
     "BackendBoundaryError",
@@ -20,9 +28,15 @@ __all__ = [
     "BackendEndpointDefinition",
     "BackendEnvironmentIdentity",
     "BackendEnvironmentKind",
+    "BackendGovernanceAuthorization",
+    "BackendGovernanceBoundary",
     "BackendNetworkAuthorization",
     "BackendNetworkBoundary",
     "BackendNetworkPolicy",
+    "BackendOperationIntent",
+    "BackendOperationKind",
+    "BackendOperationRisk",
+    "BackendProviderRequest",
     "BackendRuntimeBudget",
     "BackendServiceIdentity",
     "BackendServiceKind",

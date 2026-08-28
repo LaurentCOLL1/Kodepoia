@@ -1,0 +1,78 @@
+name: R14.5 START Sync Temp
+
+on:
+  push:
+    branches:
+      - r14/05-postgresql-persistence
+    paths:
+      - .github/r14-05-start.trigger
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/05-postgresql-persistence
+          fetch-depth: 0
+      - name: Apply governed START-sync
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          plan = Path('docs/roadmap/R14_PLAN.md')
+          text = plan.read_text(encoding='utf-8')
+          old_checkpoint = '**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.2 are COMPLETE + NORMALIZED on normalized `main` `bf66970f358df580d5fe15b1ac1f8ed2cb13b09d`. R14.3 accepted immutable technical source `4de5036e7a37f949ec64ae68d9ee45e57ac99631` passed R0 #1770 / `33146235062`, Python Core #1744 / `33146235104`, and UI #1711 / `33146235181`, all SUCCESS; Ubuntu full Python suite recorded 1477 passed / 13 skipped / 46 warnings and Windows Core also passed. R14.3 is COMPLETE at technical/evidence level on `r14/03-local-backend-runtime`; final END-synchronized exact-head re-gates and PR #261 merge remain pending. R14.4–R14.17 remain PLANNED. Manual state for R14.3 is NONE.'
+          new_checkpoint = '**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.4 are COMPLETE + NORMALIZED. R14.4 normalization head `8601ac19b87635648aef1c5f5c37a6cb899c26be` passed R0 #1785 / `33189536524`, Python Core #1759 / `33189536553`, and UI #1726 / `33189536543`, all SUCCESS; normalization PR #264 merged as normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`. R14.5 is IN_PROGRESS on `r14/05-postgresql-persistence` from that exact normalized main; R14.6–R14.17 remain PLANNED. R14.5 core manual state is NONE.'
+          if old_checkpoint not in text:
+              raise SystemExit('plan checkpoint marker not found')
+          text = text.replace(old_checkpoint, new_checkpoint, 1)
+          old_index = '| R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | PLANNED | NONE | R14.1–R14.3 + R8/R12 |'
+          new_index = '| R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | IN_PROGRESS | NONE | R14.1–R14.3 + R8/R12 |'
+          if old_index not in text:
+              raise SystemExit('R14.5 index marker not found')
+          text = text.replace(old_index, new_index, 1)
+          old_r144 = '- Current subdivision status: `COMPLETE` at technical/evidence level. R14.5 remains `PLANNED` until final END re-gates, PR #263 merge and one continuity-only normalization.'
+          new_r144 = '- Final END-head `05b16a796bb65d513de0b631eca432195ee01461` passed R0 #1783 / `33189022908`, Python Core #1757 / `33189022727`, and UI #1724 / `33189022765`; PR #263 merged as `cae2a1ddcaa79390ff923336ee331eba81937e84`.\n- Single continuity-only normalization head `8601ac19b87635648aef1c5f5c37a6cb899c26be` passed R0 #1785 / `33189536524`, Python Core #1759 / `33189536553`, and UI #1726 / `33189536543`; PR #264 merged as normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`.\n- Current subdivision status: `COMPLETE + NORMALIZED`. R14.5 is authorized and starts from that exact normalized main.'
+          if old_r144 not in text:
+              raise SystemExit('R14.4 completion marker not found')
+          text = text.replace(old_r144, new_r144, 1)
+          plan.write_text(text, encoding='utf-8', newline='\n')
+
+          cont = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          text = cont.read_text(encoding='utf-8')
+          old_prompt = '> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.3 COMPLETE + NORMALIZED. R14.4 becomes COMPLETE + NORMALIZED upon merge of the single continuity-only normalization PR from `r14/04-continuity-normalization`; R14.5–R14.17 remain PLANNED until then.** R14.4 immutable technical source `3660f351649e85450324df25888d577afb02b19a` passed R0 #1779 / `33187747722`, Python Core #1753 / `33187747723`, and UI #1720 / `33187747872`; final END-head `05b16a796bb65d513de0b631eca432195ee01461` passed fresh R0 #1783 / `33189022908`, Python #1757 / `33189022727`, and UI #1724 / `33189022765`; PR #263 merged with expected-head protection as `cae2a1ddcaa79390ff923336ee331eba81937e84`. Manual state: CONDITIONAL / NOT TRIGGERED.'
+          new_prompt = '> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.4 COMPLETE + NORMALIZED. R14.5 IN_PROGRESS on `r14/05-postgresql-persistence`; R14.6–R14.17 remain PLANNED.** R14.4 normalization head `8601ac19b87635648aef1c5f5c37a6cb899c26be` passed R0 #1785 / `33189536524`, Python Core #1759 / `33189536553`, and UI #1726 / `33189536543`; PR #264 merged as normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`. R14.5 starts exactly there and targets stable PostgreSQL 18.x; core manual state is NONE.'
+          if old_prompt not in text:
+              raise SystemExit('continuity prompt marker not found')
+          text = text.replace(old_prompt, new_prompt, 1)
+          old_global = '- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.3 are **COMPLETE + NORMALIZED**. R14.4 final END-head **`05b16a796bb65d513de0b631eca432195ee01461`** passed R0 #1783 / `33189022908`, Python #1757 / `33189022727`, UI #1724 / `33189022765`; PR #263 merged as **`cae2a1ddcaa79390ff923336ee331eba81937e84`**. Single continuity-only normalization is in progress on `r14/04-continuity-normalization`; after its fresh gates and merge R14.4 is **COMPLETE + NORMALIZED** and R14.5 is authorized. R14.5–R14.17 remain PLANNED until then. Manual **CONDITIONAL / NOT TRIGGERED**.'
+          new_global = '- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.4 are **COMPLETE + NORMALIZED**. R14.4 normalization head **`8601ac19b87635648aef1c5f5c37a6cb899c26be`** passed R0 #1785 / `33189536524`, Python #1759 / `33189536553`, UI #1726 / `33189536543`; PR #264 merged as normalized **`main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`**. R14.5 is **IN_PROGRESS** on `r14/05-postgresql-persistence`; R14.6–R14.17 remain PLANNED. Manual for R14.5: **NONE**.'
+          if old_global not in text:
+              raise SystemExit('continuity global marker not found')
+          text = text.replace(old_global, new_global, 1)
+          old_tail = '- Single authorized normalization branch: `r14/04-continuity-normalization`, created exactly from that merge. Its cumulative diff MUST contain exactly `docs/continuity/KODEPOIA_CONTINUITY.md`. This candidate declares the resulting main state **R14.4 COMPLETE + NORMALIZED** and authorizes R14.5 only after fresh R0 + full Python Core + KodeStudio UI Smoke and expected-head merge.\n- Manual intervention remains **CONDITIONAL / NOT TRIGGERED**.'
+          new_tail = '- Single continuity-only normalization head `8601ac19b87635648aef1c5f5c37a6cb899c26be` changed exactly continuity and passed R0 #1785 / `33189536524`, Python Core #1759 / `33189536553`, and UI #1726 / `33189536543`, all SUCCESS; PR #264 merged with expected-head protection as normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`. Therefore R14.4 is **COMPLETE + NORMALIZED**.\n- Manual intervention remains **CONDITIONAL / NOT TRIGGERED**.\n\n## R14.5 start authority\n\n- Dedicated branch: `r14/05-postgresql-persistence`.\n- Exact branch point: normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`.\n- R14.1–R14.4 are COMPLETE + NORMALIZED; R14.5 is IN_PROGRESS; R14.6–R14.17 remain PLANNED.\n- Stable database authority for core acceptance is PostgreSQL 18.x; PostgreSQL 19 pre-release builds are not production authority.\n- Frozen R14.5 scope: provider-neutral PostgreSQL capability/connection policy, repository-owned migrations with checksums/rollback, transaction/unit-of-work semantics, optimistic/pessimistic concurrency, bounded deadlock retry, idempotency primitives and deterministic backup/restore evidence; no managed-cloud provisioning or production credentials.\n- Manual intervention: **NONE**.'
+          if old_tail not in text:
+              raise SystemExit('continuity R14.4 tail marker not found')
+          text = text.replace(old_tail, new_tail, 1)
+          cont.write_text(text, encoding='utf-8', newline='\n')
+          PY
+          git rm .github/workflows/r14-05-start-sync-temp.yml .github/r14-05-start.trigger
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          staged="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' '.github/r14-05-start.trigger' '.github/workflows/r14-05-start-sync-temp.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_PLAN.md' | sort)"
+          printf '%s\n' "$staged"
+          test "$staged" = "$expected"
+          git commit -m "R14.5 START-sync plan and continuity"
+          changed="$(git diff --name-only 45dc68f1cd3bf05c62aede1b2519c6c513c67166..HEAD | sort)"
+          expected_final="$(printf '%s\n' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_PLAN.md' | sort)"
+          printf '%s\n' "$changed"
+          test "$changed" = "$expected_final"
+          git push origin HEAD:r14/05-postgresql-persistence

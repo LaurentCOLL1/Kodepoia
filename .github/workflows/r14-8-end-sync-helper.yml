@@ -18,15 +18,16 @@ jobs:
         with:
           ref: r14/08-cloud-saves
           fetch-depth: 0
-      - name: Synchronize R14.8 END documentation
+      - name: Apply END synchronization
+        run: python .github/r14_8_end_sync.py
+      - name: Commit documentation-only END head
         shell: bash
         run: |
-          python -c "import base64;exec(base64.b64decode('ZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCmltcG9ydCByZQoKVEVDSCA9ICI4MTMyYzQwMjk5ODNmNjkzYTMyZTBkMjY5MDNkMDVlMzQ3MzEzYmY2IgoKcGxhbl9wYXRoID0gUGF0aCgiZG9jcy9yb2FkbWFwL1IxNF9QTEFOLm1kIikKcGxhbiA9IHBsYW5fcGF0aC5yZWFkX3RleHQoZW5jb2Rpbmc9InV0Zi04IikKb2xkX2NoZWNrcG9pbnQgPSAiKipFeGVjdXRpb24gY2hlY2twb2ludDoqKiBSMeKAk1IxMyBhcmUgQ09NUExFVEUgKyBOT1JNQUxJWkVEOyBSMTQgcGxhbm5pbmcgaXMgQUNDRVBURUQgKyBOT1JNQUxJWkVELiBSMTQuMeKAk1IxNC43IGFyZSBDT01QTEVURSArIE5PUk1BTElaRUQuIFIxNC43IGltcGxlbWVudGF0aW9uL2V2aWRlbmNlIFBSICMyNjkgbWVyZ2VkIGFzIGA3NjNjZTk2YzRmODJkYTJlYWVjMTY3YjU2ZmZiNjJkOWU1NDhiMzAwYDsgcm9hZG1hcCBiaW5kczogIG5vcm1hbGl6ZWQgYG1haW5gIGAyNGU0MGRiMjc4MWRiOGU0MjU5MWM2ZmZhOGZiZGI4ZjBiZjg0MTA4YCBhZnRlciBSMCAjMTgxMCwgUHl0aG9uIENvcmUgIzE3ODQgYW5kIFVJICMxNzUxLCBhbGwgU1VDQ0VTUy4gUjE0LjggaXMgSU5fUFJPR1JFU1Mgb24gYHIxNC8wOC1jbG91ZC1zYXZlc2A7IFIxNC454oCTUjE0LjE3IHJlbWFpbiBQTEFOTkVELiBSMTQuOCBtYW51YWwgc3RhdGUgaXMgTk9ORS4iCm5ld19jaGVja3BvaW50ID0gIioqRXhlY3V0aW9uIGNoZWNrcG9pbnQ6KiogUjHigJNSMTMgYXJlIENPTVBMRVRFICsgTk9STUFMSVpFRDsgUjE0IHBsYW5uaW5nIGlzIEFDQ0VQVEVEICsgTk9STUFMSVpFRC4gUjE0LjHigJNSMTQuNyBhcmUgQ09NUExFVEUgKyBOT1JNQUxJWkVELiBSMTQuNyBpbXBsZW1lbnRhdGlvbi9ldmlkZW5jZSBQUiAjMjY5IG1lcmdlZCBhcyBgNzYzY2U5NmM0ZjgyZGEyZWFlYzE2N2I1NmZmYjYyZDllNTQ4YjMwMG`; truncated intentionally') )"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/roadmap/R14_PLAN.md docs/roadmap/R14_8_ACCEPTANCE.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r14-8-end-sync-helper.yml
+          git add docs/roadmap/R14_PLAN.md docs/roadmap/R14_8_ACCEPTANCE.md docs/continuity/KODEPOIA_CONTINUITY.md .github/r14_8_end_sync.py .github/workflows/r14-8-end-sync-helper.yml
           changed="$(git diff --cached --name-only | sort)"
-          expected="$(printf '%s\n' '.github/workflows/r14-8-end-sync-helper.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_8_ACCEPTANCE.md' 'docs/roadmap/R14_PLAN.md' | sort)"
+          expected="$(printf '%s\n' '.github/r14_8_end_sync.py' '.github/workflows/r14-8-end-sync-helper.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_PLAN.md' | sort)"
           test "$changed" = "$expected"
           git commit -m "docs(r14.8): END-sync accepted cloud saves"
           git push origin HEAD:r14/08-cloud-saves

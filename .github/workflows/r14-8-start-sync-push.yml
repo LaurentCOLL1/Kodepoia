@@ -40,6 +40,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
-          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = "docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_PLAN.md "
+          EXPECTED=".github/workflows/r14-8-start-sync-push.yml .github/workflows/r14-8-start-sync.yml docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_PLAN.md "
+          ACTUAL="$(git diff --cached --name-only | sort | tr '\n' ' ')"
+          test "$ACTUAL" = "$EXPECTED"
           git commit -m "docs(r14.8): synchronize START state"
           git push origin HEAD:r14/08-cloud-saves

@@ -266,6 +266,430 @@ SSRF, environment confusion, accidental production default, secrets in repr/logs
 
 ## Completion record
 
+- Accepted immutable technical head: `84972d283f6f530ae46ebf6c0452188927b178ff`.
+- Technical exact-head gates: R0 Repository Guard #1752 / `33140670364` SUCCESS; Python Core #1726 / `33140670445` SUCCESS; KodeStudio UI Smoke #1693 / `33140670391` SUCCESS.
+- Ubuntu full Python suite: 1445 passed, 13 skipped, 46 warnings; Windows Core suite also SUCCESS.
+- Manual intervention: NONE.
+- Final END-head `75e5d68752a56b8a21fa4842e803d86f772f7468` passed R0 #1757 / `33140864294`, Python Core #1731 / `33140864327`, and UI #1698 / `33140864338`; PR #257 merged as `6059b6d706d1208fdcad102c9fa217abaf31d099`.
+- Single continuity-only normalization head `5f5624d9ce0a5cca0d112c0cf338f8cf6292eff9` passed R0 #1759 / `33141096835`, Python Core #1733 / `33141096889`, and UI #1700 / `33141096815`; PR #258 merged as normalized `main` `41f0775731c405a6b208baec8910bdb36a78d10e`.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.2 is authorized and starts from that exact normalized main.
+
+---
+
+# R14.2 — Project DNA/KodeProduct backend profiles + Wizard conditional service intent
+
+## Objective and rationale
+
+Make backend capability opt-in and product-driven so offline/single-player/local-only projects do not acquire hidden services.
+
+## In scope
+
+Backend intent/profile fields; conditional Wizard questions; generated requirements/acceptance criteria; platform/client compatibility; service dependency graph; default `disabled` state.
+
+## Out of scope
+
+Provisioning, deployment and service implementation.
+
+## Dependencies and prerequisites
+
+R14.1 COMPLETE; R2 DNA/Product/Wizard and R13 mobile profile patterns.
+
+## Detailed implementation plan
+
+Extend schemas with service intent for auth, authoritative state, multiplayer, saves, progression, billing, config/flags, content and events. Derive only necessary questions and dependencies; validate contradictions such as billing without catalog/entitlement boundary or matchmaking without authoritative session service. No credentials/provider account IDs belong in DNA.
+
+## Deliverables
+
+Schema/model/Wizard changes, fixtures for offline vs online products, generated product requirements and regression tests.
+
+## Acceptance gates / Definition of Done
+
+Offline fixture creates zero backend runtime intent; service-enabled fixtures produce deterministic profiles; schema migration/round-trip tests; R0/Python/UI; exact-head PR + normalization.
+
+## Validation and evidence
+
+Profile digests, conditional-question snapshots, negative fixtures and CI identities.
+
+## Rollback / recovery
+
+Backward-compatible optional fields; old DNA loads with backend disabled.
+
+## Risks and regression traps
+
+Silent service opt-in, secrets in project metadata, mobile/desktop target leakage, unstable default provider choice.
+
+## Manual intervention
+
+**NONE.**
+
+## Completion record
+
+- Accepted immutable technical head: `4e04812380a495dd799e1d7b9e96741d8688de31`.
+- Technical exact-head gates: R0 Repository Guard #1761 / `33143230642` SUCCESS; Python Core #1735 / `33143230580` SUCCESS; KodeStudio UI Smoke #1702 / `33143230613` SUCCESS.
+- Ubuntu full Python suite: 1465 passed, 13 skipped, 46 warnings; Windows Core suite also SUCCESS; both package builds and Python internal UI smoke SUCCESS.
+- Focused prevalidation `33143176492`: 34 passed, 2 skipped; diagnostic only, not acceptance authority.
+- Manual intervention: NONE.
+- Final END-head `cc034784b6b3350f3e24ece55e5d2304fa60705c` passed R0 #1766 / `33143514421`, Python Core #1740 / `33143514423`, and UI #1707 / `33143514466`; PR #259 merged as `ad5de7c1697d061946bf75220420c75b73851531`.
+- Single continuity-only normalization head `b3587acf2a9c37d2e407a62bc1e805863f553564` passed R0 #1768 / `33145379528`, Python Core #1742 / `33145379581`, and UI #1709 / `33145379554`; PR #260 merged as normalized `main` `bf66970f358df580d5fe15b1ac1f8ed2cb13b09d`.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.3 is authorized and starts from that exact normalized main.
+
+---
+
+# R14.3 — Deterministic local backend scaffold/runtime + environments/config/secrets/health
+
+## Objective and rationale
+
+Provide a reproducible local backend development surface before any external provider is required.
+
+## In scope
+
+Deterministic backend scaffold, repository-owned local server runner, typed config, environment overlays, KodeSecrets references, loopback-first bind policy, health/readiness endpoints, graceful shutdown, logs/redaction and reproducible fixture service.
+
+## Out of scope
+
+Public deployment, auth semantics, production TLS termination and managed hosting.
+
+## Dependencies and prerequisites
+
+R14.1–R14.2; R8 lineage; R12 scaffold/runtime patterns.
+
+## Detailed implementation plan
+
+Generate a local service workspace from canonical templates. Runtime defaults to loopback, ephemeral/test-safe ports, network off except explicit local service communications, structured config and secret handles. Add startup capability probe, health/readiness/liveness state and bounded teardown. No arbitrary package scripts.
+
+## Deliverables
+
+Scaffold templates, manifest/schema, runtime adapter, health model, fixtures, tests and DESIGN/ACCEPTANCE docs.
+
+## Acceptance gates / Definition of Done
+
+Generate twice = identical tree; start/health/stop bounded; secret redaction; port conflict behavior; Windows/Ubuntu; R0/Python/UI; exact-head merge + normalization.
+
+## Validation and evidence
+
+Generated tree hashes, runtime identity/version, bound interface/port evidence, process cleanup and logs.
+
+## Rollback / recovery
+
+Owned local process/state only; terminate via ProcessSandbox/KillSwitch and remove generated workspace/cache.
+
+## Risks and regression traps
+
+Binding `0.0.0.0` by default, zombie processes, port hijack, config drift, logs leaking secrets.
+
+## Manual intervention
+
+**NONE.**
+
+## Completion record
+
+- Accepted immutable technical head: `4de5036e7a37f949ec64ae68d9ee45e57ac99631`.
+- Technical exact-head gates: R0 Repository Guard #1770 / `33146235062` SUCCESS; Python Core #1744 / `33146235104` SUCCESS; KodeStudio UI Smoke #1711 / `33146235181` SUCCESS.
+- Ubuntu full Python suite: 1477 passed, 13 skipped, 46 warnings; Windows Core suite also SUCCESS; both package builds and Python internal UI smoke SUCCESS.
+- Focused implementation/compatibility prevalidation `33146069094`: 36 passed after compileall.
+- Cross-platform focused runtime validation `33146135676`: Ubuntu SUCCESS and Windows SUCCESS. A duplicate cleanup invocation later failed only because another invocation had already removed the temporary workflow/trigger; the tested implementation tree remained unchanged and the cumulative implementation diff contains no temporary files.
+- Manual intervention: NONE.
+- Final END-head `8411ce92da962a37cb9a5936bdac740d9a132204` passed R0 #1775 / `33146496788`, Python Core #1749 / `33146496859`, and UI #1716 / `33146496739`; PR #261 merged as `d288772a90d5877cabe35adb6e71f0ede32f6b8d`.
+- Single continuity-only normalization head `b8151f3729d2648d5f1e4d6ecd3bc9afb3c3c401` passed R0 #1777 / `33186628042`, Python Core #1751 / `33186628118`, and UI #1718 / `33186628151`; PR #262 merged as normalized `main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.4 is authorized and starts from that exact normalized main.
+
+---
+
+# R14.4 — Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary
+
+## Objective and rationale
+
+Establish secure identity/authentication/session semantics before authoritative multiplayer or billing depends on them.
+
+## In scope
+
+Account/auth realm identities; local deterministic identity provider fixture; session lifecycle; access/refresh token abstraction; token validation policy; revocation/rotation; passkey/WebAuthn capability model; OIDC discovery/provider adapter boundary; CSRF/state/PKCE/nonce/redirect validation where applicable; rate/lockout/session security evidence.
+
+## Out of scope
+
+Mandatory social-login vendor, production IdP tenant provisioning and generalized enterprise federation.
+
+## Dependencies and prerequisites
+
+R14.1–R14.3; R1 secrets/security; current standards evidence.
+
+## Detailed implementation plan
+
+Implement typed auth provider contracts and a deterministic local provider. Never accept algorithm/issuer/audience/redirect from untrusted raw project text without policy validation. Separate browser/public-client/native/server-confidential semantics. Passkey credential records store only public credential material and metadata; private keys remain authenticator-owned. OIDC external provider is explicit/allowlisted and capability-probed.
+
+## Deliverables
+
+Auth models/services, local provider, OIDC/passkey adapters/contracts, schemas, attack fixtures and tests.
+
+## Acceptance gates / Definition of Done
+
+Replay/expiry/issuer/audience/algorithm-mismatch/redirect/PKCE/state/nonce tests; session rotation/revocation; passkey contract tests; no secret leakage; R0/Python/UI; external IdP proof not required for core.
+
+## Validation and evidence
+
+Standards provenance/effective date, redacted auth traces, negative vector results and exact-head CI.
+
+## Rollback / recovery
+
+Local auth state disposable; schema migrations reversible; revoke generated local sessions/credentials.
+
+## Risks and regression traps
+
+Token confusion, open redirect, weak algorithm acceptance, long-lived bearer leakage, account enumeration, clock skew assumptions.
+
+## Manual intervention
+
+**CONDITIONAL.** Core acceptance uses local deterministic providers. Manual/provider-side work is required only if a claim explicitly requires a real domain/TLS/IdP/passkey relying-party configuration. Never send client secrets, private keys or passwords back in evidence.
+
+## Completion record
+
+- Accepted immutable technical head: `3660f351649e85450324df25888d577afb02b19a`.
+- Technical exact-head gates: R0 Repository Guard #1779 / `33187747722` SUCCESS; Python Core #1753 / `33187747723` SUCCESS; KodeStudio UI Smoke #1720 / `33187747872` SUCCESS.
+- Ubuntu full Python suite: 1494 passed, 13 skipped, 46 warnings; Windows Core suite also SUCCESS; both package builds and Python internal UI smoke SUCCESS.
+- Cross-platform focused prevalidation `33187554520`: 29 R14.4/R14.3 tests passed on Ubuntu and Windows after compileall.
+- Standards evidence: RFC 9700 OAuth 2.0 Security BCP; OpenID Connect Core validation semantics; W3C WebAuthn Level 3 Candidate Recommendation Snapshot dated 26 May 2026; OWASP session guidance.
+- Manual intervention: CONDITIONAL / NOT TRIGGERED. Core acceptance used deterministic local providers only.
+- Final END-head `05b16a796bb65d513de0b631eca432195ee01461` passed R0 #1783 / `33189022908`, Python Core #1757 / `33189022727`, and UI #1724 / `33189022765`; PR #263 merged as `cae2a1ddcaa79390ff923336ee331eba81937e84`.
+- Single continuity-only normalization head `8601ac19b87635648aef1c5f5c37a6cb899c26be` passed R0 #1785 / `33189536524`, Python Core #1759 / `33189536553`, and UI #1726 / `33189536543`; PR #264 merged as normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.5 is authorized and starts from that exact normalized main.
+
+---
+
+# R14.5 — PostgreSQL authoritative persistence, migrations, transactions + concurrency
+
+## Objective and rationale
+
+Create the durable transactional authority required by saves, progression, billing, config and event checkpoints.
+
+## In scope
+
+PostgreSQL capability adapter; connection/pool policy; typed repositories/unit-of-work; migration identities/checksums; transactional semantics; optimistic/pessimistic concurrency policy; isolation/deadlock handling; backup/restore fixtures; SQLite remains inappropriate as production authority when multi-writer server semantics require PostgreSQL.
+
+## Out of scope
+
+Managed cloud database provisioning and product-specific tables beyond validation fixtures.
+
+## Dependencies and prerequisites
+
+R14.1–R14.3; stable PostgreSQL 18.x CI capability; R8 lineage/backup patterns.
+
+## Detailed implementation plan
+
+Use repository-owned migrations with forward/rollback metadata and schema digest. Apply only after drift/preflight checks and SafeChange snapshot. Add transaction/idempotency primitives and deterministic integration fixtures. Production connection strings remain secret references, never model-visible literals.
+
+## Deliverables
+
+DB adapter, migration engine/contracts, schemas, test migrations, concurrency fixtures, backup/restore acceptance tooling and docs.
+
+## Acceptance gates / Definition of Done
+
+Fresh PostgreSQL stable CI: create/migrate/rollback/reapply, concurrent update conflict, deadlock bounded retry, transaction atomicity, backup/restore hash equivalence; R0/Python/UI; no beta DB production claim.
+
+## Validation and evidence
+
+PostgreSQL version/capability snapshot, schema/migration hashes, transaction/concurrency results, restore digest and run IDs.
+
+## Rollback / recovery
+
+Migration rollback or snapshot restore; failed migration must never be marked applied; restore tested before destructive path promotion.
+
+## Risks and regression traps
+
+Schema drift, non-idempotent retries, migration partial apply, connection exhaustion, deadlock loops, secret DSN exposure.
+
+## Manual intervention
+
+**NONE** for core; hosted/local CI database is authoritative for R14.5 capability.
+
+## Completion record
+
+- Accepted immutable technical source: `3273ac50b43b64f6f365522f170765f44f45eedf`.
+- Technical exact-head gates: R0 Repository Guard #1787 / `33190672723` SUCCESS; Python Core #1761 / `33190672676` SUCCESS; KodeStudio UI Smoke #1728 / `33190672761` SUCCESS; R14 PostgreSQL Acceptance #1 / `33190672769` SUCCESS.
+- Ubuntu full Python suite: 1509 passed, 13 skipped, 46 warnings; Windows Core suite also SUCCESS; both package builds and Python internal UI smoke SUCCESS.
+- PostgreSQL focused acceptance: 44 R14.5/R14.4/R14.3 tests passed against PostgreSQL 18.6 (`server_version_num=180006`, stable_supported=true).
+- Real PostgreSQL acceptance checks all true: fresh apply, rollback/reapply, transaction atomicity, optimistic conflict, row lock, idempotency, bounded retry and backup/restore. A real PostgreSQL `40P01` deadlock was provoked and detected.
+- Migration plan digest: `b96484ae6d56fe54b013b975572310d8daf44cf43116c5c43edc73845856b71b`; restore digest: `bcc5ae8b707231568263e0f52c8426dd956a67e4e131bcf97becb4b45ccb9f6e`; evidence reports `secrets_exposed=false`.
+- Stable external baseline at acceptance: PostgreSQL 18.6 released 2026-08-13; PostgreSQL 19 Beta 3 remains pre-release/testing-only.
+- Manual intervention: NONE.
+- Final END-head `9606436453c6cc2bed90120bc3f9069311ef65e0` passed fresh R0 #1791 / `33191315047`, Python Core #1765 / `33191315090`, UI #1732 / `33191315092`, and PostgreSQL Acceptance #5 / `33191315129`, all SUCCESS; PR #265 merged with `expected_head_sha=9606436453c6cc2bed90120bc3f9069311ef65e0` as `39d8aa12e3d36a618376f7060d1088f9fe61ba32`.
+- Single continuity-only normalization head `721c9949914a0952b2afe8543dd37da5f8146545` passed R0 #1793 / `33191649309`, Python Core #1767 / `33191649218`, and UI #1734 / `33191649134`, all SUCCESS; PR #266 merged as normalized `main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.6 was authorized and started from that exact normalized main.
+
+---
+
+# R14.6 — Authoritative server command/state model + real-time transport/trust boundary
+
+## Objective and rationale
+
+Ensure clients cannot directly dictate trusted state and establish deterministic command/revision semantics used by multiplayer and progression services.
+
+## In scope
+
+Authority domains; typed commands; validation/authorization; state revisions; idempotency keys; sequence/version checks; request/response and real-time transport abstraction; reconnect-safe protocol; bounded timeouts/backpressure; server clock/lease policy.
+
+## Out of scope
+
+Matchmaking policy, cloud saves and concrete product gameplay rules.
+
+## Dependencies and prerequisites
+
+R14.4–R14.5.
+
+## Detailed implementation plan
+
+Clients submit commands/intents. Server validates actor/session/authorization/current revision, performs transaction, emits authoritative outcome/events. Add provider-neutral HTTP/request + real-time channel contracts with typed messages and no raw model-selected protocol commands. Define duplicate, stale, out-of-order and disconnect handling.
+
+## Deliverables
+
+Authority/command/state modules, transport contracts, fixtures, concurrency/adversarial tests, docs.
+
+## Acceptance gates / Definition of Done
+
+Forgery/stale revision/duplicate/out-of-order/reconnect/backpressure tests; transaction/event consistency; R0/Python/UI; deterministic local multi-client fixture.
+
+## Validation and evidence
+
+Command/revision traces, rejected attack fixtures, latency/budget results and exact-head CI.
+
+## Rollback / recovery
+
+No irreversible external state; transactional fixture reset and event replay checkpoint rollback.
+
+## Risks and regression traps
+
+Client authority leakage, race conditions, duplicate commands, clock dependence, unbounded queues.
+
+## Manual intervention
+
+**NONE.**
+
+## Completion record
+
+- Accepted immutable technical source: `a1425b53e1228f9c88ba373cdfabf1459393a7cf`.
+- Technical exact-head gates: R0 Repository Guard #1795 / `33193110717` SUCCESS; Python Core #1769 / `33193110651` SUCCESS; KodeStudio UI Smoke #1736 / `33193110643` SUCCESS; R14 Authority Acceptance #3 / `33193110695` SUCCESS.
+- Authority acceptance succeeded on both Ubuntu and Windows. All ten frozen adversarial/semantic checks passed: forgery rejection, stale-revision rejection, mutation-free duplicate replay, out-of-order rejection, reconnect/resync behavior, bounded backpressure, transaction/event consistency, deterministic multi-client conflict handling, server-clock lease expiry and recursive reserved-field rejection.
+- Cross-platform semantic results are identical: final state digest `59c1afb567245df4f3521052564d0bdfbaa4a5423eb7db7997c1e20160a988a3`; event digest `3adad95a513ee4812126d7d9695cc297d2f57287263a5686ee1ee5c08a15e4a1`; trace digest `839f65c4ffbe019c43f6aad988ee8258945c328f348135ffef9320955102f178`; `secrets_exposed=false`.
+- Ubuntu artifact id `9694600447`, ZIP digest `sha256:ec252c2e055cdb8aa9f94b0f6273f87e6e2724b22f715b8a8e986047766b194a`; Windows artifact id `9694625857`, ZIP digest `sha256:5a2b0ad3d0841649ee3d20cc8057b3def7644f208d44e7a5bfc8154053409464`.
+- Final END-head `cf5a14295fdc3ff92ca72384b061e3a2c844e725` changed only `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_6_ACCEPTANCE.md`, and continuity relative to the immutable technical source and passed fresh R0 #1798 / `33195032726`, Python Core #1772 / `33195032703`, UI #1739 / `33195032677`, and R14 Authority Acceptance #6 / `33195032645`, all SUCCESS.
+- PR #267 merged with `expected_head_sha=cf5a14295fdc3ff92ca72384b061e3a2c844e725` as implementation/evidence merge `6033e5610a811a690a2998eb07183f19183fa557`.
+- Single continuity-only normalization head `9dafc361e909157dedf5cb89d7a39cdbb6ffff14` changed exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, passed fresh R0 #1800 / `33195413481`, Python Core #1774 / `33195413472`, and UI #1741 / `33195413558`, all SUCCESS; normalization PR #268 merged with `expected_head_sha=9dafc361e909157dedf5cb89d7a39cdbb6ffff14` as normalized `main` `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`.
+- Manual intervention: NONE.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.7 is authorized and starts from that exact normalized main.
+
+---
+
+# R14.7 — Matchmaking, lobby, reservations, presence + reconnect
+
+## Objective and rationale
+
+Add the frozen multiplayer service capability on top of authoritative sessions rather than embedding trust in clients.
+
+## In scope
+
+Lobby lifecycle, membership/roles, matchmaking tickets/criteria, queueing, reservation/expiry, match identity, presence, reconnect tokens/leases, cancellation, deterministic local matcher and fairness/budget hooks.
+
+## Out of scope
+
+Global-scale commercial matchmaking provider and game-specific MMR algorithm tuning.
+
+## Dependencies and prerequisites
+
+R14.6 COMPLETE.
+
+## Detailed implementation plan
+
+Persist tickets/lobbies/reservations with explicit revisions and expiry. Matching is deterministic for fixtures and policy-driven. Reconnect uses short-lived server-side reservation/session semantics; client cannot forge membership. Add queue/race/duplicate/cancel tests.
+
+## Deliverables
+
+Matchmaking/lobby service, schemas, local simulator, tests and docs.
+
+## Acceptance gates / Definition of Done
+
+Concurrent join/leave/cancel, duplicate ticket, reservation expiry, reconnect and stale presence tests; latency budgets; R0/Python/UI; exact-head merge + normalization.
+
+## Validation and evidence
+
+Queue timings, lifecycle traces, persisted revision hashes and CI identities.
+
+## Rollback / recovery
+
+Cancel/expire owned tickets/reservations; fixture DB reset; no live player pool claim.
+
+## Risks and regression traps
+
+Double assignment, ghost lobby members, unbounded queue, unfair nondeterministic tests, reconnect privilege escalation.
+
+## Manual intervention
+
+**NONE.**
+
+## Completion record
+
+- Dedicated branch: `r14/07-matchmaking-lobby-presence`.
+- Exact branch point: normalized `main` `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`.
+- Mandatory START-sync completed before implementation: plan head `8dc25375e40c045b8831278faa0f55ad74cf6df1`, continuity head `63c41c51ad6fb4adb981d284c3753ea5a26c9eb6`.
+- Initial candidate `12071ee561717ac436f4ffa0457361685214c989` is REJECTED and is not decision evidence. Dedicated acceptance #2 detected that `update_presence(IN_MATCH)` did not sweep server-clock reservation expiry before authorization; the implementation, not the test, was corrected.
+- Accepted immutable technical source: `d04c841fcef9eb9f963085da68e579dbb58186da`.
+- Technical exact-source gates: R0 Repository Guard #1803 / `33203286519` SUCCESS; Python Core #1777 / `33203286537` SUCCESS; KodeStudio UI Smoke #1744 / `33203286514` SUCCESS; R14 Matchmaking Acceptance #4 / `33203286510` SUCCESS.
+- Full Ubuntu Python suite: 1543 passed, 13 skipped, 46 warnings; Windows Core, both package builds and Python internal UI smoke also SUCCESS.
+- Focused R14.7/R14.6/R14.5/R14.4 regression suite: 66 tests passed on Ubuntu and 66 on Windows.
+- All fourteen frozen matchmaking checks are true on both OS: lobby lifecycle, object authorization, duplicate join, recursive reserved-field rejection, duplicate ticket, deterministic match, incompatible criteria isolation, no double assignment, cancel terminality, reservation expiry, stale presence rejection, reconnect binding, reconnect expiry and bounded capacity.
+- Cross-platform semantic digests are identical: state `ae9ecc0893537e5c12cc8a78247197ed53d094b1a811c386c17161fac10c0c19`; lobby `27bcd90471e3775b859ce21e977c5ac534909a898deab0eb2c27cd44b86db0cf`; reservation `e8423de1a2d1a92873bbfa466111ab4a07168adeafca4bde4d62c64a70a9f690`; presence `5f2ca6c7402bba1a3b2d195d9f63d1c8b758c01d577d4581785559d92de24f0f`; trace `5f25c8f15da7e4f9dd45fbf072dd72101d3f32deef349c28069beeb83d954bd3`.
+- Ubuntu artifact `9698619713`, ZIP digest `sha256:f8bd9f43b431bb9a5f9b194da245a57381b000795a5c8ccacb51a866c371b1df`; Windows artifact `9698629064`, ZIP digest `sha256:1e3b191e9d1de0844b49c62bcd36c79798a23315e93edf20393b862d1fb44c1c`.
+- Evidence reports `provider_live_claim=false` and `secrets_exposed=false`. External provider documentation is comparison evidence only; no provider account or Internet-scale capacity claim is part of R14.7 core acceptance.
+- Manual intervention: NONE.
+- Current subdivision status: `COMPLETE` at technical/evidence level. R14.8 remains `PLANNED` until this END synchronization passes fresh exact-head R0 + full Python Core + KodeStudio UI Smoke + R14 Matchmaking Acceptance, PR #269 merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
+---
+
+# R14.8 — Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery
+
+## Objective and rationale
+
+Provide server-authoritative cross-device save synchronization without overwriting newer state or corrupting lineage.
+
+## In scope
+
+Save slots, immutable save revisions, metadata/hash, compare-and-swap, client base revision, conflict detection, deterministic resolution policies, quotas, compression/encryption boundary, retention, rollback/recovery and R11/R13 save compatibility bridge.
+
+## Out of scope
+
+Provider-specific consumer cloud drive integration and arbitrary binary merge algorithms.
+
+## Dependencies and prerequisites
+
+R14.5–R14.6; existing SaveBridge/provenance.
+
+## Detailed implementation plan
+
+Upload creates a new revision only after hash/size/schema/authorization checks. Sync uses base revision and explicit conflict object; never last-write-wins silently unless product policy explicitly selects it. Preserve lineage and rollback points; large blobs use governed object/content boundary rather than unbounded DB rows where appropriate.
+
+## Deliverables
+
+Cloud-save service/models/schema, conflict resolver, migration/compatibility fixtures, tests and docs.
+
+## Acceptance gates / Definition of Done
+
+Offline divergent edits, duplicate upload, stale base, rollback, corrupt payload, quota and migration tests; deterministic conflict resolution; R0/Python/UI.
+
+## Validation and evidence
+
+Save/revision hashes, conflict traces, restore results and budgets.
+
+## Rollback / recovery
+
+Select prior immutable revision; no destructive overwrite of last known-good state.
+
+## Risks and regression traps
+
+Silent data loss, cross-user access, unbounded save growth, schema mismatch, content hash confusion.
+
+## Manual intervention
+
+**NONE.**
+
+## Completion record
+
 - Dedicated branch: `r14/08-cloud-saves`.
 - Exact branch point: normalized `main` `24e40db2781db8e42591c6ffa8fbdb8f0bf84108` after the single accepted R14.7 continuity normalization.
 - START state: R14.1–R14.7 COMPLETE + NORMALIZED; R14.8 IN_PROGRESS; R14.9–R14.17 PLANNED.

@@ -28,6 +28,19 @@ from .intent import (
     backend_runtime_intents,
     backend_wizard_questions,
 )
+from .health import BackendHealthSnapshot, BackendHealthState, probe_backend_health
+from .local_config import (
+    BackendConfigOverlay,
+    BackendLocalConfig,
+    BackendLogLevel,
+    local_config_from_runtime_intents,
+)
+from .runtime import BackendLocalRuntime, BackendRuntimeHandle
+from .scaffold import (
+    BackendRenderedFile,
+    BackendScaffoldEngine,
+    BackendWorkspaceManifest,
+)
 from .status import BackendErrorCode, BackendOperationStatus, BackendStatusSnapshot
 
 __all__ = [
@@ -58,6 +71,18 @@ __all__ = [
     "BackendStatusSnapshot",
     "backend_runtime_intents",
     "backend_wizard_questions",
+    "BackendConfigOverlay",
+    "BackendHealthSnapshot",
+    "BackendHealthState",
+    "BackendLocalConfig",
+    "BackendLocalRuntime",
+    "BackendLogLevel",
+    "BackendRenderedFile",
+    "BackendRuntimeHandle",
+    "BackendScaffoldEngine",
+    "BackendWorkspaceManifest",
+    "local_config_from_runtime_intents",
+    "probe_backend_health",
     "canonical_json_bytes",
     "canonical_sha256",
 ]

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-health-snapshot.schema.json",
+  "title": "Kodepoia R14.3 backend health snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "service_id", "environment_id", "state", "live", "ready", "host", "port", "runtime_version"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "service_id": {"type": "string", "minLength": 1},
+    "environment_id": {"type": "string", "minLength": 1},
+    "state": {"enum": ["starting", "ready", "stopping", "stopped", "failed"]},
+    "live": {"type": "boolean"},
+    "ready": {"type": "boolean"},
+    "host": {"type": "string", "pattern": "^127(?:\\.(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])){3}$"},
+    "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+    "runtime_version": {"const": "r14.3-v1"}
+  },
+  "allOf": [
+    {"if": {"properties": {"ready": {"const": true}}}, "then": {"properties": {"live": {"const": true}, "state": {"const": "ready"}}}},
+    {"if": {"properties": {"state": {"const": "stopped"}}}, "then": {"properties": {"live": {"const": false}, "ready": {"const": false}}}}
+  ]
+}

@@ -40,9 +40,9 @@ jobs:
           rm -f .github/workflows/r14-03-normalize-temp.yml .r14_3_norm_trigger
           git add -- docs/continuity/KODEPOIA_CONTINUITY.md
           git add -u -- .github/workflows/r14-03-normalize-temp.yml .r14_3_norm_trigger
-          changed=$(git diff --cached --name-only)
-          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git diff --cached --check
+          cumulative=$(git diff --name-only d288772a90d5877cabe35adb6e71f0ede32f6b8d -- | sort)
+          test "$cumulative" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'R14.3 post-merge continuity normalization'

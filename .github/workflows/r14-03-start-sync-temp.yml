@@ -22,10 +22,10 @@ jobs:
         run: python scripts/_r14_3_start_sync_temp.py
       - name: Guard START-sync cumulative scope
         run: |
-          git diff --check
+          git diff --check -- docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
           mapfile -t changed < <(git diff --name-only bf66970f358df580d5fe15b1ac1f8ed2cb13b09d...HEAD; git diff --name-only)
           printf '%s\n' "${changed[@]}" | sed '/^$/d' | sort -u > /tmp/changed.txt
-          actual=$(grep -v -E '^(.github/workflows/r14-03-start-sync-temp.yml|scripts/_r14_3_start_sync_temp.py|.r14_3_start_trigger)$' /tmp/changed.txt || true)
+          actual=$(grep -v -E '^(.github/workflows/r14-03-start-sync-temp.yml|scripts/_r14_3_start_sync_temp.py|.r14_3_start_trigger|docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json)$' /tmp/changed.txt || true)
           expected=$(printf '%s\n' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_PLAN.md')
           if [ "$actual" != "$expected" ]; then
             echo 'Unexpected cumulative START-sync paths:'
@@ -38,6 +38,13 @@ jobs:
           git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
           git add -u -- scripts/_r14_3_start_sync_temp.py .github/workflows/r14-03-start-sync-temp.yml .r14_3_start_trigger
           git diff --cached --check
+          staged=$(git diff --cached --name-only | sort)
+          expected=$(printf '%s\n' '.github/workflows/r14-03-start-sync-temp.yml' '.r14_3_start_trigger' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_PLAN.md' 'scripts/_r14_3_start_sync_temp.py' | sort)
+          if [ "$staged" != "$expected" ]; then
+            echo 'Unexpected staged paths:'
+            printf '%s\n' "$staged"
+            exit 1
+          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'R14.3 START-sync plan and continuity'

@@ -1,0 +1,83 @@
+name: R14.6 START Sync Temp
+
+on:
+  push:
+    branches: ["r14/06-authoritative-server-state"]
+    paths: [".github/r14-06-start-sync.trigger"]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/06-authoritative-server-state
+          fetch-depth: 0
+      - name: Apply governed R14.6 START-sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              p = Path(path)
+              text = p.read_text(encoding="utf-8")
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{path}: marker count {count}: {old[:140]!r}")
+              p.write_text(text.replace(old, new, 1), encoding="utf-8", newline="\n")
+
+          plan = "docs/roadmap/R14_PLAN.md"
+          replace_once(
+              plan,
+              "**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.4 are COMPLETE + NORMALIZED. R14.5 accepted immutable technical source `3273ac50b43b64f6f365522f170765f44f45eedf` passed R0 #1787 / `33190672723`, Python Core #1761 / `33190672676`, KodeStudio UI Smoke #1728 / `33190672761`, and R14 PostgreSQL Acceptance #1 / `33190672769`, all SUCCESS. R14.5 is COMPLETE at technical/evidence level on PR #265; R14.6–R14.17 remain PLANNED until final END-head re-gates, expected-head merge and the single continuity-only normalization. R14.5 core manual state is NONE.",
+              "**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.5 are COMPLETE + NORMALIZED. R14.5 continuity-only normalization head `721c9949914a0952b2afe8543dd37da5f8146545` passed R0 #1793 / `33191649309`, Python Core #1767 / `33191649218`, and UI #1734 / `33191649134`, all SUCCESS; normalization PR #266 merged as normalized `main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`. R14.6 is IN_PROGRESS on `r14/06-authoritative-server-state` from that exact normalized main; R14.7–R14.17 remain PLANNED. R14.6 manual state is NONE."
+          )
+          replace_once(
+              plan,
+              "| R14.6 | Authoritative server command/state model + real-time transport/trust boundary | PLANNED | NONE | R14.4–R14.5 |",
+              "| R14.6 | Authoritative server command/state model + real-time transport/trust boundary | IN_PROGRESS | NONE | R14.4–R14.5 |"
+          )
+
+          continuity = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          replace_once(
+              continuity,
+              "> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.4 COMPLETE + NORMALIZED. R14.5 becomes COMPLETE + NORMALIZED upon merge of the single continuity-only normalization PR from `r14/05-continuity-normalization`; R14.6–R14.17 remain PLANNED until then.** R14.5 immutable technical source `3273ac50b43b64f6f365522f170765f44f45eedf` passed R0 #1787 / `33190672723`, Python Core #1761 / `33190672676`, UI #1728 / `33190672761`, and PostgreSQL Acceptance #1 / `33190672769`; final END-head `9606436453c6cc2bed90120bc3f9069311ef65e0` passed fresh R0 #1791 / `33191315047`, Python #1765 / `33191315090`, UI #1732 / `33191315092`, and PostgreSQL Acceptance #5 / `33191315129`, all SUCCESS. PR #265 merged with expected-head protection as `39d8aa12e3d36a618376f7060d1088f9fe61ba32`. Manual state: NONE.",
+              "> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.5 COMPLETE + NORMALIZED. R14.6 IN_PROGRESS on `r14/06-authoritative-server-state`; R14.7–R14.17 remain PLANNED.** R14.5 normalization head `721c9949914a0952b2afe8543dd37da5f8146545` passed R0 #1793 / `33191649309`, Python Core #1767 / `33191649218`, and UI #1734 / `33191649134`, all SUCCESS; PR #266 merged with expected-head protection as normalized `main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`. R14.6 starts exactly there. Manual state: NONE."
+          )
+          replace_once(
+              continuity,
+              "- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.4 are **COMPLETE + NORMALIZED**. R14.5 final END-head **`9606436453c6cc2bed90120bc3f9069311ef65e0`** passed R0 #1791 / `33191315047`, Python #1765 / `33191315090`, UI #1732 / `33191315092`, and PostgreSQL Acceptance #5 / `33191315129`, all SUCCESS; PR #265 merged as **`39d8aa12e3d36a618376f7060d1088f9fe61ba32`**. Single continuity-only normalization is in progress on `r14/05-continuity-normalization`; after its fresh gates and expected-head merge R14.5 is **COMPLETE + NORMALIZED** and R14.6 is authorized. R14.6–R14.17 otherwise remain PLANNED. Manual for R14.5: **NONE**.",
+              "- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.5 are **COMPLETE + NORMALIZED**. R14.5 normalization head **`721c9949914a0952b2afe8543dd37da5f8146545`** passed R0 #1793 / `33191649309`, Python #1767 / `33191649218`, and UI #1734 / `33191649134`, all SUCCESS; PR #266 merged as normalized **`main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`**. R14.6 is **IN_PROGRESS** on `r14/06-authoritative-server-state`; R14.7–R14.17 remain PLANNED. Manual for R14.6: **NONE**."
+          )
+          marker = "## R14.1 post-merge normalization authority"
+          insert = """## R14.6 start authority
+
+- Dedicated branch: `r14/06-authoritative-server-state`.
+- Exact branch point: normalized `main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`.
+- R14.1–R14.5 are COMPLETE + NORMALIZED; R14.6 is IN_PROGRESS; R14.7–R14.17 remain PLANNED.
+- Standards/security basis for this work cycle: RFC 9110 HTTP idempotency/retry semantics; RFC 6455 WebSocket plus RFC 8441/9220 HTTP/2 and HTTP/3 bootstrapping; OWASP API Security 2023 object/function authorization and bounded resource-consumption risks. These are transport/security compatibility references, not sources of application authority.
+- Frozen R14.6 scope: authoritative domain/command/state identities; actor/session/object authorization; current-revision and sequence enforcement; idempotent duplicate handling; atomic state+event outcome; provider-neutral request/realtime transport contracts; reconnect cursor/resume semantics; bounded queues/backpressure/timeouts and server-issued lease/clock policy. No matchmaking, cloud-save or product-specific gameplay rules.
+- Client messages are intents only. They cannot supply trusted state revisions, authorization decisions, server timestamps, queue capacity, lease authority or event sequence truth.
+- Manual intervention: **NONE**.
+
+""" + marker
+          replace_once(continuity, marker, insert)
+          PY
+
+          git rm .github/workflows/r14-06-start-sync-temp.yml .github/r14-06-start-sync.trigger
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          staged="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' '.github/r14-06-start-sync.trigger' '.github/workflows/r14-06-start-sync-temp.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_PLAN.md' | sort)"
+          test "$staged" = "$expected"
+          git commit -m "R14.6 START-sync plan and continuity"
+          changed="$(git diff --name-only 1b1f40334b640afb75d8a669ad312dacb96b4e6d..HEAD | sort)"
+          expected_changed="$(printf '%s\n' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_PLAN.md' | sort)"
+          test "$changed" = "$expected_changed"
+          git push origin HEAD:r14/06-authoritative-server-state

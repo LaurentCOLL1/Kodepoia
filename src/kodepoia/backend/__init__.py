@@ -20,6 +20,7 @@ from .governance import (
     BackendOperationRisk,
     BackendProviderRequest,
 )
+from .status import BackendErrorCode, BackendOperationStatus, BackendStatusSnapshot
 
 __all__ = [
     "BackendBoundaryError",
@@ -28,6 +29,7 @@ __all__ = [
     "BackendEndpointDefinition",
     "BackendEnvironmentIdentity",
     "BackendEnvironmentKind",
+    "BackendErrorCode",
     "BackendGovernanceAuthorization",
     "BackendGovernanceBoundary",
     "BackendNetworkAuthorization",
@@ -36,10 +38,12 @@ __all__ = [
     "BackendOperationIntent",
     "BackendOperationKind",
     "BackendOperationRisk",
+    "BackendOperationStatus",
     "BackendProviderRequest",
     "BackendRuntimeBudget",
     "BackendServiceIdentity",
     "BackendServiceKind",
+    "BackendStatusSnapshot",
     "canonical_json_bytes",
     "canonical_sha256",
 ]

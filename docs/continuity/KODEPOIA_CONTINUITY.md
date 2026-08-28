@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.7 COMPLETE + NORMALIZED. R14.8 IN_PROGRESS. R14.9–R14.17 PLANNED.** R14.8 démarre exactement du `main` normalisé `24e40db2781db8e42591c6ffa8fbdb8f0bf84108` sur `r14/08-cloud-saves`. Le START-sync plan + continuité doit être complet avant toute implémentation. Frozen scope : immutable save revisions, base-revision/CAS, explicit conflicts, idempotency, integrity/schema checks, quotas/retention and append-only rollback/recovery. Manual intervention : NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.7 COMPLETE + NORMALIZED. R14.8 COMPLETE (END-SYNCED; normalization pending). R14.9–R14.17 PLANNED.** R14.8 source technique immuable `8132c4029983f693a32e0d26903d05e347313bf6` sur `r14/08-cloud-saves`; R0 #1822, Python Core #1796, UI #1763 et Cloud Save Acceptance #6 sont SUCCESS. Re-gater l’END-head exact, merger PR #271 avec expected-head, puis effectuer exactement une normalisation continuity-only avant toute R14.9. Manual intervention : NONE.
 
 ## État global
 
@@ -15,7 +15,7 @@
 - R13 canonical integrated digest : `831b155fce200eae6b9fbe91c8eb44e992ea036c0922e508171644b497a4c3c7`.
 - R14 planning : **ACCEPTED + NORMALIZED**.
 - R14.1–R14.7 : **COMPLETE + NORMALIZED**.
-- R14.8 : **IN_PROGRESS** sur `r14/08-cloud-saves`, base exacte `24e40db2781db8e42591c6ffa8fbdb8f0bf84108`.
+- R14.8 : **COMPLETE (END-SYNCED; normalization pending)** sur `r14/08-cloud-saves`; source technique immuable `8132c4029983f693a32e0d26903d05e347313bf6`, base exacte `24e40db2781db8e42591c6ffa8fbdb8f0bf84108`.
 - R14.9–R14.17 : **PLANNED**.
 - Manual state actuel : **NONE**.
 
@@ -59,7 +59,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.5 | COMPLETE + NORMALIZED | NONE |
 | R14.6 | COMPLETE + NORMALIZED | NONE |
 | R14.7 | COMPLETE + NORMALIZED | NONE |
-| R14.8 | IN_PROGRESS | NONE |
+| R14.8 | COMPLETE | NONE |
 | R14.9 | PLANNED | NONE |
 | R14.10 | PLANNED | CONDITIONAL |
 | R14.11 | PLANNED | NONE |
@@ -91,18 +91,18 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - PR #269 fusionnée avec `expected_head_sha=a9376ad7aee4e4683fe9d7d98ef52d19ec2184e2` comme merge `763ce96c4f82da2eaec167b56ffb62d9e548b300`.
 - Provider posture : `provider_live_claim=false`, `secrets_exposed=false`, manual NONE.
 
-## R14.8 start authority
+## R14.8 END-sync authority
 
 - Dedicated branch: **`r14/08-cloud-saves`**.
 - Exact branch point: normalized R14.7 `main` **`24e40db2781db8e42591c6ffa8fbdb8f0bf84108`**.
-- Prior state: R14.1–R14.7 **COMPLETE + NORMALIZED**.
-- Active state: R14.8 **IN_PROGRESS**; R14.9–R14.17 **PLANNED**.
-- Required authority: authenticated account/session plus object-level authorization for every save slot/revision; client-supplied slot/revision IDs never confer authority.
-- Revision rule: accepted payloads create immutable append-only revisions; current state is a pointer/identity, not in-place mutation of historical bytes.
-- Concurrency rule: client supplies its base revision; a stale base creates an explicit conflict and never silently overwrites the current server revision. RFC 9110 `If-Match`/lost-update semantics are reference evidence only, not an HTTP dependency.
-- Conflict rule: both competing states/digests remain identifiable until a deterministic resolution is recorded. Google Play Games Saved Games is provider evidence that multi-device conflicts require explicit resolution.
-- Idempotency rule: replay with the same key and identical request is mutation-free; same key with different request fails closed.
-- Recovery rule: rollback creates a new authoritative revision derived from a retained prior revision; historical revisions remain immutable.
+- Immutable technical source: **`8132c4029983f693a32e0d26903d05e347313bf6`**.
+- Technical gates: R0 #1822 / `33206330276`, Python Core #1796 / `33206330171`, UI #1763 / `33206330345`, Cloud Save Acceptance #6 / `33206330291` — all SUCCESS.
+- Python Core Ubuntu: **1564 passed / 13 skipped / 46 warnings**; Windows Core SUCCESS; package builds Ubuntu/Windows SUCCESS.
+- Focused R14.8→R14.5: **70 passed Ubuntu + 70 passed Windows**; fourteen cloud-save checks PASS cross-platform.
+- Semantic digests: state `984bf5fc88d5ca537cd3a4d938c0aa6d890e8f1794f5485467726331331ce345`; trace `f071636d1c5c99614b91817d328bab43ec406daaf315621affecd45af42df5e8`; slot `24c423bfc661d2f8d207364c9d7058cb45413b7e15347beb78b50ca10c7345d1`; current revision `4603e4e2a7d7d708cf689eb6cd4502b9809993b7245fc3ac64bf05eee1f34d7e`; resolved conflict `be2d6808b13bd40aa4a04d003d8d47df315a4461a67647746b87b26d1e6c0eca`.
+- Artifacts: Ubuntu `9699802370` / `sha256:bfd9d7cadb002a822f5c0f399f32dc7410b62318a1dee7a0c3d480bd1c8398d8`; Windows `9699818533` / `sha256:748f1b5572d679e619d82aeda314a1fa1f4c688d7edfe6f84e41fe54424c5a0d`.
+- Provider posture: `provider_live_claim=false`, `secrets_exposed=false`; RFC 9110 / Google Play Games / OWASP are informative evidence only.
+- Current state: R14.8 **COMPLETE** at END-sync; R14.9–R14.17 **PLANNED**.
 - Manual intervention: **NONE**.
 
 ## External research baseline relevant to R14.8
@@ -112,4 +112,4 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 
 ## Next authorized action
 
-Implement R14.8 only on `r14/08-cloud-saves` from normalized `main` `24e40db2781db8e42591c6ffa8fbdb8f0bf84108`. Add provider-neutral cloud-save contracts/service, immutable revision lineage, base-revision/CAS conflict detection, idempotency, integrity/schema/quota checks, deterministic conflict resolution and append-only rollback/recovery. Add focused adversarial tests and a dedicated exact-head cross-platform acceptance workflow/evidence if needed. Do not start R14.9 until R14.8 has immutable technical acceptance, END-sync, protected merge and exactly one continuity-only normalization. Manual intervention remains **NONE**.
+Treat `8132c4029983f693a32e0d26903d05e347313bf6` as the only immutable R14.8 technical source. The END-sync head may differ only by `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_8_ACCEPTANCE.md` and this continuity file. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Cloud Save Acceptance. If all are SUCCESS, merge PR #271 only with `expected_head_sha` equal to that exact END-head. Then perform exactly one continuity-only post-merge normalization, fresh R0/Python/UI, and protected merge. Do not start R14.9 until normalized `main` exists. Manual intervention remains **NONE**.

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-endpoint-definition.schema.json",
+  "title": "R14 Backend Endpoint Definition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "endpoint_id",
+    "service_id",
+    "environment_id",
+    "scheme",
+    "host",
+    "port",
+    "base_path",
+    "allow_redirects"
+  ],
+  "properties": {
+    "endpoint_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "service_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "environment_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "scheme": {"enum": ["http", "https"]},
+    "host": {"type": "string", "minLength": 1, "maxLength": 253},
+    "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+    "base_path": {"type": "string", "pattern": "^/", "maxLength": 1024},
+    "allow_redirects": {"type": "boolean"}
+  }
+}

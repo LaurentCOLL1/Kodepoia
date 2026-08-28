@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.8 COMPLETE + NORMALIZED. R14.9 IN_PROGRESS. R14.10–R14.17 PLANNED.** R14.8 est définitivement normalisée sur `main` `433c86cc5d43bfea41adb529451367e10c75a30b` après PR #272. R14.9 démarre exactement de ce SHA sur `r14/09-progression-leaderboards`. Frozen scope : définitions achievement/stat/leaderboard immuables et versionnées, progression seulement depuis événements/commandes autoritatifs validés, unlock/progress idempotents, score ordering/tie/period/reset explicites, snapshots de classement déterministes, écritures directes de score client interdites, privacy/display controls et queries provider-neutral. Manual intervention : NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.8 COMPLETE + NORMALIZED. R14.9 COMPLETE (END-SYNCED; merge/normalization pending). R14.10–R14.17 PLANNED.** R14.9 source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`; R0 #1836, Python Core #1810, UI #1777 et R14 Progression Acceptance #3 sont SUCCESS. Re-gater l’END-head exact, merger PR #273 avec expected-head, puis effectuer exactement une normalisation continuity-only avant R14.10. Manual intervention : NONE.
 
 ## État global
 
@@ -16,7 +16,7 @@
 - R14 planning : **ACCEPTED + NORMALIZED**.
 - R14.1–R14.8 : **COMPLETE + NORMALIZED**.
 - R14.8 normalized `main` : **`433c86cc5d43bfea41adb529451367e10c75a30b`** après normalization PR #272.
-- R14.9 : **IN_PROGRESS** sur `r14/09-progression-leaderboards`, base exacte `433c86cc5d43bfea41adb529451367e10c75a30b`.
+- R14.9 : **COMPLETE (END-SYNCED; merge/normalization pending)** sur `r14/09-progression-leaderboards`; source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`.
 - R14.10–R14.17 : **PLANNED**.
 - Manual state actuel : **NONE**.
 
@@ -61,7 +61,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.6 | COMPLETE + NORMALIZED | NONE |
 | R14.7 | COMPLETE + NORMALIZED | NONE |
 | R14.8 | COMPLETE + NORMALIZED | NONE |
-| R14.9 | IN_PROGRESS | NONE |
+| R14.9 | COMPLETE | NONE |
 | R14.10 | PLANNED | CONDITIONAL |
 | R14.11 | PLANNED | NONE |
 | R14.12 | PLANNED | CONDITIONAL |
@@ -112,16 +112,18 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - R14.8 final state: **COMPLETE + NORMALIZED**; R14.9 is authorized from that exact normalized `main`.
 - Manual intervention: **NONE**.
 
-## R14.9 START authority
+## R14.9 technical closure authority
 
-- Dedicated branch: **`r14/09-progression-leaderboards`**.
-- Exact branch point: normalized R14.8 `main` **`433c86cc5d43bfea41adb529451367e10c75a30b`**.
-- START plan head: `5830d5d7fb75ac529c139c1f020e8dfc4423e580`; helper files self-removed before implementation.
-- START state: R14.1–R14.8 **COMPLETE + NORMALIZED**; R14.9 **IN_PROGRESS**; R14.10–R14.17 **PLANNED**.
-- Frozen scope: immutable/versioned achievement, stat and leaderboard definitions; server-authoritative validated progression events/commands; duplicate-safe idempotency; terminal/idempotent unlocks; explicit score ordering, tie, update and period/reset policies; deterministic ranking snapshots; privacy/display filtering; provider-neutral reads; direct client score writes forbidden.
-- Acceptance focus: forged score rejection, duplicate/rebound event handling, duplicate unlock, definition immutability/versioning, deterministic higher/lower ranking and ties, period rollover/reset, privacy filtering, concurrency and bounded capacity.
-- Provider posture: Steam/Game Center/Google Play are informative compatibility references only; no provider account, API key or live publication is required for core R14.9 acceptance.
-- Manual intervention: **NONE**.
+- Dedicated branch `r14/09-progression-leaderboards`; exact base normalized R14.8 `main` `433c86cc5d43bfea41adb529451367e10c75a30b`.
+- Clean START head `d221057a91b9c0389346e6eec71044ce57898db1`; no implementation preceded START acceptance.
+- Rejected candidate `dc3ea916dd5bfbcc5751a7fbe0128532f3a1298f`: NON-AUTHORITATIVE; its evidence must never be reused.
+- Immutable technical source `155119282af7f4bf71840fc45c2d3de8891f73cd`.
+- Technical gates: R0 #1836 / `33210136515`, Python Core #1810 / `33210136766`, UI #1777 / `33210136531`, R14 Progression #3 / `33210136498` — all SUCCESS.
+- Full Ubuntu: **1590 passed / 13 skipped / 46 warnings**; focused: **96 passed Ubuntu + 96 passed Windows**; fifteen dedicated checks PASS on both OS.
+- Digests: definition `0ff0b8c2215dabf637f852f3d049959a02dbd7cb3e8e26c5cf2fa680682cb686`; state `a8d7bed52649c7f6cea1d2f07793a011058afbdd2973e568ade69f7b3811d49d`; trace `c1180c3bc5326a6fd268dc6bd54f9bd13c99bba837a7bc931d1b55c206d9bec3`.
+- Artifacts: Ubuntu `9701251718` / `sha256:fb8be016598d8bf1450047102b2c44e26aa975bf78c78f62e1e7043f4f64e69a`; Windows `9701266161` / `sha256:065fac3a244258b4047f51b229b66b1adfe3ec0714d556b7ba6e42220568b02e`.
+- `provider_live_claim=false`; `secrets_exposed=false`; manual NONE.
+- Current state: R14.9 COMPLETE at END-sync; R14.10–R14.17 PLANNED.
 
 ## External research baseline relevant to R14.9
 
@@ -132,4 +134,4 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 
 ## Next authorized action
 
-Verify that the exact R14.9 START head differs from normalized R14.8 `main` `433c86cc5d43bfea41adb529451367e10c75a30b` by **only** `docs/roadmap/R14_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`. No implementation file may exist before that comparison passes. Once the START diff is clean, implement R14.9 on the same dedicated branch with immutable/versioned definitions, authoritative/idempotent progression events, deterministic ranking/period semantics, privacy filtering, bounded state and dedicated Ubuntu/Windows acceptance. Manual intervention remains **NONE**.
+Treat `155119282af7f4bf71840fc45c2d3de8891f73cd` as the only immutable R14.9 technical source. Verify the END-head diff from that source is limited to `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_9_ACCEPTANCE.md` and this continuity file. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Progression Acceptance. If all are SUCCESS, merge PR #273 only with `expected_head_sha` equal to that exact END-head, then perform exactly one continuity-only post-merge normalization with fresh R0/Python/UI. Do not start R14.10 before normalized `main` exists. Manual intervention remains NONE.

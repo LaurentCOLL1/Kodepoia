@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.5 are COMPLETE + NORMALIZED. R14.5 continuity-only normalization head `721c9949914a0952b2afe8543dd37da5f8146545` passed R0 #1793 / `33191649309`, Python Core #1767 / `33191649218`, and UI #1734 / `33191649134`, all SUCCESS; normalization PR #266 merged as normalized `main` `1b1f40334b640afb75d8a669ad312dacb96b4e6d`. R14.6 immutable technical source `a1425b53e1228f9c88ba373cdfabf1459393a7cf` passed R0 #1795 / `33193110717`, Python Core #1769 / `33193110651`, UI #1736 / `33193110643`, and R14 Authority Acceptance #3 / `33193110695`, all SUCCESS. R14.6 is COMPLETE at technical/evidence level on `r14/06-authoritative-server-state`; R14.7–R14.17 remain PLANNED pending final END re-gates, PR #267 expected-head merge and exactly one continuity-only normalization. R14.6 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.6 are COMPLETE + NORMALIZED. R14.6 immutable technical source `a1425b53e1228f9c88ba373cdfabf1459393a7cf` passed R0 #1795 / `33193110717`, Python Core #1769 / `33193110651`, UI #1736 / `33193110643`, and R14 Authority Acceptance #3 / `33193110695`; final END-head `cf5a14295fdc3ff92ca72384b061e3a2c844e725` passed fresh R0 #1798 / `33195032726`, Python Core #1772 / `33195032703`, UI #1739 / `33195032677`, and Authority #6 / `33195032645`; PR #267 merged as `6033e5610a811a690a2998eb07183f19183fa557`. Single continuity-only normalization head `9dafc361e909157dedf5cb89d7a39cdbb6ffff14` passed fresh R0 #1800 / `33195413481`, Python Core #1774 / `33195413472`, and UI #1741 / `33195413558`, all SUCCESS; normalization PR #268 merged as normalized `main` `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`. R14.7 is IN_PROGRESS on `r14/07-matchmaking-lobby-presence`; R14.8–R14.17 remain PLANNED. R14.7 manual state is NONE.
 
 ## Purpose and authority
 
@@ -204,7 +204,7 @@ Before R14.1 implementation:
 | R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.1–R14.3 + R1/R6/R7 |
 | R14.5 | PostgreSQL authoritative persistence, migrations, transactions + concurrency | COMPLETE | NONE | R14.1–R14.3 + R8/R12 |
 | R14.6 | Authoritative server command/state model + real-time transport/trust boundary | COMPLETE | NONE | R14.4–R14.5 |
-| R14.7 | Matchmaking, lobby, reservations, presence + reconnect | PLANNED | NONE | R14.6 |
+| R14.7 | Matchmaking, lobby, reservations, presence + reconnect | IN_PROGRESS | NONE | R14.6 |
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | PLANNED | NONE | R14.5–R14.6 |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | PLANNED | NONE | R14.5–R14.6 |
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | PLANNED | CONDITIONAL | R14.4–R14.6 + R13 store contracts |
@@ -570,8 +570,11 @@ Client authority leakage, race conditions, duplicate commands, clock dependence,
 - Authority acceptance succeeded on both Ubuntu and Windows. All ten frozen adversarial/semantic checks passed: forgery rejection, stale-revision rejection, mutation-free duplicate replay, out-of-order rejection, reconnect/resync behavior, bounded backpressure, transaction/event consistency, deterministic multi-client conflict handling, server-clock lease expiry and recursive reserved-field rejection.
 - Cross-platform semantic results are identical: final state digest `59c1afb567245df4f3521052564d0bdfbaa4a5423eb7db7997c1e20160a988a3`; event digest `3adad95a513ee4812126d7d9695cc297d2f57287263a5686ee1ee5c08a15e4a1`; trace digest `839f65c4ffbe019c43f6aad988ee8258945c328f348135ffef9320955102f178`; `secrets_exposed=false`.
 - Ubuntu artifact id `9694600447`, ZIP digest `sha256:ec252c2e055cdb8aa9f94b0f6273f87e6e2724b22f715b8a8e986047766b194a`; Windows artifact id `9694625857`, ZIP digest `sha256:5a2b0ad3d0841649ee3d20cc8057b3def7644f208d44e7a5bfc8154053409464`.
+- Final END-head `cf5a14295fdc3ff92ca72384b061e3a2c844e725` changed only `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_6_ACCEPTANCE.md`, and continuity relative to the immutable technical source and passed fresh R0 #1798 / `33195032726`, Python Core #1772 / `33195032703`, UI #1739 / `33195032677`, and R14 Authority Acceptance #6 / `33195032645`, all SUCCESS.
+- PR #267 merged with `expected_head_sha=cf5a14295fdc3ff92ca72384b061e3a2c844e725` as implementation/evidence merge `6033e5610a811a690a2998eb07183f19183fa557`.
+- Single continuity-only normalization head `9dafc361e909157dedf5cb89d7a39cdbb6ffff14` changed exactly `docs/continuity/KODEPOIA_CONTINUITY.md`, passed fresh R0 #1800 / `33195413481`, Python Core #1774 / `33195413472`, and UI #1741 / `33195413558`, all SUCCESS; normalization PR #268 merged with `expected_head_sha=9dafc361e909157dedf5cb89d7a39cdbb6ffff14` as normalized `main` `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`.
 - Manual intervention: NONE.
-- Current subdivision status: `COMPLETE` at technical/evidence level. R14.7 remains `PLANNED` until this END synchronization passes fresh exact-head R0 + full Python Core + KodeStudio UI Smoke + R14 Authority Acceptance, PR #267 merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
+- Current subdivision status: `COMPLETE + NORMALIZED`. R14.7 is authorized and starts from that exact normalized main.
 
 ---
 
@@ -623,7 +626,11 @@ Double assignment, ghost lobby members, unbounded queue, unfair nondeterministic
 
 ## Completion record
 
-To be appended when accepted.
+- Dedicated branch: `r14/07-matchmaking-lobby-presence`.
+- Exact branch point: normalized `main` `1ce9b5223d1dfe9e1cfe4aaff324c5cd810883a2`.
+- START synchronization declares R14.1–R14.6 COMPLETE + NORMALIZED, R14.7 IN_PROGRESS, and R14.8–R14.17 PLANNED before implementation.
+- Frozen R14.7 scope is limited to deterministic/provider-neutral lobby membership and roles, matchmaking ticket lifecycle/criteria, bounded queueing, reservation/match identity, authoritative presence revisions, short-lived reconnect leases/tokens, cancellation and concurrency/fairness/budget evidence. No commercial provider, game-specific MMR tuning, cloud-save or later R14 semantics are introduced.
+- Manual intervention: NONE.
 
 ---
 

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.dev/schemas/r14/backend-matchmaking-evidence.schema.json",
+  "title": "Kodepoia R14.7 Matchmaking Acceptance Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "source_sha",
+    "checks",
+    "state_digest",
+    "lobby_digest",
+    "reservation_digest",
+    "presence_digest",
+    "trace_digest",
+    "terminal_ticket_statuses",
+    "budgets",
+    "external_reference_posture",
+    "provider_live_claim",
+    "secrets_exposed"
+  ],
+  "properties": {
+    "status": {"const": "pass"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lobby_lifecycle",
+        "object_authorization",
+        "duplicate_join",
+        "reserved_fields",
+        "duplicate_ticket",
+        "deterministic_match",
+        "incompatible_criteria",
+        "no_double_assignment",
+        "cancel_terminal",
+        "reservation_expiry",
+        "stale_presence",
+        "reconnect_binding",
+        "reconnect_expiry",
+        "bounded_capacity"
+      ],
+      "properties": {
+        "lobby_lifecycle": {"const": true},
+        "object_authorization": {"const": true},
+        "duplicate_join": {"const": true},
+        "reserved_fields": {"const": true},
+        "duplicate_ticket": {"const": true},
+        "deterministic_match": {"const": true},
+        "incompatible_criteria": {"const": true},
+        "no_double_assignment": {"const": true},
+        "cancel_terminal": {"const": true},
+        "reservation_expiry": {"const": true},
+        "stale_presence": {"const": true},
+        "reconnect_binding": {"const": true},
+        "reconnect_expiry": {"const": true},
+        "bounded_capacity": {"const": true}
+      }
+    },
+    "state_digest": {"$ref": "#/$defs/sha256"},
+    "lobby_digest": {"$ref": "#/$defs/sha256"},
+    "reservation_digest": {"$ref": "#/$defs/sha256"},
+    "presence_digest": {"$ref": "#/$defs/sha256"},
+    "trace_digest": {"$ref": "#/$defs/sha256"},
+    "terminal_ticket_statuses": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": ["queued", "matched", "cancelled", "expired"]
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_queued_tickets",
+        "max_active_reservations",
+        "max_ticket_ttl_ms",
+        "max_reservation_ttl_ms",
+        "max_reconnect_ttl_ms"
+      ],
+      "properties": {
+        "max_queued_tickets": {"type": "integer", "minimum": 1},
+        "max_active_reservations": {"type": "integer", "minimum": 1},
+        "max_ticket_ttl_ms": {"type": "integer", "minimum": 1},
+        "max_reservation_ttl_ms": {"type": "integer", "minimum": 1},
+        "max_reconnect_ttl_ms": {"type": "integer", "minimum": 1}
+      }
+    },
+    "external_reference_posture": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "provider_live_claim": {"const": false},
+    "secrets_exposed": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

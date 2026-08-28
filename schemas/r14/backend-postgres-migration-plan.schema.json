@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-postgres-migration-plan.schema.json",
+  "title": "Kodepoia R14 PostgreSQL Migration Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "migrations"],
+  "properties": {
+    "schema_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "migrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["migration_id", "sequence", "description", "checksum", "rollback_checksum"],
+        "properties": {
+          "migration_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+          "sequence": {"type": "integer", "minimum": 1},
+          "description": {"type": "string", "minLength": 1, "maxLength": 256},
+          "checksum": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "rollback_checksum": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    }
+  }
+}

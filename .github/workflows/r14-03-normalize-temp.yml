@@ -38,6 +38,7 @@ jobs:
           p.write_text(s, encoding='utf-8', newline='\n')
           PY
           rm -f .github/workflows/r14-03-normalize-temp.yml .r14_3_norm_trigger
+          git checkout -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           git add -- docs/continuity/KODEPOIA_CONTINUITY.md
           git add -u -- .github/workflows/r14-03-normalize-temp.yml .r14_3_norm_trigger
           git diff --cached --check

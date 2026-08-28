@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-status-snapshot.schema.json",
+  "title": "R14 Backend Status Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operation_id", "status", "error_code", "evidence_digest"],
+  "properties": {
+    "operation_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "status": {"enum": ["NOT_STARTED", "BLOCKED", "AUTHORIZED", "IN_PROGRESS", "SUCCEEDED", "FAILED", "CANCELLED"]},
+    "error_code": {
+      "oneOf": [
+        {"type": "null"},
+        {"enum": ["INVALID_CONTRACT", "ENVIRONMENT_MISMATCH", "PERMISSION_DENIED", "KILL_SWITCH_ACTIVE", "NETWORK_DENIED", "ENDPOINT_NOT_ALLOWLISTED", "DNS_RESOLUTION_FAILED", "SSRF_ADDRESS_REJECTED", "BUDGET_EXCEEDED", "PROVIDER_UNAVAILABLE", "PROVIDER_FAILED"]}
+      ]
+    },
+    "evidence_digest": {"type": "string", "pattern": "^(?:|[0-9a-f]{64})$"}
+  }
+}

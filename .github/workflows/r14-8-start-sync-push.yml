@@ -1,0 +1,45 @@
+name: R14.8 START Sync Push
+
+on:
+  push:
+    branches:
+      - r14/08-cloud-saves
+    paths:
+      - .github/workflows/r14-8-start-sync-push.yml
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/08-cloud-saves
+          fetch-depth: 0
+      - name: Execute START-sync payload
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, subprocess
+          source = Path('.github/workflows/r14-8-start-sync.yml').read_text(encoding='utf-8')
+          match = re.search(r"          python - <<'PY'\n(.*?)          PY\n      - name: Remove temporary START-sync workflow", source, re.S)
+          if not match:
+              raise SystemExit('START-sync payload not found')
+          body = '\n'.join(line[10:] if line.startswith('          ') else line for line in match.group(1).splitlines())
+          payload = "python - <<'PY'\n" + body + "\nPY\n"
+          subprocess.run(['bash', '-lc', payload], check=True)
+          PY
+      - name: Remove temporary helpers
+        run: git rm .github/workflows/r14-8-start-sync.yml .github/workflows/r14-8-start-sync-push.yml
+      - name: Commit synchronized START state
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = "docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_PLAN.md "
+          git commit -m "docs(r14.8): synchronize START state"
+          git push origin HEAD:r14/08-cloud-saves

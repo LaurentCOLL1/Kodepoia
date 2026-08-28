@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-authority-evidence.schema.json",
+  "title": "Kodepoia R14.6 authoritative server acceptance evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "source_sha", "checks", "final_state", "events", "trace_digest", "standards", "secrets_exposed"],
+  "properties": {
+    "status": {"const": "pass"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "forgery",
+        "stale_revision",
+        "duplicate",
+        "out_of_order",
+        "reconnect",
+        "backpressure",
+        "transaction_event_consistency",
+        "deterministic_multiclient",
+        "lease_expiry",
+        "reserved_fields"
+      ],
+      "properties": {
+        "forgery": {"const": true},
+        "stale_revision": {"const": true},
+        "duplicate": {"const": true},
+        "out_of_order": {"const": true},
+        "reconnect": {"const": true},
+        "backpressure": {"const": true},
+        "transaction_event_consistency": {"const": true},
+        "deterministic_multiclient": {"const": true},
+        "lease_expiry": {"const": true},
+        "reserved_fields": {"const": true}
+      }
+    },
+    "final_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain_id", "target_id", "revision", "payload", "digest"],
+      "properties": {
+        "domain_id": {"type": "string"},
+        "target_id": {"type": "string"},
+        "revision": {"type": "integer", "minimum": 1},
+        "payload": {"type": "object"},
+        "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "events": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "first_sequence", "last_sequence", "digest"],
+      "properties": {
+        "count": {"type": "integer", "minimum": 1},
+        "first_sequence": {"type": "integer", "minimum": 1},
+        "last_sequence": {"type": "integer", "minimum": 1},
+        "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "trace_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "standards": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {"type": "string", "maxLength": 128}
+    },
+    "secrets_exposed": {"const": false}
+  }
+}

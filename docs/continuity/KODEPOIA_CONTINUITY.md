@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1 COMPLETE + NORMALIZED. R14.2 IN_PROGRESS on `r14/02-backend-service-intent`; R14.3–R14.17 remain PLANNED.** R14.1 immutable technical source `84972d283f6f530ae46ebf6c0452188927b178ff` passed R0 #1752 / `33140670364`, Python #1726 / `33140670445`, UI #1693 / `33140670391`; END-head `75e5d68752a56b8a21fa4842e803d86f772f7468` passed R0 #1757 / `33140864294`, Python #1731 / `33140864327`, UI #1698 / `33140864338`; PR #257 merged as `6059b6d706d1208fdcad102c9fa217abaf31d099`; normalization head `5f5624d9ce0a5cca0d112c0cf338f8cf6292eff9` passed R0 #1759 / `33141096835`, Python #1733 / `33141096889`, UI #1700 / `33141096815`; PR #258 merged as normalized `main` `41f0775731c405a6b208baec8910bdb36a78d10e`. R14.2 starts exactly from that main. Manual state for R14.2 is NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1 COMPLETE + NORMALIZED. R14.2 COMPLETE at technical/evidence level on `r14/02-backend-service-intent`; final exact-head documentation re-gates and PR #259 merge remain pending. R14.3–R14.17 remain PLANNED.** R14.2 accepted immutable technical source `4e04812380a495dd799e1d7b9e96741d8688de31` passed R0 #1761 / `33143230642`, Python Core #1735 / `33143230580`, and KodeStudio UI Smoke #1702 / `33143230613`, all SUCCESS; Ubuntu full suite recorded 1465 passed / 13 skipped / 46 warnings and Windows Core also passed. No technical semantics may change during END-sync. After final fresh R0 + Python Core + UI Smoke on the END-synchronized head, merge PR #259 with expected-head protection, then perform exactly one continuity-only post-merge normalization before R14.2 becomes COMPLETE + NORMALIZED and R14.3 is authorized. Manual state is NONE.
 
 ## État global
 
@@ -19,7 +19,7 @@
 - R13.15: **COMPLETE + NORMALIZED**. Final normalization head **`2122fd685fd20973ae045658e79d94295bb389cb`** passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and KodeStudio UI Smoke #1661 / `33099024892`; normalization PR #250 merged as normalized `main` **`dce60a60b58ff2c069d689144291f8c682b7e21f`**. Manual **NONE**.
 - R13.16: **COMPLETE + NORMALIZED**. Final end-synchronized implementation head **`a4c4185f6b11d4574e9ecf2f2b735c2d623155b4`** passed R0 #1726 / `33113280399`, Python Core #1700 / `33113280512`, and UI #1667 / `33113280468`; PR #251 merged as **`b1865ffff26de58f63606952f5c7b8de774e01fa`**. Single continuity-only normalization head **`9bcee3c9359f8a2340878c8310b1572f38d614df`** passed R0 #1728 / `33113689078`, Python Core #1702 / `33113689208`, and UI #1669 / `33113689114`; PR #252 merged as normalized **`main` `b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`**. Manual **NONE**.
 - R13.17: **COMPLETE + NORMALIZED**. Final documentation/evidence head **`cb0c63bcdcbaf2b58b3066d311780843c2598575`** passed all 12 fresh exact-head final gates; PR #253 merged as **`f56c61dbc82efd93c08e2b29ad1acff33219689f`**. Single continuity-only normalization head **`1bc52616e5e527dadfe8feafdc0d137433b37a48`** passed R0 #1746 / `33135420877`, Python Core #1720 / `33135420870`, and UI #1687 / `33135420823`; PR #254 merged as normalized **`main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`**. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R14 planning: **ACCEPTED + NORMALIZED**. R14.1 is **COMPLETE + NORMALIZED** on normalized `main` **`41f0775731c405a6b208baec8910bdb36a78d10e`** after implementation PR #257 and continuity-only normalization PR #258. R14.2 is **IN_PROGRESS** on `r14/02-backend-service-intent`; R14.3–R14.17 remain PLANNED. Manual **NONE**.
+- R14 planning: **ACCEPTED + NORMALIZED**. R14.1 is **COMPLETE + NORMALIZED** on normalized `main` **`41f0775731c405a6b208baec8910bdb36a78d10e`**. R14.2 accepted immutable technical source **`4e04812380a495dd799e1d7b9e96741d8688de31`** passed R0 #1761 / `33143230642`, Python Core #1735 / `33143230580`, and UI #1702 / `33143230613`, all SUCCESS. R14.2 is **COMPLETE / FINAL_DOCUMENTATION_REGATES_PENDING**; R14.3–R14.17 remain PLANNED. Manual **NONE**.
 
 ## R14 planning closure and R14.1 start authority
 
@@ -33,7 +33,7 @@
 
 - Dedicated branch: `r14/02-backend-service-intent`.
 - Exact branch point: normalized `main` `41f0775731c405a6b208baec8910bdb36a78d10e`.
-- R14.1 is COMPLETE + NORMALIZED; R14.2 is IN_PROGRESS; R14.3–R14.17 remain PLANNED.
+- R14.1 is COMPLETE + NORMALIZED. R14.2 accepted immutable technical source `4e04812380a495dd799e1d7b9e96741d8688de31`, which passed R0 #1761 / `33143230642`, Python Core #1735 / `33143230580`, and UI #1702 / `33143230613`, all SUCCESS. R14.2 is COMPLETE at technical/evidence level; R14.3–R14.17 remain PLANNED pending final documentation re-gates, PR #259 merge and continuity-only normalization.
 - Frozen R14.2 scope: optional Project DNA/KodeProduct backend service intent, deterministic dependency graph, conditional Wizard questions, requirements/acceptance derivation, compatibility validation, backward-compatible disabled default; no provisioning, deployment, credentials or concrete backend service implementation.
 - Manual intervention: **NONE**.
 

@@ -2,7 +2,7 @@
 
 ## Current state
 
-**Status: IMPLEMENTATION_CANDIDATE_PENDING**
+**Status: TECHNICAL_CANDIDATE_ACCEPTED / FINAL_REGATES_PENDING**
 
 R14.2 starts from R14.1 normalized `main` `41f0775731c405a6b208baec8910bdb36a78d10e` on dedicated branch `r14/02-backend-service-intent`. Mandatory START-sync completed before implementation on head `936056c0fd614ae11df2b9c2435cd7a6e56341c1`; cumulative START-sync changes were limited to `docs/roadmap/R14_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`.
 
@@ -49,6 +49,17 @@ The first accepted implementation candidate must bind the exact same head SHA to
 3. KodeStudio UI Smoke — COMPLETED / SUCCESS.
 
 A failed/partial/stale head is non-authoritative and its evidence cannot be reused.
+
+## Accepted technical candidate record
+
+- Immutable source SHA: `4e04812380a495dd799e1d7b9e96741d8688de31`.
+- R0 Repository Guard #1761 / `33143230642`: COMPLETED / SUCCESS.
+- Python Core #1735 / `33143230580`: COMPLETED / SUCCESS; Ubuntu full `pytest` = **1465 passed, 13 skipped, 46 warnings**; Windows Core = SUCCESS; both package builds and Python internal KodeStudio smoke = SUCCESS.
+- KodeStudio UI Smoke #1702 / `33143230613`: COMPLETED / SUCCESS.
+- Focused prevalidation `33143176492`: 34 passed, 2 skipped; diagnostic only and non-authoritative for merge acceptance.
+- Rejected predecessor technical candidates: NONE. START-sync guard retries were documentation workflow hygiene only and occurred before technical acceptance.
+- Manual intervention: NONE.
+- Next authority: END-synchronized documentation/evidence head changing only plan, this ledger and continuity, followed by fresh exact-head R0/Python/UI.
 
 ## End synchronization and normalization
 

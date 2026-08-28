@@ -1,0 +1,59 @@
+name: R14.4 START Sync Temp
+on:
+  push:
+    branches: [r14/04-auth-identity-sessions]
+    paths: [.r14_4_start_trigger]
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/04-auth-identity-sessions
+          fetch-depth: 0
+      - name: Apply governed START-sync
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          plan = Path('docs/roadmap/R14_PLAN.md')
+          s = plan.read_text(encoding='utf-8')
+          old = '| R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | PLANNED | CONDITIONAL | R14.1–R14.3 + R1/R6/R7 |'
+          new = '| R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R14.1–R14.3 + R1/R6/R7 |'
+          if old not in s: raise SystemExit('R14.4 row marker missing')
+          s = s.replace(old, new, 1)
+          old = '- Current subdivision status: `COMPLETE` at technical/evidence level. R14.4 remains `PLANNED` until R14.3 implementation/evidence merge and single continuity-only normalization are accepted.'
+          new = '- Final END-head `8411ce92da962a37cb9a5936bdac740d9a132204` passed R0 #1775 / `33146496788`, Python Core #1749 / `33146496859`, and UI #1716 / `33146496739`; PR #261 merged as `d288772a90d5877cabe35adb6e71f0ede32f6b8d`.\n- Single continuity-only normalization head `b8151f3729d2648d5f1e4d6ecd3bc9afb3c3c401` passed R0 #1777 / `33186628042`, Python Core #1751 / `33186628118`, and UI #1718 / `33186628151`; PR #262 merged as normalized `main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`.\n- Current subdivision status: `COMPLETE + NORMALIZED`. R14.4 is authorized and starts from that exact normalized main.'
+          if old not in s: raise SystemExit('R14.3 completion marker missing')
+          s = s.replace(old, new, 1)
+          plan.write_text(s, encoding='utf-8', newline='\n')
+
+          cont = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          c = cont.read_text(encoding='utf-8')
+          old = '> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.3 COMPLETE + NORMALIZED upon merge of the single continuity-only normalization PR; R14.4–R14.17 remain PLANNED.** R14.3 immutable technical source `4de5036e7a37f949ec64ae68d9ee45e57ac99631` passed R0 #1770 / `33146235062`, Python Core #1744 / `33146235104`, and UI #1711 / `33146235181`; final END-head `8411ce92da962a37cb9a5936bdac740d9a132204` passed fresh R0 #1775 / `33146496788`, Python Core #1749 / `33146496859`, and UI #1716 / `33146496739`, all SUCCESS; PR #261 merged with expected-head protection as `d288772a90d5877cabe35adb6e71f0ede32f6b8d`. Single authorized post-merge normalization branch is `r14/03-continuity-normalization`; after its fresh R0/Python/UI gates and merge, R14.4 is authorized. Manual state is NONE.'
+          new = '> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.3 COMPLETE + NORMALIZED. R14.4 IN_PROGRESS on `r14/04-auth-identity-sessions`; R14.5–R14.17 remain PLANNED.** R14.3 final END-head `8411ce92da962a37cb9a5936bdac740d9a132204` passed R0 #1775 / `33146496788`, Python #1749 / `33146496859`, UI #1716 / `33146496739`; PR #261 merged as `d288772a90d5877cabe35adb6e71f0ede32f6b8d`; normalization head `b8151f3729d2648d5f1e4d6ecd3bc9afb3c3c401` passed R0 #1777 / `33186628042`, Python #1751 / `33186628118`, UI #1718 / `33186628151`; PR #262 merged as normalized `main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`. R14.4 starts exactly there. Manual state: CONDITIONAL / NOT TRIGGERED.'
+          if old not in c: raise SystemExit('continuity prompt marker missing')
+          c = c.replace(old, new, 1)
+          old = '- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.2 are **COMPLETE + NORMALIZED**. R14.3 technical source **`4de5036e7a37f949ec64ae68d9ee45e57ac99631`** passed R0 #1770 / `33146235062`, Python Core #1744 / `33146235104`, UI #1711 / `33146235181`; END-head **`8411ce92da962a37cb9a5936bdac740d9a132204`** passed R0 #1775 / `33146496788`, Python #1749 / `33146496859`, UI #1716 / `33146496739`; PR #261 merged as **`d288772a90d5877cabe35adb6e71f0ede32f6b8d`**. R14.3 is **COMPLETE / NORMALIZATION_IN_PROGRESS** on `r14/03-continuity-normalization`; R14.4–R14.17 remain PLANNED until this single normalization merges. Manual **NONE**.'
+          new = '- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.3 are **COMPLETE + NORMALIZED**. R14.3 normalization head **`b8151f3729d2648d5f1e4d6ecd3bc9afb3c3c401`** passed R0 #1777 / `33186628042`, Python #1751 / `33186628118`, UI #1718 / `33186628151`; PR #262 merged as normalized **`main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`**. R14.4 is **IN_PROGRESS** on `r14/04-auth-identity-sessions`; R14.5–R14.17 remain PLANNED. Manual **CONDITIONAL / NOT TRIGGERED**.'
+          if old not in c: raise SystemExit('continuity global marker missing')
+          c = c.replace(old, new, 1)
+          marker = '## R14.1 post-merge normalization authority'
+          section = '''## R14.4 start authority\n\n- Dedicated branch: `r14/04-auth-identity-sessions`.\n- Exact branch point: normalized `main` `f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2`.\n- R14.1–R14.3 are COMPLETE + NORMALIZED; R14.4 is IN_PROGRESS; R14.5–R14.17 remain PLANNED.\n- Current standards basis: OAuth 2.0 Security BCP RFC 9700; OIDC issuer/audience/nonce policy; WebAuthn Level 3 current published Candidate Recommendation; strict session lifecycle and token redaction.\n- Core acceptance uses only deterministic local providers. No real IdP tenant, public domain, production TLS, provider client secret or authenticator registration is required. Conditional manual intervention is **NOT TRIGGERED**.\n- Frozen R14.4 scope: typed auth/account/realm identities, deterministic local provider, session/access/refresh lifecycle, rotation/revocation, PKCE/state/nonce/redirect/issuer/audience/algorithm policy, passkey public-credential contracts and explicit OIDC adapter boundary; no external tenant provisioning or generalized federation.\n\n'''
+          if marker not in c: raise SystemExit('continuity insertion marker missing')
+          c = c.replace(marker, section + marker, 1)
+          cont.write_text(c, encoding='utf-8', newline='\n')
+          PY
+          rm -f .github/workflows/r14-04-start-sync-temp.yml .r14_4_start_trigger
+          git add -- docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git add -u -- .github/workflows/r14-04-start-sync-temp.yml .r14_4_start_trigger
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'R14.4 START-sync plan and continuity'
+          cumulative=$(git diff --ignore-space-at-eol --name-only f28e6762830ec9a2b22ddedc24bdc9a446e5f4b2 HEAD -- | sort)
+          expected=$(printf '%s\n' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_PLAN.md' | sort)
+          test "$cumulative" = "$expected"
+          git push origin HEAD:r14/04-auth-identity-sessions

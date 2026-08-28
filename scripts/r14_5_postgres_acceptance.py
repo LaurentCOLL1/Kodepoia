@@ -15,6 +15,7 @@ from kodepoia.backend.postgres import (
     PostgresMigrationPlan,
     PostgresSecretRef,
     PostgresStateError,
+    PostgresTransactionPolicy,
     snapshot_semantic_digest,
 )
 
@@ -158,19 +159,7 @@ def run(source_sha: str) -> dict[str, Any]:
     with adapter.connect() as conn:
         conn.execute(f"INSERT INTO {SCHEMA}.items (id, value, version, note) VALUES (20, 'v0', 0, 'seed')")
         conn.commit()
-    with adapter.connect() as conn:
-        version = adapter.optimistic_update(
-            conn,
-            table=f"{SCHEMA}_items_view",
-            id_column="id",
-            id_value=20,
-            version_column="version",
-            expected_version=0,
-            assignments={"value": "v1"},
-        )
-        conn.rollback()
-    # optimistic_update validates bare identifiers; create an unqualified compatibility view for the fixture.
-    # The rollback above intentionally proves no hidden commit occurs in the helper itself.
+    # Helpers accept governed bare identifiers only; expose a simple updatable fixture view.
     with adapter.connect() as conn:
         conn.execute(f"CREATE OR REPLACE VIEW {SCHEMA}_items_view AS SELECT * FROM {SCHEMA}.items")
         conn.commit()
@@ -235,6 +224,26 @@ def run(source_sha: str) -> dict[str, Any]:
 
     deadlock_detected = _real_deadlock_detected(_dsn())
 
+    class RetryOnce(RuntimeError):
+        sqlstate = "40001"
+
+    retry_calls = 0
+
+    def retry_operation(conn: Any) -> int:
+        nonlocal retry_calls
+        retry_calls += 1
+        if retry_calls == 1:
+            raise RetryOnce("synthetic serialization retry trigger")
+        conn.execute(f"INSERT INTO {SCHEMA}.items (id, value, version, note) VALUES (40, 'retry', 0, 'bounded')")
+        return retry_calls
+
+    retry_result, retry_evidence = adapter.run_transaction(
+        transaction_id="bounded-retry-fixture",
+        operation=retry_operation,
+        policy=PostgresTransactionPolicy(max_retries=1, retry_backoff_ms=1),
+    )
+    bounded_retry = deadlock_detected and retry_result == 2 and retry_evidence.attempts == 2
+
     with adapter.connect() as conn:
         conn.execute(f"DELETE FROM {SCHEMA}.items WHERE id >= 900")
         conn.execute(f"INSERT INTO {SCHEMA}.items (id, value, version, note) VALUES (30, 'backup', 2, 'stable')")
@@ -270,7 +279,7 @@ def run(source_sha: str) -> dict[str, Any]:
         "optimistic_conflict": optimistic_conflict,
         "row_lock": row_lock,
         "idempotency": idempotency,
-        "bounded_retry": deadlock_detected,
+        "bounded_retry": bounded_retry,
         "backup_restore": backup_restore,
     }
     if not all(checks.values()):

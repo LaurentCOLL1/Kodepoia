@@ -100,3 +100,5 @@ No technical implementation byte may change after the immutable source above. Th
 - `docs/continuity/KODEPOIA_CONTINUITY.md`
 
 That exact END-head must pass fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Progression Acceptance before PR #273 may merge with `expected_head_sha`. After merge, exactly one continuity-only normalization with fresh R0/Python/UI is required before R14.10 is authorized.
+
+The assertion-guarded anchored END synchronization completed without any implementation-byte change. This user-authored documentation revision is the sole R14.9 END candidate for the fresh exact-head re-gates.

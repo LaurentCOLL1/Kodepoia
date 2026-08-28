@@ -1,0 +1,44 @@
+name: R14.3 START Sync Temp
+
+on:
+  push:
+    branches:
+      - r14/03-local-backend-runtime
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R14.3 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/03-local-backend-runtime
+          fetch-depth: 0
+      - name: Apply deterministic START-sync
+        run: python scripts/_r14_3_start_sync_temp.py
+      - name: Guard START-sync cumulative scope
+        run: |
+          git diff --check
+          mapfile -t changed < <(git diff --name-only bf66970f358df580d5fe15b1ac1f8ed2cb13b09d...HEAD; git diff --name-only)
+          printf '%s\n' "${changed[@]}" | sed '/^$/d' | sort -u > /tmp/changed.txt
+          actual=$(grep -v -E '^(.github/workflows/r14-03-start-sync-temp.yml|scripts/_r14_3_start_sync_temp.py|.r14_3_start_trigger)$' /tmp/changed.txt || true)
+          expected=$(printf '%s\n' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_PLAN.md')
+          if [ "$actual" != "$expected" ]; then
+            echo 'Unexpected cumulative START-sync paths:'
+            cat /tmp/changed.txt
+            exit 1
+          fi
+      - name: Commit final START-sync tree
+        run: |
+          rm -f scripts/_r14_3_start_sync_temp.py .github/workflows/r14-03-start-sync-temp.yml .r14_3_start_trigger
+          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git add -u -- scripts/_r14_3_start_sync_temp.py .github/workflows/r14-03-start-sync-temp.yml .r14_3_start_trigger
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'R14.3 START-sync plan and continuity'
+          git push origin HEAD:r14/03-local-backend-runtime

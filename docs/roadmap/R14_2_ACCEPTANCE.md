@@ -61,6 +61,12 @@ A failed/partial/stale head is non-authoritative and its evidence cannot be reus
 - Manual intervention: NONE.
 - Next authority: END-synchronized documentation/evidence head changing only plan, this ledger and continuity, followed by fresh exact-head R0/Python/UI.
 
+## END-sync execution note
+
+- First END-synchronized documentation head `e68faacd9a2877b82a096892a651670563d55b16` changed only `R14_PLAN.md`, this ledger and continuity relative to the immutable technical source.
+- Pull-request workflows attached to that bot-authored head were `action_required` with no executed jobs; they are explicitly non-authoritative and are neither PASS nor test failure evidence.
+- This user-authored ledger-only successor preserves the same END-sync semantics and exists solely to obtain executable fresh exact-head R0/Python/UI jobs. The cumulative END-sync tree remains limited to the same three authorized documents.
+
 ## End synchronization and normalization
 
 After a technical candidate is accepted, update `R14_PLAN.md`, this ledger and continuity only for END-sync, then run fresh exact-head R0 + Python Core + KodeStudio UI Smoke. Merge the implementation/evidence PR with expected-head protection. Then create exactly one continuity-only normalization from that merge, re-run the same three gate families and merge with expected-head protection. Only then is R14.2 COMPLETE + NORMALIZED and R14.3 authorized.

@@ -15,7 +15,6 @@ from kodepoia.backend.cloud_save import (
     SaveConflictStatus,
     SaveRevisionOperation,
 )
-from kodepoia.backend.contracts import canonical_sha256
 
 
 class Clock:
@@ -27,12 +26,7 @@ class Clock:
 
 
 def actor(slot_id: str, *permissions: str) -> AuthorityActorContext:
-    return AuthorityActorContext(
-        "acct-player",
-        "sess-player",
-        permissions or ("*",),
-        (slot_id,),
-    )
+    return AuthorityActorContext("acct-player", "sess-player", permissions or ("*",), (slot_id,))
 
 
 def run(source_sha: str) -> dict:
@@ -52,57 +46,37 @@ def run(source_sha: str) -> dict:
     reader = actor(slot, "cloud_save.read")
 
     initial = svc.upload(
-        rw,
-        slot,
-        schema_id="save-v1",
-        payload=b'{"chapter":1,"coins":10}',
-        base_revision_id=None,
-        idempotency_key="upload-1",
+        rw, slot, schema_id="save-v1", payload=b'{"chapter":1,"coins":10}',
+        base_revision_id=None, idempotency_key="upload-1"
     )
     initial_revision = svc.revision(reader, initial.revision_id)
     immutable_revision_ok = initial_revision.payload == b'{"chapter":1,"coins":10}'
 
-    before_replay = svc.state_digest()
+    state_before_replay = svc.state_digest()
     replay = svc.upload(
-        rw,
-        slot,
-        schema_id="save-v1",
-        payload=b'{"chapter":1,"coins":10}',
-        base_revision_id=None,
-        idempotency_key="upload-1",
+        rw, slot, schema_id="save-v1", payload=initial_revision.payload,
+        base_revision_id=None, idempotency_key="upload-1"
     )
-    idempotent_replay_ok = replay.replayed and svc.state_digest() == before_replay
+    idempotent_replay_ok = replay.replayed and svc.state_digest() == state_before_replay
 
     idempotency_rebind_ok = False
     try:
         svc.upload(
-            rw,
-            slot,
-            schema_id="save-v1",
-            payload=b"different",
-            base_revision_id=None,
-            idempotency_key="upload-1",
+            rw, slot, schema_id="save-v1", payload=b"different",
+            base_revision_id=None, idempotency_key="upload-1"
         )
     except CloudSaveStateError as exc:
         idempotency_rebind_ok = str(exc) == "idempotency_conflict"
 
     clock.value += 10
     server = svc.upload(
-        rw,
-        slot,
-        schema_id="save-v1",
-        payload=b'{"chapter":2,"coins":12}',
-        base_revision_id=initial.revision_id,
-        idempotency_key="upload-server",
+        rw, slot, schema_id="save-v1", payload=b'{"chapter":2,"coins":12}',
+        base_revision_id=initial.revision_id, idempotency_key="upload-server"
     )
     clock.value += 10
     conflict_result = svc.upload(
-        rw,
-        slot,
-        schema_id="save-v1",
-        payload=b'{"chapter":2,"coins":15}',
-        base_revision_id=initial.revision_id,
-        idempotency_key="upload-client",
+        rw, slot, schema_id="save-v1", payload=b'{"chapter":2,"coins":15}',
+        base_revision_id=initial.revision_id, idempotency_key="upload-client"
     )
     conflict = svc.conflict(reader, conflict_result.conflict_id)
     conflict_explicit_ok = (
@@ -111,27 +85,22 @@ def run(source_sha: str) -> dict:
         and svc.slot(reader, slot).current_revision_id == server.revision_id
     )
 
-    before_conflict_replay = svc.state_digest()
+    conflict_state = svc.state_digest()
     conflict_replay = svc.upload(
-        rw,
-        slot,
-        schema_id="save-v1",
-        payload=b'{"chapter":2,"coins":15}',
-        base_revision_id=initial.revision_id,
-        idempotency_key="upload-client",
+        rw, slot, schema_id="save-v1", payload=conflict.proposed_payload,
+        base_revision_id=initial.revision_id, idempotency_key="upload-client"
     )
     conflict_replay_ok = (
         conflict_replay.replayed
         and conflict_replay.conflict_id == conflict.conflict_id
-        and svc.state_digest() == before_conflict_replay
+        and svc.state_digest() == conflict_state
     )
 
     clock.value += 10
     resolution = svc.resolve_conflict(
-        actor(slot, "cloud_save.resolve"),
-        conflict.conflict_id,
+        actor(slot, "cloud_save.resolve"), conflict.conflict_id,
         strategy=ConflictResolutionStrategy.MERGE,
-        merged_payload=b'{"chapter":2,"coins":15,"merged":true}',
+        merged_payload=b'{"chapter":2,"coins":15,"merged":true}'
     )
     merged = svc.revision(reader, resolution.resulting_revision_id)
     conflict_resolution_ok = (
@@ -142,41 +111,34 @@ def run(source_sha: str) -> dict:
     double_resolve_ok = False
     try:
         svc.resolve_conflict(
-            actor(slot, "cloud_save.resolve"),
-            conflict.conflict_id,
-            strategy=ConflictResolutionStrategy.KEEP_SERVER,
+            actor(slot, "cloud_save.resolve"), conflict.conflict_id,
+            strategy=ConflictResolutionStrategy.KEEP_SERVER
         )
     except CloudSaveStateError as exc:
         double_resolve_ok = str(exc) == "conflict_terminal"
 
     clock.value += 10
     migrated = svc.migrate(
-        actor(slot, "cloud_save.migrate"),
-        slot,
+        actor(slot, "cloud_save.migrate"), slot,
         base_revision_id=merged.revision_id,
         target_schema_id="save-v2",
-        payload=b'{"chapter":2,"coins":15,"schema":2}',
+        payload=b'{"chapter":2,"coins":15,"schema":2}'
     )
     migration_ok = migrated.schema_id == "save-v2" and migrated.operation is SaveRevisionOperation.MIGRATION
 
     silent_schema_change_ok = False
     try:
         svc.upload(
-            rw,
-            slot,
-            schema_id="save-v3",
-            payload=b"bad",
-            base_revision_id=migrated.revision_id,
-            idempotency_key="bad-schema",
+            rw, slot, schema_id="save-v3", payload=b"bad",
+            base_revision_id=migrated.revision_id, idempotency_key="bad-schema"
         )
     except CloudSaveStateError as exc:
         silent_schema_change_ok = str(exc) == "schema_migration_required"
 
     clock.value += 10
     rollback = svc.rollback(
-        actor(slot, "cloud_save.rollback"),
-        slot,
-        target_revision_id=initial.revision_id,
+        actor(slot, "cloud_save.rollback"), slot,
+        target_revision_id=initial.revision_id
     )
     rollback_append_only_ok = (
         rollback.operation is SaveRevisionOperation.ROLLBACK
@@ -185,8 +147,8 @@ def run(source_sha: str) -> dict:
         and svc.revision(reader, initial.revision_id).payload == initial_revision.payload
     )
 
-    object_authorization_ok = False
     wrong_object = AuthorityActorContext("acct-player", "sess-player", ("*",), ("slot-other",))
+    object_authorization_ok = False
     try:
         svc.slot(wrong_object, slot)
     except CloudSaveAuthorizationError as exc:
@@ -195,40 +157,29 @@ def run(source_sha: str) -> dict:
     function_authorization_ok = False
     try:
         svc.upload(
-            actor(slot, "cloud_save.read"),
-            slot,
-            schema_id="save-v1",
-            payload=b"forbidden",
-            base_revision_id=rollback.revision_id,
-            idempotency_key="forbidden",
+            actor(slot, "cloud_save.read"), slot, schema_id="save-v2", payload=b"forbidden",
+            base_revision_id=rollback.revision_id, idempotency_key="forbidden"
         )
     except CloudSaveAuthorizationError as exc:
         function_authorization_ok = str(exc) == "forbidden"
 
+    integrity_slot = "slot-integrity"
     integrity_guard_ok = False
     try:
         svc.upload(
-            rw,
-            "slot-integrity",
-            schema_id="save-v1",
-            payload=b"payload",
-            base_revision_id=None,
-            idempotency_key="integrity",
-            expected_content_digest="0" * 64,
+            actor(integrity_slot), integrity_slot,
+            schema_id="save-v1", payload=b"payload", base_revision_id=None,
+            idempotency_key="integrity", expected_content_digest="0" * 64
         )
-    except (CloudSavePolicyError, CloudSaveAuthorizationError) as exc:
-        integrity_guard_ok = str(exc) in {"content_digest_mismatch", "forbidden"}
+    except CloudSavePolicyError as exc:
+        integrity_guard_ok = str(exc) == "content_digest_mismatch"
 
     tiny = InMemoryCloudSaveService(clock_ms=clock, max_payload_bytes=2)
     bounded_quota_ok = False
     try:
         tiny.upload(
-            actor("slot-tiny"),
-            "slot-tiny",
-            schema_id="save-v1",
-            payload=b"123",
-            base_revision_id=None,
-            idempotency_key="tiny",
+            actor("slot-tiny"), "slot-tiny", schema_id="save-v1", payload=b"123",
+            base_revision_id=None, idempotency_key="tiny"
         )
     except CloudSaveQuotaError as exc:
         bounded_quota_ok = str(exc) == "payload_quota"
@@ -251,8 +202,7 @@ def run(source_sha: str) -> dict:
         "bounded_quota": bounded_quota_ok,
     }
     if not all(checks.values()):
-        failed = [name for name, ok in checks.items() if not ok]
-        raise SystemExit(f"R14.8 acceptance checks failed: {failed}")
+        raise SystemExit(f"R14.8 acceptance checks failed: {[k for k, v in checks.items() if not v]}")
 
     return {
         "status": "pass",

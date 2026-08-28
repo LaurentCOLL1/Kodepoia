@@ -1,0 +1,44 @@
+name: R14 Planning START Sync Temp
+
+on:
+  push:
+    branches:
+      - "r14/00-phase-plan"
+    paths:
+      - ".r14_00_plan_sync_trigger"
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout planning branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/00-phase-plan
+          fetch-depth: 0
+
+      - name: Apply deterministic START-sync continuity
+        run: python scripts/r14_00_plan_sync_temp.py
+
+      - name: Prepare final planning tree
+        shell: bash
+        run: |
+          git diff --check docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_PLAN.md
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git rm -f scripts/r14_00_plan_sync_temp.py .r14_00_plan_sync_trigger .github/workflows/r14-00-plan-sync-temp.yml
+          git diff --cached --check
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R14_PLAN.md'
+          actual="$(git diff --cached --name-only b5b75b826bedabf64957494f7e2228ec1c9ff2d3 | sort)"
+          test "$actual" = "$expected"
+
+      - name: Commit planning START-sync
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "R14 planning START-sync"
+          git push origin HEAD:r14/00-phase-plan

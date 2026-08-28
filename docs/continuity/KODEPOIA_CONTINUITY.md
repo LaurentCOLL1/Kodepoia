@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.8 COMPLETE + NORMALIZED (normalization PR pending merge). R14.9–R14.17 PLANNED.** R14.8 source technique immuable `8132c4029983f693a32e0d26903d05e347313bf6`; END-head exact `954991537fc8c076169993ea106303421b8edd60`; R0 #1832, Python Core #1806, UI #1773 et Cloud Save Acceptance #16 sont SUCCESS; PR #271 a fusionné avec expected-head comme merge `5b51967c63ad5ae5ccc2df89f76aa48831ee2762`. La présente branche `r14/08-normalize-continuity` est l’unique normalisation continuity-only autorisée : valider son HEAD exact avec R0 + full Python Core + KodeStudio UI Smoke, puis merger avec expected-head avant toute R14.9. Manual intervention : NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.8 COMPLETE + NORMALIZED. R14.9 IN_PROGRESS. R14.10–R14.17 PLANNED.** R14.8 est définitivement normalisée sur `main` `433c86cc5d43bfea41adb529451367e10c75a30b` après PR #272. R14.9 démarre exactement de ce SHA sur `r14/09-progression-leaderboards`. Frozen scope : définitions achievement/stat/leaderboard immuables et versionnées, progression seulement depuis événements/commandes autoritatifs validés, unlock/progress idempotents, score ordering/tie/period/reset explicites, snapshots de classement déterministes, écritures directes de score client interdites, privacy/display controls et queries provider-neutral. Manual intervention : NONE.
 
 ## État global
 
@@ -14,9 +14,10 @@
 - R12 canonical integrated digest : `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 canonical integrated digest : `831b155fce200eae6b9fbe91c8eb44e992ea036c0922e508171644b497a4c3c7`.
 - R14 planning : **ACCEPTED + NORMALIZED**.
-- R14.1–R14.7 : **COMPLETE + NORMALIZED**.
-- R14.8 : **COMPLETE + NORMALIZED (normalization PR pending merge)** ; source technique immuable `8132c4029983f693a32e0d26903d05e347313bf6`, END-head `954991537fc8c076169993ea106303421b8edd60`, implementation/evidence merge `5b51967c63ad5ae5ccc2df89f76aa48831ee2762`.
-- R14.9–R14.17 : **PLANNED**.
+- R14.1–R14.8 : **COMPLETE + NORMALIZED**.
+- R14.8 normalized `main` : **`433c86cc5d43bfea41adb529451367e10c75a30b`** après normalization PR #272.
+- R14.9 : **IN_PROGRESS** sur `r14/09-progression-leaderboards`, base exacte `433c86cc5d43bfea41adb529451367e10c75a30b`.
+- R14.10–R14.17 : **PLANNED**.
 - Manual state actuel : **NONE**.
 
 ## Permanent R-phase execution rule
@@ -60,7 +61,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.6 | COMPLETE + NORMALIZED | NONE |
 | R14.7 | COMPLETE + NORMALIZED | NONE |
 | R14.8 | COMPLETE + NORMALIZED | NONE |
-| R14.9 | PLANNED | NONE |
+| R14.9 | IN_PROGRESS | NONE |
 | R14.10 | PLANNED | CONDITIONAL |
 | R14.11 | PLANNED | NONE |
 | R14.12 | PLANNED | CONDITIONAL |
@@ -106,15 +107,29 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Fresh END gates on that exact head: R0 Repository Guard #1832 / `33208260744` SUCCESS; Python Core #1806 / `33208260746` SUCCESS; KodeStudio UI Smoke #1773 / `33208260611` SUCCESS; R14 Cloud Save Acceptance #16 / `33208260670` SUCCESS on Ubuntu and Windows.
 - PR #271 merged only after verifying its exact head `954991537fc8c076169993ea106303421b8edd60`, with `expected_head_sha` protection, as implementation/evidence merge **`5b51967c63ad5ae5ccc2df89f76aa48831ee2762`**.
 - Provider posture: `provider_live_claim=false`, `secrets_exposed=false`; RFC 9110 / Google Play Games / OWASP are informative evidence only.
-- Post-merge normalization branch: **`r14/08-normalize-continuity`**, created from exact merge `5b51967c63ad5ae5ccc2df89f76aa48831ee2762`; it is required to change only this continuity file.
-- Current state represented by this normalization candidate: R14.8 **COMPLETE + NORMALIZED**; R14.9–R14.17 **PLANNED**.
+- Single post-merge normalization head: **`0850580c78f2190199931129e9c1389f6c9977b1`**, changing only this continuity file. Fresh normalization gates: R0 #1834 / `33208563238`, Python Core #1808 / `33208563310`, UI #1775 / `33208563115` — all SUCCESS.
+- Normalization PR #272 merged with `expected_head_sha=0850580c78f2190199931129e9c1389f6c9977b1` as normalized `main` **`433c86cc5d43bfea41adb529451367e10c75a30b`**.
+- R14.8 final state: **COMPLETE + NORMALIZED**; R14.9 is authorized from that exact normalized `main`.
 - Manual intervention: **NONE**.
 
-## External research baseline relevant to R14.8
+## R14.9 START authority
 
-- RFC 9110 §13 définit les requêtes conditionnelles ; `If-Match` permet de faire échouer une mutation lorsque la représentation courante ne correspond plus à la version observée, afin d’éviter le problème de “lost update”. Cette sémantique est un bon repère pour le compare-and-swap/base-revision de R14.8, sans imposer HTTP comme architecture interne.
-- OWASP API1:2023 exige une autorisation objet sur chaque endpoint qui reçoit un identifiant d’objet. Les `CloudSaveSlotId` / `SaveRevisionId` devront donc être autorisés server-side et ne jamais être considérés comme sûrs parce qu’ils viennent d’un client.
+- Dedicated branch: **`r14/09-progression-leaderboards`**.
+- Exact branch point: normalized R14.8 `main` **`433c86cc5d43bfea41adb529451367e10c75a30b`**.
+- START plan head: `5830d5d7fb75ac529c139c1f020e8dfc4423e580`; helper files self-removed before implementation.
+- START state: R14.1–R14.8 **COMPLETE + NORMALIZED**; R14.9 **IN_PROGRESS**; R14.10–R14.17 **PLANNED**.
+- Frozen scope: immutable/versioned achievement, stat and leaderboard definitions; server-authoritative validated progression events/commands; duplicate-safe idempotency; terminal/idempotent unlocks; explicit score ordering, tie, update and period/reset policies; deterministic ranking snapshots; privacy/display filtering; provider-neutral reads; direct client score writes forbidden.
+- Acceptance focus: forged score rejection, duplicate/rebound event handling, duplicate unlock, definition immutability/versioning, deterministic higher/lower ranking and ties, period rollover/reset, privacy filtering, concurrency and bounded capacity.
+- Provider posture: Steam/Game Center/Google Play are informative compatibility references only; no provider account, API key or live publication is required for core R14.9 acceptance.
+- Manual intervention: **NONE**.
+
+## External research baseline relevant to R14.9
+
+- Steamworks distinguishes trusted backend Web API operations from client operations; its leaderboard API can require trusted writes so client score submission is disabled, and exposes explicit score update policy. R14.9 therefore keeps trusted progression writes server-side without making Steam the canonical model.
+- Apple Game Center distinguishes classic leaderboards from recurring leaderboards that reset on configured schedules and exposes score sort order. R14.9 models periods/reset/order explicitly and deterministically rather than inheriting a platform implementation.
+- Google Play Games exposes achievements and leaderboards as distinct client capabilities. R14.9 keeps those surfaces distinct while sharing one authoritative progression/event source internally.
+- Provider documentation is versioned comparison evidence only; `provider_live_claim=false` remains mandatory unless a later explicit provider-live gate is executed.
 
 ## Next authorized action
 
-Verify that the exact head of `r14/08-normalize-continuity` differs from implementation/evidence merge `5b51967c63ad5ae5ccc2df89f76aa48831ee2762` by **only** `docs/continuity/KODEPOIA_CONTINUITY.md`. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke. If all are SUCCESS, merge the single normalization PR only with `expected_head_sha` equal to that exact normalization head. The resulting `main` is the sole normalized R14.8 authority and only then authorizes the R14.9 START-sync. Manual intervention remains **NONE**.
+Verify that the exact R14.9 START head differs from normalized R14.8 `main` `433c86cc5d43bfea41adb529451367e10c75a30b` by **only** `docs/roadmap/R14_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`. No implementation file may exist before that comparison passes. Once the START diff is clean, implement R14.9 on the same dedicated branch with immutable/versioned definitions, authoritative/idempotent progression events, deterministic ranking/period semantics, privacy filtering, bounded state and dedicated Ubuntu/Windows acceptance. Manual intervention remains **NONE**.

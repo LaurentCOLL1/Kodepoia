@@ -1,0 +1,46 @@
+name: R14.2 END Sync Temp
+
+on:
+  push:
+    branches:
+      - r14/02-backend-service-intent
+    paths:
+      - .r14_2_end_sync_trigger
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R14.2 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/02-backend-service-intent
+          fetch-depth: 0
+
+      - name: Apply deterministic END-sync
+        run: |
+          python scripts/_r14_2_end_sync_temp.py
+          git diff --check
+
+      - name: Prepare final END-sync tree
+        run: |
+          rm scripts/_r14_2_end_sync_temp.py
+          rm .github/workflows/r14-02-end-sync-temp.yml
+          rm .r14_2_end_sync_trigger
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_PLAN.md docs/roadmap/R14_2_ACCEPTANCE.md
+          git add -u -- scripts/_r14_2_end_sync_temp.py .github/workflows/r14-02-end-sync-temp.yml .r14_2_end_sync_trigger
+          git diff --cached --check
+          changed="$(git diff --cached --name-only 4e04812380a495dd799e1d7b9e96741d8688de31 -- | sort)"
+          expected="$(printf '%s\n' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R14_2_ACCEPTANCE.md' 'docs/roadmap/R14_PLAN.md' | sort)"
+          if [ "$changed" != "$expected" ]; then
+            echo "Unexpected cumulative END-sync tree:"
+            printf '%s\n' "$changed"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "R14.2 END-sync acceptance plan and continuity"
+          git push origin HEAD:r14/02-backend-service-intent

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-workspace-manifest.schema.json",
+  "title": "Kodepoia R14.3 local backend workspace manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "template_id", "template_version", "project_id", "config_sha256", "template_sha256", "files"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "template_id": {"const": "kodepoia_local_backend"},
+    "template_version": {"const": "1.0"},
+    "project_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "config_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "template_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "files": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    }
+  }
+}

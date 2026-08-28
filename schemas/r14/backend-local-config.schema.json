@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-local-config.schema.json",
+  "title": "Kodepoia R14.3 local backend config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "environment", "services", "bind", "log_level", "secret_refs"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "project_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["environment_id", "kind"],
+      "properties": {
+        "environment_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+        "kind": {"enum": ["local", "test", "staging", "production"]}
+      }
+    },
+    "services": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["auth", "database", "authoritative_server", "matchmaking", "cloud_save", "progression", "catalog", "entitlement", "billing", "remote_config", "content_delivery", "events", "liveops"]}
+    },
+    "bind": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host", "port"],
+      "properties": {
+        "host": {"type": "string", "pattern": "^127(?:\\.(?:25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])){3}$"},
+        "port": {"type": "integer", "minimum": 0, "maximum": 65535, "anyOf": [{"const": 0}, {"minimum": 1024}]}
+      }
+    },
+    "log_level": {"enum": ["debug", "info", "warning", "error"]},
+    "secret_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["namespace", "key"],
+        "properties": {
+          "namespace": {"type": "string", "minLength": 1},
+          "key": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

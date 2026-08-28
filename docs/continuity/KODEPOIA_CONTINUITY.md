@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1 COMPLETE + NORMALIZED. R14.2 COMPLETE with implementation/evidence merged as `ad5de7c1697d061946bf75220420c75b73851531`; single continuity-only normalization is now the only remaining closure step. R14.3–R14.17 remain PLANNED.** R14.2 immutable technical source `4e04812380a495dd799e1d7b9e96741d8688de31` passed R0 #1761 / `33143230642`, Python Core #1735 / `33143230580`, and UI #1702 / `33143230613`; final END-head `cc034784b6b3350f3e24ece55e5d2304fa60705c` passed fresh R0 #1766 / `33143514421`, Python Core #1740 / `33143514423`, and UI #1707 / `33143514466`, all SUCCESS; PR #259 merged with expected-head protection as `ad5de7c1697d061946bf75220420c75b73851531`. Normalization branch `r14/02-continuity-normalization` starts exactly from that merge and may change only this continuity file. Manual state is NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.2 COMPLETE + NORMALIZED. R14.3 COMPLETE at technical/evidence level on `r14/03-local-backend-runtime`; final END-synchronized exact-head re-gates and PR #261 merge remain pending. R14.4–R14.17 remain PLANNED.** R14.3 accepted immutable technical source `4de5036e7a37f949ec64ae68d9ee45e57ac99631` passed R0 #1770 / `33146235062`, Python Core #1744 / `33146235104`, and UI #1711 / `33146235181`, all SUCCESS; Ubuntu full suite recorded 1477 passed / 13 skipped / 46 warnings and Windows Core also passed. Focused prevalidation `33146069094` passed 36 tests; cross-platform runtime validation `33146135676` passed on Ubuntu and Windows. No implementation semantics may change during END-sync. After fresh final R0 + Python Core + UI on the END head, merge #261 with expected-head protection, then perform exactly one continuity-only normalization before R14.3 becomes COMPLETE + NORMALIZED and R14.4 is authorized. Manual state is NONE.
 
 ## État global
 
@@ -19,7 +19,7 @@
 - R13.15: **COMPLETE + NORMALIZED**. Final normalization head **`2122fd685fd20973ae045658e79d94295bb389cb`** passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and KodeStudio UI Smoke #1661 / `33099024892`; normalization PR #250 merged as normalized `main` **`dce60a60b58ff2c069d689144291f8c682b7e21f`**. Manual **NONE**.
 - R13.16: **COMPLETE + NORMALIZED**. Final end-synchronized implementation head **`a4c4185f6b11d4574e9ecf2f2b735c2d623155b4`** passed R0 #1726 / `33113280399`, Python Core #1700 / `33113280512`, and UI #1667 / `33113280468`; PR #251 merged as **`b1865ffff26de58f63606952f5c7b8de774e01fa`**. Single continuity-only normalization head **`9bcee3c9359f8a2340878c8310b1572f38d614df`** passed R0 #1728 / `33113689078`, Python Core #1702 / `33113689208`, and UI #1669 / `33113689114`; PR #252 merged as normalized **`main` `b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`**. Manual **NONE**.
 - R13.17: **COMPLETE + NORMALIZED**. Final documentation/evidence head **`cb0c63bcdcbaf2b58b3066d311780843c2598575`** passed all 12 fresh exact-head final gates; PR #253 merged as **`f56c61dbc82efd93c08e2b29ad1acff33219689f`**. Single continuity-only normalization head **`1bc52616e5e527dadfe8feafdc0d137433b37a48`** passed R0 #1746 / `33135420877`, Python Core #1720 / `33135420870`, and UI #1687 / `33135420823`; PR #254 merged as normalized **`main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`**. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R14 planning: **ACCEPTED + NORMALIZED**. R14.1 is **COMPLETE + NORMALIZED**. R14.2 implementation/evidence is **COMPLETE + MERGED**: immutable technical source **`4e04812380a495dd799e1d7b9e96741d8688de31`** passed R0 #1761 / `33143230642`, Python #1735 / `33143230580`, UI #1702 / `33143230613`; final END-head **`cc034784b6b3350f3e24ece55e5d2304fa60705c`** passed R0 #1766 / `33143514421`, Python #1740 / `33143514423`, UI #1707 / `33143514466`; PR #259 merged as **`ad5de7c1697d061946bf75220420c75b73851531`**. Exactly one continuity-only normalization is pending before R14.2 becomes authoritative **COMPLETE + NORMALIZED** and R14.3 is authorized. R14.3–R14.17 remain PLANNED. Manual **NONE**.
+- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.2 are **COMPLETE + NORMALIZED**. R14.3 accepted immutable technical source **`4de5036e7a37f949ec64ae68d9ee45e57ac99631`** passed R0 #1770 / `33146235062`, Python Core #1744 / `33146235104`, and UI #1711 / `33146235181`, all SUCCESS. R14.3 is **COMPLETE / FINAL_DOCUMENTATION_REGATES_PENDING** on `r14/03-local-backend-runtime`; R14.4–R14.17 remain PLANNED. Manual **NONE**.
 
 ## R14 planning closure and R14.1 start authority
 
@@ -45,7 +45,20 @@
 - Final fresh exact-head gates: R0 #1766 / `33143514421`, Python Core #1740 / `33143514423`, UI #1707 / `33143514466`, all SUCCESS.
 - Implementation/evidence PR #259 merged with `expected_head_sha=cc034784b6b3350f3e24ece55e5d2304fa60705c` as `ad5de7c1697d061946bf75220420c75b73851531`.
 - Single authorized normalization branch: `r14/02-continuity-normalization`, created exactly from `ad5de7c1697d061946bf75220420c75b73851531`. Its cumulative diff MUST contain exactly `docs/continuity/KODEPOIA_CONTINUITY.md`; no plan/code/schema/test/workflow bytes may remain changed.
-- This normalization candidate declares the resulting main state **R14.2 COMPLETE + NORMALIZED** and keeps R14.3 **PLANNED**. The declaration becomes authoritative only when this exact candidate passes fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke and its PR merges with expected-head protection.
+- Final normalization head `b3587acf2a9c37d2e407a62bc1e805863f553564` changed exactly this continuity file and passed R0 #1768 / `33145379528`, Python Core #1742 / `33145379581`, and UI #1709 / `33145379554`, all SUCCESS.
+- Normalization PR #260 merged with expected-head protection as normalized `main` `bf66970f358df580d5fe15b1ac1f8ed2cb13b09d`. Therefore R14.2 is authoritatively **COMPLETE + NORMALIZED** and R14.3 is authorized.
+- Manual intervention: **NONE**.
+
+## R14.3 technical acceptance authority
+
+- Dedicated branch: `r14/03-local-backend-runtime`, started exactly from normalized `main` `bf66970f358df580d5fe15b1ac1f8ed2cb13b09d`.
+- Mandatory START-sync head `86dd7e43a2d2895909f8ecd95a743099fc37c55f` changed exactly `docs/roadmap/R14_PLAN.md` and continuity before implementation.
+- Accepted immutable technical source: `4de5036e7a37f949ec64ae68d9ee45e57ac99631`, tree `693662541c60387ecbb14d0994c66266696a9153`.
+- Technical exact-head gates: R0 #1770 / `33146235062`, Python Core #1744 / `33146235104`, KodeStudio UI Smoke #1711 / `33146235181`, all SUCCESS.
+- Ubuntu full Python suite: 1477 passed / 13 skipped / 46 warnings; Windows Core, both package builds and Python internal UI smoke also SUCCESS.
+- Focused `33146069094`: 36 passed after compileall. Cross-platform focused `33146135676`: runtime tests SUCCESS on Ubuntu and Windows; a duplicate cleanup race did not affect the tested implementation and no temporary file remains in the accepted tree.
+- Frozen R14.3 scope: deterministic local backend scaffold/workspace, repository-owned bounded local runner, typed configuration/environment overlays, KodeSecrets references, loopback-first bind policy, health/readiness/liveness, graceful shutdown, redacted logs and reproducible fixture service. No public deployment, auth semantics, production TLS termination, managed hosting or later R14 service semantics.
+- R14.3 is COMPLETE at technical/evidence level; R14.4 remains PLANNED pending final END re-gates, PR #261 merge and one continuity-only normalization.
 - Manual intervention: **NONE**.
 
 ## R14.1 post-merge normalization authority

@@ -8,6 +8,8 @@ R14.1 started from normalized R14 planning `main` `27af7b80072678f509f7092cf2759
 
 Accepted immutable technical candidate `84972d283f6f530ae46ebf6c0452188927b178ff` passed all required exact-head technical gates: R0 Repository Guard #1752 / `33140670364`, Python Core #1726 / `33140670445`, and KodeStudio UI Smoke #1693 / `33140670391`, all COMPLETED / SUCCESS. Ubuntu full Python Core recorded 1445 passed, 13 skipped and 46 warnings; Windows Core also completed SUCCESS. This technical authority is immutable; later END-sync documentation commits must not alter accepted implementation semantics.
 
+END-sync head `dac32123e18f4fbe2151c8fa6c6fbee8e013c878` correctly changed only this ledger, `R14_PLAN.md` and continuity relative to the accepted technical source. Its pull-request workflow records concluded `action_required` with zero jobs because the triggering actor was `github-actions[bot]`; those non-executed records are not acceptance evidence. This user-authored documentation-only successor intentionally retriggers the required fresh exact-head gates without changing accepted implementation semantics.
+
 ## Frozen acceptance claims
 
 R14.1 may claim only:

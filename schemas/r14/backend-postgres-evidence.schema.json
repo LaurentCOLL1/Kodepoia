@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-postgres-evidence.schema.json",
+  "title": "Kodepoia R14 PostgreSQL Acceptance Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source_sha", "server", "migration_plan_digest", "checks", "restore_digest", "status"],
+  "properties": {
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "server": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["server_version_num", "server_version", "server_major", "state", "stable_supported"],
+      "properties": {
+        "server_version_num": {"type": "integer", "minimum": 180000, "maximum": 189999},
+        "server_version": {"type": "string", "minLength": 1, "maxLength": 256},
+        "server_major": {"const": 18},
+        "state": {"const": "AVAILABLE"},
+        "stable_supported": {"const": true}
+      }
+    },
+    "migration_plan_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fresh_apply", "rollback_reapply", "atomicity", "optimistic_conflict", "row_lock", "idempotency", "bounded_retry", "backup_restore"],
+      "properties": {
+        "fresh_apply": {"const": true},
+        "rollback_reapply": {"const": true},
+        "atomicity": {"const": true},
+        "optimistic_conflict": {"const": true},
+        "row_lock": {"const": true},
+        "idempotency": {"const": true},
+        "bounded_retry": {"const": true},
+        "backup_restore": {"const": true}
+      }
+    },
+    "restore_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "status": {"const": "pass"},
+    "secrets_exposed": {"const": false}
+  }
+}

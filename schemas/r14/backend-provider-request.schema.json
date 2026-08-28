@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-provider-request.schema.json",
+  "title": "R14 Backend Provider Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request_id",
+    "provider_id",
+    "operation_intent_digest",
+    "endpoint_digest",
+    "payload_digest",
+    "idempotency_key_digest"
+  ],
+  "properties": {
+    "request_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "provider_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
+    "operation_intent_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "endpoint_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "payload_digest": {"type": "string", "pattern": "^(?:|[0-9a-f]{64})$"},
+    "idempotency_key_digest": {"type": "string", "pattern": "^(?:|[0-9a-f]{64})$"}
+  }
+}

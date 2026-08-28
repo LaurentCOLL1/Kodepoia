@@ -126,7 +126,7 @@ def build_window(
         )
 
         def open_wizard() -> None:
-            from kodepoia.kodestudio.r13_project_wizard import create_project_dialog
+            from kodepoia.kodestudio.r14_project_wizard import create_project_dialog
 
             create_project_dialog(window, locale=locale).exec()
 

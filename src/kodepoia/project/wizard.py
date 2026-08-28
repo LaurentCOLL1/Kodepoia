@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+from kodepoia.backend.contracts import BackendServiceKind
+from kodepoia.backend.intent import BackendProjectProfile, backend_wizard_questions
 from kodepoia.desktop.contracts import (
     DesktopArchitecture,
     DesktopFramework,
@@ -78,6 +80,42 @@ class ProjectWizardState:
     mobile_release_channel: MobileReleaseChannel = MobileReleaseChannel.DEVELOPMENT
     mobile_signing_intent: MobileSigningIntent = MobileSigningIntent.UNSIGNED
     mobile_budget: MobileProjectBudget = field(default_factory=MobileProjectBudget)
+    backend_enabled: bool = False
+    backend_services: tuple[BackendServiceKind, ...] = ()
+
+    def _backend_relevant(self) -> bool:
+        if self.backend_enabled or self.backend_services:
+            return True
+        if self.online is not DecisionState.NO or self.multiplayer is not DecisionState.NO:
+            return True
+        if self.mobile_network_intent is not MobileNetworkIntent.OFFLINE:
+            return True
+        backend_capabilities = {
+            "backend",
+            "auth",
+            "authoritative_server",
+            "matchmaking",
+            "cloud_save",
+            "progression",
+            "catalog",
+            "entitlement",
+            "billing",
+            "remote_config",
+            "content_delivery",
+            "events",
+        }
+        return any(
+            key.casefold() in backend_capabilities and value is not DecisionState.NO
+            for key, value in self.capabilities.items()
+        )
+
+    def _backend_profile(self) -> BackendProjectProfile | None:
+        if not self.backend_enabled and not self.backend_services:
+            return None
+        return BackendProjectProfile(
+            enabled=self.backend_enabled,
+            services=tuple(self.backend_services),
+        )
 
     def relevant_questions(self) -> tuple[str, ...]:
         questions = [
@@ -128,6 +166,12 @@ class ProjectWizardState:
                 questions += ["touch", "gyro", "accelerometer", "mobile_performance"]
         if Platform.XR in self.platforms:
             questions += ["openxr", "motion_controllers", "xr_performance"]
+        questions += list(
+            backend_wizard_questions(
+                self._backend_profile(),
+                backend_relevant=self._backend_relevant(),
+            )
+        )
         return tuple(questions)
 
     def _performance_for_targets(self) -> dict[str, PerformanceBudget]:
@@ -221,6 +265,7 @@ class ProjectWizardState:
             capabilities=dict(self.capabilities),
             desktop=self._desktop_profile(),
             mobile=self._mobile_profile(),
+            backend=self._backend_profile(),
         )
         dna.validate()
         return dna

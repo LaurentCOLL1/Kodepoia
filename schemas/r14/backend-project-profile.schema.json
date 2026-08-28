@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-project-profile.schema.json",
+  "title": "Kodepoia R14 Backend Project Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "enabled",
+    "services"
+  ],
+  "properties": {
+    "enabled": {
+      "type": "boolean"
+    },
+    "services": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "auth",
+          "authoritative_server",
+          "matchmaking",
+          "cloud_save",
+          "progression",
+          "catalog",
+          "entitlement",
+          "billing",
+          "remote_config",
+          "content_delivery",
+          "events"
+        ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "enabled": {
+            "const": false
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "then": {
+        "properties": {
+          "services": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "enabled": {
+            "const": true
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "then": {
+        "properties": {
+          "services": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "services": {
+            "contains": {
+              "const": "matchmaking"
+            }
+          }
+        },
+        "required": [
+          "services"
+        ]
+      },
+      "then": {
+        "properties": {
+          "services": {
+            "contains": {
+              "const": "authoritative_server"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "services": {
+            "contains": {
+              "const": "billing"
+            }
+          }
+        },
+        "required": [
+          "services"
+        ]
+      },
+      "then": {
+        "properties": {
+          "services": {
+            "allOf": [
+              {
+                "contains": {
+                  "const": "catalog"
+                }
+              },
+              {
+                "contains": {
+                  "const": "entitlement"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

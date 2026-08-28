@@ -20,9 +20,19 @@ from .governance import (
     BackendOperationRisk,
     BackendProviderRequest,
 )
+from .intent import (
+    BACKEND_DNA_SERVICE_KINDS,
+    BACKEND_SERVICE_DEPENDENCIES,
+    BackendProjectProfile,
+    BackendRuntimeIntent,
+    backend_runtime_intents,
+    backend_wizard_questions,
+)
 from .status import BackendErrorCode, BackendOperationStatus, BackendStatusSnapshot
 
 __all__ = [
+    "BACKEND_DNA_SERVICE_KINDS",
+    "BACKEND_SERVICE_DEPENDENCIES",
     "BackendBoundaryError",
     "BackendCapabilitySnapshot",
     "BackendCapabilityState",
@@ -39,11 +49,15 @@ __all__ = [
     "BackendOperationKind",
     "BackendOperationRisk",
     "BackendOperationStatus",
+    "BackendProjectProfile",
     "BackendProviderRequest",
     "BackendRuntimeBudget",
+    "BackendRuntimeIntent",
     "BackendServiceIdentity",
     "BackendServiceKind",
     "BackendStatusSnapshot",
+    "backend_runtime_intents",
+    "backend_wizard_questions",
     "canonical_json_bytes",
     "canonical_sha256",
 ]

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-runtime-intent.schema.json",
+  "title": "Kodepoia R14 Backend Runtime Intent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "intent_id",
+    "service_kind",
+    "dependencies"
+  ],
+  "properties": {
+    "intent_id": {
+      "type": "string",
+      "pattern": "^backend\\.[a-z][a-z0-9_]*$"
+    },
+    "service_kind": {
+      "type": "string",
+      "enum": [
+        "auth",
+        "authoritative_server",
+        "matchmaking",
+        "cloud_save",
+        "progression",
+        "catalog",
+        "entitlement",
+        "billing",
+        "remote_config",
+        "content_delivery",
+        "events"
+      ]
+    },
+    "dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "auth",
+          "authoritative_server",
+          "matchmaking",
+          "cloud_save",
+          "progression",
+          "catalog",
+          "entitlement",
+          "billing",
+          "remote_config",
+          "content_delivery",
+          "events"
+        ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "service_kind": {
+            "const": "matchmaking"
+          }
+        },
+        "required": [
+          "service_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "dependencies": {
+            "contains": {
+              "const": "authoritative_server"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "service_kind": {
+            "const": "billing"
+          }
+        },
+        "required": [
+          "service_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "dependencies": {
+            "allOf": [
+              {
+                "contains": {
+                  "const": "catalog"
+                }
+              },
+              {
+                "contains": {
+                  "const": "entitlement"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

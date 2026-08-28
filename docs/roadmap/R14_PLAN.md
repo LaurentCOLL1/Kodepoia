@@ -2,11 +2,11 @@
 
 **Phase:** R14  
 **Roadmap title:** Backend / Platform Services / LiveOps  
-**Status:** PLANNING  
+**Status:** IN PROGRESS
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED. R14 planning is active on `r14/00-phase-plan`. No R14.1 implementation may begin until this exhaustive plan is accepted, merged, then followed by exactly one continuity-only planning normalization that passes fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke and merges.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED. R14 planning is ACCEPTED + NORMALIZED on `main` `27af7b80072678f509f7092cf2759683efe1224f` after planning PR #255 and planning-normalization PR #256. R14.1 is IN_PROGRESS on dedicated branch `r14/01-backend-contracts-boundaries`, created exactly from that normalized main; R14.2–R14.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -198,7 +198,7 @@ Before R14.1 implementation:
 
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
-| R14.1 | Backend contracts, identities, capability model + secure network/runtime boundaries | PLANNED | NONE | R13 COMPLETE + normalized R14 planning |
+| R14.1 | Backend contracts, identities, capability model + secure network/runtime boundaries | IN_PROGRESS | NONE | R13 COMPLETE + normalized R14 planning |
 | R14.2 | Project DNA/KodeProduct backend profiles + Wizard conditional service intent | PLANNED | NONE | R14.1 + R2/R13 profile patterns |
 | R14.3 | Deterministic local backend scaffold/runtime + environments/config/secrets/health | PLANNED | NONE | R14.1–R14.2 + R8/R12 patterns |
 | R14.4 | Auth, identity, sessions, tokens, passkeys/OIDC provider-neutral boundary | PLANNED | CONDITIONAL | R14.1–R14.3 + R1/R6/R7 |

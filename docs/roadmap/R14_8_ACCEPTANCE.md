@@ -14,6 +14,8 @@ R14.8 adds provider-neutral server-authoritative cloud-save slots with immutable
 
 Candidate `2b458dc7e16ffabd7c94eb7dfdb3d362c9d74927` is diagnostic only: its acceptance integrity check could pass through an authorization rejection on a different slot and therefore did not prove digest-mismatch rejection strongly enough. Candidate `220bc28fb3ba627c042da76013348e5fd1273613` hardened that proof but predates the final public package exports. Neither SHA nor their runs/artifacts are decision evidence for closure. The immutable technical source is only `8132c4029983f693a32e0d26903d05e347313bf6`.
 
+The first documentation END head `e9525d876a347c35336b34263eb33f5d0578f1b4` is also non-authoritative: a broad documentation replacement accidentally removed unrelated later plan sections. It was detected by the exact-source compare before re-gating. `R14_PLAN.md` was then restored byte-for-byte from the immutable technical source before applying a section-bounded R14.8-only patch. The repaired END lineage preserves all R14.9–R14.17 planning content.
+
 ## Exact-source technical gates
 
 - R0 Repository Guard #1822 / run `33206330276`: SUCCESS.

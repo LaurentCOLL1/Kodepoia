@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.3 COMPLETE + NORMALIZED. R14.4 becomes COMPLETE + NORMALIZED upon merge of the single continuity-only normalization PR from `r14/04-continuity-normalization`; R14.5–R14.17 remain PLANNED until then.** R14.4 immutable technical source `3660f351649e85450324df25888d577afb02b19a` passed R0 #1779 / `33187747722`, Python Core #1753 / `33187747723`, and UI #1720 / `33187747872`; final END-head `05b16a796bb65d513de0b631eca432195ee01461` passed fresh R0 #1783 / `33189022908`, Python #1757 / `33189022727`, and UI #1724 / `33189022765`; PR #263 merged with expected-head protection as `cae2a1ddcaa79390ff923336ee331eba81937e84`. Manual state: CONDITIONAL / NOT TRIGGERED.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.4 COMPLETE + NORMALIZED. R14.5 IN_PROGRESS on `r14/05-postgresql-persistence`; R14.6–R14.17 remain PLANNED.** R14.4 normalization head `8601ac19b87635648aef1c5f5c37a6cb899c26be` passed R0 #1785 / `33189536524`, Python Core #1759 / `33189536553`, and UI #1726 / `33189536543`; PR #264 merged as normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`. R14.5 starts exactly there and targets stable PostgreSQL 18.x; core manual state is NONE.
 
 ## État global
 
@@ -19,7 +19,7 @@
 - R13.15: **COMPLETE + NORMALIZED**. Final normalization head **`2122fd685fd20973ae045658e79d94295bb389cb`** passed R0 #1720 / `33099025034`, Python Core #1694 / `33099024801`, and KodeStudio UI Smoke #1661 / `33099024892`; normalization PR #250 merged as normalized `main` **`dce60a60b58ff2c069d689144291f8c682b7e21f`**. Manual **NONE**.
 - R13.16: **COMPLETE + NORMALIZED**. Final end-synchronized implementation head **`a4c4185f6b11d4574e9ecf2f2b735c2d623155b4`** passed R0 #1726 / `33113280399`, Python Core #1700 / `33113280512`, and UI #1667 / `33113280468`; PR #251 merged as **`b1865ffff26de58f63606952f5c7b8de774e01fa`**. Single continuity-only normalization head **`9bcee3c9359f8a2340878c8310b1572f38d614df`** passed R0 #1728 / `33113689078`, Python Core #1702 / `33113689208`, and UI #1669 / `33113689114`; PR #252 merged as normalized **`main` `b202af1b4d6fd8d34e351c710db4c0ec719dd8f4`**. Manual **NONE**.
 - R13.17: **COMPLETE + NORMALIZED**. Final documentation/evidence head **`cb0c63bcdcbaf2b58b3066d311780843c2598575`** passed all 12 fresh exact-head final gates; PR #253 merged as **`f56c61dbc82efd93c08e2b29ad1acff33219689f`**. Single continuity-only normalization head **`1bc52616e5e527dadfe8feafdc0d137433b37a48`** passed R0 #1746 / `33135420877`, Python Core #1720 / `33135420870`, and UI #1687 / `33135420823`; PR #254 merged as normalized **`main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`**. Manual **CONDITIONAL / NOT TRIGGERED**.
-- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.3 are **COMPLETE + NORMALIZED**. R14.4 final END-head **`05b16a796bb65d513de0b631eca432195ee01461`** passed R0 #1783 / `33189022908`, Python #1757 / `33189022727`, UI #1724 / `33189022765`; PR #263 merged as **`cae2a1ddcaa79390ff923336ee331eba81937e84`**. Single continuity-only normalization is in progress on `r14/04-continuity-normalization`; after its fresh gates and merge R14.4 is **COMPLETE + NORMALIZED** and R14.5 is authorized. R14.5–R14.17 remain PLANNED until then. Manual **CONDITIONAL / NOT TRIGGERED**.
+- R14 planning: **ACCEPTED + NORMALIZED**. R14.1–R14.4 are **COMPLETE + NORMALIZED**. R14.4 normalization head **`8601ac19b87635648aef1c5f5c37a6cb899c26be`** passed R0 #1785 / `33189536524`, Python #1759 / `33189536553`, UI #1726 / `33189536543`; PR #264 merged as normalized **`main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`**. R14.5 is **IN_PROGRESS** on `r14/05-postgresql-persistence`; R14.6–R14.17 remain PLANNED. Manual for R14.5: **NONE**.
 
 ## R14 planning closure and R14.1 start authority
 
@@ -76,8 +76,17 @@
 - Final END-synchronized head: `05b16a796bb65d513de0b631eca432195ee01461`; relative to the immutable technical source only `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_4_ACCEPTANCE.md`, and continuity changed.
 - Final exact-head re-gates: R0 #1783 / `33189022908`, Python Core #1757 / `33189022727`, and UI #1724 / `33189022765`, all SUCCESS.
 - Implementation/evidence PR #263 merged with `expected_head_sha=05b16a796bb65d513de0b631eca432195ee01461` as `cae2a1ddcaa79390ff923336ee331eba81937e84`.
-- Single authorized normalization branch: `r14/04-continuity-normalization`, created exactly from that merge. Its cumulative diff MUST contain exactly `docs/continuity/KODEPOIA_CONTINUITY.md`. This candidate declares the resulting main state **R14.4 COMPLETE + NORMALIZED** and authorizes R14.5 only after fresh R0 + full Python Core + KodeStudio UI Smoke and expected-head merge.
+- Single continuity-only normalization head `8601ac19b87635648aef1c5f5c37a6cb899c26be` changed exactly continuity and passed R0 #1785 / `33189536524`, Python Core #1759 / `33189536553`, and UI #1726 / `33189536543`, all SUCCESS; PR #264 merged with expected-head protection as normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`. Therefore R14.4 is **COMPLETE + NORMALIZED**.
 - Manual intervention remains **CONDITIONAL / NOT TRIGGERED**.
+
+## R14.5 start authority
+
+- Dedicated branch: `r14/05-postgresql-persistence`.
+- Exact branch point: normalized `main` `45dc68f1cd3bf05c62aede1b2519c6c513c67166`.
+- R14.1–R14.4 are COMPLETE + NORMALIZED; R14.5 is IN_PROGRESS; R14.6–R14.17 remain PLANNED.
+- Stable database authority for core acceptance is PostgreSQL 18.x; PostgreSQL 19 pre-release builds are not production authority.
+- Frozen R14.5 scope: provider-neutral PostgreSQL capability/connection policy, repository-owned migrations with checksums/rollback, transaction/unit-of-work semantics, optimistic/pessimistic concurrency, bounded deadlock retry, idempotency primitives and deterministic backup/restore evidence; no managed-cloud provisioning or production credentials.
+- Manual intervention: **NONE**.
 
 ## R14.1 post-merge normalization authority
 

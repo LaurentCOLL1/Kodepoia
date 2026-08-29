@@ -1,0 +1,115 @@
+{
+  "blockers": [],
+  "ci": {
+    "bytes": 1232,
+    "sha256": "5d647b7fcf9945b8598352c10b5020123a5d108754108584ba623358233eda1d",
+    "source": "docs/roadmap/R14_17_CI_ACCEPTANCE.json"
+  },
+  "design": {
+    "bytes": 7173,
+    "sha256": "5ba4cf80fb59bd1f813ff4ce1b0f5773bbc57b631d818a86902c7cc9b0c93144",
+    "source": "docs/roadmap/R14_17_DESIGN.md"
+  },
+  "evidence_sha256": "06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189",
+  "generated_at": "2026-08-29T17:27:36.898865Z",
+  "manual_state": "conditional_not_triggered",
+  "pii_exposed": false,
+  "prior_phase": {
+    "bytes": 4532,
+    "sha256": "e575ef5d452655d116e96f2c3a11c4a0511e26903872f0a3d5d080d6f8a9b2bc",
+    "source": "docs/roadmap/R13_INTEGRATED_ACCEPTANCE.json"
+  },
+  "production_publish_claim": false,
+  "provider_live_claim": false,
+  "scenario": {
+    "bytes": 6313,
+    "sha256": "8080d974bec375e822fb04d271671d922460e4d71e5996ce5a2d61377d4b8d47",
+    "source": "docs/roadmap/R14_17_SCENARIO_EVIDENCE.json"
+  },
+  "schema_version": 1,
+  "secrets_exposed": false,
+  "source_sha": "11fb0e1a28fd5cbb607e2b302a36314f151ee170",
+  "status": "pass",
+  "subdivision_acceptance": [
+    {
+      "bytes": 6092,
+      "sha256": "e63255f6e87fc4f313d4b8299657e897ae77711998874520665d3990c8cca2a8",
+      "source": "docs/roadmap/R14_1_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 5047,
+      "sha256": "829274ab1473e471b91072d5ca86d52fe86d1327b00cb6549e8f701eaaf0e5f7",
+      "source": "docs/roadmap/R14_2_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 4821,
+      "sha256": "2fb2a2a1ee40a459195b1541c47763124f972e9d55ceea917918b3a4dd568fe0",
+      "source": "docs/roadmap/R14_3_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 3969,
+      "sha256": "21dc6491b5753f76889744ed835c1d9b4e2d0434d7fa4c2f9e2df89c8a99b791",
+      "source": "docs/roadmap/R14_4_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 4369,
+      "sha256": "f769503a3f786f2d17d35dbd2155111547e89cc887ce9cd26ecfd626f8db5017",
+      "source": "docs/roadmap/R14_5_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 5744,
+      "sha256": "9949f397d662ae04780a3915ac2c06986bc20cadb9eacef427e82f27dc48f10f",
+      "source": "docs/roadmap/R14_6_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 5510,
+      "sha256": "bf67510b266dc2f171c6a4d413a7cf2529092d33e1477efa18ef947cd89ed977",
+      "source": "docs/roadmap/R14_7_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 5772,
+      "sha256": "421964cef3444c370552e0be02d019a35a604132697c9ec3cab306444cd0889b",
+      "source": "docs/roadmap/R14_8_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 8160,
+      "sha256": "0a371b0c7256f56eb5ce9fe5e5031b6ec70fe7ca9babcdb3abc0e5e9829fe60b",
+      "source": "docs/roadmap/R14_9_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 9503,
+      "sha256": "16826625b9e30daac54a9f9224456519286de67825b875cda58f40178567cb28",
+      "source": "docs/roadmap/R14_10_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 9682,
+      "sha256": "5a9ba321ff9b646460940e18eded8685b82b723158d872f5e1c1d09331090a62",
+      "source": "docs/roadmap/R14_11_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 10796,
+      "sha256": "33e369863f0ee0436f74579a0e55181269d9742b9a0ad296835a551a625942f3",
+      "source": "docs/roadmap/R14_12_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 6217,
+      "sha256": "ba0fb265b36edd2c5d73e29ef8c6a1213a54184d38b461b9f9c456e738ec87c9",
+      "source": "docs/roadmap/R14_13_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 6118,
+      "sha256": "2be638bfc5cd6095fe5664640e191febbcc58603399abc9d6752e8bc5e676ad6",
+      "source": "docs/roadmap/R14_14_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 7109,
+      "sha256": "6cda294c08cc67a01feaff78e4f7ee4d2109edfc77902f0e3f9efb0ba8a82bb4",
+      "source": "docs/roadmap/R14_15_ACCEPTANCE.md"
+    },
+    {
+      "bytes": 6832,
+      "sha256": "e117be77f1ee92d0e75ea1bb16887f4009beeccf4ee1040fc84f5d75c78028d5",
+      "source": "docs/roadmap/R14_16_ACCEPTANCE.md"
+    }
+  ]
+}

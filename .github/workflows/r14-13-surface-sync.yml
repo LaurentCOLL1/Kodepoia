@@ -1,0 +1,38 @@
+name: R14.13 Surface Synchronization
+
+on:
+  push:
+    branches:
+      - r14/13-events-telemetry-pipeline
+    paths:
+      - scripts/r14_13_surface_sync.py
+      - .github/workflows/r14-13-surface-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/13-events-telemetry-pipeline
+
+      - name: Patch public backend exports
+        run: python scripts/r14_13_surface_sync.py
+
+      - name: Commit clean surface and remove helpers
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm scripts/r14_13_surface_sync.py
+          rm .github/workflows/r14-13-surface-sync.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/kodepoia/backend/__init__.py scripts/r14_13_surface_sync.py .github/workflows/r14-13-surface-sync.yml
+          git diff --cached --check
+          git commit -m "feat(r14.13): expose governed event pipeline API"
+          git push origin HEAD:r14/13-events-telemetry-pipeline

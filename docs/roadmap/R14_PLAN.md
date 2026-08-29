@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.10 are COMPLETE + NORMALIZED on normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`. R14.10 immutable technical source `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; single continuity-only normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab` passed R0 #1854, Python Core #1828 and UI #1795 and merged by PR #276 as normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`. R14.11 is IN_PROGRESS on `r14/11-remote-config-feature-flags`; R14.12–R14.17 remain PLANNED. R14.11 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.10 are COMPLETE + NORMALIZED on normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`. R14.11 is COMPLETE at technical/evidence + END-sync level on `r14/11-remote-config-feature-flags`; immutable technical source `a58a0cf48a5e2311b5f6e671655f107e92c4645e` passed R14 Remote Config Acceptance run `33234881304` on Ubuntu and Windows. Final END-head still requires fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Remote Config Acceptance, protected merge and exactly one continuity-only normalization before R14.12. R14.12–R14.17 remain PLANNED. R14.11 manual state is NONE.
 
 ## Purpose and authority
 
@@ -208,7 +208,7 @@ Before R14.1 implementation:
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | COMPLETE | NONE | R14.5–R14.6 |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | COMPLETE | NONE | R14.5–R14.6 |
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.4–R14.6 + R13 store contracts |
-| R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | IN_PROGRESS | NONE | R14.5–R14.6 |
+| R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | COMPLETE | NONE | R14.5–R14.6 |
 | R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | PLANNED | CONDITIONAL | R14.5/R14.11 + R8/R13 release provenance |
 | R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | PLANNED | NONE | R14.5–R14.6 + R6 |
 | R14.14 | LiveOps campaigns, seasons, schedules, rotations, activation + rollback | PLANNED | NONE | R14.10–R14.13 |
@@ -907,7 +907,22 @@ Nondeterministic targeting, PII in context, production/test confusion, remote-co
 
 ## Completion record
 
-To be appended when accepted.
+- Dedicated branch: `r14/11-remote-config-feature-flags`; exact normalized branch point `a9db57de1c1cc550604edbe6fec095e0a8e13c40`.
+- Rejected candidate `b43acf2a0f870587a85141cbdb91a3cf352bf2c7` is NON-AUTHORITATIVE and its evidence must never be reused. Its first R14 Remote Config Acceptance run `33234680565` exposed an invalid test/acceptance fixture assumption: object authorization IDs cannot use the permission wildcard `*`.
+- The correction enumerated explicit authorized snapshot/flag/environment object IDs and did not weaken historical R14.6 authority semantics.
+- Intermediate green source `2a97caac8e2ac19615f7ce2c64585ae8080bd2fe` proved the corrected core but was not frozen because public backend exports were still incomplete.
+- Accepted immutable technical source: `a58a0cf48a5e2311b5f6e671655f107e92c4645e`, including public `kodepoia.backend` exports and their dedicated regression.
+- Dedicated exact-source R14 Remote Config Acceptance run `33234881304`: Ubuntu job `99053992967` SUCCESS; Windows job `99053993105` SUCCESS.
+- Focused regression spans R14.5 PostgreSQL persistence, R14.6 authoritative server, R14.11 remote-config semantics and R14.11 public backend exports.
+- Nineteen checks PASS cross-platform: typed schema, immutable snapshots, targeting precedence, stable fractional assignment, bounded rollout distribution, targeting-key fail-closed, prerequisite-cycle rejection, prerequisite enforcement, server-clock expiry, kill-switch override, preview/dry-run, production approval + SafeChange, rollback, environment isolation, object/function authorization, typed OpenFeature-style fallback, redacted evidence, bounded capacity and remote-code type rejection.
+- Cross-platform decoded evidence is identical. Digests: snapshot `70397539d8e0fd41102387f32a29f947f29b629cbbfddbd9b20b660b40ca27c4`; state `5343df1b58f0f595133261cdff705d720dc2e2c561e6d01cd69263060680a0c9`; trace `4f45743cdc5af05bbdb795026d2e15a76c502c37d46c649a5ba08347efd00509`; audit `4ec2eb54f751b49c6f43388fc7fcc76f16b7cc9e76eeffe703a638c941b46aa7`; rollout assignment `24df98a3b2058d746bbbec24af41299acc9d84ea2b3d102cee4efbb56de69a98`; rollback preview `d34ad885b9bb733120616e14c96c3e82418d1e3bdbc05099538c9c00022a176a`.
+- Fractional fixture: 2,000 subjects -> `off=980`, `on=1020`; same targeting key remains assigned despite unrelated context changes.
+- Rollback fixture: `test-v2 → test-v1`, final active `test-v1`; immutable snapshots remain registered.
+- Budgets: `max_snapshots=32`, `max_flags_per_snapshot=32`, `max_evaluations=5000`, `max_audit_records=128`.
+- Artifacts: Ubuntu `9709604569` / `sha256:25026a76c041d780cb75aeb0cc6cf06143c4a6a5430dc1c1c3a3c82725c6ef63`; Windows `9709607701` / `sha256:1db48d5162f36132568ec8d223c036c7267831f471f068d4140e6ef9360eee24`.
+- Evidence schema: `schemas/r14/backend-remote-config-evidence.schema.json`; state is `manual_state=none`, `provider_live_claim=false`, `secrets_exposed=false`, `pii_exposed=false`, `arbitrary_code_execution=false`.
+- Stable OpenFeature concepts are informative/provider-boundary evidence only: optional targeting key for subject identity/fractional evaluation, typed evaluation/default fallback, typed context, privacy caution and standard error vocabulary. No full OpenFeature conformance is claimed.
+- END state: R14.11 COMPLETE; R14.12–R14.17 remain PLANNED. R14.12 is not authorized until the exact R14.11 END-head passes fresh R0/Python/UI/R14 Remote Config gates, the implementation PR merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

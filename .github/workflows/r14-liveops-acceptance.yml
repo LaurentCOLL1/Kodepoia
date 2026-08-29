@@ -1,0 +1,120 @@
+name: R14 LiveOps Acceptance
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - r14/14-liveops-campaigns-schedules
+    paths:
+      - .github/workflows/r14-liveops-acceptance.yml
+      - schemas/r14/backend-liveops-evidence.schema.json
+      - scripts/r14_14_liveops_acceptance.py
+      - src/kodepoia/backend/__init__.py
+      - src/kodepoia/backend/liveops.py
+      - tests/test_r14_14_backend_exports.py
+      - tests/test_r14_14_liveops.py
+      - docs/roadmap/R14_PLAN.md
+      - docs/roadmap/R14_14_LIVEOPS_ACCEPTANCE*.json
+      - docs/continuity/KODEPOIA_CONTINUITY.md
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - windows-2025
+    runs-on: ${{ matrix.os }}
+    env:
+      EVIDENCE_PATH: docs/roadmap/R14_14_LIVEOPS_ACCEPTANCE-${{ matrix.os }}.json
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Guard exact source SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_SHA='${{ github.sha }}'
+          test "${#SOURCE_SHA}" -eq 40
+          test "$SOURCE_SHA" = "$(printf '%s' "$SOURCE_SHA" | tr '[:upper:]' '[:lower:]')"
+          printf '%s' "$SOURCE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+
+      - name: Install project test dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]'
+
+      - name: Compile R14.14 surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            src/kodepoia/backend/liveops.py \
+            src/kodepoia/backend/__init__.py \
+            scripts/r14_14_liveops_acceptance.py \
+            tests/test_r14_14_liveops.py \
+            tests/test_r14_14_backend_exports.py
+
+      - name: Run focused R14.14 tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pytest -q \
+            tests/test_r14_14_liveops.py \
+            tests/test_r14_14_backend_exports.py
+
+      - name: Generate exact-head evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/r14_14_liveops_acceptance.py \
+            --source-sha '${{ github.sha }}' \
+            --output "$EVIDENCE_PATH"
+
+      - name: Validate evidence schema and invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          evidence_path = Path(os.environ['EVIDENCE_PATH'])
+          schema_path = Path('schemas/r14/backend-liveops-evidence.schema.json')
+          evidence = json.loads(evidence_path.read_text(encoding='utf-8'))
+          schema = json.loads(schema_path.read_text(encoding='utf-8'))
+          Draft202012Validator.check_schema(schema)
+          Draft202012Validator(schema).validate(evidence)
+          source_sha = os.environ['GITHUB_SHA']
+          assert evidence['source_sha'] == source_sha
+          assert evidence['status'] == 'pass'
+          assert evidence['manual_state'] == 'none'
+          assert evidence['provider_live_claim'] is False
+          assert evidence['external_provider_required'] is False
+          assert evidence['secrets_exposed'] is False
+          assert evidence['pii_exposed'] is False
+          assert evidence['raw_payloads_exposed'] is False
+          assert all(evidence['checks'].values())
+          PY
+
+      - name: Upload R14.14 acceptance evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: R14_14_LIVEOPS_ACCEPTANCE-${{ matrix.os }}
+          path: ${{ env.EVIDENCE_PATH }}
+          if-no-files-found: error

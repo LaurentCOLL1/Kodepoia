@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.12 are COMPLETE + NORMALIZED on normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6`. R14.13 immutable technical source `b1729cabaffb19ac5491dee8a2c18e1bb5877746` passed exact-source R0 #1894 / `33247079759`, Python Core #1869 / `33247079754`, UI #1834 / `33247079785` and R14 Event Pipeline Acceptance #1 / `33247079799`; R14.13 is COMPLETE at technical/END-sync level on `r14/13-events-telemetry-pipeline`, with implementation/evidence merge and single continuity-only normalization still required before `COMPLETE + NORMALIZED`. R14.14–R14.17 remain PLANNED. R14.13 manual state is NONE; `provider_live_claim=false`.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.13 are COMPLETE + NORMALIZED on normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`. R14.14 is COMPLETE at technical/evidence level on immutable source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; its END-sync is pending fresh exact-head R0 Repository Guard, full Python Core, KodeStudio UI Smoke and R14 LiveOps Acceptance. R14.15–R14.17 remain PLANNED and unauthorized. R14.14 manual state is NONE and `provider_live_claim=false`. R14.13 immutable technical source `b1729cabaffb19ac5491dee8a2c18e1bb5877746`; final END-head `5461815da316bf9e20b06352dc7dda8699b46525`; implementation/evidence merge PR #281 `e1109c84a4b55761e4bf948b13457aabd327669e`; unique normalization head `6d302f20ba05544d1a1f122ebed48816dd22c76b`; normalization PR #282 expected-head merge produced normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`.
 
 ## Purpose and authority
 
@@ -211,7 +211,7 @@ Before R14.1 implementation:
 | R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | COMPLETE | NONE | R14.5–R14.6 |
 | R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.5/R14.11 + R8/R13 release provenance |
 | R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | COMPLETE | NONE | R14.5–R14.6 + R6 |
-| R14.14 | LiveOps campaigns, seasons, schedules, rotations, activation + rollback | PLANNED | NONE | R14.10–R14.13 |
+| R14.14 | LiveOps campaigns, seasons, schedules, rotations, activation + rollback | COMPLETE | NONE | R14.10–R14.13 |
 | R14.15 | Service operations/resilience: health, limits, retries, backup/restore, DR + load budgets | PLANNED | CONDITIONAL | R14.3–R14.14 + R6 |
 | R14.16 | CLI + KodeStudio Backend/LiveOps UX, local stack control + dry-run/provider status | PLANNED | NONE | R14.1–R14.15 |
 | R14.17 | Adversarial integrated backend/platform-services/LiveOps acceptance | PLANNED | CONDITIONAL | R14.1–R14.16 |
@@ -1081,6 +1081,17 @@ PII leakage, replay side effects, duplicate mutation, schema drift, unbounded re
 
 ---
 
+## R14.14 START authority
+
+- Dedicated branch: `r14/14-liveops-campaigns-schedules`.
+- Exact branch point: normalized R14.13 `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`.
+- R14.13 closure authority: immutable technical source `b1729cabaffb19ac5491dee8a2c18e1bb5877746`; final END-head `5461815da316bf9e20b06352dc7dda8699b46525`; fresh END gates R0 #1898 / `33247444761`, Python Core #1873 / `33247444733`, UI #1838 / `33247444748`, R14 Event Pipeline #5 / `33247444765` SUCCESS; PR #281 expected-head merge `e1109c84a4b55761e4bf948b13457aabd327669e`; unique normalization head `6d302f20ba05544d1a1f122ebed48816dd22c76b`; fresh normalization gates R0 #1902 / `33247706878`, Python Core #1877 / `33247706820`, UI #1842 / `33247706847` SUCCESS; PR #282 expected-head merge produced normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`.
+- START state: R14.1–R14.13 COMPLETE + NORMALIZED; R14.14 IN_PROGRESS; R14.15–R14.17 PLANNED.
+- Time authority baseline: scheduler state is canonical UTC instants; named display/recurrence timezone identifiers remain explicit metadata. IANA Time Zone Database `2026c` (released 2026-07-08) is current compatibility evidence, and RFC 5545 is informative recurrence/TZID guidance. These are versioned evidence, not frozen runtime constants.
+- Core acceptance remains provider-neutral and network-free. No production LiveOps provider/account/credential is required. Manual intervention: NONE.
+
+---
+
 # R14.14 — LiveOps campaigns, seasons, schedules, rotations, activation + rollback
 
 ## Objective and rationale
@@ -1129,7 +1140,20 @@ Timezone errors, double activation, mass entitlement mistake, stale dependencies
 
 ## Completion record
 
-To be appended when accepted.
+- Dedicated branch: `r14/14-liveops-campaigns-schedules`; exact normalized branch point `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`; clean START-head `c17356c7d24fb07544d3f58e65d7f4ef2a2f7624` preceded all implementation bytes.
+- Accepted immutable technical source: `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`. Its source tree is `e4908fcdd92e59299310813fb1acd23cd1d9f062`.
+- Superseded candidates are NON-AUTHORITATIVE: `25b1da3867d5b067c4345152366cec93aa62bd7f` exposed invalid duplicate regression paths in the persistent gate; `b3a2e8395d34ffd0fa61ae5447fca9d150811ce1` exposed the invalid object wildcard in the acceptance actor; `a1163b4a16eecf788c5afa4d6e0cf0ff111b008d` exposed the missing Remote Config audience object authorization. None of their decision evidence may be reused.
+- Technical exact-source gates on `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`: R0 Repository Guard #1930 / `33251838461` SUCCESS; Python Core #1905 / `33251838469` SUCCESS 5/5 jobs; KodeStudio UI Smoke #1870 / `33251838453` SUCCESS; R14 LiveOps Acceptance #4 / `33251838460` SUCCESS on Ubuntu 24.04 and Windows 2025.
+- Full Ubuntu Python Core: **1713 passed / 13 skipped / 46 warnings**, with R7/R8/R9 integrated acceptance validation PASS. Dedicated R14.14 focused/export regression: **21 passed Ubuntu + 21 passed Windows**.
+- All 23 deterministic LiveOps checks PASS cross-platform: activation idempotency; SafeChange approval idempotency; audience snapshot mismatch rejection; authorization fail-closed; billing environment guard; bounded-capacity fail-closed; exact dependency binding; expiry idempotency; immutable season identity; terminal kill idempotency; missing-dependency rejection; pause without hidden scheduler advance; explicit pause/resume; preview digest clock stability; non-mutating preview; redacted evidence; Remote Config audience targeting; auditable rollback; rotation resolution; UTC/timezone metadata; scheduler replay idempotency; stale-preview rejection; unsafe-schedule rejection.
+- Cross-platform evidence is semantically identical. Counts: 1 season, 1 campaign, 1 activation, 1 runtime record, 2 rotations, 7 audit records, 8 trace records and 23 checks. Budgets: `max_seasons=1024`, `max_campaigns=4096`, `max_dependencies=16384`, `max_activations=16384`, `max_audit_records=100000`, `max_trace_records=200000`.
+- Frozen digests: season `b248ec4595a757731318705d498d7275aa25cb80416308025b7bf5d318d67e34`; campaign `f8a37a0dcd545f3fae4d13092c4e443d753dba96e6cdd6d6f0e6452ca6295183`; preview `0cc8fa8f6dac0cb882b94149516f98c6d502a041b8bc2e98c7c64b3d79710742`; approval `9e32edb5397b1b3e68cb8d765c5530ddee340667565f7fd4b8f94f73d17721bb`; activation `62aa304aadf785e204a5c3bbb6fa09cdce365e5f8b0ccc82bf02b3fa7b81e723`; audience `c892c99331c1e8904894506ee20724105efa40d2915d5ffdf8bd5eca95953ef5`; state `d24bfdaec041971f4270c46d8ffe60740432bf6805ea63d69857abe6d65f7aa5`; dependencies `3a959c3c83aaca047e0f1c81018e6d506cad10d07a88ff6b14590ddbde9e0336`; audit `bb18bd011fb7a0a6ac128f0426ce8643b416e10250445026e98e810c8653c7f9`; trace `1c0d7d7fd2cb50397c5783faf29ed518a7dea15a39b9463889f5db91129f43e5`; SafeChange `e6fbd826cda283c4d17cdcfce9b753ec503f5880295e701edc35078dfddf4de0`.
+- Time authority is canonical UTC with season display TZID `Europe/Paris`, campaign display TZID `America/Edmonton` and evidence `tzdb_version=2026c`.
+- Canonical artifacts: Ubuntu `9714598172` / `sha256:8ca1e46462e31f5a41dd97f517f5e98d06081b0d392d77bfe7977bec0b9f99a8`; Windows `9714604219` / `sha256:fc9202c60fb080c95f0106f3c3d62580fff32311fc24d08ae04a3e26f82662f1`. ZIP metadata differs while decoded evidence is identical.
+- Evidence schema: `schemas/r14/backend-liveops-evidence.schema.json`; evidence reports `manual_state=none`, `provider_live_claim=false`, `external_provider_required=false`, `secrets_exposed=false`, `pii_exposed=false`, `raw_payloads_exposed=false`.
+- IANA tzdb `2026c`, RFC 5545 TZID/recurrence semantics and stable OpenFeature evaluation-context/targeting-key concepts are informative compatibility evidence only. No full standards/provider conformance or live-provider capability is claimed.
+- Manual intervention: **NONE**. No external LiveOps SaaS, production billing account, CDN, event broker, OTel collector, production credential or network access was required.
+- END state: **R14.14 COMPLETE at technical/evidence level**; R14.15–R14.17 remain PLANNED. This END synchronization must now pass fresh exact-head R0 + full Python Core + KodeStudio UI Smoke + R14 LiveOps Acceptance; merge is allowed only with expected-head protection, followed by exactly one continuity-only post-merge normalization before R14.15 is authorized.
 
 ---
 

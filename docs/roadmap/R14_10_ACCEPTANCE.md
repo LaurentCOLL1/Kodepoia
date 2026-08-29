@@ -1,7 +1,7 @@
 # R14.10 — Authoritative entitlements and billing acceptance
 
 **Subdivision:** R14.10 — Entitlements, purchase boundaries, and billing catalog contract  
-**Technical status:** ACCEPTED — END synchronization pending  
+**Technical status:** ACCEPTED — END-head candidate ready for fresh gates  
 **Immutable technical source:** `8a102a19512b076a8edb5c561e86b1d0101bc391`  
 **Exact branch:** `r14/10-entitlements-billing-catalog`  
 **Exact normalized base:** `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`  
@@ -131,3 +131,5 @@ No technical implementation byte may change after immutable source `8a102a19512b
 - `docs/continuity/KODEPOIA_CONTINUITY.md`.
 
 That exact END-head must pass fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Entitlements Acceptance before PR #275 may merge with `expected_head_sha`. After merge, exactly one continuity-only normalization with fresh R0/Python/UI is required before R14.11 is authorized.
+
+The assertion-guarded END synchronization completed without any implementation-byte change. This documentation revision is the sole R14.10 END-head candidate for the fresh exact-head re-gates.

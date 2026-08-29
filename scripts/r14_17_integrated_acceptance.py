@@ -219,7 +219,10 @@ def _assert_pinned_runtime_digests(reports: dict[str, dict[str, Any]]) -> None:
 def build(source_sha: str, root: Path) -> dict[str, Any]:
     _validate_sha(source_sha)
     auth_ok = _auth_fixture()
-    with tempfile.TemporaryDirectory(prefix="kodepoia-r14-17-") as directory:
+    # Nested subdivision acceptance scripts are repository-governed and some (R14.16)
+    # explicitly refuse output paths outside the workspace. Keep ephemeral evidence
+    # inside the checked-out repository and remove it atomically with the temporary dir.
+    with tempfile.TemporaryDirectory(prefix=".r14-17-integrated-", dir=root) as directory:
         output_dir = Path(directory)
         reports = {
             label: _run_service(root, label, script, source_sha, output_dir)

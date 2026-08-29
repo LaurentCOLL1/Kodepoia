@@ -1297,7 +1297,18 @@ Secret display, environment confusion, destructive default button, raw command e
 
 ## Completion record
 
-To be appended when accepted.
+- Dedicated branch: `r14/16-cli-kodestudio-liveops-ux`; effective normalized-history branch point `8a7eb312d3fa0d642d6b2b77ef35c2b2d3e7de36`; clean START-head `3b0ad3bf666f1e6247699b8ef611b436f836b60a` preceded implementation.
+- Accepted immutable technical source: `3c0507ed497d9607218b9d9a50c2e5729d786c87`. START→source contains exactly 13 intended technical/test/evidence files: governed Backend/LiveOps facade, CLI, KodeStudio panel/localization, CLI/app wiring, four regression files including R6.6 pseudo-locale coverage, deterministic acceptance script, evidence schema and cross-platform workflow. No staging helper survives.
+- Technical exact-source gates: R0 Repository Guard #2005 / `33260302790` SUCCESS Ubuntu + Windows; Python Core #1980 / `33260302771` SUCCESS 5/5; KodeStudio UI Smoke #1945 / `33260302782` SUCCESS; R14 CLI KodeStudio LiveOps UX Acceptance #2 / `33260302752` SUCCESS Ubuntu 24.04 + Windows 2025.
+- Full Ubuntu Python Core: **1752 passed / 14 skipped / 46 warnings**, with R7/R8/R9 integrated acceptance PASS. Dedicated focused R14.16 regression: **26 passed Ubuntu**, with the same focused test step SUCCESS on Windows.
+- All **31/31 deterministic acceptance checks PASS**: typed 15-operation catalog/defaults; confirmation-vs-authorization separation; separate production authority; governed mutation path; redaction; raw command/endpoint/token/resource escape rejection; local/test stack restriction; truthful unavailable provider/load/backup claims; stable JSON; EN/FR/qps-ploc localization; structured KodeStudio controls and wiring.
+- Evidence flags: `manual_state=none`, `provider_live_claim=false`, `external_provider_required=false`, `secrets_exposed=false`, `raw_command_input_exposed=false`, `raw_endpoint_input_exposed=false`, `automatic_production_publish=false`, `operation_count=15`, `check_count=31`, `passed_count=31`.
+- Evidence digests: catalog `f0ac90c20d06d7e6ffdff22756bf65499c5e9d839098fb51ec8a7f1738dc351b`; preview `ff1089d254637027bd959a669cae6b3cc6f82252c2c1883cb24c1878fe418719`; authorized mutation `c809c93458f425b48a7546afc78bd21dff3b412a6a17c3ba203d1c615cdc8c13`.
+- Cross-platform decoded evidence JSON is exactly equal: 2245 bytes and SHA-256 `396588f20a03bb555c1a69cfd9b076151e850d11c8842b9ef9a94708a6a7eea2` on both OS. Artifacts: Ubuntu `9717060425` / `sha256:2e53b8fab1bfb5acd0e8197ee79e8475b975e3aecc017c264347bd00c73a607a`; Windows `9717061707` / `sha256:39308eb7833026dc06184ec5e753fe229279898f95693fd55181ee78f1ef6907`.
+- Rejected source `1707ca57a325a3187bfbe5327002bc2f30dc34d7` exposed stale R6.6 nav-count plus missing R14 pseudo-locale coverage; rejected source `c6a62355bf58a49c0bc4fc41a0ef29e6d0168825` exposed a missing Ubuntu Qt runtime dependency (`libEGL.so.1`) before business assertions. Neither candidate nor its failed evidence is reused.
+- Security boundary: UI/CLI confirmation is intention only, never permission; mutation requires injected domain authority and production requires separate production authority. Project fallback never authorizes mutation. Raw shell/command/endpoint/secret/token/password/DSN/private-key input and automatic production publish remain forbidden.
+- Manual intervention: **NONE**. No external provider account, credential, quota, public domain/TLS state, production deployment, destructive load or production PITR proof is required or claimed.
+- Technical state is accepted and R14.16 is ready for END-sync re-gating. R14.17 remains PLANNED and unauthorized until the exact END-head passes fresh R0/Python/UI/R14.16 acceptance, the implementation PR merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

@@ -29,6 +29,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      - name: Assert exact checkout provenance
+        run: python -c "import os,subprocess; assert subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip() == os.environ['EVIDENCE_SOURCE_SHA']"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

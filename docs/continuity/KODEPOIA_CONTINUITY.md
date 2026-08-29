@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1 COMPLETE + NORMALIZED; implementation merge `f0860c1e0d1a27ec5317a10dabc1f28b409703c2`; R15.2–R15.17 PLANNED.** R14.17 immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; final END-head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750`; canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; fresh exact-END gates R0 #2042 / `33267376108`, Python #2017 / `33267376130`, UI #1982 / `33267376112`, Integrated #15 / `33267376114` all SUCCESS; PR #290 required R0 #2043 / `33267483582` SUCCESS Ubuntu + Windows and merged exact head as `3327913047625ca26a70b5c96beb3f1608ff7720`. Manual state CONDITIONAL / NOT TRIGGERED; no provider-live, production-publish, Internet-scale or multi-region claim.
+> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1 COMPLETE + NORMALIZED on `main` `f6681cdc072fdbd9eb8ebcf2c109859df31fb30f`; R15.2 IN_PROGRESS on `r15/02-validated-experience-capture`; R15.3–R15.17 PLANNED.** R15.2 capture remains disabled by default, outcome-validation-gated, project/source scoped, quota-bounded and raw-content-redacted from audit/status surfaces.
 
 ## État global
 
@@ -41,7 +41,7 @@
 | ID | Status | Manual |
 | --- | --- | --- |
 | R15.1 | COMPLETE | NONE |
-| R15.2 | PLANNED | NONE |
+| R15.2 | IN_PROGRESS | NONE |
 | R15.3 | PLANNED | NONE |
 | R15.4 | PLANNED | NONE |
 | R15.5 | PLANNED | NONE |
@@ -60,7 +60,7 @@
 
 ## Next authorized action
 
-**Merge this single R15.1 post-merge continuity-only normalization after fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke. Only the normalized `main` produced by that merge authorizes the R15.2 START-sync; do not implement R15.2 before it.**
+**R15.2 START-sync is active on `r15/02-validated-experience-capture` from normalized `main` `f6681cdc072fdbd9eb8ebcf2c109859df31fb30f`. Implement only the governed validated-experience capture scope; R15.3+ remain unauthorized.**
 
 ## Permanent R-phase execution rule
 

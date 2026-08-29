@@ -1,7 +1,7 @@
 # R15.2 — Governed validated-experience capture design
 
 **Phase:** R15.2  
-**Status:** TECHNICAL SOURCE ACCEPTED / END-SYNC PENDING  
+**Status:** END-SYNC COMPLETE / EXACT END-HEAD RE-GATES PENDING
 **Clean START-head:** `135fd085002bf8074d87308beca35ab33c35ed47`  
 **Immutable technical source:** `48b519c09fa50f5407cc4a55a0b76baf6f8e8ffd`  
 **Normalized R15.1 base:** `f6681cdc072fdbd9eb8ebcf2c109859df31fb30f`  

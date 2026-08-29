@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.9 are COMPLETE + NORMALIZED on normalized `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`. R14.10 is COMPLETE at technical/evidence + END-sync level on `r14/10-entitlements-billing-catalog`; immutable technical source `8a102a19512b076a8edb5c561e86b1d0101bc391` passed R14 Entitlements Acceptance run `33233097442` on Ubuntu and Windows. PR #275 still requires fresh exact END-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Entitlements Acceptance, protected merge and exactly one continuity-only normalization before R14.11. R14.11–R14.17 remain PLANNED. R14.10 manual state is CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.10 are COMPLETE + NORMALIZED on normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`. R14.10 immutable technical source `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; single continuity-only normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab` passed R0 #1854, Python Core #1828 and UI #1795 and merged by PR #276 as normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`. R14.11 is IN_PROGRESS on `r14/11-remote-config-feature-flags`; R14.12–R14.17 remain PLANNED. R14.11 manual state is NONE.
 
 ## Purpose and authority
 
@@ -208,7 +208,7 @@ Before R14.1 implementation:
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | COMPLETE | NONE | R14.5–R14.6 |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | COMPLETE | NONE | R14.5–R14.6 |
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.4–R14.6 + R13 store contracts |
-| R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | PLANNED | NONE | R14.5–R14.6 |
+| R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | IN_PROGRESS | NONE | R14.5–R14.6 |
 | R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | PLANNED | CONDITIONAL | R14.5/R14.11 + R8/R13 release provenance |
 | R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | PLANNED | NONE | R14.5–R14.6 + R6 |
 | R14.14 | LiveOps campaigns, seasons, schedules, rotations, activation + rollback | PLANNED | NONE | R14.10–R14.13 |
@@ -893,6 +893,17 @@ Nondeterministic targeting, PII in context, production/test confusion, remote-co
 ## Manual intervention
 
 **NONE** for provider-neutral core.
+
+## START authority
+
+- Dedicated branch: `r14/11-remote-config-feature-flags`.
+- Exact branch point: normalized R14.10 `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`.
+- R14.10 closure authority: immutable technical source `8a102a19512b076a8edb5c561e86b1d0101bc391`; final END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; END gates R0 #1852 / `33233480750`, Python Core #1826 / `33233480761`, UI #1793 / `33233480825`, R14 Entitlements #12 / `33233480782` all SUCCESS; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`.
+- Single R14.10 post-merge normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab` changed only continuity, passed R0 #1854 / `33233746051`, Python Core #1828 / `33233746018`, UI #1795 / `33233746115`, and PR #276 merged with expected-head as normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`.
+- START state: R14.1–R14.10 COMPLETE + NORMALIZED; R14.11 IN_PROGRESS; R14.12–R14.17 PLANNED.
+- Trust invariants: immutable/versioned definitions and snapshots; no remote arbitrary code/script execution; unsupported or unknown value/rule types fail closed; evaluation context is canonical, bounded and privacy-governed; fractional rollout uses stable deterministic hashing; prerequisite cycles fail closed; expiry/kill-switch override rollout safely; production activation requires explicit permission + audit + SafeChange; rollback reactivates a prior immutable snapshot rather than mutating history.
+- OpenFeature compatibility is conceptual/provider-boundary only. Current stable concepts used as reference: typed flag evaluation, evaluation context with optional targeting key, fractional evaluation, deterministic provider-neutral resolution and privacy caution for context data. Experimental/provider-specific behavior is not architecture authority.
+- Manual intervention: NONE for provider-neutral core.
 
 ## Completion record
 

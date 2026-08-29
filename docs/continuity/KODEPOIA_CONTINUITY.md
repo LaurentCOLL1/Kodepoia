@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.10 COMPLETE + NORMALIZED. R14.11–R14.17 PLANNED.** R14.10 source technique immuable `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 fusionnée par merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715` après R0 #1852, Python Core #1826, UI #1793 et R14 Entitlements #12 tous SUCCESS. Cette continuité est l’unique normalisation post-merge R14.10; sur une branche de normalisation, elle doit encore passer R0 + full Python Core + UI et être mergée avec expected-head avant d’autoriser R14.11. Manual state : CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.10 COMPLETE + NORMALIZED. R14.11 IN_PROGRESS. R14.12–R14.17 PLANNED.** Normalized `main` d’autorité `a9db57de1c1cc550604edbe6fec095e0a8e13c40`; branche active `r14/11-remote-config-feature-flags`. R14.11 doit conserver des snapshots/définitions immuables, évaluation typée/canonique, targeting déterministe, rollout fractionnel stable, prérequis/expiry/kill-switch, preview, approval/audit/SafeChange pour prod et rollback vers snapshot antérieur. Aucun code/script distant arbitraire. Manual state : NONE.
 
 ## État global
 
@@ -16,8 +16,9 @@
 - R14 planning : **ACCEPTED + NORMALIZED**.
 - R14.1–R14.9 : **COMPLETE + NORMALIZED**.
 - R14.9 normalized `main` : **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`** après normalization PR #274.
-- R14.10 : **COMPLETE + NORMALIZED** — source technique `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; unique normalization branch `r14/10-normalization`.
-- R14.11–R14.17 : **PLANNED**.
+- R14.10 : **COMPLETE + NORMALIZED** — source technique `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab`; normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40` via PR #276.
+- R14.11 : **IN_PROGRESS** sur `r14/11-remote-config-feature-flags`, branch point exact `a9db57de1c1cc550604edbe6fec095e0a8e13c40`.
+- R14.12–R14.17 : **PLANNED**.
 - Manual state actuel : **CONDITIONAL / NOT TRIGGERED** (`provider_live_claim=false`).
 
 ## Permanent R-phase execution rule
@@ -63,7 +64,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.8 | COMPLETE + NORMALIZED | NONE |
 | R14.9 | COMPLETE + NORMALIZED | NONE |
 | R14.10 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
-| R14.11 | PLANNED | NONE |
+| R14.11 | IN_PROGRESS | NONE |
 | R14.12 | PLANNED | CONDITIONAL |
 | R14.13 | PLANNED | NONE |
 | R14.14 | PLANNED | NONE |
@@ -161,9 +162,21 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Final END-head `37c7418e31e1467032eac0646b731eab1087f4eb` differs from immutable source only by `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_10_ACCEPTANCE.md` and this continuity file.
 - Fresh END-head gates on exact `37c7418e31e1467032eac0646b731eab1087f4eb`: R0 Repository Guard #1852 / `33233480750` SUCCESS; Python Core #1826 / `33233480761` SUCCESS including Ubuntu + Windows core and package builds; KodeStudio UI Smoke #1793 / `33233480825` SUCCESS; R14 Entitlements Acceptance #12 / `33233480782` SUCCESS.
 - PR #275 merged only with `expected_head_sha=37c7418e31e1467032eac0646b731eab1087f4eb` as implementation/evidence merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`.
-- Unique post-merge normalization branch: `r14/10-normalization`, created exactly from merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`. Its final tree delta must contain only this continuity file and must pass fresh exact-head R0/Python/UI before expected-head merge.
-- R14.10 final state is COMPLETE + NORMALIZED once that unique normalization PR merges; R14.11–R14.17 remain PLANNED until then.
+- Unique post-merge normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab` changed only this continuity file; fresh normalization gates R0 #1854 / `33233746051`, Python Core #1828 / `33233746018`, UI #1795 / `33233746115` all SUCCESS.
+- Normalization PR #276 merged with `expected_head_sha=d56246f65f834c87ef32a0ba645ca3a76ba898ab` as normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`.
+- R14.10 final state: COMPLETE + NORMALIZED; R14.11 is authorized from that exact normalized `main`.
+
+
+## R14.11 START authority
+
+- Dedicated branch: **`r14/11-remote-config-feature-flags`**.
+- Exact branch point: normalized R14.10 `main` **`a9db57de1c1cc550604edbe6fec095e0a8e13c40`**.
+- R14.10 normalization: `d56246f65f834c87ef32a0ba645ca3a76ba898ab`; R0 #1854 / `33233746051`, Python Core #1828 / `33233746018`, UI #1795 / `33233746115` SUCCESS; PR #276 expected-head merge produced the exact normalized base.
+- State at START: R14.1–R14.10 **COMPLETE + NORMALIZED**; R14.11 **IN_PROGRESS**; R14.12–R14.17 **PLANNED**.
+- OpenFeature compatibility baseline: evaluation context supports a targeting key used by providers for fractional evaluation; context may contain custom typed fields but must be privacy-governed. R14.11 uses these stable concepts without claiming full SDK conformance.
+- Core safety invariant: remote config carries typed data/rules only; no remote arbitrary code or script execution. Unknown types, invalid context, prerequisite cycles and unsafe production activation fail closed.
+- Manual intervention: **NONE**.
 
 ## Next authorized action
 
-If this file is read from `r14/10-normalization`, verify its exact diff from merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715` contains only this continuity file, run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, and merge the single normalization PR only with `expected_head_sha` equal to that exact normalization head. If this file is read from `main` after that protected merge, R14.10 is COMPLETE + NORMALIZED and R14.11 becomes the next authorized subdivision; start R14.11 only from that normalized `main` with a dedicated branch and START-sync. Manual state remains CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
+Verify the final R14.11 START head differs from normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40` only by `docs/roadmap/R14_PLAN.md` and this continuity file. Only after that clean compare may R14.11 implementation begin. Implement immutable typed config/flag snapshots, canonical privacy-bounded evaluation context, deterministic targeting/fractional rollout, prerequisites/cycle rejection, expiry, kill-switch, preview, production permission/audit/SafeChange activation and immutable rollback. Manual state remains NONE.

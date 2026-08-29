@@ -83,3 +83,5 @@ No GPU, model weights, external dataset, external account, credentials, cloud se
 ## END-sync requirement
 
 The immutable technical source must not change. END-sync may add/update only R15.1 decision/design documentation, `docs/roadmap/R15_PLAN.md` status/completion record and `docs/continuity/KODEPOIA_CONTINUITY.md`. The resulting exact END-head must pass fresh R15.1 focused acceptance, R0 Repository Guard, full Python Core and KodeStudio UI Smoke before PR #294 may be made ready and merged with `expected_head_sha`.
+
+**END-head re-gate marker:** the deterministic END-sync has been applied and its temporary helper removed. This documentation-only marker intentionally defines the exact branch head that must now pass the fresh END gates before merge; it does not alter the immutable technical source.

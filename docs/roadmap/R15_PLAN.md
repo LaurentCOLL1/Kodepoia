@@ -2,11 +2,11 @@
 
 **Phase:** R15  
 **Roadmap title:** Experience / Bench / Fine-tuning  
-**Status:** PLANNING  
+**Status:** ACTIVE
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED. R15 planning is IN_PROGRESS on dedicated branch `r15/00-phase-plan`. No R15 implementation is authorized until this exhaustive plan is accepted, merged, followed by exactly one continuity-only planning normalization with fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, and that normalization is merged with exact expected-head protection.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED on `main` `29ae0ffabb7ffa974c4d544e33bfe54f0fa403f1`. R15.1 is COMPLETE with immutable technical source `2da5e5d5aa712462c898270c41c5cafb42e6aeaa`; implementation merge + unique post-merge normalization are pending. R15.2–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -274,7 +274,7 @@ Before R15.1 implementation:
 
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
-| R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | PLANNED | NONE | R14 COMPLETE + normalized R15 planning |
+| R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | COMPLETE | NONE | R14 COMPLETE + normalized R15 planning |
 | R15.2 | Governed validated-experience capture, outcome labeling + opt-in/source scope | PLANNED | NONE | R15.1 + R1/R6/R8 |
 | R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | PLANNED | NONE | R15.1–R15.2 + R6/R7/R8 |
 | R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | PLANNED | NONE | R15.1–R15.3 |
@@ -344,7 +344,19 @@ Implicit opt-in; raw-content leakage into logs; workspace identity confusion; mu
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — technical acceptance recorded.**
+
+- clean START-head: `a474d0c85d27ca7113a8044b2c29a5e664ebd352`;
+- immutable technical source: `2da5e5d5aa712462c898270c41c5cafb42e6aeaa`;
+- R15.1 Acceptance #6 / `33271323481`: SUCCESS Ubuntu + Windows, 18 focused tests + Ruff + compileall on both;
+- R0 #2057 / `33271323508`: SUCCESS;
+- Python Core #2032 / `33271323458`: SUCCESS 5/5; Ubuntu 1778 passed / 14 skipped / 46 warnings;
+- KodeStudio UI Smoke #1997 / `33271323468`: SUCCESS;
+- manual state: `NONE`;
+- redaction/sanitization cannot convert a denied/unknown/review source authorization into training eligibility;
+- rejected evidence candidates: `77f3ce9a935ea6c1816f3f6095d0d2b62db527aa` (synthetic PR-merge checkout) and `ea57df89e172d97f91498d758373e13048d7e707` (Ruff E501 failure).
+
+Implementation merge and the unique continuity-only normalization remain required before R15.2 is authorized.
 
 ---
 

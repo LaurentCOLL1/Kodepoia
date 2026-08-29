@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/experience-record-v1.schema.json",
+  "title": "Kodepoia Experience Record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "experience_id",
+    "workspace_id",
+    "project_id",
+    "task_label",
+    "domain_label",
+    "state",
+    "outcome",
+    "content",
+    "provenance",
+    "authorization",
+    "sanitization",
+    "benchmark_protected",
+    "transformations"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.experience.record"},
+    "schema_version": {"const": 1},
+    "experience_id": {"type": "string", "pattern": "^exp_[0-9a-f]{64}$"},
+    "workspace_id": {"$ref": "#/$defs/safeId"},
+    "project_id": {"$ref": "#/$defs/safeId"},
+    "task_label": {"$ref": "#/$defs/safeId"},
+    "domain_label": {"$ref": "#/$defs/safeId"},
+    "state": {
+      "enum": [
+        "observed",
+        "eligible",
+        "sanitized",
+        "curated",
+        "dataset_included",
+        "rejected",
+        "quarantined",
+        "revoked",
+        "expired"
+      ]
+    },
+    "outcome": {"enum": ["unknown", "accepted", "rejected", "corrected", "failed"]},
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workspace_id", "storage_key", "sha256", "byte_length", "media_type"],
+      "properties": {
+        "workspace_id": {"$ref": "#/$defs/safeId"},
+        "storage_key": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byte_length": {"type": "integer", "minimum": 0},
+        "media_type": {"type": "string", "minLength": 1}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_type",
+        "source_id",
+        "origin_digest",
+        "project_scope",
+        "license_expression"
+      ],
+      "properties": {
+        "source_type": {"$ref": "#/$defs/safeId"},
+        "source_id": {"$ref": "#/$defs/safeId"},
+        "origin_digest": {"$ref": "#/$defs/digest"},
+        "project_scope": {"$ref": "#/$defs/safeId"},
+        "license_expression": {"type": ["string", "null"]}
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_scope", "consent", "provenance", "license", "privacy"],
+      "properties": {
+        "source_scope": {"$ref": "#/$defs/policyDecision"},
+        "consent": {"$ref": "#/$defs/policyDecision"},
+        "provenance": {"$ref": "#/$defs/policyDecision"},
+        "license": {"$ref": "#/$defs/policyDecision"},
+        "privacy": {"$ref": "#/$defs/policyDecision"}
+      }
+    },
+    "sanitization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "sanitizer_digest", "categories", "finding_count"],
+      "properties": {
+        "status": {"enum": ["not_run", "passed", "blocked"]},
+        "sanitizer_digest": {
+          "anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]
+        },
+        "categories": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/safeId"},
+          "uniqueItems": true
+        },
+        "finding_count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "benchmark_protected": {"type": "boolean"},
+    "transformations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["transformation_id", "input_digest", "output_digest", "policy_digest"],
+        "properties": {
+          "transformation_id": {"$ref": "#/$defs/safeId"},
+          "input_digest": {"$ref": "#/$defs/digest"},
+          "output_digest": {"$ref": "#/$defs/digest"},
+          "policy_digest": {"$ref": "#/$defs/digest"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "safeId": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "policyDecision": {"enum": ["allow", "deny", "unknown", "review"]}
+  }
+}

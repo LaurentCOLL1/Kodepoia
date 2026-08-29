@@ -1,0 +1,178 @@
+name: R14 Integrated Acceptance
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'r14/**'
+    paths:
+      - '.github/workflows/r14-integrated-acceptance.yml'
+      - 'src/kodepoia/backend/**'
+      - 'scripts/r14_*.py'
+      - 'tests/test_r14_*.py'
+      - 'schemas/r14/**'
+      - 'docs/roadmap/R14_PLAN.md'
+      - 'docs/roadmap/R14_17_DESIGN.md'
+      - 'docs/roadmap/R14_17_ACCEPTANCE.md'
+      - 'docs/roadmap/R14_17_SCENARIO_EVIDENCE.json'
+      - 'docs/roadmap/R14_17_CI_ACCEPTANCE.json'
+      - 'docs/roadmap/R14_INTEGRATED_ACCEPTANCE.json'
+      - 'docs/continuity/KODEPOIA_CONTINUITY.md'
+  pull_request:
+    paths:
+      - '.github/workflows/r14-integrated-acceptance.yml'
+      - 'src/kodepoia/backend/**'
+      - 'scripts/r14_*.py'
+      - 'tests/test_r14_*.py'
+      - 'schemas/r14/**'
+      - 'docs/roadmap/R14_PLAN.md'
+      - 'docs/roadmap/R14_17_DESIGN.md'
+      - 'docs/roadmap/R14_17_ACCEPTANCE.md'
+      - 'docs/roadmap/R14_17_SCENARIO_EVIDENCE.json'
+      - 'docs/roadmap/R14_17_CI_ACCEPTANCE.json'
+      - 'docs/roadmap/R14_INTEGRATED_ACCEPTANCE.json'
+      - 'docs/continuity/KODEPOIA_CONTINUITY.md'
+
+permissions:
+  contents: read
+
+env:
+  EVIDENCE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  QT_QPA_PLATFORM: offscreen
+
+jobs:
+  integrated-ubuntu:
+    name: integrated-ubuntu-postgres18
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kodepoia_r14
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kodepoia_r14"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      KODEPOIA_R14_5_DSN: postgresql://postgres:postgres@127.0.0.1:5432/kodepoia_r14
+      SCENARIO_EVIDENCE: docs/roadmap/R14_17_SCENARIO_EVIDENCE-CI.json
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EVIDENCE_SOURCE_SHA }}
+
+      - name: Assert exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EVIDENCE_SOURCE_SHA"
+          printf '%s' "$EVIDENCE_SOURCE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Ubuntu Qt runtime libraries
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1 libxkbcommon-x11-0 libxcb-cursor0
+
+      - name: Install integrated dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev,postgres,ui]'
+
+      - name: Compile integrated surfaces
+        run: |
+          set -euo pipefail
+          python -m compileall -q src tests scripts
+
+      - name: Run R14.17 anti-circular unit tests
+        run: python -m pytest -q tests/test_r14_17_integrated_acceptance.py
+
+      - name: Run exact-head integrated scenario
+        run: >-
+          python scripts/r14_17_integrated_acceptance.py
+          --source-sha "$EVIDENCE_SOURCE_SHA"
+          --output "$SCENARIO_EVIDENCE"
+
+      - name: Validate scenario schema and claims
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          evidence = json.loads(Path(os.environ['SCENARIO_EVIDENCE']).read_text(encoding='utf-8'))
+          schema = json.loads(Path('schemas/r14/backend-integrated-evidence.schema.json').read_text(encoding='utf-8'))
+          Draft202012Validator.check_schema(schema)
+          Draft202012Validator(schema).validate(evidence)
+          assert evidence['source_sha'] == os.environ['EVIDENCE_SOURCE_SHA']
+          assert evidence['status'] == 'pass'
+          assert evidence['manual_state'] == 'conditional_not_triggered'
+          assert evidence['provider_live_claim'] is False
+          assert evidence['external_provider_required'] is False
+          assert evidence['secrets_exposed'] is False
+          assert evidence['pii_exposed'] is False
+          assert evidence['production_publish_claim'] is False
+          assert evidence['internet_scale_claim'] is False
+          assert evidence['multi_region_claim'] is False
+          assert evidence['blockers'] == []
+          assert all(evidence['checks'].values())
+          assert all(item['all_checks_pass'] for item in evidence['service_runs'].values())
+          PY
+
+      - name: Upload integrated scenario evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: R14_17_INTEGRATED_SCENARIO-${{ env.EVIDENCE_SOURCE_SHA }}
+          path: ${{ env.SCENARIO_EVIDENCE }}
+          if-no-files-found: error
+
+  verifier-windows:
+    name: verifier-windows
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EVIDENCE_SOURCE_SHA }}
+
+      - name: Assert exact checkout
+        shell: pwsh
+        run: |
+          if ((git rev-parse HEAD) -ne $env:EVIDENCE_SOURCE_SHA) { throw 'exact-head checkout mismatch' }
+          if ($env:EVIDENCE_SOURCE_SHA -notmatch '^[0-9a-f]{40}$') { throw 'invalid evidence SHA' }
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install portable verifier dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile R14.17 verifier surfaces
+        run: >-
+          python -m py_compile
+          src/kodepoia/backend/integrated_acceptance.py
+          scripts/r14_17_build_ci_evidence.py
+          scripts/r14_17_build_integrated_report.py
+          tests/test_r14_17_integrated_acceptance.py
+
+      - name: Run portable anti-circular verifier tests
+        run: python -m pytest -q tests/test_r14_17_integrated_acceptance.py

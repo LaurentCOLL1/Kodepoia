@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-integrated-evidence.schema.json",
+  "title": "Kodepoia R14.17 integrated adversarial scenario evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "source_sha",
+    "checks",
+    "service_runs",
+    "frozen_acceptance_digests",
+    "frozen_acceptance_digest",
+    "manual_state",
+    "provider_live_claim",
+    "external_provider_required",
+    "secrets_exposed",
+    "pii_exposed",
+    "production_publish_claim",
+    "internet_scale_claim",
+    "multi_region_claim",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "status": {"const": "pass"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "local_auth_account_session",
+        "postgresql_authoritative_persistence",
+        "authoritative_server_boundary",
+        "lobby_reservation_reconnect",
+        "cloud_save_conflict_rollback",
+        "progression_authoritative_events",
+        "billing_duplicate_out_of_order",
+        "stable_feature_rollout_rollback",
+        "immutable_content_cache_rollback",
+        "event_dedupe_checkpoint_replay",
+        "liveops_preview_activate_pause_rollback",
+        "dependency_failure_recovery",
+        "governed_cli_kodestudio_surface",
+        "provider_live_and_sensitive_claims_fail_closed"
+      ],
+      "properties": {
+        "local_auth_account_session": {"const": true},
+        "postgresql_authoritative_persistence": {"const": true},
+        "authoritative_server_boundary": {"const": true},
+        "lobby_reservation_reconnect": {"const": true},
+        "cloud_save_conflict_rollback": {"const": true},
+        "progression_authoritative_events": {"const": true},
+        "billing_duplicate_out_of_order": {"const": true},
+        "stable_feature_rollout_rollback": {"const": true},
+        "immutable_content_cache_rollback": {"const": true},
+        "event_dedupe_checkpoint_replay": {"const": true},
+        "liveops_preview_activate_pause_rollback": {"const": true},
+        "dependency_failure_recovery": {"const": true},
+        "governed_cli_kodestudio_surface": {"const": true},
+        "provider_live_and_sensitive_claims_fail_closed": {"const": true}
+      }
+    },
+    "service_runs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "postgres",
+        "authority",
+        "matchmaking",
+        "cloud_save",
+        "progression",
+        "entitlements",
+        "remote_config",
+        "content_delivery",
+        "event_pipeline",
+        "liveops",
+        "resilience",
+        "liveops_ux"
+      ],
+      "properties": {
+        "postgres": {"$ref": "#/$defs/serviceRun"},
+        "authority": {"$ref": "#/$defs/serviceRun"},
+        "matchmaking": {"$ref": "#/$defs/serviceRun"},
+        "cloud_save": {"$ref": "#/$defs/serviceRun"},
+        "progression": {"$ref": "#/$defs/serviceRun"},
+        "entitlements": {"$ref": "#/$defs/serviceRun"},
+        "remote_config": {"$ref": "#/$defs/serviceRun"},
+        "content_delivery": {"$ref": "#/$defs/serviceRun"},
+        "event_pipeline": {"$ref": "#/$defs/serviceRun"},
+        "liveops": {"$ref": "#/$defs/serviceRun"},
+        "resilience": {"$ref": "#/$defs/serviceRun"},
+        "liveops_ux": {"$ref": "#/$defs/serviceRun"}
+      }
+    },
+    "frozen_acceptance_digests": {
+      "type": "object",
+      "minProperties": 12,
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 2,
+        "additionalProperties": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "frozen_acceptance_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "manual_state": {"const": "conditional_not_triggered"},
+    "provider_live_claim": {"const": false},
+    "external_provider_required": {"const": false},
+    "secrets_exposed": {"const": false},
+    "pii_exposed": {"const": false},
+    "production_publish_claim": {"const": false},
+    "internet_scale_claim": {"const": false},
+    "multi_region_claim": {"const": false},
+    "blockers": {"type": "array", "maxItems": 0}
+  },
+  "$defs": {
+    "serviceRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "check_count", "all_checks_pass"],
+      "properties": {
+        "status": {"const": "pass"},
+        "check_count": {"type": "integer", "minimum": 1},
+        "all_checks_pass": {"const": true}
+      }
+    }
+  }
+}

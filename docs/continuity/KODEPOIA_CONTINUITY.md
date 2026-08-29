@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.16 COMPLETE + NORMALIZED. R14.17 IN_PROGRESS on `r14/17-adversarial-integrated-acceptance`.** R14.16 immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; END `a5797fc7a320eef033e9d2576322fac464b05c67`; implementation PR #288 -> `9c7ed58f20c794e59146813544b3a75aec0bace1`; unique normalization head `418c41a22c907bdef0693b16824bd2b86fa47acc`; normalization PR #289 -> normalized main `f6960db290a570e3a0c3c4ff97600014978d45df`. R14.17 manual state CONDITIONAL / NOT TRIGGERED; core is local/hosted/sandbox only.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.16 COMPLETE + NORMALIZED. R14.17 COMPLETE / IMPLEMENTATION MERGE PENDING; R14 phase COMPLETE / NORMALIZATION PENDING.** R14.17 immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; exact-source gates R0 #2028 / `33265386264`, Python #2003 / `33265386254`, UI #1968 / `33265386267`, Integrated #5 / `33265386261` all SUCCESS. Manual state CONDITIONAL / NOT TRIGGERED; no provider-live or production-publish claim.
 
 ## État global
 
@@ -17,7 +17,7 @@
 - R14.14 : **COMPLETE + NORMALIZED** — immutable source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; END-head `d8debf494f4f096e2a9f8a4093852752242e8b9f`; PR #283 merge `29bf8255277fcbfce721408ec0abab660076f99d`; normalization head `8b527170d3b79bfacbdac36f638c8c616689bc61`; normalized `main` `0078a75d473524688e6ab76ccf41b509e2146dea` via PR #284 after fresh R0 #1944 / `33254094376`, Python Core #1919 / `33254094466`, UI #1884 / `33254094372` SUCCESS.
 - R14.15 : **COMPLETE + NORMALIZED** — immutable source `232bae747e91fd97f4cf3110a019639217d7914b`; END-head `80bd6853664ab9f41fd41fb83f43b43980bef394`; PR #285 merge `53373e78c60d4a338e9313496a822c93ab334e68`; unique normalization head `68a6f106484ab60d9925dfcc60189b509d995393`; normalized `main` `1f10d7a13f49cb6e931e5e0694f083228ed24070` via PR #286 after fresh R0 #1973 / `33257784369`, Python Core #1948 / `33257784390`, and UI #1913 / `33257784370` SUCCESS; manual `CONDITIONAL / NOT TRIGGERED`; post-normalization continuity erratum PR #287 -> current `main` `8a7eb312d3fa0d642d6b2b77ef35c2b2d3e7de36` after fresh R0 #1979 / `33258615852`, Python #1954 / `33258615797`, UI #1919 / `33258615872` SUCCESS; erratum is not a second normalization.
 - R14.16 : **COMPLETE + NORMALIZED** — immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; END `a5797fc7a320eef033e9d2576322fac464b05c67`; PR #288 merge `9c7ed58f20c794e59146813544b3a75aec0bace1`; unique normalization head `418c41a22c907bdef0693b16824bd2b86fa47acc`; PR #289 -> normalized `main` `f6960db290a570e3a0c3c4ff97600014978d45df`; fresh normalization R0 #2013 / `33261708135`, Python #1988 / `33261708106`, UI #1953 / `33261708116` SUCCESS; manual **NONE**.
-- R14.17 : **IN_PROGRESS** — branch `r14/17-adversarial-integrated-acceptance`; base normalized `main` `f6960db290a570e3a0c3c4ff97600014978d45df`; manual **CONDITIONAL / NOT TRIGGERED**.
+- R14.17 : **COMPLETE / IMPLEMENTATION MERGE PENDING** — immutable source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; manual **CONDITIONAL / NOT TRIGGERED**.
 - Manual state actuel R14.17 : **CONDITIONAL / NOT TRIGGERED**. Core closure is local/hosted/sandbox; live external provider/domain/TLS evidence is required only if explicitly claimed, and then execution must stop before completion.
 
 ## Permanent R-phase execution rule
@@ -69,7 +69,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.14 | COMPLETE + NORMALIZED | NONE |
 | R14.15 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R14.16 | COMPLETE + NORMALIZED | NONE |
-| R14.17 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |
+| R14.17 | COMPLETE / MERGE PENDING | CONDITIONAL / NOT TRIGGERED |
 
 ## R14.1–R14.6 closure checkpoint
 
@@ -370,6 +370,17 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Frozen core acceptance is the 12-step local/hosted/sandbox integrated scenario from `R14_PLAN.md`, plus anti-circular/mixed-SHA/tamper/provider-overclaim failure-closed checks.
 - Manual state: **CONDITIONAL / NOT TRIGGERED**. Do not request or expose passwords, tokens, private keys, client secrets or production credentials. If a final claim requires real external IdP/store/CDN/managed-provider or public domain/TLS evidence, stop before completion and request only the minimum user-side prerequisites/evidence.
 
+## R14.17 technical / END closure authority
+
+- Exact normalized base: `f6960db290a570e3a0c3c4ff97600014978d45df`; clean START-head `e48f8207c92aae1f655fb270e21a2c861036a6fd`.
+- Rejected candidates `f25cb89f1b54d325ecab6d12c08ec1e9129c1025`, `152f34d217f159d65b10d811d8770ea840b8e05b`, and malformed temporary helper `4e7f5d17e5e8356b7e6b1d3bc9331b73aefe496f` are NON-AUTHORITATIVE; no failed evidence is reusable.
+- Immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; START→source exactly eight intended R14.17 files; temporary report/end-sync helpers removed before END.
+- Exact-source gates: R0 #2028 / `33265386264` SUCCESS; Python Core #2003 / `33265386254` SUCCESS 5/5, Ubuntu **1760 passed / 14 skipped / 46 warnings**; UI #1968 / `33265386267` SUCCESS; R14 Integrated #5 / `33265386261` SUCCESS Ubuntu/PostgreSQL 18 + Windows.
+- Scenario: 14/14 integrated checks PASS over 222 underlying service checks; artifact `9718490610` / `sha256:8ef3c8fd15ab88919918ff9819784e5ed8558d08951bf2e9dc464d7bac9c8bac`; checked scenario bytes 6313 / SHA-256 `8080d974bec375e822fb04d271671d922460e4d71e5996ce5a2d61377d4b8d47`.
+- CI authority digest `f8e1ea8d274aafc44009bb76c2c2e21e5306673510cc61c47d96de34b9f20a08`; canonical R14 integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; report `status=pass`, `blockers=[]`, source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`.
+- Manual/provider state **CONDITIONAL / NOT TRIGGERED**; provider-live, production publish, Internet-scale and multi-region claims remain false; no external credential/domain/TLS/provider proof was required.
+- END-sync now changes evidence/documentation only. Fresh exact-END R0/Python/UI/R14 Integrated gates are mandatory before the expected-head implementation/evidence merge.
+
 ## Next authorized action
 
-Run fresh exact-START R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the clean R14.17 START-head. If all are SUCCESS, implement the frozen R14.17 integrated verifier/scenario, adversarial tests, canonical evidence model and dedicated cross-platform acceptance on the same branch. Do not begin R15.
+Run fresh exact-END R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Integrated Acceptance on the final R14.17 END-head. If all are SUCCESS, open/merge the R14.17 implementation/evidence PR only with exact `expected_head_sha`. Then create exactly one post-merge continuity-only R14 normalization, run fresh exact-head R0/Python/UI, merge it with exact expected-head protection, and only then authorize R15 planning.

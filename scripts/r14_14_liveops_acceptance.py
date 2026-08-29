@@ -50,6 +50,7 @@ ACCEPTANCE_OBJECTS = (
     "campaign.autumn.1",
     "config.liveops.1",
     "config.other",
+    "liveops.audience",
     "manifest.liveops.1",
     "product.liveops.1",
     "schema.liveops.1",

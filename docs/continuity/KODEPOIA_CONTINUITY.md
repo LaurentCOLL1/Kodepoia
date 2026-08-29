@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.15 COMPLETE + NORMALIZED. R14.16 COMPLETE on `r14/16-cli-kodestudio-liveops-ux` with immutable technical source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; END-sync re-gating/merge/normalization pending; R14.17 remains PLANNED and unauthorized.** R14.16 technical gates: R0 #2005 / `33260302790`, Python Core #1980 / `33260302771`, UI #1945 / `33260302782`, R14.16 Acceptance #2 / `33260302752` all SUCCESS; 31/31 deterministic checks PASS cross-platform; manual state NONE. Only a fresh exact-END gate set, expected-head implementation merge and the unique continuity-only post-merge normalization may authorize R14.17.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.15 COMPLETE + NORMALIZED. R14.16 implementation MERGED as `9c7ed58f20c794e59146813544b3a75aec0bace1`; the unique post-merge continuity-only normalization is pending. R14.17 remains PLANNED and unauthorized.** R14.16 immutable technical source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; clean END-head `a5797fc7a320eef033e9d2576322fac464b05c67`; implementation PR #288 -> `9c7ed58f20c794e59146813544b3a75aec0bace1`. Fresh exact-END gates R0 #2010 / `33260771061`, Python Core #1985 / `33260771060`, UI #1950 / `33260771074`, R14.16 Acceptance #4 / `33260771052` all SUCCESS; required PR R0 #2011 / `33260864183` SUCCESS on Ubuntu + Windows. Manual state NONE. Only the unique continuity-only normalization with fresh exact-head R0/Python/UI and exact expected-head merge may authorize R14.17.
 
 ## État global
 
@@ -16,7 +16,7 @@
 - R14.13 : **COMPLETE + NORMALIZED** — source technique `b1729cabaffb19ac5491dee8a2c18e1bb5877746`; END-head `5461815da316bf9e20b06352dc7dda8699b46525`; PR #281 merge `e1109c84a4b55761e4bf948b13457aabd327669e`; normalization head `6d302f20ba05544d1a1f122ebed48816dd22c76b`; normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4` via PR #282 after fresh R0 #1902 / `33247706878`, Python Core #1877 / `33247706820`, UI #1842 / `33247706847` SUCCESS.
 - R14.14 : **COMPLETE + NORMALIZED** — immutable source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; END-head `d8debf494f4f096e2a9f8a4093852752242e8b9f`; PR #283 merge `29bf8255277fcbfce721408ec0abab660076f99d`; normalization head `8b527170d3b79bfacbdac36f638c8c616689bc61`; normalized `main` `0078a75d473524688e6ab76ccf41b509e2146dea` via PR #284 after fresh R0 #1944 / `33254094376`, Python Core #1919 / `33254094466`, UI #1884 / `33254094372` SUCCESS.
 - R14.15 : **COMPLETE + NORMALIZED** — immutable source `232bae747e91fd97f4cf3110a019639217d7914b`; END-head `80bd6853664ab9f41fd41fb83f43b43980bef394`; PR #285 merge `53373e78c60d4a338e9313496a822c93ab334e68`; unique normalization head `68a6f106484ab60d9925dfcc60189b509d995393`; normalized `main` `1f10d7a13f49cb6e931e5e0694f083228ed24070` via PR #286 after fresh R0 #1973 / `33257784369`, Python Core #1948 / `33257784390`, and UI #1913 / `33257784370` SUCCESS; manual `CONDITIONAL / NOT TRIGGERED`; post-normalization continuity erratum PR #287 -> current `main` `8a7eb312d3fa0d642d6b2b77ef35c2b2d3e7de36` after fresh R0 #1979 / `33258615852`, Python #1954 / `33258615797`, UI #1919 / `33258615872` SUCCESS; erratum is not a second normalization.
-- R14.16 : **COMPLETE (technical + END-sync; merge/normalization pending)** — immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; branch `r14/16-cli-kodestudio-liveops-ux`; effective base `8a7eb312d3fa0d642d6b2b77ef35c2b2d3e7de36`; manual **NONE**.
+- R14.16 : **IMPLEMENTATION MERGED / NORMALIZATION PENDING** — immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; END-head `a5797fc7a320eef033e9d2576322fac464b05c67`; PR #288 merge `9c7ed58f20c794e59146813544b3a75aec0bace1`; manual **NONE**.
 - R14.17 : **PLANNED**.
 - Manual state actuel R14.15 : **CONDITIONAL / NOT TRIGGERED**. Core uses bounded local/hosted CI; external provider quota/cost/load evidence is manual only if explicitly claimed, and no destructive/high-cost production load is authorized by default.
 
@@ -68,7 +68,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.13 | COMPLETE + NORMALIZED | NONE |
 | R14.14 | COMPLETE + NORMALIZED | NONE |
 | R14.15 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
-| R14.16 | COMPLETE (merge/normalization pending) | NONE |
+| R14.16 | IMPLEMENTATION MERGED / NORMALIZATION PENDING | NONE |
 | R14.17 | PLANNED | CONDITIONAL |
 
 ## R14.1–R14.6 closure checkpoint
@@ -348,6 +348,18 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Confirmation is never authorization; mutations require domain authority, production requires separate production authority, and project fallback never self-authorizes mutation. No external provider account/credential/production endpoint is required or claimed.
 - Rejected candidates `1707ca57a325a3187bfbe5327002bc2f30dc34d7` and `c6a62355bf58a49c0bc4fc41a0ef29e6d0168825` are NON-AUTHORITATIVE; none of their failed evidence is reused.
 
+
+## R14.16 implementation merge / normalization authority
+
+- Immutable technical source: `3c0507ed497d9607218b9d9a50c2e5729d786c87`.
+- Clean END-head: `a5797fc7a320eef033e9d2576322fac464b05c67`, direct child of the immutable source; source→END changed exactly `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_16_ACCEPTANCE.md` and this continuity file.
+- Fresh exact-END gates: R0 Repository Guard #2010 / `33260771061` SUCCESS Ubuntu + Windows; Python Core #1985 / `33260771060` SUCCESS 5/5; KodeStudio UI Smoke #1950 / `33260771074` SUCCESS; R14 CLI KodeStudio LiveOps UX Acceptance #4 / `33260771052` SUCCESS Ubuntu 24.04 + Windows 2025.
+- Dedicated deterministic acceptance remains **31/31 checks PASS** across 15 governed operations; decoded Ubuntu/Windows evidence JSON is exactly equal with SHA-256 `396588f20a03bb555c1a69cfd9b076151e850d11c8842b9ef9a94708a6a7eea2`.
+- PR #288 required-check run R0 Repository Guard #2011 / `33260864183` completed SUCCESS on both `repository-bootstrap-ubuntu-latest` and `repository-bootstrap-windows-latest` for exact head `a5797fc7a320eef033e9d2576322fac464b05c67`.
+- PR #288 merged only with `expected_head_sha=a5797fc7a320eef033e9d2576322fac464b05c67` as implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1`.
+- Manual/provider state remains **NONE**; `provider_live_claim=false`; `external_provider_required=false`; no external provider account, production endpoint, credential or automatic production publish is claimed.
+- The sole remaining R14.16 action is exactly one continuity-only normalization commit from implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1`, followed by fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke, then an `expected_head_sha` merge. No plan, acceptance, workflow or technical file may survive in the clean normalization diff.
+
 ## Next authorized action
 
-Run fresh exact-END R0 Repository Guard, full Python Core, KodeStudio UI Smoke and R14 CLI KodeStudio LiveOps UX Acceptance on the clean documentation-only END-head. If and only if all are green, open/merge the R14.16 implementation PR with `expected_head_sha` equal to that exact END-head, then perform exactly one continuity-only post-merge normalization with fresh R0/Python/UI. **R14.17 remains unauthorized until that normalization merges.**
+Validate and merge the unique R14.16 continuity-only normalization candidate. Its diff from implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1` must contain only `docs/continuity/KODEPOIA_CONTINUITY.md`; fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke must all succeed before merge. Only the resulting normalized `main` authorizes R14.17 START-sync. R14.17 remains PLANNED until then.

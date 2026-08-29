@@ -27,7 +27,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$GITHUB_REF_NAME" = "r14/15-service-operations-resilience"
-          test "$(git rev-parse HEAD^)" = "2067bb6260a63bbb5b75099e851ff28314c7ebb6"
+          test "$(git rev-parse HEAD^)" = "309a1c63e3c0fc9f1d7d2f44248eba10d4b3c5b9"
 
       - name: Apply exact R14.15 implementation
         shell: bash

@@ -46,6 +46,16 @@ from kodepoia.backend.remote_config import (
 )
 
 SAFE_CHANGE = canonical_sha256({"safe_change": "r14.14.acceptance"})
+ACCEPTANCE_OBJECTS = (
+    "campaign.autumn.1",
+    "config.liveops.1",
+    "config.other",
+    "manifest.liveops.1",
+    "product.liveops.1",
+    "schema.liveops.1",
+    "season.2026.autumn",
+    BackendEnvironmentKind.TEST.value,
+)
 
 
 class Clock:
@@ -56,7 +66,11 @@ class Clock:
         return self.value
 
 
-def actor(*, permissions: tuple[str, ...] = ("*",), objects: tuple[str, ...] = ("*",)) -> AuthorityActorContext:
+def actor(
+    *,
+    permissions: tuple[str, ...] = ("*",),
+    objects: tuple[str, ...] = ACCEPTANCE_OBJECTS,
+) -> AuthorityActorContext:
     return AuthorityActorContext(
         account_id="acceptance.operator",
         session_id="acceptance.session",

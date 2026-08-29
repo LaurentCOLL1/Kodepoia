@@ -1,0 +1,31 @@
+name: R14.11 Fix Authority Fixtures
+
+on:
+  push:
+    branches:
+      - r14/11-remote-config-feature-flags
+    paths:
+      - .github/workflows/r14-11-fix-actor-fixtures.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/11-remote-config-feature-flags
+          fetch-depth: 0
+      - name: Apply fixture correction
+        run: python .github/r14_11_fix_actor_fixtures.py
+      - name: Commit correction and remove helpers
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/r14_11_fix_actor_fixtures.py .github/workflows/r14-11-fix-actor-fixtures.yml
+          git add tests/test_r14_11_remote_config.py scripts/r14_11_remote_config_acceptance.py
+          git commit -m "test(r14.11): use explicit authority object fixtures"
+          git push origin HEAD:r14/11-remote-config-feature-flags

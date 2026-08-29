@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.7 are COMPLETE + NORMALIZED. R14.7 implementation/evidence PR #269 merged as `763ce96c4f82da2eaec167b56ffb62d9e548b300`; its single continuity-only normalization PR #270 merged as normalized `main` `24e40db2781db8e42591c6ffa8fbdb8f0bf84108` after R0 #1810, Python Core #1784 and UI #1751, all SUCCESS. R14.8 technical source `8132c4029983f693a32e0d26903d05e347313bf6` is accepted after R0 #1822, Python Core #1796, UI #1763 and R14 Cloud Save Acceptance #6, all SUCCESS. R14.8 is COMPLETE at END-sync; final exact-head re-gates, protected merge and the single continuity-only normalization remain required. R14.9–R14.17 remain PLANNED. R14.8 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.8 are COMPLETE + NORMALIZED. R14.9 is COMPLETE at technical/evidence + END-sync level on `r14/09-progression-leaderboards`; immutable technical source `155119282af7f4bf71840fc45c2d3de8891f73cd` passed R0 #1836, Python Core #1810, UI #1777 and R14 Progression Acceptance #3. R14.10–R14.17 remain PLANNED. PR #273 still requires fresh exact END-head re-gates, protected merge and exactly one continuity-only normalization before R14.10. R14.9 manual state is NONE.
 
 ## Purpose and authority
 
@@ -206,7 +206,7 @@ Before R14.1 implementation:
 | R14.6 | Authoritative server command/state model + real-time transport/trust boundary | COMPLETE | NONE | R14.4–R14.5 |
 | R14.7 | Matchmaking, lobby, reservations, presence + reconnect | COMPLETE | NONE | R14.6 |
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | COMPLETE | NONE | R14.5–R14.6 |
-| R14.9 | Achievements, stats, leaderboards + authoritative progression | PLANNED | NONE | R14.5–R14.6 |
+| R14.9 | Achievements, stats, leaderboards + authoritative progression | COMPLETE | NONE | R14.5–R14.6 |
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | PLANNED | CONDITIONAL | R14.4–R14.6 + R13 store contracts |
 | R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | PLANNED | NONE | R14.5–R14.6 |
 | R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | PLANNED | CONDITIONAL | R14.5/R14.11 + R8/R13 release provenance |
@@ -757,7 +757,18 @@ Client cheating, non-deterministic ranking, duplicate unlock, retroactive defini
 
 ## Completion record
 
-To be appended when accepted.
+- Dedicated branch: `r14/09-progression-leaderboards`; exact normalized branch point: R14.8 `main` `433c86cc5d43bfea41adb529451367e10c75a30b`.
+- Mandatory START-sync completed before implementation; final clean START head `d221057a91b9c0389346e6eec71044ce57898db1` differed from normalized main by plan + continuity only.
+- Candidate `dc3ea916dd5bfbcc5751a7fbe0128532f3a1298f` is REJECTED and its evidence is non-authoritative; the test fixture, not the production authorization boundary, was corrected.
+- Pre-acceptance audit detected and corrected recurring-leaderboard lifetime-state bleed; recurring periods now derive period-local score state.
+- Accepted immutable technical source: `155119282af7f4bf71840fc45c2d3de8891f73cd`.
+- Technical exact-source gates: R0 #1836 / `33210136515`, Python Core #1810 / `33210136766`, UI #1777 / `33210136531`, R14 Progression Acceptance #3 / `33210136498` — all SUCCESS.
+- Full Ubuntu: **1590 passed / 13 skipped / 46 warnings**; focused R14.9→R14.5: **96 passed Ubuntu + 96 passed Windows**.
+- Fifteen frozen progression checks PASS cross-platform, including authoritative-only score mutation, idempotency/event rebinding rejection, deterministic ordering/ties, server-clock period boundaries, privacy filtering, bounded capacity and recurring rollover without lifetime bleed.
+- Cross-platform digests: definition `0ff0b8c2215dabf637f852f3d049959a02dbd7cb3e8e26c5cf2fa680682cb686`; state `a8d7bed52649c7f6cea1d2f07793a011058afbdd2973e568ade69f7b3811d49d`; trace `c1180c3bc5326a6fd268dc6bd54f9bd13c99bba837a7bc931d1b55c206d9bec3`; classic `49a5655892db2649f2f9a926aff2e2cda14f8b51ef3f9901acc4c227c96e306c`; lower `2869ce012f10c143be8128f356288c21bc028793d18fae5ea2cb79b6f2b18859`; recurring p0 `a3fd0f5b9a06a093b0961626950ef0ddf9c3acb0ebd9f69e67bf4bb0dd6b9380`; recurring p1 `4d22f10134f62e6449fce47bee6e13ef4ed9556d7922889c0749dc3000ffd2fd`.
+- Canonical artifacts: Ubuntu `9701251718` / `sha256:fb8be016598d8bf1450047102b2c44e26aa975bf78c78f62e1e7043f4f64e69a`; Windows `9701266161` / `sha256:065fac3a244258b4047f51b229b66b1adfe3ec0714d556b7ba6e42220568b02e`.
+- `provider_live_claim=false`; `secrets_exposed=false`; provider docs are compatibility evidence only. Manual intervention: NONE.
+- END state: R14.9 COMPLETE; R14.10–R14.17 remain PLANNED. Fresh exact END-head R0/Python/UI/R14 Progression, expected-head PR #273 merge and one continuity-only normalization remain mandatory before R14.10.
 
 ---
 

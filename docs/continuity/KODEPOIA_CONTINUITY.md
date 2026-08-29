@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.8 COMPLETE + NORMALIZED (normalization PR pending merge). R14.9–R14.17 PLANNED.** R14.8 source technique immuable `8132c4029983f693a32e0d26903d05e347313bf6`; END-head exact `954991537fc8c076169993ea106303421b8edd60`; R0 #1832, Python Core #1806, UI #1773 et Cloud Save Acceptance #16 sont SUCCESS; PR #271 a fusionné avec expected-head comme merge `5b51967c63ad5ae5ccc2df89f76aa48831ee2762`. La présente branche `r14/08-normalize-continuity` est l’unique normalisation continuity-only autorisée : valider son HEAD exact avec R0 + full Python Core + KodeStudio UI Smoke, puis merger avec expected-head avant toute R14.9. Manual intervention : NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.8 COMPLETE + NORMALIZED. R14.9 COMPLETE (END-SYNCED; merge/normalization pending). R14.10–R14.17 PLANNED.** R14.9 source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`; R0 #1836, Python Core #1810, UI #1777 et R14 Progression Acceptance #3 sont SUCCESS. Re-gater l’END-head exact, merger PR #273 avec expected-head, puis effectuer exactement une normalisation continuity-only avant R14.10. Manual intervention : NONE.
 
 ## État global
 
@@ -14,9 +14,10 @@
 - R12 canonical integrated digest : `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 canonical integrated digest : `831b155fce200eae6b9fbe91c8eb44e992ea036c0922e508171644b497a4c3c7`.
 - R14 planning : **ACCEPTED + NORMALIZED**.
-- R14.1–R14.7 : **COMPLETE + NORMALIZED**.
-- R14.8 : **COMPLETE + NORMALIZED (normalization PR pending merge)** ; source technique immuable `8132c4029983f693a32e0d26903d05e347313bf6`, END-head `954991537fc8c076169993ea106303421b8edd60`, implementation/evidence merge `5b51967c63ad5ae5ccc2df89f76aa48831ee2762`.
-- R14.9–R14.17 : **PLANNED**.
+- R14.1–R14.8 : **COMPLETE + NORMALIZED**.
+- R14.8 normalized `main` : **`433c86cc5d43bfea41adb529451367e10c75a30b`** après normalization PR #272.
+- R14.9 : **COMPLETE (END-SYNCED; merge/normalization pending)** sur `r14/09-progression-leaderboards`; source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`.
+- R14.10–R14.17 : **PLANNED**.
 - Manual state actuel : **NONE**.
 
 ## Permanent R-phase execution rule
@@ -60,7 +61,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.6 | COMPLETE + NORMALIZED | NONE |
 | R14.7 | COMPLETE + NORMALIZED | NONE |
 | R14.8 | COMPLETE + NORMALIZED | NONE |
-| R14.9 | PLANNED | NONE |
+| R14.9 | COMPLETE | NONE |
 | R14.10 | PLANNED | CONDITIONAL |
 | R14.11 | PLANNED | NONE |
 | R14.12 | PLANNED | CONDITIONAL |
@@ -106,15 +107,31 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Fresh END gates on that exact head: R0 Repository Guard #1832 / `33208260744` SUCCESS; Python Core #1806 / `33208260746` SUCCESS; KodeStudio UI Smoke #1773 / `33208260611` SUCCESS; R14 Cloud Save Acceptance #16 / `33208260670` SUCCESS on Ubuntu and Windows.
 - PR #271 merged only after verifying its exact head `954991537fc8c076169993ea106303421b8edd60`, with `expected_head_sha` protection, as implementation/evidence merge **`5b51967c63ad5ae5ccc2df89f76aa48831ee2762`**.
 - Provider posture: `provider_live_claim=false`, `secrets_exposed=false`; RFC 9110 / Google Play Games / OWASP are informative evidence only.
-- Post-merge normalization branch: **`r14/08-normalize-continuity`**, created from exact merge `5b51967c63ad5ae5ccc2df89f76aa48831ee2762`; it is required to change only this continuity file.
-- Current state represented by this normalization candidate: R14.8 **COMPLETE + NORMALIZED**; R14.9–R14.17 **PLANNED**.
+- Single post-merge normalization head: **`0850580c78f2190199931129e9c1389f6c9977b1`**, changing only this continuity file. Fresh normalization gates: R0 #1834 / `33208563238`, Python Core #1808 / `33208563310`, UI #1775 / `33208563115` — all SUCCESS.
+- Normalization PR #272 merged with `expected_head_sha=0850580c78f2190199931129e9c1389f6c9977b1` as normalized `main` **`433c86cc5d43bfea41adb529451367e10c75a30b`**.
+- R14.8 final state: **COMPLETE + NORMALIZED**; R14.9 is authorized from that exact normalized `main`.
 - Manual intervention: **NONE**.
 
-## External research baseline relevant to R14.8
+## R14.9 technical closure authority
 
-- RFC 9110 §13 définit les requêtes conditionnelles ; `If-Match` permet de faire échouer une mutation lorsque la représentation courante ne correspond plus à la version observée, afin d’éviter le problème de “lost update”. Cette sémantique est un bon repère pour le compare-and-swap/base-revision de R14.8, sans imposer HTTP comme architecture interne.
-- OWASP API1:2023 exige une autorisation objet sur chaque endpoint qui reçoit un identifiant d’objet. Les `CloudSaveSlotId` / `SaveRevisionId` devront donc être autorisés server-side et ne jamais être considérés comme sûrs parce qu’ils viennent d’un client.
+- Dedicated branch `r14/09-progression-leaderboards`; exact base normalized R14.8 `main` `433c86cc5d43bfea41adb529451367e10c75a30b`.
+- Clean START head `d221057a91b9c0389346e6eec71044ce57898db1`; no implementation preceded START acceptance.
+- Rejected candidate `dc3ea916dd5bfbcc5751a7fbe0128532f3a1298f`: NON-AUTHORITATIVE; its evidence must never be reused.
+- Immutable technical source `155119282af7f4bf71840fc45c2d3de8891f73cd`.
+- Technical gates: R0 #1836 / `33210136515`, Python Core #1810 / `33210136766`, UI #1777 / `33210136531`, R14 Progression #3 / `33210136498` — all SUCCESS.
+- Full Ubuntu: **1590 passed / 13 skipped / 46 warnings**; focused: **96 passed Ubuntu + 96 passed Windows**; fifteen dedicated checks PASS on both OS.
+- Digests: definition `0ff0b8c2215dabf637f852f3d049959a02dbd7cb3e8e26c5cf2fa680682cb686`; state `a8d7bed52649c7f6cea1d2f07793a011058afbdd2973e568ade69f7b3811d49d`; trace `c1180c3bc5326a6fd268dc6bd54f9bd13c99bba837a7bc931d1b55c206d9bec3`.
+- Artifacts: Ubuntu `9701251718` / `sha256:fb8be016598d8bf1450047102b2c44e26aa975bf78c78f62e1e7043f4f64e69a`; Windows `9701266161` / `sha256:065fac3a244258b4047f51b229b66b1adfe3ec0714d556b7ba6e42220568b02e`.
+- `provider_live_claim=false`; `secrets_exposed=false`; manual NONE.
+- Current state: R14.9 COMPLETE at END-sync; R14.10–R14.17 PLANNED.
+
+## External research baseline relevant to R14.9
+
+- Steamworks distinguishes trusted backend Web API operations from client operations; its leaderboard API can require trusted writes so client score submission is disabled, and exposes explicit score update policy. R14.9 therefore keeps trusted progression writes server-side without making Steam the canonical model.
+- Apple Game Center distinguishes classic leaderboards from recurring leaderboards that reset on configured schedules and exposes score sort order. R14.9 models periods/reset/order explicitly and deterministically rather than inheriting a platform implementation.
+- Google Play Games exposes achievements and leaderboards as distinct client capabilities. R14.9 keeps those surfaces distinct while sharing one authoritative progression/event source internally.
+- Provider documentation is versioned comparison evidence only; `provider_live_claim=false` remains mandatory unless a later explicit provider-live gate is executed.
 
 ## Next authorized action
 
-Verify that the exact head of `r14/08-normalize-continuity` differs from implementation/evidence merge `5b51967c63ad5ae5ccc2df89f76aa48831ee2762` by **only** `docs/continuity/KODEPOIA_CONTINUITY.md`. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke. If all are SUCCESS, merge the single normalization PR only with `expected_head_sha` equal to that exact normalization head. The resulting `main` is the sole normalized R14.8 authority and only then authorizes the R14.9 START-sync. Manual intervention remains **NONE**.
+Treat `155119282af7f4bf71840fc45c2d3de8891f73cd` as the only immutable R14.9 technical source. Verify the END-head diff from that source is limited to `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_9_ACCEPTANCE.md` and this continuity file. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Progression Acceptance. If all are SUCCESS, merge PR #273 only with `expected_head_sha` equal to that exact END-head, then perform exactly one continuity-only post-merge normalization with fresh R0/Python/UI. Do not start R14.10 before normalized `main` exists. Manual intervention remains NONE.

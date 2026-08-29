@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.dev/schemas/r14/backend-progression-evidence.schema.json",
+  "title": "R14.9 Progression Acceptance Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "source_sha",
+    "checks",
+    "definition_digest",
+    "state_digest",
+    "trace_digest",
+    "classic_snapshot_digest",
+    "lower_snapshot_digest",
+    "recurring_period0_snapshot_digest",
+    "recurring_period1_snapshot_digest",
+    "event_count",
+    "unlock_count",
+    "budgets",
+    "external_reference_posture",
+    "provider_live_claim",
+    "secrets_exposed"
+  ],
+  "properties": {
+    "status": {"const": "pass"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authoritative_event",
+        "direct_client_score_rejected",
+        "idempotent_replay",
+        "idempotency_rebind_rejected",
+        "event_id_rebind_rejected",
+        "immutable_definition_version",
+        "unlock_idempotent",
+        "higher_order_deterministic",
+        "lower_order_deterministic",
+        "recurring_rollover_no_lifetime_bleed",
+        "period_boundary_server_clock",
+        "privacy_filter",
+        "object_authorization",
+        "function_authorization",
+        "bounded_capacity"
+      ],
+      "properties": {
+        "authoritative_event": {"const": true},
+        "direct_client_score_rejected": {"const": true},
+        "idempotent_replay": {"const": true},
+        "idempotency_rebind_rejected": {"const": true},
+        "event_id_rebind_rejected": {"const": true},
+        "immutable_definition_version": {"const": true},
+        "unlock_idempotent": {"const": true},
+        "higher_order_deterministic": {"const": true},
+        "lower_order_deterministic": {"const": true},
+        "recurring_rollover_no_lifetime_bleed": {"const": true},
+        "period_boundary_server_clock": {"const": true},
+        "privacy_filter": {"const": true},
+        "object_authorization": {"const": true},
+        "function_authorization": {"const": true},
+        "bounded_capacity": {"const": true}
+      }
+    },
+    "definition_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "state_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "trace_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "classic_snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "lower_snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "recurring_period0_snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "recurring_period1_snapshot_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "event_count": {"type": "integer", "minimum": 1},
+    "unlock_count": {"type": "integer", "minimum": 1},
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_events",
+        "max_accounts",
+        "max_definition_versions",
+        "max_entries_per_leaderboard_period",
+        "max_metadata_bytes"
+      ],
+      "properties": {
+        "max_events": {"type": "integer", "minimum": 1},
+        "max_accounts": {"type": "integer", "minimum": 1},
+        "max_definition_versions": {"type": "integer", "minimum": 1},
+        "max_entries_per_leaderboard_period": {"type": "integer", "minimum": 1},
+        "max_metadata_bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "external_reference_posture": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "provider_live_claim": {"const": false},
+    "secrets_exposed": {"const": false}
+  }
+}

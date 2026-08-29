@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-remote-config-evidence.schema.json",
+  "title": "Kodepoia R14.11 remote config evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha",
+    "status",
+    "manual_state",
+    "provider_live_claim",
+    "secrets_exposed",
+    "pii_exposed",
+    "arbitrary_code_execution",
+    "checks",
+    "snapshot_digest",
+    "state_digest",
+    "trace_digest",
+    "audit_digest",
+    "evaluation_digests",
+    "rollout_distribution",
+    "rollback",
+    "budgets"
+  ],
+  "properties": {
+    "schema_version": {"const": "r14.11-1"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "status": {"const": "pass"},
+    "manual_state": {"const": "none"},
+    "provider_live_claim": {"const": false},
+    "secrets_exposed": {"const": false},
+    "pii_exposed": {"const": false},
+    "arbitrary_code_execution": {"const": false},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "typed_schema",
+        "immutable_snapshots",
+        "targeting_precedence",
+        "stable_fractional",
+        "bounded_distribution",
+        "missing_targeting_key_fails_closed",
+        "prerequisite_cycle_rejected",
+        "prerequisite_enforced",
+        "expiry_server_clock",
+        "kill_switch",
+        "preview_dry_run",
+        "production_approval_safechange",
+        "rollback",
+        "environment_isolation",
+        "object_function_authorization",
+        "openfeature_typed_fallback",
+        "redacted_evidence",
+        "bounded_capacity",
+        "remote_code_type_rejected"
+      ],
+      "properties": {
+        "typed_schema": {"const": true},
+        "immutable_snapshots": {"const": true},
+        "targeting_precedence": {"const": true},
+        "stable_fractional": {"const": true},
+        "bounded_distribution": {"const": true},
+        "missing_targeting_key_fails_closed": {"const": true},
+        "prerequisite_cycle_rejected": {"const": true},
+        "prerequisite_enforced": {"const": true},
+        "expiry_server_clock": {"const": true},
+        "kill_switch": {"const": true},
+        "preview_dry_run": {"const": true},
+        "production_approval_safechange": {"const": true},
+        "rollback": {"const": true},
+        "environment_isolation": {"const": true},
+        "object_function_authorization": {"const": true},
+        "openfeature_typed_fallback": {"const": true},
+        "redacted_evidence": {"const": true},
+        "bounded_capacity": {"const": true},
+        "remote_code_type_rejected": {"const": true}
+      }
+    },
+    "snapshot_digest": {"$ref": "#/$defs/sha256"},
+    "state_digest": {"$ref": "#/$defs/sha256"},
+    "trace_digest": {"$ref": "#/$defs/sha256"},
+    "audit_digest": {"$ref": "#/$defs/sha256"},
+    "evaluation_digests": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/sha256"},
+      "minProperties": 4
+    },
+    "rollout_distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["population", "off", "on", "assignment_digest"],
+      "properties": {
+        "population": {"const": 2000},
+        "off": {"type": "integer", "minimum": 850, "maximum": 1150},
+        "on": {"type": "integer", "minimum": 850, "maximum": 1150},
+        "assignment_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_snapshot", "to_snapshot", "active_after", "preview_digest"],
+      "properties": {
+        "from_snapshot": {"const": "test-v2"},
+        "to_snapshot": {"const": "test-v1"},
+        "active_after": {"const": "test-v1"},
+        "preview_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_snapshots", "max_flags_per_snapshot", "max_evaluations", "max_audit_records"],
+      "properties": {
+        "max_snapshots": {"type": "integer", "minimum": 1, "maximum": 128},
+        "max_flags_per_snapshot": {"type": "integer", "minimum": 1, "maximum": 128},
+        "max_evaluations": {"type": "integer", "minimum": 2000, "maximum": 10000},
+        "max_audit_records": {"type": "integer", "minimum": 1, "maximum": 1024}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

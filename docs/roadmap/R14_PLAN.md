@@ -1308,7 +1308,11 @@ Secret display, environment confusion, destructive default button, raw command e
 - Rejected source `1707ca57a325a3187bfbe5327002bc2f30dc34d7` exposed stale R6.6 nav-count plus missing R14 pseudo-locale coverage; rejected source `c6a62355bf58a49c0bc4fc41a0ef29e6d0168825` exposed a missing Ubuntu Qt runtime dependency (`libEGL.so.1`) before business assertions. Neither candidate nor its failed evidence is reused.
 - Security boundary: UI/CLI confirmation is intention only, never permission; mutation requires injected domain authority and production requires separate production authority. Project fallback never authorizes mutation. Raw shell/command/endpoint/secret/token/password/DSN/private-key input and automatic production publish remain forbidden.
 - Manual intervention: **NONE**. No external provider account, credential, quota, public domain/TLS state, production deployment, destructive load or production PITR proof is required or claimed.
-- Technical state is accepted and R14.16 is ready for END-sync re-gating. R14.17 remains PLANNED and unauthorized until the exact END-head passes fresh R0/Python/UI/R14.16 acceptance, the implementation PR merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
+- Final clean END-head `a5797fc7a320eef033e9d2576322fac464b05c67` is a direct child of immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; source→END changed only `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_16_ACCEPTANCE.md`, and `docs/continuity/KODEPOIA_CONTINUITY.md`.
+- Fresh exact-END gates: R0 Repository Guard #2010 / `33260771061` SUCCESS Ubuntu + Windows; Python Core #1985 / `33260771060` SUCCESS 5/5; KodeStudio UI Smoke #1950 / `33260771074` SUCCESS; R14 CLI KodeStudio LiveOps UX Acceptance #4 / `33260771052` SUCCESS Ubuntu + Windows. Required PR R0 #2011 / `33260864183` also passed Ubuntu + Windows on the exact END-head.
+- PR #288 merged only with `expected_head_sha=a5797fc7a320eef033e9d2576322fac464b05c67` as implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1`.
+- Unique post-merge normalization head `418c41a22c907bdef0693b16824bd2b86fa47acc` changed only `docs/continuity/KODEPOIA_CONTINUITY.md`; fresh exact-head R0 #2013 / `33261708135`, Python Core #1988 / `33261708106` (5/5), and UI #1953 / `33261708116` all SUCCESS. PR #289 required R0 #2014 / `33261833373` passed Ubuntu + Windows and merged with exact expected-head as normalized `main` `f6960db290a570e3a0c3c4ff97600014978d45df`.
+- Normalization cardinality is exactly one. R14.16 final state is **COMPLETE + NORMALIZED**, manual **NONE**. R14.17 START-sync is authorized from exact normalized main `f6960db290a570e3a0c3c4ff97600014978d45df`.
 
 ---
 
@@ -1372,6 +1376,15 @@ Circular evidence, mixed SHAs, sandbox→production claim escalation, stale prov
 ## Manual intervention
 
 **CONDITIONAL.** The frozen core is designed to close with local/hosted/sandbox evidence. If a final accepted claim explicitly requires a real external IdP/store/CDN/managed provider or public domain/TLS state, stop before completion and provide exact user-side prerequisites/actions/evidence. No password, token, private key or secret is ever requested in chat evidence.
+
+## START authority
+
+- Dedicated branch: `r14/17-adversarial-integrated-acceptance`.
+- Exact normalized branch point: `f6960db290a570e3a0c3c4ff97600014978d45df`, produced by the single R14.16 continuity-only normalization PR #289.
+- START state: R14.1–R14.16 **COMPLETE + NORMALIZED**; R14.17 **IN_PROGRESS**.
+- Scope is frozen to anti-circular integrated acceptance across the already accepted R14 services: local/test auth, PostgreSQL authority, authoritative server/lobby/reconnect, cloud-save conflict/rollback, progression, entitlement sandbox idempotency, feature config rollback, immutable content, event replay/checkpoint, LiveOps campaign lifecycle, resilience/recovery, and redaction/provider-overclaim boundaries.
+- Evidence must bind to one immutable technical source; final report may consume independent gate/artifact identities but may never certify itself or mix SHAs. Local/sandbox evidence cannot imply live-production provider capability.
+- Manual state: **CONDITIONAL / NOT TRIGGERED**. Core closure is local/hosted/sandbox only; no real IdP/store/CDN/managed-provider account, public domain/TLS state, credential, secret, destructive production load, or production publish is required or claimed. If any accepted claim later requires such live evidence, stop before completion.
 
 ## Completion record
 

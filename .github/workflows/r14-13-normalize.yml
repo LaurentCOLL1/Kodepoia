@@ -1,0 +1,42 @@
+name: R14.13 Post-merge Normalization
+
+on:
+  push:
+    branches:
+      - r14/13-normalization
+    paths:
+      - scripts/r14_13_normalize.py
+      - .github/workflows/r14-13-normalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/13-normalization
+          fetch-depth: 2
+
+      - name: Assert exact implementation merge parent
+        run: python -c "import subprocess; assert subprocess.check_output(['git','rev-parse','HEAD^'], text=True).strip() == 'e1109c84a4b55761e4bf948b13457aabd327669e'"
+
+      - name: Apply anchored R14.13 continuity normalization
+        run: python scripts/r14_13_normalize.py
+
+      - name: Commit continuity-only result and remove helpers
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm scripts/r14_13_normalize.py
+          rm .github/workflows/r14-13-normalize.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md scripts/r14_13_normalize.py .github/workflows/r14-13-normalize.yml
+          git diff --cached --check
+          git commit -m "docs(r14.13): normalize post-merge continuity"
+          git push origin HEAD:r14/13-normalization

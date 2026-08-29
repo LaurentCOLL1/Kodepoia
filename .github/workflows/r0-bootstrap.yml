@@ -33,10 +33,13 @@ jobs:
           - ubuntu-latest
           - windows-latest
     runs-on: ${{ matrix.os }}
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
-      - name: Checkout
+      - name: Checkout exact evidence source
         uses: actions/checkout@v4
         with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
           fetch-depth: 0
           lfs: false
 
@@ -44,6 +47,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Assert exact checkout provenance
+        run: python -c "import os,subprocess; assert subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip() == os.environ['KODEPOIA_SOURCE_SHA']"
 
       - name: Install R0 checker dependencies
         run: python -m pip install -r scripts/requirements-r0.txt

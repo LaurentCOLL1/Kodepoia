@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.8 are COMPLETE + NORMALIZED. R14.9 is COMPLETE at technical/evidence + END-sync level on `r14/09-progression-leaderboards`; immutable technical source `155119282af7f4bf71840fc45c2d3de8891f73cd` passed R0 #1836, Python Core #1810, UI #1777 and R14 Progression Acceptance #3. R14.10–R14.17 remain PLANNED. PR #273 still requires fresh exact END-head re-gates, protected merge and exactly one continuity-only normalization before R14.10. R14.9 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.9 are COMPLETE + NORMALIZED on normalized `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`. R14.10 is COMPLETE at technical/evidence + END-sync level on `r14/10-entitlements-billing-catalog`; immutable technical source `8a102a19512b076a8edb5c561e86b1d0101bc391` passed R14 Entitlements Acceptance run `33233097442` on Ubuntu and Windows. PR #275 still requires fresh exact END-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Entitlements Acceptance, protected merge and exactly one continuity-only normalization before R14.11. R14.11–R14.17 remain PLANNED. R14.10 manual state is CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
 
 ## Purpose and authority
 
@@ -207,7 +207,7 @@ Before R14.1 implementation:
 | R14.7 | Matchmaking, lobby, reservations, presence + reconnect | COMPLETE | NONE | R14.6 |
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | COMPLETE | NONE | R14.5–R14.6 |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | COMPLETE | NONE | R14.5–R14.6 |
-| R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | PLANNED | CONDITIONAL | R14.4–R14.6 + R13 store contracts |
+| R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.4–R14.6 + R13 store contracts |
 | R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | PLANNED | NONE | R14.5–R14.6 |
 | R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | PLANNED | CONDITIONAL | R14.5/R14.11 + R8/R13 release provenance |
 | R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | PLANNED | NONE | R14.5–R14.6 + R6 |
@@ -816,11 +816,35 @@ Granting on unverified client receipt, replay/double grant, cross-environment ev
 
 ## Manual intervention
 
-**CONDITIONAL.** Core acceptance uses synthetic/sandbox contracts. Real Apple/Google production account, product and transaction verification is required only for a provider-live claim; user must never send secrets/private keys/tokens.
+**CONDITIONAL / NOT TRIGGERED.** Core acceptance uses synthetic/provider-contract fixtures with `provider_live_claim=false`. Real Apple/Google production account, product and transaction verification is required only for a later explicit provider-live claim; user must never send secrets/private keys/tokens.
+
+## START authority
+
+- Dedicated branch: `r14/10-entitlements-billing-catalog`.
+- Exact branch point: normalized R14.9 `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`.
+- R14.9 closure authority: technical source `155119282af7f4bf71840fc45c2d3de8891f73cd`; accepted END-head `2619e190601089ca2d98b22ccb4c0d254f1f11f7`; exact END gates R0 #1843 / `33211148134`, Python Core #1817 / `33211148235`, UI #1784 / `33211148160`, R14 Progression #10 / `33211148184` all SUCCESS; PR #273 merged with expected-head as `5f55e8b1811c08e8eef310f18aa3801798153018`.
+- Single R14.9 post-merge normalization head `814fccac4a68e6de19a98b6c0b622c4298ca1a99` changed only continuity, passed R0 #1845 / `33223835030`, Python Core #1819 / `33223835012`, UI #1786 / `33223835008`, and PR #274 merged with expected-head as normalized `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`.
+- START state: R14.1–R14.9 COMPLETE + NORMALIZED; R14.10 IN_PROGRESS; R14.11–R14.17 PLANNED.
+- Core trust invariants: notification arrival/client receipt never grants entitlement by itself; provider identity/environment/message identity are explicit; provider events are immutable and deduplicated; authoritative provider state is verified/reconciled before entitlement transitions; transitions are transactional/idempotent; raw provider credentials/tokens are never model-visible evidence.
+- Current official compatibility baseline: Google RTDN requires a subsequent Google Play Developer API query for complete purchase status and recommends deduplication by RTDN `messageId`; Google purchase verification belongs on the backend before granting entitlement. Apple App Store Server Notifications V2 uses App Store-signed JWS `signedPayload`, `notificationUUID` for duplicate suppression, and `signedDate` to prefer the most recent transaction-state snapshot. These are compatibility constraints, not provider-live proof.
+- Manual state: CONDITIONAL / NOT TRIGGERED. `provider_live_claim=false`; no production account, product, purchase, credential, private key or token is required for core acceptance.
 
 ## Completion record
 
-To be appended when accepted.
+- Dedicated branch: `r14/10-entitlements-billing-catalog`; exact normalized branch point: R14.9 `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`.
+- Rejected candidate `55fed19c2ccbb63c790aa427a9afd9366cfe9cef` is NON-AUTHORITATIVE and its evidence must never be reused. Its first dedicated acceptance run exposed that the shared canonical JSON helper incorrectly coerced ordered event arrays through `dict(payload)`.
+- The canonicalizer was corrected without changing existing mapping serialization semantics: canonical JSON now accepts JSON-compatible payloads directly while preserving key sorting, compact separators, Unicode handling and NaN rejection. No authority boundary was weakened.
+- Accepted immutable technical source: `8a102a19512b076a8edb5c561e86b1d0101bc391`.
+- Dedicated exact-source R14 Entitlements Acceptance run `33233097442`: Ubuntu job `99049221513` SUCCESS; Windows job `99049221666` SUCCESS.
+- Focused regression covers R14.4 auth/identity/sessions, R14.5 PostgreSQL persistence, R14.6 authoritative server, R14.10 entitlements/billing, plus R13.7 Google Play readiness and R13.15 mobile store compliance.
+- Nineteen frozen checks PASS cross-platform: client receipt rejection, invalid notification signature/token rejection, pending-no-grant, verified-provider grant, mutation-free duplicate replay, message/purchase account rebind rejection, out-of-order no-regression, reconciliation convergence/idempotency, server-clock expiry, environment isolation, Apple V2 contract, immutable catalog version, object/function authorization, bounded capacity and redacted evidence.
+- Cross-platform evidence JSON is byte-for-byte equivalent. Digests: catalog `029829e18972971f3551f3a0a99e3e641e55ab7a2fb6cb374f6b4645b482389c`; state `3a526baa050763c8b5453c7970f750ce205ef57d864a612986b43488ab9f0154`; trace `1333f7f917742d6a0f93028466e0f1c8e771b9442dfe5403c22184764e1edbeb`; provider events `57962e7fddd666146ebb90aa4fed26eb20a287346995bb37f552179780ea447d`; Google entitlement `b0348458e900e79b8eed4237040a6cd33ca329f52920e613a6d8007ea0ae9a88`; Apple entitlement `69bae02f05593d6c73bc0928cb01b8de72cb6afdacbea47d6592a57f6e20d851`.
+- Evidence counts/budgets: 5 provider events, 3 purchase records, 2 catalog definitions; `max_catalog_versions=32`, `max_provider_events=128`, `max_purchases=32`, `max_accounts=32`, `max_reconciliations=64`.
+- Canonical artifacts: Ubuntu `9709088552` / `sha256:9f768b4423cd6b735dc5be51ce258596f78d7bd722106f889fbad30b69f188f3`; Windows `9709093199` / `sha256:6c8475949e29a7720aea89a583d6f45bdfd3335c04598893fe7d7afe0070c57c`.
+- Evidence schema: `schemas/r14/backend-entitlement-evidence.schema.json`; evidence reports `manual_state=conditional_not_triggered`, `provider_live_claim=false`, `secrets_exposed=false`.
+- Current official compatibility evidence remains aligned: Google RTDN is a change signal requiring backend status lookup and recommends message-ID dedupe; Apple V2 uses App Store-signed JWS `signedPayload`, duplicate identity `notificationUUID` and signed snapshot time `signedDate`. These are compatibility constraints only, not live-provider proof.
+- Manual intervention: CONDITIONAL / NOT TRIGGERED. No production provider account, product, credential, private key, purchase token or real-money transaction was requested or used.
+- END state: R14.10 COMPLETE; R14.11–R14.17 remain PLANNED. R14.11 is not authorized until the exact R14.10 END-head passes fresh R0/Python/UI/R14 Entitlements gates, PR #275 merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

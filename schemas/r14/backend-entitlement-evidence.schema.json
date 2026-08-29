@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.dev/schemas/r14/backend-entitlement-evidence.schema.json",
+  "title": "R14.10 Entitlement/Billing Acceptance Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "source_sha",
+    "checks",
+    "catalog_digest",
+    "state_digest",
+    "trace_digest",
+    "provider_event_digest",
+    "google_entitlement_digest",
+    "apple_entitlement_digest",
+    "provider_event_count",
+    "purchase_count",
+    "catalog_count",
+    "budgets",
+    "external_reference_posture",
+    "manual_state",
+    "provider_live_claim",
+    "secrets_exposed"
+  ],
+  "properties": {
+    "status": {"const": "pass"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "client_receipt_grant_rejected",
+        "invalid_notification_signature_rejected",
+        "invalid_purchase_token_rejected",
+        "pending_purchase_no_grant",
+        "verified_provider_state_grants",
+        "duplicate_message_mutation_free",
+        "message_account_rebind_rejected",
+        "purchase_account_rebind_rejected",
+        "out_of_order_no_regression",
+        "reconciliation_converges",
+        "reconciliation_replay_idempotent",
+        "server_clock_expiry",
+        "environment_isolation",
+        "apple_v2_contract",
+        "immutable_catalog_version",
+        "object_authorization",
+        "function_authorization",
+        "bounded_capacity",
+        "redacted_evidence"
+      ],
+      "properties": {
+        "client_receipt_grant_rejected": {"const": true},
+        "invalid_notification_signature_rejected": {"const": true},
+        "invalid_purchase_token_rejected": {"const": true},
+        "pending_purchase_no_grant": {"const": true},
+        "verified_provider_state_grants": {"const": true},
+        "duplicate_message_mutation_free": {"const": true},
+        "message_account_rebind_rejected": {"const": true},
+        "purchase_account_rebind_rejected": {"const": true},
+        "out_of_order_no_regression": {"const": true},
+        "reconciliation_converges": {"const": true},
+        "reconciliation_replay_idempotent": {"const": true},
+        "server_clock_expiry": {"const": true},
+        "environment_isolation": {"const": true},
+        "apple_v2_contract": {"const": true},
+        "immutable_catalog_version": {"const": true},
+        "object_authorization": {"const": true},
+        "function_authorization": {"const": true},
+        "bounded_capacity": {"const": true},
+        "redacted_evidence": {"const": true}
+      }
+    },
+    "catalog_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "state_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "trace_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "provider_event_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "google_entitlement_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "apple_entitlement_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "provider_event_count": {"type": "integer", "minimum": 1},
+    "purchase_count": {"type": "integer", "minimum": 1},
+    "catalog_count": {"type": "integer", "minimum": 2},
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_catalog_versions",
+        "max_provider_events",
+        "max_purchases",
+        "max_accounts",
+        "max_reconciliations"
+      ],
+      "properties": {
+        "max_catalog_versions": {"type": "integer", "minimum": 1},
+        "max_provider_events": {"type": "integer", "minimum": 1},
+        "max_purchases": {"type": "integer", "minimum": 1},
+        "max_accounts": {"type": "integer", "minimum": 1},
+        "max_reconciliations": {"type": "integer", "minimum": 1}
+      }
+    },
+    "external_reference_posture": {
+      "type": "array",
+      "minItems": 4,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "manual_state": {"const": "conditional_not_triggered"},
+    "provider_live_claim": {"const": false},
+    "secrets_exposed": {"const": false}
+  }
+}

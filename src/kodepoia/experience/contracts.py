@@ -324,7 +324,12 @@ class ExperienceRecord:
 
 _ALLOWED_TRANSITIONS: dict[ExperienceState, frozenset[ExperienceState]] = {
     ExperienceState.OBSERVED: frozenset(
-        {ExperienceState.ELIGIBLE, ExperienceState.REJECTED, ExperienceState.QUARANTINED, ExperienceState.EXPIRED}
+        {
+            ExperienceState.ELIGIBLE,
+            ExperienceState.REJECTED,
+            ExperienceState.QUARANTINED,
+            ExperienceState.EXPIRED,
+        }
     ),
     ExperienceState.ELIGIBLE: frozenset(
         {

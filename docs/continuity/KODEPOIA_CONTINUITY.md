@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.16 COMPLETE + NORMALIZED. R14.17 COMPLETE / IMPLEMENTATION MERGE PENDING; R14 phase COMPLETE / NORMALIZATION PENDING.** R14.17 immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; exact-source gates R0 #2028 / `33265386264`, Python #2003 / `33265386254`, UI #1968 / `33265386267`, Integrated #5 / `33265386261` all SUCCESS. Manual state CONDITIONAL / NOT TRIGGERED; no provider-live or production-publish claim.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.17 COMPLETE + NORMALIZED. R14 COMPLETE + NORMALIZED. R15 planning AUTHORIZED on the normalized main produced by this unique phase normalization.** R14.17 immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; final END-head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750`; canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; fresh exact-END gates R0 #2042 / `33267376108`, Python #2017 / `33267376130`, UI #1982 / `33267376112`, Integrated #15 / `33267376114` all SUCCESS; PR #290 required R0 #2043 / `33267483582` SUCCESS Ubuntu + Windows and merged exact head as `3327913047625ca26a70b5c96beb3f1608ff7720`. Manual state CONDITIONAL / NOT TRIGGERED; no provider-live, production-publish, Internet-scale or multi-region claim.
 
 ## État global
 
@@ -8,6 +8,7 @@
 - R12 canonical integrated digest : `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 canonical integrated digest : `831b155fce200eae6b9fbe91c8eb44e992ea036c0922e508171644b497a4c3c7`.
 - R14 planning : **ACCEPTED + NORMALIZED**.
+- R14 : **COMPLETE + NORMALIZED** — canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; implementation/evidence merge `3327913047625ca26a70b5c96beb3f1608ff7720`; this record is the unique post-merge continuity-only phase normalization authority. R15 planning is the next authorized phase action after this normalization PR merges.
 - R14.1–R14.9 : **COMPLETE + NORMALIZED**.
 - R14.9 normalized `main` : **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`** après normalization PR #274.
 - R14.10 : **COMPLETE + NORMALIZED** — source technique `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab`; normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40` via PR #276.
@@ -17,7 +18,7 @@
 - R14.14 : **COMPLETE + NORMALIZED** — immutable source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; END-head `d8debf494f4f096e2a9f8a4093852752242e8b9f`; PR #283 merge `29bf8255277fcbfce721408ec0abab660076f99d`; normalization head `8b527170d3b79bfacbdac36f638c8c616689bc61`; normalized `main` `0078a75d473524688e6ab76ccf41b509e2146dea` via PR #284 after fresh R0 #1944 / `33254094376`, Python Core #1919 / `33254094466`, UI #1884 / `33254094372` SUCCESS.
 - R14.15 : **COMPLETE + NORMALIZED** — immutable source `232bae747e91fd97f4cf3110a019639217d7914b`; END-head `80bd6853664ab9f41fd41fb83f43b43980bef394`; PR #285 merge `53373e78c60d4a338e9313496a822c93ab334e68`; unique normalization head `68a6f106484ab60d9925dfcc60189b509d995393`; normalized `main` `1f10d7a13f49cb6e931e5e0694f083228ed24070` via PR #286 after fresh R0 #1973 / `33257784369`, Python Core #1948 / `33257784390`, and UI #1913 / `33257784370` SUCCESS; manual `CONDITIONAL / NOT TRIGGERED`; post-normalization continuity erratum PR #287 -> current `main` `8a7eb312d3fa0d642d6b2b77ef35c2b2d3e7de36` after fresh R0 #1979 / `33258615852`, Python #1954 / `33258615797`, UI #1919 / `33258615872` SUCCESS; erratum is not a second normalization.
 - R14.16 : **COMPLETE + NORMALIZED** — immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; END `a5797fc7a320eef033e9d2576322fac464b05c67`; PR #288 merge `9c7ed58f20c794e59146813544b3a75aec0bace1`; unique normalization head `418c41a22c907bdef0693b16824bd2b86fa47acc`; PR #289 -> normalized `main` `f6960db290a570e3a0c3c4ff97600014978d45df`; fresh normalization R0 #2013 / `33261708135`, Python #1988 / `33261708106`, UI #1953 / `33261708116` SUCCESS; manual **NONE**.
-- R14.17 : **COMPLETE / IMPLEMENTATION MERGE PENDING** — immutable source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; manual **CONDITIONAL / NOT TRIGGERED**.
+- R14.17 : **COMPLETE + NORMALIZED** — immutable source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; final END-head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750`; exact-END R0 #2042 / `33267376108`, Python #2017 / `33267376130`, UI #1982 / `33267376112`, Integrated #15 / `33267376114` SUCCESS; PR #290 required R0 #2043 / `33267483582` SUCCESS Ubuntu + Windows and merged with exact expected head as `3327913047625ca26a70b5c96beb3f1608ff7720`; integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; manual **CONDITIONAL / NOT TRIGGERED**.
 - Manual state actuel R14.17 : **CONDITIONAL / NOT TRIGGERED**. Core closure is local/hosted/sandbox; live external provider/domain/TLS evidence is required only if explicitly claimed, and then execution must stop before completion.
 
 ## Permanent R-phase execution rule
@@ -69,7 +70,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.14 | COMPLETE + NORMALIZED | NONE |
 | R14.15 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R14.16 | COMPLETE + NORMALIZED | NONE |
-| R14.17 | COMPLETE / MERGE PENDING | CONDITIONAL / NOT TRIGGERED |
+| R14.17 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 
 ## R14.1–R14.6 closure checkpoint
 
@@ -370,17 +371,19 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Frozen core acceptance is the 12-step local/hosted/sandbox integrated scenario from `R14_PLAN.md`, plus anti-circular/mixed-SHA/tamper/provider-overclaim failure-closed checks.
 - Manual state: **CONDITIONAL / NOT TRIGGERED**. Do not request or expose passwords, tokens, private keys, client secrets or production credentials. If a final claim requires real external IdP/store/CDN/managed-provider or public domain/TLS evidence, stop before completion and request only the minimum user-side prerequisites/evidence.
 
-## R14.17 technical / END closure authority
+## R14.17 implementation merge / R14 phase normalization authority
 
-- Exact normalized base: `f6960db290a570e3a0c3c4ff97600014978d45df`; clean START-head `e48f8207c92aae1f655fb270e21a2c861036a6fd`.
-- Rejected candidates `f25cb89f1b54d325ecab6d12c08ec1e9129c1025`, `152f34d217f159d65b10d811d8770ea840b8e05b`, and malformed temporary helper `4e7f5d17e5e8356b7e6b1d3bc9331b73aefe496f` are NON-AUTHORITATIVE; no failed evidence is reusable.
-- Immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; START→source exactly eight intended R14.17 files; temporary report/end-sync helpers removed before END.
-- Exact-source gates: R0 #2028 / `33265386264` SUCCESS; Python Core #2003 / `33265386254` SUCCESS 5/5, Ubuntu **1760 passed / 14 skipped / 46 warnings**; UI #1968 / `33265386267` SUCCESS; R14 Integrated #5 / `33265386261` SUCCESS Ubuntu/PostgreSQL 18 + Windows.
-- Scenario: 14/14 integrated checks PASS over 222 underlying service checks; artifact `9718490610` / `sha256:8ef3c8fd15ab88919918ff9819784e5ed8558d08951bf2e9dc464d7bac9c8bac`; checked scenario bytes 6313 / SHA-256 `8080d974bec375e822fb04d271671d922460e4d71e5996ce5a2d61377d4b8d47`.
-- CI authority digest `f8e1ea8d274aafc44009bb76c2c2e21e5306673510cc61c47d96de34b9f20a08`; canonical R14 integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; report `status=pass`, `blockers=[]`, source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`.
-- Manual/provider state **CONDITIONAL / NOT TRIGGERED**; provider-live, production publish, Internet-scale and multi-region claims remain false; no external credential/domain/TLS/provider proof was required.
-- END-sync now changes evidence/documentation only. Fresh exact-END R0/Python/UI/R14 Integrated gates are mandatory before the expected-head implementation/evidence merge.
+- Exact normalized R14.16 base: `f6960db290a570e3a0c3c4ff97600014978d45df`; clean R14.17 START-head `e48f8207c92aae1f655fb270e21a2c861036a6fd`.
+- Rejected technical candidates `f25cb89f1b54d325ecab6d12c08ec1e9129c1025` and `152f34d217f159d65b10d811d8770ea840b8e05b` are NON-AUTHORITATIVE. Temporary END-sync/helper staging commits `4e7f5d17e5e8356b7e6b1d3bc9331b73aefe496f`, `f509b7c683776e180f56129e5cb43eb0c65b8916`, and `6b3dcd15ca27979f55688b0b535eed1417b95dc2` are also NON-AUTHORITATIVE. No failed or staging decision evidence is reused.
+- Immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; source gates R0 #2028 / `33265386264`, Python #2003 / `33265386254`, UI #1968 / `33265386267`, Integrated #5 / `33265386261` all SUCCESS. Ubuntu Python Core: **1760 passed / 14 skipped / 46 warnings**.
+- Scenario authority: 14/14 integrated checks PASS over 222 underlying service checks; artifact `9718490610` / `sha256:8ef3c8fd15ab88919918ff9819784e5ed8558d08951bf2e9dc464d7bac9c8bac`; scenario bytes 6313 / SHA-256 `8080d974bec375e822fb04d271671d922460e4d71e5996ce5a2d61377d4b8d47`; CI authority digest `f8e1ea8d274aafc44009bb76c2c2e21e5306673510cc61c47d96de34b9f20a08`.
+- Canonical R14 integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; report `status=pass`, `blockers=[]`, immutable source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`.
+- Final clean R14.17 END-head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750` contains no temporary report-emission or END-sync helper. Fresh exact-END gates: R0 #2042 / `33267376108` SUCCESS Ubuntu + Windows; Python Core #2017 / `33267376130` SUCCESS 5/5; KodeStudio UI Smoke #1982 / `33267376112` SUCCESS; R14 Integrated #15 / `33267376114` SUCCESS Ubuntu 24.04 + PostgreSQL 18 and Windows 2025.
+- PR #290 required R0 Repository Guard #2043 / `33267483582` SUCCESS Ubuntu + Windows on exact head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750`, then merged only with `expected_head_sha=4f4ab856c233e3a0fd4298e1e26d8ea389c7e750` as implementation/evidence merge `3327913047625ca26a70b5c96beb3f1608ff7720`.
+- This R14 phase normalization branch was created exactly from implementation merge `3327913047625ca26a70b5c96beb3f1608ff7720`. Its authoritative final tree changes **only** `docs/continuity/KODEPOIA_CONTINUITY.md`; `docs/roadmap/R14_PLAN.md` remains byte-identical to the implementation merge. Temporary normalization helper files are removed before the normalization decision head.
+- Manual/provider state remains **CONDITIONAL / NOT TRIGGERED**; `provider_live_claim=false`, `production_publish_claim=false`, `internet_scale_claim=false`, `multi_region_claim=false`; no external IdP/store/CDN/managed-provider account, credential, public domain/TLS state, destructive production load or production publish is required or claimed.
+- This continuity record is the single post-merge R14 phase-normalization authority. It becomes authoritative only after its exact normalization head passes fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke and the normalization PR merges with exact expected-head protection. No second R14 normalization is permitted.
 
 ## Next authorized action
 
-Run fresh exact-END R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Integrated Acceptance on the final R14.17 END-head. If all are SUCCESS, open/merge the R14.17 implementation/evidence PR only with exact `expected_head_sha`. Then create exactly one post-merge continuity-only R14 normalization, run fresh exact-head R0/Python/UI, merge it with exact expected-head protection, and only then authorize R15 planning.
+R15 planning is the next authorized action on the normalized `main` produced by this continuity-only normalization PR. Do not begin R15 from the implementation merge or an unmerged normalization candidate; only the successfully re-gated and merged normalized `main` is authoritative.

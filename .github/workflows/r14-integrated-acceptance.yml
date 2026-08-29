@@ -135,6 +135,7 @@ jobs:
           PY
 
       - name: Upload integrated scenario evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: R14_17_INTEGRATED_SCENARIO-${{ env.EVIDENCE_SOURCE_SHA }}

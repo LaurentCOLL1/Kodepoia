@@ -8,6 +8,7 @@ on:
       - "agent/**"
       - "feature/**"
       - "fix/**"
+      - "r14/**"
   pull_request:
     branches:
       - main

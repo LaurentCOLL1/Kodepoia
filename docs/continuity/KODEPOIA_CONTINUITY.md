@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.17 COMPLETE + NORMALIZED. R14 COMPLETE + NORMALIZED. R15 planning AUTHORIZED on the normalized main produced by this unique phase normalization.** R14.17 immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; final END-head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750`; canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; fresh exact-END gates R0 #2042 / `33267376108`, Python #2017 / `33267376130`, UI #1982 / `33267376112`, Integrated #15 / `33267376114` all SUCCESS; PR #290 required R0 #2043 / `33267483582` SUCCESS Ubuntu + Windows and merged exact head as `3327913047625ca26a70b5c96beb3f1608ff7720`. Manual state CONDITIONAL / NOT TRIGGERED; no provider-live, production-publish, Internet-scale or multi-region claim.
+> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning IN_PROGRESS from normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`; R15.1–R15.17 PLANNED; no R15 implementation is authorized before planning ACCEPTED + NORMALIZED.** R14.17 immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; final END-head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750`; canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; fresh exact-END gates R0 #2042 / `33267376108`, Python #2017 / `33267376130`, UI #1982 / `33267376112`, Integrated #15 / `33267376114` all SUCCESS; PR #290 required R0 #2043 / `33267483582` SUCCESS Ubuntu + Windows and merged exact head as `3327913047625ca26a70b5c96beb3f1608ff7720`. Manual state CONDITIONAL / NOT TRIGGERED; no provider-live, production-publish, Internet-scale or multi-region claim.
 
 ## État global
 
@@ -9,6 +9,7 @@
 - R13 canonical integrated digest : `831b155fce200eae6b9fbe91c8eb44e992ea036c0922e508171644b497a4c3c7`.
 - R14 planning : **ACCEPTED + NORMALIZED**.
 - R14 : **COMPLETE + NORMALIZED** — canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; implementation/evidence merge `3327913047625ca26a70b5c96beb3f1608ff7720`; this record is the unique post-merge continuity-only phase normalization authority. R15 planning is the next authorized phase action after this normalization PR merges.
+- R15 planning : **IN_PROGRESS** — branch `r15/00-phase-plan` from normalized R14 main `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`; exhaustive `docs/roadmap/R15_PLAN.md` freezes R15.1–R15.17 before implementation; planning acceptance and its one continuity-only normalization remain pending.
 - R14.1–R14.9 : **COMPLETE + NORMALIZED**.
 - R14.9 normalized `main` : **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`** après normalization PR #274.
 - R14.10 : **COMPLETE + NORMALIZED** — source technique `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab`; normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40` via PR #276.
@@ -20,6 +21,45 @@
 - R14.16 : **COMPLETE + NORMALIZED** — immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; END `a5797fc7a320eef033e9d2576322fac464b05c67`; PR #288 merge `9c7ed58f20c794e59146813544b3a75aec0bace1`; unique normalization head `418c41a22c907bdef0693b16824bd2b86fa47acc`; PR #289 -> normalized `main` `f6960db290a570e3a0c3c4ff97600014978d45df`; fresh normalization R0 #2013 / `33261708135`, Python #1988 / `33261708106`, UI #1953 / `33261708116` SUCCESS; manual **NONE**.
 - R14.17 : **COMPLETE + NORMALIZED** — immutable source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; final END-head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750`; exact-END R0 #2042 / `33267376108`, Python #2017 / `33267376130`, UI #1982 / `33267376112`, Integrated #15 / `33267376114` SUCCESS; PR #290 required R0 #2043 / `33267483582` SUCCESS Ubuntu + Windows and merged with exact expected head as `3327913047625ca26a70b5c96beb3f1608ff7720`; integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; manual **CONDITIONAL / NOT TRIGGERED**.
 - Manual state actuel R14.17 : **CONDITIONAL / NOT TRIGGERED**. Core closure is local/hosted/sandbox; live external provider/domain/TLS evidence is required only if explicitly claimed, and then execution must stop before completion.
+
+## R15 planning authority
+
+- Exact branch point: normalized R14 `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`.
+- Dedicated planning branch: `r15/00-phase-plan`.
+- Frozen-roadmap title: **Experience / Bench / Fine-tuning**.
+- Roadmap chain: validated experiences → cleaning/dedup/license/governance → gap benchmark → QLoRA only if useful → GGUF/Ollama → KodeBench before/after; any critical-domain regression vetoes promotion.
+- Exhaustive plan: `docs/roadmap/R15_PLAN.md`; subdivision set **R15.1–R15.17** is PLANNED and no R15 implementation is present in the planning authority.
+- Training data is opt-in/eligibility-gated, provenance/license-bound, secret/private-data sanitized, deduplicated and protected by a train/benchmark contamination firewall.
+- Fine-tuning is fail-closed and conditional: `NO_TRAIN`, `FIX_SYSTEM_FIRST`, `INSUFFICIENT_DATA`, `UNSUPPORTED`, `LICENSE_BLOCKED`, `BUDGET_BLOCKED` and `INCONCLUSIVE` are truthful outcomes where evidence does not justify training.
+- QLoRA/PEFT/TRL/bitsandbytes, llama.cpp/GGUF and real Ollama specialization are optional capability-probed tools, not unconditional base-package or hardware prerequisites.
+- Manual state for planning: **NONE**. Later R15.8/R15.9/R15.12/R15.13/R15.16/R15.17 carry CONDITIONAL hardware/tool gates as frozen in the plan; if one triggers during implementation, execution stops before the following subdivision until exact evidence is reviewed.
+- Planning acceptance requires fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, planning PR merge with exact `expected_head_sha`, then exactly one continuity-only planning normalization with fresh exact-head R0/Python/UI and protected merge. Only the resulting normalized `main` authorizes R15.1.
+
+## R15 status index
+
+| ID | Status | Manual |
+| --- | --- | --- |
+| R15.1 | PLANNED | NONE |
+| R15.2 | PLANNED | NONE |
+| R15.3 | PLANNED | NONE |
+| R15.4 | PLANNED | NONE |
+| R15.5 | PLANNED | NONE |
+| R15.6 | PLANNED | NONE |
+| R15.7 | PLANNED | NONE |
+| R15.8 | PLANNED | CONDITIONAL |
+| R15.9 | PLANNED | CONDITIONAL |
+| R15.10 | PLANNED | NONE |
+| R15.11 | PLANNED | NONE |
+| R15.12 | PLANNED | CONDITIONAL |
+| R15.13 | PLANNED | CONDITIONAL |
+| R15.14 | PLANNED | NONE |
+| R15.15 | PLANNED | NONE |
+| R15.16 | PLANNED | CONDITIONAL |
+| R15.17 | PLANNED | CONDITIONAL |
+
+## Next authorized action
+
+Complete and re-gate the exhaustive R15 planning authority. Do **not** start R15.1 before the planning PR and its unique planning continuity normalization are both merged successfully.
 
 ## Permanent R-phase execution rule
 

@@ -62,7 +62,6 @@ jobs:
     env:
       KODEPOIA_R14_5_DSN: postgresql://postgres:postgres@127.0.0.1:5432/kodepoia_r14
       SCENARIO_EVIDENCE: docs/roadmap/R14_17_SCENARIO_EVIDENCE-CI.json
-      INTEGRATED_REPORT: docs/roadmap/R14_INTEGRATED_ACCEPTANCE-CI.json
     steps:
       - name: Checkout exact evidence source
         uses: actions/checkout@v4
@@ -141,22 +140,6 @@ jobs:
         with:
           name: R14_17_INTEGRATED_SCENARIO-${{ env.EVIDENCE_SOURCE_SHA }}
           path: ${{ env.SCENARIO_EVIDENCE }}
-          if-no-files-found: error
-
-      - name: Emit canonical report artifact from checked authority
-        run: |
-          set -euo pipefail
-          TECHNICAL_SOURCE_SHA="$(python -c "import json; print(json.load(open('docs/roadmap/R14_17_CI_ACCEPTANCE.json', encoding='utf-8'))['source_sha'])")"
-          test "$TECHNICAL_SOURCE_SHA" = "11fb0e1a28fd5cbb607e2b302a36314f151ee170"
-          python scripts/r14_17_build_integrated_report.py \
-            --source-sha "$TECHNICAL_SOURCE_SHA" \
-            --output "$INTEGRATED_REPORT"
-
-      - name: Upload canonical integrated report
-        uses: actions/upload-artifact@v4
-        with:
-          name: R14_INTEGRATED_ACCEPTANCE-CANONICAL
-          path: ${{ env.INTEGRATED_REPORT }}
           if-no-files-found: error
 
   verifier-windows:

@@ -1,0 +1,42 @@
+name: R15.3 Ruff correction helper
+on:
+  push:
+    branches: [r15/03-sanitization-governance]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/03-sanitization-governance
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[dev]"
+      - name: Apply bounded style corrections
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('src/kodepoia/experience/governance.py')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('from dataclasses import dataclass, field, replace\nfrom typing import Iterable, Mapping, Pattern\n', 'from collections.abc import Iterable, Mapping\nfrom dataclasses import dataclass, field, replace\nfrom re import Pattern\n')
+          s = s.replace('        r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\\s\\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",\n', '        r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"\n        r"[\\s\\S]*?"\n        r"-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",\n')
+          s = s.replace('    if any(identifier.startswith(("LicenseRef-", "DocumentRef-")) for identifier in parser.identifiers):\n        if not policy.allow_license_refs:\n            return LicenseAssessment(expression, PolicyDecision.REVIEW, ids, operators, "license_ref_review")\n', '    if (\n        any(identifier.startswith(("LicenseRef-", "DocumentRef-")) for identifier in parser.identifiers)\n        and not policy.allow_license_refs\n    ):\n        return LicenseAssessment(expression, PolicyDecision.REVIEW, ids, operators, "license_ref_review")\n')
+          s = s.replace('    unknown_ids = [identifier for identifier in parser.identifiers if identifier not in policy.allowed_licenses]\n', '    unknown_ids = [\n        identifier for identifier in parser.identifiers if identifier not in policy.allowed_licenses\n    ]\n')
+          s = s.replace('        def replacement(match: re.Match[str]) -> str:\n            counts[rule.category] = counts.get(rule.category, 0) + 1\n            prefix = match.groupdict().get("prefix")\n            return (prefix or "") + f"<redacted:{rule.category}>"\n', '        def replacement(match: re.Match[str], category: str = rule.category) -> str:\n            counts[category] = counts.get(category, 0) + 1\n            prefix = match.groupdict().get("prefix")\n            return (prefix or "") + f"<redacted:{category}>"\n')
+          p.write_text(s, encoding='utf-8', newline='\n')
+      - name: Verify focused suite
+        run: |
+          python -m pytest -q tests/test_experience_contracts.py tests/test_experience_collector.py tests/test_experience_governance.py
+          python -m ruff check src/kodepoia/experience tests/test_experience_contracts.py tests/test_experience_collector.py tests/test_experience_governance.py
+          python -m compileall -q src/kodepoia/experience
+      - name: Commit correction and remove helper
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r15_3_ruff_fix.yml
+          git add src/kodepoia/experience/governance.py
+          git commit -m "fix(r15.3): satisfy governance lint contract"
+          git push origin HEAD:r15/03-sanitization-governance

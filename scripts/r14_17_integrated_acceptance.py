@@ -64,7 +64,7 @@ FROZEN_ACCEPTANCE_DIGESTS: dict[str, dict[str, str]] = {
     },
     "remote_config": {
         "snapshot": "70397539d8e0fd41102387f32a29f947f29b629cbbfddbd9b20b660b40ca27c4",
-        "state": "5343df1b58f0f595133261cdff7058b4a581877864bff3a352fa651c85439c7"[:64],
+        "state": "5343df1b58f0f595133261cdff705d720dc2e2c561e6d01cd69263060680a0c9",
         "trace": "4f45743cdc5af05bbdb795026d2e15a76c502c37d46c649a5ba08347efd00509",
         "rollout": "24df98a3b2058d746bbbec24af41299acc9d84ea2b3d102cee4efbb56de69a98",
     },

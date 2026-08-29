@@ -9,7 +9,7 @@
 
 R14.17 closes the frozen R14 service surface with one anti-circular integrated acceptance model. The final report does not consume its own bytes or its own PASS state. Instead, independent exact-source workflow identities and artifact digests are bound first; repository files are then byte-hashed and re-read by the offline verifier. Mixed source SHAs, tampering, prior-phase semantic drift, provider-live fabrication, sensitive-data exposure and synthetic production-publication claims fail closed.
 
-Rejected candidates `f25cb89f1b54d325ecab6d12c08ec1e9129c1025`, `152f34d217f159d65b10d811d8770ea840b8e05b`, and temporary malformed-helper candidate `4e7f5d17e5e8356b7e6b1d3bc9331b73aefe496f` are permanently non-authoritative. The accepted source `11fb0e1a28fd5cbb607e2b302a36314f151ee170` fixes the nested R14.16 workspace-bound output contract without weakening that boundary.
+Rejected candidates `f25cb89f1b54d325ecab6d12c08ec1e9129c1025` and `152f34d217f159d65b10d811d8770ea840b8e05b` are permanently non-authoritative. Temporary END-sync/helper commits `4e7f5d17e5e8356b7e6b1d3bc9331b73aefe496f`, `f509b7c683776e180f56129e5cb43eb0c65b8916`, and `6b3dcd15ca27979f55688b0b535eed1417b95dc2` are staging-only and cannot be reused as decision evidence. The accepted source `11fb0e1a28fd5cbb607e2b302a36314f151ee170` fixes the nested R14.16 workspace-bound output contract without weakening that boundary.
 
 ## Exact-source gates
 
@@ -36,4 +36,4 @@ Core closure is local/hosted/sandbox evidence only. `provider_live_claim=false`,
 
 ## END acceptance rule
 
-This acceptance document, the R14 phase plan and continuity change evidence bytes, so the resulting exact END-head must receive fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Integrated Acceptance. Only after all are SUCCESS may the implementation/evidence PR merge with exact `expected_head_sha`. Exactly one post-merge continuity-only normalization must then receive fresh R0/Python/UI before R14 becomes `COMPLETE + NORMALIZED` and R15 planning is authorized.
+The clean END tree contains no temporary report-emission or END-sync helper workflow/script. This acceptance document, the R14 phase plan and continuity change evidence bytes, so the resulting exact END-head must receive fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Integrated Acceptance. Only after all are SUCCESS may the implementation/evidence PR merge with exact `expected_head_sha`. Exactly one post-merge continuity-only normalization must then receive fresh R0/Python/UI before R14 becomes `COMPLETE + NORMALIZED` and R15 planning is authorized.

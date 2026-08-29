@@ -73,7 +73,20 @@ def actor() -> AuthorityActorContext:
         account_id="operator.1",
         session_id="session.1",
         permissions=("*",),
-        authorized_object_ids=("*",),
+        authorized_object_ids=(
+            "season.2026.autumn",
+            "config.liveops.1",
+            "config.other",
+            "manifest.liveops.1",
+            "product.liveops.1",
+            "schema.liveops.1",
+            "campaign.autumn.1",
+            "campaign.one",
+            "campaign.two",
+            "test",
+            "production",
+            "liveops.audience",
+        ),
     )
 
 

@@ -48,6 +48,7 @@ jobs:
           tests/test_r14_6_authoritative_server.py
           tests/test_r14_11_remote_config.py
           tests/test_r14_12_content_delivery.py
+          tests/test_r14_12_content_delivery_http.py
           tests/test_r14_12_backend_exports.py
           scripts/r14_12_content_delivery_acceptance.py
 
@@ -58,6 +59,7 @@ jobs:
           tests/test_r14_6_authoritative_server.py
           tests/test_r14_11_remote_config.py
           tests/test_r14_12_content_delivery.py
+          tests/test_r14_12_content_delivery_http.py
           tests/test_r14_12_backend_exports.py
 
       - name: Generate deterministic content delivery evidence

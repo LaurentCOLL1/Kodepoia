@@ -1,0 +1,32 @@
+name: R14.11 Continuity Normalization
+
+on:
+  push:
+    branches:
+      - r14/11-normalization
+    paths:
+      - .github/workflows/r14-11-normalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/11-normalization
+          fetch-depth: 0
+      - name: Apply anchored R14.11 continuity normalization
+        run: python .github/r14_11_normalize.py
+      - name: Commit continuity-only normalization and remove helpers
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/r14_11_normalize.py .github/workflows/r14-11-normalize.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only | sort)" = $'.github/r14_11_normalize.py\n.github/workflows/r14-11-normalize.yml\ndocs/continuity/KODEPOIA_CONTINUITY.md'
+          git commit -m "docs(r14.11): normalize post-merge continuity"
+          git push origin HEAD:r14/11-normalization

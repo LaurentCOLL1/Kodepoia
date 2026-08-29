@@ -1,10 +1,4 @@
-# Kodepoia — Continuité / reprise par un autre LLM
-
-**Dernière mise à jour : 29 août 2026**
-
-## Prompt de reprise
-
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.14 COMPLETE + NORMALIZED. R14.15 IN_PROGRESS on `r14/15-service-operations-resilience`; R14.16–R14.17 PLANNED.** Normalized R14.14 `main` and exact R14.15 branch point: `0078a75d473524688e6ab76ccf41b509e2146dea`. R14.14 immutable technical source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; END-head `d8debf494f4f096e2a9f8a4093852752242e8b9f`; implementation merge PR #283 `29bf8255277fcbfce721408ec0abab660076f99d`; unique normalization head `8b527170d3b79bfacbdac36f638c8c616689bc61`; normalization gates R0 #1944 / `33254094376`, Python Core #1919 / `33254094466`, UI #1884 / `33254094372` SUCCESS; PR #284 expected-head merge -> normalized main `0078a75d473524688e6ab76ccf41b509e2146dea`. R14.15 manual state: CONDITIONAL / NOT TRIGGERED for core; no external quota/cost/load or production-scale claim is authorized without explicit manual evidence. The only authorized action is R14.15 implementation/testing on its dedicated branch.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.14 COMPLETE + NORMALIZED. R14.15 technically COMPLETE on its immutable source; END-sync/re-gates/merge/normalization pending. R14.16–R14.17 remain PLANNED and unauthorized.** R14.15 base `0078a75d473524688e6ab76ccf41b509e2146dea`; START-head `c3dd8aa5f3a7ec7d5f866ead207cf3a023fedbf0`; immutable technical source `232bae747e91fd97f4cf3110a019639217d7914b`; technical gates R0 #1959 / `33255887218`, Python Core #1934 / `33255887265`, UI #1899 / `33255887175`, R14 Resilience Acceptance #1 / `33255887252` all SUCCESS. Manual state: CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`; `external_load_required=false`; no Internet-scale, multi-region or PostgreSQL PITR claim. The only authorized next action is the three-file R14.15 END-sync followed by fresh exact-head re-gates.
 
 ## État global
 
@@ -21,7 +15,7 @@
 - R14.12 : **COMPLETE + NORMALIZED** — source technique `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`; PR #279 merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`; normalization head `8ceff867b09c8161e66d57dee936ce493dfc5a77`; normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6` via PR #280.
 - R14.13 : **COMPLETE + NORMALIZED** — source technique `b1729cabaffb19ac5491dee8a2c18e1bb5877746`; END-head `5461815da316bf9e20b06352dc7dda8699b46525`; PR #281 merge `e1109c84a4b55761e4bf948b13457aabd327669e`; normalization head `6d302f20ba05544d1a1f122ebed48816dd22c76b`; normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4` via PR #282 after fresh R0 #1902 / `33247706878`, Python Core #1877 / `33247706820`, UI #1842 / `33247706847` SUCCESS.
 - R14.14 : **COMPLETE + NORMALIZED** — immutable source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; END-head `d8debf494f4f096e2a9f8a4093852752242e8b9f`; PR #283 merge `29bf8255277fcbfce721408ec0abab660076f99d`; normalization head `8b527170d3b79bfacbdac36f638c8c616689bc61`; normalized `main` `0078a75d473524688e6ab76ccf41b509e2146dea` via PR #284 after fresh R0 #1944 / `33254094376`, Python Core #1919 / `33254094466`, UI #1884 / `33254094372` SUCCESS.
-- R14.15 : **IN_PROGRESS** — branch `r14/15-service-operations-resilience`; exact normalized base `0078a75d473524688e6ab76ccf41b509e2146dea`; manual `CONDITIONAL / NOT TRIGGERED` for core.
+- R14.15 : **TECHNICALLY COMPLETE / END-SYNC PENDING** — immutable source `232bae747e91fd97f4cf3110a019639217d7914b`; manual `CONDITIONAL / NOT TRIGGERED`.
 - R14.16–R14.17 : **PLANNED**.
 - Manual state actuel R14.15 : **CONDITIONAL / NOT TRIGGERED**. Core uses bounded local/hosted CI; external provider quota/cost/load evidence is manual only if explicitly claimed, and no destructive/high-cost production load is authorized by default.
 
@@ -72,7 +66,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.12 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R14.13 | COMPLETE + NORMALIZED | NONE |
 | R14.14 | COMPLETE + NORMALIZED | NONE |
-| R14.15 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |
+| R14.15 | TECHNICALLY COMPLETE / END-SYNC PENDING | CONDITIONAL / NOT TRIGGERED |
 | R14.16 | PLANNED | NONE |
 | R14.17 | PLANNED | CONDITIONAL |
 
@@ -305,6 +299,22 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Acceptance posture: dependency outage, timeout/retry/circuit/rate-limit, graceful shutdown, backup+restore hash, bounded RPO/RTO and load-budget evidence plus R0/Python/UI. Local/hosted CI never implies Internet-scale or multi-region production capability.
 - Manual state: **CONDITIONAL / NOT TRIGGERED**. External provider quota/cost/load proof is manual/provider-dependent only when explicitly claimed; destructive/high-cost production load remains forbidden by default.
 
+## R14.15 technical closure authority
+
+- Dedicated branch: `r14/15-service-operations-resilience`; normalized base `0078a75d473524688e6ab76ccf41b509e2146dea`; clean START-head `c3dd8aa5f3a7ec7d5f866ead207cf3a023fedbf0`.
+- Immutable technical source: `232bae747e91fd97f4cf3110a019639217d7914b`. START→source contains exactly seven intended technical files; temporary bootstrap/helper history is non-authoritative and no helper survives the source tree.
+- Exact technical-source gates: R0 Repository Guard #1959 / `33255887218` SUCCESS Ubuntu + Windows; Python Core #1934 / `33255887265` SUCCESS 5/5; KodeStudio UI Smoke #1899 / `33255887175` SUCCESS; R14 Service Operations Resilience Acceptance #1 / `33255887252` SUCCESS Ubuntu 24.04 + Windows 2025.
+- Full Ubuntu Python Core: **1731 passed / 13 skipped / 46 warnings** with R7/R8/R9 integrated acceptance PASS. Focused R14.15/export tests: **18 passed Ubuntu + 18 passed Windows**. Dedicated evidence: **24/24 checks PASS**, with decoded Ubuntu/Windows evidence objects exactly equal.
+- Health digests: degraded `6013bc39f146bc5e564f62cfa9367c9cbde619214dd391879204e43f13df838d`; unavailable `16e45082480ef5b9a65d09671be1c7075aab119400f71ca5a4f8c139627042e7`; OTel dependency `b775b5ab61cac6c3f2df3eb6cb25840cf19980264257e6fde80e92fb4ca4a066`.
+- Retry/failure digests: retry `7f44cdb44fbb2dc37d0e8b443e97ece9c81b951d286d4cd1c4b00f3187380e3b`; failure timeline `7d50d5506fff18d3e6d005debac723b961a54da9a9491a1a0c52095ecec640c4`; bounded fixture timeline `1b6992d3bfbfbfda0cca5ecd011ff07da8d2988c0eea7a38385659d24686b798`.
+- Restore/load digests: backup `53141385e61fcd1054ab58bb3339777034f058573e9da6f03fbda1eb26445747`; payload `90d37617c95d63cf7296db0d735aa23d53d7791cb285e3a6afb68c747b7b212e`; restore `464b5105d0113d69ecf6ad47618e7e47e4930cd690e606a5f7e6701212a3a6cf`; load profile `2bce6ca28c86da6c15c7fd82a50a46e74e60cedc7cabd43ce0cde8cf30e6e9e2`; load result `73814856c829f3e8cccf3731f3da81cb63613be6ebed12f98742f95e3c949616`; operations `81f49a0c335a0f6dacd94017dcd82a74bc2eb9825e26c98bb1ca7d1c58532718`.
+- Bounded measurements: retry attempts 3 / delays `[6, 30]` ms / 400 ms timeout; failure timeline 3 / dropped 0; isolated encrypted fixture restore RPO 100 ms / RTO 40 ms; load profile 200 requests / p95 92.0 ms / error rate 0.005 / peak concurrency 6 / CPU 620 ms / memory 180 MB.
+- Technical artifacts: Ubuntu `9715782929` / `sha256:4f5c11edd50677bacdfcd73c88acc77f3e8c2574b9c2b32af9b4a16010c4bb5e`; Windows `9715786195` / `sha256:02b4a0c471c832c06ec2ae7cd80c14fd22e6e169015eae1cf142608a4997bb68`.
+- Evidence flags: `manual_state=conditional_not_triggered`, `provider_live_claim=false`, `external_load_required=false`, `secrets_exposed=false`, `pii_exposed=false`, `raw_payloads_exposed=false`, `internet_scale_claim=false`, `multi_region_claim=false`, `postgresql_pitr_claim=false`.
+- DR compatibility boundary: retry evidence is idempotent-only and bounded; OpenTelemetry evidence is provider-neutral `service.name`-compatible observation only; PostgreSQL evidence is an isolated governed fixture restore, not production PITR. PostgreSQL continuous-archive PITR requires physical/base-backup + WAL evidence and remains unclaimed.
+- Manual intervention: **CONDITIONAL / NOT TRIGGERED**. The core acceptance required no external provider account, quota, cost, credential or production load.
+- R14.15 is **technically COMPLETE**. It remains unnormalized and R14.16 remains unauthorized until the three-file END-sync passes fresh exact-head R0/Python/UI/R14 Resilience gates, merges with expected-head protection, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
+
 ## Next authorized action
 
-Implement and test R14.15 only on `r14/15-service-operations-resilience`, preserving the exact normalized base `0078a75d473524688e6ab76ccf41b509e2146dea` and the frozen R14.15 scope. Build deterministic provider-neutral resilience, health, backup/restore/DR, failure-injection and bounded-load evidence; do not infer external-provider, Internet-scale, multi-region or production-load capability from local/hosted CI. If an external quota/cost/load claim becomes genuinely required, stop and record the manual/provider-dependent gate truthfully before any R14.16 work.
+Complete the R14.15 END-sync from immutable technical source `232bae747e91fd97f4cf3110a019639217d7914b`. Its cumulative diff must contain exactly `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_15_ACCEPTANCE.md` and this continuity file. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Service Operations Resilience Acceptance on that same END SHA. If all succeed, merge only with exact `expected_head_sha`, then perform exactly one continuity-only post-merge normalization with fresh R0/Python/UI before any R14.16 START-sync. If an external quota/cost/load or production DR claim becomes genuinely required, stop and record the manual/provider-dependent gate truthfully instead of synthesizing PASS.

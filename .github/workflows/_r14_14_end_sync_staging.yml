@@ -31,6 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           git rm .github/r14_14_end_sync_staging.py .github/workflows/_r14_14_end_sync_staging.yml
+          git checkout "$SOURCE_SHA" -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           git add docs/roadmap/R14_PLAN.md docs/roadmap/R14_14_ACCEPTANCE.md docs/continuity/KODEPOIA_CONTINUITY.md
           mapfile -t changed < <(git diff "$SOURCE_SHA" --name-only | sort)
           expected=(docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_14_ACCEPTANCE.md docs/roadmap/R14_PLAN.md)

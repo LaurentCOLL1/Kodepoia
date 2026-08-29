@@ -1,0 +1,45 @@
+name: R14.16 wiring staging
+
+on:
+  push:
+    branches:
+      - r14/16-wiring-stage
+    paths:
+      - .github/workflows/_r14_16_wiring_stage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Guard wiring source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "664b90a337759b4511082bd0ab57b9db7b0ee274"
+          test -f scripts/_r14_16_wiring_stage.py
+      - name: Apply and validate wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/_r14_16_wiring_stage.py
+          python -m compileall -q src/kodepoia
+          git diff --check -- src/kodepoia/cli.py src/kodepoia/kodestudio/app.py
+          git add src/kodepoia/cli.py src/kodepoia/kodestudio/app.py
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = "src/kodepoia/cli.py src/kodepoia/kodestudio/app.py "
+      - name: Commit wiring blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat(r14.16): stage CLI and KodeStudio wiring"
+          git push origin HEAD:r14/16-wiring-stage

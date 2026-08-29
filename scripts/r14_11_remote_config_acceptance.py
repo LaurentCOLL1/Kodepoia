@@ -32,6 +32,27 @@ from kodepoia.backend.remote_config import (
 _SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
+DEFAULT_AUTHORIZED_OBJECTS = (
+    "base.enabled",
+    "cycle",
+    "cycle.a",
+    "cycle.b",
+    "feature.alpha",
+    "feature.expiring",
+    "message.banner",
+    "prod-v1",
+    "production",
+    "test",
+    "test-v1",
+    "test-v2",
+    "tiny.flag",
+    "tiny-v1",
+    "tiny-v2",
+    "unauthorized",
+    "unauthorized.flag",
+)
+
+
 class Clock:
     def __init__(self, value: int = 1_000_000) -> None:
         self.value = value
@@ -44,7 +65,7 @@ def _actor(
     *,
     account_id: str = "operator",
     permissions: tuple[str, ...] = ("*",),
-    objects: tuple[str, ...] = ("*",),
+    objects: tuple[str, ...] = DEFAULT_AUTHORIZED_OBJECTS,
 ) -> AuthorityActorContext:
     return AuthorityActorContext(
         account_id=account_id,

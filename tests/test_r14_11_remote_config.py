@@ -37,7 +37,38 @@ class Clock:
         return self.value
 
 
-def actor(*, permissions: tuple[str, ...] = ("*",), objects: tuple[str, ...] = ("*",)) -> AuthorityActorContext:
+DEFAULT_AUTHORIZED_OBJECTS = (
+    "a",
+    "b",
+    "base",
+    "base.enabled",
+    "c",
+    "cycle",
+    "cycle.a",
+    "cycle.b",
+    "dependent",
+    "feature.alpha",
+    "feature.expiring",
+    "layout",
+    "message",
+    "message.banner",
+    "missing",
+    "other",
+    "prod-s1",
+    "production",
+    "s1",
+    "s2",
+    "test",
+    "test-s1",
+    "tiny.flag",
+    "tiny-v1",
+    "tiny-v2",
+    "unauthorized",
+    "unauthorized.flag",
+)
+
+
+def actor(*, permissions: tuple[str, ...] = ("*",), objects: tuple[str, ...] = DEFAULT_AUTHORIZED_OBJECTS) -> AuthorityActorContext:
     return AuthorityActorContext(
         account_id="operator",
         session_id="session-1",

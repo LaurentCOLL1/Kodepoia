@@ -58,8 +58,8 @@ PLAN_PATH.write_text(plan, encoding="utf-8", newline="\n")
 continuity = CONTINUITY_PATH.read_text(encoding="utf-8")
 continuity = replace_once(
     continuity,
-    "**R14.1–R14.13 COMPLETE + NORMALIZED. R14.14–R14.17 PLANNED.**",
-    "**R14.1–R14.13 COMPLETE + NORMALIZED. R14.14 IN_PROGRESS. R14.15–R14.17 PLANNED.**",
+    "**R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.13 COMPLETE + NORMALIZED. R14.14–R14.17 PLANNED.**",
+    "**R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.13 COMPLETE + NORMALIZED. R14.14 IN_PROGRESS. R14.15–R14.17 PLANNED.**",
     "continuity prompt status",
 )
 continuity = replace_once(

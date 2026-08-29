@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.10 are COMPLETE + NORMALIZED on normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`. R14.11 is COMPLETE at technical/evidence + END-sync level on `r14/11-remote-config-feature-flags`; immutable technical source `a58a0cf48a5e2311b5f6e671655f107e92c4645e` passed R14 Remote Config Acceptance run `33234881304` on Ubuntu and Windows. Final END-head still requires fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Remote Config Acceptance, protected merge and exactly one continuity-only normalization before R14.12. R14.12–R14.17 remain PLANNED. R14.11 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.11 are COMPLETE + NORMALIZED on normalized `main` `71ceb529e89b13be343be76527e9b9b0b419ceda`. R14.12 immutable technical source `9472f9198cdbaeed5c2b4618595480ac65bc4d5e` passed exact-source R0 #1882 / `33244609227`, Python Core #1857 / `33244609228`, UI #1822 / `33244609244` and R14 Content Delivery #19 / `33244609252`; R14.12 is COMPLETE at technical/END-sync level on `r14/12-content-delivery`, with implementation/evidence merge and single continuity-only normalization still required before `COMPLETE + NORMALIZED`. R14.13–R14.17 remain PLANNED. R14.12 manual state is CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
 
 ## Purpose and authority
 
@@ -209,7 +209,7 @@ Before R14.1 implementation:
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | COMPLETE | NONE | R14.5–R14.6 |
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.4–R14.6 + R13 store contracts |
 | R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | COMPLETE | NONE | R14.5–R14.6 |
-| R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | PLANNED | CONDITIONAL | R14.5/R14.11 + R8/R13 release provenance |
+| R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.5/R14.11 + R8/R13 release provenance |
 | R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | PLANNED | NONE | R14.5–R14.6 + R6 |
 | R14.14 | LiveOps campaigns, seasons, schedules, rotations, activation + rollback | PLANNED | NONE | R14.10–R14.13 |
 | R14.15 | Service operations/resilience: health, limits, retries, backup/restore, DR + load budgets | PLANNED | CONDITIONAL | R14.3–R14.14 + R6 |
@@ -972,9 +972,36 @@ Executable smuggling, hash bypass, CDN URL injection/SSRF, stale cache, client i
 
 **CONDITIONAL.** External CDN/provider proof requires a real account/domain only if explicitly claimed; local deterministic delivery is core authority.
 
+## START authority
+
+- Dedicated branch: `r14/12-content-delivery`.
+- Exact branch point: normalized R14.11 `main` `71ceb529e89b13be343be76527e9b9b0b419ceda`.
+- R14.11 closure authority: immutable technical source `a58a0cf48a5e2311b5f6e671655f107e92c4645e`; final END-head `ef39e7898abbca5466073bb78a95df829a33d836`; fresh END gates R0 #1863 / `33235110200`, Python Core #1837 / `33235110228`, UI #1804 / `33235110215`, R14 Remote Config #27 / `33235110216` all SUCCESS; PR #277 expected-head merge `a32b62c4e961ed2f5fe66dd5e30c453abb64d9f1`.
+- Single R14.11 post-merge normalization head `5356f2354d8c2237ccb6a3957b1c2cde21d4de80` changed only continuity, passed R0 #1865 / `33242852652`, Python Core #1839 / `33242852691`, UI #1806 / `33242852613`, and PR #278 merged with expected-head as normalized `main` `71ceb529e89b13be343be76527e9b9b0b419ceda`.
+- START state: R14.1–R14.11 COMPLETE + NORMALIZED; R14.12 IN_PROGRESS; R14.13–R14.17 PLANNED.
+- Trust invariants: content identities/manifests/bundles are immutable and hash-addressed; executable/self-modifying payloads are rejected; dependency graphs are acyclic and bounded; client/schema compatibility is explicit; channel promotion is atomic and rollback selects a prior immutable manifest; downloads/cache promotion require exact size/hash verification; cache corruption purges rather than silently serves; external URLs are never accepted from untrusted project/content data without existing allowlist/network authorization.
+- Core acceptance uses a deterministic local content provider and local HTTP fixture. No external CDN account/domain/credential is required or claimed. `provider_live_claim=false`.
+- Manual intervention: CONDITIONAL / NOT TRIGGERED. External CDN/provider proof is deferred unless explicitly requested later; secrets/tokens must never be supplied through model-visible text or committed evidence.
+
 ## Completion record
 
-To be appended when accepted.
+- Dedicated branch: `r14/12-content-delivery`; exact normalized branch point `71ceb529e89b13be343be76527e9b9b0b419ceda`.
+- START synchronization was completed before the first implementation commit; no R14.12 implementation preceded its plan/continuity START authority.
+- Rejected candidate `d62a07508cd94aae5446506dd63767f0dffe6178` is NON-AUTHORITATIVE and none of its evidence may be reused. Its evidence fixture was stopped by object authorization before reaching the intended dependency-validation assertion; fixture authorization was corrected without weakening content authority.
+- Intermediate `d8576a3ab7cb8b496d321afe98c575375b694c14` is not acceptance authority: audit found generic PR workflows were checking GitHub's pull-request merge ref rather than the literal branch head. R0/Python/UI workflows were hardened to check out and assert `pull_request.head.sha || github.sha` explicitly, with `r14/**` push coverage added.
+- Intermediate exact-head candidate `277536f5d5fd22d73ee1b52d0818fc83f1d3ea2a` is SUPERSEDED / NON-AUTHORITATIVE because a frozen-plan audit then found the required real local HTTP fixture was still absent.
+- Accepted immutable technical source: `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`, including immutable/hash-addressed content delivery, exact-head CI hardening, governed loopback HTTP fixture/client and end-to-end HTTP regression.
+- Technical exact-source gates: R0 Repository Guard #1882 / `33244609227` SUCCESS on Ubuntu + Windows; Python Core #1857 / `33244609228` SUCCESS for Ubuntu/Windows Core, UI-in-core and Ubuntu/Windows package builds; KodeStudio UI Smoke #1822 / `33244609244` SUCCESS; R14 Content Delivery Acceptance #19 / `33244609252` SUCCESS on Ubuntu + Windows.
+- Full Ubuntu Python Core: **1674 passed / 13 skipped / 46 warnings**; R7, R8 and R9 integrated acceptance validation also PASS. Standalone KodeStudio UI Smoke: **14 passed**.
+- Dedicated R14.12 jobs: Ubuntu `99079798454` SUCCESS; Windows `99079798481` SUCCESS. Focused regression spans R14.5 PostgreSQL persistence, R14.6 authoritative server, R14.11 remote config, R14.12 content delivery, the actual loopback HTTP fixture and backend public-export regression.
+- All twenty frozen evidence checks PASS cross-platform: atomic promotion, bounded capacity, cache corruption rebuild, client/schema compatibility, dependency-cycle rejection, environment isolation, ETag cache hit, executable rejection, function authorization, immutable bundle/manifest identity, missing dependency rejection, object authorization, Range/If-Range semantics, redacted evidence, revocation, rollback convergence, stale-promotion rejection, tamper rejection and truncation rejection.
+- Real local HTTP regression additionally proves full GET, ETag/If-None-Match `304`, Range `206`, matching If-Range, stale If-Range complete `200`, service promotion/download/cache over actual loopback HTTP, and rejection of non-loopback/HTTPS/path/userinfo fixture endpoints.
+- Cross-platform decoded evidence objects are identical. Digests: bundle `2c424688f078fce0d936ef7ec1a5a366c0f8a227601154c0d9f21f0f3cad4aea`; channel/rollback `3727bd7357173626e7e8adc7c9847cd04c34ee84674a1cc817558503f35da9f7`; download `e82789b9374d28edaa742e57abef325f7fa71f3a1000905b6aa5430d56b62aaa`; manifest v1 `fe65b209e4cd5425fcfc70862f1fa70ee661832ff8ddc70563e95fc222b93156`; manifest v2 `eecb207bf893149c6197679e5b5c7d3b42bea6e59ae1354c851a17330be2794b`; state `777e94990f33d32d7a03095957ea0a200dec4c9a4ff8241c1bea6bf3e9b19c62`; trace `f017e23985f805856801b613904d272cb71396daa5692688159f2366a2c43711`.
+- Budgets: `max_bundles_per_manifest=16`, `max_cache_bytes=2097152`, `max_cache_entries=32`, `max_channels=8`, `max_manifests=16`, `max_object_bytes=1048576`; fixture counts: 4 bundles, 2 manifests, 400 cache bytes, channel revision 3.
+- Canonical artifacts: Ubuntu `9712443954` / `sha256:8a85b0978a537436c4d97ae420b13ff78184777850112f63aa1abdb837cfc320`; Windows `9712439689` / `sha256:900a669e5ee7915f2f1be1c2b92f55ccfe38e6cf82907122f407a66c442a5b33`.
+- Evidence schema: `schemas/r14/backend-content-delivery-evidence.schema.json`; evidence reports `manual_state=conditional_not_triggered`, `provider_live_claim=false`, `secrets_exposed=false`, `raw_urls_exposed=false`, `executable_content_allowed=false`.
+- RFC 9110/9111, OWASP SSRF guidance and Apple App Review Guidelines are informative compatibility/safety evidence only. No external CDN/provider account, domain, TLS certificate, credential, quota or provider-live proof is claimed.
+- END state: R14.12 COMPLETE; R14.13–R14.17 remain PLANNED. R14.13 is not authorized until the exact R14.12 END-head passes fresh R0/Python/UI/R14 Content Delivery gates, PR #279 merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

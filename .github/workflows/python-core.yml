@@ -8,6 +8,7 @@ on:
       - "agent/**"
       - "feature/**"
       - "fix/**"
+      - "r14/**"
   pull_request:
     branches:
       - main
@@ -28,12 +29,19 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
+      - name: Assert exact checkout provenance
+        run: python -c "import os,subprocess; assert subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip() == os.environ['KODEPOIA_SOURCE_SHA']"
       - name: Install
         run: python -m pip install -e ".[dev,code]"
       - name: Compile
@@ -78,12 +86,18 @@ jobs:
     runs-on: windows-latest
     env:
       QT_QPA_PLATFORM: offscreen
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
+      - name: Assert exact checkout provenance
+        run: python -c "import os,subprocess; assert subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip() == os.environ['KODEPOIA_SOURCE_SHA']"
       - name: Install UI and test dependencies
         run: python -m pip install -e ".[dev,ui]"
       - name: Compile
@@ -105,12 +119,14 @@ jobs:
       - name: Checkout exact evidence source
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
+      - name: Assert exact checkout provenance
+        run: python -c "import os,subprocess; assert subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip() == os.environ['KODEPOIA_SOURCE_SHA']"
       - name: Install build evidence dependencies
         run: python -m pip install -e ".[dev]"
       - name: Build wheel and sdist

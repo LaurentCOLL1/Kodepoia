@@ -1,0 +1,43 @@
+name: R14.14 Post-merge Normalization
+
+on:
+  push:
+    branches:
+      - r14/14-normalization
+    paths:
+      - .github/workflows/_r14_14_postmerge_normalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/14-normalization
+          fetch-depth: 0
+
+      - name: Apply guarded continuity normalization
+        shell: bash
+        run: python .github/r14_14_postmerge_normalize.py
+
+      - name: Verify continuity-only tree and push
+        shell: bash
+        env:
+          BASE_SHA: 29bf8255277fcbfce721408ec0abab660076f99d
+        run: |
+          set -euo pipefail
+          git rm .github/r14_14_postmerge_normalize.py .github/workflows/_r14_14_postmerge_normalize.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          mapfile -t changed < <(git diff --cached "$BASE_SHA" --name-only | sort)
+          printf 'Normalization staged tree delta from merge:\n'; printf '  %s\n' "${changed[@]}"
+          test "${#changed[@]}" -eq 1
+          test "${changed[0]}" = 'docs/continuity/KODEPOIA_CONTINUITY.md'
+          git diff --cached "$BASE_SHA" --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'docs(r14.14): post-merge continuity normalization'
+          git push origin HEAD:r14/14-normalization

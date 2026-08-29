@@ -24,21 +24,20 @@ jobs:
         shell: bash
         run: python .github/r14_14_end_sync_staging.py
 
-      - name: Verify exact surface, self-clean and push
+      - name: Verify exact staged tree, self-clean and push
         shell: bash
         env:
           SOURCE_SHA: bd7d0130b5241047e5583bd31e0a183be1a1e6f1
         run: |
           set -euo pipefail
           git rm .github/r14_14_end_sync_staging.py .github/workflows/_r14_14_end_sync_staging.yml
-          git checkout "$SOURCE_SHA" -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           git add docs/roadmap/R14_PLAN.md docs/roadmap/R14_14_ACCEPTANCE.md docs/continuity/KODEPOIA_CONTINUITY.md
-          mapfile -t changed < <(git diff "$SOURCE_SHA" --name-only | sort)
+          mapfile -t changed < <(git diff --cached "$SOURCE_SHA" --name-only | sort)
           expected=(docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_14_ACCEPTANCE.md docs/roadmap/R14_PLAN.md)
-          printf 'Changed from source:\n'; printf '  %s\n' "${changed[@]}"
+          printf 'Staged tree delta from source:\n'; printf '  %s\n' "${changed[@]}"
           test "${#changed[@]}" -eq "${#expected[@]}"
           for i in "${!expected[@]}"; do test "${changed[$i]}" = "${expected[$i]}"; done
-          git diff --check "$SOURCE_SHA"
+          git diff --cached "$SOURCE_SHA" --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'docs(r14.14): stage END synchronization tree'

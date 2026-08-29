@@ -27,13 +27,23 @@ jobs:
         run: |
           set -euo pipefail
           test "$GITHUB_REF_NAME" = "r14/16-start-sync-stage"
-          test "$(git rev-parse HEAD^)" = "0bce6d98554433b19620a58a0af77fb73f07700a"
+          test "$(git rev-parse HEAD^)" = "7f96add6fb8f2fea6e3e0d7ebfd536e030f4b7d4"
           test -f scripts/_r14_16_start_sync_stage.py
 
       - name: Apply R14.16 START sync
         shell: bash
         run: |
           set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("scripts/_r14_16_start_sync_stage.py")
+          text = path.read_text(encoding="utf-8")
+          old = "and its unique continuity-only normalization are complete.\"\nif continuity.count(old_next)"
+          new = "and its unique continuity-only normalization are complete.\"\"\"\nif continuity.count(old_next)"
+          if text.count(old) != 1:
+              raise SystemExit(f"staging syntax marker count={text.count(old)}")
+          path.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
+          PY
           python scripts/_r14_16_start_sync_stage.py
           git diff --check -- docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
           git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md

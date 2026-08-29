@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.12 are COMPLETE + NORMALIZED on normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6`. R14.13 immutable technical source `b1729cabaffb19ac5491dee8a2c18e1bb5877746` passed exact-source R0 #1894 / `33247079759`, Python Core #1869 / `33247079754`, UI #1834 / `33247079785` and R14 Event Pipeline Acceptance #1 / `33247079799`; R14.13 is COMPLETE at technical/END-sync level on `r14/13-events-telemetry-pipeline`, with implementation/evidence merge and single continuity-only normalization still required before `COMPLETE + NORMALIZED`. R14.14–R14.17 remain PLANNED. R14.13 manual state is NONE; `provider_live_claim=false`.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.13 are COMPLETE + NORMALIZED on normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`. R14.14 is IN_PROGRESS on dedicated branch `r14/14-liveops-campaigns-schedules`; R14.15–R14.17 remain PLANNED. R14.14 manual state is NONE. R14.13 immutable technical source `b1729cabaffb19ac5491dee8a2c18e1bb5877746`; final END-head `5461815da316bf9e20b06352dc7dda8699b46525`; implementation/evidence merge PR #281 `e1109c84a4b55761e4bf948b13457aabd327669e`; unique normalization head `6d302f20ba05544d1a1f122ebed48816dd22c76b`; normalization PR #282 expected-head merge produced normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4` after fresh R0 #1902 / `33247706878`, Python Core #1877 / `33247706820`, and UI #1842 / `33247706847` SUCCESS.
 
 ## Purpose and authority
 
@@ -211,7 +211,7 @@ Before R14.1 implementation:
 | R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | COMPLETE | NONE | R14.5–R14.6 |
 | R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.5/R14.11 + R8/R13 release provenance |
 | R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | COMPLETE | NONE | R14.5–R14.6 + R6 |
-| R14.14 | LiveOps campaigns, seasons, schedules, rotations, activation + rollback | PLANNED | NONE | R14.10–R14.13 |
+| R14.14 | LiveOps campaigns, seasons, schedules, rotations, activation + rollback | IN_PROGRESS | NONE | R14.10–R14.13 |
 | R14.15 | Service operations/resilience: health, limits, retries, backup/restore, DR + load budgets | PLANNED | CONDITIONAL | R14.3–R14.14 + R6 |
 | R14.16 | CLI + KodeStudio Backend/LiveOps UX, local stack control + dry-run/provider status | PLANNED | NONE | R14.1–R14.15 |
 | R14.17 | Adversarial integrated backend/platform-services/LiveOps acceptance | PLANNED | CONDITIONAL | R14.1–R14.16 |
@@ -1078,6 +1078,17 @@ PII leakage, replay side effects, duplicate mutation, schema drift, unbounded re
 - CloudEvents v1.0.2 and OpenTelemetry Specification 1.60.0 are informative interoperability baselines only. No external broker, Kafka cluster, OTel Collector, telemetry SaaS account or credential is required or claimed.
 - Manual intervention: **NONE**.
 - END state: R14.13 COMPLETE; R14.14–R14.17 remain PLANNED. R14.14 is not authorized until the exact R14.13 END-head passes fresh R0/Python/UI/R14 Event Pipeline gates, the implementation/evidence PR merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
+
+---
+
+## R14.14 START authority
+
+- Dedicated branch: `r14/14-liveops-campaigns-schedules`.
+- Exact branch point: normalized R14.13 `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`.
+- R14.13 closure authority: immutable technical source `b1729cabaffb19ac5491dee8a2c18e1bb5877746`; final END-head `5461815da316bf9e20b06352dc7dda8699b46525`; fresh END gates R0 #1898 / `33247444761`, Python Core #1873 / `33247444733`, UI #1838 / `33247444748`, R14 Event Pipeline #5 / `33247444765` SUCCESS; PR #281 expected-head merge `e1109c84a4b55761e4bf948b13457aabd327669e`; unique normalization head `6d302f20ba05544d1a1f122ebed48816dd22c76b`; fresh normalization gates R0 #1902 / `33247706878`, Python Core #1877 / `33247706820`, UI #1842 / `33247706847` SUCCESS; PR #282 expected-head merge produced normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`.
+- START state: R14.1–R14.13 COMPLETE + NORMALIZED; R14.14 IN_PROGRESS; R14.15–R14.17 PLANNED.
+- Time authority baseline: scheduler state is canonical UTC instants; named display/recurrence timezone identifiers remain explicit metadata. IANA Time Zone Database `2026c` (released 2026-07-08) is current compatibility evidence, and RFC 5545 is informative recurrence/TZID guidance. These are versioned evidence, not frozen runtime constants.
+- Core acceptance remains provider-neutral and network-free. No production LiveOps provider/account/credential is required. Manual intervention: NONE.
 
 ---
 

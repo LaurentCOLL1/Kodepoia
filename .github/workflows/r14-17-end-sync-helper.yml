@@ -26,6 +26,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/r14_17_end_sync_helper.py
+          sed -i 's/[[:space:]]\+$//' docs/roadmap/R14_17_ACCEPTANCE.md
           git rm .github/workflows/r14-17-end-sync-helper.yml scripts/r14_17_end_sync_helper.py
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

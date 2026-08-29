@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from kodepoia.assets.asset_cli import register_asset_commands
 from kodepoia.bench.baseline import BaselineBench, BenchmarkRole
 from kodepoia.blender3d.blender_cli import register_blender_commands
+from kodepoia.backend.r14_cli import register_r14_backend_commands
 from kodepoia.brain.ollama import OllamaClient
 from kodepoia.comfyui.comfy_cli import register_comfy_commands
 from kodepoia.desktop.r12_cli import register_r12_commands
@@ -313,6 +314,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_asset_commands(commands)
     register_comfy_commands(commands)
     register_blender_commands(commands)
+    register_r14_backend_commands(commands)
     register_r11_commands(commands)
     register_r12_commands(commands)
     register_r13_commands(commands)

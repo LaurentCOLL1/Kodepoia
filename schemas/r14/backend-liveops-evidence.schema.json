@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-liveops-evidence.schema.json",
+  "title": "Kodepoia R14.14 LiveOps Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha",
+    "status",
+    "checks",
+    "digests",
+    "counts",
+    "budgets",
+    "time_authority",
+    "manual_state",
+    "provider_live_claim",
+    "external_provider_required",
+    "secrets_exposed",
+    "pii_exposed",
+    "raw_payloads_exposed"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "status": {"const": "pass"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schedule_utc_timezone_metadata",
+        "unsafe_schedule_rejected",
+        "immutable_season_identity",
+        "missing_dependencies_fail_closed",
+        "exact_dependency_binding",
+        "billing_environment_guard",
+        "stale_preview_rejected",
+        "preview_non_mutating",
+        "preview_digest_clock_stable",
+        "approval_safechange_idempotent",
+        "activation_idempotent",
+        "scheduler_replay_idempotent",
+        "rotation_resolution",
+        "remote_config_audience_targeting",
+        "audience_snapshot_mismatch_rejected",
+        "pause_resume_explicit",
+        "pause_has_no_hidden_advance",
+        "expiry_idempotent",
+        "rollback_auditable",
+        "kill_terminal_idempotent",
+        "capacity_fail_closed",
+        "authorization_fail_closed",
+        "redacted_evidence"
+      ],
+      "properties": {
+        "schedule_utc_timezone_metadata": {"const": true},
+        "unsafe_schedule_rejected": {"const": true},
+        "immutable_season_identity": {"const": true},
+        "missing_dependencies_fail_closed": {"const": true},
+        "exact_dependency_binding": {"const": true},
+        "billing_environment_guard": {"const": true},
+        "stale_preview_rejected": {"const": true},
+        "preview_non_mutating": {"const": true},
+        "preview_digest_clock_stable": {"const": true},
+        "approval_safechange_idempotent": {"const": true},
+        "activation_idempotent": {"const": true},
+        "scheduler_replay_idempotent": {"const": true},
+        "rotation_resolution": {"const": true},
+        "remote_config_audience_targeting": {"const": true},
+        "audience_snapshot_mismatch_rejected": {"const": true},
+        "pause_resume_explicit": {"const": true},
+        "pause_has_no_hidden_advance": {"const": true},
+        "expiry_idempotent": {"const": true},
+        "rollback_auditable": {"const": true},
+        "kill_terminal_idempotent": {"const": true},
+        "capacity_fail_closed": {"const": true},
+        "authorization_fail_closed": {"const": true},
+        "redacted_evidence": {"const": true}
+      }
+    },
+    "digests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["season", "campaign", "preview", "approval", "activation", "audience", "state", "dependencies", "audit", "trace", "safe_change"],
+      "properties": {
+        "season": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "campaign": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "preview": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "approval": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "activation": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "audience": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "state": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "dependencies": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "audit": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "trace": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "safe_change": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seasons", "campaigns", "activations", "runtime_records", "audit_records", "trace_records", "rotations", "checks"],
+      "properties": {
+        "seasons": {"type": "integer", "minimum": 0},
+        "campaigns": {"type": "integer", "minimum": 0},
+        "activations": {"type": "integer", "minimum": 0},
+        "runtime_records": {"type": "integer", "minimum": 0},
+        "audit_records": {"type": "integer", "minimum": 0},
+        "trace_records": {"type": "integer", "minimum": 0},
+        "rotations": {"type": "integer", "minimum": 0},
+        "checks": {"const": 23}
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_seasons", "max_campaigns", "max_dependencies", "max_activations", "max_audit_records", "max_trace_records"],
+      "properties": {
+        "max_seasons": {"type": "integer", "minimum": 1},
+        "max_campaigns": {"type": "integer", "minimum": 1},
+        "max_dependencies": {"type": "integer", "minimum": 1},
+        "max_activations": {"type": "integer", "minimum": 1},
+        "max_audit_records": {"type": "integer", "minimum": 1},
+        "max_trace_records": {"type": "integer", "minimum": 1}
+      }
+    },
+    "time_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical", "season_display_tzid", "campaign_display_tzid", "tzdb_version"],
+      "properties": {
+        "canonical": {"const": "utc"},
+        "season_display_tzid": {"const": "Europe/Paris"},
+        "campaign_display_tzid": {"const": "America/Edmonton"},
+        "tzdb_version": {"const": "2026c"}
+      }
+    },
+    "manual_state": {"const": "none"},
+    "provider_live_claim": {"const": false},
+    "external_provider_required": {"const": false},
+    "secrets_exposed": {"const": false},
+    "pii_exposed": {"const": false},
+    "raw_payloads_exposed": {"const": false}
+  }
+}

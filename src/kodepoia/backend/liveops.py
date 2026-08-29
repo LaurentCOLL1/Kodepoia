@@ -1139,7 +1139,9 @@ class InMemoryLiveOpsService:
         campaign_id = _stable_id(campaign_id, field="campaign_id")
         self._authorize(actor, "liveops.campaign.pause", campaign_id)
         campaign = self.campaign(campaign_id, version)
-        current = self._advance_campaign(actor, campaign)
+        current = self.runtime(campaign_id, version)
+        if _server_now_ms(self.clock_ms) >= campaign.schedule.end_at_utc_ms:
+            raise LiveOpsStateError("campaign_not_pausable")
         if current.state not in {LiveOpsCampaignState.SCHEDULED, LiveOpsCampaignState.ACTIVE}:
             raise LiveOpsStateError("campaign_not_pausable")
         return self._transition(actor=actor, campaign=campaign, state=LiveOpsCampaignState.PAUSED, action="campaign_paused")

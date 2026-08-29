@@ -32,9 +32,15 @@ class Clock:
 
 AUTHORIZED_OBJECTS = (
     "bundle.base",
+    "bundle.cycle.a",
+    "bundle.cycle.b",
     "bundle.extra",
+    "bundle.missing",
     "bundle.patch",
+    "bundle.unknown",
     "channel.stable",
+    "manifest.cycle",
+    "manifest.missing",
     "manifest.prod",
     "manifest.v1",
     "manifest.v2",

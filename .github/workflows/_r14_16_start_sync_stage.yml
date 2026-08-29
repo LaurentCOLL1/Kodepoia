@@ -22,38 +22,37 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Guard staging source
+      - name: Guard staged START authority
         shell: bash
         run: |
           set -euo pipefail
           test "$GITHUB_REF_NAME" = "r14/16-start-sync-stage"
-          test "$(git rev-parse HEAD^)" = "7f96add6fb8f2fea6e3e0d7ebfd536e030f4b7d4"
-          test -f scripts/_r14_16_start_sync_stage.py
+          test "$(git rev-parse HEAD^)" = "f4ef2f64bb372e012b277d12734c54b1e27a93c6"
 
-      - name: Apply R14.16 START sync
+      - name: Correct stale START wording
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          path = Path("scripts/_r14_16_start_sync_stage.py")
-          text = path.read_text(encoding="utf-8")
-          old = "and its unique continuity-only normalization are complete.\"\nif continuity.count(old_next)"
-          new = "and its unique continuity-only normalization are complete.\"\"\"\nif continuity.count(old_next)"
+          p = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = p.read_text(encoding="utf-8")
+          old = "The next authorized action is R14.16 START-sync from that exact normalized main."
+          new = "R14.16 START authority is now established on `r14/16-cli-kodestudio-liveops-ux` from effective current-main branch point `8a7eb312d3fa0d642d6b2b77ef35c2b2d3e7de36`; implementation is the next authorized action."
           if text.count(old) != 1:
-              raise SystemExit(f"staging syntax marker count={text.count(old)}")
-          path.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
+              raise SystemExit(f"stale top marker count={text.count(old)}")
+          text = text.replace(old, new)
+          p.write_text(text, encoding="utf-8", newline="\n")
           PY
-          python scripts/_r14_16_start_sync_stage.py
-          git diff --check -- docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
-          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
-          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = "docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_PLAN.md "
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
 
-      - name: Commit staged START-sync blobs
+      - name: Commit corrected continuity blob
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "docs(r14.16): stage START authority"
+          git commit -m "docs(r14.16): finalize START continuity wording"
           git push origin HEAD:r14/16-start-sync-stage

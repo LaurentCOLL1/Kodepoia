@@ -1,0 +1,133 @@
+from pathlib import Path
+
+plan_path = Path('docs/roadmap/R14_PLAN.md')
+continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+acceptance_path = Path('docs/roadmap/R14_17_ACCEPTANCE.md')
+
+plan = plan_path.read_text(encoding='utf-8')
+old_status = '**Status:** IN PROGRESS'
+if plan.count(old_status) != 1:
+    raise SystemExit('R14 phase status anchor mismatch')
+plan = plan.replace(old_status, '**Status:** COMPLETE', 1)
+
+old_checkpoint_prefix = '**Execution checkpoint:** '
+lines = plan.splitlines()
+checkpoint_indexes = [i for i, line in enumerate(lines) if line.startswith(old_checkpoint_prefix)]
+if checkpoint_indexes != [8]:
+    raise SystemExit(f'R14 execution checkpoint anchor mismatch: {checkpoint_indexes}')
+lines[8] = (
+    '**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED; '
+    'R14.1–R14.16 are COMPLETE + NORMALIZED; R14.17 is COMPLETE on dedicated branch '
+    '`r14/17-adversarial-integrated-acceptance` with immutable technical source '
+    '`11fb0e1a28fd5cbb607e2b302a36314f151ee170` and canonical integrated digest '
+    '`06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`. '
+    'R14 phase implementation/evidence closure is COMPLETE; implementation merge and the single post-merge '
+    'continuity-only phase normalization remain pending. Manual state is CONDITIONAL / NOT TRIGGERED; '
+    'no provider-live, production-publish, Internet-scale or multi-region claim is made.'
+)
+plan = '\n'.join(lines) + ('\n' if plan.endswith('\n') else '')
+
+completion = '''## Completion record
+
+- Dedicated branch: `r14/17-adversarial-integrated-acceptance`; exact normalized branch point `f6960db290a570e3a0c3c4ff97600014978d45df`; clean START-head `e48f8207c92aae1f655fb270e21a2c861036a6fd` preceded implementation.
+- Rejected technical candidates `f25cb89f1b54d325ecab6d12c08ec1e9129c1025`, `152f34d217f159d65b10d811d8770ea840b8e05b`, and temporary helper candidate `4e7f5d17e5e8356b7e6b1d3bc9331b73aefe496f` are NON-AUTHORITATIVE. The first exposed an integrated-scenario execution failure; the second preserved sanitized failure evidence and isolated the R14.16 workspace-output boundary; the third exposed malformed temporary helper YAML before any END decision evidence. No failed candidate evidence is reused.
+- Accepted immutable technical source: `11fb0e1a28fd5cbb607e2b302a36314f151ee170`. START→source contains exactly eight intended R14.17 files: integrated evidence model, scenario runner, CI-evidence builder, canonical-report builder, strict evidence schema, adversarial tests, design authority and dedicated workflow. Temporary report/end-sync helper history is non-authoritative and no helper survives the accepted END tree.
+- Exact technical-source gates: R0 Repository Guard #2028 / `33265386264` SUCCESS; Python Core #2003 / `33265386254` SUCCESS 5/5; KodeStudio UI Smoke #1968 / `33265386267` SUCCESS; R14 Integrated Acceptance #5 / `33265386261` SUCCESS on Ubuntu 24.04 + PostgreSQL 18 and Windows 2025.
+- Full Ubuntu Python Core: **1760 passed / 14 skipped / 46 warnings**, with R7/R8/R9 integrated acceptance PASS. Windows Python Core, Ubuntu/Windows package builds and KodeStudio UI-in-core also SUCCESS.
+- Integrated scenario: **14/14 top-level checks PASS** across **222 underlying deterministic service checks** spanning PostgreSQL authority, authoritative server, matchmaking/reconnect, cloud saves, progression, entitlements, remote config, content delivery, event pipeline, LiveOps, resilience and governed CLI/KodeStudio UX. Provider-live/sensitive/high-scale claims remain fail-closed.
+- Exact-source scenario artifact: ID `9718490610`, archive `sha256:8ef3c8fd15ab88919918ff9819784e5ed8558d08951bf2e9dc464d7bac9c8bac`; checked scenario bytes 6313 / SHA-256 `8080d974bec375e822fb04d271671d922460e4d71e5996ce5a2d61377d4b8d47`.
+- Independent CI authority digest: `f8e1ea8d274aafc44009bb76c2c2e21e5306673510cc61c47d96de34b9f20a08`; it binds the exact successful R0/Python/UI/Integrated run identities plus the exact-source scenario artifact and cannot self-certify the final report.
+- Canonical `R14_INTEGRATED_ACCEPTANCE.json` was built by the accepted offline verifier from exact repository bytes. Semantic evidence digest: `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; `status=pass`; `blockers=[]`; source SHA `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; prior R13 integrated digest authority remains `831b155fce200eae6b9fbe91c8eb44e992ea036c0922e508171644b497a4c3c7`.
+- Security/provider posture: `manual_state=conditional_not_triggered`, `provider_live_claim=false`, `secrets_exposed=false`, `pii_exposed=false`, `production_publish_claim=false`, `internet_scale_claim=false`, `multi_region_claim=false`. Core closure required no real external IdP/store/CDN/managed-provider account, public domain/TLS state, secret, destructive production load or production publish.
+- Current END-sync changes are evidence/documentation only after the immutable technical source. Fresh exact-END R0 + full Python + KodeStudio UI + R14 Integrated Acceptance are mandatory before expected-head implementation/evidence merge. After that merge, exactly one continuity-only phase normalization with fresh R0/Python/UI is mandatory; the plan must not be rewritten during normalization.
+'''
+needle = '## Completion record\n\nTo be appended when accepted.\n'
+if plan.count(needle) != 1:
+    raise SystemExit('R14.17 completion anchor mismatch')
+plan = plan.replace(needle, completion, 1)
+plan_path.write_text(plan, encoding='utf-8')
+
+acceptance = '''# R14.17 — Adversarial integrated backend/platform-services/LiveOps acceptance
+
+**Status:** ACCEPTED / END RE-GATES PENDING  
+**Immutable technical source:** `11fb0e1a28fd5cbb607e2b302a36314f151ee170`  
+**Exact normalized base:** `f6960db290a570e3a0c3c4ff97600014978d45df`  
+**Manual state:** `CONDITIONAL / NOT TRIGGERED`
+
+## Accepted technical authority
+
+R14.17 closes the frozen R14 service surface with one anti-circular integrated acceptance model. The final report does not consume its own bytes or its own PASS state. Instead, independent exact-source workflow identities and artifact digests are bound first; repository files are then byte-hashed and re-read by the offline verifier. Mixed source SHAs, tampering, prior-phase semantic drift, provider-live fabrication, sensitive-data exposure and synthetic production-publication claims fail closed.
+
+Rejected candidates `f25cb89f1b54d325ecab6d12c08ec1e9129c1025`, `152f34d217f159d65b10d811d8770ea840b8e05b`, and temporary malformed-helper candidate `4e7f5d17e5e8356b7e6b1d3bc9331b73aefe496f` are permanently non-authoritative. The accepted source `11fb0e1a28fd5cbb607e2b302a36314f151ee170` fixes the nested R14.16 workspace-bound output contract without weakening that boundary.
+
+## Exact-source gates
+
+- R0 Repository Guard #2028 / run `33265386264`: SUCCESS.
+- Python Core #2003 / run `33265386254`: SUCCESS 5/5; Ubuntu **1760 passed / 14 skipped / 46 warnings**; Windows Core SUCCESS; Ubuntu/Windows package builds SUCCESS; UI-in-core SUCCESS.
+- KodeStudio UI Smoke #1968 / run `33265386267`: SUCCESS.
+- R14 Integrated Acceptance #5 / run `33265386261`: SUCCESS on Ubuntu 24.04 + PostgreSQL 18 and Windows 2025.
+
+## Integrated scenario evidence
+
+All 14 top-level integrated checks PASS. The twelve reused service acceptances contribute 222 deterministic checks, all PASS on the exact accepted source. The scenario covers governed local/test auth, PostgreSQL transactional authority, authoritative command/state/event boundaries, lobby/reservation/reconnect, cloud-save conflict/rollback, progression, duplicate/out-of-order entitlement processing, feature rollout/rollback, immutable content/cache/rollback, event dedupe/checkpoint/replay/redaction, LiveOps lifecycle, resilience/backup/restore/bounded-load evidence and governed CLI/KodeStudio UX.
+
+Exact-source scenario artifact: ID `9718490610`; archive digest `sha256:8ef3c8fd15ab88919918ff9819784e5ed8558d08951bf2e9dc464d7bac9c8bac`. Checked scenario evidence is 6313 bytes with SHA-256 `8080d974bec375e822fb04d271671d922460e4d71e5996ce5a2d61377d4b8d47`.
+
+## Anti-circular CI and canonical report
+
+`R14_17_CI_ACCEPTANCE.json` binds only independent successful gate/run identities plus the integrated scenario artifact. Its semantic digest is `f8e1ea8d274aafc44009bb76c2c2e21e5306673510cc61c47d96de34b9f20a08`.
+
+`R14_INTEGRATED_ACCEPTANCE.json` binds exact bytes for the accepted R13 integrated report, R14.1–R14.16 acceptance documents, the R14.17 design, scenario evidence and CI authority. It excludes itself from its input set. Its canonical semantic evidence digest is `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`, with `status=pass` and `blockers=[]`.
+
+## Provider/security boundary
+
+Core closure is local/hosted/sandbox evidence only. `provider_live_claim=false`, `secrets_exposed=false`, `pii_exposed=false`, `production_publish_claim=false`, `internet_scale_claim=false`, and `multi_region_claim=false`. Missing real provider/account/domain/TLS/quota state is not promoted to PASS. No password, token, private key, production DSN or destructive/high-cost production action was required.
+
+## END acceptance rule
+
+This acceptance document, the R14 phase plan and continuity change evidence bytes, so the resulting exact END-head must receive fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Integrated Acceptance. Only after all are SUCCESS may the implementation/evidence PR merge with exact `expected_head_sha`. Exactly one post-merge continuity-only normalization must then receive fresh R0/Python/UI before R14 becomes `COMPLETE + NORMALIZED` and R15 planning is authorized.
+'''
+acceptance_path.write_text(acceptance, encoding='utf-8')
+
+continuity = continuity_path.read_text(encoding='utf-8')
+first, sep, rest = continuity.partition('\n')
+if not first.startswith('> Kodepoia, architecture v1.0 gelée.'):
+    raise SystemExit('continuity banner anchor mismatch')
+new_first = (
+    '> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. '
+    'R14.1–R14.16 COMPLETE + NORMALIZED. R14.17 COMPLETE / IMPLEMENTATION MERGE PENDING; R14 phase COMPLETE / NORMALIZATION PENDING.** '
+    'R14.17 immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; canonical integrated digest '
+    '`06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; exact-source gates R0 #2028 / `33265386264`, '
+    'Python #2003 / `33265386254`, UI #1968 / `33265386267`, Integrated #5 / `33265386261` all SUCCESS. '
+    'Manual state CONDITIONAL / NOT TRIGGERED; no provider-live or production-publish claim.'
+)
+continuity = new_first + sep + rest
+continuity = continuity.replace(
+    '- R14.17 : **IN_PROGRESS** — branch `r14/17-adversarial-integrated-acceptance`; base normalized `main` `f6960db290a570e3a0c3c4ff97600014978d45df`; manual **CONDITIONAL / NOT TRIGGERED**.',
+    '- R14.17 : **COMPLETE / IMPLEMENTATION MERGE PENDING** — immutable source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; manual **CONDITIONAL / NOT TRIGGERED**.'
+)
+continuity = continuity.replace(
+    '| R14.17 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |',
+    '| R14.17 | COMPLETE / MERGE PENDING | CONDITIONAL / NOT TRIGGERED |'
+)
+old_tail = '''## Next authorized action
+
+Run fresh exact-START R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the clean R14.17 START-head. If all are SUCCESS, implement the frozen R14.17 integrated verifier/scenario, adversarial tests, canonical evidence model and dedicated cross-platform acceptance on the same branch. Do not begin R15.'''
+new_tail = '''## R14.17 technical / END closure authority
+
+- Exact normalized base: `f6960db290a570e3a0c3c4ff97600014978d45df`; clean START-head `e48f8207c92aae1f655fb270e21a2c861036a6fd`.
+- Rejected candidates `f25cb89f1b54d325ecab6d12c08ec1e9129c1025`, `152f34d217f159d65b10d811d8770ea840b8e05b`, and malformed temporary helper `4e7f5d17e5e8356b7e6b1d3bc9331b73aefe496f` are NON-AUTHORITATIVE; no failed evidence is reusable.
+- Immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; START→source exactly eight intended R14.17 files; temporary report/end-sync helpers removed before END.
+- Exact-source gates: R0 #2028 / `33265386264` SUCCESS; Python Core #2003 / `33265386254` SUCCESS 5/5, Ubuntu **1760 passed / 14 skipped / 46 warnings**; UI #1968 / `33265386267` SUCCESS; R14 Integrated #5 / `33265386261` SUCCESS Ubuntu/PostgreSQL 18 + Windows.
+- Scenario: 14/14 integrated checks PASS over 222 underlying service checks; artifact `9718490610` / `sha256:8ef3c8fd15ab88919918ff9819784e5ed8558d08951bf2e9dc464d7bac9c8bac`; checked scenario bytes 6313 / SHA-256 `8080d974bec375e822fb04d271671d922460e4d71e5996ce5a2d61377d4b8d47`.
+- CI authority digest `f8e1ea8d274aafc44009bb76c2c2e21e5306673510cc61c47d96de34b9f20a08`; canonical R14 integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; report `status=pass`, `blockers=[]`, source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`.
+- Manual/provider state **CONDITIONAL / NOT TRIGGERED**; provider-live, production publish, Internet-scale and multi-region claims remain false; no external credential/domain/TLS/provider proof was required.
+- END-sync now changes evidence/documentation only. Fresh exact-END R0/Python/UI/R14 Integrated gates are mandatory before the expected-head implementation/evidence merge.
+
+## Next authorized action
+
+Run fresh exact-END R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Integrated Acceptance on the final R14.17 END-head. If all are SUCCESS, open/merge the R14.17 implementation/evidence PR only with exact `expected_head_sha`. Then create exactly one post-merge continuity-only R14 normalization, run fresh exact-head R0/Python/UI, merge it with exact expected-head protection, and only then authorize R15 planning.'''
+if continuity.count(old_tail) != 1:
+    raise SystemExit('continuity next-action anchor mismatch')
+continuity = continuity.replace(old_tail, new_tail, 1)
+continuity_path.write_text(continuity, encoding='utf-8')

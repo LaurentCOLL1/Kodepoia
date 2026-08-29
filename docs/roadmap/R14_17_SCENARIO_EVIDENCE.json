@@ -1,0 +1,112 @@
+{
+  "blockers": [],
+  "checks": {
+    "authoritative_server_boundary": true,
+    "billing_duplicate_out_of_order": true,
+    "cloud_save_conflict_rollback": true,
+    "dependency_failure_recovery": true,
+    "event_dedupe_checkpoint_replay": true,
+    "governed_cli_kodestudio_surface": true,
+    "immutable_content_cache_rollback": true,
+    "liveops_preview_activate_pause_rollback": true,
+    "lobby_reservation_reconnect": true,
+    "local_auth_account_session": true,
+    "postgresql_authoritative_persistence": true,
+    "progression_authoritative_events": true,
+    "provider_live_and_sensitive_claims_fail_closed": true,
+    "stable_feature_rollout_rollback": true
+  },
+  "external_provider_required": false,
+  "frozen_acceptance_digest": "461e569092e6b0efbfcc3d8a98080db80f8d98969d386b0a81200c3550832c33",
+  "frozen_acceptance_digests": {
+    "authority": {
+      "events": "3adad95a513ee4812126d7d9695cc297d2f57287263a5686ee1ee5c08a15e4a1",
+      "state": "59c1afb567245df4f3521052564d0bdfbaa4a5423eb7db7997c1e20160a988a3",
+      "trace": "839f65c4ffbe019c43f6aad988ee8258945c328f348135ffef9320955102f178"
+    },
+    "cloud_save": {
+      "conflict": "be2d6808b13bd40aa4a04d003d8d47df315a4461a67647746b87b26d1e6c0eca",
+      "revision": "4603e4e2a7d7d708cf689eb6cd4502b9809993b7245fc3ac64bf05eee1f34d7e",
+      "state": "984bf5fc88d5ca537cd3a4d938c0aa6d890e8f1794f5485467726331331ce345"
+    },
+    "content_delivery": {
+      "bundle": "2c424688f078fce0d936ef7ec1a5a366c0f8a227601154c0d9f21f0f3cad4aea",
+      "channel": "3727bd7357173626e7e8adc7c9847cd04c34ee84674a1cc817558503f35da9f7",
+      "state": "777e94990f33d32d7a03095957ea0a200dec4c9a4ff8241c1bea6bf3e9b19c62",
+      "trace": "f017e23985f805856801b613904d272cb71396daa5692688159f2366a2c43711"
+    },
+    "entitlements": {
+      "catalog": "029829e18972971f3551f3a0a99e3e641e55ab7a2fb6cb374f6b4645b482389c",
+      "provider_event": "57962e7fddd666146ebb90aa4fed26eb20a287346995bb37f552179780ea447d",
+      "state": "3a526baa050763c8b5453c7970f750ce205ef57d864a612986b43488ab9f0154",
+      "trace": "1333f7f917742d6a0f93028466e0f1c8e771b9442dfe5403c22184764e1edbeb"
+    },
+    "event_pipeline": {
+      "checkpoint": "f08c139275b3256f368253f7f7937e3da8d77e356e9cd066b01e0dca5a48df21",
+      "event": "41475424fc7aff50871beeca5335e30e520e0855e7769daea7e42990eb4b77ec",
+      "state": "8efdb02adaa57c732d492b0d54eebe8b4a581877864bff3a352fa651c85439c7",
+      "trace": "9437f5415724c4f299bcea79da5201a46b59c17b250d2c4a40d4bf18410c4d9a"
+    },
+    "liveops": {
+      "campaign": "f8a37a0dcd545f3fae4d13092c4e443d753dba96e6cdd6d6f0e6452ca6295183",
+      "season": "b248ec4595a757731318705d498d7275aa25cb80416308025b7bf5d318d67e34",
+      "state": "d24bfdaec041971f4270c46d8ffe60740432bf6805ea63d69857abe6d65f7aa5",
+      "trace": "1c0d7d7fd2cb50397c5783faf29ed518a7dea15a39b9463889f5db91129f43e5"
+    },
+    "liveops_ux": {
+      "authorized_mutation": "c809c93458f425b48a7546afc78bd21dff3b412a6a17c3ba203d1c615cdc8c13",
+      "catalog": "f0ac90c20d06d7e6ffdff22756bf65499c5e9d839098fb51ec8a7f1738dc351b",
+      "preview": "ff1089d254637027bd959a669cae6b3cc6f82252c2c1883cb24c1878fe418719"
+    },
+    "matchmaking": {
+      "reservation": "e8423de1a2d1a92873bbfa466111ab4a07168adeafca4bde4d62c64a70a9f690",
+      "state": "ae9ecc0893537e5c12cc8a78247197ed53d094b1a811c386c17161fac10c0c19",
+      "trace": "5f25c8f15da7e4f9dd45fbf072dd72101d3f32deef349c28069beeb83d954bd3"
+    },
+    "postgres": {
+      "migration_plan": "b96484ae6d56fe54b013b975572310d8daf44cf43116c5c43edc73845856b71b",
+      "restore": "bcc5ae8b707231568263e0f52c8426dd956a67e4e131bcf97becb4b45ccb9f6e"
+    },
+    "progression": {
+      "definition": "0ff0b8c2215dabf637f852f3d049959a02dbd7cb3e8e26c5cf2fa680682cb686",
+      "state": "a8d7bed52649c7f6cea1d2f07793a011058afbdd2973e568ade69f7b3811d49d",
+      "trace": "c1180c3bc5326a6fd268dc6bd54f9bd13c99bba837a7bc931d1b55c206d9bec3"
+    },
+    "remote_config": {
+      "rollout": "24df98a3b2058d746bbbec24af41299acc9d84ea2b3d102cee4efbb56de69a98",
+      "snapshot": "70397539d8e0fd41102387f32a29f947f29b629cbbfddbd9b20b660b40ca27c4",
+      "state": "5343df1b58f0f595133261cdff705d720dc2e2c561e6d01cd69263060680a0c9",
+      "trace": "4f45743cdc5af05bbdb795026d2e15a76c502c37d46c649a5ba08347efd00509"
+    },
+    "resilience": {
+      "backup": "53141385e61fcd1054ab58bb3339777034f058573e9da6f03fbda1eb26445747",
+      "degraded_health": "6013bc39f146bc5e564f62cfa9367c9cbde619214dd391879204e43f13df838d",
+      "operations": "81f49a0c335a0f6dacd94017dcd82a74bc2eb9825e26c98bb1ca7d1c58532718",
+      "restore": "464b5105d0113d69ecf6ad47618e7e47e4930cd690e606a5f7e6701212a3a6cf"
+    }
+  },
+  "internet_scale_claim": false,
+  "manual_state": "conditional_not_triggered",
+  "multi_region_claim": false,
+  "pii_exposed": false,
+  "production_publish_claim": false,
+  "provider_live_claim": false,
+  "schema_version": 1,
+  "secrets_exposed": false,
+  "service_runs": {
+    "authority": {"all_checks_pass": true, "check_count": 10, "status": "pass"},
+    "cloud_save": {"all_checks_pass": true, "check_count": 14, "status": "pass"},
+    "content_delivery": {"all_checks_pass": true, "check_count": 20, "status": "pass"},
+    "entitlements": {"all_checks_pass": true, "check_count": 19, "status": "pass"},
+    "event_pipeline": {"all_checks_pass": true, "check_count": 25, "status": "pass"},
+    "liveops": {"all_checks_pass": true, "check_count": 23, "status": "pass"},
+    "liveops_ux": {"all_checks_pass": true, "check_count": 31, "status": "pass"},
+    "matchmaking": {"all_checks_pass": true, "check_count": 14, "status": "pass"},
+    "postgres": {"all_checks_pass": true, "check_count": 8, "status": "pass"},
+    "progression": {"all_checks_pass": true, "check_count": 15, "status": "pass"},
+    "remote_config": {"all_checks_pass": true, "check_count": 19, "status": "pass"},
+    "resilience": {"all_checks_pass": true, "check_count": 24, "status": "pass"}
+  },
+  "source_sha": "11fb0e1a28fd5cbb607e2b302a36314f151ee170",
+  "status": "pass"
+}

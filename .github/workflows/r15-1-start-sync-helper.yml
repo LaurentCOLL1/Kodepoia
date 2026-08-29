@@ -1,0 +1,71 @@
+name: R15.1 START Sync Helper
+
+on:
+  push:
+    branches:
+      - r15/01-experience-contracts
+    paths:
+      - .github/workflows/r15-1-start-sync-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R15.1 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r15/01-experience-contracts
+          fetch-depth: 0
+
+      - name: Apply R15.1 START-sync and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          plan = Path('docs/roadmap/R15_PLAN.md')
+          text = plan.read_text(encoding='utf-8')
+          text = text.replace('**Status:** PLANNING  ', '**Status:** ACTIVE  ', 1)
+          old_checkpoint = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED. R15 planning is IN_PROGRESS on dedicated branch `r15/00-phase-plan`. No R15 implementation is authorized until this exhaustive plan is accepted, merged, followed by exactly one continuity-only planning normalization with fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, and that normalization is merged with exact expected-head protection.'
+          new_checkpoint = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED on `main` `29ae0ffabb7ffa974c4d544e33bfe54f0fa403f1`. R15.1 is IN_PROGRESS on dedicated branch `r15/01-experience-contracts`; R15.2–R15.17 remain PLANNED.'
+          if old_checkpoint not in text:
+              raise SystemExit('R15 plan checkpoint anchor missing')
+          text = text.replace(old_checkpoint, new_checkpoint, 1)
+          old_row = '| R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | PLANNED | NONE | R14 COMPLETE + normalized R15 planning |'
+          new_row = '| R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | IN_PROGRESS | NONE | R14 COMPLETE + normalized R15 planning |'
+          if old_row not in text:
+              raise SystemExit('R15.1 plan row anchor missing')
+          text = text.replace(old_row, new_row, 1)
+          plan.write_text(text, encoding='utf-8')
+
+          cont = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          text = cont.read_text(encoding='utf-8')
+          old_header = '> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1 AUTHORIZED; R15.1–R15.17 remain PLANNED until their dedicated START-sync.**'
+          new_header = '> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1 IN_PROGRESS on `r15/01-experience-contracts` from normalized `main` `29ae0ffabb7ffa974c4d544e33bfe54f0fa403f1`; R15.2–R15.17 PLANNED.**'
+          if old_header not in text:
+              raise SystemExit('R15.1 continuity header anchor missing')
+          text = text.replace(old_header, new_header, 1)
+          old_row = '| R15.1 | PLANNED | NONE |'
+          new_row = '| R15.1 | IN_PROGRESS | NONE |'
+          if old_row not in text:
+              raise SystemExit('R15.1 continuity status anchor missing')
+          text = text.replace(old_row, new_row, 1)
+          old_next = 'After this unique R15 planning continuity-only normalization passes fresh exact-head R0 + full Python Core + KodeStudio UI Smoke and merges with exact expected-head protection, **R15.1 is the next authorized action** from the resulting normalized `main`. No R15.1 implementation may start from the planning merge alone.'
+          new_next = '**R15.1 implementation + focused/adversarial acceptance is the only authorized phase action** on branch `r15/01-experience-contracts` from normalized base `29ae0ffabb7ffa974c4d544e33bfe54f0fa403f1`. Do not begin R15.2 before R15.1 implementation/evidence merge and its single post-merge continuity-only normalization both succeed.'
+          if old_next not in text:
+              raise SystemExit('R15 next-action anchor missing')
+          text = text.replace(old_next, new_next, 1)
+          cont.write_text(text, encoding='utf-8')
+          PY
+
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git rm .github/workflows/r15-1-start-sync-helper.yml
+          git commit -m 'docs(r15.1): synchronize START state'
+          git push origin HEAD:r15/01-experience-contracts

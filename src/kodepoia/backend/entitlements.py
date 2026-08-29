@@ -687,7 +687,12 @@ class InMemoryEntitlementService:
         notification = adapter.validate_notification(envelope)
         if notification.provider is not provider or notification.environment is not environment:
             raise EntitlementVerificationError("notification_adapter_mismatch")
-        notification_digest = notification.digest()
+        notification_digest = canonical_sha256(
+            {
+                "notification": notification.canonical_redacted(),
+                "account_id": account_id,
+            }
+        )
         event_key = (provider, environment, notification.message_id)
         with self._lock:
             replay = self._event_replays.get(event_key)

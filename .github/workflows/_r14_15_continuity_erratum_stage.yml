@@ -1,0 +1,50 @@
+name: R14.15 continuity erratum staging
+
+on:
+  push:
+    branches:
+      - r14/15-continuity-erratum-stage
+    paths:
+      - .github/workflows/_r14_15_continuity_erratum_stage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  erratum:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Guard staging source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "r14/15-continuity-erratum-stage"
+          test "$(git rev-parse HEAD^)" = "0cdcc6e8e0cb9f4096f886ff176a10cca6f1a0be"
+          test -f scripts/_r14_15_continuity_erratum_stage.py
+
+      - name: Apply continuity erratum
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/_r14_15_continuity_erratum_stage.py
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+          test -n "$(git diff -- docs/continuity/KODEPOIA_CONTINUITY.md)"
+
+      - name: Commit staged continuity blob
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git commit -m "docs(r14.15): stage continuity erratum"
+          git push origin HEAD:r14/15-continuity-erratum-stage

@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.12 COMPLETE + NORMALIZED. R14.13–R14.17 PLANNED.** R14.12 source technique immuable `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`; PR #279 fusionnée par merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b` après R0 #1884, Python Core #1859, UI #1824 et R14 Content Delivery #21 tous SUCCESS. Cette branche porte l’unique normalisation continuity-only R14.12; elle doit encore passer R0 + full Python Core + UI et être mergée avec expected-head avant d’autoriser R14.13. Manual state : CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.12 COMPLETE + NORMALIZED. R14.13 IN_PROGRESS. R14.14–R14.17 PLANNED.** Normalized `main` d’autorité `2e51e8143949dbca48860ff1ff634ee1acf27cf6`; branche active `r14/13-events-telemetry-pipeline`. R14.13 doit fournir des événements immuables/typés/versionnés, une consommation duplicate-safe avec checkpoints explicites, replay borné/permissionné/audité, dead-letter/retention sans perte silencieuse et redaction avant bridge OpenTelemetry. CloudEvents v1.0.2 et OpenTelemetry Specification 1.60.0 sont des références d’interopérabilité, pas des dépendances provider. Manual state : NONE.
 
 ## État global
 
@@ -18,8 +18,9 @@
 - R14.9 normalized `main` : **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`** après normalization PR #274.
 - R14.10 : **COMPLETE + NORMALIZED** — source technique `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab`; normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40` via PR #276.
 - R14.11 : **COMPLETE + NORMALIZED** — source technique `a58a0cf48a5e2311b5f6e671655f107e92c4645e`; END-head `ef39e7898abbca5466073bb78a95df829a33d836`; PR #277 merge `a32b62c4e961ed2f5fe66dd5e30c453abb64d9f1`; normalization head `5356f2354d8c2237ccb6a3957b1c2cde21d4de80`; normalized `main` `71ceb529e89b13be343be76527e9b9b0b419ceda` via PR #278.
-- R14.12 : **COMPLETE + NORMALIZED** — source technique `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`; PR #279 merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`; unique normalization branch `r14/12-normalization`.
-- R14.13–R14.17 : **PLANNED**.
+- R14.12 : **COMPLETE + NORMALIZED** — source technique `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`; PR #279 merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`; normalization head `8ceff867b09c8161e66d57dee936ce493dfc5a77`; normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6` via PR #280.
+- R14.13 : **IN_PROGRESS** sur `r14/13-events-telemetry-pipeline`, exact branch point `2e51e8143949dbca48860ff1ff634ee1acf27cf6`.
+- R14.14–R14.17 : **PLANNED**.
 - Manual state actuel : **CONDITIONAL / NOT TRIGGERED** (`provider_live_claim=false`).
 
 ## Permanent R-phase execution rule
@@ -67,7 +68,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.10 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R14.11 | COMPLETE + NORMALIZED | NONE |
 | R14.12 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
-| R14.13 | PLANNED | NONE |
+| R14.13 | IN_PROGRESS | NONE |
 | R14.14 | PLANNED | NONE |
 | R14.15 | PLANNED | CONDITIONAL |
 | R14.16 | PLANNED | NONE |
@@ -230,10 +231,21 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Final accepted END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417` differs from immutable source only by `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_12_ACCEPTANCE.md` and this continuity file.
 - Fresh END-head gates on exact `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`: R0 Repository Guard #1884 / `33245750516` SUCCESS Ubuntu + Windows; Python Core #1859 / `33245750503` SUCCESS including Ubuntu + Windows core, package builds and UI-in-core, with Ubuntu 1674 passed / 13 skipped / 46 warnings; KodeStudio UI Smoke #1824 / `33245750507` SUCCESS; R14 Content Delivery Acceptance #21 / `33245750553` SUCCESS Ubuntu + Windows.
 - PR #279 merged only with `expected_head_sha=42db6d1fa84f5bd9b6a2c8e399603b9b9e621417` as implementation/evidence merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`.
-- Unique post-merge normalization branch: `r14/12-normalization`, created exactly from merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`. Its final tree delta must contain only this continuity file and must pass fresh exact-head R0/Python/UI before expected-head merge.
+- Unique post-merge normalization head `8ceff867b09c8161e66d57dee936ce493dfc5a77` changed only this continuity file and passed fresh exact-head R0 #1888 / `33246000936`, Python Core #1863 / `33246001036`, and UI #1828 / `33246000984`, all SUCCESS.
+- Normalization PR #280 merged with `expected_head_sha=8ceff867b09c8161e66d57dee936ce493dfc5a77` as normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6`.
 - Manual state remains CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`; no external CDN/provider proof or credential was required.
-- R14.12 final state is COMPLETE + NORMALIZED once that unique normalization PR merges; R14.13–R14.17 remain PLANNED until then.
+- R14.12 final state: COMPLETE + NORMALIZED; R14.13 is authorized from that exact normalized `main`.
+
+## R14.13 START authority
+
+- Dedicated branch: `r14/13-events-telemetry-pipeline`.
+- Exact branch point: normalized R14.12 `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6`.
+- R14.12 normalization: `8ceff867b09c8161e66d57dee936ce493dfc5a77`; R0 #1888 / `33246000936`, Python Core #1863 / `33246001036`, UI #1828 / `33246000984` SUCCESS; PR #280 expected-head merge produced the exact normalized base.
+- State at START: R14.1–R14.12 COMPLETE + NORMALIZED; R14.13 IN_PROGRESS; R14.14–R14.17 PLANNED.
+- Core event authority: immutable typed/versioned envelopes, explicit source/subject/trace identity, canonical bounded payloads, append-only deterministic local store/broker, duplicate-safe at-least-once consumption, durable checkpoints, bounded replay with dry-run/permission/audit, explicit dead-letter state, retention that cannot silently destroy required history, and privacy classification/redaction before observability export.
+- Compatibility baseline: CloudEvents stable v1.0.2 is informative envelope interoperability evidence; OpenTelemetry Specification 1.60.0 is the current provider-neutral observability reference. OTel security guidance requires implementers to identify/minimize/protect sensitive telemetry; R14.13 therefore redacts before export and never treats instrumentation output as automatically privacy-safe.
+- Manual intervention: NONE. No external event broker, Kafka cluster, Collector, SaaS account or telemetry credential is required for core acceptance.
 
 ## Next authorized action
 
-If this file is read from `r14/12-normalization`, verify its exact diff from merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b` contains only this continuity file, run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, and merge the single normalization PR only with `expected_head_sha` equal to that exact normalization head. If this file is read from `main` after that protected merge, R14.12 is COMPLETE + NORMALIZED and R14.13 becomes the next authorized subdivision; start R14.13 only from that normalized `main` with a dedicated branch and mandatory START-sync before implementation. Manual state for R14.12 remains CONDITIONAL / NOT TRIGGERED and `provider_live_claim=false`.
+Verify the final R14.13 START head differs from normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6` only by `docs/roadmap/R14_PLAN.md` and this continuity file. Only after that clean compare may R14.13 implementation begin. Implement the frozen typed event/envelope/schema/store/consumer/checkpoint/replay/dead-letter/retention/privacy/OTel bridge scope with deterministic local evidence and no mandatory external broker/provider. Manual intervention remains NONE.

@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.11 are COMPLETE + NORMALIZED on normalized `main` `71ceb529e89b13be343be76527e9b9b0b419ceda`. R14.12 immutable technical source `9472f9198cdbaeed5c2b4618595480ac65bc4d5e` passed exact-source R0 #1882 / `33244609227`, Python Core #1857 / `33244609228`, UI #1822 / `33244609244` and R14 Content Delivery #19 / `33244609252`; R14.12 is COMPLETE at technical/END-sync level on `r14/12-content-delivery`, with implementation/evidence merge and single continuity-only normalization still required before `COMPLETE + NORMALIZED`. R14.13–R14.17 remain PLANNED. R14.12 manual state is CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.12 are COMPLETE + NORMALIZED on normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6`. R14.12 immutable technical source `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; final END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`; implementation/evidence PR #279 merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`; unique continuity-only normalization head `8ceff867b09c8161e66d57dee936ce493dfc5a77` passed R0 #1888 / `33246000936`, Python Core #1863 / `33246001036`, UI #1828 / `33246000984`, and PR #280 merged with expected-head as normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6`. R14.13 is IN_PROGRESS on `r14/13-events-telemetry-pipeline`; R14.14–R14.17 remain PLANNED. R14.13 manual state is NONE.
 
 ## Purpose and authority
 
@@ -210,7 +210,7 @@ Before R14.1 implementation:
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.4–R14.6 + R13 store contracts |
 | R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | COMPLETE | NONE | R14.5–R14.6 |
 | R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.5/R14.11 + R8/R13 release provenance |
-| R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | PLANNED | NONE | R14.5–R14.6 + R6 |
+| R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | IN_PROGRESS | NONE | R14.5–R14.6 + R6 |
 | R14.14 | LiveOps campaigns, seasons, schedules, rotations, activation + rollback | PLANNED | NONE | R14.10–R14.13 |
 | R14.15 | Service operations/resilience: health, limits, retries, backup/restore, DR + load budgets | PLANNED | CONDITIONAL | R14.3–R14.14 + R6 |
 | R14.16 | CLI + KodeStudio Backend/LiveOps UX, local stack control + dry-run/provider status | PLANNED | NONE | R14.1–R14.15 |
@@ -1050,6 +1050,18 @@ PII leakage, replay side effects, duplicate mutation, schema drift, unbounded re
 ## Manual intervention
 
 **NONE.**
+
+## START authority
+
+- Dedicated branch: `r14/13-events-telemetry-pipeline`.
+- Exact branch point: normalized R14.12 `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6`.
+- R14.12 closure authority: immutable technical source `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; final END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`; fresh END gates R0 #1884 / `33245750516`, Python Core #1859 / `33245750503`, UI #1824 / `33245750507`, R14 Content Delivery #21 / `33245750553` all SUCCESS; PR #279 expected-head merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`.
+- Single R14.12 post-merge normalization head `8ceff867b09c8161e66d57dee936ce493dfc5a77` changed only continuity, passed fresh exact-head R0 #1888 / `33246000936`, Python Core #1863 / `33246001036`, UI #1828 / `33246000984`, and PR #280 merged with expected-head as normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6`.
+- START state: R14.1–R14.12 COMPLETE + NORMALIZED; R14.13 IN_PROGRESS; R14.14–R14.17 PLANNED.
+- Frozen event invariants: immutable event identity; typed schema/version; canonical bounded payloads; explicit event/source/subject/trace identities; append-only local authority; duplicate-safe consumption; declared at-least-once semantics with durable checkpoints; replay is bounded, permissioned, dry-run capable and audited; dead-letter state is explicit; retention cannot silently delete uncheckpointed required history; privacy classification/redaction occurs before observability export.
+- CloudEvents stable release v1.0.2 is an informative provider-neutral envelope interoperability reference only; Kodepoia keeps an internal governed envelope and does not make any CloudEvents transport binding mandatory.
+- OpenTelemetry Specification 1.60.0 is the current provider-neutral observability reference. The bridge exports governed trace/metric/log correlation data only after privacy filtering; no Collector/backend/provider is mandatory. Current OTel security guidance places sensitive-data identification/minimization/redaction responsibility on the implementer.
+- Manual intervention: NONE. No external event broker, Kafka cluster, OTel Collector or telemetry SaaS credential is required for core acceptance.
 
 ## Completion record
 

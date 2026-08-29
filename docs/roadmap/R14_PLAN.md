@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.13 are COMPLETE + NORMALIZED on normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`. R14.14 is COMPLETE at technical/evidence level on immutable source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; its END-sync is pending fresh exact-head R0 Repository Guard, full Python Core, KodeStudio UI Smoke and R14 LiveOps Acceptance. R14.15–R14.17 remain PLANNED and unauthorized. R14.14 manual state is NONE and `provider_live_claim=false`. R14.13 immutable technical source `b1729cabaffb19ac5491dee8a2c18e1bb5877746`; final END-head `5461815da316bf9e20b06352dc7dda8699b46525`; implementation/evidence merge PR #281 `e1109c84a4b55761e4bf948b13457aabd327669e`; unique normalization head `6d302f20ba05544d1a1f122ebed48816dd22c76b`; normalization PR #282 expected-head merge produced normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.14 are COMPLETE + NORMALIZED on normalized `main` `0078a75d473524688e6ab76ccf41b509e2146dea`. R14.15 is IN_PROGRESS on dedicated branch `r14/15-service-operations-resilience`, branched exactly from that normalized main; R14.16–R14.17 remain PLANNED. R14.15 manual state is CONDITIONAL / NOT TRIGGERED for core acceptance: bounded local/hosted CI is authoritative, while external provider quota/cost/load proof remains manual/provider-dependent only if explicitly claimed. R14.14 immutable technical source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; final END-head `d8debf494f4f096e2a9f8a4093852752242e8b9f`; implementation/evidence merge PR #283 `29bf8255277fcbfce721408ec0abab660076f99d`; unique normalization head `8b527170d3b79bfacbdac36f638c8c616689bc61`; fresh normalization gates R0 #1944 / `33254094376`, Python Core #1919 / `33254094466`, UI #1884 / `33254094372` all SUCCESS; normalization PR #284 expected-head merge produced normalized `main` `0078a75d473524688e6ab76ccf41b509e2146dea`.
 
 ## Purpose and authority
 
@@ -1153,7 +1153,19 @@ Timezone errors, double activation, mass entitlement mistake, stale dependencies
 - Evidence schema: `schemas/r14/backend-liveops-evidence.schema.json`; evidence reports `manual_state=none`, `provider_live_claim=false`, `external_provider_required=false`, `secrets_exposed=false`, `pii_exposed=false`, `raw_payloads_exposed=false`.
 - IANA tzdb `2026c`, RFC 5545 TZID/recurrence semantics and stable OpenFeature evaluation-context/targeting-key concepts are informative compatibility evidence only. No full standards/provider conformance or live-provider capability is claimed.
 - Manual intervention: **NONE**. No external LiveOps SaaS, production billing account, CDN, event broker, OTel collector, production credential or network access was required.
-- END state: **R14.14 COMPLETE at technical/evidence level**; R14.15–R14.17 remain PLANNED. This END synchronization must now pass fresh exact-head R0 + full Python Core + KodeStudio UI Smoke + R14 LiveOps Acceptance; merge is allowed only with expected-head protection, followed by exactly one continuity-only post-merge normalization before R14.15 is authorized.
+- Unique post-merge normalization head `8b527170d3b79bfacbdac36f638c8c616689bc61` changed only `docs/continuity/KODEPOIA_CONTINUITY.md`; fresh exact-head R0 #1944 / `33254094376`, Python Core #1919 / `33254094466` and KodeStudio UI Smoke #1884 / `33254094372` all SUCCESS. PR #284 merged only with `expected_head_sha=8b527170d3b79bfacbdac36f638c8c616689bc61` as normalized `main` `0078a75d473524688e6ab76ccf41b509e2146dea`.
+- Final state: **R14.14 COMPLETE + NORMALIZED**. R14.15 is authorized only from normalized `main` `0078a75d473524688e6ab76ccf41b509e2146dea`; R14.16–R14.17 remain PLANNED.
+
+---
+
+## R14.15 START authority
+
+- Dedicated branch: `r14/15-service-operations-resilience`.
+- Exact branch point and sole authorized base: normalized R14.14 `main` `0078a75d473524688e6ab76ccf41b509e2146dea`.
+- R14.14 closure authority: immutable technical source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; final END-head `d8debf494f4f096e2a9f8a4093852752242e8b9f`; fresh END gates R0 #1938 / `33253609529`, Python Core #1913 / `33253609548`, UI #1878 / `33253609556`, R14 LiveOps Acceptance #5 / `33253609622` SUCCESS; PR #283 expected-head merge `29bf8255277fcbfce721408ec0abab660076f99d`; unique normalization head `8b527170d3b79bfacbdac36f638c8c616689bc61`; fresh normalization gates R0 #1944 / `33254094376`, Python Core #1919 / `33254094466`, UI #1884 / `33254094372` SUCCESS; PR #284 expected-head merge produced normalized `main` `0078a75d473524688e6ab76ccf41b509e2146dea`.
+- START state: R14.1–R14.14 COMPLETE + NORMALIZED; R14.15 IN_PROGRESS; R14.16–R14.17 PLANNED.
+- Core execution posture: deterministic/local or hosted-CI health, retry/circuit/rate-limit, backup/restore/DR, failure-injection and bounded-load evidence only. No Internet-scale, multi-region, external-provider quota/cost or production-load claim may be inferred from core CI.
+- Manual state: **CONDITIONAL / NOT TRIGGERED**. External provider quota/cost/load proof becomes manual/provider-dependent only if explicitly claimed; destructive or high-cost production load is forbidden by default.
 
 ---
 

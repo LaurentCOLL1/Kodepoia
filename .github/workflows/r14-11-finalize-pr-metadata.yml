@@ -1,0 +1,31 @@
+name: R14.11 Finalize END PR Metadata
+
+on:
+  push:
+    branches:
+      - r14/11-remote-config-feature-flags
+    paths:
+      - .github/workflows/r14-11-finalize-pr-metadata.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/11-remote-config-feature-flags
+          fetch-depth: 0
+      - name: Finalize PR metadata
+        run: python .github/r14_11_finalize_pr_metadata.py
+      - name: Commit metadata and remove helpers
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/r14_11_finalize_pr_metadata.py .github/workflows/r14-11-finalize-pr-metadata.yml
+          git add docs/roadmap/R14_11_ACCEPTANCE.md
+          git commit -m "docs(r14.11): finalize END PR metadata"
+          git push origin HEAD:r14/11-remote-config-feature-flags

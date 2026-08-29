@@ -1,10 +1,11 @@
 # R14.11 — Remote config, feature flags, targeting and safe rollout acceptance
 
 **Subdivision:** R14.11 — Remote config, feature flags, targeting + safe rollout/rollback  
-**Technical status:** ACCEPTED — END synchronization pending  
+**Technical status:** ACCEPTED — END-head candidate ready for fresh gates  
 **Immutable technical source:** `a58a0cf48a5e2311b5f6e671655f107e92c4645e`  
 **Exact branch:** `r14/11-remote-config-feature-flags`  
 **Exact normalized base:** `a9db57de1c1cc550604edbe6fec095e0a8e13c40`  
+**Pull request:** #277  
 **Manual intervention:** NONE  
 **Provider-live claim:** false
 
@@ -140,3 +141,5 @@ No technical implementation byte may change after immutable source `a58a0cf48a5e
 - `docs/continuity/KODEPOIA_CONTINUITY.md`.
 
 That exact END-head must pass fresh R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Remote Config Acceptance before merge with `expected_head_sha`. After merge, exactly one continuity-only normalization with fresh R0/Python/UI is required before R14.12 is authorized.
+
+The assertion-guarded END synchronization completed without any implementation-byte change. PR #277 carries the final R14.11 END-head candidate; its exact diff from the immutable source must remain restricted to the three documentation files above.

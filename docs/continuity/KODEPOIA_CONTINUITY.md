@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.13 COMPLETE + NORMALIZED. R14.14 IN_PROGRESS. R14.15–R14.17 PLANNED.** R14.13 immutable technical source `b1729cabaffb19ac5491dee8a2c18e1bb5877746`; final END-head `5461815da316bf9e20b06352dc7dda8699b46525`; fresh END gates R0 #1898 / `33247444761`, Python Core #1873 / `33247444733`, UI #1838 / `33247444748`, R14 Event Pipeline #5 / `33247444765` all SUCCESS; PR #281 expected-head merge `e1109c84a4b55761e4bf948b13457aabd327669e`. R14.13 normalization head `6d302f20ba05544d1a1f122ebed48816dd22c76b` passed fresh R0 #1902 / `33247706878`, Python Core #1877 / `33247706820`, UI #1842 / `33247706847`; PR #282 expected-head merge produced normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`. R14.14 is authorized and IN_PROGRESS from that exact main on `r14/14-liveops-campaigns-schedules`. Manual state: NONE; `provider_live_claim=false`.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.13 COMPLETE + NORMALIZED. R14.14 COMPLETE at technical/evidence level; END-sync pending fresh exact-head gates. R14.15–R14.17 PLANNED and unauthorized.** R14.14 immutable technical source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; clean START-head `c17356c7d24fb07544d3f58e65d7f4ef2a2f7624`; technical gates R0 #1930 / `33251838461`, Python Core #1905 / `33251838469`, UI #1870 / `33251838453`, R14 LiveOps Acceptance #4 / `33251838460` all SUCCESS, with 21 focused tests on Ubuntu and Windows and 23/23 deterministic checks PASS. Manual state: NONE; `provider_live_claim=false`. The only authorized next action is fresh validation of the three-file END-sync head, expected-head merge, then one continuity-only post-merge normalization before R14.15.
 
 ## État global
 
@@ -20,9 +20,9 @@
 - R14.11 : **COMPLETE + NORMALIZED** — source technique `a58a0cf48a5e2311b5f6e671655f107e92c4645e`; END-head `ef39e7898abbca5466073bb78a95df829a33d836`; PR #277 merge `a32b62c4e961ed2f5fe66dd5e30c453abb64d9f1`; normalization head `5356f2354d8c2237ccb6a3957b1c2cde21d4de80`; normalized `main` `71ceb529e89b13be343be76527e9b9b0b419ceda` via PR #278.
 - R14.12 : **COMPLETE + NORMALIZED** — source technique `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`; PR #279 merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`; normalization head `8ceff867b09c8161e66d57dee936ce493dfc5a77`; normalized `main` `2e51e8143949dbca48860ff1ff634ee1acf27cf6` via PR #280.
 - R14.13 : **COMPLETE + NORMALIZED** — source technique `b1729cabaffb19ac5491dee8a2c18e1bb5877746`; END-head `5461815da316bf9e20b06352dc7dda8699b46525`; PR #281 merge `e1109c84a4b55761e4bf948b13457aabd327669e`; normalization head `6d302f20ba05544d1a1f122ebed48816dd22c76b`; normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4` via PR #282 after fresh R0 #1902 / `33247706878`, Python Core #1877 / `33247706820`, UI #1842 / `33247706847` SUCCESS.
-- R14.14 : **IN_PROGRESS** on `r14/14-liveops-campaigns-schedules` from normalized `main` `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`.
+- R14.14 : **COMPLETE at technical/evidence level / END-sync pending fresh gates** — immutable source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; branch `r14/14-liveops-campaigns-schedules`; normalized base `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`.
 - R14.15–R14.17 : **PLANNED**.
-- Manual state actuel R14.13 : **NONE** (`provider_live_claim=false`; aucun provider externe requis).
+- Manual state actuel R14.14 : **NONE** (`provider_live_claim=false`; `external_provider_required=false`; aucun provider externe requis).
 
 ## Permanent R-phase execution rule
 
@@ -70,7 +70,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.11 | COMPLETE + NORMALIZED | NONE |
 | R14.12 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R14.13 | COMPLETE + NORMALIZED | NONE |
-| R14.14 | IN_PROGRESS | NONE |
+| R14.14 | COMPLETE | NONE |
 | R14.15 | PLANNED | CONDITIONAL |
 | R14.16 | PLANNED | NONE |
 | R14.17 | PLANNED | CONDITIONAL |
@@ -276,6 +276,21 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Compatibility evidence: IANA tzdb `2026c` released 2026-07-08; RFC 5545 recurrence/TZID semantics are informative. Runtime authority remains explicit UTC instants plus versioned timezone metadata rather than assuming permanent civil-time rules.
 - Manual state: NONE. Core acceptance requires no external LiveOps SaaS, billing provider, CDN, event broker, OTel collector, production account or credential.
 
+## R14.14 technical closure authority
+
+- Dedicated branch: `r14/14-liveops-campaigns-schedules`; exact normalized base `b56162e0903bf2dc29505dfb6385030ed5d4b9d4`; clean START-head `c17356c7d24fb07544d3f58e65d7f4ef2a2f7624` preceded implementation.
+- Immutable technical source: `bd7d0130b5241047e5583bd31e0a183be1a1e6f1`; technical tree `e4908fcdd92e59299310813fb1acd23cd1d9f062`.
+- Superseded/non-authoritative candidates: `25b1da3867d5b067c4345152366cec93aa62bd7f`, `b3a2e8395d34ffd0fa61ae5447fca9d150811ce1`, `a1163b4a16eecf788c5afa4d6e0cf0ff111b008d`. Their failed acceptance evidence must never be reused.
+- Exact technical-source gates: R0 #1930 / `33251838461` SUCCESS; Python Core #1905 / `33251838469` SUCCESS 5/5; KodeStudio UI Smoke #1870 / `33251838453` SUCCESS; R14 LiveOps Acceptance #4 / `33251838460` SUCCESS Ubuntu 24.04 + Windows 2025.
+- Ubuntu Python Core: **1713 passed / 13 skipped / 46 warnings**, R7/R8/R9 integrated acceptance PASS. Focused R14.14/export regression: **21 passed Ubuntu + 21 passed Windows**.
+- Dedicated evidence: 23/23 checks PASS cross-platform, including immutable season identity, exact dependency binding, non-mutating preview, SafeChange approval, idempotent activation/scheduler/expiry/kill, deterministic rotations, Remote Config audience targeting, pause without hidden advance, rollback audit, authorization/capacity fail-closed and UTC/TZID/tzdb metadata.
+- Counts: 1 season, 1 campaign, 1 activation, 1 runtime record, 2 rotations, 7 audits, 8 traces. Time authority: UTC; `Europe/Paris`; `America/Edmonton`; tzdb `2026c`.
+- Key digests: season `b248ec4595a757731318705d498d7275aa25cb80416308025b7bf5d318d67e34`; campaign `f8a37a0dcd545f3fae4d13092c4e443d753dba96e6cdd6d6f0e6452ca6295183`; state `d24bfdaec041971f4270c46d8ffe60740432bf6805ea63d69857abe6d65f7aa5`; dependencies `3a959c3c83aaca047e0f1c81018e6d506cad10d07a88ff6b14590ddbde9e0336`; audit `bb18bd011fb7a0a6ac128f0426ce8643b416e10250445026e98e810c8653c7f9`; trace `1c0d7d7fd2cb50397c5783faf29ed518a7dea15a39b9463889f5db91129f43e5`.
+- Technical artifacts: Ubuntu `9714598172` / `sha256:8ca1e46462e31f5a41dd97f517f5e98d06081b0d392d77bfe7977bec0b9f99a8`; Windows `9714604219` / `sha256:fc9202c60fb080c95f0106f3c3d62580fff32311fc24d08ae04a3e26f82662f1`; decoded evidence is identical.
+- Evidence flags: `manual_state=none`, `provider_live_claim=false`, `external_provider_required=false`, `secrets_exposed=false`, `pii_exposed=false`, `raw_payloads_exposed=false`.
+- Manual intervention: **NONE**. No external LiveOps SaaS/account/credential/network proof was required.
+- R14.14 is COMPLETE at technical/evidence level only. R14.15 remains unauthorized until the three-file END-sync head passes fresh exact-head R0/Python/UI/R14 LiveOps gates, merges with `expected_head_sha`, then exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
+
 ## Next authorized action
 
-Implement R14.14 only on `r14/14-liveops-campaigns-schedules` after this START-sync head is verified to differ from normalized base `b56162e0903bf2dc29505dfb6385030ed5d4b9d4` by plan + continuity only. Build focused/adversarial LiveOps tests and deterministic acceptance on an immutable technical source; do not advance to R14.15 before expected-head merge plus the single continuity-only post-merge normalization of R14.14. If any manual/provider-live gate becomes genuinely required, stop and mark it truthfully instead of synthesizing PASS.
+Validate the R14.14 END-sync head only. Its cumulative diff from immutable technical source `bd7d0130b5241047e5583bd31e0a183be1a1e6f1` must contain exactly `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_14_ACCEPTANCE.md`, and `docs/continuity/KODEPOIA_CONTINUITY.md`. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 LiveOps Acceptance on that same SHA. If all succeed, merge only with `expected_head_sha`, then perform exactly one continuity-only post-merge normalization with fresh R0/Python/UI before authorizing R14.15. If any manual/provider-live gate becomes genuinely required, stop and record it truthfully instead of synthesizing PASS.

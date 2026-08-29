@@ -2,6 +2,20 @@ name: R14 LiveOps Acceptance
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - r14/14-liveops-campaigns-schedules
+    paths:
+      - .github/workflows/r14-liveops-acceptance.yml
+      - schemas/r14/backend-liveops-evidence.schema.json
+      - scripts/r14_14_liveops_acceptance.py
+      - src/kodepoia/backend/__init__.py
+      - src/kodepoia/backend/liveops.py
+      - tests/test_r14_14_backend_exports.py
+      - tests/test_r14_14_liveops.py
+      - docs/roadmap/R14_PLAN.md
+      - docs/roadmap/R14_14_LIVEOPS_ACCEPTANCE*.json
+      - docs/continuity/KODEPOIA_CONTINUITY.md
 
 permissions:
   contents: read

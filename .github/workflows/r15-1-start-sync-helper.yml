@@ -29,7 +29,9 @@ jobs:
 
           plan = Path('docs/roadmap/R15_PLAN.md')
           text = plan.read_text(encoding='utf-8')
-          text = text.replace('**Status:** PLANNING  ', '**Status:** ACTIVE  ', 1)
+          if '**Status:** PLANNING  ' not in text:
+              raise SystemExit('R15 plan status anchor missing')
+          text = text.replace('**Status:** PLANNING  ', '**Status:** ACTIVE', 1)
           old_checkpoint = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED. R15 planning is IN_PROGRESS on dedicated branch `r15/00-phase-plan`. No R15 implementation is authorized until this exhaustive plan is accepted, merged, followed by exactly one continuity-only planning normalization with fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, and that normalization is merged with exact expected-head protection.'
           new_checkpoint = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED on `main` `29ae0ffabb7ffa974c4d544e33bfe54f0fa403f1`. R15.1 is IN_PROGRESS on dedicated branch `r15/01-experience-contracts`; R15.2–R15.17 remain PLANNED.'
           if old_checkpoint not in text:

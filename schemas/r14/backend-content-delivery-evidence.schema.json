@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-content-delivery-evidence.schema.json",
+  "title": "Kodepoia R14.12 Content Delivery Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha",
+    "status",
+    "checks",
+    "digests",
+    "counts",
+    "budgets",
+    "manual_state",
+    "provider_live_claim",
+    "secrets_exposed",
+    "raw_urls_exposed",
+    "executable_content_allowed"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "status": {"const": "pass"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "immutable_bundle_identity",
+        "immutable_manifest_identity",
+        "executable_payload_rejected",
+        "missing_dependency_rejected",
+        "dependency_cycle_rejected",
+        "tampered_content_rejected",
+        "truncated_content_rejected",
+        "client_schema_compatibility",
+        "object_authorization",
+        "function_authorization",
+        "environment_isolation",
+        "etag_cache_hit",
+        "range_if_range_semantics",
+        "cache_corruption_rebuilt",
+        "stale_promotion_rejected",
+        "atomic_channel_promotion",
+        "rollback_converges",
+        "revocation_enforced",
+        "bounded_capacity",
+        "redacted_evidence"
+      ],
+      "properties": {
+        "immutable_bundle_identity": {"const": true},
+        "immutable_manifest_identity": {"const": true},
+        "executable_payload_rejected": {"const": true},
+        "missing_dependency_rejected": {"const": true},
+        "dependency_cycle_rejected": {"const": true},
+        "tampered_content_rejected": {"const": true},
+        "truncated_content_rejected": {"const": true},
+        "client_schema_compatibility": {"const": true},
+        "object_authorization": {"const": true},
+        "function_authorization": {"const": true},
+        "environment_isolation": {"const": true},
+        "etag_cache_hit": {"const": true},
+        "range_if_range_semantics": {"const": true},
+        "cache_corruption_rebuilt": {"const": true},
+        "stale_promotion_rejected": {"const": true},
+        "atomic_channel_promotion": {"const": true},
+        "rollback_converges": {"const": true},
+        "revocation_enforced": {"const": true},
+        "bounded_capacity": {"const": true},
+        "redacted_evidence": {"const": true}
+      }
+    },
+    "digests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifest_v1", "manifest_v2", "state", "trace", "channel", "bundle", "download", "rollback"],
+      "properties": {
+        "manifest_v1": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "manifest_v2": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "state": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "trace": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "channel": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bundle": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "download": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "rollback": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifests", "bundles", "channel_revision", "cache_bytes"],
+      "properties": {
+        "manifests": {"type": "integer", "minimum": 1},
+        "bundles": {"type": "integer", "minimum": 1},
+        "channel_revision": {"type": "integer", "minimum": 1},
+        "cache_bytes": {"type": "integer", "minimum": 0}
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_manifests", "max_bundles_per_manifest", "max_channels", "max_cache_entries", "max_cache_bytes", "max_object_bytes"],
+      "properties": {
+        "max_manifests": {"type": "integer", "minimum": 1},
+        "max_bundles_per_manifest": {"type": "integer", "minimum": 1},
+        "max_channels": {"type": "integer", "minimum": 1},
+        "max_cache_entries": {"type": "integer", "minimum": 1},
+        "max_cache_bytes": {"type": "integer", "minimum": 1},
+        "max_object_bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "manual_state": {"const": "conditional_not_triggered"},
+    "provider_live_claim": {"const": false},
+    "secrets_exposed": {"const": false},
+    "raw_urls_exposed": {"const": false},
+    "executable_content_allowed": {"const": false}
+  }
+}

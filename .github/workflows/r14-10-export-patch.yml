@@ -1,0 +1,32 @@
+name: R14.10 Entitlement Export Hardening
+
+on:
+  push:
+    branches: ["r14/10-entitlements-billing-catalog"]
+    paths:
+      - ".github/r14_10_export_patch.py"
+      - ".github/workflows/r14-10-export-patch.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r14/10-entitlements-billing-catalog
+          fetch-depth: 0
+      - name: Apply anchored entitlement patch
+        run: python .github/r14_10_export_patch.py
+      - name: Commit and remove helper
+        shell: bash
+        run: |
+          rm .github/r14_10_export_patch.py .github/workflows/r14-10-export-patch.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/kodepoia/backend/entitlements.py src/kodepoia/backend/__init__.py .github/r14_10_export_patch.py .github/workflows/r14-10-export-patch.yml
+          git commit -m "feat(r14.10): harden entitlement replay binding and exports"
+          git push origin HEAD:r14/10-entitlements-billing-catalog

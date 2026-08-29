@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-liveops-ux-evidence.schema.json",
+  "title": "Kodepoia R14.16 Backend LiveOps UX Acceptance Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "source_sha",
+    "status",
+    "manual_state",
+    "provider_live_claim",
+    "external_provider_required",
+    "secrets_exposed",
+    "raw_command_input_exposed",
+    "raw_endpoint_input_exposed",
+    "automatic_production_publish",
+    "operation_count",
+    "check_count",
+    "passed_count",
+    "checks",
+    "digests"
+  ],
+  "properties": {
+    "schema": {
+      "const": "kodepoia.r14.liveops-ux-acceptance.v1"
+    },
+    "source_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "status": {
+      "const": "pass"
+    },
+    "manual_state": {
+      "const": "none"
+    },
+    "provider_live_claim": {
+      "const": false
+    },
+    "external_provider_required": {
+      "const": false
+    },
+    "secrets_exposed": {
+      "const": false
+    },
+    "raw_command_input_exposed": {
+      "const": false
+    },
+    "raw_endpoint_input_exposed": {
+      "const": false
+    },
+    "automatic_production_publish": {
+      "const": false
+    },
+    "operation_count": {
+      "const": 15
+    },
+    "check_count": {
+      "type": "integer",
+      "minimum": 30
+    },
+    "passed_count": {
+      "type": "integer",
+      "minimum": 30
+    },
+    "checks": {
+      "type": "object",
+      "minProperties": 30,
+      "additionalProperties": {
+        "const": true
+      }
+    },
+    "digests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "catalog_sha256",
+        "preview_sha256",
+        "authorized_mutation_sha256"
+      ],
+      "properties": {
+        "catalog_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "preview_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "authorized_mutation_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

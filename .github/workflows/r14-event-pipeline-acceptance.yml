@@ -1,0 +1,77 @@
+name: R14 Event Pipeline Acceptance
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - r14/13-events-telemetry-pipeline
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  event-pipeline-acceptance:
+    name: event-pipeline-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    env:
+      EVIDENCE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      EVIDENCE_PATH: docs/roadmap/R14_13_EVENT_PIPELINE_ACCEPTANCE-${{ matrix.os }}.json
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Assert exact checkout provenance
+        run: python -c "import os,subprocess; assert subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip() == os.environ['EVIDENCE_SOURCE_SHA']"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install acceptance dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile acceptance surface
+        run: >-
+          python -m compileall -q
+          src/kodepoia/backend
+          tests/test_r14_5_postgresql_persistence.py
+          tests/test_r14_6_authoritative_server.py
+          tests/test_r14_13_events.py
+          tests/test_r14_13_backend_exports.py
+          scripts/r14_13_event_pipeline_acceptance.py
+
+      - name: Focused R14 event pipeline and authority regression
+        run: >-
+          python -m pytest -q
+          tests/test_r14_5_postgresql_persistence.py
+          tests/test_r14_6_authoritative_server.py
+          tests/test_r14_13_events.py
+          tests/test_r14_13_backend_exports.py
+
+      - name: Generate deterministic event pipeline evidence
+        run: >-
+          python scripts/r14_13_event_pipeline_acceptance.py
+          --source-sha "${{ env.EVIDENCE_SOURCE_SHA }}"
+          --output "${{ env.EVIDENCE_PATH }}"
+
+      - name: Validate evidence schema and exact source
+        run: >-
+          python -c "import json,os; from pathlib import Path; from jsonschema import Draft202012Validator; e=json.loads(Path(os.environ['EVIDENCE_PATH']).read_text(encoding='utf-8')); s=json.loads(Path('schemas/r14/backend-event-pipeline-evidence.schema.json').read_text(encoding='utf-8')); Draft202012Validator.check_schema(s); Draft202012Validator(s).validate(e); assert e['source_sha']==os.environ['EVIDENCE_SOURCE_SHA']; assert e['status']=='pass'; assert e['manual_state']=='none'; assert e['provider_live_claim'] is False; assert e['external_broker_required'] is False; assert e['otel_collector_required'] is False; assert e['secrets_exposed'] is False; assert e['pii_exposed'] is False; assert e['raw_payloads_exposed'] is False"
+
+      - name: Upload redacted event pipeline evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r14-13-event-pipeline-evidence-${{ matrix.os }}-${{ env.EVIDENCE_SOURCE_SHA }}
+          path: ${{ env.EVIDENCE_PATH }}
+          if-no-files-found: error

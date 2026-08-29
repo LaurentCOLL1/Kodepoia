@@ -11,6 +11,7 @@ on:
 permissions:
   contents: read
 
+# Every candidate must be validated from its own exact checkout; evidence from rejected heads is never reused.
 jobs:
   remote-config-acceptance:
     name: remote-config-${{ matrix.os }}

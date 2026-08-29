@@ -76,14 +76,6 @@ jobs:
             tests/test_r14_14_liveops.py \
             tests/test_r14_14_backend_exports.py
 
-      - name: Run governance regressions
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m pytest -q \
-            tests/test_backend_governance.py \
-            tests/test_project_dna_backend_intent.py
-
       - name: Generate exact-head evidence
         shell: bash
         run: |

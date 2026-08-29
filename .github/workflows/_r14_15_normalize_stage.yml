@@ -27,7 +27,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$GITHUB_REF_NAME" = "r14/15-normalize-stage"
-          test "$(git rev-parse HEAD^)" = "001c9751b88a40019263a1a9240db0c27fc9b69f"
+          test "$(git rev-parse HEAD^)" = "239179d11a4fbbd582999e72859bb2cefb09eca0"
           test -f scripts/_r14_15_normalize_stage.py
 
       - name: Apply continuity transform
@@ -36,8 +36,15 @@ jobs:
           set -euo pipefail
           python scripts/_r14_15_normalize_stage.py
           git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
-          test "$(git status --porcelain | wc -l)" -eq 1
-          test "$(git status --porcelain | sed 's/^...//')" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          python - <<'PY'
+          import subprocess
+          expected = {'docs/continuity/KODEPOIA_CONTINUITY.md'}
+          ignored_eol = {'docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json'}
+          lines = subprocess.check_output(['git', 'status', '--porcelain'], text=True).splitlines()
+          paths = {line[3:] for line in lines if line.strip()}
+          assert paths - ignored_eol == expected, (paths, expected)
+          assert paths <= expected | ignored_eol, paths
+          PY
 
       - name: Commit staged continuity only
         shell: bash

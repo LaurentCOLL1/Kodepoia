@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1 AUTHORIZED; R15.1–R15.17 remain PLANNED until their dedicated START-sync.** R14.17 immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; final END-head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750`; canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; fresh exact-END gates R0 #2042 / `33267376108`, Python #2017 / `33267376130`, UI #1982 / `33267376112`, Integrated #15 / `33267376114` all SUCCESS; PR #290 required R0 #2043 / `33267483582` SUCCESS Ubuntu + Windows and merged exact head as `3327913047625ca26a70b5c96beb3f1608ff7720`. Manual state CONDITIONAL / NOT TRIGGERED; no provider-live, production-publish, Internet-scale or multi-region claim.
+> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1 IN_PROGRESS on `r15/01-experience-contracts` from normalized `main` `29ae0ffabb7ffa974c4d544e33bfe54f0fa403f1`; R15.2–R15.17 PLANNED.** R14.17 immutable technical source `11fb0e1a28fd5cbb607e2b302a36314f151ee170`; final END-head `4f4ab856c233e3a0fd4298e1e26d8ea389c7e750`; canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; fresh exact-END gates R0 #2042 / `33267376108`, Python #2017 / `33267376130`, UI #1982 / `33267376112`, Integrated #15 / `33267376114` all SUCCESS; PR #290 required R0 #2043 / `33267483582` SUCCESS Ubuntu + Windows and merged exact head as `3327913047625ca26a70b5c96beb3f1608ff7720`. Manual state CONDITIONAL / NOT TRIGGERED; no provider-live, production-publish, Internet-scale or multi-region claim.
 
 ## État global
 
@@ -39,7 +39,7 @@
 
 | ID | Status | Manual |
 | --- | --- | --- |
-| R15.1 | PLANNED | NONE |
+| R15.1 | IN_PROGRESS | NONE |
 | R15.2 | PLANNED | NONE |
 | R15.3 | PLANNED | NONE |
 | R15.4 | PLANNED | NONE |
@@ -59,7 +59,7 @@
 
 ## Next authorized action
 
-After this unique R15 planning continuity-only normalization passes fresh exact-head R0 + full Python Core + KodeStudio UI Smoke and merges with exact expected-head protection, **R15.1 is the next authorized action** from the resulting normalized `main`. No R15.1 implementation may start from the planning merge alone.
+**R15.1 implementation + focused/adversarial acceptance is the only authorized phase action** on branch `r15/01-experience-contracts` from normalized base `29ae0ffabb7ffa974c4d544e33bfe54f0fa403f1`. Do not begin R15.2 before R15.1 implementation/evidence merge and its single post-merge continuity-only normalization both succeed.
 
 ## Permanent R-phase execution rule
 

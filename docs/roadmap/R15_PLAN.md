@@ -2,11 +2,11 @@
 
 **Phase:** R15  
 **Roadmap title:** Experience / Bench / Fine-tuning  
-**Status:** PLANNING  
+**Status:** ACTIVE
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED. R15 planning is IN_PROGRESS on dedicated branch `r15/00-phase-plan`. No R15 implementation is authorized until this exhaustive plan is accepted, merged, followed by exactly one continuity-only planning normalization with fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, and that normalization is merged with exact expected-head protection.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED on `main` `29ae0ffabb7ffa974c4d544e33bfe54f0fa403f1`. R15.1 is IN_PROGRESS on dedicated branch `r15/01-experience-contracts`; R15.2–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -274,7 +274,7 @@ Before R15.1 implementation:
 
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
-| R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | PLANNED | NONE | R14 COMPLETE + normalized R15 planning |
+| R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | IN_PROGRESS | NONE | R14 COMPLETE + normalized R15 planning |
 | R15.2 | Governed validated-experience capture, outcome labeling + opt-in/source scope | PLANNED | NONE | R15.1 + R1/R6/R8 |
 | R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | PLANNED | NONE | R15.1–R15.2 + R6/R7/R8 |
 | R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | PLANNED | NONE | R15.1–R15.3 |

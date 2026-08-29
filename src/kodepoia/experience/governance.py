@@ -3,8 +3,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field, replace
-from typing import Iterable, Mapping, Pattern
+from re import Pattern
 
 from .contracts import (
     ContentRef,
@@ -53,7 +54,9 @@ _BUILTIN_RULES: tuple[RedactionRule, ...] = (
     ),
     RedactionRule(
         "private_key",
-        r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
+        r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"
+        r"[\s\S]*?"
+        r"-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
     ),
     RedactionRule("email", r"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b"),
     RedactionRule("windows_path", r"(?i)\b[A-Z]:\\(?:[^\\\r\n]+\\)*[^\\\r\n]*"),
@@ -282,10 +285,14 @@ def assess_license(expression: str | None, policy: GovernancePolicy) -> LicenseA
     operators = tuple(parser.operators)
     if any(identifier in policy.denied_licenses for identifier in parser.identifiers):
         return LicenseAssessment(expression, PolicyDecision.DENY, ids, operators, "license_denied")
-    if any(identifier.startswith(("LicenseRef-", "DocumentRef-")) for identifier in parser.identifiers):
-        if not policy.allow_license_refs:
-            return LicenseAssessment(expression, PolicyDecision.REVIEW, ids, operators, "license_ref_review")
-    unknown_ids = [identifier for identifier in parser.identifiers if identifier not in policy.allowed_licenses]
+    if (
+        any(identifier.startswith(("LicenseRef-", "DocumentRef-")) for identifier in parser.identifiers)
+        and not policy.allow_license_refs
+    ):
+        return LicenseAssessment(expression, PolicyDecision.REVIEW, ids, operators, "license_ref_review")
+    unknown_ids = [
+        identifier for identifier in parser.identifiers if identifier not in policy.allowed_licenses
+    ]
     unknown_exceptions = [item for item in parser.exceptions if item not in policy.allowed_exceptions]
     if unknown_ids or unknown_exceptions:
         return LicenseAssessment(expression, PolicyDecision.REVIEW, ids, operators, "license_unknown")
@@ -298,10 +305,10 @@ def _redact(text: str, rules: Iterable[RedactionRule]) -> tuple[str, tuple[str, 
     for rule in rules:
         pattern = rule.compiled()
 
-        def replacement(match: re.Match[str]) -> str:
-            counts[rule.category] = counts.get(rule.category, 0) + 1
+        def replacement(match: re.Match[str], category: str = rule.category) -> str:
+            counts[category] = counts.get(category, 0) + 1
             prefix = match.groupdict().get("prefix")
-            return (prefix or "") + f"<redacted:{rule.category}>"
+            return (prefix or "") + f"<redacted:{category}>"
 
         output = pattern.sub(replacement, output)
     categories = tuple(sorted(counts))

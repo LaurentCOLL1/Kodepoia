@@ -10,6 +10,7 @@ on:
       - "refactor/**"
       - "research/**"
       - "agent/**"
+      - "r14/**"
   pull_request:
     branches:
       - main

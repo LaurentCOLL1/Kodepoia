@@ -1,0 +1,34 @@
+name: R14.10 Mandatory START Sync
+
+on:
+  push:
+    branches: ["r14/10-entitlements-billing-catalog"]
+    paths:
+      - ".github/r14_10_start_sync.py"
+      - ".github/workflows/r14-10-start-sync.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/10-entitlements-billing-catalog
+          fetch-depth: 0
+      - name: Apply anchored START sync
+        run: python .github/r14_10_start_sync.py
+      - name: Commit START docs and remove helper
+        shell: bash
+        run: |
+          rm .github/r14_10_start_sync.py .github/workflows/r14-10-start-sync.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md .github/r14_10_start_sync.py .github/workflows/r14-10-start-sync.yml
+          git diff --cached --name-only
+          git commit -m "docs(r14.10): mandatory START sync"
+          git push origin HEAD:r14/10-entitlements-billing-catalog

@@ -67,23 +67,19 @@ jobs:
           if not after.lstrip().startswith(expected_start):
               raise SystemExit('unexpected pre-normalization Next authorized action body')
 
-          authority = '''
-
-## R14.16 implementation merge / normalization authority
-
-- Immutable technical source: `3c0507ed497d9607218b9d9a50c2e5729d786c87`.
-- Clean END-head: `a5797fc7a320eef033e9d2576322fac464b05c67`, direct child of the immutable source; source→END changed exactly `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_16_ACCEPTANCE.md` and this continuity file.
-- Fresh exact-END gates: R0 Repository Guard #2010 / `33260771061` SUCCESS Ubuntu + Windows; Python Core #1985 / `33260771060` SUCCESS 5/5; KodeStudio UI Smoke #1950 / `33260771074` SUCCESS; R14 CLI KodeStudio LiveOps UX Acceptance #4 / `33260771052` SUCCESS Ubuntu 24.04 + Windows 2025.
-- Dedicated deterministic acceptance remains **31/31 checks PASS** across 15 governed operations; decoded Ubuntu/Windows evidence JSON is exactly equal with SHA-256 `396588f20a03bb555c1a69cfd9b076151e850d11c8842b9ef9a94708a6a7eea2`.
-- PR #288 required-check run R0 Repository Guard #2011 / `33260864183` completed SUCCESS on both `repository-bootstrap-ubuntu-latest` and `repository-bootstrap-windows-latest` for exact head `a5797fc7a320eef033e9d2576322fac464b05c67`.
-- PR #288 merged only with `expected_head_sha=a5797fc7a320eef033e9d2576322fac464b05c67` as implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1`.
-- Manual/provider state remains **NONE**; `provider_live_claim=false`; `external_provider_required=false`; no external provider account, production endpoint, credential or automatic production publish is claimed.
-- The sole remaining R14.16 action is exactly one continuity-only normalization commit from implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1`, followed by fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke, then an `expected_head_sha` merge. No plan, acceptance, workflow or technical file may survive in the clean normalization diff.
-
-## Next authorized action
-
-Validate and merge the unique R14.16 continuity-only normalization candidate. Its diff from implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1` must contain only `docs/continuity/KODEPOIA_CONTINUITY.md`; fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke must all succeed before merge. Only the resulting normalized `main` authorizes R14.17 START-sync. R14.17 remains PLANNED until then.
-'''
+          authority = (
+              '\n\n## R14.16 implementation merge / normalization authority\n\n'
+              '- Immutable technical source: `3c0507ed497d9607218b9d9a50c2e5729d786c87`.\n'
+              '- Clean END-head: `a5797fc7a320eef033e9d2576322fac464b05c67`, direct child of the immutable source; source→END changed exactly `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_16_ACCEPTANCE.md` and this continuity file.\n'
+              '- Fresh exact-END gates: R0 Repository Guard #2010 / `33260771061` SUCCESS Ubuntu + Windows; Python Core #1985 / `33260771060` SUCCESS 5/5; KodeStudio UI Smoke #1950 / `33260771074` SUCCESS; R14 CLI KodeStudio LiveOps UX Acceptance #4 / `33260771052` SUCCESS Ubuntu 24.04 + Windows 2025.\n'
+              '- Dedicated deterministic acceptance remains **31/31 checks PASS** across 15 governed operations; decoded Ubuntu/Windows evidence JSON is exactly equal with SHA-256 `396588f20a03bb555c1a69cfd9b076151e850d11c8842b9ef9a94708a6a7eea2`.\n'
+              '- PR #288 required-check run R0 Repository Guard #2011 / `33260864183` completed SUCCESS on both `repository-bootstrap-ubuntu-latest` and `repository-bootstrap-windows-latest` for exact head `a5797fc7a320eef033e9d2576322fac464b05c67`.\n'
+              '- PR #288 merged only with `expected_head_sha=a5797fc7a320eef033e9d2576322fac464b05c67` as implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1`.\n'
+              '- Manual/provider state remains **NONE**; `provider_live_claim=false`; `external_provider_required=false`; no external provider account, production endpoint, credential or automatic production publish is claimed.\n'
+              '- The sole remaining R14.16 action is exactly one continuity-only normalization commit from implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1`, followed by fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke, then an `expected_head_sha` merge. No plan, acceptance, workflow or technical file may survive in the clean normalization diff.\n'
+              '\n## Next authorized action\n\n'
+              'Validate and merge the unique R14.16 continuity-only normalization candidate. Its diff from implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1` must contain only `docs/continuity/KODEPOIA_CONTINUITY.md`; fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke must all succeed before merge. Only the resulting normalized `main` authorizes R14.17 START-sync. R14.17 remains PLANNED until then.\n'
+          )
           path.write_text(before + authority, encoding='utf-8')
           PY
 

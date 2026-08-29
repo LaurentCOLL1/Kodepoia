@@ -280,6 +280,29 @@ def build(source_sha: str, root: Path) -> dict[str, Any]:
     }
 
 
+def _sanitized_failure(source_sha: str, exc: Exception) -> dict[str, Any]:
+    message = str(exc).strip() or exc.__class__.__name__
+    # All raised integration messages are deliberately label/digest-only. Defense in
+    # depth still suppresses URL-like or credential-shaped diagnostics.
+    lowered = message.lower()
+    if "://" in message or any(token in lowered for token in ("password", "secret", "token=", "dsn=")):
+        message = exc.__class__.__name__
+    return {
+        "schema_version": 1,
+        "status": "fail",
+        "source_sha": source_sha,
+        "manual_state": "conditional_not_triggered",
+        "provider_live_claim": False,
+        "external_provider_required": False,
+        "secrets_exposed": False,
+        "pii_exposed": False,
+        "production_publish_claim": False,
+        "internet_scale_claim": False,
+        "multi_region_claim": False,
+        "blockers": [message[:512]],
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run exact-head R14.17 integrated adversarial acceptance.")
     parser.add_argument("--source-sha", required=True)
@@ -287,20 +310,28 @@ def main() -> int:
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
     root = Path(args.repository_root).resolve()
-    payload = build(args.source_sha, root)
     output = Path(args.output)
     if not output.is_absolute():
         output = root / output
     output.parent.mkdir(parents=True, exist_ok=True)
+
+    return_code = 0
+    try:
+        payload = build(args.source_sha, root)
+    except Exception as exc:
+        payload = _sanitized_failure(args.source_sha, exc)
+        return_code = 1
+
     output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({
         "status": payload["status"],
         "source_sha": payload["source_sha"],
-        "check_count": len(payload["checks"]),
-        "frozen_acceptance_digest": payload["frozen_acceptance_digest"],
+        "blockers": payload.get("blockers", []),
+        "check_count": len(payload.get("checks", {})),
+        "frozen_acceptance_digest": payload.get("frozen_acceptance_digest"),
         "output": output.relative_to(root).as_posix(),
     }, indent=2, sort_keys=True))
-    return 0
+    return return_code
 
 
 if __name__ == "__main__":

@@ -1,0 +1,46 @@
+name: R14.14 Focused Validation
+
+on:
+  push:
+    branches:
+      - r14/14-liveops-campaigns-schedules
+    paths:
+      - .github/workflows/r14-14-focused-validation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  focused:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v4
+        with:
+          ref: r14/14-liveops-campaigns-schedules
+          fetch-depth: 4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install project test dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]'
+      - name: Compile LiveOps module and tests
+        run: python -m py_compile src/kodepoia/backend/liveops.py tests/test_r14_14_liveops.py
+      - name: Run R14.14 focused tests
+        run: python -m pytest -q tests/test_r14_14_liveops.py
+      - name: Remove temporary validation workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/r14-14-focused-validation.yml
+          git add -u .github/workflows/r14-14-focused-validation.yml
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore(r14.14): remove focused validation helper'
+          git push origin HEAD:r14/14-liveops-campaigns-schedules

@@ -94,18 +94,66 @@
   "schema_version": 1,
   "secrets_exposed": false,
   "service_runs": {
-    "authority": {"all_checks_pass": true, "check_count": 10, "status": "pass"},
-    "cloud_save": {"all_checks_pass": true, "check_count": 14, "status": "pass"},
-    "content_delivery": {"all_checks_pass": true, "check_count": 20, "status": "pass"},
-    "entitlements": {"all_checks_pass": true, "check_count": 19, "status": "pass"},
-    "event_pipeline": {"all_checks_pass": true, "check_count": 25, "status": "pass"},
-    "liveops": {"all_checks_pass": true, "check_count": 23, "status": "pass"},
-    "liveops_ux": {"all_checks_pass": true, "check_count": 31, "status": "pass"},
-    "matchmaking": {"all_checks_pass": true, "check_count": 14, "status": "pass"},
-    "postgres": {"all_checks_pass": true, "check_count": 8, "status": "pass"},
-    "progression": {"all_checks_pass": true, "check_count": 15, "status": "pass"},
-    "remote_config": {"all_checks_pass": true, "check_count": 19, "status": "pass"},
-    "resilience": {"all_checks_pass": true, "check_count": 24, "status": "pass"}
+    "authority": {
+      "all_checks_pass": true,
+      "check_count": 10,
+      "status": "pass"
+    },
+    "cloud_save": {
+      "all_checks_pass": true,
+      "check_count": 14,
+      "status": "pass"
+    },
+    "content_delivery": {
+      "all_checks_pass": true,
+      "check_count": 20,
+      "status": "pass"
+    },
+    "entitlements": {
+      "all_checks_pass": true,
+      "check_count": 19,
+      "status": "pass"
+    },
+    "event_pipeline": {
+      "all_checks_pass": true,
+      "check_count": 25,
+      "status": "pass"
+    },
+    "liveops": {
+      "all_checks_pass": true,
+      "check_count": 23,
+      "status": "pass"
+    },
+    "liveops_ux": {
+      "all_checks_pass": true,
+      "check_count": 31,
+      "status": "pass"
+    },
+    "matchmaking": {
+      "all_checks_pass": true,
+      "check_count": 14,
+      "status": "pass"
+    },
+    "postgres": {
+      "all_checks_pass": true,
+      "check_count": 8,
+      "status": "pass"
+    },
+    "progression": {
+      "all_checks_pass": true,
+      "check_count": 15,
+      "status": "pass"
+    },
+    "remote_config": {
+      "all_checks_pass": true,
+      "check_count": 19,
+      "status": "pass"
+    },
+    "resilience": {
+      "all_checks_pass": true,
+      "check_count": 24,
+      "status": "pass"
+    }
   },
   "source_sha": "11fb0e1a28fd5cbb607e2b302a36314f151ee170",
   "status": "pass"

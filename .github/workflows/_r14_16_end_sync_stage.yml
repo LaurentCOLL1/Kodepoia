@@ -1,0 +1,50 @@
+name: R14.16 END sync staging
+
+on:
+  push:
+    branches:
+      - r14/16-end-sync-stage
+    paths:
+      - .github/workflows/_r14_16_end_sync_stage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  end-sync:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Guard staging source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "r14/16-end-sync-stage"
+          test "$(git rev-parse HEAD^)" = "9b34b89d82e377997fe5ae08aa507518f72696bc"
+          test -f scripts/_r14_16_end_sync_stage.py
+          test -f docs/roadmap/R14_16_ACCEPTANCE.md
+
+      - name: Apply R14.16 END sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/_r14_16_end_sync_stage.py
+          git diff --check -- docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = "docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_PLAN.md "
+
+      - name: Commit staged END-sync blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(r14.16): stage END authority"
+          git push origin HEAD:r14/16-end-sync-stage

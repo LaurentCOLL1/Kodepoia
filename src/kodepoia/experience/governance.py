@@ -20,7 +20,10 @@ from .contracts import (
 )
 
 SANITIZER_VERSION = "r15.3-sanitizer-v1"
-_TOKEN = re.compile(r"\(|\)|\bAND\b|\bOR\b|\bWITH\b|[A-Za-z0-9][A-Za-z0-9.+:-]*")
+_TOKEN = re.compile(
+    r"\(|\)|(?<![A-Za-z0-9.+:-])(?:AND|and|OR|or|WITH|with)"
+    r"(?![A-Za-z0-9.+:-])|[A-Za-z0-9][A-Za-z0-9.+:-]*"
+)
 _SAFE_CATEGORY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$")
 
 
@@ -256,20 +259,21 @@ class _LicenseParser:
         if self.pos >= len(self.tokens):
             raise LicenseExpressionError("license identifier expected")
         token = self.tokens[self.pos]
-        if token in {"(", ")", "AND", "OR", "WITH"}:
+        if token in {"(", ")"} or token.upper() in {"AND", "OR", "WITH"}:
             raise LicenseExpressionError("license identifier expected")
         self.pos += 1
         return token
 
     def _peek(self, value: str) -> bool:
-        return self.pos < len(self.tokens) and self.tokens[self.pos] == value
+        return self.pos < len(self.tokens) and self.tokens[self.pos].upper() == value
 
     def _take(self) -> str:
         if self.pos >= len(self.tokens):
             raise LicenseExpressionError("unexpected end of license expression")
         token = self.tokens[self.pos]
         self.pos += 1
-        return token
+        upper = token.upper()
+        return upper if upper in {"AND", "OR", "WITH"} else token
 
 
 def assess_license(expression: str | None, policy: GovernancePolicy) -> LicenseAssessment:

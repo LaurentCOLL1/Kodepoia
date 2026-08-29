@@ -158,6 +158,9 @@ def test_compound_spdx_style_expression_is_assessed() -> None:
     assert result.decision is PolicyDecision.ALLOW
     assert result.identifiers == ("MIT", "Apache-2.0")
     assert result.operators == ("OR",)
+    lower = assess_license("MIT or Apache-2.0", _policy())
+    assert lower.decision is PolicyDecision.ALLOW
+    assert lower.operators == ("OR",)
     with_exception = assess_license(
         "GPL-2.0-only WITH Classpath-exception-2.0", _policy()
     )

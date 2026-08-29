@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.11 COMPLETE + NORMALIZED. R14.12 COMPLETE au niveau technique/END-sync, en attente des re-gates END-head + merge + normalisation. R14.13–R14.17 PLANNED.** Normalized `main` d’autorité avant R14.12 `71ceb529e89b13be343be76527e9b9b0b419ceda`; branche active `r14/12-content-delivery`; source technique immuable R14.12 `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`. Gates techniques sur cette source : R0 #1882 / `33244609227`, Python Core #1857 / `33244609228`, UI #1822 / `33244609244`, R14 Content Delivery #19 / `33244609252`, tous SUCCESS. Full Ubuntu : 1674 passed / 13 skipped / 46 warnings. Manual state CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`. Le prochain geste autorisé est de vérifier que l’END-head ne diffère de la source technique que par `R14_PLAN.md`, `R14_12_ACCEPTANCE.md` et cette continuité, puis d’exécuter des re-gates frais sur cet END-head exact avant toute fusion.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.12 COMPLETE + NORMALIZED. R14.13–R14.17 PLANNED.** R14.12 source technique immuable `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`; PR #279 fusionnée par merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b` après R0 #1884, Python Core #1859, UI #1824 et R14 Content Delivery #21 tous SUCCESS. Cette branche porte l’unique normalisation continuity-only R14.12; elle doit encore passer R0 + full Python Core + UI et être mergée avec expected-head avant d’autoriser R14.13. Manual state : CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
 
 ## État global
 
@@ -18,7 +18,7 @@
 - R14.9 normalized `main` : **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`** après normalization PR #274.
 - R14.10 : **COMPLETE + NORMALIZED** — source technique `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab`; normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40` via PR #276.
 - R14.11 : **COMPLETE + NORMALIZED** — source technique `a58a0cf48a5e2311b5f6e671655f107e92c4645e`; END-head `ef39e7898abbca5466073bb78a95df829a33d836`; PR #277 merge `a32b62c4e961ed2f5fe66dd5e30c453abb64d9f1`; normalization head `5356f2354d8c2237ccb6a3957b1c2cde21d4de80`; normalized `main` `71ceb529e89b13be343be76527e9b9b0b419ceda` via PR #278.
-- R14.12 : **COMPLETE au niveau technique/END-sync** sur `r14/12-content-delivery`; exact branch point `71ceb529e89b13be343be76527e9b9b0b419ceda`; source technique immuable `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; merge/normalisation encore requis avant `COMPLETE + NORMALIZED`.
+- R14.12 : **COMPLETE + NORMALIZED** — source technique `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`; END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`; PR #279 merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`; unique normalization branch `r14/12-normalization`.
 - R14.13–R14.17 : **PLANNED**.
 - Manual state actuel : **CONDITIONAL / NOT TRIGGERED** (`provider_live_claim=false`).
 
@@ -66,7 +66,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.9 | COMPLETE + NORMALIZED | NONE |
 | R14.10 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R14.11 | COMPLETE + NORMALIZED | NONE |
-| R14.12 | COMPLETE (END candidate; normalization pending) | CONDITIONAL / NOT TRIGGERED |
+| R14.12 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R14.13 | PLANNED | NONE |
 | R14.14 | PLANNED | NONE |
 | R14.15 | PLANNED | CONDITIONAL |
@@ -227,8 +227,13 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Artifacts: Ubuntu `9712443954` / `sha256:8a85b0978a537436c4d97ae420b13ff78184777850112f63aa1abdb837cfc320`; Windows `9712439689` / `sha256:900a669e5ee7915f2f1be1c2b92f55ccfe38e6cf82907122f407a66c442a5b33`.
 - Evidence state: `manual_state=conditional_not_triggered`; `provider_live_claim=false`; `secrets_exposed=false`; `raw_urls_exposed=false`; `executable_content_allowed=false`.
 - RFC 9110/9111, OWASP SSRF guidance and Apple App Review Guidelines are informative compatibility/safety evidence only; they are not architecture authority or live-provider proof.
-- END state: R14.12 COMPLETE at technical/documentation-candidate level; R14.13–R14.17 remain PLANNED. R14.13 is not authorized until the exact R14.12 END-head passes fresh R0/Python/UI/R14 Content Delivery gates, PR #279 merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
+- Final accepted END-head `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417` differs from immutable source only by `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_12_ACCEPTANCE.md` and this continuity file.
+- Fresh END-head gates on exact `42db6d1fa84f5bd9b6a2c8e399603b9b9e621417`: R0 Repository Guard #1884 / `33245750516` SUCCESS Ubuntu + Windows; Python Core #1859 / `33245750503` SUCCESS including Ubuntu + Windows core, package builds and UI-in-core, with Ubuntu 1674 passed / 13 skipped / 46 warnings; KodeStudio UI Smoke #1824 / `33245750507` SUCCESS; R14 Content Delivery Acceptance #21 / `33245750553` SUCCESS Ubuntu + Windows.
+- PR #279 merged only with `expected_head_sha=42db6d1fa84f5bd9b6a2c8e399603b9b9e621417` as implementation/evidence merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`.
+- Unique post-merge normalization branch: `r14/12-normalization`, created exactly from merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b`. Its final tree delta must contain only this continuity file and must pass fresh exact-head R0/Python/UI before expected-head merge.
+- Manual state remains CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`; no external CDN/provider proof or credential was required.
+- R14.12 final state is COMPLETE + NORMALIZED once that unique normalization PR merges; R14.13–R14.17 remain PLANNED until then.
 
 ## Next authorized action
 
-The immutable technical source is `9472f9198cdbaeed5c2b4618595480ac65bc4d5e`. Verify the R14.12 END-head differs from it **only** by `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_12_ACCEPTANCE.md` and this continuity file. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Content Delivery Acceptance on that END-head. If all are SUCCESS and the PR #279 head still equals the exact accepted END-head, merge only with `expected_head_sha` protection. Then create exactly one `r14/12-normalization` branch from the implementation/evidence merge, change only this continuity file, run fresh exact-head R0 + full Python Core + UI, and merge the normalization with expected-head protection. Only the resulting normalized `main` authorizes R14.13. Manual state remains CONDITIONAL / NOT TRIGGERED; do not request CDN/provider credentials or claim provider-live success.
+If this file is read from `r14/12-normalization`, verify its exact diff from merge `a088a081276213e7efa7bfb03b7b8adea2f0a75b` contains only this continuity file, run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, and merge the single normalization PR only with `expected_head_sha` equal to that exact normalization head. If this file is read from `main` after that protected merge, R14.12 is COMPLETE + NORMALIZED and R14.13 becomes the next authorized subdivision; start R14.13 only from that normalized `main` with a dedicated branch and mandatory START-sync before implementation. Manual state for R14.12 remains CONDITIONAL / NOT TRIGGERED and `provider_live_claim=false`.

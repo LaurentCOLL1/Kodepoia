@@ -1,10 +1,10 @@
 # Kodepoia — Continuité / reprise par un autre LLM
 
-**Dernière mise à jour : 28 août 2026**
+**Dernière mise à jour : 29 août 2026**
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.8 COMPLETE + NORMALIZED. R14.9 COMPLETE (END-SYNCED; merge/normalization pending). R14.10–R14.17 PLANNED.** R14.9 source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`; R0 #1836, Python Core #1810, UI #1777 et R14 Progression Acceptance #3 sont SUCCESS. Re-gater l’END-head exact, merger PR #273 avec expected-head, puis effectuer exactement une normalisation continuity-only avant R14.10. Manual intervention : NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.9 COMPLETE + NORMALIZED (normalization PR pending merge). R14.10–R14.17 PLANNED.** R14.9 source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`; END-head exact `2619e190601089ca2d98b22ccb4c0d254f1f11f7`; fresh END gates R0 #1843, Python Core #1817, UI #1784 et R14 Progression Acceptance #10 sont SUCCESS; PR #273 a fusionné avec expected-head comme merge `5f55e8b1811c08e8eef310f18aa3801798153018`. La présente branche `r14/09-normalize-continuity` est l’unique normalisation continuity-only autorisée : valider son HEAD exact avec R0 + full Python Core + KodeStudio UI Smoke, puis merger avec expected-head avant toute R14.10. Manual intervention : NONE.
 
 ## État global
 
@@ -16,7 +16,7 @@
 - R14 planning : **ACCEPTED + NORMALIZED**.
 - R14.1–R14.8 : **COMPLETE + NORMALIZED**.
 - R14.8 normalized `main` : **`433c86cc5d43bfea41adb529451367e10c75a30b`** après normalization PR #272.
-- R14.9 : **COMPLETE (END-SYNCED; merge/normalization pending)** sur `r14/09-progression-leaderboards`; source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`.
+- R14.9 : **COMPLETE + NORMALIZED (normalization PR pending merge)** ; source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`, END-head `2619e190601089ca2d98b22ccb4c0d254f1f11f7`, implementation/evidence merge `5f55e8b1811c08e8eef310f18aa3801798153018`.
 - R14.10–R14.17 : **PLANNED**.
 - Manual state actuel : **NONE**.
 
@@ -61,7 +61,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.6 | COMPLETE + NORMALIZED | NONE |
 | R14.7 | COMPLETE + NORMALIZED | NONE |
 | R14.8 | COMPLETE + NORMALIZED | NONE |
-| R14.9 | COMPLETE | NONE |
+| R14.9 | COMPLETE + NORMALIZED | NONE |
 | R14.10 | PLANNED | CONDITIONAL |
 | R14.11 | PLANNED | NONE |
 | R14.12 | PLANNED | CONDITIONAL |
@@ -123,7 +123,12 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Digests: definition `0ff0b8c2215dabf637f852f3d049959a02dbd7cb3e8e26c5cf2fa680682cb686`; state `a8d7bed52649c7f6cea1d2f07793a011058afbdd2973e568ade69f7b3811d49d`; trace `c1180c3bc5326a6fd268dc6bd54f9bd13c99bba837a7bc931d1b55c206d9bec3`.
 - Artifacts: Ubuntu `9701251718` / `sha256:fb8be016598d8bf1450047102b2c44e26aa975bf78c78f62e1e7043f4f64e69a`; Windows `9701266161` / `sha256:065fac3a244258b4047f51b229b66b1adfe3ec0714d556b7ba6e42220568b02e`.
 - `provider_live_claim=false`; `secrets_exposed=false`; manual NONE.
-- Current state: R14.9 COMPLETE at END-sync; R14.10–R14.17 PLANNED.
+- Final accepted END-head: **`2619e190601089ca2d98b22ccb4c0d254f1f11f7`**. Its final diff from immutable technical source is restricted to `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_9_ACCEPTANCE.md` and this continuity file.
+- Fresh END gates on that exact head: R0 Repository Guard #1843 / `33211148134` SUCCESS; Python Core #1817 / `33211148235` SUCCESS; KodeStudio UI Smoke #1784 / `33211148160` SUCCESS; R14 Progression Acceptance #10 / `33211148184` SUCCESS on Ubuntu and Windows.
+- PR #273 merged only after verifying its exact head `2619e190601089ca2d98b22ccb4c0d254f1f11f7`, with `expected_head_sha` protection, as implementation/evidence merge **`5f55e8b1811c08e8eef310f18aa3801798153018`**.
+- Single post-merge normalization branch: **`r14/09-normalize-continuity`**, created from exact merge `5f55e8b1811c08e8eef310f18aa3801798153018`; it is required to change only this continuity file.
+- Current state represented by this normalization candidate: R14.9 **COMPLETE + NORMALIZED**; R14.10–R14.17 **PLANNED**. R14.10 remains unauthorized until this exact normalization head passes fresh R0/Python/UI and is merged with expected-head.
+- Manual intervention: **NONE**.
 
 ## External research baseline relevant to R14.9
 
@@ -134,4 +139,4 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 
 ## Next authorized action
 
-Treat `155119282af7f4bf71840fc45c2d3de8891f73cd` as the only immutable R14.9 technical source. Verify the END-head diff from that source is limited to `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_9_ACCEPTANCE.md` and this continuity file. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Progression Acceptance. If all are SUCCESS, merge PR #273 only with `expected_head_sha` equal to that exact END-head, then perform exactly one continuity-only post-merge normalization with fresh R0/Python/UI. Do not start R14.10 before normalized `main` exists. Manual intervention remains NONE.
+Treat `155119282af7f4bf71840fc45c2d3de8891f73cd` as the only immutable R14.9 technical source, `2619e190601089ca2d98b22ccb4c0d254f1f11f7` as the accepted END-head, and `5f55e8b1811c08e8eef310f18aa3801798153018` as the implementation/evidence merge. Verify the normalization-head diff from that merge contains only this continuity file. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke. If all are SUCCESS, merge the single normalization PR only with `expected_head_sha` equal to that exact normalization head. The resulting normalized `main` alone authorizes R14.10. Manual intervention remains NONE.

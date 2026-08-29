@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from kodepoia.quality.localization import pseudo_localize_text
+
 
 _EN = {
     "nav": "Backend & LiveOps",
@@ -42,14 +44,16 @@ _FR = {
 
 class R14Translator:
     def __init__(self, locale: str = "en") -> None:
-        self.locale = "fr" if locale.lower().startswith("fr") else "en"
+        normalized = locale.lower()
+        self.locale = "qps-ploc" if normalized == "qps-ploc" else "fr" if normalized.startswith("fr") else "en"
         self._table = _FR if self.locale == "fr" else _EN
 
     def text(self, key: str) -> str:
         try:
-            return self._table[key]
+            value = self._table[key]
         except KeyError as exc:
             raise KeyError(f"unknown R14 KodeStudio localization key: {key}") from exc
+        return pseudo_localize_text(value) if self.locale == "qps-ploc" else value
 
 
 def r14_nav_text(locale: str = "en") -> str:

@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r14/backend-resilience-evidence.schema.json",
+  "title": "Kodepoia R14.15 Service Operations Resilience Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "source_sha",
+    "status",
+    "manual_state",
+    "provider_live_claim",
+    "external_load_required",
+    "secrets_exposed",
+    "pii_exposed",
+    "raw_payloads_exposed",
+    "checks",
+    "health",
+    "retry",
+    "restore",
+    "load",
+    "failure_injection",
+    "operations_digest",
+    "compatibility"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "status": {"enum": ["pass", "fail"]},
+    "manual_state": {"const": "conditional_not_triggered"},
+    "provider_live_claim": {"const": false},
+    "external_load_required": {"const": false},
+    "secrets_exposed": {"const": false},
+    "pii_exposed": {"const": false},
+    "raw_payloads_exposed": {"const": false},
+    "checks": {
+      "type": "object",
+      "minProperties": 20,
+      "additionalProperties": {"type": "boolean"}
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["degraded_digest", "unavailable_digest", "otel_dependency_digest", "dependency_count"],
+      "properties": {
+        "degraded_digest": {"$ref": "#/$defs/sha256"},
+        "unavailable_digest": {"$ref": "#/$defs/sha256"},
+        "otel_dependency_digest": {"$ref": "#/$defs/sha256"},
+        "dependency_count": {"type": "integer", "minimum": 1}
+      }
+    },
+    "retry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["digest", "attempts", "delays_ms", "worst_case_duration_ms", "total_timeout_ms"],
+      "properties": {
+        "digest": {"$ref": "#/$defs/sha256"},
+        "attempts": {"type": "integer", "minimum": 1, "maximum": 9},
+        "delays_ms": {
+          "type": "array",
+          "items": {"type": "integer", "minimum": 0, "maximum": 600000},
+          "maxItems": 8
+        },
+        "worst_case_duration_ms": {"type": "integer", "minimum": 1},
+        "total_timeout_ms": {"type": "integer", "minimum": 1}
+      }
+    },
+    "restore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "digest",
+        "backup_digest",
+        "payload_sha256",
+        "rpo_ms",
+        "rto_ms",
+        "isolated",
+        "encrypted",
+        "provenance"
+      ],
+      "properties": {
+        "digest": {"$ref": "#/$defs/sha256"},
+        "backup_digest": {"$ref": "#/$defs/sha256"},
+        "payload_sha256": {"$ref": "#/$defs/sha256"},
+        "rpo_ms": {"type": "integer", "minimum": 0},
+        "rto_ms": {"type": "integer", "minimum": 0},
+        "isolated": {"const": true},
+        "encrypted": {"type": "boolean"},
+        "provenance": {"type": "string", "minLength": 1}
+      }
+    },
+    "load": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_digest",
+        "result_digest",
+        "request_count",
+        "peak_concurrency",
+        "p95_latency_ms",
+        "error_rate",
+        "cpu_ms",
+        "memory_mb",
+        "profile_scoped_only"
+      ],
+      "properties": {
+        "profile_digest": {"$ref": "#/$defs/sha256"},
+        "result_digest": {"$ref": "#/$defs/sha256"},
+        "request_count": {"type": "integer", "minimum": 1},
+        "peak_concurrency": {"type": "integer", "minimum": 1},
+        "p95_latency_ms": {"type": "number", "minimum": 0},
+        "error_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "cpu_ms": {"type": "number", "minimum": 0},
+        "memory_mb": {"type": "number", "minimum": 0},
+        "profile_scoped_only": {"const": true}
+      }
+    },
+    "failure_injection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timeline_digest",
+        "timeline_records",
+        "dropped_timeline_records",
+        "bounded_fixture_timeline_digest"
+      ],
+      "properties": {
+        "timeline_digest": {"$ref": "#/$defs/sha256"},
+        "timeline_records": {"type": "integer", "minimum": 0},
+        "dropped_timeline_records": {"type": "integer", "minimum": 0},
+        "bounded_fixture_timeline_digest": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "operations_digest": {"$ref": "#/$defs/sha256"},
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "postgresql_backup_scope",
+        "postgresql_pitr_claim",
+        "otel_semantic_conventions",
+        "internet_scale_claim",
+        "multi_region_claim"
+      ],
+      "properties": {
+        "postgresql_backup_scope": {"const": "fixture_restore_only"},
+        "postgresql_pitr_claim": {"const": false},
+        "otel_semantic_conventions": {"type": "string", "minLength": 1},
+        "internet_scale_claim": {"const": false},
+        "multi_region_claim": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

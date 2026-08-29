@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.10 are COMPLETE + NORMALIZED on normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40`. R14.11 is COMPLETE at technical/evidence + END-sync level on `r14/11-remote-config-feature-flags`; immutable technical source `a58a0cf48a5e2311b5f6e671655f107e92c4645e` passed R14 Remote Config Acceptance run `33234881304` on Ubuntu and Windows. Final END-head still requires fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke + R14 Remote Config Acceptance, protected merge and exactly one continuity-only normalization before R14.12. R14.12–R14.17 remain PLANNED. R14.11 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.11 are COMPLETE + NORMALIZED on normalized `main` `71ceb529e89b13be343be76527e9b9b0b419ceda`. R14.11 immutable technical source `a58a0cf48a5e2311b5f6e671655f107e92c4645e`; END-head `ef39e7898abbca5466073bb78a95df829a33d836`; PR #277 merge `a32b62c4e961ed2f5fe66dd5e30c453abb64d9f1`; single continuity-only normalization head `5356f2354d8c2237ccb6a3957b1c2cde21d4de80` passed R0 #1865 / `33242852652`, Python Core #1839 / `33242852691`, UI #1806 / `33242852613`, and PR #278 merged with expected-head as normalized `main` `71ceb529e89b13be343be76527e9b9b0b419ceda`. R14.12 is IN_PROGRESS on `r14/12-content-delivery`; R14.13–R14.17 remain PLANNED. R14.12 manual state is CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
 
 ## Purpose and authority
 
@@ -209,7 +209,7 @@ Before R14.1 implementation:
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | COMPLETE | NONE | R14.5–R14.6 |
 | R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | COMPLETE | CONDITIONAL / NOT TRIGGERED | R14.4–R14.6 + R13 store contracts |
 | R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | COMPLETE | NONE | R14.5–R14.6 |
-| R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | PLANNED | CONDITIONAL | R14.5/R14.11 + R8/R13 release provenance |
+| R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R14.5/R14.11 + R8/R13 release provenance |
 | R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | PLANNED | NONE | R14.5–R14.6 + R6 |
 | R14.14 | LiveOps campaigns, seasons, schedules, rotations, activation + rollback | PLANNED | NONE | R14.10–R14.13 |
 | R14.15 | Service operations/resilience: health, limits, retries, backup/restore, DR + load budgets | PLANNED | CONDITIONAL | R14.3–R14.14 + R6 |
@@ -971,6 +971,17 @@ Executable smuggling, hash bypass, CDN URL injection/SSRF, stale cache, client i
 ## Manual intervention
 
 **CONDITIONAL.** External CDN/provider proof requires a real account/domain only if explicitly claimed; local deterministic delivery is core authority.
+
+## START authority
+
+- Dedicated branch: `r14/12-content-delivery`.
+- Exact branch point: normalized R14.11 `main` `71ceb529e89b13be343be76527e9b9b0b419ceda`.
+- R14.11 closure authority: immutable technical source `a58a0cf48a5e2311b5f6e671655f107e92c4645e`; final END-head `ef39e7898abbca5466073bb78a95df829a33d836`; fresh END gates R0 #1863 / `33235110200`, Python Core #1837 / `33235110228`, UI #1804 / `33235110215`, R14 Remote Config #27 / `33235110216` all SUCCESS; PR #277 expected-head merge `a32b62c4e961ed2f5fe66dd5e30c453abb64d9f1`.
+- Single R14.11 post-merge normalization head `5356f2354d8c2237ccb6a3957b1c2cde21d4de80` changed only continuity, passed R0 #1865 / `33242852652`, Python Core #1839 / `33242852691`, UI #1806 / `33242852613`, and PR #278 merged with expected-head as normalized `main` `71ceb529e89b13be343be76527e9b9b0b419ceda`.
+- START state: R14.1–R14.11 COMPLETE + NORMALIZED; R14.12 IN_PROGRESS; R14.13–R14.17 PLANNED.
+- Trust invariants: content identities/manifests/bundles are immutable and hash-addressed; executable/self-modifying payloads are rejected; dependency graphs are acyclic and bounded; client/schema compatibility is explicit; channel promotion is atomic and rollback selects a prior immutable manifest; downloads/cache promotion require exact size/hash verification; cache corruption purges rather than silently serves; external URLs are never accepted from untrusted project/content data without existing allowlist/network authorization.
+- Core acceptance uses a deterministic local content provider and local HTTP fixture. No external CDN account/domain/credential is required or claimed. `provider_live_claim=false`.
+- Manual intervention: CONDITIONAL / NOT TRIGGERED. External CDN/provider proof is deferred unless explicitly requested later; secrets/tokens must never be supplied through model-visible text or committed evidence.
 
 ## Completion record
 

@@ -596,7 +596,7 @@ class ExperienceCollector:
 
     @staticmethod
     def _scope_key(workspace_id: str, project_id: str) -> str:
-        payload = f"{workspace_id}\0{project_id}".encode("utf-8")
+        payload = f"{workspace_id}\0{project_id}".encode()
         return hashlib.sha256(payload).hexdigest()[:32]
 
     def _scope_key_from_object_path(self, path: Path) -> str:
@@ -665,7 +665,7 @@ class ExperienceCollector:
 
     @staticmethod
     def _event_key_parts(workspace_id: str, project_id: str, event_id: str) -> str:
-        payload = f"{workspace_id}\0{project_id}\0{event_id}".encode("utf-8")
+        payload = f"{workspace_id}\0{project_id}\0{event_id}".encode()
         return hashlib.sha256(payload).hexdigest()
 
     @staticmethod

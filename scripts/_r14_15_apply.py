@@ -88,9 +88,20 @@ def main() -> int:
     text = text.replace(all_marker, resilience_all + all_marker, 1)
     init_path.write_text(text, encoding="utf-8")
 
+    # Hosted runners may materialize one historical JSON with a working-tree EOL drift.
+    # Restore it before proving the R14.15 surface; it is not part of this subdivision.
+    subprocess.run(
+        ["git", "checkout", "--", "docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json"],
+        check=True,
+    )
+
     Path(APPLY_WORKFLOW).unlink()
     Path(APPLY_SCRIPT).unlink()
 
+    # `git diff` omits untracked files. Intent-to-add makes the six newly-created
+    # technical files visible to the exact START->technical-source surface guard.
+    new_paths = sorted(EXPECTED - {"src/kodepoia/backend/__init__.py"})
+    subprocess.run(["git", "add", "-N", "--", *new_paths], check=True)
     actual = set(
         subprocess.check_output(["git", "diff", "--name-only", START_SHA], text=True).splitlines()
     )

@@ -1,0 +1,147 @@
+name: R14.17 START staging
+
+on:
+  push:
+    branches:
+      - staging/r14-17-start-sync
+    paths:
+      - .github/workflows/r14_17_start_stage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: staging/r14-17-start-sync
+          fetch-depth: 0
+
+      - name: Patch R14.17 START plan and continuity
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          normalized_main = 'f6960db290a570e3a0c3c4ff97600014978d45df'
+          implementation_merge = '9c7ed58f20c794e59146813544b3a75aec0bace1'
+          normalization_head = '418c41a22c907bdef0693b16824bd2b86fa47acc'
+
+          plan_path = Path('docs/roadmap/R14_PLAN.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          old_r1416 = ('- Technical state is accepted and R14.16 is ready for END-sync re-gating. R14.17 remains PLANNED and unauthorized until the exact END-head passes fresh R0/Python/UI/R14.16 acceptance, the implementation PR merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.')
+          if plan.count(old_r1416) != 1:
+              raise SystemExit(f'expected one R14.16 closure placeholder, got {plan.count(old_r1416)}')
+          new_r1416 = (
+              '- Final clean END-head `a5797fc7a320eef033e9d2576322fac464b05c67` is a direct child of immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; source→END changed only `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_16_ACCEPTANCE.md`, and `docs/continuity/KODEPOIA_CONTINUITY.md`.\n'
+              '- Fresh exact-END gates: R0 Repository Guard #2010 / `33260771061` SUCCESS Ubuntu + Windows; Python Core #1985 / `33260771060` SUCCESS 5/5; KodeStudio UI Smoke #1950 / `33260771074` SUCCESS; R14 CLI KodeStudio LiveOps UX Acceptance #4 / `33260771052` SUCCESS Ubuntu + Windows. Required PR R0 #2011 / `33260864183` also passed Ubuntu + Windows on the exact END-head.\n'
+              '- PR #288 merged only with `expected_head_sha=a5797fc7a320eef033e9d2576322fac464b05c67` as implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1`.\n'
+              '- Unique post-merge normalization head `418c41a22c907bdef0693b16824bd2b86fa47acc` changed only `docs/continuity/KODEPOIA_CONTINUITY.md`; fresh exact-head R0 #2013 / `33261708135`, Python Core #1988 / `33261708106` (5/5), and UI #1953 / `33261708116` all SUCCESS. PR #289 required R0 #2014 / `33261833373` passed Ubuntu + Windows and merged with exact expected-head as normalized `main` `f6960db290a570e3a0c3c4ff97600014978d45df`.\n'
+              '- Normalization cardinality is exactly one. R14.16 final state is **COMPLETE + NORMALIZED**, manual **NONE**. R14.17 START-sync is authorized from exact normalized main `f6960db290a570e3a0c3c4ff97600014978d45df`.'
+          )
+          plan = plan.replace(old_r1416, new_r1416)
+
+          marker = '# R14.17 — Adversarial integrated backend/platform-services/LiveOps acceptance\n'
+          if plan.count(marker) != 1:
+              raise SystemExit('R14.17 heading cardinality mismatch')
+          before, tail = plan.split(marker, 1)
+          completion = '\n## Completion record\n\nTo be appended when accepted.\n'
+          if tail.count(completion) != 1:
+              raise SystemExit(f'R14.17 completion placeholder mismatch: {tail.count(completion)}')
+          start_authority = (
+              '\n## START authority\n\n'
+              '- Dedicated branch: `r14/17-adversarial-integrated-acceptance`.\n'
+              '- Exact normalized branch point: `f6960db290a570e3a0c3c4ff97600014978d45df`, produced by the single R14.16 continuity-only normalization PR #289.\n'
+              '- START state: R14.1–R14.16 **COMPLETE + NORMALIZED**; R14.17 **IN_PROGRESS**.\n'
+              '- Scope is frozen to anti-circular integrated acceptance across the already accepted R14 services: local/test auth, PostgreSQL authority, authoritative server/lobby/reconnect, cloud-save conflict/rollback, progression, entitlement sandbox idempotency, feature config rollback, immutable content, event replay/checkpoint, LiveOps campaign lifecycle, resilience/recovery, and redaction/provider-overclaim boundaries.\n'
+              '- Evidence must bind to one immutable technical source; final report may consume independent gate/artifact identities but may never certify itself or mix SHAs. Local/sandbox evidence cannot imply live-production provider capability.\n'
+              '- Manual state: **CONDITIONAL / NOT TRIGGERED**. Core closure is local/hosted/sandbox only; no real IdP/store/CDN/managed-provider account, public domain/TLS state, credential, secret, destructive production load, or production publish is required or claimed. If any accepted claim later requires such live evidence, stop before completion.\n'
+          )
+          tail = tail.replace(completion, start_authority + completion)
+          plan_path.write_text(before + marker + tail, encoding='utf-8')
+
+          cont_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          cont = cont_path.read_text(encoding='utf-8')
+          lines = cont.splitlines()
+
+          header_idx = [i for i,l in enumerate(lines) if l.startswith('> Kodepoia, architecture v1.0 gelée.')]
+          if len(header_idx) != 1:
+              raise SystemExit('continuity header mismatch')
+          lines[header_idx[0]] = (
+              '> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. '
+              'R14.1–R14.16 COMPLETE + NORMALIZED. R14.17 IN_PROGRESS on `r14/17-adversarial-integrated-acceptance`.** '
+              'R14.16 immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; END `a5797fc7a320eef033e9d2576322fac464b05c67`; '
+              'implementation PR #288 -> `9c7ed58f20c794e59146813544b3a75aec0bace1`; unique normalization head '
+              '`418c41a22c907bdef0693b16824bd2b86fa47acc`; normalization PR #289 -> normalized main '
+              '`f6960db290a570e3a0c3c4ff97600014978d45df`. R14.17 manual state CONDITIONAL / NOT TRIGGERED; core is local/hosted/sandbox only.'
+          )
+
+          global16 = [i for i,l in enumerate(lines) if l.startswith('- R14.16 : **IMPLEMENTATION MERGED / NORMALIZATION PENDING**')]
+          if len(global16) != 1:
+              raise SystemExit(f'R14.16 global line mismatch: {len(global16)}')
+          lines[global16[0]] = (
+              '- R14.16 : **COMPLETE + NORMALIZED** — immutable source `3c0507ed497d9607218b9d9a50c2e5729d786c87`; END `a5797fc7a320eef033e9d2576322fac464b05c67`; '
+              'PR #288 merge `9c7ed58f20c794e59146813544b3a75aec0bace1`; unique normalization head `418c41a22c907bdef0693b16824bd2b86fa47acc`; '
+              'PR #289 -> normalized `main` `f6960db290a570e3a0c3c4ff97600014978d45df`; fresh normalization R0 #2013 / `33261708135`, Python #1988 / `33261708106`, UI #1953 / `33261708116` SUCCESS; manual **NONE**.'
+          )
+          global17 = [i for i,l in enumerate(lines) if l == '- R14.17 : **PLANNED**.']
+          if len(global17) != 1:
+              raise SystemExit(f'R14.17 global line mismatch: {len(global17)}')
+          lines[global17[0]] = '- R14.17 : **IN_PROGRESS** — branch `r14/17-adversarial-integrated-acceptance`; base normalized `main` `f6960db290a570e3a0c3c4ff97600014978d45df`; manual **CONDITIONAL / NOT TRIGGERED**.'
+
+          manual_idx = [i for i,l in enumerate(lines) if l.startswith('- Manual state actuel R14.15 :')]
+          if len(manual_idx) != 1:
+              raise SystemExit('manual summary line mismatch')
+          lines[manual_idx[0]] = '- Manual state actuel R14.17 : **CONDITIONAL / NOT TRIGGERED**. Core closure is local/hosted/sandbox; live external provider/domain/TLS evidence is required only if explicitly claimed, and then execution must stop before completion.'
+
+          idx16 = [i for i,l in enumerate(lines) if l == '| R14.16 | IMPLEMENTATION MERGED / NORMALIZATION PENDING | NONE |']
+          idx17 = [i for i,l in enumerate(lines) if l == '| R14.17 | PLANNED | CONDITIONAL |']
+          if len(idx16) != 1 or len(idx17) != 1:
+              raise SystemExit('status index mismatch')
+          lines[idx16[0]] = '| R14.16 | COMPLETE + NORMALIZED | NONE |'
+          lines[idx17[0]] = '| R14.17 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |'
+
+          cont = '\n'.join(lines) + '\n'
+          old_remaining = ('- The sole remaining R14.16 action is exactly one continuity-only normalization commit from implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1`, followed by fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke, then an `expected_head_sha` merge. No plan, acceptance, workflow or technical file may survive in the clean normalization diff.')
+          if cont.count(old_remaining) != 1:
+              raise SystemExit('R14.16 remaining-action line mismatch')
+          final16 = (
+              '- Unique post-merge normalization head `418c41a22c907bdef0693b16824bd2b86fa47acc` is a direct child of implementation merge `9c7ed58f20c794e59146813544b3a75aec0bace1` and changes exactly this continuity file. Fresh exact-head R0 #2013 / `33261708135`, Python Core #1988 / `33261708106` (5/5), and UI #1953 / `33261708116` all SUCCESS.\n'
+              '- PR #289 required-check R0 #2014 / `33261833373` passed `repository-bootstrap-ubuntu-latest` and `repository-bootstrap-windows-latest`, then merged only with `expected_head_sha=418c41a22c907bdef0693b16824bd2b86fa47acc` as normalized main `f6960db290a570e3a0c3c4ff97600014978d45df`. Normalization cardinality is exactly one; R14.16 is **COMPLETE + NORMALIZED**.'
+          )
+          cont = cont.replace(old_remaining, final16)
+
+          next_marker = '\n## Next authorized action\n'
+          if cont.count(next_marker) != 1:
+              raise SystemExit('Next authorized action marker mismatch')
+          prefix, _, _old_next = cont.partition(next_marker)
+          r1417 = (
+              '\n\n## R14.17 START authority\n\n'
+              '- Dedicated branch: `r14/17-adversarial-integrated-acceptance`.\n'
+              '- Exact branch point: R14.16 normalized main `f6960db290a570e3a0c3c4ff97600014978d45df`.\n'
+              '- State transition: R14.1–R14.16 **COMPLETE + NORMALIZED**; R14.17 **IN_PROGRESS**.\n'
+              '- Frozen core acceptance is the 12-step local/hosted/sandbox integrated scenario from `R14_PLAN.md`, plus anti-circular/mixed-SHA/tamper/provider-overclaim failure-closed checks.\n'
+              '- Manual state: **CONDITIONAL / NOT TRIGGERED**. Do not request or expose passwords, tokens, private keys, client secrets or production credentials. If a final claim requires real external IdP/store/CDN/managed-provider or public domain/TLS evidence, stop before completion and request only the minimum user-side prerequisites/evidence.\n'
+              '\n## Next authorized action\n\n'
+              'Run fresh exact-START R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the clean R14.17 START-head. If all are SUCCESS, implement the frozen R14.17 integrated verifier/scenario, adversarial tests, canonical evidence model and dedicated cross-platform acceptance on the same branch. Do not begin R15.\n'
+          )
+          cont_path.write_text(prefix + r1417, encoding='utf-8')
+          PY
+
+      - name: Assert and stage only START docs
+        shell: bash
+        run: |
+          git diff --check -- docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git add docs/roadmap/R14_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only | sort)" = "$(printf '%s\n' docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R14_PLAN.md | sort)"
+
+      - name: Commit staged START docs
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs: stage R14.17 START sync"
+          git push origin HEAD:staging/r14-17-start-sync

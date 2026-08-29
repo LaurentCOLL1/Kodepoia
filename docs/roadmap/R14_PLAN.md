@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-28  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b5b75b826bedabf64957494f7e2228ec1c9ff2d3`  
-**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.8 are COMPLETE + NORMALIZED. R14.9 is COMPLETE at technical/evidence + END-sync level on `r14/09-progression-leaderboards`; immutable technical source `155119282af7f4bf71840fc45c2d3de8891f73cd` passed R0 #1836, Python Core #1810, UI #1777 and R14 Progression Acceptance #3. R14.10–R14.17 remain PLANNED. PR #273 still requires fresh exact END-head re-gates, protected merge and exactly one continuity-only normalization before R14.10. R14.9 manual state is NONE.
+**Execution checkpoint:** R1–R13 are COMPLETE + NORMALIZED; R14 planning is ACCEPTED + NORMALIZED. R14.1–R14.9 are COMPLETE + NORMALIZED on normalized `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`. R14.9 immutable technical source `155119282af7f4bf71840fc45c2d3de8891f73cd`; accepted END-head `2619e190601089ca2d98b22ccb4c0d254f1f11f7`; PR #273 merge `5f55e8b1811c08e8eef310f18aa3801798153018`; single continuity-only normalization head `814fccac4a68e6de19a98b6c0b622c4298ca1a99` passed R0 #1845, Python Core #1819 and UI #1786 and merged by PR #274 as normalized `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`. R14.10 is IN_PROGRESS on `r14/10-entitlements-billing-catalog`; R14.11–R14.17 remain PLANNED. R14.10 manual state is CONDITIONAL / NOT TRIGGERED; provider-live claim is false.
 
 ## Purpose and authority
 
@@ -207,7 +207,7 @@ Before R14.1 implementation:
 | R14.7 | Matchmaking, lobby, reservations, presence + reconnect | COMPLETE | NONE | R14.6 |
 | R14.8 | Cloud saves: immutable revisions, sync, conflicts, idempotency + recovery | COMPLETE | NONE | R14.5–R14.6 |
 | R14.9 | Achievements, stats, leaderboards + authoritative progression | COMPLETE | NONE | R14.5–R14.6 |
-| R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | PLANNED | CONDITIONAL | R14.4–R14.6 + R13 store contracts |
+| R14.10 | Entitlements, billing/catalog + server-side provider verification/notifications | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R14.4–R14.6 + R13 store contracts |
 | R14.11 | Remote config, feature flags, targeting + safe rollout/rollback | PLANNED | NONE | R14.5–R14.6 |
 | R14.12 | Content delivery: immutable manifests/bundles, channels, cache + rollback | PLANNED | CONDITIONAL | R14.5/R14.11 + R8/R13 release provenance |
 | R14.13 | Events/telemetry pipeline: typed envelopes, dedupe, replay, retention + OTel bridge | PLANNED | NONE | R14.5–R14.6 + R6 |
@@ -816,7 +816,18 @@ Granting on unverified client receipt, replay/double grant, cross-environment ev
 
 ## Manual intervention
 
-**CONDITIONAL.** Core acceptance uses synthetic/sandbox contracts. Real Apple/Google production account, product and transaction verification is required only for a provider-live claim; user must never send secrets/private keys/tokens.
+**CONDITIONAL / NOT TRIGGERED.** Core acceptance uses synthetic/provider-contract fixtures with `provider_live_claim=false`. Real Apple/Google production account, product and transaction verification is required only for a later explicit provider-live claim; user must never send secrets/private keys/tokens.
+
+## START authority
+
+- Dedicated branch: `r14/10-entitlements-billing-catalog`.
+- Exact branch point: normalized R14.9 `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`.
+- R14.9 closure authority: technical source `155119282af7f4bf71840fc45c2d3de8891f73cd`; accepted END-head `2619e190601089ca2d98b22ccb4c0d254f1f11f7`; exact END gates R0 #1843 / `33211148134`, Python Core #1817 / `33211148235`, UI #1784 / `33211148160`, R14 Progression #10 / `33211148184` all SUCCESS; PR #273 merged with expected-head as `5f55e8b1811c08e8eef310f18aa3801798153018`.
+- Single R14.9 post-merge normalization head `814fccac4a68e6de19a98b6c0b622c4298ca1a99` changed only continuity, passed R0 #1845 / `33223835030`, Python Core #1819 / `33223835012`, UI #1786 / `33223835008`, and PR #274 merged with expected-head as normalized `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`.
+- START state: R14.1–R14.9 COMPLETE + NORMALIZED; R14.10 IN_PROGRESS; R14.11–R14.17 PLANNED.
+- Core trust invariants: notification arrival/client receipt never grants entitlement by itself; provider identity/environment/message identity are explicit; provider events are immutable and deduplicated; authoritative provider state is verified/reconciled before entitlement transitions; transitions are transactional/idempotent; raw provider credentials/tokens are never model-visible evidence.
+- Current official compatibility baseline: Google RTDN requires a subsequent Google Play Developer API query for complete purchase status and recommends deduplication by RTDN `messageId`; Google purchase verification belongs on the backend before granting entitlement. Apple App Store Server Notifications V2 uses App Store-signed JWS `signedPayload`, `notificationUUID` for duplicate suppression, and `signedDate` to prefer the most recent transaction-state snapshot. These are compatibility constraints, not provider-live proof.
+- Manual state: CONDITIONAL / NOT TRIGGERED. `provider_live_claim=false`; no production account, product, purchase, credential, private key or token is required for core acceptance.
 
 ## Completion record
 

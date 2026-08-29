@@ -4,7 +4,7 @@
 
 ## Prompt de reprise
 
-> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.9 COMPLETE + NORMALIZED (normalization PR pending merge). R14.10–R14.17 PLANNED.** R14.9 source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`; END-head exact `2619e190601089ca2d98b22ccb4c0d254f1f11f7`; fresh END gates R0 #1843, Python Core #1817, UI #1784 et R14 Progression Acceptance #10 sont SUCCESS; PR #273 a fusionné avec expected-head comme merge `5f55e8b1811c08e8eef310f18aa3801798153018`. La présente branche `r14/09-normalize-continuity` est l’unique normalisation continuity-only autorisée : valider son HEAD exact avec R0 + full Python Core + KodeStudio UI Smoke, puis merger avec expected-head avant toute R14.10. Manual intervention : NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R13 COMPLETE + NORMALIZED. R14 planning ACCEPTED + NORMALIZED. R14.1–R14.9 COMPLETE + NORMALIZED. R14.10 IN_PROGRESS. R14.11–R14.17 PLANNED.** Normalized `main` d’autorité `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`; branche active `r14/10-entitlements-billing-catalog`. R14.10 doit conserver les entitlements server-authoritative, vérifier/réconcilier l’état provider avant grant, dédupliquer/rejeter replay/out-of-order/cross-environment, et ne jamais exposer de secret/token. Manual state : CONDITIONAL / NOT TRIGGERED; `provider_live_claim=false`.
 
 ## État global
 
@@ -14,11 +14,11 @@
 - R12 canonical integrated digest : `daa54b643259a3b940d66db855bf5013bf2f4bfd877c0e82d222616ded624e50`.
 - R13 canonical integrated digest : `831b155fce200eae6b9fbe91c8eb44e992ea036c0922e508171644b497a4c3c7`.
 - R14 planning : **ACCEPTED + NORMALIZED**.
-- R14.1–R14.8 : **COMPLETE + NORMALIZED**.
-- R14.8 normalized `main` : **`433c86cc5d43bfea41adb529451367e10c75a30b`** après normalization PR #272.
-- R14.9 : **COMPLETE + NORMALIZED (normalization PR pending merge)** ; source technique immuable `155119282af7f4bf71840fc45c2d3de8891f73cd`, END-head `2619e190601089ca2d98b22ccb4c0d254f1f11f7`, implementation/evidence merge `5f55e8b1811c08e8eef310f18aa3801798153018`.
-- R14.10–R14.17 : **PLANNED**.
-- Manual state actuel : **NONE**.
+- R14.1–R14.9 : **COMPLETE + NORMALIZED**.
+- R14.9 normalized `main` : **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`** après normalization PR #274.
+- R14.10 : **IN_PROGRESS** sur `r14/10-entitlements-billing-catalog`, branch point exact `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`.
+- R14.11–R14.17 : **PLANNED**.
+- Manual state actuel : **CONDITIONAL / NOT TRIGGERED** (`provider_live_claim=false`).
 
 ## Permanent R-phase execution rule
 
@@ -62,7 +62,7 @@ La normalisation post-merge ne doit jamais réécrire le plan de phase. Toute pr
 | R14.7 | COMPLETE + NORMALIZED | NONE |
 | R14.8 | COMPLETE + NORMALIZED | NONE |
 | R14.9 | COMPLETE + NORMALIZED | NONE |
-| R14.10 | PLANNED | CONDITIONAL |
+| R14.10 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |
 | R14.11 | PLANNED | NONE |
 | R14.12 | PLANNED | CONDITIONAL |
 | R14.13 | PLANNED | NONE |
@@ -126,8 +126,9 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Final accepted END-head: **`2619e190601089ca2d98b22ccb4c0d254f1f11f7`**. Its final diff from immutable technical source is restricted to `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_9_ACCEPTANCE.md` and this continuity file.
 - Fresh END gates on that exact head: R0 Repository Guard #1843 / `33211148134` SUCCESS; Python Core #1817 / `33211148235` SUCCESS; KodeStudio UI Smoke #1784 / `33211148160` SUCCESS; R14 Progression Acceptance #10 / `33211148184` SUCCESS on Ubuntu and Windows.
 - PR #273 merged only after verifying its exact head `2619e190601089ca2d98b22ccb4c0d254f1f11f7`, with `expected_head_sha` protection, as implementation/evidence merge **`5f55e8b1811c08e8eef310f18aa3801798153018`**.
-- Single post-merge normalization branch: **`r14/09-normalize-continuity`**, created from exact merge `5f55e8b1811c08e8eef310f18aa3801798153018`; it is required to change only this continuity file.
-- Current state represented by this normalization candidate: R14.9 **COMPLETE + NORMALIZED**; R14.10–R14.17 **PLANNED**. R14.10 remains unauthorized until this exact normalization head passes fresh R0/Python/UI and is merged with expected-head.
+- Single post-merge normalization head: **`814fccac4a68e6de19a98b6c0b622c4298ca1a99`**, changing only this continuity file. Fresh normalization gates: R0 #1845 / `33223835030`, Python Core #1819 / `33223835012`, UI #1786 / `33223835008` — all SUCCESS.
+- Normalization PR #274 merged with `expected_head_sha=814fccac4a68e6de19a98b6c0b622c4298ca1a99` as normalized `main` **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`**.
+- R14.9 final state: **COMPLETE + NORMALIZED**; R14.10 is authorized from that exact normalized `main`.
 - Manual intervention: **NONE**.
 
 ## External research baseline relevant to R14.9
@@ -137,6 +138,15 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 - Google Play Games exposes achievements and leaderboards as distinct client capabilities. R14.9 keeps those surfaces distinct while sharing one authoritative progression/event source internally.
 - Provider documentation is versioned comparison evidence only; `provider_live_claim=false` remains mandatory unless a later explicit provider-live gate is executed.
 
+## R14.10 START authority
+
+- Dedicated branch: **`r14/10-entitlements-billing-catalog`**.
+- Exact branch point: normalized R14.9 `main` **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`**.
+- State at START: R14.1–R14.9 **COMPLETE + NORMALIZED**; R14.10 **IN_PROGRESS**; R14.11–R14.17 **PLANNED**.
+- Google compatibility invariant: RTDN is a change signal, not complete authoritative purchase state; backend re-queries Google Play Developer API and deduplicates RTDN `messageId` before converging entitlements.
+- Apple compatibility invariant: App Store Server Notifications V2 `signedPayload` is App Store-signed JWS; `notificationUUID` is the duplicate key and most recent `signedDate` wins for repeated transaction snapshots.
+- Core acceptance remains provider-neutral/synthetic. Manual state **CONDITIONAL / NOT TRIGGERED**; `provider_live_claim=false`; secrets/private keys/purchase tokens are never requested from the user or written to evidence.
+
 ## Next authorized action
 
-Treat `155119282af7f4bf71840fc45c2d3de8891f73cd` as the only immutable R14.9 technical source, `2619e190601089ca2d98b22ccb4c0d254f1f11f7` as the accepted END-head, and `5f55e8b1811c08e8eef310f18aa3801798153018` as the implementation/evidence merge. Verify the normalization-head diff from that merge contains only this continuity file. Run fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke. If all are SUCCESS, merge the single normalization PR only with `expected_head_sha` equal to that exact normalization head. The resulting normalized `main` alone authorizes R14.10. Manual intervention remains NONE.
+Verify the final R14.10 START head differs from normalized `main` `1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf` only by `docs/roadmap/R14_PLAN.md` and this continuity file. Only after that clean compare may R14.10 implementation begin. Implement provider-neutral catalog/purchase/entitlement/event/reconciliation contracts with authoritative verification, immutable event identity, dedupe/replay/out-of-order/environment isolation, privacy/redaction and bounded state; add adversarial tests and deterministic evidence. Do not claim provider-live success or request credentials. Manual state remains CONDITIONAL / NOT TRIGGERED.

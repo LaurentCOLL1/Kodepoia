@@ -4,12 +4,12 @@ import re
 import threading
 from dataclasses import dataclass, replace
 from enum import StrEnum
-from typing import Any, Callable, Iterable
+from typing import Any, Callable
 
 from .authority import AuthorityActorContext
 from .content_delivery import ContentManifest
 from .contracts import BackendEnvironmentKind, canonical_sha256
-from .entitlements import CatalogProductDefinition
+from .entitlements import BillingEnvironment, CatalogProductDefinition
 from .event_pipeline import EventSchemaDefinition
 from .remote_config import ConfigSnapshot, EvaluationContext, InMemoryRemoteConfigService
 
@@ -147,20 +147,27 @@ class CatalogProductReference:
     version: int
     entitlement_id: str
     digest: str
-    environment: BackendEnvironmentKind
+    billing_environment: BillingEnvironment
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "product_id", _stable_id(self.product_id, field="product_id"))
         _positive_int(self.version, field="product_version")
         object.__setattr__(self, "entitlement_id", _stable_id(self.entitlement_id, field="entitlement_id"))
         object.__setattr__(self, "digest", _sha256(self.digest, field="product_digest"))
-        _environment(self.environment)
+        if not isinstance(self.billing_environment, BillingEnvironment):
+            raise LiveOpsPolicyError("invalid_billing_environment")
 
     @classmethod
     def from_product(cls, product: CatalogProductDefinition) -> CatalogProductReference:
         if not isinstance(product, CatalogProductDefinition):
             raise LiveOpsPolicyError("invalid_catalog_product")
-        return cls(product.product_id, product.version, product.entitlement_id, product.digest(), product.environment)
+        return cls(
+            product.product_id,
+            product.version,
+            product.entitlement_id,
+            product.digest(),
+            product.environment,
+        )
 
     def canonical(self) -> dict[str, Any]:
         return {
@@ -168,7 +175,7 @@ class CatalogProductReference:
             "version": self.version,
             "entitlement_id": self.entitlement_id,
             "digest": self.digest,
-            "environment": self.environment.value,
+            "billing_environment": self.billing_environment.value,
         }
 
 
@@ -319,9 +326,14 @@ class LiveOpsCampaignDefinition:
             raise LiveOpsPolicyError("invalid_rotation")
         if self.audience is not None and not isinstance(self.audience, LiveOpsAudience):
             raise LiveOpsPolicyError("invalid_audience")
-        refs: Iterable[Any] = (self.config_snapshot, self.content_manifest, *products, *events)
-        if any(item.environment is not environment for item in refs):
+        backend_refs = (self.config_snapshot, self.content_manifest, *events)
+        if any(item.environment is not environment for item in backend_refs):
             raise LiveOpsPolicyError("campaign_environment_mismatch")
+        if environment is BackendEnvironmentKind.PRODUCTION:
+            if any(item.billing_environment is not BillingEnvironment.PRODUCTION for item in products):
+                raise LiveOpsPolicyError("production_campaign_requires_production_billing")
+        elif any(item.billing_environment is BillingEnvironment.PRODUCTION for item in products):
+            raise LiveOpsPolicyError("nonproduction_campaign_rejects_production_billing")
         if len({(item.product_id, item.version) for item in products}) != len(products):
             raise LiveOpsPolicyError("duplicate_catalog_product_reference")
         if len({(item.schema_id, item.version) for item in events}) != len(events):
@@ -382,7 +394,7 @@ class LiveOpsPreview:
     evaluated_at_ms: int
     mutation_count: int = 0
 
-    def canonical(self) -> dict[str, Any]:
+    def binding_canonical(self) -> dict[str, Any]:
         return {
             "preview_id": self.preview_id,
             "campaign_id": self.campaign_id,
@@ -392,12 +404,16 @@ class LiveOpsPreview:
             "dependency_digest": self.dependency_digest,
             "expected_state": self.expected_state.value,
             "current_state": self.current_state.value,
-            "evaluated_at_ms": self.evaluated_at_ms,
             "mutation_count": self.mutation_count,
         }
 
+    def canonical(self) -> dict[str, Any]:
+        payload = self.binding_canonical()
+        payload["evaluated_at_ms"] = self.evaluated_at_ms
+        return payload
+
     def digest(self) -> str:
-        return canonical_sha256(self.canonical())
+        return canonical_sha256(self.binding_canonical())
 
 
 @dataclass(frozen=True, slots=True)
@@ -589,7 +605,7 @@ class InMemoryLiveOpsService:
         self._campaigns: dict[tuple[str, int], LiveOpsCampaignDefinition] = {}
         self._config_dependencies: dict[tuple[BackendEnvironmentKind, str, int], str] = {}
         self._content_dependencies: dict[tuple[BackendEnvironmentKind, str, int], str] = {}
-        self._catalog_dependencies: dict[tuple[BackendEnvironmentKind, str, int], tuple[str, str]] = {}
+        self._catalog_dependencies: dict[tuple[BillingEnvironment, str, int], tuple[str, str]] = {}
         self._event_dependencies: dict[tuple[BackendEnvironmentKind, str, int], tuple[str, str]] = {}
         self._approvals: dict[str, LiveOpsApproval] = {}
         self._activations: dict[str, LiveOpsActivationRecord] = {}
@@ -650,7 +666,7 @@ class InMemoryLiveOpsService:
             raise LiveOpsPolicyError("invalid_catalog_product")
         self._authorize(actor, "liveops.dependency.register", product.product_id)
         ref = CatalogProductReference.from_product(product)
-        key = (ref.environment, ref.product_id, ref.version)
+        key = (ref.billing_environment, ref.product_id, ref.version)
         value = (ref.entitlement_id, ref.digest)
         with self._lock:
             existing = self._catalog_dependencies.get(key)
@@ -683,7 +699,7 @@ class InMemoryLiveOpsService:
         if self._content_dependencies.get(content_key) != campaign.content_manifest.digest:
             raise LiveOpsStateError("content_dependency_unavailable")
         for product in campaign.catalog_products:
-            key = (campaign.environment, product.product_id, product.version)
+            key = (product.billing_environment, product.product_id, product.version)
             if self._catalog_dependencies.get(key) != (product.entitlement_id, product.digest):
                 raise LiveOpsStateError("catalog_dependency_unavailable")
         for event in campaign.event_contracts:
@@ -715,6 +731,8 @@ class InMemoryLiveOpsService:
             for (campaign_id, _version), other in self._campaigns.items():
                 if campaign_id == campaign.campaign_id and other.version == campaign.version and other.digest() != campaign.digest():
                     raise LiveOpsStateError("campaign_version_rebind")
+            if len(self._trace) >= self.max_trace_records:
+                raise LiveOpsCapacityError("trace_capacity")
             self._campaigns[key] = campaign
             self._append_trace(
                 {
@@ -747,22 +765,19 @@ class InMemoryLiveOpsService:
             return LiveOpsCampaignState.ACTIVE
         return LiveOpsCampaignState.EXPIRED
 
-    def preview_campaign(self, actor: AuthorityActorContext, *, campaign_id: str, version: int) -> LiveOpsPreview:
-        self._authorize(actor, "liveops.campaign.preview", _stable_id(campaign_id, field="campaign_id"))
-        campaign = self.campaign(campaign_id, version)
+    def _build_preview(self, campaign: LiveOpsCampaignDefinition) -> LiveOpsPreview:
         dependency_digest = self._validate_dependencies(campaign)
         now_ms = _server_now_ms(self.clock_ms)
         current_state = self._current_state(campaign)
         expected_state = self._expected_state(campaign, now_ms)
-        seed = {
+        binding_seed = {
             "campaign_digest": campaign.digest(),
             "dependency_digest": dependency_digest,
             "expected_state": expected_state.value,
             "current_state": current_state.value,
-            "evaluated_at_ms": now_ms,
         }
         return LiveOpsPreview(
-            preview_id=f"liveops.preview.{canonical_sha256(seed)[:24]}",
+            preview_id=f"liveops.preview.{canonical_sha256(binding_seed)[:24]}",
             campaign_id=campaign.campaign_id,
             campaign_version=campaign.version,
             campaign_digest=campaign.digest(),
@@ -774,6 +789,11 @@ class InMemoryLiveOpsService:
             mutation_count=0,
         )
 
+    def preview_campaign(self, actor: AuthorityActorContext, *, campaign_id: str, version: int) -> LiveOpsPreview:
+        campaign_id = _stable_id(campaign_id, field="campaign_id")
+        self._authorize(actor, "liveops.campaign.preview", campaign_id)
+        return self._build_preview(self.campaign(campaign_id, version))
+
     def approve_campaign(
         self,
         actor: AuthorityActorContext,
@@ -784,26 +804,35 @@ class InMemoryLiveOpsService:
     ) -> LiveOpsApproval:
         if not isinstance(preview, LiveOpsPreview):
             raise LiveOpsPolicyError("invalid_preview")
+        approval_id = _stable_id(approval_id, field="approval_id")
+        safe_change_digest = _sha256(safe_change_digest, field="safe_change_digest")
         self._authorize(actor, "liveops.campaign.approve", preview.campaign_id)
-        current = self.preview_campaign(actor, campaign_id=preview.campaign_id, version=preview.campaign_version)
+        campaign = self.campaign(preview.campaign_id, preview.campaign_version)
+        current = self._build_preview(campaign)
         if current.digest() != preview.digest():
             raise LiveOpsStateError("stale_preview")
-        approval = LiveOpsApproval(
-            approval_id=approval_id,
-            preview_digest=preview.digest(),
-            campaign_digest=preview.campaign_digest,
-            safe_change_digest=safe_change_digest,
-            approver_account_id=actor.account_id,
-            approved_at_ms=_server_now_ms(self.clock_ms),
-        )
         with self._lock:
-            existing = self._approvals.get(approval.approval_id)
+            existing = self._approvals.get(approval_id)
             if existing is not None:
-                if existing != approval:
+                if (
+                    existing.preview_digest != preview.digest()
+                    or existing.campaign_digest != preview.campaign_digest
+                    or existing.safe_change_digest != safe_change_digest
+                    or existing.approver_account_id != actor.account_id
+                ):
                     raise LiveOpsStateError("approval_id_rebind")
                 return existing
+            if len(self._audit) >= self.max_audit_records:
+                raise LiveOpsCapacityError("audit_capacity")
+            approval = LiveOpsApproval(
+                approval_id=approval_id,
+                preview_digest=preview.digest(),
+                campaign_digest=preview.campaign_digest,
+                safe_change_digest=safe_change_digest,
+                approver_account_id=actor.account_id,
+                approved_at_ms=_server_now_ms(self.clock_ms),
+            )
             self._approvals[approval.approval_id] = approval
-            campaign = self.campaign(preview.campaign_id, preview.campaign_version)
             self._append_audit(
                 actor=actor,
                 action="campaign_approved",
@@ -825,7 +854,7 @@ class InMemoryLiveOpsService:
         stored = self._approvals.get(approval.approval_id)
         if stored != approval:
             raise LiveOpsAuthorizationError("approval_not_registered")
-        preview = self.preview_campaign(actor, campaign_id=campaign.campaign_id, version=campaign.version)
+        preview = self._build_preview(campaign)
         if approval.preview_digest != preview.digest() or approval.campaign_digest != campaign.digest():
             raise LiveOpsAuthorizationError("approval_target_mismatch")
         return approval, preview
@@ -843,6 +872,20 @@ class InMemoryLiveOpsService:
         activation_id = _stable_id(activation_id, field="activation_id")
         self._authorize(actor, "liveops.campaign.activate", campaign_id)
         campaign = self.campaign(campaign_id, version)
+        with self._lock:
+            existing = self._activations.get(activation_id)
+            if existing is not None:
+                if (
+                    not isinstance(approval, LiveOpsApproval)
+                    or self._approvals.get(approval.approval_id) != approval
+                    or existing.campaign_id != campaign.campaign_id
+                    or existing.campaign_version != campaign.version
+                    or existing.campaign_digest != campaign.digest()
+                    or existing.approval_digest != approval.digest()
+                    or existing.safe_change_digest != approval.safe_change_digest
+                ):
+                    raise LiveOpsStateError("activation_id_rebind")
+                return existing
         self._validate_dependencies(campaign)
         checked, _preview = self._validated_approval(actor=actor, campaign=campaign, approval=approval)
         now_ms = _server_now_ms(self.clock_ms)
@@ -860,13 +903,12 @@ class InMemoryLiveOpsService:
             safe_change_digest=checked.safe_change_digest,
         )
         with self._lock:
-            existing = self._activations.get(activation_id)
-            if existing is not None:
-                if existing != record:
-                    raise LiveOpsStateError("activation_id_rebind")
-                return existing
             if len(self._activations) >= self.max_activations:
                 raise LiveOpsCapacityError("activation_capacity")
+            if len(self._audit) >= self.max_audit_records:
+                raise LiveOpsCapacityError("audit_capacity")
+            if len(self._trace) >= self.max_trace_records:
+                raise LiveOpsCapacityError("trace_capacity")
             key = (campaign.campaign_id, campaign.version)
             runtime = self._runtime.get(key)
             if runtime is not None and runtime.activation_id != activation_id and runtime.state not in {
@@ -926,6 +968,10 @@ class InMemoryLiveOpsService:
         key = (campaign.campaign_id, campaign.version)
         current = self.runtime(campaign.campaign_id, campaign.version)
         now_ms = _server_now_ms(self.clock_ms)
+        if len(self._audit) >= self.max_audit_records:
+            raise LiveOpsCapacityError("audit_capacity")
+        if len(self._trace) >= self.max_trace_records:
+            raise LiveOpsCapacityError("trace_capacity")
         next_record = replace(
             current,
             state=state,
@@ -956,11 +1002,12 @@ class InMemoryLiveOpsService:
         )
         return next_record
 
-    def advance_campaign(self, actor: AuthorityActorContext, *, campaign_id: str, version: int) -> LiveOpsRuntimeRecord:
-        campaign_id = _stable_id(campaign_id, field="campaign_id")
-        self._authorize(actor, "liveops.campaign.advance", campaign_id)
-        campaign = self.campaign(campaign_id, version)
-        current = self.runtime(campaign_id, version)
+    def _advance_campaign(
+        self,
+        actor: AuthorityActorContext,
+        campaign: LiveOpsCampaignDefinition,
+    ) -> LiveOpsRuntimeRecord:
+        current = self.runtime(campaign.campaign_id, campaign.version)
         now_ms = _server_now_ms(self.clock_ms)
         if current.state in {LiveOpsCampaignState.ROLLED_BACK, LiveOpsCampaignState.KILLED, LiveOpsCampaignState.EXPIRED}:
             return current
@@ -970,11 +1017,16 @@ class InMemoryLiveOpsService:
             return self._transition(actor=actor, campaign=campaign, state=LiveOpsCampaignState.ACTIVE, action="campaign_activated")
         return current
 
+    def advance_campaign(self, actor: AuthorityActorContext, *, campaign_id: str, version: int) -> LiveOpsRuntimeRecord:
+        campaign_id = _stable_id(campaign_id, field="campaign_id")
+        self._authorize(actor, "liveops.campaign.advance", campaign_id)
+        return self._advance_campaign(actor, self.campaign(campaign_id, version))
+
     def pause_campaign(self, actor: AuthorityActorContext, *, campaign_id: str, version: int) -> LiveOpsRuntimeRecord:
         campaign_id = _stable_id(campaign_id, field="campaign_id")
         self._authorize(actor, "liveops.campaign.pause", campaign_id)
         campaign = self.campaign(campaign_id, version)
-        current = self.advance_campaign(actor, campaign_id=campaign_id, version=version)
+        current = self._advance_campaign(actor, campaign)
         if current.state not in {LiveOpsCampaignState.SCHEDULED, LiveOpsCampaignState.ACTIVE}:
             raise LiveOpsStateError("campaign_not_pausable")
         return self._transition(actor=actor, campaign=campaign, state=LiveOpsCampaignState.PAUSED, action="campaign_paused")
@@ -1120,7 +1172,7 @@ class InMemoryLiveOpsService:
             dependency_payload = {
                 "config": sorted((env.value, identity, revision, digest) for (env, identity, revision), digest in self._config_dependencies.items()),
                 "content": sorted((env.value, identity, revision, digest) for (env, identity, revision), digest in self._content_dependencies.items()),
-                "catalog": sorted((env.value, identity, version, entitlement, digest) for (env, identity, version), (entitlement, digest) in self._catalog_dependencies.items()),
+                "catalog": sorted((billing_env.value, identity, version, entitlement, digest) for (billing_env, identity, version), (entitlement, digest) in self._catalog_dependencies.items()),
                 "events": sorted((env.value, identity, version, event_type, digest) for (env, identity, version), (event_type, digest) in self._event_dependencies.items()),
             }
             return LiveOpsStateSnapshot(

@@ -1,0 +1,66 @@
+name: R15 Planning Normalization Helper
+
+on:
+  push:
+    branches:
+      - r15/00-planning-continuity-normalization
+    paths:
+      - .github/workflows/r15-planning-normalization-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r15/00-planning-continuity-normalization
+          fetch-depth: 0
+
+      - name: Finalize R15 planning continuity normalization and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          text = path.read_text(encoding='utf-8')
+
+          old_header = '> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning IN_PROGRESS from normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`; R15.1–R15.17 PLANNED; no R15 implementation is authorized before planning ACCEPTED + NORMALIZED.**'
+          new_header = '> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1 AUTHORIZED; R15.1–R15.17 remain PLANNED until their dedicated START-sync.**'
+          if old_header not in text:
+              raise SystemExit('R15 planning normalization header anchor missing')
+          text = text.replace(old_header, new_header, 1)
+
+          old_global = '- R15 planning : **IN_PROGRESS** — branch `r15/00-phase-plan` from normalized R14 main `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`; exhaustive `docs/roadmap/R15_PLAN.md` freezes R15.1–R15.17 before implementation; planning acceptance and its one continuity-only normalization remain pending.'
+          new_global = '- R15 planning : **ACCEPTED + NORMALIZED** — branch point `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`; clean planning head `5856021b73edeaa29f124fab90275a8cd89e956f`; exact-head R0 #2051 / `33268871882` SUCCESS Ubuntu + Windows, Python Core #2026 / `33268871682` SUCCESS 5/5, KodeStudio UI Smoke #1991 / `33268871753` SUCCESS; planning PR #292 merged with exact expected head as `e464260edbc4ef1d7962fdfe7401667600a2b50d`; this record is the unique post-merge planning continuity-only normalization authority. R15.1 is authorized only on the normalized main produced when this normalization PR merges.'
+          if old_global not in text:
+              raise SystemExit('R15 planning global anchor missing')
+          text = text.replace(old_global, new_global, 1)
+
+          old_gate = '- Planning acceptance requires fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, planning PR merge with exact `expected_head_sha`, then exactly one continuity-only planning normalization with fresh exact-head R0/Python/UI and protected merge. Only the resulting normalized `main` authorizes R15.1.'
+          new_gate = '- Planning authority accepted on clean head `5856021b73edeaa29f124fab90275a8cd89e956f`: R0 #2051 / `33268871882` SUCCESS Ubuntu + Windows; Python Core #2026 / `33268871682` SUCCESS 5/5; KodeStudio UI Smoke #1991 / `33268871753` SUCCESS. PR #292 merged only with `expected_head_sha=5856021b73edeaa29f124fab90275a8cd89e956f` as `e464260edbc4ef1d7962fdfe7401667600a2b50d`. This branch is the single continuity-only planning normalization and changes no R15 plan bytes. Its exact head must pass fresh R0/Python/UI and merge with exact expected-head protection; only then is this record authoritative and R15.1 authorized.'
+          if old_gate not in text:
+              raise SystemExit('R15 planning gate anchor missing')
+          text = text.replace(old_gate, new_gate, 1)
+
+          old_next = 'Complete and re-gate the exhaustive R15 planning authority. Do **not** start R15.1 before the planning PR and its unique planning continuity normalization are both merged successfully.'
+          new_next = 'After this unique R15 planning continuity-only normalization passes fresh exact-head R0 + full Python Core + KodeStudio UI Smoke and merges with exact expected-head protection, **R15.1 is the next authorized action** from the resulting normalized `main`. No R15.1 implementation may start from the planning merge alone.'
+          if old_next not in text:
+              raise SystemExit('R15 next-action anchor missing')
+          text = text.replace(old_next, new_next, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git rm .github/workflows/r15-planning-normalization-helper.yml
+          git commit -m 'docs(r15): normalize planning continuity'
+          git push origin HEAD:r15/00-planning-continuity-normalization

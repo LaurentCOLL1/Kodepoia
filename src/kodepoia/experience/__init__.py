@@ -1,3 +1,17 @@
+from .collector import (
+    CAPTURE_SCHEMA_NAME,
+    CAPTURE_SCHEMA_VERSION,
+    CaptureConflict,
+    CaptureDisposition,
+    CaptureError,
+    CapturePolicy,
+    CaptureResult,
+    CaptureStorageError,
+    CaptureSummary,
+    CorrectionProvenance,
+    ExperienceCollector,
+    ValidatedOutcome,
+)
 from .contracts import (
     SCHEMA_NAME,
     SCHEMA_VERSION,
@@ -23,10 +37,21 @@ from .contracts import (
 )
 
 __all__ = [
+    "CAPTURE_SCHEMA_NAME",
+    "CAPTURE_SCHEMA_VERSION",
     "SCHEMA_NAME",
     "SCHEMA_VERSION",
+    "CaptureConflict",
+    "CaptureDisposition",
+    "CaptureError",
+    "CapturePolicy",
+    "CaptureResult",
+    "CaptureStorageError",
+    "CaptureSummary",
     "ContentRef",
+    "CorrectionProvenance",
     "EligibilityDenied",
+    "ExperienceCollector",
     "ExperienceContentStore",
     "ExperienceContractError",
     "ExperienceId",
@@ -42,6 +67,7 @@ __all__ = [
     "TrainingAuthorization",
     "TransformationRef",
     "TransitionResult",
+    "ValidatedOutcome",
     "WorkspaceMismatch",
     "transition_experience",
 ]

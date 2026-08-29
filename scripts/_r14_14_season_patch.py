@@ -112,9 +112,19 @@ replace_once(
     "campaign backend refs",
 )
 replace_once(
-'''            "season_id": self.season_id,
+'''        return {
+            "campaign_id": self.campaign_id,
+            "version": self.version,
+            "season_id": self.season_id,
+            "environment": self.environment.value,
+            "schedule": self.schedule.canonical(),
 ''',
-'''            "season": self.season.canonical(),
+'''        return {
+            "campaign_id": self.campaign_id,
+            "version": self.version,
+            "season": self.season.canonical(),
+            "environment": self.environment.value,
+            "schedule": self.schedule.canonical(),
 ''',
     "campaign canonical season",
 )

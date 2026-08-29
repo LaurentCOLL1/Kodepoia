@@ -45,6 +45,7 @@ jobs:
           tests/test_r14_5_postgresql_persistence.py
           tests/test_r14_6_authoritative_server.py
           tests/test_r14_11_remote_config.py
+          tests/test_r14_11_backend_exports.py
           scripts/r14_11_remote_config_acceptance.py
 
       - name: Focused R14 remote config and authority regression
@@ -53,6 +54,7 @@ jobs:
           tests/test_r14_5_postgresql_persistence.py
           tests/test_r14_6_authoritative_server.py
           tests/test_r14_11_remote_config.py
+          tests/test_r14_11_backend_exports.py
 
       - name: Generate deterministic remote config evidence
         run: >-

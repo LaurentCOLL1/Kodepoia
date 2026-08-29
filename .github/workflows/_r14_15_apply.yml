@@ -27,7 +27,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$GITHUB_REF_NAME" = "r14/15-service-operations-resilience"
-          test "$(git rev-parse HEAD^)" = "309a1c63e3c0fc9f1d7d2f44248eba10d4b3c5b9"
+          test "$(git rev-parse HEAD^)" = "6da80010a888262a262a202aeeaede240ca54551"
 
       - name: Apply exact R14.15 implementation
         shell: bash
@@ -59,12 +59,14 @@ jobs:
           python -c "import json; from pathlib import Path; from jsonschema import Draft202012Validator; e=json.loads(Path('/tmp/r14_15_evidence.json').read_text()); s=json.loads(Path('schemas/r14/backend-resilience-evidence.schema.json').read_text()); Draft202012Validator.check_schema(s); Draft202012Validator(s).validate(e); assert e['status']=='pass'; assert all(e['checks'].values())"
           git diff --check
 
-      - name: Commit technical source
+      - name: Commit non-workflow technical source
         shell: bash
         run: |
           set -euo pipefail
+          git checkout HEAD -- .github/workflows/_r14_15_apply.yml
+          rm -f .github/workflows/r14-resilience-acceptance.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "feat(r14.15): add service operations resilience"
+          git commit -m "feat(r14.15): add service operations resilience core"
           git push origin HEAD:r14/15-service-operations-resilience

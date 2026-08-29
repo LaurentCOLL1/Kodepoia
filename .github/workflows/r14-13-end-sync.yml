@@ -16,13 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout exact branch
+      - name: Checkout exact branch with ancestry
         uses: actions/checkout@v4
         with:
           ref: r14/13-events-telemetry-pipeline
+          fetch-depth: 3
 
-      - name: Assert technical source parent
-        run: python -c "import subprocess; assert subprocess.check_output(['git','rev-parse','HEAD^'], text=True).strip() == 'b1729cabaffb19ac5491dee8a2c18e1bb5877746'"
+      - name: Assert immutable technical source ancestor
+        run: python -c "import subprocess; assert subprocess.check_output(['git','rev-parse','HEAD~2'], text=True).strip() == 'b1729cabaffb19ac5491dee8a2c18e1bb5877746'"
 
       - name: Apply anchored R14.13 END synchronization
         run: python scripts/r14_13_end_sync.py

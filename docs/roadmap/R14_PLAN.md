@@ -1229,7 +1229,13 @@ Retry storms, false health, backup not restorable, load test causing external co
 - Evidence flags: `manual_state=conditional_not_triggered`, `provider_live_claim=false`, `external_load_required=false`, `secrets_exposed=false`, `pii_exposed=false`, `raw_payloads_exposed=false`, `internet_scale_claim=false`, `multi_region_claim=false`, `postgresql_pitr_claim=false`.
 - Compatibility boundary: idempotent-only bounded retry/backoff/jitter; OTel `service.name`-compatible observations only; PostgreSQL restore evidence is `fixture_restore_only`. Production PITR requires separate physical/base-backup + WAL evidence and is not claimed by core CI.
 - Manual intervention: **CONDITIONAL / NOT TRIGGERED**. No external provider quota/cost/load evidence is required for the accepted core; destructive/high-cost production load remains forbidden by default.
-- END-sync must change only `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_15_ACCEPTANCE.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` from immutable source `232bae747e91fd97f4cf3110a019639217d7914b`, then pass fresh exact-head R0/Python/UI/R14 Resilience gates before expected-head merge.
+- Final clean END-head `80bd6853664ab9f41fd41fb83f43b43980bef394` is a direct child of immutable source `232bae747e91fd97f4cf3110a019639217d7914b`; source→END changed exactly `docs/roadmap/R14_PLAN.md`, `docs/roadmap/R14_15_ACCEPTANCE.md` and `docs/continuity/KODEPOIA_CONTINUITY.md`.
+- Fresh exact-END gates: R0 Repository Guard #1966 / `33257412850` SUCCESS; Python Core #1941 / `33257412849` SUCCESS 5/5 with Ubuntu **1731 passed / 13 skipped / 46 warnings**; KodeStudio UI Smoke #1906 / `33257412847` SUCCESS; R14 Service Operations Resilience Acceptance #3 / `33257412881` SUCCESS Ubuntu + Windows with 24/24 deterministic checks.
+- Fresh END artifacts: Ubuntu `9716228073` / `sha256:97f82c4203d6d8987883849069c3bd8f47345b90d6078c2fcedf236c5c237bec`; Windows `9716231809` / `sha256:87fa03305606e02cc7758cdbd334e1f545023792859cc825323afa096eec1573`.
+- PR #285 merged only with `expected_head_sha=80bd6853664ab9f41fd41fb83f43b43980bef394` as implementation merge `53373e78c60d4a338e9313496a822c93ab334e68`.
+- The unique post-merge normalization head `68a6f106484ab60d9925dfcc60189b509d995393` changed only continuity, passed fresh exact-head R0 #1973 / `33257784369`, Python Core #1948 / `33257784390` (5/5), and UI #1913 / `33257784370`, then PR #286 merged with `expected_head_sha=68a6f106484ab60d9925dfcc60189b509d995393` as normalized main `1f10d7a13f49cb6e931e5e0694f083228ed24070`.
+- Post-normalization continuity erratum head `ff8e24a13ae040956f9eff4ebaa19f02f4a142a1` corrected stale wording only; fresh erratum gates R0 #1979 / `33258615852`, Python Core #1954 / `33258615797`, and UI #1919 / `33258615872` all SUCCESS. PR #287 merged with exact expected-head as current main `8a7eb312d3fa0d642d6b2b77ef35c2b2d3e7de36`. This erratum is explicitly **not** a second normalization; normalization cardinality remains exactly one.
+- R14.15 final state: **COMPLETE + NORMALIZED**. Manual/provider state remains **CONDITIONAL / NOT TRIGGERED**; no external-provider quota/cost/load, Internet-scale, multi-region or production PostgreSQL PITR claim is made. R14.16 START-sync is authorized from the current main carrying the normalized R14.15 state plus the continuity-only erratum.
 
 ---
 
@@ -1279,9 +1285,30 @@ Secret display, environment confusion, destructive default button, raw command e
 
 **NONE.**
 
+## START authority
+
+- Dedicated branch: `r14/16-cli-kodestudio-liveops-ux`.
+- Effective exact branch point: current `main` `8a7eb312d3fa0d642d6b2b77ef35c2b2d3e7de36`. R14.15's unique normalized anchor remains `1f10d7a13f49cb6e931e5e0694f083228ed24070`; PR #287 only added the continuity erratum and is not a second normalization.
+- START state: R14.1–R14.15 **COMPLETE + NORMALIZED**; R14.16 **IN_PROGRESS**; R14.17 **PLANNED**.
+- Scope authority is limited to structured CLI/KodeStudio workflows over existing R14 domain APIs: backend/local-stack status, migration preview/apply, provider capability, lobby/save/progression inspection, entitlement reconciliation preview, config/content/campaign preview/rollout/rollback, event replay preview, and resilience/backup/load reports.
+- Trust invariants: no raw shell console; no raw secret values; no ungoverned endpoint/command escape; environment and authority scope remain visible; destructive/live mutations require existing permission/confirmation/SafeChange rules; inspect/preview/dry-run remains the default for migrations, replay, rollout, content and campaign actions; machine-readable CLI JSON must be stable and redacted.
+- UX authority includes accessibility and localization regression coverage without weakening server/domain authorization. UI/CLI are adapters, never alternate authority paths.
+- Manual intervention: **NONE**. Core R14.16 must remain provider-neutral and testable from local/hosted CI without external account, credential, production deployment or live provider proof.
+
 ## Completion record
 
-To be appended when accepted.
+- Dedicated branch: `r14/16-cli-kodestudio-liveops-ux`; effective normalized-history branch point `8a7eb312d3fa0d642d6b2b77ef35c2b2d3e7de36`; clean START-head `3b0ad3bf666f1e6247699b8ef611b436f836b60a` preceded implementation.
+- Accepted immutable technical source: `3c0507ed497d9607218b9d9a50c2e5729d786c87`. START→source contains exactly 13 intended technical/test/evidence files: governed Backend/LiveOps facade, CLI, KodeStudio panel/localization, CLI/app wiring, four regression files including R6.6 pseudo-locale coverage, deterministic acceptance script, evidence schema and cross-platform workflow. No staging helper survives.
+- Technical exact-source gates: R0 Repository Guard #2005 / `33260302790` SUCCESS Ubuntu + Windows; Python Core #1980 / `33260302771` SUCCESS 5/5; KodeStudio UI Smoke #1945 / `33260302782` SUCCESS; R14 CLI KodeStudio LiveOps UX Acceptance #2 / `33260302752` SUCCESS Ubuntu 24.04 + Windows 2025.
+- Full Ubuntu Python Core: **1752 passed / 14 skipped / 46 warnings**, with R7/R8/R9 integrated acceptance PASS. Dedicated focused R14.16 regression: **26 passed Ubuntu**, with the same focused test step SUCCESS on Windows.
+- All **31/31 deterministic acceptance checks PASS**: typed 15-operation catalog/defaults; confirmation-vs-authorization separation; separate production authority; governed mutation path; redaction; raw command/endpoint/token/resource escape rejection; local/test stack restriction; truthful unavailable provider/load/backup claims; stable JSON; EN/FR/qps-ploc localization; structured KodeStudio controls and wiring.
+- Evidence flags: `manual_state=none`, `provider_live_claim=false`, `external_provider_required=false`, `secrets_exposed=false`, `raw_command_input_exposed=false`, `raw_endpoint_input_exposed=false`, `automatic_production_publish=false`, `operation_count=15`, `check_count=31`, `passed_count=31`.
+- Evidence digests: catalog `f0ac90c20d06d7e6ffdff22756bf65499c5e9d839098fb51ec8a7f1738dc351b`; preview `ff1089d254637027bd959a669cae6b3cc6f82252c2c1883cb24c1878fe418719`; authorized mutation `c809c93458f425b48a7546afc78bd21dff3b412a6a17c3ba203d1c615cdc8c13`.
+- Cross-platform decoded evidence JSON is exactly equal: 2245 bytes and SHA-256 `396588f20a03bb555c1a69cfd9b076151e850d11c8842b9ef9a94708a6a7eea2` on both OS. Artifacts: Ubuntu `9717060425` / `sha256:2e53b8fab1bfb5acd0e8197ee79e8475b975e3aecc017c264347bd00c73a607a`; Windows `9717061707` / `sha256:39308eb7833026dc06184ec5e753fe229279898f95693fd55181ee78f1ef6907`.
+- Rejected source `1707ca57a325a3187bfbe5327002bc2f30dc34d7` exposed stale R6.6 nav-count plus missing R14 pseudo-locale coverage; rejected source `c6a62355bf58a49c0bc4fc41a0ef29e6d0168825` exposed a missing Ubuntu Qt runtime dependency (`libEGL.so.1`) before business assertions. Neither candidate nor its failed evidence is reused.
+- Security boundary: UI/CLI confirmation is intention only, never permission; mutation requires injected domain authority and production requires separate production authority. Project fallback never authorizes mutation. Raw shell/command/endpoint/secret/token/password/DSN/private-key input and automatic production publish remain forbidden.
+- Manual intervention: **NONE**. No external provider account, credential, quota, public domain/TLS state, production deployment, destructive load or production PITR proof is required or claimed.
+- Technical state is accepted and R14.16 is ready for END-sync re-gating. R14.17 remains PLANNED and unauthorized until the exact END-head passes fresh R0/Python/UI/R14.16 acceptance, the implementation PR merges with expected-head protection, and exactly one continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

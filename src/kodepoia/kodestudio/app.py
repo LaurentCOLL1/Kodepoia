@@ -20,6 +20,7 @@ def build_window(
     r11_service=None,
     r12_service=None,
     r13_service=None,
+    r14_service=None,
 ):
     from PySide6.QtWidgets import (
         QLabel,
@@ -210,10 +211,21 @@ def build_window(
             kill_switch=switch,
         )
 
+    def r14_page() -> QWidget:
+        from kodepoia.kodestudio.backend_liveops_panel import create_backend_liveops_page
+
+        return create_backend_liveops_page(
+            root,
+            locale=locale,
+            service=r14_service,
+            status_bar=status,
+        )
+
     from kodepoia.kodestudio.blender_localization import blender_nav_text
     from kodepoia.kodestudio.r11_localization import r11_nav_text
     from kodepoia.kodestudio.r12_localization import r12_nav_text
     from kodepoia.kodestudio.r13_localization import r13_nav_text
+    from kodepoia.kodestudio.r14_localization import r14_nav_text
 
     sections = (
         (tr.text("app.nav.chat"), None),
@@ -225,6 +237,7 @@ def build_window(
         (r11_nav_text(locale), r11_page),
         (r12_nav_text(locale), r12_page),
         (r13_nav_text(locale), r13_page),
+        (r14_nav_text(locale), r14_page),
         (tr.text("app.nav.security"), security_page),
         (tr.text("app.nav.audit"), None),
         (tr.text("app.nav.settings"), None),

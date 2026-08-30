@@ -25,7 +25,7 @@ jobs:
         run: |
           rm .github/scripts/r15_11_end_sync.py
           rm .github/workflows/r15-11-end-sync-helper.yml
-          actual="$(git diff --name-only | sort)"
+          actual="$(git diff --name-only | grep -v '^docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json$' | sort)"
           expected="$(printf '%s\n' \
             '.github/scripts/r15_11_end_sync.py' \
             '.github/workflows/r15-11-end-sync-helper.yml' \

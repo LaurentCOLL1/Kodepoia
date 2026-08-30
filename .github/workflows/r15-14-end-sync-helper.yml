@@ -1,0 +1,98 @@
+name: R15.14 END synchronization helper
+
+on:
+  push:
+    branches:
+      - r15/14-specialized-model-registry
+
+permissions:
+  contents: write
+
+jobs:
+  synchronize:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/14-specialized-model-registry
+          fetch-depth: 0
+      - name: Synchronize accepted technical source into END authority
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          start_sha = 'd0225f4086c8ad1328fe6450a85e92fcc62644a6'
+          technical_sha = 'd6e3aef8224cb45a329b76077d1dd39a9adda0c3'
+          technical_run = '33332947813'
+
+          plan = Path('docs/roadmap/R15_PLAN.md')
+          text = plan.read_text(encoding='utf-8')
+          start = text.index('# R15.14 —')
+          end = text.index('\n---\n\n# R15.15 —', start)
+          section = text[start:end]
+          replacement = f'''## Completion record
+
+**COMPLETE — immutable technical source accepted; fresh exact-END gates required before merge.**
+
+- clean START / normalized R15.13 `main`: `{start_sha}`;
+- immutable technical source: `{technical_sha}`;
+- R15.14 Specialized Model Registry Acceptance run `{technical_run}`: SUCCESS Ubuntu + Windows; focused registry/router compatibility tests, Ruff, compileall and Draft 2020-12 registry-schema validation PASS on the exact technical source;
+- registry versions are immutable digest-bound records with explicit base/lineage, artifact variants, capability/domain tags and role eligibility; mutable runtime refs must resolve to the bound immutable digest before activation;
+- `REJECTED` and non-`PROMOTE_TO_EXPORT` candidates fail closed; role-specific acceptance cannot silently become a global default;
+- promotion persists an atomic role mapping plus restart-safe rollback pointer, snapshots the registry through SafeChange where configured, audits transitions and restores the exact prior persisted document if the post-promotion health probe fails;
+- rollback validates the exact promoted mapping and restores the prior immutable role mapping; tampered record digests are rejected on reload;
+- existing R3 `ModelRegistry` / `KodeModelRouter` abstractions remain the routing boundary; R15.14 adds an adapter rather than replacing router architecture;
+- manual state: `NONE`;
+- PR #324 carries this implementation/evidence source. This END synchronization changes documentary authority only; its exact resulting PR head MUST receive fresh R15.14 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`. Technical-source evidence above is not reused for the END merge decision;
+- exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.15 START-sync is authorized.'''
+          section, n = re.subn(
+              r'## Completion record\n\n\*\*IN_PROGRESS — START-sync from normalized R15\.13 `main` `[^`]+`\.\*\*',
+              replacement,
+              section,
+              count=1,
+          )
+          assert n == 1, 'R15.14 completion record replacement failed'
+          plan.write_text(text[:start] + section + text[end:], encoding='utf-8')
+
+          acceptance = Path('docs/roadmap/R15_14_ACCEPTANCE.md')
+          a = acceptance.read_text(encoding='utf-8')
+          a = a.replace(
+              'Status: IMPLEMENTED / exact-head acceptance pending.',
+              'Status: TECHNICAL ACCEPTED / fresh exact-END acceptance pending.',
+              1,
+          )
+          a += f'''\n## Technical-source evidence\n\n- normalized START: `{start_sha}`\n- immutable technical source: `{technical_sha}`\n- R15.14 acceptance: `{technical_run}` — SUCCESS on Ubuntu and Windows\n- focused tests: immutable identity, fail-closed disposition/role eligibility, atomic promotion, restart persistence, health rollback, exact rollback, mutable-tag digest binding, tamper rejection and R3 `KodeModelRouter` compatibility\n- static/schema gates: Ruff, compileall and Draft 2020-12 schema validation PASS\n- manual state: `NONE`\n\nThe technical run is evidence for the immutable source only. The final documentary END-head created by this synchronization must receive fresh R15.14 + R0 + Python Core + KodeStudio UI Smoke evidence before PR #324 may merge.\n'''
+          acceptance.write_text(a, encoding='utf-8')
+
+          continuity = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          c = continuity.read_text(encoding='utf-8')
+          c = c.replace(
+              'R15.1–R15.13 COMPLETE + NORMALIZED; R15.14 IN_PROGRESS; R15.15–R15.17 PLANNED.',
+              'R15.1–R15.13 COMPLETE + NORMALIZED; R15.14 COMPLETE / NORMALIZATION PENDING; R15.15–R15.17 PLANNED.',
+              1,
+          )
+          c = c.replace('| R15.14 | IN_PROGRESS | NONE |', '| R15.14 | COMPLETE / NORMALIZATION PENDING | NONE |', 1)
+          bullet = f'''- R15.14 : **COMPLETE / NORMALIZATION PENDING** — clean START / normalized R15.13 `main` `{start_sha}`; immutable technical source `{technical_sha}`; technical R15.14 acceptance `{technical_run}` SUCCESS Ubuntu + Windows. Immutable digest-bound versions, explicit lineage/artifact variants/role eligibility, fail-closed rejected/non-promotable activation, mutable runtime-ref digest verification, atomic persisted promotion, SafeChange snapshot hook, health rollback, restart-safe exact rollback and R3 `KodeModelRouter` compatibility are implemented. Manual NONE. PR #324 carries this source; only fresh exact-head R15.14 + R0 + Python Core + UI evidence on the resulting END head may authorize its expected-head merge. Exactly one continuity-only post-merge normalization is mandatory before R15.15 START.\n'''
+          if '- R15.14 :' not in c:
+              marker = '\n## Next authorized action\n'
+              assert marker in c, 'next-action marker missing'
+              c = c.replace(marker, '\n' + bullet + marker, 1)
+          c, n = re.subn(
+              r'(?s)(## Next authorized action\n\n)\*\*.*?\*\*(\n\n## Permanent R-phase execution rule)',
+              r'\1**R15.14 only: freeze technical source `d6e3aef8224cb45a329b76077d1dd39a9adda0c3`; require fresh R15.14 Specialized Model Registry Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the exact final PR #324 END-head, then merge #324 with exact `expected_head_sha`. After that merge, perform exactly one continuity-only R15.14 normalization with fresh exact-head R0/Python/UI. R15.15 remains unauthorized until that normalization merges. Manual state: NONE.**\2',
+              c,
+              count=1,
+          )
+          assert n == 1, 'next action replacement failed'
+          continuity.write_text(c, encoding='utf-8')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/r15-14-end-sync-helper.yml
+          git add docs/roadmap/R15_PLAN.md docs/roadmap/R15_14_ACCEPTANCE.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          git commit -m "docs(r15.14): synchronize exact-END authority"
+          git push origin HEAD:r15/14-specialized-model-registry

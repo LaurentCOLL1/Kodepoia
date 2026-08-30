@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.2 COMPLETE + NORMALIZED; R15.3–R15.17 PLANNED.** R15.2 immutable technical source `48b519c09fa50f5407cc4a55a0b76baf6f8e8ffd`; final END-head `afbc8e9c41d25727dcdc786245281e605e73cf97`; exact-END R15.2 #11 / `33280685599`, R0 #2076 / `33280685519`, Python #2051 / `33280685583`, UI #2016 / `33280685572` SUCCESS; final PR #298 required R0 #2077 / `33280858482` SUCCESS and merged exact head as `cf7f53fa9d491019fb9de941c3d703eb34a8f73d`; manual NONE. This record is the unique post-merge continuity-only R15.2 normalization authority; only its merged normalized `main` authorizes R15.3 START-sync.
+> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.2 COMPLETE + NORMALIZED; R15.3 COMPLETE — implementation merge pending; R15.4–R15.17 PLANNED.** R15.3 immutable technical source `e049a8f5c8155accb1d64ca4028deec5f85c4aa8` from clean START `ba719dd9d556909b08606d6c7ebb4d4ef18dbd37`; exact technical R15.3 #6 / `33281437119`, R0 #2081 / `33281437161`, Python #2056 / `33281437215`, UI #2021 / `33281437163` all SUCCESS; manual NONE. Fresh exact END-head re-gates remain mandatory before merge.
 
 ## État global
 
@@ -12,6 +12,7 @@
 - R15 planning : **ACCEPTED + NORMALIZED** — branch point `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`; clean planning head `5856021b73edeaa29f124fab90275a8cd89e956f`; exact-head R0 #2051 / `33268871882` SUCCESS Ubuntu + Windows, Python Core #2026 / `33268871682` SUCCESS 5/5, KodeStudio UI Smoke #1991 / `33268871753` SUCCESS; planning PR #292 merged with exact expected head as `e464260edbc4ef1d7962fdfe7401667600a2b50d`; this record is the unique post-merge planning continuity-only normalization authority. R15.1 is authorized only on the normalized main produced when this normalization PR merges.
 - R15.1 : **COMPLETE + NORMALIZED** — clean START `a474d0c85d27ca7113a8044b2c29a5e664ebd352`; immutable technical source `2da5e5d5aa712462c898270c41c5cafb42e6aeaa`; final END-head `ec335e5507de84cd447cbd0354416a36d56d7f17`; exact-END R15.1 #13 / `33271720105` SUCCESS Ubuntu + Windows, R0 #2064 / `33271720122` SUCCESS Ubuntu + Windows, Python #2039 / `33271720066` SUCCESS 5/5, UI #2004 / `33271720076` SUCCESS; PR #295 required R0 #2065 / `33272128985` SUCCESS and merged exact head as `f0860c1e0d1a27ec5317a10dabc1f28b409703c2`; manual NONE. Non-laundering remains normative: sanitizer/redaction PASS never overrides denied/unknown/review source, consent, provenance, license or privacy authorization. This record is the unique post-merge continuity-only R15.1 normalization authority; R15.2 START-sync is authorized only after this normalization branch passes fresh R0/Python/UI and merges to `main`.
 - R15.2 : **COMPLETE + NORMALIZED** — clean START `135fd085002bf8074d87308beca35ab33c35ed47`; immutable technical source `48b519c09fa50f5407cc4a55a0b76baf6f8e8ffd`; final END-head `afbc8e9c41d25727dcdc786245281e605e73cf97`; exact-END R15.2 #11 / `33280685599`, R0 #2076 / `33280685519`, Python #2051 / `33280685583`, UI #2016 / `33280685572` SUCCESS; final non-draft PR #298 required R0 #2077 / `33280858482` SUCCESS and merged with expected head as `cf7f53fa9d491019fb9de941c3d703eb34a8f73d`; manual NONE. Capture remains disabled by default and training authorization UNKNOWN until later explicit governance. This is the unique post-merge continuity normalization; R15.3 is authorized only after this branch passes fresh R0/Python/UI and merges.
+- R15.3 : **COMPLETE — IMPLEMENTATION MERGE PENDING** — clean START `ba719dd9d556909b08606d6c7ebb4d4ef18dbd37` from normalized R15.2 `main` `ac1101d9e67f5e0b36d8daaca2287e625d88787b`; immutable technical source `e049a8f5c8155accb1d64ca4028deec5f85c4aa8`; exact technical R15.3 #6 / `33281437119` SUCCESS Ubuntu + Windows with 49 R15.1–R15.3 tests per OS + Ruff + compile, R0 #2081 / `33281437161` SUCCESS, Python #2056 / `33281437215` SUCCESS 5/5, UI #2021 / `33281437163` SUCCESS; manual NONE. Sanitization is deterministic and non-laundering; license/provenance/privacy remain fail-closed; revocation propagates by lineage. Final clean END-head must receive fresh R15.3/R0/Python/UI before merge; R15.4 remains unauthorized until unique post-merge normalization.
 - R14.1–R14.9 : **COMPLETE + NORMALIZED**.
 - R14.9 normalized `main` : **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`** après normalization PR #274.
 - R14.10 : **COMPLETE + NORMALIZED** — source technique `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab`; normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40` via PR #276.
@@ -43,7 +44,7 @@
 | --- | --- | --- |
 | R15.1 | COMPLETE | NONE |
 | R15.2 | COMPLETE | NONE |
-| R15.3 | PLANNED | NONE |
+| R15.3 | COMPLETE | NONE |
 | R15.4 | PLANNED | NONE |
 | R15.5 | PLANNED | NONE |
 | R15.6 | PLANNED | NONE |
@@ -61,7 +62,7 @@
 
 ## Next authorized action
 
-**R15.2 normalization is staged continuity-only. Require fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, merge with `expected_head_sha`, then start R15.3 from that normalized `main`. R15.3 remains unauthorized before this merge.**
+**R15.3 END-sync is complete on `r15/03-sanitization-governance`. Produce one clean END-head with no helper/marker, require fresh exact-head R15.3 focused + R0 Repository Guard + full Python Core + KodeStudio UI Smoke, then merge only with `expected_head_sha`. After that merge, perform exactly one continuity-only post-merge normalization with fresh R0/Python/UI. R15.4 remains unauthorized until that normalized `main` exists.**
 
 ## Permanent R-phase execution rule
 

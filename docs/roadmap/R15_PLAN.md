@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1 is COMPLETE + NORMALIZED on `main` `f6681cdc072fdbd9eb8ebcf2c109859df31fb30f`; R15.2 is COMPLETE with immutable technical source `48b519c09fa50f5407cc4a55a0b76baf6f8e8ffd`; implementation merge + unique post-merge continuity-only normalization are pending. R15.3–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.2 are COMPLETE + NORMALIZED. R15.3 is COMPLETE with immutable technical source `e049a8f5c8155accb1d64ca4028deec5f85c4aa8`; implementation merge + unique post-merge continuity-only normalization are pending. R15.4–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -276,7 +276,7 @@ Before R15.1 implementation:
 | --- | --- | --- | --- | --- |
 | R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | COMPLETE | NONE | R14 COMPLETE + normalized R15 planning |
 | R15.2 | Governed validated-experience capture, outcome labeling + opt-in/source scope | COMPLETE | NONE | R15.1 + R1/R6/R8 |
-| R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | PLANNED | NONE | R15.1–R15.2 + R6/R7/R8 |
+| R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | COMPLETE | NONE | R15.1–R15.2 + R6/R7/R8 |
 | R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | PLANNED | NONE | R15.1–R15.3 |
 | R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | PLANNED | NONE | R15.1–R15.4 |
 | R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | PLANNED | NONE | R15.1/R15.4–R15.5 + R3/R6 |

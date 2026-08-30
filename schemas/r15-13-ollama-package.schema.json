@@ -1,0 +1,323 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r15-13-ollama-package.schema.json",
+  "title": "Kodepoia R15.13 Ollama packaging evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "properties": {
+    "schema": {
+      "const": "kodepoia.r15.13.ollama-package"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "architecture": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_kind": {
+          "enum": [
+            "gguf",
+            "safetensors_adapter"
+          ]
+        },
+        "artifact_sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "base_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "base_model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "direct_adapter_authorized": {
+          "type": "boolean"
+        },
+        "evaluation_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "export_manifest_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "gguf_report_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "trained_base_digest": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/digest"
+            }
+          ]
+        },
+        "trained_base_model": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "minLength": 1
+            }
+          ]
+        }
+      },
+      "required": [
+        "architecture",
+        "artifact_kind",
+        "artifact_sha256",
+        "base_digest",
+        "base_model",
+        "candidate_id",
+        "direct_adapter_authorized",
+        "evaluation_digest",
+        "export_manifest_digest",
+        "gguf_report_digest",
+        "trained_base_digest",
+        "trained_base_model"
+      ]
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expected_capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "max_aggregate_loss": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "max_critical_loss": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "integer",
+              "number",
+              "string"
+            ]
+          }
+        },
+        "system_present": {
+          "type": "boolean"
+        },
+        "template_present": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "expected_capabilities",
+        "max_aggregate_loss",
+        "max_critical_loss",
+        "parameters",
+        "system_present",
+        "template_present"
+      ]
+    },
+    "candidate_tag": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ollama_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "modelfile_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "model_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "show": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "family": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "parameter_size": {
+          "type": "string"
+        },
+        "quantization_level": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "capabilities",
+        "family",
+        "format",
+        "parameter_size",
+        "quantization_level"
+      ]
+    },
+    "behavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "structured_output": {
+          "type": "boolean"
+        },
+        "tool_call": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "structured_output",
+        "tool_call"
+      ]
+    },
+    "benchmark": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "critical": {
+            "type": "boolean"
+          },
+          "domain": {
+            "type": "string",
+            "minLength": 1
+          },
+          "loss": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "packaged": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "pre_import": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "critical",
+          "domain",
+          "loss",
+          "packaged",
+          "pre_import",
+          "task_id"
+        ]
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "aggregate_loss": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "critical_regressions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "disposition": {
+          "enum": [
+            "accept",
+            "reject_quality",
+            "reject_critical"
+          ]
+        }
+      },
+      "required": [
+        "aggregate_loss",
+        "critical_regressions",
+        "disposition"
+      ]
+    },
+    "create_argv_shape": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 4
+    },
+    "manual_state": {
+      "const": "conditional_not_triggered"
+    },
+    "provider_live_claim": {
+      "const": false
+    },
+    "public_push": {
+      "const": false
+    },
+    "secrets_exposed": {
+      "const": false
+    },
+    "report_digest": {
+      "$ref": "#/$defs/digest"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "binding",
+    "config",
+    "candidate_tag",
+    "ollama_version",
+    "modelfile_digest",
+    "model_digest",
+    "show",
+    "behavior",
+    "benchmark",
+    "quality",
+    "create_argv_shape",
+    "manual_state",
+    "provider_live_claim",
+    "public_push",
+    "secrets_exposed",
+    "report_digest"
+  ]
+}

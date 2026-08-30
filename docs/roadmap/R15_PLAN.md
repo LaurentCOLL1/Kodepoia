@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.6 are COMPLETE + NORMALIZED. R15.7 is COMPLETE on this documented END candidate after technical qualification of `a9a967289bbede1ffd155567f3caaa201d1af772`; fresh exact-head R15.7/R0/Python/UI gates, expected-head merge and one continuity-only normalization remain required before R15.8. R15.8–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.7 are COMPLETE + NORMALIZED. R15.7 normalization head `d07ca7b2ab550e0fcaf09897d51d72b2dd94d590` passed R0 #2140 / `33300956787` SUCCESS Ubuntu + Windows, Python Core #2115 / `33300956780` SUCCESS 5/5 and KodeStudio UI Smoke #2080 / `33300956762` SUCCESS; normalization PR #310 merged with exact expected head as normalized `main` `5de1cabd3e861e75204595de1819564c782a217d`. R15.8 is IN_PROGRESS; R15.9–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -280,8 +280,8 @@ Before R15.1 implementation:
 | R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | COMPLETE | NONE | R15.1–R15.3 |
 | R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | COMPLETE | NONE | R15.1–R15.4 |
 | R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | COMPLETE + NORMALIZED | NONE | R15.1/R15.4–R15.5 + R3/R6 |
-| R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | COMPLETE | NONE | R15.5–R15.6 + R3/R4/R7 |
-| R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | PLANNED | CONDITIONAL | R15.7 + R1/R6/R9 |
+| R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | COMPLETE + NORMALIZED | NONE | R15.5–R15.6 + R3/R4/R7 |
+| R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | IN_PROGRESS | CONDITIONAL | R15.7 + R1/R6/R9 |
 | R15.9 | QLoRA/SFT adapter training, checkpoints, resume/cancel/recovery + budget controls | PLANNED | CONDITIONAL | R15.5/R15.7–R15.8 |
 | R15.10 | Base-vs-adapter evaluation, critical-regression veto + candidate disposition | PLANNED | NONE | R15.6/R15.9 |
 | R15.11 | Accepted adapter/model export, merge compatibility, Safetensors/model card + lineage | PLANNED | NONE | R15.9–R15.10 + R8 |
@@ -727,6 +727,7 @@ Training used to paper over tool bugs; circular data sufficiency; mutable base t
 
 ## Completion record
 
+- Post-merge normalization head `d07ca7b2ab550e0fcaf09897d51d72b2dd94d590`: R0 #2140 / `33300956787`, Python Core #2115 / `33300956780` (5/5), UI #2080 / `33300956762` SUCCESS; PR #310 merged with exact expected head as normalized `main` `5de1cabd3e861e75204595de1819564c782a217d`. R15.7 is COMPLETE + NORMALIZED; manual NONE.
 **COMPLETE — technical acceptance recorded; fresh final-END gates required before merge.**
 
 - clean START / normalized R15.6 main: `9ef6f704d54332203e820cd2bd85e3b4ac86910a`;

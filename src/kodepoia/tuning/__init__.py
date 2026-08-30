@@ -1,7 +1,8 @@
-"""R15.8 optional training-runtime capability boundary.
+"""R15.8/R15.9 optional training capability and governed adapter-training boundary.
 
-Heavy ML packages are intentionally not imported here. They are capability-probed
-only inside the isolated probe worker launched by :class:`TrainingRuntime`.
+Heavy ML packages are intentionally not imported here. They are capability-probed or
+loaded only inside isolated workers launched by :class:`TrainingRuntime` or
+:class:`TrainingRunner`.
 """
 
 from .contracts import (
@@ -17,18 +18,44 @@ from .contracts import (
     TuningRuntimeError,
 )
 from .runtime import HostResourceProbe, TrainingRuntime, redact_runtime_text
+from .training import (
+    CheckpointRecord,
+    DatasetBinding,
+    LoraTrainingConfig,
+    ModelBinding,
+    SFTTrainingConfig,
+    TrainingAuthorization,
+    TrainingError,
+    TrainingMode,
+    TrainingPlan,
+    TrainingReport,
+    TrainingRunner,
+    TrainingRunState,
+)
 
 __all__ = [
     "CapabilityReport",
     "CapabilityState",
+    "CheckpointRecord",
     "DTypeName",
+    "DatasetBinding",
     "HostResourceProbe",
+    "LoraTrainingConfig",
+    "ModelBinding",
     "QuantizationMode",
     "ResourceRequest",
     "RuntimeDisposition",
     "RuntimeRequest",
+    "SFTTrainingConfig",
     "SeedConfig",
+    "TrainingAuthorization",
     "TrainingBackend",
+    "TrainingError",
+    "TrainingMode",
+    "TrainingPlan",
+    "TrainingReport",
+    "TrainingRunState",
+    "TrainingRunner",
     "TrainingRuntime",
     "TuningRuntimeError",
     "redact_runtime_text",

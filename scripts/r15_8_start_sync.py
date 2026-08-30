@@ -19,8 +19,11 @@ for rid, status in (("R15.7", "COMPLETE + NORMALIZED"), ("R15.8", "IN_PROGRESS")
     matches = [i for i, line in enumerate(plan_lines) if line.startswith(f"| {rid} |")]
     if len(matches) != 1:
         raise SystemExit(f"expected one plan row for {rid}, found {len(matches)}")
-    manual = "NONE" if rid == "R15.7" else "CONDITIONAL"
-    plan_lines[matches[0]] = f"| {rid} | {status} | {manual} |" + (" R15.5–R15.6 + R3/R4/R7 |" if rid == "R15.7" else " R15.7 + R1/R6/R9 |")
+    parts = plan_lines[matches[0]].split("|")
+    if len(parts) != 7:
+        raise SystemExit(f"unexpected plan table shape for {rid}: {plan_lines[matches[0]]!r}")
+    parts[3] = f" {status} "
+    plan_lines[matches[0]] = "|".join(parts)
 
 r157_start = next(i for i, line in enumerate(plan_lines) if line.startswith("# R15.7 —"))
 r158_start = next(i for i, line in enumerate(plan_lines) if line.startswith("# R15.8 —"))

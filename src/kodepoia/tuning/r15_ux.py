@@ -207,7 +207,7 @@ def _safe_path(root: Path, value: Path) -> str:
     candidate = value if value.is_absolute() else root / value
     resolved = candidate.resolve(strict=False)
     try:
-        return str(resolved.relative_to(root))
+        return resolved.relative_to(root).as_posix()
     except ValueError:
         return "<external-path>"
 

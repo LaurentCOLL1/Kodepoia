@@ -158,8 +158,6 @@ class RuntimeRequest:
         object.__setattr__(self, "tokenizer_ref", _safe_ref("tokenizer_ref", self.tokenizer_ref))
         if self.model_load_dry_run and self.model_ref is None:
             raise TuningRuntimeError("model_load_dry_run requires model_ref")
-        if self.quantization is QuantizationMode.BNB_NF4 and self.backend is TrainingBackend.CPU:
-            raise TuningRuntimeError("bnb_nf4 requires an accelerator backend probe")
 
     def to_dict(self) -> dict[str, object]:
         return {

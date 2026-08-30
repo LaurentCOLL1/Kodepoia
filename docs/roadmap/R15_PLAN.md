@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.15 are COMPLETE + NORMALIZED. R15.16 is IN_PROGRESS from normalized `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`; R15.17 remains PLANNED and unauthorized until R15.16 completes, merges, and receives its unique post-merge normalization.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.15 are COMPLETE + NORMALIZED. R15.16 is COMPLETE on immutable technical source `d492bfe53dd805aadcfa14193a2cf4fba1711276` from normalized R15.15 `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`; its documentary END-sync candidate must receive fresh exact-head R15.16 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before protected merge, after which the unique continuity-only normalization remains mandatory. R15.17 remains PLANNED and unauthorized.
 
 ## Purpose and authority
 
@@ -289,7 +289,7 @@ Before R15.1 implementation:
 | R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |
 | R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | COMPLETE + NORMALIZED | NONE | R15.10–R15.13 + R3/R8 |
 | R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | COMPLETE + NORMALIZED | NONE | R15.1–R15.14 |
-| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R15.1–R15.15 |
+| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | COMPLETE | CONDITIONAL / NOT TRIGGERED | R15.1–R15.15 |
 | R15.17 | Adversarial integrated Experience/Bench/Fine-tuning acceptance | PLANNED | CONDITIONAL | R15.1–R15.16 |
 
 ---
@@ -1308,7 +1308,22 @@ Hardware support changing between ROCm/PyTorch/bitsandbytes versions; Windows-vs
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — immutable technical source accepted; fresh exact-END gates required before merge.**
+
+- normalized R15.15 base / branch point: `01f91fd4b56ed2a02151b46d70502b734c771e7f`;
+- clean R15.16 START head after START synchronization: `89411e40f6c3e90c6f9fd63434988978f672fff1`;
+- dedicated branch: `r15/16-hardware-local-qualification`;
+- immutable technical source: `d492bfe53dd805aadcfa14193a2cf4fba1711276`;
+- R15.16 Hardware Local Qualification Acceptance #2 / `33337106579`: SUCCESS Ubuntu 24.04 + Windows 2025; 9 focused/schema tests per OS plus compileall, real non-mutating CI doctor, exact-source/schema/provenance validation and Ruff;
+- rejected pre-technical candidate `6f2c1aa61faa51536e99eaeab40a0f97d04bed3a` / R15.16 #1 `33337019018` is non-authoritative because Ruff B008 failed on both OS; its functional steps passed, but none of its evidence may be reused for merge acceptance;
+- the accepted doctor asserts exact Git HEAD, reuses the bounded R15.8 `TrainingRuntime` operation probes, records non-sensitive OS/Python/runtime/tool/resource evidence, constrains report output to the project root and emits a canonical SHA-256-bound JSON report validated by Draft 2020-12 schema;
+- `training_required=true` fails closed unless the requested real backend is operationally READY; budget failure is `resource_budget_blocked`, other unavailable/failed backends are `training_backend_unavailable`; a package/device name alone is never sufficient capability evidence;
+- `training_required=false` truthfully permits `no_train_required` while preserving unavailable training/Ollama state as warnings rather than fabricating hardware support;
+- core acceptance installs only `.[dev]`; Torch/Transformers/PEFT/TRL/bitsandbytes and target GPU drivers remain optional and are not silently installed;
+- current phase evidence does not require a real target-workstation training/conversion/promotion claim, so the conditional manual gate remains `CONDITIONAL / NOT TRIGGERED`; no user-side GPU command, credential, driver installation or destructive system action is required for this technical acceptance;
+- current external compatibility evidence remains advisory only: availability of a bitsandbytes ROCm wheel target does not override the actual PyTorch/HIP/device operation probe or vendor support state;
+- this END synchronization changes documentary authority only. Its exact resulting PR head MUST receive fresh R15.16 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`;
+- exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.17 START-sync is authorized.
 
 ---
 

@@ -1,0 +1,36 @@
+name: R15.17 START synchronization helper
+
+on:
+  push:
+    branches:
+      - r15/17-adversarial-integrated-acceptance
+    paths:
+      - .github/workflows/r15-17-start-sync-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/17-adversarial-integrated-acceptance
+          fetch-depth: 0
+      - name: Synchronize R15.17 START authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -c "import base64,zlib;exec(zlib.decompress(base64.b64decode('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')).decode())"
+          rm .github/workflows/r15-17-start-sync-helper.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r15-17-start-sync-helper.yml
+          mapfile -t staged < <(git diff --cached --name-only)
+          test "${#staged[@]}" -eq 3
+          printf '%s\n' "${staged[@]}" | grep -Fx 'docs/roadmap/R15_PLAN.md'
+          printf '%s\n' "${staged[@]}" | grep -Fx 'docs/continuity/KODEPOIA_CONTINUITY.md'
+          printf '%s\n' "${staged[@]}" | grep -Fx '.github/workflows/r15-17-start-sync-helper.yml'
+          git commit -m "docs(r15.17): synchronize START authority"
+          git push origin HEAD:r15/17-adversarial-integrated-acceptance

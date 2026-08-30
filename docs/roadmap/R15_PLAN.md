@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.12 are COMPLETE + NORMALIZED. R15.13 is IN_PROGRESS from normalized `main` `ca625d51808de6c1f9c950faecc2aa785e7a757d`; R15.14–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.12 are COMPLETE + NORMALIZED. R15.13 is COMPLETE on its accepted END candidate from normalized `main` `ca625d51808de6c1f9c950faecc2aa785e7a757d`; R15.14–R15.17 remain PLANNED and unauthorized until R15.13 post-merge normalization.
 
 ## Purpose and authority
 
@@ -274,19 +274,19 @@ Before R15.1 implementation:
 
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
-| R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | COMPLETE | NONE | R14 COMPLETE + normalized R15 planning |
-| R15.2 | Governed validated-experience capture, outcome labeling + opt-in/source scope | COMPLETE | NONE | R15.1 + R1/R6/R8 |
-| R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | COMPLETE | NONE | R15.1–R15.2 + R6/R7/R8 |
-| R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | COMPLETE | NONE | R15.1–R15.3 |
-| R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | COMPLETE | NONE | R15.1–R15.4 |
+| R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | COMPLETE + NORMALIZED | NONE | R14 COMPLETE + normalized R15 planning |
+| R15.2 | Governed validated-experience capture, outcome labeling + opt-in/source scope | COMPLETE + NORMALIZED | NONE | R15.1 + R1/R6/R8 |
+| R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | COMPLETE + NORMALIZED | NONE | R15.1–R15.2 + R6/R7/R8 |
+| R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | COMPLETE + NORMALIZED | NONE | R15.1–R15.3 |
+| R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | COMPLETE + NORMALIZED | NONE | R15.1–R15.4 |
 | R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | COMPLETE + NORMALIZED | NONE | R15.1/R15.4–R15.5 + R3/R6 |
 | R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | COMPLETE + NORMALIZED | NONE | R15.5–R15.6 + R3/R4/R7 |
 | R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | COMPLETE + NORMALIZED | CONDITIONAL | R15.7 + R1/R6/R9 |
 | R15.9 | QLoRA/SFT adapter training, checkpoints, resume/cancel/recovery + budget controls | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.5/R15.7–R15.8 |
 | R15.10 | Base-vs-adapter evaluation, critical-regression veto + candidate disposition | COMPLETE + NORMALIZED | NONE | R15.6/R15.9 |
-| R15.11 | Accepted adapter/model export, merge compatibility, Safetensors/model card + lineage | COMPLETE | NONE | R15.9–R15.10 + R8 |
+| R15.11 | Accepted adapter/model export, merge compatibility, Safetensors/model card + lineage | COMPLETE + NORMALIZED | NONE | R15.9–R15.10 + R8 |
 | R15.12 | GGUF conversion + quantization matrix, quality-loss measurement + artifact validation | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.10–R15.11 + R6/R8/R9 |
-| R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |
+| R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | COMPLETE | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |
 | R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | PLANNED | NONE | R15.10–R15.13 + R3/R8 |
 | R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | PLANNED | NONE | R15.1–R15.14 |
 | R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | PLANNED | CONDITIONAL | R15.1–R15.15 |
@@ -1100,7 +1100,22 @@ Mutable base tag drift; adapter/base mismatch; template changes benchmark behavi
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — immutable technical source accepted; fresh exact-END gates required before merge.**
+
+- clean START / normalized R15.12 `main`: `ca625d51808de6c1f9c950faecc2aa785e7a757d`;
+- immutable technical source: `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac`;
+- R15.13 Ollama Packaging Acceptance #3 / `33327931401`: SUCCESS Ubuntu + Windows; 19 focused/dependency tests per OS, Ruff, compileall and package-schema validation PASS;
+- R0 Repository Guard #2182 / `33327931448`: SUCCESS Ubuntu + Windows;
+- Python Core #2157 / `33327931386`: SUCCESS for Ubuntu + Windows core, package builds and UI-in-core;
+- KodeStudio UI Smoke #2122 / `33327931328`: SUCCESS;
+- exact base/artifact lineage is required before package creation; wrong-base adapter binding, mutable/active tag collision and non-loopback authoritative endpoints fail closed;
+- Modelfile generation is deterministic and restricted to structured repository-owned fields; `FROM`, optional `ADAPTER`, license/metadata and runtime parameters are serialized without model-supplied shell;
+- candidate lifecycle is namespaced/non-destructive and validates create/show/tags/run evidence, immutable created-model digest/details, structured-output/tool capability claims, KodeBench disposition and governed `ollama rm` rollback;
+- no `ollama push`, remote authoritative Ollama, credential requirement or silent production/active-tag replacement is accepted;
+- official Ollama Modelfile/import documentation remains dated compatibility evidence only; current documentation requires `FROM`, supports `ADAPTER`, and warns that an adapter should use the same base model it was tuned from;
+- manual state: `CONDITIONAL / NOT TRIGGERED`; hosted/core acceptance uses deterministic fakes/fixtures and does not claim real target-workstation model creation;
+- PR #321 carries this implementation/evidence source. This END synchronization changes documentary authority only; its exact final head MUST receive fresh R15.13 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`. Technical-source evidence above is not reused for the END merge decision;
+- exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.14 START-sync is authorized.
 
 ---
 

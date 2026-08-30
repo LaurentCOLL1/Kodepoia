@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/experience-dataset-card-v1.schema.json",
+  "title": "Kodepoia R15 dataset card record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "dataset_id",
+    "dataset_digest",
+    "policy_digest",
+    "intended_use",
+    "limitations",
+    "licenses",
+    "languages",
+    "domains",
+    "tasks",
+    "split_stats"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.experience.dataset-card"},
+    "schema_version": {"const": 1},
+    "dataset_id": {"type": "string", "pattern": "^ds_[0-9a-f]{64}$"},
+    "dataset_digest": {"$ref": "#/$defs/digest"},
+    "policy_digest": {"$ref": "#/$defs/digest"},
+    "intended_use": {"type": "string", "minLength": 1},
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "licenses": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "languages": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^([A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*|und)$"
+      }
+    },
+    "domains": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/safe_id"}
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/safe_id"}
+    },
+    "split_stats": {"$ref": "#/$defs/split_stats"}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "safe_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "split_stat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain_counts",
+        "groups",
+        "language_counts",
+        "rows",
+        "task_counts"
+      ],
+      "properties": {
+        "domain_counts": {"$ref": "#/$defs/counts"},
+        "groups": {"type": "integer", "minimum": 0},
+        "language_counts": {"$ref": "#/$defs/counts"},
+        "rows": {"type": "integer", "minimum": 0},
+        "task_counts": {"$ref": "#/$defs/counts"}
+      }
+    },
+    "split_stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["train", "validation", "test"],
+      "properties": {
+        "train": {"$ref": "#/$defs/split_stat"},
+        "validation": {"$ref": "#/$defs/split_stat"},
+        "test": {"$ref": "#/$defs/split_stat"}
+      }
+    }
+  }
+}

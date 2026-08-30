@@ -1,0 +1,47 @@
+name: R15.12 START Sync Helper
+
+on:
+  push:
+    branches: [r15/12-gguf-conversion-quantization]
+
+permissions:
+  contents: write
+
+jobs:
+  start_sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/12-gguf-conversion-quantization
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply bounded START synchronization
+        run: python .github/scripts/r15_12_start_sync.py
+      - name: Verify and publish clean START head
+        shell: bash
+        run: |
+          rm .github/scripts/r15_12_start_sync.py
+          rm .github/workflows/r15-12-start-sync-helper.yml
+          actual="$(git diff --name-only | grep -v '^docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json$' | sort)"
+          expected="$(printf '%s\n' \
+            '.github/scripts/r15_12_start_sync.py' \
+            '.github/workflows/r15-12-start-sync-helper.yml' \
+            'docs/continuity/KODEPOIA_CONTINUITY.md' \
+            'docs/roadmap/R15_PLAN.md' | sort)"
+          test "$actual" = "$expected" || {
+            echo 'Unexpected START-sync diff:'
+            git diff --name-only
+            exit 1
+          }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_PLAN.md
+          git rm .github/scripts/r15_12_start_sync.py .github/workflows/r15-12-start-sync-helper.yml
+          staged="$(git diff --cached --name-only | sort)"
+          test "$staged" = "$expected"
+          git diff --cached --check
+          git commit -m 'docs(r15.12): synchronize IN_PROGRESS START state'
+          git push origin HEAD:r15/12-gguf-conversion-quantization

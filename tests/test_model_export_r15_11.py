@@ -23,7 +23,11 @@ def _canonical(value: object) -> str:
 
 def _tree_digest(path: Path) -> str:
     rows = []
-    for item in sorted((p for p in path.rglob("*") if p.is_file()), key=lambda p: p.relative_to(path).as_posix()):
+    files = sorted(
+        (item for item in path.rglob("*") if item.is_file()),
+        key=lambda item: item.relative_to(path).as_posix(),
+    )
+    for item in files:
         rows.append(
             {
                 "path": item.relative_to(path).as_posix(),

@@ -131,10 +131,7 @@ def test_conversion_and_quantization_use_structured_runner_and_validate_outputs(
 
     def runner(argv: tuple[str, ...]) -> ToolRunResult:
         observed.append(argv)
-        if "--outfile" in argv:
-            output = Path(argv[argv.index("--outfile") + 1])
-        else:
-            output = Path(argv[-2])
+        output = Path(argv[argv.index("--outfile") + 1]) if "--outfile" in argv else Path(argv[-2])
         _write_gguf(output)
         return ToolRunResult(returncode=0)
 
@@ -243,10 +240,7 @@ def test_quality_matrix_report_is_deterministic_and_schema_valid(tmp_path: Path)
     toolchain = _toolchain(tmp_path)
 
     def runner(argv: tuple[str, ...]) -> ToolRunResult:
-        if "--outfile" in argv:
-            output = Path(argv[argv.index("--outfile") + 1])
-        else:
-            output = Path(argv[-2])
+        output = Path(argv[argv.index("--outfile") + 1]) if "--outfile" in argv else Path(argv[-2])
         _write_gguf(output)
         return ToolRunResult(returncode=0)
 

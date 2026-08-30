@@ -358,9 +358,7 @@ def _argv_shape(argv: Sequence[str]) -> tuple[str, ...]:
     for index, value in enumerate(argv):
         if index == 0:
             shape.append("tool")
-        elif value.startswith("--"):
-            shape.append(value)
-        elif index > 0 and argv[index - 1] in {"--outtype"}:
+        elif value.startswith("--") or (index > 0 and argv[index - 1] == "--outtype"):
             shape.append(value)
         else:
             shape.append("arg")

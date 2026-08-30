@@ -25,6 +25,15 @@ code = [
   "tree-sitter-javascript>=0.25,<0.26",
   "tree-sitter-typescript>=0.23.2,<0.24",
 ]
+tuning = [
+  "torch>=2.4,<3",
+  "transformers>=4.56,<6",
+  "accelerate>=1.10,<2",
+  "peft>=0.17,<1",
+  "trl>=0.20,<1",
+  "safetensors>=0.6,<1",
+]
+tuning-bnb = ["bitsandbytes>=0.47,<1"]
 dev = [
   "build>=1.2,<2",
   "jsonschema>=4.25,<5",

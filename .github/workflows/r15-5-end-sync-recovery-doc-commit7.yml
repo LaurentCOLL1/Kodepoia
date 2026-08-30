@@ -1,0 +1,53 @@
+name: R15.5 END Sync Recovery Docs Commit 7
+on:
+  push:
+    branches: [r15/05-end-sync-recovery]
+    paths: ['.github/workflows/r15-5-end-sync-recovery-doc-commit7.yml']
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/05-end-sync-recovery
+          fetch-depth: 0
+      - name: Apply canonical patch and normalize target lines
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          src = Path('.github/workflows/r15-5-end-sync-recovery-doc-commit5.yml').read_text(encoding='utf-8').splitlines()
+          marker = next(i for i, line in enumerate(src) if line.strip() == '- name: Apply canonical END recovery directly')
+          run_line = next(i for i in range(marker + 1, len(src)) if src[i].strip() == 'run: |')
+          code = []
+          for line in src[run_line + 1:]:
+              if not line.startswith('          '):
+                  break
+              code.append(line[10:])
+          exec(compile('\n'.join(code), 'r15-5-end-sync-recovery-doc-commit5', 'exec'), {})
+          patterns = {
+              'docs/roadmap/R15_5_DESIGN.md': (r'(?m)^\*\*Status:\*\* COMPLETE[^\S\r\n]*$', '**Status:** COMPLETE'),
+              'docs/roadmap/R15_5_ACCEPTANCE.md': (r'(?m)^\*\*Acceptance state:\*\* COMPLETE[^\S\r\n]*$', '**Acceptance state:** COMPLETE'),
+          }
+          for filename, (pattern, replacement) in patterns.items():
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              text, count = re.subn(pattern, replacement, text, count=1)
+              assert count == 1, (filename, count)
+              path.write_text(text, encoding='utf-8')
+      - name: Commit and push four END records
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_PLAN.md docs/roadmap/R15_5_DESIGN.md docs/roadmap/R15_5_ACCEPTANCE.md
+          actual="$(git diff --cached --name-only | sort)"
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R15_5_ACCEPTANCE.md\ndocs/roadmap/R15_5_DESIGN.md\ndocs/roadmap/R15_PLAN.md'
+          printf 'CACHED\n%s\n' "$actual"
+          test "$actual" = "$expected"
+          git diff --cached --check
+          git commit -m "docs(r15.5): recover missed END synchronization"
+          git push origin HEAD:r15/05-end-sync-recovery

@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r15-9-training-run.schema.json",
+  "title": "Kodepoia R15.9 Training Run Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "adapter_digest",
+    "adapter_path",
+    "blockers",
+    "checkpoint",
+    "eval_loss",
+    "packages",
+    "plan_digest",
+    "report_digest",
+    "run_id",
+    "schema",
+    "schema_version",
+    "source_sha",
+    "state",
+    "stderr",
+    "steps_completed",
+    "train_loss"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.r15.9.training-run"},
+    "schema_version": {"const": 1},
+    "state": {
+      "enum": ["succeeded", "failed", "cancelled", "timed_out", "budget_blocked", "unsupported"]
+    },
+    "plan_digest": {"$ref": "#/$defs/digest"},
+    "report_digest": {"$ref": "#/$defs/digest"},
+    "source_sha": {"$ref": "#/$defs/digest"},
+    "run_id": {"type": "string", "pattern": "^[0-9a-f]{16}$"},
+    "adapter_path": {"type": ["string", "null"], "minLength": 1, "maxLength": 1024},
+    "adapter_digest": {"anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]},
+    "checkpoint": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "base_model_digest",
+            "checkpoint_path",
+            "dataset_manifest_digest",
+            "plan_digest",
+            "state_digest",
+            "step",
+            "tokenizer_digest",
+            "train_split_digest"
+          ],
+          "properties": {
+            "base_model_digest": {"$ref": "#/$defs/digest"},
+            "checkpoint_path": {"type": "string", "minLength": 1, "maxLength": 1024},
+            "dataset_manifest_digest": {"$ref": "#/$defs/digest"},
+            "plan_digest": {"$ref": "#/$defs/digest"},
+            "state_digest": {"$ref": "#/$defs/digest"},
+            "step": {"type": "integer", "minimum": 0},
+            "tokenizer_digest": {"$ref": "#/$defs/digest"},
+            "train_split_digest": {"$ref": "#/$defs/digest"}
+          }
+        }
+      ]
+    },
+    "train_loss": {"type": ["number", "null"]},
+    "eval_loss": {"type": ["number", "null"]},
+    "steps_completed": {"type": "integer", "minimum": 0},
+    "packages": {
+      "type": "object",
+      "additionalProperties": {"type": ["string", "null"]}
+    },
+    "blockers": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 256},
+      "uniqueItems": true
+    },
+    "stderr": {"type": "string", "maxLength": 8192}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

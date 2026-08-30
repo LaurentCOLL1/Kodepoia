@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "header": {
+      "additionalProperties": false,
+      "properties": {
+        "metadata_kv_count": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "size_bytes": {
+          "minimum": 24,
+          "type": "integer"
+        },
+        "tensor_count": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "version": {
+          "enum": [2, 3]
+        }
+      },
+      "required": [
+        "version",
+        "tensor_count",
+        "metadata_kv_count",
+        "size_bytes",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "artifact": {
+      "additionalProperties": false,
+      "properties": {
+        "argv_shape": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "input_sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "operation": {
+          "enum": ["convert", "quantize"]
+        },
+        "output": {
+          "$ref": "#/$defs/header"
+        },
+        "quant_type": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "tool_revision": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation",
+        "quant_type",
+        "input_sha256",
+        "output",
+        "tool_revision",
+        "argv_shape"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://kodepoia.local/schemas/r15-12-gguf-conversion.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "binding": {
+      "additionalProperties": false,
+      "properties": {
+        "architecture": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "candidate_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "evaluation_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "export_manifest_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "source_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "source_kind": {
+          "enum": ["hf_directory", "gguf"]
+        },
+        "source_precision": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "source_quantization": {
+          "anyOf": [
+            {"type": "null"},
+            {"minLength": 1, "type": "string"}
+          ]
+        }
+      },
+      "required": [
+        "candidate_id",
+        "architecture",
+        "source_digest",
+        "export_manifest_digest",
+        "evaluation_digest",
+        "source_kind",
+        "source_precision",
+        "source_quantization"
+      ],
+      "type": "object"
+    },
+    "high_precision": {
+      "$ref": "#/$defs/artifact"
+    },
+    "report_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "schema": {
+      "const": "kodepoia.r15.12.gguf-conversion"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "variants": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact": {
+            "$ref": "#/$defs/artifact"
+          },
+          "quality": {
+            "additionalProperties": false,
+            "properties": {
+              "aggregate_loss": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              "critical_regressions": {
+                "items": {"type": "string"},
+                "type": "array"
+              },
+              "disposition": {
+                "enum": ["accept", "reject_quality", "reject_critical"]
+              }
+            },
+            "required": ["disposition", "aggregate_loss", "critical_regressions"],
+            "type": "object"
+          }
+        },
+        "required": ["artifact", "quality"],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "binding",
+    "high_precision",
+    "variants",
+    "report_digest"
+  ],
+  "title": "Kodepoia R15.12 GGUF conversion quality matrix",
+  "type": "object"
+}

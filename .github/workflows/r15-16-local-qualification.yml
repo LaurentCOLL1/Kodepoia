@@ -1,0 +1,88 @@
+name: R15.16 Hardware Local Qualification Acceptance
+
+on:
+  push:
+    branches:
+      - r15/16-hardware-local-qualification
+    paths:
+      - src/kodepoia/tuning/local_qualification.py
+      - scripts/r15_16_local_acceptance.py
+      - schemas/r15-16-local-qualification-v1.schema.json
+      - tests/test_r15_16_local_qualification.py
+      - tests/test_r15_16_schema.py
+      - docs/roadmap/R15_16_ACCEPTANCE.md
+      - .github/workflows/r15-16-local-qualification.yml
+  pull_request:
+    paths:
+      - src/kodepoia/tuning/local_qualification.py
+      - scripts/r15_16_local_acceptance.py
+      - schemas/r15-16-local-qualification-v1.schema.json
+      - tests/test_r15_16_local_qualification.py
+      - tests/test_r15_16_schema.py
+      - docs/roadmap/R15_16_ACCEPTANCE.md
+      - docs/roadmap/R15_PLAN.md
+      - docs/continuity/KODEPOIA_CONTINUITY.md
+      - .github/workflows/r15-16-local-qualification.yml
+
+permissions:
+  contents: read
+
+jobs:
+  qualification:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    env:
+      KODEPOIA_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+      - name: Verify exact checkout
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$KODEPOIA_SOURCE_SHA"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install core development dependencies only
+        run: python -m pip install -e ".[dev]"
+      - name: Compile R15.16 surface
+        run: >-
+          python -m compileall -q
+          src/kodepoia/tuning/local_qualification.py
+          scripts/r15_16_local_acceptance.py
+          tests/test_r15_16_local_qualification.py
+          tests/test_r15_16_schema.py
+      - name: Run focused R15.16 acceptance
+        run: >-
+          python -m pytest -q
+          tests/test_r15_16_local_qualification.py
+          tests/test_r15_16_schema.py
+      - name: Run non-mutating CI doctor
+        run: >-
+          python scripts/r15_16_local_acceptance.py
+          --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}"
+          --backend cpu
+          --output .kodepoia/r15_16_ci.json
+      - name: Validate report schema and provenance
+        run: >-
+          python -c "import json,os; import jsonschema;
+          from pathlib import Path;
+          report=json.loads(Path('.kodepoia/r15_16_ci.json').read_text(encoding='utf-8'));
+          schema=json.loads(Path('schemas/r15-16-local-qualification-v1.schema.json').read_text(encoding='utf-8'));
+          jsonschema.Draft202012Validator(schema).validate(report);
+          assert report['source']['actual_sha']==os.environ['KODEPOIA_SOURCE_SHA'];
+          assert report['source']['match'] is True;
+          assert report['status']=='pass';
+          assert report['policy']=={'ollama_required':False,'training_required':False}"
+      - name: Ruff R15.16-owned Python
+        run: >-
+          python -m ruff check
+          src/kodepoia/tuning/local_qualification.py
+          scripts/r15_16_local_acceptance.py
+          tests/test_r15_16_local_qualification.py
+          tests/test_r15_16_schema.py

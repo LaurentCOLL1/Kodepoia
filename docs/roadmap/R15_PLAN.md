@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.6 are COMPLETE + NORMALIZED. R15.7 is IN_PROGRESS on dedicated branch `r15/07-gap-diagnosis-train-decision` from normalized R15.6 `main` `9ef6f704d54332203e820cd2bd85e3b4ac86910a`; R15.8–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.6 are COMPLETE + NORMALIZED. R15.7 is COMPLETE on this documented END candidate after technical qualification of `a9a967289bbede1ffd155567f3caaa201d1af772`; fresh exact-head R15.7/R0/Python/UI gates, expected-head merge and one continuity-only normalization remain required before R15.8. R15.8–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -280,7 +280,7 @@ Before R15.1 implementation:
 | R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | COMPLETE | NONE | R15.1–R15.3 |
 | R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | COMPLETE | NONE | R15.1–R15.4 |
 | R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | COMPLETE + NORMALIZED | NONE | R15.1/R15.4–R15.5 + R3/R6 |
-| R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | IN_PROGRESS | NONE | R15.5–R15.6 + R3/R4/R7 |
+| R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | COMPLETE | NONE | R15.5–R15.6 + R3/R4/R7 |
 | R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | PLANNED | CONDITIONAL | R15.7 + R1/R6/R9 |
 | R15.9 | QLoRA/SFT adapter training, checkpoints, resume/cancel/recovery + budget controls | PLANNED | CONDITIONAL | R15.5/R15.7–R15.8 |
 | R15.10 | Base-vs-adapter evaluation, critical-regression veto + candidate disposition | PLANNED | NONE | R15.6/R15.9 |
@@ -727,7 +727,21 @@ Training used to paper over tool bugs; circular data sufficiency; mutable base t
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — technical acceptance recorded; fresh final-END gates required before merge.**
+
+- clean START / normalized R15.6 main: `9ef6f704d54332203e820cd2bd85e3b4ac86910a`;
+- START synchronization before implementation: `07593e95380df6fb43bda299b7de7295c614d17f`;
+- immutable technical source: `a9a967289bbede1ffd155567f3caaa201d1af772`;
+- R15.7 Acceptance #2 / `33299136312`: SUCCESS Ubuntu + Windows;
+- R0 Repository Guard #2134 / `33299136336`: SUCCESS Ubuntu + Windows;
+- Python Core #2109 / `33299136316`: SUCCESS 5/5;
+- KodeStudio UI Smoke #2074 / `33299136461`: SUCCESS;
+- deterministic ordered gates cover benchmark reproducibility, contamination validity, system diagnostics, data sufficiency, dataset/base licence, backend/budget and rollback readiness;
+- `FIX_SYSTEM_FIRST` precedes training/data/licence gates when a relevant system defect explains the measured gap;
+- R15.7 executes no training and mutates no model/router/tool state;
+- manual state: `NONE`;
+- the exact final documented END-head must receive fresh R15.7/R0/Python/UI evidence before protected merge; technical-source evidence is not reused for that decision.
+
 
 ---
 

@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.15 are COMPLETE + NORMALIZED. R15.16 is COMPLETE on immutable technical source `d492bfe53dd805aadcfa14193a2cf4fba1711276` from normalized R15.15 `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`; its documentary END-sync candidate must receive fresh exact-head R15.16 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before protected merge, after which the unique continuity-only normalization remains mandatory. R15.17 remains PLANNED and unauthorized.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED. R15.17 is IN_PROGRESS from normalized R15.16 `main` `eb7ba3e01af9d96e0a49abfb20424e83261c2b14` on dedicated branch `r15/17-adversarial-integrated-acceptance`. R16 planning remains unauthorized until R15.17 implementation/evidence merge and the unique post-merge R15 phase continuity-only normalization both complete.
 
 ## Purpose and authority
 
@@ -289,8 +289,8 @@ Before R15.1 implementation:
 | R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |
 | R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | COMPLETE + NORMALIZED | NONE | R15.10–R15.13 + R3/R8 |
 | R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | COMPLETE + NORMALIZED | NONE | R15.1–R15.14 |
-| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | COMPLETE | CONDITIONAL / NOT TRIGGERED | R15.1–R15.15 |
-| R15.17 | Adversarial integrated Experience/Bench/Fine-tuning acceptance | PLANNED | CONDITIONAL | R15.1–R15.16 |
+| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.1–R15.15 |
+| R15.17 | Adversarial integrated Experience/Bench/Fine-tuning acceptance | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R15.1–R15.16 |
 
 ---
 
@@ -1323,7 +1323,8 @@ Hardware support changing between ROCm/PyTorch/bitsandbytes versions; Windows-vs
 - current phase evidence does not require a real target-workstation training/conversion/promotion claim, so the conditional manual gate remains `CONDITIONAL / NOT TRIGGERED`; no user-side GPU command, credential, driver installation or destructive system action is required for this technical acceptance;
 - current external compatibility evidence remains advisory only: availability of a bitsandbytes ROCm wheel target does not override the actual PyTorch/HIP/device operation probe or vendor support state;
 - this END synchronization changes documentary authority only. Its exact resulting PR head MUST receive fresh R15.16 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`;
-- exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.17 START-sync is authorized.
+- unique continuity-only normalization head `f8b83089df9d89c5ca69a15f340190863108445a` passed R0 #2222 / `33338144362` SUCCESS Ubuntu + Windows, Python Core #2197 / `33338144262` SUCCESS 5/5 and KodeStudio UI Smoke #2162 / `33338144365` SUCCESS; normalization PR #329 merged with exact expected-head protection as normalized `main` `eb7ba3e01af9d96e0a49abfb20424e83261c2b14`;
+- R15.16 is therefore COMPLETE + NORMALIZED; manual state remains `CONDITIONAL / NOT TRIGGERED`, and R15.17 START-sync is authorized only from that exact normalized `main`.
 
 ---
 

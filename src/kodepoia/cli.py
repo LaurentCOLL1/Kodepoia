@@ -30,6 +30,7 @@ from kodepoia.mobile.r13_cli import register_r13_commands
 from kodepoia.project.dna import ApprovalPolicy, Dimension, Platform, ProjectType
 from kodepoia.project.initializer import ProjectInitializer
 from kodepoia.project.wizard import ProjectWizardState
+from kodepoia.tuning.r15_cli import register_r15_commands
 
 PRESELECTION_REPEATS = 4
 ACCEPTANCE_REPEATS = 5
@@ -382,6 +383,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_r11_commands(commands)
     register_r12_commands(commands)
     register_r13_commands(commands)
+    register_r15_commands(commands)
     return parser
 
 

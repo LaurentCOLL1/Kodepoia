@@ -1,6 +1,6 @@
 # R15.5 — Immutable dataset builder, deterministic splits and dataset cards
 
-**Status:** IMPLEMENTED / TECHNICAL GATES PENDING  
+**Status:** COMPLETE  
 **Normalized base:** `8744df5f3a408595693c67819a29f95b3a82f1d7`  
 **Clean START:** `4c9bee744e4c43ef130e50c4867ca3d467878c51`  
 **Manual state:** NONE
@@ -68,4 +68,4 @@ References:
 
 ## Technical evidence
 
-Pending fresh exact-head R15.5 acceptance on Ubuntu + Windows, followed by R0 Repository Guard, full Python Core and KodeStudio UI Smoke.
+Immutable technical source `1ecdfda67a23d8659e48e4c76f805a45a1560ec5` passed R15.5 #4 / `33288632868` Ubuntu + Windows, R0 #2102 / `33288632870`, Python Core #2077 / `33288632943` 5/5 and UI #2042 / `33288632867`. Pre-recovery END head `9cc528a3be1dba2f915b6383c1817191f78060d1` passed R15.5 #6 / `33288867382`, R0 #2103 / `33288867356`, Python #2078 / `33288867418` 5/5 and UI #2043 / `33288867394`, then PR #304 merged as `ceba5be8875e5eb9af62db202c050015be00e09a`. Because the intended END-sync helper did not update documentary authority before merge, this bounded recovery requires fresh exact-head R15.5/R0/Python/UI gates before its expected-head merge; no prior run is reused as recovery acceptance.

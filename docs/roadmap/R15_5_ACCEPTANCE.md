@@ -1,6 +1,6 @@
 # R15.5 — Acceptance record
 
-**Acceptance state:** IMPLEMENTED / TECHNICAL GATES PENDING  
+**Acceptance state:** COMPLETE  
 **Clean START:** `4c9bee744e4c43ef130e50c4867ca3d467878c51`  
 **Manual:** NONE
 
@@ -33,4 +33,4 @@ The focused acceptance must prove:
 
 ## Evidence
 
-Pending fresh exact-head R15.5 acceptance after completion of the full planned scope. No stale run or pre-correction SUCCESS claim is accepted as final evidence.
+Immutable technical source `1ecdfda67a23d8659e48e4c76f805a45a1560ec5`: R15.5 #4 / `33288632868` SUCCESS Ubuntu + Windows; R0 #2102 / `33288632870` SUCCESS; Python Core #2077 / `33288632943` SUCCESS 5/5; UI #2042 / `33288632867` SUCCESS. Pre-recovery END head `9cc528a3be1dba2f915b6383c1817191f78060d1`: R15.5 #6 / `33288867382` SUCCESS Ubuntu + Windows; R0 #2103 / `33288867356` SUCCESS; Python Core #2078 / `33288867418` SUCCESS 5/5; UI #2043 / `33288867394` SUCCESS. PR #304 merged that exact head as `ceba5be8875e5eb9af62db202c050015be00e09a`, but its intended END-sync helper did not synchronize plan/design/acceptance/continuity first. This recovery is non-laundering: fresh exact-head R15.5/R0/Python/UI evidence on this repaired documentary tree is required before recovery merge.

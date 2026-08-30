@@ -1,0 +1,177 @@
+{
+  "$defs": {
+    "digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "file": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "size_bytes": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "type": "object"
+    },
+    "files": {
+      "items": {
+        "$ref": "#/$defs/file"
+      },
+      "type": "array"
+    }
+  },
+  "$id": "https://kodepoia.local/schemas/r15-11-model-export.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "adapter": {
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "$ref": "#/$defs/files"
+        },
+        "tree_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "files",
+        "tree_digest"
+      ],
+      "type": "object"
+    },
+    "binding": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "adapter_license": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "base_license": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "base_model_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "base_model_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "base_model_revision": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "candidate_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "dataset_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "evaluation_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "training_plan_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "base_model_ref",
+        "base_model_revision",
+        "base_model_digest",
+        "adapter_digest",
+        "dataset_digest",
+        "training_plan_digest",
+        "evaluation_digest",
+        "base_license",
+        "adapter_license"
+      ],
+      "type": "object"
+    },
+    "manifest_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "merge": {
+      "additionalProperties": false,
+      "properties": {
+        "disposition": {
+          "enum": [
+            "not_requested",
+            "merged",
+            "unsupported"
+          ]
+        },
+        "files": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/files"
+            }
+          ]
+        }
+      },
+      "required": [
+        "disposition",
+        "files"
+      ],
+      "type": "object"
+    },
+    "model_card": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "const": "README.md"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "kodepoia.r15.11.model-export"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source_overwritten": {
+      "const": false
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "binding",
+    "adapter",
+    "merge",
+    "model_card",
+    "source_overwritten",
+    "manifest_digest"
+  ],
+  "title": "Kodepoia R15.11 model export manifest",
+  "type": "object"
+}

@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.3 are COMPLETE + NORMALIZED; normalized R15.3 `main` is `ffb5a830cce35334b3f62e69fae2e2c02c717080`. R15.4 is IN_PROGRESS on dedicated branch `r15/04-dedup-contamination`; R15.5–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.3 are COMPLETE + NORMALIZED. R15.4 is COMPLETE with immutable technical source `b82c7595f69f94e173a6e7893073585c9f8c1aae`; implementation merge + unique post-merge continuity-only normalization are pending. R15.5–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -277,7 +277,7 @@ Before R15.1 implementation:
 | R15.1 | Experience contracts, eligibility state machine + training-data trust boundary | COMPLETE | NONE | R14 COMPLETE + normalized R15 planning |
 | R15.2 | Governed validated-experience capture, outcome labeling + opt-in/source scope | COMPLETE | NONE | R15.1 + R1/R6/R8 |
 | R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | COMPLETE | NONE | R15.1–R15.2 + R6/R7/R8 |
-| R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | IN_PROGRESS | NONE | R15.1–R15.3 |
+| R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | COMPLETE | NONE | R15.1–R15.3 |
 | R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | PLANNED | NONE | R15.1–R15.4 |
 | R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | PLANNED | NONE | R15.1/R15.4–R15.5 + R3/R6 |
 | R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | PLANNED | NONE | R15.5–R15.6 + R3/R4/R7 |
@@ -530,7 +530,17 @@ Over-dedup destroying useful diversity; under-dedup leakage; normalization colli
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — implementation merge pending.**
+
+- clean START-head: `68a6d1a5d35430128db8fa450bd9afa4e0c7c36e`;
+- immutable technical source: `b82c7595f69f94e173a6e7893073585c9f8c1aae`;
+- technical R15.4 #7 / `33284070954`: SUCCESS Ubuntu + Windows, 68 cumulative tests per OS + Ruff + compile;
+- R0 #2092 / `33284070915`: SUCCESS Ubuntu + Windows;
+- Python Core #2067 / `33284070930`: SUCCESS 5/5;
+- KodeStudio UI Smoke #2032 / `33284070882`: SUCCESS;
+- manual state: `NONE`;
+- final clean END-head and its fresh exact-head gates remain mandatory before PR merge.
+
 
 ---
 

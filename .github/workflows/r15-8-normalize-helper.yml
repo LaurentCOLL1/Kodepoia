@@ -1,0 +1,52 @@
+name: R15.8 Continuity Normalization Helper
+on:
+  push:
+    branches: [r15/08-post-merge-normalization]
+    paths: ['.github/workflows/r15-8-normalize-helper.yml']
+permissions:
+  contents: write
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/08-post-merge-normalization
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Patch continuity only
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          text = path.read_text(encoding='utf-8')
+
+          old_top = "> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.7 COMPLETE + NORMALIZED; R15.8 COMPLETE / NORMALIZATION PENDING; R15.9–R15.17 PLANNED.** R15.8 immutable technical source `fa932e4a436004045074f417005b2edc038cfc87` passed R15.8 #5 / 33306096508 SUCCESS Ubuntu + Windows with 13 focused tests per OS plus Ruff/compile/CLI/schema checks. Fresh exact-END R15.8/R0/Python/UI gates, protected merge and the unique continuity-only post-merge normalization remain mandatory before R15.9. Manual state R15.8: CONDITIONAL / NOT TRIGGERED for core fixture/CI acceptance."
+          new_top = "> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.8 COMPLETE + NORMALIZED; R15.9–R15.17 PLANNED.** R15.8 final END-head `660dcc1194c925b4dcc5e139c59adc04a6b5ac45` passed R15.8 #11 / `33307477588`, R0 #2142 / `33307477529`, Python Core #2117 / `33307477555` 5/5 and UI #2082 / `33307477574` SUCCESS; PR #311 merged the exact expected head as `main` `2982d42493e6e433250c65721bf3b02f7bd815df`. This continuity-only record is the unique R15.8 post-merge normalization authority when merged. Manual state R15.8: CONDITIONAL / NOT TRIGGERED. R15.9 START is authorized only from the normalized main produced by this normalization PR."
+          assert text.count(old_top) == 1
+          text = text.replace(old_top, new_top, 1)
+
+          old_line = "- R15.8 : **COMPLETE / NORMALIZATION PENDING** — clean START / exact normalized R15.7 base `5de1cabd3e861e75204595de1819564c782a217d`; immutable technical source `fa932e4a436004045074f417005b2edc038cfc87`; R15.8 #5 / 33306096508 SUCCESS Ubuntu + Windows with 13 focused tests per OS plus Ruff/compile/CLI/schema checks. Core import remains free of heavy ML extras; requested CPU/CUDA/ROCm, dtype and NF4 paths are operation-probed rather than inferred; configured unknown disk/RAM measurements and insufficient/unknown accelerator VRAM fail closed before model load; argv/report redaction, timeout and KillSwitch paths are covered. Real local GPU/backend qualification remains CONDITIONAL / NOT TRIGGERED. R15.9 stays blocked until exact-END R15.8/R0/Python/UI gates, protected merge and unique post-merge continuity-only normalization."
+          new_line = "- R15.8 : **COMPLETE + NORMALIZED** — clean START / exact normalized R15.7 base `5de1cabd3e861e75204595de1819564c782a217d`; immutable technical source `fa932e4a436004045074f417005b2edc038cfc87`; final END-head `660dcc1194c925b4dcc5e139c59adc04a6b5ac45`; exact-END R15.8 #11 / `33307477588` SUCCESS Ubuntu + Windows, R0 #2142 / `33307477529` SUCCESS Ubuntu + Windows, Python Core #2117 / `33307477555` SUCCESS 5/5, UI #2082 / `33307477574` SUCCESS; PR #311 merged exact expected head as `main` `2982d42493e6e433250c65721bf3b02f7bd815df`. Core import remains free of heavy ML extras; CPU/CUDA/ROCm, dtype and NF4 support are bounded operation-probed; configured unknown disk/RAM and insufficient/unknown accelerator VRAM fail closed before model load; argv/report redaction, timeout and KillSwitch paths are covered. Manual local GPU/backend qualification remained CONDITIONAL / NOT TRIGGERED. This is the unique post-merge continuity-only R15.8 normalization authority when merged; R15.9 START is authorized only from the resulting normalized `main`."
+          assert text.count(old_line) == 1
+          text = text.replace(old_line, new_line, 1)
+          path.write_text(text, encoding='utf-8', newline='\n')
+      - name: Validate continuity-only scope
+        shell: bash
+        run: |
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+          actual="$(git diff --name-only -- docs/continuity/KODEPOIA_CONTINUITY.md)"
+          test "$actual" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+      - name: Commit normalization and remove helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r15-8-normalize-helper.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          git commit -m "docs(r15.8): normalize post-merge continuity"
+          git push origin HEAD:r15/08-post-merge-normalization

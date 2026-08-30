@@ -37,7 +37,9 @@ def _model() -> ModelBinding:
         model_revision="fixture-rev-1",
         model_digest=A,
         tokenizer_ref="fixture/tokenizer",
+        tokenizer_revision="fixture-tokenizer-rev-1",
         tokenizer_digest=B,
+        assistant_mask_capable=True,
     )
 
 
@@ -152,6 +154,23 @@ def test_train_and_validation_must_be_distinct() -> None:
         replace(_dataset(), train_path="data/same.jsonl", validation_path="data/same.jsonl")
 
 
+def test_loss_modes_fail_closed_without_compatible_dataset_or_template_capability() -> None:
+    base = _plan()
+    with pytest.raises(TrainingError, match="conversational dataset"):
+        replace(base, sft=replace(base.sft, assistant_only_loss=True))
+    conversational = replace(base.dataset, format="conversational")
+    incapable = replace(base.model, assistant_mask_capable=False)
+    with pytest.raises(TrainingError, match="generation-mask capability"):
+        replace(
+            base,
+            model=incapable,
+            dataset=conversational,
+            sft=replace(base.sft, assistant_only_loss=True, completion_only_loss=False),
+        )
+    with pytest.raises(TrainingError, match="prompt_completion"):
+        replace(base, dataset=replace(base.dataset, format="text"))
+
+
 def test_fixture_training_produces_valid_deterministic_safetensors_and_train_only_optimization(
     tmp_path: Path,
 ) -> None:
@@ -236,7 +255,12 @@ def test_worker_argv_never_contains_model_tokenizer_or_dataset_identifiers(tmp_p
 
 def test_sft_loss_mode_and_seed_configuration_are_digest_bound() -> None:
     base = _plan()
-    assistant = replace(base, sft=replace(base.sft, assistant_only_loss=True))
+    conversational = replace(base.dataset, format="conversational")
+    assistant = replace(
+        base,
+        dataset=conversational,
+        sft=replace(base.sft, assistant_only_loss=True, completion_only_loss=False),
+    )
     full_sequence = replace(base, sft=replace(base.sft, completion_only_loss=False))
     different_data_seed = replace(base, seeds=replace(base.seeds, data_seed=99))
     assert len({base.digest, assistant.digest, full_sequence.digest, different_data_seed.digest}) == 4

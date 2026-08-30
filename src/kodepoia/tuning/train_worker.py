@@ -175,7 +175,7 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
 
     tokenizer = AutoTokenizer.from_pretrained(
         model_cfg["tokenizer_ref"],
-        revision=model_cfg["model_revision"],
+        revision=model_cfg["tokenizer_revision"],
         trust_remote_code=False,
     )
     quantization_config = None

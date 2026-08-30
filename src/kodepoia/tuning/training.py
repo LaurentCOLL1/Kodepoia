@@ -86,22 +86,33 @@ class ModelBinding:
     model_revision: str
     model_digest: str
     tokenizer_ref: str
+    tokenizer_revision: str
     tokenizer_digest: str
+    assistant_mask_capable: bool | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "model_ref", _safe_ref("model_ref", self.model_ref))
         object.__setattr__(self, "model_revision", _safe_ref("model_revision", self.model_revision))
         object.__setattr__(self, "tokenizer_ref", _safe_ref("tokenizer_ref", self.tokenizer_ref))
+        object.__setattr__(
+            self,
+            "tokenizer_revision",
+            _safe_ref("tokenizer_revision", self.tokenizer_revision),
+        )
         _require_digest("model_digest", self.model_digest)
         _require_digest("tokenizer_digest", self.tokenizer_digest)
+        if self.assistant_mask_capable is not None and not isinstance(self.assistant_mask_capable, bool):
+            raise TrainingError("assistant_mask_capable must be bool or null")
 
-    def to_dict(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, object]:
         return {
+            "assistant_mask_capable": self.assistant_mask_capable,
             "model_digest": self.model_digest,
             "model_ref": self.model_ref,
             "model_revision": self.model_revision,
             "tokenizer_digest": self.tokenizer_digest,
             "tokenizer_ref": self.tokenizer_ref,
+            "tokenizer_revision": self.tokenizer_revision,
         }
 
 
@@ -114,6 +125,7 @@ class DatasetBinding:
     validation_export_digest: str
     train_rows: int
     validation_rows: int
+    format: str = "prompt_completion"
     train_path: str | None = None
     validation_path: str | None = None
 
@@ -128,6 +140,8 @@ class DatasetBinding:
             _require_digest(name, getattr(self, name))
         _bounded_int("train_rows", self.train_rows, minimum=1, maximum=10_000_000_000)
         _bounded_int("validation_rows", self.validation_rows, minimum=1, maximum=10_000_000_000)
+        if self.format not in {"text", "prompt_completion", "conversational"}:
+            raise TrainingError("dataset format must be text, prompt_completion or conversational")
         if self.train_export_digest == self.validation_export_digest:
             raise TrainingError("train and validation exports must be distinct")
         for name in ("train_path", "validation_path"):
@@ -143,6 +157,7 @@ class DatasetBinding:
         payload: dict[str, object] = {
             "dataset_digest": self.dataset_digest,
             "dataset_id": self.dataset_id,
+            "format": self.format,
             "manifest_digest": self.manifest_digest,
             "train_export_digest": self.train_export_digest,
             "train_rows": self.train_rows,
@@ -274,6 +289,13 @@ class TrainingPlan:
             raise TrainingError("QLoRA requires capability-probed NF4 quantization")
         if self.mode is TrainingMode.SFT and self.quantization is not QuantizationMode.NONE:
             raise TrainingError("non-QLoRA SFT must not silently enable quantization")
+        if self.sft.assistant_only_loss:
+            if self.dataset.format != "conversational":
+                raise TrainingError("assistant_only_loss requires a conversational dataset")
+            if self.model.assistant_mask_capable is not True:
+                raise TrainingError("assistant_only_loss requires verified generation-mask capability")
+        if self.sft.completion_only_loss and self.dataset.format != "prompt_completion":
+            raise TrainingError("completion_only_loss requires a prompt_completion dataset")
 
     def descriptor(self) -> dict[str, object]:
         return {
@@ -542,7 +564,11 @@ class TrainingRunner:
 
     def _load_checkpoint(self, path: Path) -> CheckpointRecord:
         payload = json.loads(path.read_text(encoding="utf-8"))
-        return CheckpointRecord.from_dict(payload)
+        record = CheckpointRecord.from_dict(payload)
+        artifact = self._inside(record.artifact_path)
+        if hashlib.sha256(artifact.read_bytes()).hexdigest() != record.artifact_digest:
+            raise TrainingError("resume checkpoint artifact digest mismatch")
+        return record
 
     def _validate_worker_report(
         self,

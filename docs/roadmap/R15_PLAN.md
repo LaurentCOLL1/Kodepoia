@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.3 are COMPLETE + NORMALIZED. R15.4 is COMPLETE with immutable technical source `b82c7595f69f94e173a6e7893073585c9f8c1aae`; implementation merge + unique post-merge continuity-only normalization are pending. R15.5–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.4 are COMPLETE + NORMALIZED. R15.5 is IN_PROGRESS from normalized R15.4 `main` `8744df5f3a408595693c67819a29f95b3a82f1d7` on dedicated branch `r15/05-immutable-dataset-builder`; R15.6–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -278,7 +278,7 @@ Before R15.1 implementation:
 | R15.2 | Governed validated-experience capture, outcome labeling + opt-in/source scope | COMPLETE | NONE | R15.1 + R1/R6/R8 |
 | R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | COMPLETE | NONE | R15.1–R15.2 + R6/R7/R8 |
 | R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | COMPLETE | NONE | R15.1–R15.3 |
-| R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | PLANNED | NONE | R15.1–R15.4 |
+| R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | IN_PROGRESS | NONE | R15.1–R15.4 |
 | R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | PLANNED | NONE | R15.1/R15.4–R15.5 + R3/R6 |
 | R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | PLANNED | NONE | R15.5–R15.6 + R3/R4/R7 |
 | R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | PLANNED | CONDITIONAL | R15.7 + R1/R6/R9 |
@@ -530,7 +530,7 @@ Over-dedup destroying useful diversity; under-dedup leakage; normalization colli
 
 ## Completion record
 
-**COMPLETE — implementation merge pending.**
+**COMPLETE.**
 
 - clean START-head: `68a6d1a5d35430128db8fa450bd9afa4e0c7c36e`;
 - immutable technical source: `b82c7595f69f94e173a6e7893073585c9f8c1aae`;
@@ -539,7 +539,9 @@ Over-dedup destroying useful diversity; under-dedup leakage; normalization colli
 - Python Core #2067 / `33284070930`: SUCCESS 5/5;
 - KodeStudio UI Smoke #2032 / `33284070882`: SUCCESS;
 - manual state: `NONE`;
-- final clean END-head and its fresh exact-head gates remain mandatory before PR merge.
+- final END-head: `e91a2f18ef79f66672e42bdf04ad4d731ec7bf8d`; exact-END R15.4 #16 / `33284334173`, R0 #2097 / `33284334475`, Python Core #2072 / `33284334142`, and KodeStudio UI Smoke #2037 / `33284334250` all SUCCESS;
+- PR #302 merged with `expected_head_sha=e91a2f18ef79f66672e42bdf04ad4d731ec7bf8d` as `195920e06fb6487fe58be4247ba9b90a75b96dad`;
+- unique continuity-only normalization head `8aee5b6f69c61c513e0c3dcd56cba1035c365d18` passed R0 #2099 / `33287315588`, Python Core #2074 / `33287315591`, and UI #2039 / `33287315606`; normalization PR #303 merged with exact expected head as normalized `main` `8744df5f3a408595693c67819a29f95b3a82f1d7`.
 
 
 ---

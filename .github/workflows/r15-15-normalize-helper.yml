@@ -1,0 +1,66 @@
+name: R15.15 post-merge normalization helper
+
+on:
+  push:
+    branches:
+      - r15/15-normalize
+    paths:
+      - .github/workflows/r15-15-normalize-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/15-normalize
+          fetch-depth: 0
+      - name: Normalize R15.15 continuity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          text = path.read_text(encoding='utf-8')
+
+          old_header = "> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.14 COMPLETE + NORMALIZED; R15.15 COMPLETE / END-SYNC RE-GATES PENDING; R15.16–R15.17 PLANNED.** R15.15 normalized base `ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e`; immutable technical source `7ede682ec2c21d89e42886a5774115278b0fbb2c` passed R15.15 #5 / `33335194725` Ubuntu + Windows, R0 #2212 / `33335194680` Ubuntu + Windows, Python Core #2187 / `33335194694` 5/5 and KodeStudio UI Smoke #2152 / `33335194748`. PR #326 carries the implementation/evidence source; this END synchronization creates a new exact PR head that must receive fresh R15.15 + R0 + Python Core + KodeStudio UI Smoke before expected-head merge. Manual state R15.15: NONE. R15.16 remains unauthorized until the implementation merge and unique continuity-only post-merge normalization both complete."
+          new_header = "> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.14 COMPLETE + NORMALIZED; R15.15 COMPLETE / NORMALIZATION PENDING; R15.16–R15.17 PLANNED.** R15.15 final exact END-head `5d1f6f5761f46dd911eee99c4088dd19abf9d0cb` passed R15.15 #12 / `33336221022` Ubuntu + Windows, R0 #2216 / `33336220940` Ubuntu + Windows, Python Core #2191 / `33336220978` 5/5 and KodeStudio UI Smoke #2156 / `33336220979`; PR #326 merged with exact expected-head protection as implementation/evidence `main` `38de802865ca66f6c9b37589b0895821b652f0a9`. This branch is the unique continuity-only post-merge normalization authority and must pass fresh exact-head R0 + full Python Core + KodeStudio UI Smoke before expected-head merge. Manual state R15.15: NONE. R15.16 remains unauthorized until this normalization PR merges."
+          if old_header not in text:
+              raise SystemExit('R15.15 authority header not found')
+          text = text.replace(old_header, new_header, 1)
+
+          old_row = '| R15.15 | COMPLETE | NONE |'
+          new_row = '| R15.15 | COMPLETE / NORMALIZATION PENDING | NONE |'
+          if old_row not in text:
+              raise SystemExit('R15.15 status row not found')
+          text = text.replace(old_row, new_row, 1)
+
+          old_bullet = "- R15.15 : **COMPLETE / END-SYNC RE-GATES PENDING** — clean START / normalized R15.14 base `ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e`; immutable technical source `7ede682ec2c21d89e42886a5774115278b0fbb2c`; technical exact-head R15.15 #5 / `33335194725` SUCCESS Ubuntu + Windows, R0 #2212 / `33335194680` SUCCESS Ubuntu + Windows, Python Core #2187 / `33335194694` SUCCESS 5/5 and KodeStudio UI Smoke #2152 / `33335194748` SUCCESS. The accepted surface provides typed Experience/Dataset/Bench/Gap/Training/Conversion/Ollama/Registry workflows, non-mutating dry-run defaults, explicit mutation confirmation, fail-closed absent backends, project-scoped SHA-256 evidence with recursive redaction, accessible FR/EN/pseudo KodeStudio controls and worker-thread execution for governed long operations. PR #326 carries the implementation. This documentary END-sync changes the PR head, so fresh exact-head R15.15 + R0 + full Python Core + KodeStudio UI Smoke are mandatory before merge with expected-head protection. Manual NONE. Exactly one continuity-only post-merge normalization must then merge before R15.16 START-sync is authorized."
+          new_bullet = "- R15.15 : **COMPLETE / NORMALIZATION PENDING** — normalized R15.14 base `ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e`; immutable technical source `7ede682ec2c21d89e42886a5774115278b0fbb2c`; final exact END-head `5d1f6f5761f46dd911eee99c4088dd19abf9d0cb`; exact-END R15.15 #12 / `33336221022` SUCCESS Ubuntu + Windows, R0 #2216 / `33336220940` SUCCESS Ubuntu + Windows, Python Core #2191 / `33336220978` SUCCESS 5/5 and KodeStudio UI Smoke #2156 / `33336220979` SUCCESS. The accepted surface provides typed Experience/Dataset/Bench/Gap/Training/Conversion/Ollama/Registry workflows, non-mutating dry-run defaults, explicit mutation confirmation, fail-closed absent backends, project-scoped SHA-256 evidence with recursive redaction, accessible FR/EN/pseudo KodeStudio controls and worker-thread execution for governed long operations. PR #326 merged with `expected_head_sha=5d1f6f5761f46dd911eee99c4088dd19abf9d0cb` as implementation/evidence `main` `38de802865ca66f6c9b37589b0895821b652f0a9`. Manual NONE. This record is the unique post-merge continuity-only normalization authority; it becomes COMPLETE + NORMALIZED only after this normalization head passes fresh R0/Python/UI and the normalization PR merges with exact expected-head protection. R15.16 remains unauthorized until then."
+          if old_bullet not in text:
+              raise SystemExit('R15.15 status bullet not found')
+          text = text.replace(old_bullet, new_bullet, 1)
+
+          old_next = "**R15.15 only: treat the END-sync result as the final PR candidate; require fresh exact-head R15.15 Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke on that exact SHA, then merge PR #326 only with `expected_head_sha`. After merge, create exactly one continuity-only normalization, re-run fresh R0/Python/UI, and merge it. R15.16 remains unauthorized until that normalization merge completes. Manual state: NONE.**"
+          new_next = "**R15.15 normalization only: this branch must change only `docs/continuity/KODEPOIA_CONTINUITY.md`; require fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, then merge the single normalization PR only with `expected_head_sha`. R15.16 START-sync is authorized only from the normalized `main` produced by that merge. Manual state: NONE.**"
+          if old_next not in text:
+              raise SystemExit('R15.15 next action not found')
+          text = text.replace(old_next, new_next, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          rm .github/workflows/r15-15-normalize-helper.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r15-15-normalize-helper.yml
+          test "$(git diff --cached --name-only | wc -l)" -eq 2
+          git diff --cached --name-only | grep -Fx '.github/workflows/r15-15-normalize-helper.yml'
+          git diff --cached --name-only | grep -Fx 'docs/continuity/KODEPOIA_CONTINUITY.md'
+          git commit -m "docs(r15.15): normalize post-merge continuity"
+          git push origin HEAD:r15/15-normalize

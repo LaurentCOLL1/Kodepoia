@@ -176,8 +176,10 @@ def create_r15_tuning_page(
         def run(self) -> None:
             try:
                 self.finished.emit(ux.execute(self.request))
-            except Exception as exc:  # UI boundary converts failures into redacted status text.
+            except R15UXPolicyError as exc:
                 self.failed.emit(str(exc))
+            except Exception:
+                self.failed.emit("unexpected backend failure")
 
     def finish_thread() -> None:
         page._r15_worker = None

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 
 import pytest
 
@@ -77,9 +78,13 @@ def test_r15_ui_dry_run_is_non_mutating_and_runs_off_ui_thread(tmp_path) -> None
     QApplication.processEvents()
     identifier.setText("train.plan.1")
     dry_run.click()
-    thread = window.findChild(QWidget, "r15TuningPage")._r15_thread
-    assert thread is not None
-    assert thread.wait(3000)
+    page = window.findChild(QWidget, "r15TuningPage")
+    assert page._r15_thread is not None
+    deadline = time.monotonic() + 3.0
+    while page._r15_thread is not None and time.monotonic() < deadline:
+        QApplication.processEvents()
+        time.sleep(0.01)
+    assert page._r15_thread is None
     QApplication.processEvents()
 
     payload = json.loads(result.toPlainText())
@@ -115,9 +120,13 @@ def test_r15_ui_confirmed_apply_uses_typed_handler_and_redacts_result(tmp_path) 
     identifier.setText("candidate.1")
     confirm.setChecked(True)
     execute.click()
-    thread = window.findChild(QWidget, "r15TuningPage")._r15_thread
-    assert thread is not None
-    assert thread.wait(3000)
+    page = window.findChild(QWidget, "r15TuningPage")
+    assert page._r15_thread is not None
+    deadline = time.monotonic() + 3.0
+    while page._r15_thread is not None and time.monotonic() < deadline:
+        QApplication.processEvents()
+        time.sleep(0.01)
+    assert page._r15_thread is None
     QApplication.processEvents()
 
     payload = json.loads(result.toPlainText())

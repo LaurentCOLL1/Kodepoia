@@ -213,8 +213,11 @@ def _safe_path(root: Path, value: Path) -> str:
 
 
 def _redact(root: Path, value: object, *, key: str | None = None) -> object:
-    key_l = (key or "").lower()
-    if any(token in key_l for token in _SENSITIVE_KEYS):
+    key_l = (key or "").lower().replace("-", "_")
+    sensitive = key_l in _SENSITIVE_KEYS or key_l.endswith(
+        ("_api_key", "_password", "_private_key", "_secret", "_token")
+    )
+    if sensitive:
         return "<redacted>"
     if isinstance(value, Mapping):
         return {str(k): _redact(root, v, key=str(k)) for k, v in value.items()}
@@ -222,7 +225,7 @@ def _redact(root: Path, value: object, *, key: str | None = None) -> object:
         return [_redact(root, item) for item in value]
     if isinstance(value, Path):
         return _safe_path(root, value)
-    if isinstance(value, str) and key_l in _PATH_KEYS:
+    if isinstance(value, str) and (key_l in _PATH_KEYS or key_l.endswith("_path")):
         return _safe_path(root, Path(value))
     return value
 

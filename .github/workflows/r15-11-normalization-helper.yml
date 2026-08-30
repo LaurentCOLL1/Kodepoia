@@ -1,0 +1,46 @@
+name: R15.11 Normalization Helper
+
+on:
+  push:
+    branches: [r15/11-normalization]
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/11-normalization
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply bounded continuity-only normalization
+        run: python .github/scripts/r15_11_normalize.py
+      - name: Verify and publish normalized continuity head
+        shell: bash
+        run: |
+          rm .github/scripts/r15_11_normalize.py
+          rm .github/workflows/r15-11-normalization-helper.yml
+          actual="$(git diff --name-only | grep -v '^docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json$' | sort)"
+          expected="$(printf '%s\n' \
+            '.github/scripts/r15_11_normalize.py' \
+            '.github/workflows/r15-11-normalization-helper.yml' \
+            'docs/continuity/KODEPOIA_CONTINUITY.md' | sort)"
+          test "$actual" = "$expected" || {
+            echo 'Unexpected normalization diff:'
+            git diff --name-only
+            exit 1
+          }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git rm .github/scripts/r15_11_normalize.py .github/workflows/r15-11-normalization-helper.yml
+          staged="$(git diff --cached --name-only | sort)"
+          test "$staged" = "$expected"
+          git diff --cached --check
+          git commit -m 'docs(r15.11): normalize post-merge continuity'
+          git push origin HEAD:r15/11-normalization

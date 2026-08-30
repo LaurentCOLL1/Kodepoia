@@ -18,3 +18,5 @@ Manual intervention: NONE.
 - manual state: `NONE`
 
 The technical run is evidence for the immutable source only. The final documentary END-head created by this synchronization must receive fresh R15.14 + R0 + Python Core + KodeStudio UI Smoke evidence before PR #324 may merge.
+
+Fresh exact-END gates are intentionally triggered by this repository-authored documentary commit; no implementation bytes change after technical-source acceptance.

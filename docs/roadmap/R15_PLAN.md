@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.4 are COMPLETE + NORMALIZED. R15.5 is COMPLETE on this bounded END-sync recovery candidate after implementation merge `ceba5be8875e5eb9af62db202c050015be00e09a`; fresh exact-head recovery gates and an expected-head recovery merge remain required, followed by the unique continuity-only normalization before R15.6. R15.6–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.5 are COMPLETE + NORMALIZED. R15.6 is COMPLETE on this documented END candidate after technical qualification of `ae856396faa964fee19ee39e461bc7de4e775cd9`; fresh exact-head R15.6/R0/Python/UI gates, expected-head merge and one continuity-only normalization remain required before R15.7. R15.7–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -279,7 +279,7 @@ Before R15.1 implementation:
 | R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | COMPLETE | NONE | R15.1–R15.2 + R6/R7/R8 |
 | R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | COMPLETE | NONE | R15.1–R15.3 |
 | R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | COMPLETE | NONE | R15.1–R15.4 |
-| R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | PLANNED | NONE | R15.1/R15.4–R15.5 + R3/R6 |
+| R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | COMPLETE | NONE | R15.1/R15.4–R15.5 + R3/R6 |
 | R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | PLANNED | NONE | R15.5–R15.6 + R3/R4/R7 |
 | R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | PLANNED | CONDITIONAL | R15.7 + R1/R6/R9 |
 | R15.9 | QLoRA/SFT adapter training, checkpoints, resume/cancel/recovery + budget controls | PLANNED | CONDITIONAL | R15.5/R15.7–R15.8 |
@@ -662,7 +662,18 @@ Benchmark overfitting; brittle string matching; hidden test leakage; aggregate s
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — technical acceptance recorded; fresh final-END gates required before merge.**
+
+- clean START / normalized R15.5 branch point: `097e99db28508cd1c53eadfe00b2b33576a445af`;
+- continuity START-sync preceded implementation; `R15_PLAN.md` START checkpoint/table was stale and is repaired truthfully here rather than retroactively claimed;
+- immutable technical source: `ae856396faa964fee19ee39e461bc7de4e775cd9`;
+- R15.6 #2 / `33295649414`: SUCCESS Ubuntu + Windows, 17 combined R3/R15.6 tests per OS plus schema/Ruff/import/compile/CLI checks;
+- R0 #2124 / `33295649494`: SUCCESS Ubuntu + Windows;
+- Python Core #2099 / `33295649527`: SUCCESS 5/5;
+- KodeStudio UI Smoke #2064 / `33295649458`: SUCCESS;
+- manual state: `NONE`;
+- the exact final documented END-head must receive fresh R15.6/R0/Python/UI evidence before protected merge; technical-source evidence is not reused for that decision.
+
 
 ---
 

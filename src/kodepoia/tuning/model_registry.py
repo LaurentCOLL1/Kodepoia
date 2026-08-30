@@ -6,10 +6,11 @@ import json
 import os
 import re
 import tempfile
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable, Mapping
+from typing import Any
 
 from kodepoia.core.safe_change import SafeChangeManager
 from kodepoia.models.router import ModelRegistry, ModelRole, ModelSpec
@@ -81,7 +82,7 @@ class ModelArtifactVariant:
         }
 
     @classmethod
-    def from_document(cls, value: Mapping[str, Any]) -> "ModelArtifactVariant":
+    def from_document(cls, value: Mapping[str, Any]) -> ModelArtifactVariant:
         return cls(
             kind=ModelArtifactKind(value["kind"]),
             artifact_id=str(value["artifact_id"]),
@@ -149,7 +150,7 @@ class SpecializedModelVersion:
                 return variant
         raise KeyError(wanted.value)
 
-    def with_state(self, state: ModelVersionState) -> "SpecializedModelVersion":
+    def with_state(self, state: ModelVersionState) -> SpecializedModelVersion:
         return SpecializedModelVersion(
             version_id=self.version_id,
             candidate_id=self.candidate_id,
@@ -183,7 +184,7 @@ class SpecializedModelVersion:
         }
 
     @classmethod
-    def from_document(cls, value: Mapping[str, Any]) -> "SpecializedModelVersion":
+    def from_document(cls, value: Mapping[str, Any]) -> SpecializedModelVersion:
         record = cls(
             version_id=str(value["version_id"]),
             candidate_id=str(value["candidate_id"]),

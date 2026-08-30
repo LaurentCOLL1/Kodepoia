@@ -1,0 +1,72 @@
+name: R15.9 START Sync Helper
+on:
+  push:
+    branches: [r15/09-qlora-sft-training]
+    paths: ['.github/workflows/r15-9-start-sync-helper.yml']
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/09-qlora-sft-training
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Patch R15.9 START authority
+        shell: python
+        run: |
+          from pathlib import Path
+
+          normalized_main = '4c1c726301b5a5f798944632336e130ccfb0cbbe'
+          normalization_head = 'ed15fde2e69deaa5bcebcc80ed41972ae5564f12'
+
+          plan_path = Path('docs/roadmap/R15_PLAN.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          old_checkpoint = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.7 are COMPLETE + NORMALIZED. R15.8 is COMPLETE on immutable technical source `fa932e4a436004045074f417005b2edc038cfc87` with R15.8 #5 / 33306096508 SUCCESS Ubuntu + Windows (13 focused tests per OS + Ruff + compile + CLI/schema checks); fresh exact-END R15.8/R0/Python/UI gates, protected merge and the unique post-merge continuity-only normalization remain required before R15.9. R15.9–R15.17 remain PLANNED.'
+          new_checkpoint = f'**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.8 are COMPLETE + NORMALIZED. R15.8 final END-head `660dcc1194c925b4dcc5e139c59adc04a6b5ac45` passed R15.8 #11 / `33307477588`, R0 #2142 / `33307477529`, Python Core #2117 / `33307477555` 5/5 and UI #2082 / `33307477574`; implementation PR #311 merged as `2982d42493e6e433250c65721bf3b02f7bd815df`; continuity-only normalization head `{normalization_head}` passed R0 #2144 / `33307644601`, Python Core #2119 / `33307644597` 5/5 and UI #2084 / `33307644534`; PR #312 merged to normalized `main` `{normalized_main}`. R15.9 is IN_PROGRESS from that exact normalized main; R15.10–R15.17 remain PLANNED.'
+          assert plan.count(old_checkpoint) == 1
+          plan = plan.replace(old_checkpoint, new_checkpoint, 1)
+          old_r8 = '| R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | COMPLETE | CONDITIONAL | R15.7 + R1/R6/R9 |'
+          new_r8 = '| R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.7 + R1/R6/R9 |'
+          old_r9 = '| R15.9 | QLoRA/SFT adapter training, checkpoints, resume/cancel/recovery + budget controls | PLANNED | CONDITIONAL | R15.5/R15.7–R15.8 |'
+          new_r9 = '| R15.9 | QLoRA/SFT adapter training, checkpoints, resume/cancel/recovery + budget controls | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED for bounded fixture acceptance | R15.5/R15.7–R15.8 |'
+          assert plan.count(old_r8) == 1 and plan.count(old_r9) == 1
+          plan = plan.replace(old_r8, new_r8, 1).replace(old_r9, new_r9, 1)
+          plan_path.write_text(plan, encoding='utf-8', newline='\n')
+
+          continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          continuity = continuity_path.read_text(encoding='utf-8')
+          old_top = '> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.8 COMPLETE + NORMALIZED; R15.9–R15.17 PLANNED.** R15.8 final END-head `660dcc1194c925b4dcc5e139c59adc04a6b5ac45` passed R15.8 #11 / `33307477588`, R0 #2142 / `33307477529`, Python Core #2117 / `33307477555` 5/5 and UI #2082 / `33307477574` SUCCESS; PR #311 merged the exact expected head as `main` `2982d42493e6e433250c65721bf3b02f7bd815df`. This continuity-only record is the unique R15.8 post-merge normalization authority when merged. Manual state R15.8: CONDITIONAL / NOT TRIGGERED. R15.9 START is authorized only from the normalized main produced by this normalization PR.'
+          new_top = f'> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.8 COMPLETE + NORMALIZED; R15.9 IN_PROGRESS; R15.10–R15.17 PLANNED.** R15.8 implementation PR #311 merged exact END-head `660dcc1194c925b4dcc5e139c59adc04a6b5ac45`; unique continuity-only normalization head `{normalization_head}` passed R0 #2144 / `33307644601`, Python Core #2119 / `33307644597` 5/5 and UI #2084 / `33307644534`, then PR #312 merged to normalized `main` `{normalized_main}`. R15.9 START-sync is active from that exact main. Manual R15.9: CONDITIONAL / NOT TRIGGERED for bounded repository-owned fixture acceptance.'
+          assert continuity.count(old_top) == 1
+          continuity = continuity.replace(old_top, new_top, 1)
+          old_line = '- R15.8 : **COMPLETE + NORMALIZED** — clean START / exact normalized R15.7 base `5de1cabd3e861e75204595de1819564c782a217d`; immutable technical source `fa932e4a436004045074f417005b2edc038cfc87`; final END-head `660dcc1194c925b4dcc5e139c59adc04a6b5ac45`; exact-END R15.8 #11 / `33307477588` SUCCESS Ubuntu + Windows, R0 #2142 / `33307477529` SUCCESS Ubuntu + Windows, Python Core #2117 / `33307477555` SUCCESS 5/5, UI #2082 / `33307477574` SUCCESS; PR #311 merged exact expected head as `main` `2982d42493e6e433250c65721bf3b02f7bd815df`. Core import remains free of heavy ML extras; CPU/CUDA/ROCm, dtype and NF4 support are bounded operation-probed; configured unknown disk/RAM and insufficient/unknown accelerator VRAM fail closed before model load; argv/report redaction, timeout and KillSwitch paths are covered. Manual local GPU/backend qualification remained CONDITIONAL / NOT TRIGGERED. This is the unique post-merge continuity-only R15.8 normalization authority when merged; R15.9 START is authorized only from the resulting normalized `main`.'
+          new_line = f'- R15.8 : **COMPLETE + NORMALIZED** — clean START / exact normalized R15.7 base `5de1cabd3e861e75204595de1819564c782a217d`; immutable technical source `fa932e4a436004045074f417005b2edc038cfc87`; final END-head `660dcc1194c925b4dcc5e139c59adc04a6b5ac45`; exact-END R15.8 #11 / `33307477588` SUCCESS Ubuntu + Windows, R0 #2142 / `33307477529` SUCCESS Ubuntu + Windows, Python Core #2117 / `33307477555` SUCCESS 5/5, UI #2082 / `33307477574` SUCCESS; PR #311 merged exact expected head as `main` `2982d42493e6e433250c65721bf3b02f7bd815df`; unique normalization head `{normalization_head}` passed R0 #2144 / `33307644601`, Python Core #2119 / `33307644597` SUCCESS 5/5 and UI #2084 / `33307644534` SUCCESS; PR #312 merged to normalized `main` `{normalized_main}`. Manual local GPU/backend qualification remained CONDITIONAL / NOT TRIGGERED.'
+          assert continuity.count(old_line) == 1
+          continuity = continuity.replace(old_line, new_line, 1)
+          marker = new_line + '\n'
+          r9_line = f'- R15.9 : **IN_PROGRESS** — clean START / exact normalized R15.8 `main` `{normalized_main}`; branch `r15/09-qlora-sft-training`; scope is QLoRA/SFT adapter training orchestration, deterministic TrainingPlan, checkpoint/resume/cancel/recovery, bounded resource controls and repository-owned tiny fixture acceptance. Real large-model/GPU training remains CONDITIONAL / NOT TRIGGERED unless later acceptance explicitly requires it.'
+          assert continuity.count(marker) == 1
+          continuity = continuity.replace(marker, marker + r9_line + '\n', 1)
+          continuity_path.write_text(continuity, encoding='utf-8', newline='\n')
+      - name: Validate bounded START sync
+        shell: bash
+        run: |
+          git diff --check -- docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R15_PLAN.md'
+          actual="$(git diff --name-only -- docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_PLAN.md | sort)"
+          test "$actual" = "$expected"
+      - name: Commit START sync and remove helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r15-9-start-sync-helper.yml
+          git add docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          git commit -m "docs(r15.9): synchronize subdivision start"
+          git push origin HEAD:r15/09-qlora-sft-training

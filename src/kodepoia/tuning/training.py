@@ -395,6 +395,7 @@ class TrainingReport:
     validation_rows: int
     optimized_splits: tuple[str, ...]
     framework_versions: tuple[tuple[str, str | None], ...]
+    resource_maxima: tuple[tuple[str, int | float | None], ...]
     resumed_from: str | None
     blockers: tuple[str, ...] = ()
     stderr: str = ""
@@ -415,6 +416,14 @@ class TrainingReport:
         names = [name for name, _ in self.framework_versions]
         if names != sorted(names) or len(names) != len(set(names)):
             raise TrainingError("framework_versions must be unique and sorted")
+        resource_names = tuple(name for name, _ in self.resource_maxima)
+        if resource_names != ("peak_ram_bytes", "peak_vram_bytes", "wall_seconds"):
+            raise TrainingError("resource_maxima must contain the canonical three metrics")
+        for name, value in self.resource_maxima:
+            if value is not None and (
+                isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0
+            ):
+                raise TrainingError(f"resource_maxima {name} must be non-negative numeric or null")
 
     def descriptor(self) -> dict[str, object]:
         return {
@@ -427,6 +436,7 @@ class TrainingReport:
             "framework_versions": {name: version for name, version in self.framework_versions},
             "optimized_splits": list(self.optimized_splits),
             "plan_digest": self.plan_digest,
+            "resource_maxima": {name: value for name, value in self.resource_maxima},
             "resumed_from": self.resumed_from,
             "run_id": self.run_id,
             "schema": self.schema,
@@ -588,6 +598,7 @@ class TrainingRunner:
             "framework_versions",
             "optimized_splits",
             "plan_digest",
+            "resource_maxima",
             "train_loss",
             "train_rows",
             "validation_rows",
@@ -620,6 +631,10 @@ class TrainingRunner:
             )
         )
         optimized = tuple(str(item) for item in output["optimized_splits"])
+        resources_raw = output["resource_maxima"]
+        if not isinstance(resources_raw, dict):
+            raise TrainingError("resource_maxima must be an object")
+        resource_maxima = tuple(sorted((str(name), value) for name, value in resources_raw.items()))
         report = TrainingReport(
             plan_digest=plan.digest,
             run_id=plan.run_id,
@@ -634,6 +649,7 @@ class TrainingRunner:
             validation_rows=int(output["validation_rows"]),
             optimized_splits=tuple(sorted(optimized)),
             framework_versions=versions,
+            resource_maxima=resource_maxima,
             resumed_from=resumed_from,
             stderr=stderr,
         )
@@ -668,6 +684,7 @@ class TrainingRunner:
             validation_rows=plan.dataset.validation_rows,
             optimized_splits=(),
             framework_versions=(("python", platform.python_version()),),
+            resource_maxima=(("peak_ram_bytes", None), ("peak_vram_bytes", None), ("wall_seconds", 0.0)),
             resumed_from=None,
             blockers=blockers or (state.value,),
             stderr=stderr,

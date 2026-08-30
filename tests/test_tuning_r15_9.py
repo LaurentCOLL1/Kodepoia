@@ -184,6 +184,10 @@ def test_fixture_training_produces_valid_deterministic_safetensors_and_train_onl
     assert first.train_rows == 8
     assert first.validation_rows == 3
     assert first.completed_steps == 4
+    maxima = dict(first.resource_maxima)
+    assert maxima["peak_ram_bytes"] is not None and maxima["peak_ram_bytes"] >= 0
+    assert maxima["peak_vram_bytes"] is None
+    assert maxima["wall_seconds"] is not None and maxima["wall_seconds"] >= 0
     assert [item.step for item in first.checkpoints] == [2, 4]
     assert first.adapter_path is not None
     adapter = tmp_path / first.adapter_path

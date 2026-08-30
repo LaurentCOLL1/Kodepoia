@@ -6,6 +6,8 @@ import json
 import math
 import struct
 import sys
+import time
+import tracemalloc
 from pathlib import Path
 from typing import Any
 
@@ -98,6 +100,8 @@ def _checkpoint(
 
 
 def _run_fixture(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, object]:
+    started = time.monotonic()
+    tracemalloc.start()
     plan_digest = str(config["plan_digest"])
     sft = dict(config["sft"])
     seeds = dict(config["seeds"])
@@ -131,6 +135,8 @@ def _run_fixture(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str,
         },
     )
     train_loss, eval_loss = _fixture_losses(max_steps)
+    _, peak_ram = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
     return {
         "adapter_digest": _sha256(adapter_path),
         "adapter_path": str(adapter_path.relative_to(root)),
@@ -140,6 +146,11 @@ def _run_fixture(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str,
         "framework_versions": {"python": sys.version.split()[0]},
         "optimized_splits": ["train"],
         "plan_digest": plan_digest,
+        "resource_maxima": {
+            "peak_ram_bytes": int(peak_ram),
+            "peak_vram_bytes": None,
+            "wall_seconds": time.monotonic() - started,
+        },
         "train_loss": train_loss,
         "train_rows": int(dataset["train_rows"]),
         "validation_rows": int(dataset["validation_rows"]),
@@ -154,6 +165,7 @@ def _load_json_dataset(path: Path) -> Any:
 
 def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, object]:
     """Execute optional SFT/QLoRA. Heavy packages are imported only in this worker."""
+    started = time.monotonic()
     import torch
     from peft import LoraConfig, prepare_model_for_kbit_training
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
@@ -304,6 +316,11 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
         },
         "optimized_splits": ["train"],
         "plan_digest": config["plan_digest"],
+        "resource_maxima": {
+            "peak_ram_bytes": None,
+            "peak_vram_bytes": int(torch.cuda.max_memory_allocated()) if torch.cuda.is_available() else None,
+            "wall_seconds": time.monotonic() - started,
+        },
         "train_loss": float(metrics.get("train_loss", 0.0)),
         "train_rows": int(dataset_cfg["train_rows"]),
         "validation_rows": int(dataset_cfg["validation_rows"]),

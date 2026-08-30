@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.14 are COMPLETE + NORMALIZED. R15.15 is COMPLETE on technical source `7ede682ec2c21d89e42886a5774115278b0fbb2c` from normalized R15.14 `main` `ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e`; its END-sync candidate must receive fresh exact-head R15.15 + R0 + full Python Core + KodeStudio UI Smoke evidence before PR #326 can merge, after which the unique continuity-only normalization remains mandatory. R15.16–R15.17 remain PLANNED and unauthorized.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.15 are COMPLETE + NORMALIZED. R15.16 is IN_PROGRESS from normalized `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`; R15.17 remains PLANNED and unauthorized until R15.16 completes, merges, and receives its unique post-merge normalization.
 
 ## Purpose and authority
 
@@ -286,10 +286,10 @@ Before R15.1 implementation:
 | R15.10 | Base-vs-adapter evaluation, critical-regression veto + candidate disposition | COMPLETE + NORMALIZED | NONE | R15.6/R15.9 |
 | R15.11 | Accepted adapter/model export, merge compatibility, Safetensors/model card + lineage | COMPLETE + NORMALIZED | NONE | R15.9–R15.10 + R8 |
 | R15.12 | GGUF conversion + quantization matrix, quality-loss measurement + artifact validation | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.10–R15.11 + R6/R8/R9 |
-| R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | COMPLETE | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |
+| R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |
 | R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | COMPLETE + NORMALIZED | NONE | R15.10–R15.13 + R3/R8 |
-| R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | COMPLETE | NONE | R15.1–R15.14 |
-| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | PLANNED | CONDITIONAL | R15.1–R15.15 |
+| R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | COMPLETE + NORMALIZED | NONE | R15.1–R15.14 |
+| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R15.1–R15.15 |
 | R15.17 | Adversarial integrated Experience/Bench/Fine-tuning acceptance | PLANNED | CONDITIONAL | R15.1–R15.16 |
 
 ---
@@ -1295,6 +1295,16 @@ Hardware support changing between ROCm/PyTorch/bitsandbytes versions; Windows-vs
 ## Manual intervention
 
 **CONDITIONAL.** It triggers only if a real target-workstation training/conversion/promotion capability claim is required. When triggered, execution MUST stop before R15.17 and provide: exact accepted SHA; prerequisites; copy-paste commands; expected JSON/exit codes; recovery; precise evidence files; actions not to perform; and privacy guidance. Passwords, tokens, private keys and unrelated machine data must never be requested.
+
+## START record
+
+**IN_PROGRESS — clean START from normalized R15.15 `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`.**
+
+- R15.15 final exact END-head: `5d1f6f5761f46dd911eee99c4088dd19abf9d0cb`; exact-END R15.15 #12 / `33336221022`, R0 #2216 / `33336220940`, Python Core #2191 / `33336220978` 5/5 and UI #2156 / `33336220979` SUCCESS;
+- implementation/evidence merge: `38de802865ca66f6c9b37589b0895821b652f0a9`;
+- unique R15.15 normalization head: `aee4cd4006b48c14ff5d0795a12cf235158c971a`; normalization R0 #2218 / `33336553267`, Python Core #2193 / `33336553314` 5/5 and UI #2158 / `33336553193` SUCCESS; normalization PR #327 -> normalized `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`;
+- dedicated branch: `r15/16-hardware-local-qualification`;
+- manual state at START: `CONDITIONAL / NOT TRIGGERED`; hosted CI must not fabricate target-workstation GPU/backend support.
 
 ## Completion record
 

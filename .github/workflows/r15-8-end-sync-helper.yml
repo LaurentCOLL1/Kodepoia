@@ -1,0 +1,116 @@
+name: R15.8 END Sync Helper
+on:
+  push:
+    branches: [r15/08-training-runtime-capability]
+    paths: ['.github/workflows/r15-8-end-sync-helper.yml']
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/08-training-runtime-capability
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Patch bounded R15.8 END records
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          source = "fa932e4a436004045074f417005b2edc038cfc87"
+          focused = "R15.8 #5 / 33306096508"
+
+          plan_path = Path("docs/roadmap/R15_PLAN.md")
+          plan = plan_path.read_text(encoding="utf-8")
+          old_checkpoint = "**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.7 are COMPLETE + NORMALIZED. R15.7 normalization head `d07ca7b2ab550e0fcaf09897d51d72b2dd94d590` passed R0 #2140 / `33300956787` SUCCESS Ubuntu + Windows, Python Core #2115 / `33300956780` SUCCESS 5/5 and KodeStudio UI Smoke #2080 / `33300956762` SUCCESS; normalization PR #310 merged with exact expected head as normalized `main` `5de1cabd3e861e75204595de1819564c782a217d`. R15.8 is IN_PROGRESS; R15.9–R15.17 remain PLANNED."
+          new_checkpoint = f"**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.7 are COMPLETE + NORMALIZED. R15.8 is COMPLETE on immutable technical source `{source}` with {focused} SUCCESS Ubuntu + Windows (13 focused tests per OS + Ruff + compile + CLI/schema checks); fresh exact-END R15.8/R0/Python/UI gates, protected merge and the unique post-merge continuity-only normalization remain required before R15.9. R15.9–R15.17 remain PLANNED."
+          assert plan.count(old_checkpoint) == 1
+          plan = plan.replace(old_checkpoint, new_checkpoint, 1)
+          old_row = "| R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | IN_PROGRESS | CONDITIONAL | R15.7 + R1/R6/R9 |"
+          new_row = "| R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | COMPLETE | CONDITIONAL | R15.7 + R1/R6/R9 |"
+          assert plan.count(old_row) == 1
+          plan = plan.replace(old_row, new_row, 1)
+          section = re.search(r"(# R15\.8 — Optional training runtime[\s\S]*?)(?=\n---\n\n# R15\.9\b)", plan)
+          assert section is not None
+          old_record = "## Completion record\n\nTo be appended when accepted."
+          assert section.group(1).count(old_record) == 1
+          new_record = f'''## Completion record
+
+**COMPLETE — technical acceptance recorded; fresh final-END gates required before merge.**
+
+- clean START / normalized R15.7 main: `5de1cabd3e861e75204595de1819564c782a217d`;
+- immutable technical source: `{source}`;
+- {focused}: SUCCESS Ubuntu + Windows, 13 focused tests per OS, Ruff, compileall, CLI help and capability-schema validation;
+- core acceptance installs only `.[dev]`; PyTorch/Transformers/Accelerate/PEFT/TRL/bitsandbytes remain optional and are not imported by `kodepoia.tuning`;
+- CPU/CUDA/ROCm and requested dtype/NF4 support are decided by bounded real-operation probes rather than device-name or backend-name assumptions; CPU NF4 is not pre-rejected;
+- nonzero disk/RAM requirements with unavailable host measurements fail closed before subprocess launch; accelerator VRAM admission remains fail-closed before model load;
+- model/tokenizer identifiers stay out of subprocess argv and reports; model/tokenizer load is a distinct local-only second phase after admission;
+- timeout/KillSwitch cancellation and bounded redacted failure evidence are terminal non-success paths;
+- real local GPU/backend qualification was not required for core R15.8 and manual state remains `CONDITIONAL / NOT TRIGGERED`;
+- the exact final documented END-head must receive fresh R15.8 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before protected merge; technical-source evidence is not reused for that decision.
+'''
+          replacement = section.group(1).replace(old_record, new_record, 1)
+          plan = plan[:section.start()] + replacement + plan[section.end():]
+          plan_path.write_text(plan, encoding="utf-8", newline="\n")
+
+          continuity_path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          continuity = continuity_path.read_text(encoding="utf-8")
+          old_top = "> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.7 COMPLETE + NORMALIZED; R15.8 IN_PROGRESS; R15.9–R15.17 PLANNED.** R15.7 normalization head `d07ca7b2ab550e0fcaf09897d51d72b2dd94d590` passed R0 #2140 / `33300956787`, Python Core #2115 / `33300956780` 5/5 and UI #2080 / `33300956762` SUCCESS; PR #310 merged with exact expected head as normalized `main` `5de1cabd3e861e75204595de1819564c782a217d`. R15.8 START-sync is active from that exact normalized main. Manual state R15.8: CONDITIONAL / NOT TRIGGERED for core fixture/CI acceptance."
+          new_top = f"> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.7 COMPLETE + NORMALIZED; R15.8 COMPLETE / NORMALIZATION PENDING; R15.9–R15.17 PLANNED.** R15.8 immutable technical source `{source}` passed {focused} SUCCESS Ubuntu + Windows with 13 focused tests per OS plus Ruff/compile/CLI/schema checks. Fresh exact-END R15.8/R0/Python/UI gates, protected merge and the unique continuity-only post-merge normalization remain mandatory before R15.9. Manual state R15.8: CONDITIONAL / NOT TRIGGERED for core fixture/CI acceptance."
+          assert continuity.count(old_top) == 1
+          continuity = continuity.replace(old_top, new_top, 1)
+          old_line = "- R15.8 : **IN_PROGRESS** — clean START / exact normalized R15.7 base `5de1cabd3e861e75204595de1819564c782a217d`; scope is optional training runtime, backend capability probes, dependency isolation and reproducibility. Core acceptance must work without heavy ML extras and uses fake/isolated capabilities; real local GPU/backend qualification remains CONDITIONAL and is NOT TRIGGERED unless explicitly required."
+          new_line = f"- R15.8 : **COMPLETE / NORMALIZATION PENDING** — clean START / exact normalized R15.7 base `5de1cabd3e861e75204595de1819564c782a217d`; immutable technical source `{source}`; {focused} SUCCESS Ubuntu + Windows with 13 focused tests per OS plus Ruff/compile/CLI/schema checks. Core import remains free of heavy ML extras; requested CPU/CUDA/ROCm, dtype and NF4 paths are operation-probed rather than inferred; configured unknown disk/RAM measurements and insufficient/unknown accelerator VRAM fail closed before model load; argv/report redaction, timeout and KillSwitch paths are covered. Real local GPU/backend qualification remains CONDITIONAL / NOT TRIGGERED. R15.9 stays blocked until exact-END R15.8/R0/Python/UI gates, protected merge and unique post-merge continuity-only normalization."
+          assert continuity.count(old_line) == 1
+          continuity = continuity.replace(old_line, new_line, 1)
+          continuity_path.write_text(continuity, encoding="utf-8", newline="\n")
+
+          design_path = Path("docs/roadmap/R15_8_DESIGN.md")
+          design = design_path.read_text(encoding="utf-8")
+          old_capability = "ROCm is identified from the PyTorch runtime (`torch.version.hip`) plus an actual accelerator operation. CUDA and ROCm are never inferred from the GPU marketing/device name."
+          new_capability = old_capability + " No backend label is used to pre-reject NF4: CPU/CUDA/ROCm requests reach the same bounded bitsandbytes operation probe, and the requested path is `SUPPORTED` only when that operation succeeds."
+          assert design.count(old_capability) == 1
+          design = design.replace(old_capability, new_capability, 1)
+          old_resource = "Disk and RAM are measured before any ML worker launch. Accelerator free/total VRAM is measured by the successful PyTorch device probe. The model-load dry-run is a second process and cannot start until all configured disk/RAM/VRAM requirements pass."
+          new_resource = "Disk and RAM are measured before any ML worker launch. If a nonzero disk/RAM requirement is configured but the host measurement is unavailable, preflight fails closed with an explicit unknown-budget blocker and launches no ML worker. Accelerator free/total VRAM is measured by the successful PyTorch device probe. The model-load dry-run is a second process and cannot start until all configured disk/RAM/VRAM requirements pass."
+          assert design.count(old_resource) == 1
+          design = design.replace(old_resource, new_resource, 1)
+          old_external = "Official Hugging Face bitsandbytes documentation checked during R15.8 implementation documents NF4 as the recommended 4-bit type for QLoRA and documents backend-specific installation/support requirements. These references guide probe construction only; Kodepoia treats the actual bounded operation probe on the accepted runtime as authority."
+          new_external = "Official Hugging Face bitsandbytes documentation checked during R15.8 implementation documents NF4 as the recommended 4-bit type for QLoRA and current multi-backend support that can include CPU as well as accelerator paths. Backend/package support evolves, so Kodepoia deliberately does not encode device-name or backend-name support guesses: the actual bounded operation probe on the accepted runtime remains authority."
+          assert design.count(old_external) == 1
+          design = design.replace(old_external, new_external, 1)
+          design_path.write_text(design, encoding="utf-8", newline="\n")
+
+          acceptance_path = Path("docs/roadmap/R15_8_ACCEPTANCE.md")
+          acceptance = acceptance_path.read_text(encoding="utf-8")
+          old_budget = "- disk/RAM preflight prevents any subprocess when already over budget;"
+          new_budget = "- disk/RAM preflight prevents any subprocess when already over budget, and a configured nonzero requirement with unavailable host measurement fails closed before subprocess launch;"
+          assert acceptance.count(old_budget) == 1
+          acceptance = acceptance.replace(old_budget, new_budget, 1)
+          evidence = f'''\n## Technical acceptance evidence\n\n- Immutable technical source: `{source}`.\n- {focused}: SUCCESS on Ubuntu + Windows.\n- Focused suite: 13/13 tests per OS, followed by Ruff, compileall, `python -m kodepoia.tuning --help` and JSON-schema validation.\n- Workflow installs only core + `dev`, proving core acceptance without tuning ML extras.\n- Compatibility hardening from current upstream documentation is included: NF4 is operation-probed without a hard-coded CPU rejection, and unknown configured host budgets fail closed.\n- Manual local GPU/backend qualification: **CONDITIONAL / NOT TRIGGERED** for core R15.8.\n- These are immutable technical-source proofs only. Fresh R15.8, R0 Repository Guard, full Python Core and KodeStudio UI Smoke must all succeed on the exact final documentation END-head before merge.\n'''
+          assert "## Technical acceptance evidence" not in acceptance
+          acceptance = acceptance.rstrip() + "\n" + evidence
+          acceptance_path.write_text(acceptance, encoding="utf-8", newline="\n")
+      - name: Validate bounded sync
+        shell: bash
+        run: |
+          git diff --check
+          python scripts/check_repo.py
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R15_8_ACCEPTANCE.md\ndocs/roadmap/R15_8_DESIGN.md\ndocs/roadmap/R15_PLAN.md'
+          actual="$(git diff --name-only | sort)"
+          test "$actual" = "$expected"
+      - name: Commit END sync and remove helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r15-8-end-sync-helper.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_PLAN.md docs/roadmap/R15_8_DESIGN.md docs/roadmap/R15_8_ACCEPTANCE.md
+          git diff --cached --check
+          git commit -m "docs(r15.8): synchronize accepted technical source"
+          git push origin HEAD:r15/08-training-runtime-capability

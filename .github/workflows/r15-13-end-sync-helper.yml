@@ -22,7 +22,9 @@ jobs:
         run: git merge-base --is-ancestor f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac HEAD
       - name: Apply bounded documentary END-sync
         shell: bash
-        run: python scripts/r15_13_end_sync_helper.py
+        run: |
+          python scripts/r15_13_end_sync_helper.py
+          sed -i 's/[[:space:]]\+$//' docs/roadmap/R15_13_ACCEPTANCE.md
       - name: Commit documentary END-sync
         shell: bash
         run: |

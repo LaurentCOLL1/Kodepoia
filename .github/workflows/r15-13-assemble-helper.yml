@@ -1,4 +1,5 @@
 name: R15.13 Bounded Implementation Assembly
+# Retrigger after target workflow pre-created via authorized API.
 
 on:
   push:

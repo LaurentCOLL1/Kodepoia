@@ -165,11 +165,26 @@ def _safe_worker_evidence(payload: object) -> dict[str, object]:
 
 def _host_preflight(request: RuntimeRequest, host: HostResources) -> ResourcePreflight:
     blockers: list[str] = []
-    if host.disk_free_bytes is not None and host.disk_free_bytes < request.resources.disk_required_bytes:
+    disk_required = request.resources.disk_required_bytes
+    ram_required = request.resources.ram_required_bytes
+
+    if disk_required > 0 and host.disk_free_bytes is None:
+        blockers.append("storage_budget_unknown")
+    elif host.disk_free_bytes is not None and host.disk_free_bytes < disk_required:
         blockers.append("storage_budget_exceeded")
-    if host.ram_free_bytes is not None and host.ram_free_bytes < request.resources.ram_required_bytes:
+
+    if ram_required > 0 and host.ram_free_bytes is None:
+        blockers.append("ram_budget_unknown")
+    elif host.ram_free_bytes is not None and host.ram_free_bytes < ram_required:
         blockers.append("ram_budget_exceeded")
-    return ResourcePreflight(host.disk_free_bytes, host.ram_free_bytes, None, None, tuple(blockers))
+
+    return ResourcePreflight(
+        host.disk_free_bytes,
+        host.ram_free_bytes,
+        None,
+        None,
+        tuple(sorted(blockers)),
+    )
 
 
 def _vram_preflight(

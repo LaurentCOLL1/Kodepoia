@@ -5,9 +5,9 @@ import json
 import math
 import re
 import unicodedata
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Iterable, Mapping
 
 DEDUP_VERSION = "r15.4-dedup-v1"
 HOLDOUT_SCHEMA = "kodepoia.experience.protected-holdout-registry"
@@ -164,7 +164,9 @@ class ProtectedHoldoutRegistry:
             raise PolicyMismatch("holdout fingerprint policy does not match registry policy")
         existing = self._entries.get(holdout.holdout_id)
         if existing is not None and existing != holdout:
-            raise DedupError(f"holdout_id already registered with different fingerprint: {holdout.holdout_id}")
+            raise DedupError(
+                f"holdout_id already registered with different fingerprint: {holdout.holdout_id}"
+            )
         self._entries[holdout.holdout_id] = holdout
 
     def entries(self) -> tuple[ProtectedHoldout, ...]:

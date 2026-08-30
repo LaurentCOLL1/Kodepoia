@@ -287,8 +287,8 @@ Before R15.1 implementation:
 | R15.11 | Accepted adapter/model export, merge compatibility, Safetensors/model card + lineage | COMPLETE + NORMALIZED | NONE | R15.9–R15.10 + R8 |
 | R15.12 | GGUF conversion + quantization matrix, quality-loss measurement + artifact validation | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.10–R15.11 + R6/R8/R9 |
 | R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | COMPLETE | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |
-| R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | PLANNED | NONE | R15.10–R15.13 + R3/R8 |
-| R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | PLANNED | NONE | R15.1–R15.14 |
+| R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | COMPLETE + NORMALIZED | NONE | R15.10–R15.13 + R3/R8 |
+| R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | IN_PROGRESS | NONE | R15.1–R15.14 |
 | R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | PLANNED | CONDITIONAL | R15.1–R15.15 |
 | R15.17 | Adversarial integrated Experience/Bench/Fine-tuning acceptance | PLANNED | CONDITIONAL | R15.1–R15.16 |
 
@@ -1233,7 +1233,11 @@ UI starts training without explicit action; mutable tag shown instead of immutab
 
 ## Completion record
 
-To be appended when accepted.
+**IN_PROGRESS — START-sync from normalized R15.14 `main` `ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e`.**
+
+- dedicated branch: `r15/15-cli-kodestudio-ux`;
+- manual state: `NONE`;
+- R15.15 implementation/acceptance only is authorized on this branch. R15.16 remains unauthorized until R15.15 merges and its unique post-merge normalization succeeds.
 
 ---
 

@@ -39,6 +39,7 @@
         "duplicate_handling",
         "governance_policy_digest",
         "max_groups_per_domain",
+        "max_groups_per_task_domain",
         "sanitizer_digest",
         "seed",
         "split_weights",
@@ -52,12 +53,8 @@
           "enum": ["representative_only", "keep_group"]
         },
         "governance_policy_digest": {"$ref": "#/$defs/digest"},
-        "max_groups_per_domain": {
-          "oneOf": [
-            {"type": "null"},
-            {"type": "integer", "minimum": 1}
-          ]
-        },
+        "max_groups_per_domain": {"$ref": "#/$defs/optional_positive"},
+        "max_groups_per_task_domain": {"$ref": "#/$defs/optional_positive"},
         "sanitizer_digest": {"$ref": "#/$defs/digest"},
         "seed": {"type": "integer", "minimum": 0},
         "split_weights": {
@@ -123,6 +120,12 @@
       "uniqueItems": true,
       "items": {"$ref": "#/$defs/safe_id"}
     },
+    "optional_positive": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "integer", "minimum": 1}
+      ]
+    },
     "counts": {
       "type": "object",
       "additionalProperties": {"type": "integer", "minimum": 0}
@@ -131,6 +134,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "bytes",
         "domain_counts",
         "groups",
         "language_counts",
@@ -138,6 +142,7 @@
         "task_counts"
       ],
       "properties": {
+        "bytes": {"type": "integer", "minimum": 0},
         "domain_counts": {"$ref": "#/$defs/counts"},
         "groups": {"type": "integer", "minimum": 0},
         "language_counts": {"$ref": "#/$defs/counts"},
@@ -182,10 +187,14 @@
         "group_id",
         "language",
         "license_expression",
+        "origin_digest",
+        "project_scope",
         "representation_digest",
         "row_digest",
         "source_contract_digest",
         "source_digest",
+        "source_id",
+        "source_type",
         "split",
         "task",
         "transformations"
@@ -203,10 +212,19 @@
           "pattern": "^([A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*|und)$"
         },
         "license_expression": {"type": "string", "minLength": 1},
+        "origin_digest": {"$ref": "#/$defs/digest"},
+        "project_scope": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "minLength": 1}
+          ]
+        },
         "representation_digest": {"$ref": "#/$defs/digest"},
         "row_digest": {"$ref": "#/$defs/digest"},
         "source_contract_digest": {"$ref": "#/$defs/digest"},
         "source_digest": {"$ref": "#/$defs/digest"},
+        "source_id": {"type": "string", "minLength": 1},
+        "source_type": {"type": "string", "minLength": 1},
         "split": {"enum": ["train", "validation", "test"]},
         "task": {"$ref": "#/$defs/safe_id"},
         "transformations": {

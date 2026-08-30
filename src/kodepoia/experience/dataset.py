@@ -65,6 +65,7 @@ class DatasetPolicy:
     allowed_tasks: tuple[str, ...] = ()
     duplicate_handling: DuplicateHandling = DuplicateHandling.REPRESENTATIVE_ONLY
     max_groups_per_domain: int | None = None
+    max_groups_per_task_domain: int | None = None
     version: str = DATASET_POLICY_VERSION
 
     def __post_init__(self) -> None:
@@ -84,8 +85,12 @@ class DatasetPolicy:
             raise DatasetPolicyError("split weights must be non-negative integers")
         if self.train_weight <= 0 or self.validation_weight <= 0:
             raise DatasetPolicyError("train and validation weights must both be > 0")
-        if self.max_groups_per_domain is not None and self.max_groups_per_domain <= 0:
-            raise DatasetPolicyError("max_groups_per_domain must be > 0")
+        for name in ("max_groups_per_domain", "max_groups_per_task_domain"):
+            value = getattr(self, name)
+            if value is not None and (
+                not isinstance(value, int) or isinstance(value, bool) or value <= 0
+            ):
+                raise DatasetPolicyError(f"{name} must be > 0")
         _require_safe_id("version", self.version)
         for name, values in (
             ("allowed_domains", self.allowed_domains),
@@ -104,6 +109,7 @@ class DatasetPolicy:
             "duplicate_handling": self.duplicate_handling.value,
             "governance_policy_digest": self.governance_policy_digest,
             "max_groups_per_domain": self.max_groups_per_domain,
+            "max_groups_per_task_domain": self.max_groups_per_task_domain,
             "sanitizer_digest": self.sanitizer_digest,
             "seed": self.seed,
             "split_weights": {
@@ -196,6 +202,10 @@ class DatasetEntry:
     experience_id: str
     source_digest: str
     source_contract_digest: str
+    source_type: str
+    source_id: str
+    origin_digest: str
+    project_scope: str | None
     group_id: str
     split: DatasetSplit
     task: str
@@ -216,10 +226,14 @@ class DatasetEntry:
             "group_id": self.group_id,
             "language": self.language,
             "license_expression": self.license_expression,
+            "origin_digest": self.origin_digest,
+            "project_scope": self.project_scope,
             "representation_digest": self.representation_digest,
             "row_digest": self.row_digest,
             "source_contract_digest": self.source_contract_digest,
             "source_digest": self.source_digest,
+            "source_id": self.source_id,
+            "source_type": self.source_type,
             "split": self.split.value,
             "task": self.task,
             "transformations": [dict(item) for item in self.transformations],
@@ -349,7 +363,7 @@ class DatasetCard:
         for split, stats in sorted(self.split_stats.items()):
             lines.append(
                 f"- `{split}`: {stats.get('rows', 0)} rows / "
-                f"{stats.get('groups', 0)} groups"
+                f"{stats.get('groups', 0)} groups / {stats.get('bytes', 0)} bytes"
             )
         lines.extend(["", "## Limitations", ""])
         lines.extend(f"- {item}" for item in self.limitations)
@@ -369,6 +383,73 @@ class DatasetBuild:
     @property
     def card_markdown(self) -> str:
         return self.card.markdown()
+
+    def repository_file_map(self) -> dict[str, bytes]:
+        return {
+            "dataset-card.json": (self.card.canonical_json() + "\n").encode("utf-8"),
+            "manifest.json": (self.manifest.canonical_json() + "\n").encode("utf-8"),
+            "README.md": self.card_markdown.encode("utf-8"),
+            **{
+                f"{split.value}.jsonl": self.export_bytes(split)
+                for split in DatasetSplit
+            },
+        }
+
+    def huggingface_file_map(self) -> dict[str, bytes]:
+        return {
+            "README.md": self.card_markdown.encode("utf-8"),
+            **{
+                f"{split.value}.jsonl": self.export_bytes(split)
+                for split in DatasetSplit
+            },
+        }
+
+    def verify_reconciliation(self) -> None:
+        entries_by_id = {entry.example_id: entry for entry in self.manifest.entries}
+        if len(entries_by_id) != len(self.manifest.entries):
+            raise DatasetSourceError("manifest contains duplicate example IDs")
+        seen: set[str] = set()
+        for split in DatasetSplit:
+            encoded = self.export_bytes(split)
+            if hashlib.sha256(encoded).hexdigest() != self.manifest.export_digests.get(
+                split.value
+            ):
+                raise DatasetSourceError(f"{split.value} export digest mismatch")
+            stats = self.manifest.split_stats.get(split.value)
+            if stats is None:
+                raise DatasetSourceError(f"missing {split.value} split stats")
+            rows = [line for line in encoded.decode("utf-8").splitlines() if line]
+            if stats.get("rows") != len(rows) or stats.get("bytes") != len(encoded):
+                raise DatasetSourceError(f"{split.value} split stats mismatch")
+            for line in rows:
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise DatasetSourceError("export contains invalid JSONL") from exc
+                if not isinstance(row, dict):
+                    raise DatasetSourceError("export row must be a JSON object")
+                example_id = row.get("example_id")
+                if not isinstance(example_id, str) or example_id in seen:
+                    raise DatasetSourceError("export example ID is invalid or duplicated")
+                entry = entries_by_id.get(example_id)
+                if entry is None or entry.split is not split:
+                    raise DatasetSourceError("export row does not match manifest split")
+                if _digest_json(row) != entry.row_digest:
+                    raise DatasetSourceError("export row digest does not match manifest")
+                checks = {
+                    "domain": entry.domain,
+                    "experience_id": entry.experience_id,
+                    "format": entry.format.value,
+                    "group_id": entry.group_id,
+                    "language": entry.language,
+                    "source_digest": entry.source_digest,
+                    "task": entry.task,
+                }
+                if any(row.get(key) != value for key, value in checks.items()):
+                    raise DatasetSourceError("export row metadata does not match manifest")
+                seen.add(example_id)
+        if seen != set(entries_by_id):
+            raise DatasetSourceError("manifest and exported row sets differ")
 
 
 class DatasetBuilder:
@@ -537,18 +618,23 @@ class DatasetBuilder:
                 }
                 for item in source.record.transformations
             )
+            provenance = source.record.provenance
             entries.append(
                 DatasetEntry(
                     example_id=example_id,
                     experience_id=source.item_id,
                     source_digest=source.record.content.sha256,
                     source_contract_digest=source.record.contract_digest(),
+                    source_type=provenance.source_type,
+                    source_id=provenance.source_id,
+                    origin_digest=provenance.origin_digest,
+                    project_scope=provenance.project_scope,
                     group_id=group_id,
                     split=split,
                     task=source.record.task_label,
                     domain=source.record.domain_label,
                     language=source.language,
-                    license_expression=source.record.provenance.license_expression,
+                    license_expression=provenance.license_expression,
                     format=source.format,
                     representation_digest=representation_digest,
                     row_digest=row_digest,
@@ -560,6 +646,7 @@ class DatasetBuilder:
         entries.sort(key=lambda item: item.example_id)
         export_bytes: dict[DatasetSplit, bytes] = {}
         export_digests: dict[str, str] = {}
+        split_stats = self._split_stats(entries)
         for split in DatasetSplit:
             rows = sorted(
                 rows_by_split[split], key=lambda row: str(row["example_id"])
@@ -569,8 +656,8 @@ class DatasetBuilder:
             ).encode("utf-8")
             export_bytes[split] = encoded
             export_digests[split.value] = hashlib.sha256(encoded).hexdigest()
+            split_stats[split.value]["bytes"] = len(encoded)
 
-        split_stats = self._split_stats(entries)
         selection_summary: dict[str, object] = {
             "excluded_by_reason": dict(sorted(excluded.items())),
             "input_records": len(ordered),
@@ -615,7 +702,9 @@ class DatasetBuilder:
             tasks=tuple(sorted({entry.task for entry in entries})),
             split_stats=split_stats,
         )
-        return DatasetBuild(manifest=manifest, card=card, exports=export_bytes)
+        build = DatasetBuild(manifest=manifest, card=card, exports=export_bytes)
+        build.verify_reconciliation()
+        return build
 
     def assign_split(self, group_id: str) -> DatasetSplit:
         if not re.fullmatch(r"grp_[0-9a-f]{64}", group_id):
@@ -643,38 +732,70 @@ class DatasetBuilder:
         dedup: DedupResult,
         by_id: Mapping[str, DatasetSource],
     ) -> tuple[str, ...]:
-        candidates: list[tuple[str, str]] = []
+        candidates: dict[str, tuple[str, str]] = {}
         for group_id in sorted(eligible_by_group):
+            members = eligible_by_group[group_id]
             cluster = _cluster_for_group(dedup, group_id)
             representative = by_id.get(cluster.representative_id)
-            if representative is None:
-                domain = min(
-                    source.record.domain_label
-                    for source in eligible_by_group[group_id]
-                )
+            if representative is not None and representative in members:
+                label_source = representative
             else:
-                domain = representative.record.domain_label
-            candidates.append((group_id, domain))
+                label_source = min(
+                    members,
+                    key=lambda source: (
+                        source.record.domain_label,
+                        source.record.task_label,
+                        source.item_id,
+                    ),
+                )
+            candidates[group_id] = (
+                label_source.record.domain_label,
+                label_source.record.task_label,
+            )
 
-        if self.policy.max_groups_per_domain is None:
-            return tuple(group_id for group_id, _ in candidates)
+        selected = set(candidates)
+        if self.policy.max_groups_per_domain is not None:
+            selected = self._cap_groups(
+                selected,
+                candidates,
+                key_kind="domain",
+                cap=self.policy.max_groups_per_domain,
+            )
+        if self.policy.max_groups_per_task_domain is not None:
+            selected = self._cap_groups(
+                selected,
+                candidates,
+                key_kind="task_domain",
+                cap=self.policy.max_groups_per_task_domain,
+            )
+        return tuple(sorted(selected))
 
-        grouped: dict[str, list[str]] = defaultdict(list)
-        for group_id, domain in candidates:
-            grouped[domain].append(group_id)
-        selected: list[str] = []
-        for domain in sorted(grouped):
+    def _cap_groups(
+        self,
+        selected: set[str],
+        labels: Mapping[str, tuple[str, str]],
+        *,
+        key_kind: str,
+        cap: int,
+    ) -> set[str]:
+        buckets: dict[str, list[str]] = defaultdict(list)
+        for group_id in sorted(selected):
+            domain, task = labels[group_id]
+            bucket = domain if key_kind == "domain" else f"{domain}\0{task}"
+            buckets[bucket].append(group_id)
+        kept: set[str] = set()
+        for bucket in sorted(buckets):
             ranked = sorted(
-                grouped[domain],
+                buckets[bucket],
                 key=lambda group_id: hashlib.sha256(
                     (
-                        f"{self.policy.digest}\0balance\0"
-                        f"{domain}\0{group_id}"
+                        f"{self.policy.digest}\0balance:{key_kind}\0"
+                        f"{bucket}\0{group_id}"
                     ).encode()
                 ).hexdigest(),
             )
-            selected.extend(ranked[: self.policy.max_groups_per_domain])
-        return tuple(sorted(selected))
+            kept.update(ranked[:cap])
+        return kept
 
     @staticmethod
     def _split_stats(
@@ -687,6 +808,7 @@ class DatasetBuilder:
                 entry for entry in all_entries if entry.split is split
             )
             result[split.value] = {
+                "bytes": 0,
                 "domain_counts": dict(
                     sorted(Counter(entry.domain for entry in subset).items())
                 ),

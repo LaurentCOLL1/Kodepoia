@@ -73,6 +73,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "bytes",
         "domain_counts",
         "groups",
         "language_counts",
@@ -80,6 +81,7 @@
         "task_counts"
       ],
       "properties": {
+        "bytes": {"type": "integer", "minimum": 0},
         "domain_counts": {"$ref": "#/$defs/counts"},
         "groups": {"type": "integer", "minimum": 0},
         "language_counts": {"$ref": "#/$defs/counts"},

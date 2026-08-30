@@ -11,6 +11,7 @@ from jsonschema import Draft202012Validator
 from kodepoia.experience import (
     ContaminationReport,
     ContentRef,
+    DatasetBuild,
     DatasetBuilder,
     DatasetFormat,
     DatasetPolicy,
@@ -154,14 +155,21 @@ def test_dataset_policy_digest_is_deterministic_and_sensitive() -> None:
     dedup = DedupPolicy()
     assert _policy(dedup).digest == _policy(dedup).digest
     assert _policy(dedup, seed=18).digest != _policy(dedup, seed=19).digest
+    assert _policy(
+        dedup, max_groups_per_task_domain=1
+    ).digest != _policy(dedup, max_groups_per_task_domain=2).digest
 
 
-def test_dataset_policy_rejects_invalid_split_contract() -> None:
+def test_dataset_policy_rejects_invalid_split_and_balance_contract() -> None:
     dedup = DedupPolicy()
     with pytest.raises(DatasetPolicyError):
         _policy(dedup, validation_weight=0)
     with pytest.raises(DatasetPolicyError):
         _policy(dedup, train_weight=-1)
+    with pytest.raises(DatasetPolicyError):
+        _policy(dedup, max_groups_per_domain=0)
+    with pytest.raises(DatasetPolicyError):
+        _policy(dedup, max_groups_per_task_domain=0)
     with pytest.raises(DatasetPolicyError):
         DatasetPolicy(
             seed=1,
@@ -310,7 +318,7 @@ def test_source_policy_and_payload_mismatches_fail_closed() -> None:
         DatasetSource(record, "tampered", language="en")
 
 
-def test_manifest_card_are_safe_but_jsonl_is_governed_payload() -> None:
+def test_manifest_card_are_safe_jsonl_is_governed_and_provenance_complete() -> None:
     dedup_policy = DedupPolicy()
     marker = "private-marker-r15-5-7812"
     text = f"sanitized training {marker}"
@@ -327,6 +335,12 @@ def test_manifest_card_are_safe_but_jsonl_is_governed_payload() -> None:
     assert record.content.storage_key not in manifest
     assert record.content.storage_key not in card
     assert marker.encode() in b"".join(build.exports.values())
+    entry = build.manifest.entries[0]
+    assert entry.source_type == record.provenance.source_type
+    assert entry.source_id == record.provenance.source_id
+    assert entry.origin_digest == record.provenance.origin_digest
+    assert entry.project_scope == record.provenance.project_scope
+    assert entry.license_expression == record.provenance.license_expression
 
 
 def test_prompt_completion_and_conversation_forms_are_tokenizer_independent() -> None:
@@ -373,39 +387,98 @@ def test_prompt_completion_and_conversation_forms_are_tokenizer_independent() ->
     assert "tokenizer" not in exported.lower()
 
 
-def test_license_state_filters_and_domain_balancing_are_deterministic() -> None:
+def test_license_state_filters_and_task_domain_balancing_are_deterministic() -> None:
     dedup_policy = DedupPolicy(near_threshold=1.0)
-    safe_python = _record("python-a", "python alpha", domain="python")
-    other_python = _record("python-b", "python beta", domain="python")
-    safe_godot = _record("godot-a", "godot alpha", domain="godot")
-    no_license = _record(
-        "license-a", "license alpha", license_expression=None
-    )
-    sanitized = _record(
-        "state-a", "state alpha", state=ExperienceState.SANITIZED
-    )
-    sources = _sources(
-        (safe_python, "python alpha"),
-        (other_python, "python beta"),
-        (safe_godot, "godot alpha"),
-        (no_license, "license alpha"),
-        (sanitized, "state alpha"),
-    )
+    records = [
+        (_record("py-repair-a", "python repair alpha"), "python repair alpha"),
+        (_record("py-repair-b", "python repair beta"), "python repair beta"),
+        (
+            _record("py-explain-a", "python explain alpha", task="explain"),
+            "python explain alpha",
+        ),
+        (
+            _record("py-explain-b", "python explain beta", task="explain"),
+            "python explain beta",
+        ),
+        (
+            _record("godot-repair-a", "godot repair alpha", domain="godot"),
+            "godot repair alpha",
+        ),
+        (
+            _record(
+                "license-a", "license alpha", license_expression=None
+            ),
+            "license alpha",
+        ),
+        (
+            _record(
+                "state-a", "state alpha", state=ExperienceState.SANITIZED
+            ),
+            "state alpha",
+        ),
+    ]
+    sources = _sources(*records)
     dedup, report = _dedup_and_report(sources, dedup_policy)
-    builder = DatasetBuilder(_policy(dedup_policy, max_groups_per_domain=1))
+    builder = DatasetBuilder(
+        _policy(dedup_policy, max_groups_per_task_domain=1)
+    )
     first = builder.build(sources, dedup=dedup, contamination=report)
     reverse = builder.build(
         list(reversed(sources)), dedup=dedup, contamination=report
     )
     assert first.manifest.canonical_json() == reverse.manifest.canonical_json()
-    assert first.manifest.selection_summary["selected_groups"] == 2
-    assert {entry.domain for entry in first.manifest.entries} == {
-        "godot",
-        "python",
+    assert first.manifest.selection_summary["selected_groups"] == 3
+    assert {(entry.domain, entry.task) for entry in first.manifest.entries} == {
+        ("godot", "repair"),
+        ("python", "explain"),
+        ("python", "repair"),
     }
     excluded = first.manifest.selection_summary["excluded_by_reason"]
     assert excluded["license_missing"] == 1
     assert excluded["state:sanitized"] == 1
+
+
+def test_manifest_row_reconciliation_split_bytes_and_export_adapter() -> None:
+    dedup_policy = DedupPolicy(near_threshold=1.0)
+    first = _record("source-a", "alpha beta")
+    second = _record("source-b", "gamma delta")
+    sources = _sources((first, "alpha beta"), (second, "gamma delta"))
+    dedup, report = _dedup_and_report(sources, dedup_policy)
+    build = DatasetBuilder(
+        _policy(
+            dedup_policy,
+            duplicate_handling=DuplicateHandling.KEEP_GROUP,
+        )
+    ).build(sources, dedup=dedup, contamination=report)
+    build.verify_reconciliation()
+    for split in DatasetSplit:
+        assert build.manifest.split_stats[split.value]["bytes"] == len(
+            build.export_bytes(split)
+        )
+    repository_files = build.repository_file_map()
+    assert set(repository_files) == {
+        "README.md",
+        "dataset-card.json",
+        "manifest.json",
+        "test.jsonl",
+        "train.jsonl",
+        "validation.jsonl",
+    }
+    assert set(build.huggingface_file_map()) == {
+        "README.md",
+        "test.jsonl",
+        "train.jsonl",
+        "validation.jsonl",
+    }
+    tampered_exports = dict(build.exports)
+    tampered_exports[DatasetSplit.TRAIN] = b'{"bad":true}\n'
+    tampered = DatasetBuild(
+        manifest=build.manifest,
+        card=build.card,
+        exports=tampered_exports,
+    )
+    with pytest.raises(DatasetSourceError, match="digest mismatch"):
+        tampered.verify_reconciliation()
 
 
 def test_manifest_and_card_validate_against_repository_schemas() -> None:

@@ -3,7 +3,7 @@
 **Status:** COMPLETE — technical source accepted; exact-END re-gates pending
 **Normalized base:** `ca625d51808de6c1f9c950faecc2aa785e7a757d`
 **Immutable technical source:** `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac`
-**Implementation PR:** #321
+**Implementation PR:** #322 (non-draft successor; draft PR #322 was closed unmerged because the connected ready-for-review mutation was incompatible with GitHub current GraphQL schema)
 **Manual state:** `CONDITIONAL / NOT TRIGGERED`
 
 ## Accepted scope
@@ -58,4 +58,4 @@ This file, `R15_PLAN.md` and continuity are the only documentary END-sync additi
 - full Python Core;
 - KodeStudio UI Smoke.
 
-PR #321 may merge only with `expected_head_sha` equal to that freshly accepted END-head. After merge, exactly one continuity-only R15.13 normalization with fresh R0 + Python Core + UI Smoke is mandatory. R15.14 remains unauthorized until the normalized `main` from that PR exists.
+PR #322 may merge only with `expected_head_sha` equal to that freshly accepted END-head. After merge, exactly one continuity-only R15.13 normalization with fresh R0 + Python Core + UI Smoke is mandatory. R15.14 remains unauthorized until the normalized `main` from that PR exists.

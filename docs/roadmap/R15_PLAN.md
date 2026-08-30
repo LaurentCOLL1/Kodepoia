@@ -1114,7 +1114,7 @@ Mutable base tag drift; adapter/base mismatch; template changes benchmark behavi
 - no `ollama push`, remote authoritative Ollama, credential requirement or silent production/active-tag replacement is accepted;
 - official Ollama Modelfile/import documentation remains dated compatibility evidence only; current documentation requires `FROM`, supports `ADAPTER`, and warns that an adapter should use the same base model it was tuned from;
 - manual state: `CONDITIONAL / NOT TRIGGERED`; hosted/core acceptance uses deterministic fakes/fixtures and does not claim real target-workstation model creation;
-- PR #321 carries this implementation/evidence source. This END synchronization changes documentary authority only; its exact final head MUST receive fresh R15.13 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`. Technical-source evidence above is not reused for the END merge decision;
+- PR #322 carries this implementation/evidence source. This END synchronization changes documentary authority only; its exact final head MUST receive fresh R15.13 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`. Technical-source evidence above is not reused for the END merge decision;
 - exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.14 START-sync is authorized.
 
 ---

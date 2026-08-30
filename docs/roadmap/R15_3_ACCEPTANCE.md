@@ -13,6 +13,6 @@
 
 ## Adversarial coverage
 
-Acceptance proves deterministic secret/email/path redaction; zero detected values/storage paths in safe reports; deterministic policy/output digests; consent non-laundering; missing/unknown/denied/compound/license-ref behavior; case-insensitive SPDX operators; source deny precedence; benchmark protection; configured privacy denials; governance-policy conflict rejection; revocation cascade; observed-source quarantine; and source-scoped revocation isolation.
+Acceptance proves deterministic secret/email/path redaction; zero detected values/storage paths in safe reports; deterministic policy/output digests; consent non-laundering; missing/unknown/denied/compound/license-ref behavior; SPDX 3.0.1 uppercase/lowercase operator forms with mixed-case operator spellings rejected to review; source deny precedence; benchmark protection; configured privacy denials; governance-policy conflict rejection; revocation cascade; observed-source quarantine; and source-scoped revocation isolation.
 
 The technical source is frozen. This document plus the END state must receive fresh exact-head R15.3/R0/Python/UI gates before merge; technical-source evidence is not reused as END-head evidence.

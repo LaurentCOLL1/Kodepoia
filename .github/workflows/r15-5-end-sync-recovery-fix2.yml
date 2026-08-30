@@ -1,0 +1,47 @@
+name: R15.5 END Sync Recovery Finalizer
+on:
+  push:
+    branches: [r15/05-end-sync-recovery]
+    paths: ['.github/workflows/r15-5-end-sync-recovery-fix2.yml']
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/05-end-sync-recovery
+          fetch-depth: 0
+      - name: Apply bounded recovery patch
+        shell: python
+        run: |
+          from pathlib import Path
+          helper_path = Path('.github/workflows/r15-5-end-sync-recovery-helper.yml')
+          helper = helper_path.read_text(encoding='utf-8').splitlines()
+          marker = next(i for i, line in enumerate(helper) if 'Repair bounded R15.5 END records' in line)
+          run_line = next(i for i in range(marker + 1, len(helper)) if helper[i].strip() == 'run: |')
+          code = []
+          for line in helper[run_line + 1:]:
+              if not line.startswith('          '):
+                  break
+              code.append(line[10:])
+          exec(compile('\n'.join(code), 'r15-5-end-sync-recovery-helper', 'exec'), {})
+          for path in [Path('docs/roadmap/R15_5_DESIGN.md'), Path('docs/roadmap/R15_5_ACCEPTANCE.md')]:
+              text = path.read_text(encoding='utf-8')
+              text = text.replace('END-SYNC RECOVERY GATES PENDING  \n', 'END-SYNC RECOVERY GATES PENDING\n', 1)
+              path.write_text(text, encoding='utf-8', newline='\n')
+      - name: Validate scope and commit
+        shell: bash
+        run: |
+          git diff --check
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R15_5_ACCEPTANCE.md\ndocs/roadmap/R15_5_DESIGN.md\ndocs/roadmap/R15_PLAN.md'
+          actual="$(git diff --name-only | grep -v '^.github/workflows/r15-5-end-sync-recovery-' | sort)"
+          test "$actual" = "$expected"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r15-5-end-sync-recovery-helper.yml .github/workflows/r15-5-end-sync-recovery-pr.yml .github/workflows/r15-5-end-sync-recovery-fix.yml .github/workflows/r15-5-end-sync-recovery-fix2.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_PLAN.md docs/roadmap/R15_5_DESIGN.md docs/roadmap/R15_5_ACCEPTANCE.md
+          git diff --cached --check
+          git commit -m "docs(r15.5): recover missed END synchronization"
+          git push origin HEAD:r15/05-end-sync-recovery

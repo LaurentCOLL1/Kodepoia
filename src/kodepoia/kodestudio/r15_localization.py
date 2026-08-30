@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from kodepoia.quality.localization import pseudo_localize_text
 
-
 _EN = {
     "nav": "Experience & Tune",
     "title": "Experience, Bench & Tune",

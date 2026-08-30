@@ -282,7 +282,12 @@ def build_parser() -> argparse.ArgumentParser:
     project.add_argument("name")
     project.add_argument("--directory", default=".")
     project.add_argument("--type", choices=[item.value for item in ProjectType], default="game")
-    project.add_argument("--platform", action="append", choices=[item.value for item in Platform], default=None)
+    project.add_argument(
+        "--platform",
+        action="append",
+        choices=[item.value for item in Platform],
+        default=None,
+    )
     project.add_argument("--engine", default="Godot")
     project.add_argument("--engine-version", default="4.7")
     project.add_argument("--dimension", choices=[item.value for item in Dimension], default="3d")

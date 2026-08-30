@@ -4,10 +4,10 @@ import hashlib
 import json
 import math
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Mapping
 
 CAPABILITY_SCHEMA = "kodepoia.r15.8.training-runtime-capability"
 CAPABILITY_SCHEMA_VERSION = 1

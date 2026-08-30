@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import ctypes
 import json
 import os
@@ -8,9 +9,10 @@ import re
 import shutil
 import sys
 import tempfile
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping, Protocol
+from typing import Protocol
 
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 from kodepoia.core.sandbox import ProcessSandbox, SandboxResult
@@ -340,10 +342,8 @@ class TrainingRuntime:
             config_path = Path(handle.name)
             json.dump(payload, handle, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         try:
-            try:
+            with contextlib.suppress(OSError):
                 config_path.chmod(0o600)
-            except OSError:
-                pass
             argv = [sys.executable, "-m", "kodepoia.tuning.probe_worker", config_path.name]
             try:
                 result = self.sandbox.run(

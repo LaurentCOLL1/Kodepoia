@@ -1,0 +1,158 @@
+name: R15.16 END synchronization helper
+
+on:
+  push:
+    branches:
+      - r15/16-hardware-local-qualification
+    paths:
+      - .github/workflows/r15-16-end-sync-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  synchronize:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/16-hardware-local-qualification
+          fetch-depth: 0
+      - name: Synchronize R15.16 END authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          tech = "d492bfe53dd805aadcfa14193a2cf4fba1711276"
+          run = "33337106579"
+          rejected = "6f2c1aa61faa51536e99eaeab40a0f97d04bed3a"
+          rejected_run = "33337019018"
+
+          plan_path = Path("docs/roadmap/R15_PLAN.md")
+          plan = plan_path.read_text(encoding="utf-8")
+          old_checkpoint = "**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.15 are COMPLETE + NORMALIZED. R15.16 is IN_PROGRESS from normalized `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`; R15.17 remains PLANNED and unauthorized until R15.16 completes, merges, and receives its unique post-merge normalization."
+          new_checkpoint = f"**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.15 are COMPLETE + NORMALIZED. R15.16 is COMPLETE on immutable technical source `{tech}` from normalized R15.15 `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`; its documentary END-sync candidate must receive fresh exact-head R15.16 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before protected merge, after which the unique continuity-only normalization remains mandatory. R15.17 remains PLANNED and unauthorized."
+          if old_checkpoint not in plan:
+              raise SystemExit("R15_PLAN checkpoint marker missing")
+          plan = plan.replace(old_checkpoint, new_checkpoint, 1)
+          old_row = "| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R15.1–R15.15 |"
+          new_row = "| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | COMPLETE | CONDITIONAL / NOT TRIGGERED | R15.1–R15.15 |"
+          if old_row not in plan:
+              raise SystemExit("R15_PLAN R15.16 row marker missing")
+          plan = plan.replace(old_row, new_row, 1)
+          head, sep, tail = plan.partition("# R15.16 — Hardware-local end-to-end qualification + reproducibility/resource acceptance")
+          if not sep:
+              raise SystemExit("R15.16 section missing")
+          marker = "## Completion record\n\nTo be appended when accepted."
+          if marker not in tail:
+              raise SystemExit("R15.16 completion marker missing")
+          completion = f'''## Completion record
+
+**COMPLETE — immutable technical source accepted; fresh exact-END gates required before merge.**
+
+- normalized R15.15 base / branch point: `01f91fd4b56ed2a02151b46d70502b734c771e7f`;
+- clean R15.16 START head after START synchronization: `89411e40f6c3e90c6f9fd63434988978f672fff1`;
+- dedicated branch: `r15/16-hardware-local-qualification`;
+- immutable technical source: `{tech}`;
+- R15.16 Hardware Local Qualification Acceptance #2 / `{run}`: SUCCESS Ubuntu 24.04 + Windows 2025; 9 focused/schema tests per OS plus compileall, real non-mutating CI doctor, exact-source/schema/provenance validation and Ruff;
+- rejected pre-technical candidate `{rejected}` / R15.16 #1 `{rejected_run}` is non-authoritative because Ruff B008 failed on both OS; its functional steps passed, but none of its evidence may be reused for merge acceptance;
+- the accepted doctor asserts exact Git HEAD, reuses the bounded R15.8 `TrainingRuntime` operation probes, records non-sensitive OS/Python/runtime/tool/resource evidence, constrains report output to the project root and emits a canonical SHA-256-bound JSON report validated by Draft 2020-12 schema;
+- `training_required=true` fails closed unless the requested real backend is operationally READY; budget failure is `resource_budget_blocked`, other unavailable/failed backends are `training_backend_unavailable`; a package/device name alone is never sufficient capability evidence;
+- `training_required=false` truthfully permits `no_train_required` while preserving unavailable training/Ollama state as warnings rather than fabricating hardware support;
+- core acceptance installs only `.[dev]`; Torch/Transformers/PEFT/TRL/bitsandbytes and target GPU drivers remain optional and are not silently installed;
+- current phase evidence does not require a real target-workstation training/conversion/promotion claim, so the conditional manual gate remains `CONDITIONAL / NOT TRIGGERED`; no user-side GPU command, credential, driver installation or destructive system action is required for this technical acceptance;
+- current external compatibility evidence remains advisory only: availability of a bitsandbytes ROCm wheel target does not override the actual PyTorch/HIP/device operation probe or vendor support state;
+- this END synchronization changes documentary authority only. Its exact resulting PR head MUST receive fresh R15.16 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`;
+- exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.17 START-sync is authorized.
+'''
+          tail = tail.replace(marker, completion.rstrip(), 1)
+          plan_path.write_text(head + sep + tail, encoding="utf-8")
+
+          continuity_path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          continuity = continuity_path.read_text(encoding="utf-8")
+          old_top = "> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.15 COMPLETE + NORMALIZED; R15.16 IN_PROGRESS; R15.17 PLANNED.** R15.15 final END-head `5d1f6f5761f46dd911eee99c4088dd19abf9d0cb` passed R15.15 #12 / `33336221022`, R0 #2216 / `33336220940`, Python Core #2191 / `33336220978` 5/5 and UI #2156 / `33336220979`; implementation PR #326 merged as `38de802865ca66f6c9b37589b0895821b652f0a9`. Unique normalization head `aee4cd4006b48c14ff5d0795a12cf235158c971a` passed R0 #2218 / `33336553267`, Python Core #2193 / `33336553314` 5/5 and UI #2158 / `33336553193`; normalization PR #327 merged as normalized `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`. R15.16 starts only from that exact main on `r15/16-hardware-local-qualification`; manual state CONDITIONAL / NOT TRIGGERED."
+          new_top = f"> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.15 COMPLETE + NORMALIZED; R15.16 COMPLETE / END-SYNC RE-GATES PENDING; R15.17 PLANNED.** R15.16 normalized base `01f91fd4b56ed2a02151b46d70502b734c771e7f`, clean START `89411e40f6c3e90c6f9fd63434988978f672fff1`, immutable technical source `{tech}`; R15.16 #2 / `{run}` SUCCESS Ubuntu + Windows with 9 focused/schema tests per OS, compile, doctor, provenance/schema validation and Ruff. Candidate `{rejected}` / `{rejected_run}` is rejected because Ruff failed and is non-authoritative. Manual state CONDITIONAL / NOT TRIGGERED. R15.17 remains unauthorized until exact-END R15.16/R0/Python/UI, protected implementation merge, and the unique continuity-only normalization with fresh R0/Python/UI all complete."
+          if old_top not in continuity:
+              raise SystemExit("continuity top marker missing")
+          continuity = continuity.replace(old_top, new_top, 1)
+          old_crow = "| R15.16 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |"
+          new_crow = "| R15.16 | COMPLETE | CONDITIONAL / NOT TRIGGERED |"
+          if old_crow not in continuity:
+              raise SystemExit("continuity R15.16 row marker missing")
+          continuity = continuity.replace(old_crow, new_crow, 1)
+          next_marker = "## Next authorized action\n\n**R15.16 only: implement the frozen hardware-local doctor/acceptance runner from normalized `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`. Hosted CI must validate schemas, fixtures and truthful supported/unavailable paths without fabricating target-hardware capability. Manual state starts CONDITIONAL / NOT TRIGGERED; if a real target-workstation training/conversion/promotion claim becomes required, stop before R15.17 and request only the bounded local evidence defined by R15.16. R15.17 remains unauthorized.**"
+          r16_record = f'''- R15.16 : **COMPLETE / END-SYNC RE-GATES PENDING** — normalized R15.15 base `01f91fd4b56ed2a02151b46d70502b734c771e7f`; clean START `89411e40f6c3e90c6f9fd63434988978f672fff1`; immutable technical source `{tech}`; R15.16 Hardware Local Qualification Acceptance #2 / `{run}` SUCCESS Ubuntu + Windows with 9 focused/schema tests per OS, compile, real non-mutating doctor, exact-source/schema/provenance validation and Ruff. Rejected candidate `{rejected}` / `{rejected_run}` is non-authoritative because Ruff B008 failed. The doctor is exact-SHA-bound, project-output-bounded, SHA-256 report-bound and reuses real R15.8 backend/dtype/NF4/resource probes; required training fails closed when the backend is unavailable, while `NO_TRAIN_REQUIRED` remains a truthful accepted path when no real promotion claim requires training. Core CI installs no heavy ML stack. Manual state `CONDITIONAL / NOT TRIGGERED`; no target-workstation command is currently required. Fresh exact-END R15.16 + R0 + Python Core + UI must pass on the documentary head before protected merge; one continuity-only normalization remains mandatory before R15.17.
+
+## Next authorized action
+
+**R15.16 END only: freeze the documentary END-sync head, require fresh exact-head R15.16 Hardware Local Qualification Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke, then merge the implementation PR only with `expected_head_sha`. After that merge, perform exactly one continuity-only R15.16 normalization with fresh R0/Python/UI and exact-head merge. R15.17 remains unauthorized until that normalized `main` exists. Manual state: CONDITIONAL / NOT TRIGGERED.**'''
+          if next_marker not in continuity:
+              raise SystemExit("continuity next-action marker missing")
+          continuity = continuity.replace(next_marker, r16_record, 1)
+          continuity_path.write_text(continuity, encoding="utf-8")
+
+          acceptance = f'''# R15.16 — Hardware-local end-to-end qualification acceptance
+
+Status: COMPLETE / END-sync closed; final exact-head re-gates pending.
+
+R15.16 provides the repository-owned, non-mutating local doctor that distinguishes proven runtime capability from package names, device marketing names or hosted-CI assumptions. A real target-workstation training/conversion/promotion claim remains conditional and was not triggered by the accepted technical scope.
+
+## Frozen qualification contract
+
+- exact repository HEAD must equal the supplied 40-character source SHA before any qualification can pass;
+- the service reuses R15.8 `TrainingRuntime` rather than duplicating backend logic: disk/RAM preflight, CPU/CUDA/ROCm operation probes, dtype operation, optional NF4 `Linear4bit` operation, optional local-only model load and VRAM admission remain bounded/fail-closed;
+- Ollama inspection is a fixed, non-mutating `ollama --version` probe; Ollama availability does not imply training-backend availability;
+- `training_required=true` requires an operationally READY backend and maps budget failure to `resource_budget_blocked` and all other non-ready runtime paths to `training_backend_unavailable`;
+- when training is not required by the accepted project evidence, `no_train_required` is a valid PASS while unavailable optional runtime/Ollama capabilities remain explicit warnings;
+- report output must stay inside the project root; reports contain bounded/redacted facts and a canonical SHA-256 digest and validate against `schemas/r15-16-local-qualification-v1.schema.json`;
+- the core acceptance environment installs only `.[dev]`; no GPU driver, Torch, Transformers, PEFT, TRL, bitsandbytes, llama.cpp, cloud service or public model account is installed or required;
+- manual state: `CONDITIONAL / NOT TRIGGERED`.
+
+## Accepted technical-source evidence
+
+Immutable technical source `{tech}` passed R15.16 Hardware Local Qualification Acceptance #2 / `{run}` on both Ubuntu 24.04 and Windows 2025:
+
+- exact-SHA checkout/provenance assertion: SUCCESS on both OS;
+- core development dependency install only: SUCCESS;
+- compile of the R15.16-owned surface: SUCCESS;
+- 9 focused/schema tests: SUCCESS on both OS;
+- real non-mutating CI doctor execution: SUCCESS;
+- Draft 2020-12 report-schema and exact-source provenance validation: SUCCESS;
+- Ruff over R15.16-owned Python: SUCCESS.
+
+The first candidate `{rejected}` / R15.16 #1 `{rejected_run}` is explicitly rejected and MUST NOT be reused as acceptance evidence. Its functional steps passed, but Ruff B008 failed on both OS because `QualificationPolicy()` was constructed in a function default. The accepted source fixes only that static defect by using a null default and constructing the immutable policy inside the method.
+
+## Conditional real-hardware state
+
+No accepted R15 gap decision or promotion claim currently requires a real target-workstation QLoRA/conversion/promotion result. Therefore the conditional manual gate is not triggered. This is not a claim that the target RX 6750 XT is training-capable or incapable under every future stack; the accepted contract requires the exact operation probe on the exact future environment if such a claim becomes necessary.
+
+Current external compatibility documentation is dated/advisory only. A wheel/tool may list an AMD architecture while a particular Windows HIP/PyTorch stack or vendor support matrix does not support the exact device. R15.16 therefore treats actual backend/dtype/NF4/model operations and resource evidence as authoritative, never the wheel name or GPU family alone.
+
+## Exact-head acceptance required before merge
+
+This END synchronization changes documentary authority. The final R15.16 PR head must receive, on one unchanged SHA:
+
+1. R15.16 Hardware Local Qualification Acceptance on Ubuntu and Windows;
+2. R0 Repository Guard;
+3. full Python Core (all jobs);
+4. KodeStudio UI Smoke.
+
+Only then may the implementation/evidence PR merge with exact `expected_head_sha`. Exactly one continuity-only post-merge normalization with fresh exact-head R0/Python/UI remains mandatory before R15.17 START-sync is authorized.
+'''
+          Path("docs/roadmap/R15_16_ACCEPTANCE.md").write_text(acceptance, encoding="utf-8")
+          PY
+
+          rm .github/workflows/r15-16-end-sync-helper.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R15_PLAN.md docs/roadmap/R15_16_ACCEPTANCE.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r15-16-end-sync-helper.yml
+          mapfile -t staged < <(git diff --cached --name-only)
+          test "${#staged[@]}" -eq 4
+          printf '%s\n' "${staged[@]}" | grep -Fx 'docs/roadmap/R15_PLAN.md'
+          printf '%s\n' "${staged[@]}" | grep -Fx 'docs/roadmap/R15_16_ACCEPTANCE.md'
+          printf '%s\n' "${staged[@]}" | grep -Fx 'docs/continuity/KODEPOIA_CONTINUITY.md'
+          printf '%s\n' "${staged[@]}" | grep -Fx '.github/workflows/r15-16-end-sync-helper.yml'
+          git commit -m "docs(r15.16): synchronize END authority"
+          git push origin HEAD:r15/16-hardware-local-qualification

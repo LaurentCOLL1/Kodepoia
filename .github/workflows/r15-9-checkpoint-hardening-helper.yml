@@ -1,0 +1,60 @@
+name: R15.9 Checkpoint Hardening Helper
+on:
+  push:
+    branches: [r15/09-qlora-sft-training]
+    paths: ['.github/workflows/r15-9-checkpoint-hardening-helper.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/09-qlora-sft-training
+      - name: Patch checkpoint directory semantics
+        shell: python
+        run: |
+          from pathlib import Path
+
+          p = Path('src/kodepoia/tuning/training.py')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace('import platform\n', '').replace('from collections.abc import Mapping\n', '').replace('from kodepoia.core.sandbox import ProcessSandbox, SandboxResult\n', 'from kodepoia.core.sandbox import ProcessSandbox\n')
+          old = '''            if checkpoint is not None:\n                checkpoint_file = _inside(self.root, checkpoint.checkpoint_path)\n                if not checkpoint_file.is_file() or _sha256_file(checkpoint_file) != checkpoint.state_digest:\n                    raise TrainingPlanError("checkpoint artifact digest mismatch")\n'''
+          new = '''            if checkpoint is not None:\n                checkpoint_dir = _inside(self.root, checkpoint.checkpoint_path)\n                metadata = checkpoint_dir / "kodepoia_checkpoint.json"\n                state_file = checkpoint_dir / "fixture_state.json"\n                if not state_file.is_file():\n                    state_file = checkpoint_dir / "trainer_state.json"\n                if not checkpoint_dir.is_dir() or not metadata.is_file() or not state_file.is_file():\n                    raise TrainingPlanError("checkpoint artifact is incomplete")\n                if _sha256_file(state_file) != checkpoint.state_digest:\n                    raise TrainingPlanError("checkpoint state digest mismatch")\n                recorded = _checkpoint_from_dict(json.loads(metadata.read_text(encoding="utf-8")))\n                if recorded != checkpoint:\n                    raise TrainingPlanError("checkpoint metadata mismatch")\n'''
+          assert text.count(old) == 1
+          text = text.replace(old, new, 1)
+          old = '''        checkpoint_path = _inside(self.root, relative)\n        if not checkpoint_path.is_file():\n            return "resume_checkpoint_missing"\n        try:\n            payload = json.loads(checkpoint_path.read_text(encoding="utf-8"))\n            record = _checkpoint_from_dict(payload)\n        except (OSError, json.JSONDecodeError, TypeError, ValueError, TrainingPlanError):\n            return "resume_checkpoint_invalid"\n'''
+          new = '''        checkpoint_path = _inside(self.root, relative)\n        metadata = checkpoint_path / "kodepoia_checkpoint.json"\n        if not checkpoint_path.is_dir() or not metadata.is_file():\n            return "resume_checkpoint_missing"\n        try:\n            payload = json.loads(metadata.read_text(encoding="utf-8"))\n            record = _checkpoint_from_dict(payload)\n            state_file = checkpoint_path / "fixture_state.json"\n            if not state_file.is_file():\n                state_file = checkpoint_path / "trainer_state.json"\n            if not state_file.is_file() or _sha256_file(state_file) != record.state_digest:\n                return "resume_checkpoint_state_mismatch"\n        except (OSError, json.JSONDecodeError, TypeError, ValueError, TrainingPlanError):\n            return "resume_checkpoint_invalid"\n'''
+          assert text.count(old) == 1
+          text = text.replace(old, new, 1)
+          p.write_text(text, encoding='utf-8', newline='\n')
+
+          p = Path('src/kodepoia/tuning/training_worker.py')
+          text = p.read_text(encoding='utf-8')
+          old_start = text.index('def _save_checkpoint(')
+          old_end = text.index('\n\ndef _fixture_train', old_start)
+          replacement = '''def _save_checkpoint(root: Path, output_dir: Path, plan: TrainingPlan, step: int, material: bytes) -> dict[str, object]:\n    checkpoint_dir = output_dir / f"checkpoint-{step}"\n    checkpoint_dir.mkdir(parents=True, exist_ok=True)\n    state_path = checkpoint_dir / "fixture_state.json"\n    state = {\n        "material_digest": hashlib.sha256(material).hexdigest(),\n        "plan_digest": plan.digest,\n        "step": step,\n    }\n    state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")\n    payload = _checkpoint_payload(\n        plan,\n        path=checkpoint_dir.relative_to(root).as_posix(),\n        step=step,\n        state_digest=_sha256_file(state_path),\n    )\n    (checkpoint_dir / "kodepoia_checkpoint.json").write_text(\n        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True),\n        encoding="utf-8",\n    )\n    return payload\n'''
+          text = text[:old_start] + replacement + text[old_end:]
+          old = '''    if resume is not None:\n        checkpoint = json.loads((root / resume).read_text(encoding="utf-8"))\n        start_step = int(checkpoint["step"])\n'''
+          new = '''    if resume is not None:\n        checkpoint = json.loads((root / resume / "kodepoia_checkpoint.json").read_text(encoding="utf-8"))\n        start_step = int(checkpoint["step"])\n'''
+          assert text.count(old) == 1
+          text = text.replace(old, new, 1)
+          old = '''        checkpoint_payload = _checkpoint_payload(\n            plan,\n            path=checkpoint_dir.relative_to(root).as_posix(),\n            step=int(checkpoint_dir.name.split("-")[-1]),\n            state_digest=state_digest,\n        )\n'''
+          new = '''        checkpoint_payload = _checkpoint_payload(\n            plan,\n            path=checkpoint_dir.relative_to(root).as_posix(),\n            step=int(checkpoint_dir.name.split("-")[-1]),\n            state_digest=state_digest,\n        )\n        (checkpoint_dir / "kodepoia_checkpoint.json").write_text(\n            json.dumps(checkpoint_payload, ensure_ascii=False, indent=2, sort_keys=True),\n            encoding="utf-8",\n        )\n'''
+          assert text.count(old) == 1
+          text = text.replace(old, new, 1)
+          p.write_text(text, encoding='utf-8', newline='\n')
+      - name: Validate patch
+        shell: bash
+        run: |
+          git diff --check -- src/kodepoia/tuning/training.py src/kodepoia/tuning/training_worker.py
+      - name: Commit and remove helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r15-9-checkpoint-hardening-helper.yml
+          git add src/kodepoia/tuning/training.py src/kodepoia/tuning/training_worker.py
+          git commit -m "fix(r15.9): harden checkpoint lineage semantics"
+          git push origin HEAD:r15/09-qlora-sft-training

@@ -39,21 +39,23 @@ jobs:
           assert section is not None
           old_record = "## Completion record\n\nTo be appended when accepted."
           assert section.group(1).count(old_record) == 1
-          new_record = f'''## Completion record
-
-**COMPLETE — technical acceptance recorded; fresh final-END gates required before merge.**
-
-- clean START / normalized R15.7 main: `5de1cabd3e861e75204595de1819564c782a217d`;
-- immutable technical source: `{source}`;
-- {focused}: SUCCESS Ubuntu + Windows, 13 focused tests per OS, Ruff, compileall, CLI help and capability-schema validation;
-- core acceptance installs only `.[dev]`; PyTorch/Transformers/Accelerate/PEFT/TRL/bitsandbytes remain optional and are not imported by `kodepoia.tuning`;
-- CPU/CUDA/ROCm and requested dtype/NF4 support are decided by bounded real-operation probes rather than device-name or backend-name assumptions; CPU NF4 is not pre-rejected;
-- nonzero disk/RAM requirements with unavailable host measurements fail closed before subprocess launch; accelerator VRAM admission remains fail-closed before model load;
-- model/tokenizer identifiers stay out of subprocess argv and reports; model/tokenizer load is a distinct local-only second phase after admission;
-- timeout/KillSwitch cancellation and bounded redacted failure evidence are terminal non-success paths;
-- real local GPU/backend qualification was not required for core R15.8 and manual state remains `CONDITIONAL / NOT TRIGGERED`;
-- the exact final documented END-head must receive fresh R15.8 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before protected merge; technical-source evidence is not reused for that decision.
-'''
+          new_record = "\n".join([
+              "## Completion record",
+              "",
+              "**COMPLETE — technical acceptance recorded; fresh final-END gates required before merge.**",
+              "",
+              "- clean START / normalized R15.7 main: `5de1cabd3e861e75204595de1819564c782a217d`;",
+              f"- immutable technical source: `{source}`;",
+              f"- {focused}: SUCCESS Ubuntu + Windows, 13 focused tests per OS, Ruff, compileall, CLI help and capability-schema validation;",
+              "- core acceptance installs only `.[dev]`; PyTorch/Transformers/Accelerate/PEFT/TRL/bitsandbytes remain optional and are not imported by `kodepoia.tuning`;",
+              "- CPU/CUDA/ROCm and requested dtype/NF4 support are decided by bounded real-operation probes rather than device-name or backend-name assumptions; CPU NF4 is not pre-rejected;",
+              "- nonzero disk/RAM requirements with unavailable host measurements fail closed before subprocess launch; accelerator VRAM admission remains fail-closed before model load;",
+              "- model/tokenizer identifiers stay out of subprocess argv and reports; model/tokenizer load is a distinct local-only second phase after admission;",
+              "- timeout/KillSwitch cancellation and bounded redacted failure evidence are terminal non-success paths;",
+              "- real local GPU/backend qualification was not required for core R15.8 and manual state remains `CONDITIONAL / NOT TRIGGERED`;",
+              "- the exact final documented END-head must receive fresh R15.8 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before protected merge; technical-source evidence is not reused for that decision.",
+              "",
+          ])
           replacement = section.group(1).replace(old_record, new_record, 1)
           plan = plan[:section.start()] + replacement + plan[section.end():]
           plan_path.write_text(plan, encoding="utf-8", newline="\n")
@@ -92,7 +94,19 @@ jobs:
           new_budget = "- disk/RAM preflight prevents any subprocess when already over budget, and a configured nonzero requirement with unavailable host measurement fails closed before subprocess launch;"
           assert acceptance.count(old_budget) == 1
           acceptance = acceptance.replace(old_budget, new_budget, 1)
-          evidence = f'''\n## Technical acceptance evidence\n\n- Immutable technical source: `{source}`.\n- {focused}: SUCCESS on Ubuntu + Windows.\n- Focused suite: 13/13 tests per OS, followed by Ruff, compileall, `python -m kodepoia.tuning --help` and JSON-schema validation.\n- Workflow installs only core + `dev`, proving core acceptance without tuning ML extras.\n- Compatibility hardening from current upstream documentation is included: NF4 is operation-probed without a hard-coded CPU rejection, and unknown configured host budgets fail closed.\n- Manual local GPU/backend qualification: **CONDITIONAL / NOT TRIGGERED** for core R15.8.\n- These are immutable technical-source proofs only. Fresh R15.8, R0 Repository Guard, full Python Core and KodeStudio UI Smoke must all succeed on the exact final documentation END-head before merge.\n'''
+          evidence = "\n".join([
+              "",
+              "## Technical acceptance evidence",
+              "",
+              f"- Immutable technical source: `{source}`.",
+              f"- {focused}: SUCCESS on Ubuntu + Windows.",
+              "- Focused suite: 13/13 tests per OS, followed by Ruff, compileall, `python -m kodepoia.tuning --help` and JSON-schema validation.",
+              "- Workflow installs only core + `dev`, proving core acceptance without tuning ML extras.",
+              "- Compatibility hardening from current upstream documentation is included: NF4 is operation-probed without a hard-coded CPU rejection, and unknown configured host budgets fail closed.",
+              "- Manual local GPU/backend qualification: **CONDITIONAL / NOT TRIGGERED** for core R15.8.",
+              "- These are immutable technical-source proofs only. Fresh R15.8, R0 Repository Guard, full Python Core and KodeStudio UI Smoke must all succeed on the exact final documentation END-head before merge.",
+              "",
+          ])
           assert "## Technical acceptance evidence" not in acceptance
           acceptance = acceptance.rstrip() + "\n" + evidence
           acceptance_path.write_text(acceptance, encoding="utf-8", newline="\n")

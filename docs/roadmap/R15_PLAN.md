@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.8 are COMPLETE + NORMALIZED. R15.9 is COMPLETE with immutable technical source `a964bff54886cafe640fb583610e81055fbe3907`; its final documented END-head requires fresh exact-head R15.9/R0/Python/UI gates before protected merge. R15.10–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.9 are COMPLETE + NORMALIZED. R15.10 is IN_PROGRESS from normalized `main` `ba37dbc46393ca64d565ee1122fe545cc1b48c2d`; R15.11–R15.17 remain PLANNED.
 
 ## Purpose and authority
 

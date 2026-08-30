@@ -1,0 +1,42 @@
+name: R15.5 START-sync helper
+
+on:
+  push:
+    branches:
+      - r15/05-immutable-dataset-builder
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/05-immutable-dataset-builder
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install R0 dependencies
+        run: python -m pip install -r scripts/requirements-r0.txt
+      - name: Apply R15.5 START-sync
+        run: python scripts/r15_5_start_sync.py
+      - name: Validate START state
+        run: |
+          git diff --check
+          python scripts/check_repo.py
+      - name: Commit START-sync and remove helpers
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git rm scripts/r15_5_start_sync.py
+          git rm .github/workflows/r15_5_start_sync.yml
+          git commit -m "docs(r15.5): synchronize START state"
+          changed="$(git diff --name-only 8744df5f3a408595693c67819a29f95b3a82f1d7...HEAD)"
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R15_PLAN.md'
+          test "$changed" = "$expected"
+          git push origin HEAD:r15/05-immutable-dataset-builder

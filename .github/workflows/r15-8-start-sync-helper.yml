@@ -1,0 +1,43 @@
+name: R15.8 START Sync Helper
+
+on:
+  push:
+    branches: [r15/08-training-runtime-capability]
+    paths:
+      - 'scripts/r15_8_start_sync.py'
+      - '.github/workflows/r15-8-start-sync-helper.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/08-training-runtime-capability
+          fetch-depth: 0
+      - name: Apply bounded R15.8 START synchronization
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/r15_8_start_sync.py
+          git rm .github/workflows/r15-8-start-sync-helper.yml scripts/r15_8_start_sync.py
+          git add docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          mapfile -t staged < <(git diff --cached --name-only | sort)
+          printf '%s\n' "${staged[@]}"
+          expected=(
+            '.github/workflows/r15-8-start-sync-helper.yml'
+            'docs/continuity/KODEPOIA_CONTINUITY.md'
+            'docs/roadmap/R15_PLAN.md'
+            'scripts/r15_8_start_sync.py'
+          )
+          if [[ "${staged[*]}" != "${expected[*]}" ]]; then
+            echo 'Unexpected staged scope' >&2
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'docs(r15.8): synchronize START authority'
+          git push origin HEAD:r15/08-training-runtime-capability

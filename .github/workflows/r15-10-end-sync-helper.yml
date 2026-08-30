@@ -1,0 +1,93 @@
+name: R15.10 END Sync Helper
+
+on:
+  push:
+    branches: [r15/10-base-adapter-evaluation]
+
+permissions:
+  contents: write
+
+jobs:
+  end_sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/10-base-adapter-evaluation
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply bounded END synchronization
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          plan_path = Path('docs/roadmap/R15_PLAN.md')
+          continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          continuity = continuity_path.read_text(encoding='utf-8')
+
+          old_checkpoint = "**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.9 are COMPLETE + NORMALIZED. R15.10 is IN_PROGRESS from normalized `main` `ba37dbc46393ca64d565ee1122fe545cc1b48c2d`; R15.11–R15.17 remain PLANNED."
+          new_checkpoint = "**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.9 are COMPLETE + NORMALIZED. R15.10 is COMPLETE with immutable technical source `a4770042509dbba9397c974f2f5f153513f97b24`; its final documented END-head requires fresh exact-head R15.10/R0/Python/UI gates before protected merge. R15.11–R15.17 remain PLANNED."
+          if plan.count(old_checkpoint) != 1:
+              raise SystemExit('R15 plan checkpoint replacement cardinality mismatch')
+          plan = plan.replace(old_checkpoint, new_checkpoint)
+
+          old_record = "## Completion record\n\nTo be appended when accepted.\n\n---\n\n# R15.11 — Accepted adapter/model export, merge compatibility, Safetensors/model card + lineage"
+          new_record = """## Completion record
+
+**COMPLETE — technical acceptance recorded; fresh final-END gates required before merge.**
+
+- normalized R15.9 base: `ba37dbc46393ca64d565ee1122fe545cc1b48c2d`;
+- clean R15.10 START head: `f539e0f340f780222dfd4c6a690c4cfb22f961f6`;
+- immutable technical source: `a4770042509dbba9397c974f2f5f153513f97b24`;
+- R15.10 Base Adapter Evaluation Acceptance #4 / `33314874217`: SUCCESS Ubuntu + Windows;
+- R0 Repository Guard #2157 / `33314874266`: SUCCESS Ubuntu + Windows;
+- Python Core #2132 / `33314874246`: SUCCESS 5/5;
+- KodeStudio UI Smoke #2097 / `33314874243`: SUCCESS;
+- comparison is digest-bound to identical KodeBench suite/config/protection evidence, exact base/candidate identities and exact `(task_id, repeat, seed)` pairing; duplicate/missing pairs and mixed evidence fail closed;
+- any critical-task regression is a hard rejection even when aggregate score improves; target-domain gain, error/latency/VRAM budgets, repeat instability and train/validation loss context produce deterministic `PROMOTE_TO_EXPORT`, `REJECT` or `INCONCLUSIVE`;
+- `REJECT` and `INCONCLUSIVE` candidates cannot feed R15.11 through the exportability guard; serialized disposition evidence is Draft 2020-12 schema validated;
+- manual state: `NONE`;
+- PR #315 carries this technical source; the exact final documented END-head produced by this synchronization must receive fresh R15.10 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before protected merge. Technical-source evidence above is not reused for that final merge decision.
+
+---
+
+# R15.11 — Accepted adapter/model export, merge compatibility, Safetensors/model card + lineage"""
+          if plan.count(old_record) != 1:
+              raise SystemExit('R15.10 completion replacement cardinality mismatch')
+          plan = plan.replace(old_record, new_record)
+
+          old_top = "> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.9 COMPLETE + NORMALIZED; R15.10 IN_PROGRESS; R15.11–R15.17 PLANNED.** R15.10 branch `r15/10-base-adapter-evaluation` starts from normalized `main` `ba37dbc46393ca64d565ee1122fe545cc1b48c2d`. Scope is base-vs-adapter KodeBench comparison with identical suite/config/repeats, deterministic critical-regression veto and governed `PROMOTE_TO_EXPORT` / `REJECT` / `INCONCLUSIVE` disposition. Manual state R15.10: NONE."
+          new_top = "> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.9 COMPLETE + NORMALIZED; R15.10 COMPLETE pending final END-head re-gates/merge/normalization; R15.11–R15.17 PLANNED.** R15.10 immutable technical source `a4770042509dbba9397c974f2f5f153513f97b24` passed R15.10 #4 / `33314874217`, R0 #2157 / `33314874266`, Python Core #2132 / `33314874246` and UI #2097 / `33314874243` on exact source. Manual state R15.10: NONE."
+          if continuity.count(old_top) != 1:
+              raise SystemExit('continuity top replacement cardinality mismatch')
+          continuity = continuity.replace(old_top, new_top)
+
+          old_bullet = "- R15.10 : **IN_PROGRESS** — clean START / normalized R15.9 base `ba37dbc46393ca64d565ee1122fe545cc1b48c2d`; dedicated branch `r15/10-base-adapter-evaluation`; compare only immutable base/candidate KodeBench runs with identical suite/config/repeats; mixed suite/base/config comparisons fail closed; any critical-domain regression is a hard veto; target-domain gains, error/resource deltas and repeated-run instability determine deterministic `PROMOTE_TO_EXPORT`, `REJECT` or `INCONCLUSIVE`; manual NONE. R15.11–R15.17 remain PLANNED and unauthorized."
+          new_bullet = "- R15.10 : **COMPLETE — final END-head re-gates pending** — clean START / normalized R15.9 base `ba37dbc46393ca64d565ee1122fe545cc1b48c2d`; clean START head `f539e0f340f780222dfd4c6a690c4cfb22f961f6`; immutable technical source `a4770042509dbba9397c974f2f5f153513f97b24`; exact-source R15.10 #4 / `33314874217` SUCCESS Ubuntu + Windows, R0 #2157 / `33314874266` SUCCESS Ubuntu + Windows, Python Core #2132 / `33314874246` SUCCESS 5/5, UI #2097 / `33314874243` SUCCESS. Comparison evidence is suite/config/protection-digest-bound, exact-paired by task/repeat/seed, identity-bound to base/candidate/adapter/dataset/training lineage and fail-closed; critical regressions hard-reject irrespective of aggregate gain; resource/error/variance/overfit evidence governs deterministic `PROMOTE_TO_EXPORT`, `REJECT` or `INCONCLUSIVE`, and non-promoted candidates are blocked from R15.11. Manual NONE. PR #315 must not merge until this documentary END-sync head receives fresh exact-head R15.10/R0/Python/UI gates; R15.11 remains PLANNED and unauthorized until implementation merge plus unique continuity-only normalization complete."
+          if continuity.count(old_bullet) != 1:
+              raise SystemExit('continuity R15.10 replacement cardinality mismatch')
+          continuity = continuity.replace(old_bullet, new_bullet)
+
+          plan_path.write_text(plan, encoding='utf-8')
+          continuity_path.write_text(continuity, encoding='utf-8')
+          PY
+      - name: Verify and publish clean END head
+        shell: bash
+        run: |
+          rm .github/workflows/r15-10-end-sync-helper.yml
+          test "$(git diff --name-only | sort)" = $'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R15_PLAN.md\n.github/workflows/r15-10-end-sync-helper.yml' || {
+            echo 'Unexpected END-sync diff:'
+            git diff --name-only
+            exit 1
+          }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r15-10-end-sync-helper.yml
+          git diff --cached --check
+          git commit -m 'docs(r15.10): synchronize final completion evidence'
+          git push origin HEAD:r15/10-base-adapter-evaluation

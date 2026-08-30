@@ -1,0 +1,41 @@
+name: R15.4 lint correction helper
+on:
+  push:
+    branches: [r15/04-dedup-contamination]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/04-dedup-contamination
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[dev]"
+      - run: python scripts/r15_4_lint_fix.py
+      - run: >-
+          python -m pytest -q
+          tests/test_experience_contracts.py
+          tests/test_experience_collector.py
+          tests/test_experience_governance.py
+          tests/test_experience_dedup.py
+      - run: >-
+          python -m ruff check
+          src/kodepoia/experience
+          tests/test_experience_contracts.py
+          tests/test_experience_collector.py
+          tests/test_experience_governance.py
+          tests/test_experience_dedup.py
+      - run: python -m compileall -q src/kodepoia/experience
+      - name: Commit bounded correction and remove helper
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r15_4_lint_fix.yml scripts/r15_4_lint_fix.py
+          git add src/kodepoia/experience/dedup.py
+          git commit -m "fix(r15.4): satisfy dedup lint contract"
+          git push origin HEAD:r15/04-dedup-contamination

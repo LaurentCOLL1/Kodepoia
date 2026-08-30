@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/experience-holdout-registry-v1.schema.json",
+  "title": "Kodepoia R15 protected holdout registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "schema_version", "policy_digest", "holdouts"],
+  "properties": {
+    "schema": {"const": "kodepoia.experience.protected-holdout-registry"},
+    "schema_version": {"const": 1},
+    "policy_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "holdouts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["holdout_id", "fingerprint"],
+        "properties": {
+          "holdout_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+          },
+          "fingerprint": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["exact_digest", "policy_digest", "shingle_count", "token_count"],
+            "properties": {
+              "exact_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "policy_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "shingle_count": {"type": "integer", "minimum": 1},
+              "token_count": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    }
+  }
+}

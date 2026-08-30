@@ -37,7 +37,7 @@ jobs:
               1,
           )
 
-          bullet = '''- R15.14 : **COMPLETE + NORMALIZED** — clean START / normalized R15.13 `main` `d0225f4086c8ad1328fe6450a85e92fcc62644a6`; immutable technical source `d6e3aef8224cb45a329b76077d1dd39a9adda0c3`; final exact END-head `c9ca0cb9b16870a2fa46eee280c3dd9d7cc0b140`; exact-END R15.14 #10 / `33333256059` SUCCESS Ubuntu + Windows, R0 #2207 / `33333258400` SUCCESS, Python Core #2182 / `33333258385` SUCCESS 5/5 and KodeStudio UI Smoke #2147 / `33333258329` SUCCESS; PR #324 merged with `expected_head_sha=c9ca0cb9b16870a2fa46eee280c3dd9d7cc0b140` as implementation/evidence `main` `6277995cda41a2a34c101f634b89666d2e674d89`. Immutable digest-bound versions, explicit lineage/artifact variants/role eligibility, fail-closed rejected/non-promotable activation, mutable runtime-ref digest verification, atomic persisted promotion, SafeChange snapshot hook, health rollback, restart-safe exact rollback and R3 `KodeModelRouter` compatibility remain authoritative. Manual NONE. This record is the unique post-merge continuity-only R15.14 normalization authority when merged; R15.15 START-sync is authorized only from the resulting normalized `main` after this branch passes fresh exact-head R0/Python/UI and merges.'''
+          bullet = '- R15.14 : **COMPLETE + NORMALIZED** — clean START / normalized R15.13 `main` `d0225f4086c8ad1328fe6450a85e92fcc62644a6`; immutable technical source `d6e3aef8224cb45a329b76077d1dd39a9adda0c3`; final exact END-head `c9ca0cb9b16870a2fa46eee280c3dd9d7cc0b140`; exact-END R15.14 #10 / `33333256059` SUCCESS Ubuntu + Windows, R0 #2207 / `33333258400` SUCCESS, Python Core #2182 / `33333258385` SUCCESS 5/5 and KodeStudio UI Smoke #2147 / `33333258329` SUCCESS; PR #324 merged with `expected_head_sha=c9ca0cb9b16870a2fa46eee280c3dd9d7cc0b140` as implementation/evidence `main` `6277995cda41a2a34c101f634b89666d2e674d89`. Immutable digest-bound versions, explicit lineage/artifact variants/role eligibility, fail-closed rejected/non-promotable activation, mutable runtime-ref digest verification, atomic persisted promotion, SafeChange snapshot hook, health rollback, restart-safe exact rollback and R3 `KodeModelRouter` compatibility remain authoritative. Manual NONE. This record is the unique post-merge continuity-only R15.14 normalization authority when merged; R15.15 START-sync is authorized only from the resulting normalized `main` after this branch passes fresh exact-head R0/Python/UI and merges.'
 
           text, n = re.subn(
               r'- R15\.14 : \*\*COMPLETE / NORMALIZATION PENDING\*\* — .*?\n\n## Next authorized action',
@@ -48,11 +48,7 @@ jobs:
           )
           assert n == 1, 'R15.14 bullet replacement failed'
 
-          next_action = '''## Next authorized action
-
-**R15.14 normalization only: require fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke on this continuity-only normalization head, then merge its PR with exact `expected_head_sha`. R15.15 remains unauthorized until that normalization merge creates the new normalized `main`. Manual state: NONE.**
-
-## Permanent R-phase execution rule'''
+          next_action = '## Next authorized action\n\n**R15.14 normalization only: require fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke on this continuity-only normalization head, then merge its PR with exact `expected_head_sha`. R15.15 remains unauthorized until that normalization merge creates the new normalized `main`. Manual state: NONE.**\n\n## Permanent R-phase execution rule'
           text, n = re.subn(
               r'## Next authorized action\n\n\*\*.*?\*\*\n\n## Permanent R-phase execution rule',
               next_action,

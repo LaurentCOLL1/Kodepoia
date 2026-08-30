@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.8 are COMPLETE + NORMALIZED. R15.9 is COMPLETE with immutable technical source `a964bff54886cafe640fb583610e81055fbe3907`; its final documented END-head requires fresh exact-head R15.9/R0/Python/UI gates before protected merge. R15.10–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.9 are COMPLETE + NORMALIZED. R15.10 is COMPLETE with immutable technical source `a4770042509dbba9397c974f2f5f153513f97b24`; its final documented END-head requires fresh exact-head R15.10/R0/Python/UI gates before protected merge. R15.11–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -927,7 +927,20 @@ Cherry-picking tasks; changing generation config between runs; aggregate score m
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — technical acceptance recorded; fresh final-END gates required before merge.**
+
+- normalized R15.9 base: `ba37dbc46393ca64d565ee1122fe545cc1b48c2d`;
+- clean R15.10 START head: `f539e0f340f780222dfd4c6a690c4cfb22f961f6`;
+- immutable technical source: `a4770042509dbba9397c974f2f5f153513f97b24`;
+- R15.10 Base Adapter Evaluation Acceptance #4 / `33314874217`: SUCCESS Ubuntu + Windows;
+- R0 Repository Guard #2157 / `33314874266`: SUCCESS Ubuntu + Windows;
+- Python Core #2132 / `33314874246`: SUCCESS 5/5;
+- KodeStudio UI Smoke #2097 / `33314874243`: SUCCESS;
+- comparison is digest-bound to identical KodeBench suite/config/protection evidence, exact base/candidate identities and exact `(task_id, repeat, seed)` pairing; duplicate/missing pairs and mixed evidence fail closed;
+- any critical-task regression is a hard rejection even when aggregate score improves; target-domain gain, error/latency/VRAM budgets, repeat instability and train/validation loss context produce deterministic `PROMOTE_TO_EXPORT`, `REJECT` or `INCONCLUSIVE`;
+- `REJECT` and `INCONCLUSIVE` candidates cannot feed R15.11 through the exportability guard; serialized disposition evidence is Draft 2020-12 schema validated;
+- manual state: `NONE`;
+- PR #315 carries this technical source; the exact final documented END-head produced by this synchronization must receive fresh R15.10 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before protected merge. Technical-source evidence above is not reused for that final merge decision.
 
 ---
 

@@ -19,6 +19,16 @@ from kodepoia.bench.decision import (
     evaluate_saved_decision,
     run_gap_decision_from_files,
 )
+from kodepoia.bench.evaluation import (
+    BaseAdapterEvaluator,
+    CandidateBinding,
+    CandidateDisposition,
+    CandidateEvaluation,
+    CandidateEvaluationError,
+    CandidateEvaluationPolicy,
+    TrainingLossContext,
+    evaluate_saved_reports,
+)
 from kodepoia.bench.kodebench import (
     BenchmarkSuite,
     BenchmarkTaskSpec,
@@ -39,6 +49,7 @@ from kodepoia.bench.kodebench import (
 __all__ = [
     "AcceptanceTarget",
     "BackendCapability",
+    "BaseAdapterEvaluator",
     "BaselineBench",
     "BenchmarkRole",
     "BenchmarkSuite",
@@ -46,6 +57,11 @@ __all__ = [
     "BenchResult",
     "BenchTask",
     "BudgetStatus",
+    "CandidateBinding",
+    "CandidateDisposition",
+    "CandidateEvaluation",
+    "CandidateEvaluationError",
+    "CandidateEvaluationPolicy",
     "DecisionDisposition",
     "DecisionEvidence",
     "DecisionPolicy",
@@ -66,9 +82,11 @@ __all__ = [
     "RunConfig",
     "ScorerKind",
     "ScorerSpec",
+    "TrainingLossContext",
     "baseline_compat_suite",
     "compare_report_payloads",
     "compare_saved_reports",
     "evaluate_saved_decision",
+    "evaluate_saved_reports",
     "run_gap_decision_from_files",
 ]

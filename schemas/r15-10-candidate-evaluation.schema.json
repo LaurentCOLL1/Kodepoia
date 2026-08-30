@@ -1,0 +1,513 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r15-10-candidate-evaluation.schema.json",
+  "title": "Kodepoia R15.10 base-vs-adapter candidate evaluation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "aggregate",
+    "binding",
+    "binding_digest",
+    "can_export",
+    "config_digest",
+    "critical_regressions",
+    "disposition",
+    "domain_deltas",
+    "errors",
+    "evaluation_digest",
+    "overfit_risk",
+    "policy",
+    "policy_digest",
+    "protection_manifest_digest",
+    "reasons",
+    "repeat_stddev",
+    "reports",
+    "resources",
+    "schema",
+    "schema_version",
+    "suite_digest",
+    "task_deltas",
+    "training_loss"
+  ],
+  "properties": {
+    "schema": {
+      "const": "kodepoia.r15.10.candidate-evaluation"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "evaluation_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "binding_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "policy_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "suite_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "config_digest": {
+      "$ref": "#/$defs/digest"
+    },
+    "protection_manifest_digest": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "can_export": {
+      "type": "boolean"
+    },
+    "disposition": {
+      "enum": [
+        "promote_to_export",
+        "reject",
+        "inconclusive"
+      ]
+    },
+    "critical_regressions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/safe_id"
+      }
+    },
+    "reasons": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/safe_id"
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adapter_digest",
+        "base_model_digest",
+        "base_model_ref",
+        "candidate_id",
+        "candidate_model_digest",
+        "candidate_model_ref",
+        "dataset_digest",
+        "training_plan_digest"
+      ],
+      "properties": {
+        "adapter_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "base_model_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "base_model_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "candidate_id": {
+          "$ref": "#/$defs/safe_id"
+        },
+        "candidate_model_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "candidate_model_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "dataset_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "training_plan_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_error_increase",
+        "max_latency_ratio",
+        "max_score_stddev",
+        "max_validation_train_loss_ratio",
+        "max_vram_ratio",
+        "min_aggregate_delta",
+        "min_target_gain",
+        "require_protected_benchmark",
+        "require_vram_evidence",
+        "target_domains",
+        "version"
+      ],
+      "properties": {
+        "max_error_increase": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_latency_ratio": {
+          "type": "number",
+          "minimum": 1
+        },
+        "max_score_stddev": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "max_validation_train_loss_ratio": {
+          "type": "number",
+          "minimum": 1
+        },
+        "max_vram_ratio": {
+          "type": "number",
+          "minimum": 1
+        },
+        "min_aggregate_delta": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "min_target_gain": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "require_protected_benchmark": {
+          "type": "boolean"
+        },
+        "require_vram_evidence": {
+          "type": "boolean"
+        },
+        "target_domains": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/safe_id"
+          }
+        },
+        "version": {
+          "$ref": "#/$defs/safe_id"
+        }
+      }
+    },
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_score",
+        "candidate_score",
+        "delta",
+        "target_gain"
+      ],
+      "properties": {
+        "base_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "candidate_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "delta": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "target_gain": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "errors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base",
+        "candidate",
+        "delta"
+      ],
+      "properties": {
+        "base": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "candidate": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "delta": {
+          "type": "integer"
+        }
+      }
+    },
+    "repeat_stddev": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base",
+        "candidate"
+      ],
+      "properties": {
+        "base": {
+          "type": "number",
+          "minimum": 0
+        },
+        "candidate": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "reports": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base",
+        "candidate"
+      ],
+      "properties": {
+        "base": {
+          "$ref": "#/$defs/digest"
+        },
+        "candidate": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "training_loss": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "train_loss",
+        "validation_loss",
+        "validation_to_train_ratio"
+      ],
+      "properties": {
+        "train_loss": {
+          "type": "number",
+          "minimum": 0
+        },
+        "validation_loss": {
+          "type": "number",
+          "minimum": 0
+        },
+        "validation_to_train_ratio": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "overfit_risk": {
+      "type": "boolean"
+    },
+    "task_deltas": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/task_delta"
+      }
+    },
+    "domain_deltas": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/domain_delta"
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "elapsed_s_mean",
+        "tokens_per_second_mean",
+        "vram_bytes_mean"
+      ],
+      "properties": {
+        "elapsed_s_mean": {
+          "$ref": "#/$defs/resource_triplet"
+        },
+        "tokens_per_second_mean": {
+          "$ref": "#/$defs/resource_triplet"
+        },
+        "vram_bytes_mean": {
+          "$ref": "#/$defs/resource_triplet"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "safe_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "task_delta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_score",
+        "candidate_score",
+        "critical",
+        "delta",
+        "domain",
+        "pairs"
+      ],
+      "properties": {
+        "base_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "candidate_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "critical": {
+          "type": "boolean"
+        },
+        "delta": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "domain": {
+          "$ref": "#/$defs/safe_id"
+        },
+        "pairs": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "domain_delta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_score",
+        "candidate_score",
+        "delta",
+        "pairs"
+      ],
+      "properties": {
+        "base_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "candidate_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "delta": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "pairs": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "resource_triplet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base",
+        "candidate",
+        "ratio"
+      ],
+      "properties": {
+        "base": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "candidate": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ratio": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "disposition": {
+            "const": "promote_to_export"
+          }
+        },
+        "required": [
+          "disposition"
+        ]
+      },
+      "then": {
+        "properties": {
+          "can_export": {
+            "const": true
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "can_export": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
+}

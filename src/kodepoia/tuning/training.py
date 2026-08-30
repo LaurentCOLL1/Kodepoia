@@ -329,9 +329,9 @@ class TrainingPlan:
                 "dataset_paths": self.dataset.to_dict(include_paths=True),
                 "plan_digest": self.digest,
                 "resume_checkpoint": (
-                    None if resume_checkpoint is None else str(resume_checkpoint.relative_to(root))
+                    None if resume_checkpoint is None else resume_checkpoint.relative_to(root).as_posix()
                 ),
-                "run_dir": str(run_dir.relative_to(root)),
+                "run_dir": run_dir.relative_to(root).as_posix(),
                 "schema": TRAINING_SCHEMA,
                 "schema_version": TRAINING_SCHEMA_VERSION,
             }
@@ -639,7 +639,7 @@ class TrainingRunner:
             plan_digest=plan.digest,
             run_id=plan.run_id,
             state=TrainingRunState.COMPLETED,
-            adapter_path=str(adapter_path.relative_to(self.root)),
+            adapter_path=adapter_path.relative_to(self.root).as_posix(),
             adapter_digest=adapter_digest,
             checkpoints=checkpoints,
             completed_steps=int(output["completed_steps"]),

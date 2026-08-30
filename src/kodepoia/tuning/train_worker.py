@@ -86,7 +86,7 @@ def _checkpoint(
     train_loss, eval_loss = _fixture_losses(step)
     record = {
         "artifact_digest": _sha256(tensor_path),
-        "artifact_path": str(tensor_path.relative_to(root)),
+        "artifact_path": tensor_path.relative_to(root).as_posix(),
         "checkpoint_id": checkpoint_id,
         "eval_loss": eval_loss,
         "plan_digest": plan_digest,
@@ -95,7 +95,7 @@ def _checkpoint(
     }
     metadata_path = run_dir / "checkpoints" / checkpoint_id / "checkpoint.json"
     metadata_path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    record["metadata_path"] = str(metadata_path.relative_to(root))
+    record["metadata_path"] = metadata_path.relative_to(root).as_posix()
     return record
 
 
@@ -139,7 +139,7 @@ def _run_fixture(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str,
     tracemalloc.stop()
     return {
         "adapter_digest": _sha256(adapter_path),
-        "adapter_path": str(adapter_path.relative_to(root)),
+        "adapter_path": adapter_path.relative_to(root).as_posix(),
         "checkpoints": checkpoints,
         "completed_steps": max_steps,
         "eval_loss": eval_loss,
@@ -284,7 +284,7 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
             continue
         record = {
             "artifact_digest": _sha256(adapter),
-            "artifact_path": str(adapter.relative_to(root)),
+            "artifact_path": adapter.relative_to(root).as_posix(),
             "checkpoint_id": path.name,
             "eval_loss": float(eval_metrics.get("eval_loss", 0.0)),
             "plan_digest": config["plan_digest"],
@@ -297,7 +297,7 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
 
     return {
         "adapter_digest": _sha256(adapter_path),
-        "adapter_path": str(adapter_path.relative_to(root)),
+        "adapter_path": adapter_path.relative_to(root).as_posix(),
         "checkpoints": checkpoints,
         "completed_steps": int(trainer.state.global_step),
         "eval_loss": float(eval_metrics.get("eval_loss", 0.0)),

@@ -1,0 +1,185 @@
+name: R15.13 END Sync Helper
+
+on:
+  push:
+    branches: [r15/13-ollama-import-packaging]
+    paths:
+      - '.github/workflows/r15-13-end-sync-helper.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/13-ollama-import-packaging
+          fetch-depth: 0
+      - name: Verify staging ancestry
+        shell: bash
+        run: git merge-base --is-ancestor f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac HEAD
+      - name: Apply bounded R15.13 END synchronization
+        shell: python
+        run: |
+          from pathlib import Path
+
+          plan_path = Path('docs/roadmap/R15_PLAN.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          plan = plan.replace(
+              'R15.1–R15.12 are COMPLETE + NORMALIZED. R15.13 is IN_PROGRESS from normalized `main` `ca625d51808de6c1f9c950faecc2aa785e7a757d`; R15.14–R15.17 remain PLANNED.',
+              'R15.1–R15.12 are COMPLETE + NORMALIZED. R15.13 is COMPLETE on its accepted END candidate from normalized `main` `ca625d51808de6c1f9c950faecc2aa785e7a757d`; R15.14–R15.17 remain PLANNED and unauthorized until R15.13 post-merge normalization.'
+          )
+          plan = plan.replace(
+              '| R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |',
+              '| R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | COMPLETE | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |'
+          )
+          section_start = plan.index('# R15.13 — Ollama import/Modelfile packaging, base-binding + local runtime verification')
+          section_end = plan.index('\n---\n\n# R15.14 —', section_start)
+          section = plan[section_start:section_end]
+          old = '## Completion record\n\nTo be appended when accepted.'
+          new = '''## Completion record
+
+**COMPLETE — immutable technical source accepted; fresh exact-END gates required before merge.**
+
+- clean START / normalized R15.12 `main`: `ca625d51808de6c1f9c950faecc2aa785e7a757d`;
+- immutable technical source: `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac`;
+- R15.13 Ollama Packaging Acceptance #3 / `33327931401`: SUCCESS Ubuntu + Windows; 19 focused/dependency tests per OS, Ruff, compileall and package-schema validation PASS;
+- R0 Repository Guard #2182 / `33327931448`: SUCCESS Ubuntu + Windows;
+- Python Core #2157 / `33327931386`: SUCCESS for Ubuntu + Windows core, package builds and UI-in-core;
+- KodeStudio UI Smoke #2122 / `33327931328`: SUCCESS;
+- exact base/artifact lineage is required before package creation; wrong-base adapter binding, mutable/active tag collision and non-loopback authoritative endpoints fail closed;
+- Modelfile generation is deterministic and restricted to structured repository-owned fields; `FROM`, optional `ADAPTER`, license/metadata and runtime parameters are serialized without model-supplied shell;
+- candidate lifecycle is namespaced/non-destructive and validates create/show/tags/run evidence, immutable created-model digest/details, structured-output/tool capability claims, KodeBench disposition and governed `ollama rm` rollback;
+- no `ollama push`, remote authoritative Ollama, credential requirement or silent production/active-tag replacement is accepted;
+- official Ollama Modelfile/import documentation remains dated compatibility evidence only; current documentation requires `FROM`, supports `ADAPTER`, and warns that an adapter should use the same base model it was tuned from;
+- manual state: `CONDITIONAL / NOT TRIGGERED`; hosted/core acceptance uses deterministic fakes/fixtures and does not claim real target-workstation model creation;
+- PR #321 carries this implementation/evidence source. This END synchronization changes documentary authority only; its exact final head MUST receive fresh R15.13 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`. Technical-source evidence above is not reused for the END merge decision;
+- exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.14 START-sync is authorized.'''
+          if old not in section:
+              raise SystemExit('R15.13 completion placeholder not found')
+          section = section.replace(old, new, 1)
+          plan = plan[:section_start] + section + plan[section_end:]
+          plan_path.write_text(plan, encoding='utf-8')
+
+          continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          continuity = continuity_path.read_text(encoding='utf-8')
+          first_line_end = continuity.index('\n')
+          continuity = (
+              '> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.12 COMPLETE + NORMALIZED; R15.13 COMPLETE; R15.14–R15.17 PLANNED.** '
+              'R15.13 immutable technical source `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac` passed R15.13 #3 / `33327931401` Ubuntu + Windows, R0 #2182 / `33327931448` Ubuntu + Windows, Python Core #2157 / `33327931386` and KodeStudio UI Smoke #2122 / `33327931328`. '
+              'The R15.13 END-sync candidate must now receive fresh exact-head R15.13/R0/Python/UI gates before PR #321 may merge with exact expected-head protection; technical-source evidence is not reusable for that merge decision. Manual state R15.13: CONDITIONAL / NOT TRIGGERED. R15.14 remains unauthorized until the unique post-merge continuity-only R15.13 normalization passes fresh R0/Python/UI and merges.\n'
+              + continuity[first_line_end + 1:]
+          )
+          old_bullet_start = continuity.index('- R15.13 : **IN_PROGRESS**')
+          old_bullet_end = continuity.index('\n', old_bullet_start)
+          new_bullet = '- R15.13 : **COMPLETE** — clean START / normalized R15.12 `main` `ca625d51808de6c1f9c950faecc2aa785e7a757d`; immutable technical source `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac`; R15.13 #3 / `33327931401` SUCCESS Ubuntu + Windows with 19 focused/dependency tests per OS plus Ruff/compile/schema; R0 #2182 / `33327931448` SUCCESS Ubuntu + Windows; Python Core #2157 / `33327931386` SUCCESS; KodeStudio UI Smoke #2122 / `33327931328` SUCCESS. Exact FROM/ADAPTER base binding, deterministic Modelfile, namespaced candidate tags, create/show/tags/run lifecycle, digest/details capture, structured/tool probes, KodeBench veto and governed rollback are accepted in core fixtures. Public push, remote authoritative Ollama and silent active-tag replacement remain forbidden. Manual CONDITIONAL / NOT TRIGGERED; no real local-model packaging claim is made. Final documentary END-head requires fresh R15.13/R0/Python/UI before PR #321 merge; post-merge normalization remains mandatory before R15.14.'
+          continuity = continuity[:old_bullet_start] + new_bullet + continuity[old_bullet_end:]
+
+          table_start = continuity.index('## R15 status index')
+          table_end = continuity.index('\n## Next authorized action', table_start)
+          new_table = '''## R15 status index
+
+| ID | Status | Manual |
+| --- | --- | --- |
+| R15.1 | COMPLETE + NORMALIZED | NONE |
+| R15.2 | COMPLETE + NORMALIZED | NONE |
+| R15.3 | COMPLETE + NORMALIZED | NONE |
+| R15.4 | COMPLETE + NORMALIZED | NONE |
+| R15.5 | COMPLETE + NORMALIZED | NONE |
+| R15.6 | COMPLETE + NORMALIZED | NONE |
+| R15.7 | COMPLETE + NORMALIZED | NONE |
+| R15.8 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
+| R15.9 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
+| R15.10 | COMPLETE + NORMALIZED | NONE |
+| R15.11 | COMPLETE + NORMALIZED | NONE |
+| R15.12 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
+| R15.13 | COMPLETE | CONDITIONAL / NOT TRIGGERED |
+| R15.14 | PLANNED | NONE |
+| R15.15 | PLANNED | NONE |
+| R15.16 | PLANNED | CONDITIONAL |
+| R15.17 | PLANNED | CONDITIONAL |
+'''
+          continuity = continuity[:table_start] + new_table + continuity[table_end:]
+          next_start = continuity.index('## Next authorized action')
+          next_end = continuity.index('\n## Permanent R-phase execution rule', next_start)
+          next_text = '''## Next authorized action
+
+**Complete R15.13 only: run fresh R15.13 Ollama Packaging Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the exact final documentary END-head, merge PR #321 only with its exact `expected_head_sha`, then create exactly one continuity-only post-merge normalization from the resulting implementation/evidence `main`. R15.14 is not authorized before that normalization passes fresh R0/Python/UI and merges.**
+'''
+          continuity = continuity[:next_start] + next_text + continuity[next_end:]
+          continuity_path.write_text(continuity, encoding='utf-8')
+
+          acceptance = '''# R15.13 — Ollama import / Modelfile packaging acceptance
+
+**Status:** COMPLETE — technical source accepted; exact-END re-gates pending  
+**Normalized base:** `ca625d51808de6c1f9c950faecc2aa785e7a757d`  
+**Immutable technical source:** `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac`  
+**Implementation PR:** #321  
+**Manual state:** `CONDITIONAL / NOT TRIGGERED`
+
+## Accepted scope
+
+R15.13 implements deterministic, governed local Ollama packaging over the already accepted R15.10–R15.12 lineage. It validates exact base/artifact identity before creation, generates a bounded Modelfile from structured repository-owned configuration, creates only namespaced candidate tags, captures model digest/details, probes runtime/structured-output/tool capabilities, compares packaging behavior through KodeBench evidence, and defines governed candidate removal/rollback.
+
+The accepted core path never performs `ollama push`, never treats a remote Ollama endpoint as authoritative, never silently replaces an active role/production tag, and never accepts model-generated text as a shell command.
+
+## Technical-source evidence
+
+- R15.13 Ollama Packaging Acceptance #3 / `33327931401`: SUCCESS on Ubuntu and Windows; 19 focused/dependency tests per OS; Ruff, compileall and Draft 2020-12 package-schema validation PASS.
+- R0 Repository Guard #2182 / `33327931448`: SUCCESS on Ubuntu and Windows.
+- Python Core #2157 / `33327931386`: SUCCESS for Ubuntu/Windows core, package builds and UI-in-core.
+- KodeStudio UI Smoke #2122 / `33327931328`: SUCCESS.
+
+These runs qualify only immutable technical source `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac`. They MUST NOT be reused as final merge evidence after this END-sync changes documentation bytes.
+
+## Frozen acceptance invariants
+
+1. A wrong or unproven adapter/base binding is rejected before model creation.
+2. Authoritative runtime endpoints are credential-free explicit-port loopback only.
+3. Candidate tags are deterministic/namespaced and cannot collide with declared active/production tags.
+4. Modelfile text is deterministic and derived only from validated structured fields.
+5. Created model digest/details must be captured and bound to package evidence.
+6. Create/show/tags/run lifecycle failures are terminal non-success.
+7. Structured-output and tool-call capabilities are claimed only when corresponding probes pass.
+8. KodeBench critical regressions veto acceptance regardless of aggregate improvement.
+9. Failed/rejected candidate creation is rolled back through governed candidate removal without mutating immutable source artifacts.
+10. Public registry upload and remote authoritative Ollama remain out of scope.
+
+## External compatibility evidence
+
+Ollama's current Modelfile reference describes a Modelfile as the blueprint used to create customized models, requires `FROM`, supports `ADAPTER`, `PARAMETER`, `TEMPLATE`, `SYSTEM` and `LICENSE`, and documents `ollama create` followed by `ollama run`. The same reference warns that an adapter should use the same base model it was tuned from because mismatched bases can behave erratically. This documentation is dated interoperability evidence only; Kodepoia's frozen R15 architecture and repository tests remain the acceptance authority.
+
+Official references:
+
+- https://docs.ollama.com/modelfile
+- https://docs.ollama.com/import
+
+## Manual / real-runtime posture
+
+The conditional manual gate is **not triggered** for core R15.13. Hosted/core acceptance intentionally uses deterministic fakes/fixtures and does not claim that a real large model was created on the target workstation. No Ollama registry account, token, credential or public upload is required.
+
+If a future claim explicitly requires authoritative real-model packaging, it must use the bounded loopback-only procedure on the exact accepted source required by that later gate and preserve the same base/digest/KodeBench invariants.
+
+## END-sync and merge rule
+
+This file, `R15_PLAN.md` and continuity are the only documentary END-sync additions/updates. The exact final END-head produced after temporary helper cleanup must receive fresh:
+
+- R15.13 Ollama Packaging Acceptance;
+- R0 Repository Guard;
+- full Python Core;
+- KodeStudio UI Smoke.
+
+PR #321 may merge only with `expected_head_sha` equal to that freshly accepted END-head. After merge, exactly one continuity-only R15.13 normalization with fresh R0 + Python Core + UI Smoke is mandatory. R15.14 remains unauthorized until the normalized `main` from that PR exists.
+'''
+          Path('docs/roadmap/R15_13_ACCEPTANCE.md').write_text(acceptance, encoding='utf-8')
+      - name: Commit bounded documentary END-sync
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/roadmap/R15_PLAN.md docs/roadmap/R15_13_ACCEPTANCE.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          git commit -m 'docs(r15.13): synchronize COMPLETE END state'
+          git push origin HEAD:r15/13-ollama-import-packaging

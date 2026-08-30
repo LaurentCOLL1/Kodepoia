@@ -1,0 +1,83 @@
+name: R15.15 START synchronization helper
+
+on:
+  push:
+    branches:
+      - r15/15-cli-kodestudio-ux
+
+permissions:
+  contents: write
+
+jobs:
+  synchronize:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/15-cli-kodestudio-ux
+          fetch-depth: 0
+      - name: Synchronize R15.15 START authority
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          base = 'ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e'
+          norm_head = '02d2add7795fcdacbf0b385ae9ea1600801ff05b'
+
+          plan = Path('docs/roadmap/R15_PLAN.md')
+          p = plan.read_text(encoding='utf-8')
+          p = p.replace(
+              '| R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | PLANNED | NONE |',
+              '| R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | COMPLETE + NORMALIZED | NONE |',
+              1,
+          )
+          p = p.replace(
+              '| R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | PLANNED | NONE |',
+              '| R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | IN_PROGRESS | NONE |',
+              1,
+          )
+          start = p.index('# R15.15 —')
+          end = p.index('\n---\n\n# R15.16 —', start)
+          section = p[start:end]
+          section, n = re.subn(
+              r'## Completion record\n\nTo be appended when accepted\.',
+              '## Completion record\n\n**IN_PROGRESS — START-sync from normalized R15.14 `main` `' + base + '`.**\n\n- dedicated branch: `r15/15-cli-kodestudio-ux`;\n- manual state: `NONE`;\n- R15.15 implementation/acceptance only is authorized on this branch. R15.16 remains unauthorized until R15.15 merges and its unique post-merge normalization succeeds.',
+              section,
+              count=1,
+          )
+          assert n == 1, 'R15.15 completion record START replacement failed'
+          plan.write_text(p[:start] + section + p[end:], encoding='utf-8')
+
+          continuity = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          c = continuity.read_text(encoding='utf-8')
+          c = c.replace(
+              'R15.1–R15.14 COMPLETE + NORMALIZED; R15.15–R15.17 PLANNED.',
+              'R15.1–R15.14 COMPLETE + NORMALIZED; R15.15 IN_PROGRESS; R15.16–R15.17 PLANNED.',
+              1,
+          )
+          c = c.replace('| R15.15 | PLANNED | NONE |', '| R15.15 | IN_PROGRESS | NONE |', 1)
+          old = re.compile(r'- R15\.14 : \*\*COMPLETE \+ NORMALIZED\*\* — .*?\n\n## Next authorized action', re.S)
+          r15_14 = '- R15.14 : **COMPLETE + NORMALIZED** — clean START / normalized R15.13 `main` `d0225f4086c8ad1328fe6450a85e92fcc62644a6`; immutable technical source `d6e3aef8224cb45a329b76077d1dd39a9adda0c3`; final exact END-head `c9ca0cb9b16870a2fa46eee280c3dd9d7cc0b140`; exact-END R15.14 #10 / `33333256059`, R0 #2207 / `33333258400`, Python Core #2182 / `33333258385` and KodeStudio UI Smoke #2147 / `33333258329` SUCCESS; implementation/evidence PR #324 merged exact head as `6277995cda41a2a34c101f634b89666d2e674d89`; unique continuity-only normalization head `' + norm_head + '` passed R0 #2209 / `33334310234`, Python Core #2184 / `33334310434` 5/5 and UI #2149 / `33334310344`, then normalization PR #325 merged exact head as normalized `main` `' + base + '`. Manual NONE.\n\n- R15.15 : **IN_PROGRESS** — clean START from normalized R15.14 `main` `' + base + '` on dedicated branch `r15/15-cli-kodestudio-ux`. Scope is limited to the frozen CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows. Manual state: NONE. R15.16 remains unauthorized until R15.15 implementation/evidence merge and its unique post-merge normalization.\n\n## Next authorized action'
+          c, n = old.subn(r15_14, c, count=1)
+          assert n == 1, 'R15.14/R15.15 continuity replacement failed'
+          next_action = '## Next authorized action\n\n**R15.15 only: implement the frozen structured CLI and KodeStudio Experience/Bench/Tune UX on `r15/15-cli-kodestudio-ux`; prove help/argument validation, dry-run non-mutation, permission-gated mutation/cancel/rollback, redacted status/evidence and Windows UI smoke; then require exact-head R15.15 acceptance + R0 + full Python Core + KodeStudio UI Smoke before expected-head merge. R15.16 remains unauthorized. Manual state: NONE.**\n\n## Permanent R-phase execution rule'
+          c, n = re.subn(
+              r'## Next authorized action\n\n\*\*.*?\*\*\n\n## Permanent R-phase execution rule',
+              next_action,
+              c,
+              count=1,
+              flags=re.S,
+          )
+          assert n == 1, 'next action START replacement failed'
+          continuity.write_text(c, encoding='utf-8')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/r15-15-start-sync-helper.yml
+          git add docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          git commit -m "docs(r15.15): synchronize START authority"
+          git push origin HEAD:r15/15-cli-kodestudio-ux

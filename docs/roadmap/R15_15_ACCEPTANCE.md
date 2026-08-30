@@ -1,6 +1,6 @@
 # R15.15 — CLI + KodeStudio Experience/Bench/Tune UX acceptance
 
-Status: COMPLETE / technical source accepted; END-sync exact-head re-gates pending.
+Status: COMPLETE / END-sync closed; final exact-head re-gates pending.
 
 R15.15 exposes the frozen R15 Experience/Bench/Tune pipeline through structured, backend-independent CLI and KodeStudio workflows. It does not expose a raw shell, raw secret editor, quarantined private content viewer or public model upload surface.
 
@@ -26,6 +26,8 @@ Technical source `7ede682ec2c21d89e42886a5774115278b0fbb2c` passed all pre-END g
 - KodeStudio UI Smoke #2152 / `33335194748`: SUCCESS.
 
 Because this END synchronization changes documentation, these technical-source runs are historical implementation evidence only. The resulting END-sync SHA must receive fresh copies of all four required gates before PR #326 may merge.
+
+The workflow-originated END synchronization produced documentary candidate `f8f96c9b6b0cb64147237013343bbc6f01700d69`. This docs-only closure commit intentionally changes no runtime, CLI, UI or test behavior; it establishes the final PR head on which the mandatory fresh exact-head gates are evaluated.
 
 ## Exact-head acceptance required before merge
 

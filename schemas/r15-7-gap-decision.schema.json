@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r15-7-gap-decision.schema.json",
+  "title": "Kodepoia R15.7 governed gap decision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "adapter_method",
+    "base_model",
+    "benchmark",
+    "blockers",
+    "dataset",
+    "decision_digest",
+    "disposition",
+    "evidence",
+    "evidence_digest",
+    "gaps",
+    "policy",
+    "policy_digest",
+    "reasons",
+    "schema",
+    "schema_version",
+    "target_domains",
+    "targets"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.r15.7.gap-decision"},
+    "schema_version": {"const": 1},
+    "decision_digest": {"$ref": "#/$defs/digest"},
+    "policy_digest": {"$ref": "#/$defs/digest"},
+    "evidence_digest": {"$ref": "#/$defs/digest"},
+    "disposition": {
+      "enum": [
+        "train",
+        "no_train",
+        "fix_system_first",
+        "insufficient_data",
+        "unsupported",
+        "license_blocked",
+        "budget_blocked",
+        "inconclusive"
+      ]
+    },
+    "adapter_method": {"type": ["string", "null"]},
+    "base_model": {"type": "object"},
+    "benchmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "config_digest",
+        "protection_manifest_digest",
+        "report_digest",
+        "suite_digest"
+      ],
+      "properties": {
+        "config_digest": {"$ref": "#/$defs/digest"},
+        "protection_manifest_digest": {
+          "anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]
+        },
+        "report_digest": {"$ref": "#/$defs/digest"},
+        "suite_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset_digest",
+        "dataset_file_digest",
+        "dataset_id",
+        "train_examples_by_domain"
+      ],
+      "properties": {
+        "dataset_digest": {
+          "anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]
+        },
+        "dataset_file_digest": {
+          "anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]
+        },
+        "dataset_id": {"type": ["string", "null"]},
+        "train_examples_by_domain": {
+          "type": "object",
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "policy": {"type": "object"},
+    "evidence": {"type": "object"},
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "categories",
+          "critical",
+          "domain",
+          "passed",
+          "score",
+          "task_id",
+          "total"
+        ],
+        "properties": {
+          "categories": {"type": "array", "items": {"type": "string"}},
+          "critical": {"type": "boolean"},
+          "domain": {"type": "string"},
+          "passed": {"type": "integer", "minimum": 0},
+          "score": {"type": "number", "minimum": 0, "maximum": 1},
+          "task_id": {"type": "string"},
+          "total": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["baseline_score", "critical", "domain", "minimum_score"],
+        "properties": {
+          "baseline_score": {"type": "number", "minimum": 0, "maximum": 1},
+          "critical": {"type": "boolean"},
+          "domain": {"type": "string"},
+          "minimum_score": {"type": "number", "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "target_domains": {"type": "array", "items": {"type": "string"}},
+    "blockers": {"type": "array", "items": {"type": "string"}},
+    "reasons": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

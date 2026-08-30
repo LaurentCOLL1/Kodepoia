@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from kodepoia.assets.asset_cli import register_asset_commands
 from kodepoia.backend.r14_cli import register_r14_backend_commands
 from kodepoia.bench.baseline import BaselineBench, BenchmarkRole
+from kodepoia.bench.decision import run_gap_decision_from_files
 from kodepoia.bench.kodebench import compare_saved_reports
 from kodepoia.blender3d.blender_cli import register_blender_commands
 from kodepoia.brain.ollama import OllamaClient
@@ -183,6 +184,30 @@ def _kodebench_compare(args: argparse.Namespace) -> int:
     return 0
 
 
+def _gap_decision(args: argparse.Namespace) -> int:
+    output = Path(args.output)
+    decision = run_gap_decision_from_files(
+        Path(args.benchmark),
+        Path(args.evidence),
+        output,
+        base_model_ref=args.base_model,
+        dataset_path=Path(args.dataset) if args.dataset else None,
+    )
+    print(
+        json.dumps(
+            {
+                "decision_digest": decision.digest,
+                "disposition": decision.disposition.value,
+                "output": str(output),
+                "target_domains": list(decision.target_domains),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+    return 0
+
+
 def _r3_accept(args: argparse.Namespace) -> int:
     _require_loopback_url(args.url)
     _validate_repeats(args.repeats, acceptance=True)
@@ -308,6 +333,17 @@ def build_parser() -> argparse.ArgumentParser:
         default=".kodepoia/benchmarks/kodebench-comparison.json",
     )
     compare.set_defaults(func=_kodebench_compare)
+
+    gap = commands.add_parser("gap-decision")
+    gap.add_argument("--benchmark", required=True)
+    gap.add_argument("--base-model", required=True)
+    gap.add_argument("--dataset")
+    gap.add_argument("--evidence", required=True)
+    gap.add_argument(
+        "--output",
+        default=".kodepoia/benchmarks/r15-gap-decision.json",
+    )
+    gap.set_defaults(func=_gap_decision)
 
     r3 = commands.add_parser("r3-accept")
     r3.add_argument("--model", action="append", required=True)

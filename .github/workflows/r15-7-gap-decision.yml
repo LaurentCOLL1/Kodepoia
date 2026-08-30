@@ -1,0 +1,65 @@
+name: R15.7 Gap Decision Acceptance
+
+on:
+  push:
+    branches: [r15/07-gap-diagnosis-train-decision]
+  pull_request:
+    paths:
+      - 'src/kodepoia/bench/**'
+      - 'src/kodepoia/cli.py'
+      - 'tests/test_bench.py'
+      - 'tests/test_kodebench_v2.py'
+      - 'tests/test_gap_decision.py'
+      - 'schemas/r15-7-gap-decision.schema.json'
+      - '.github/workflows/r15-7-gap-decision.yml'
+      - 'docs/roadmap/R15_7_*'
+      - 'docs/roadmap/R15_PLAN.md'
+      - 'docs/continuity/KODEPOIA_CONTINUITY.md'
+
+permissions:
+  contents: read
+
+jobs:
+  gap-decision:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact checkout
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: R3 and R15.6 compatibility plus R15.7 focused tests
+        run: python -m pytest -q tests/test_bench.py tests/test_kodebench_v2.py tests/test_gap_decision.py
+      - name: Ruff R15.7-owned surface
+        run: >-
+          python -m ruff check
+          src/kodepoia/bench/decision.py
+          tests/test_gap_decision.py
+      - name: Verify touched import blocks
+        run: python -m ruff check --select I src/kodepoia/bench/__init__.py src/kodepoia/cli.py
+      - name: Compile decision surface
+        run: python -m compileall -q src/kodepoia/bench src/kodepoia/cli.py
+      - name: CLI decision help smoke
+        run: python -m kodepoia.cli gap-decision --help
+      - name: Validate decision JSON schema
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          schema = json.loads(Path('schemas/r15-7-gap-decision.schema.json').read_text(encoding='utf-8'))
+          Draft202012Validator.check_schema(schema)
+          PY

@@ -88,7 +88,10 @@ def test_rejected_and_non_promoted_candidates_fail_closed(tmp_path: Path) -> Non
     inconclusive = version("inconclusive", C, disposition="INCONCLUSIVE")
     store.register(rejected)
     store.register(inconclusive)
-    probe = lambda *_args: True
+
+    def probe(*_args: object) -> bool:
+        return True
+
     with pytest.raises(ValueError, match="rejected"):
         store.promote(rejected.version_id, ModelRole.CORE, health_probe=probe)
     with pytest.raises(ValueError, match="disposition"):

@@ -29,11 +29,11 @@ A package import is not proof of a usable backend. The worker performs the small
 4. for `bnb_nf4`, construction and execution of a tiny bitsandbytes `Linear4bit` NF4 operation;
 5. optional local-only tokenizer/model load with `trust_remote_code=False` after resource admission.
 
-ROCm is identified from the PyTorch runtime (`torch.version.hip`) plus an actual accelerator operation. CUDA and ROCm are never inferred from the GPU marketing/device name.
+ROCm is identified from the PyTorch runtime (`torch.version.hip`) plus an actual accelerator operation. CUDA and ROCm are never inferred from the GPU marketing/device name. No backend label is used to pre-reject NF4: CPU/CUDA/ROCm requests reach the same bounded bitsandbytes operation probe, and the requested path is `SUPPORTED` only when that operation succeeds.
 
 ## Resource preflight
 
-Disk and RAM are measured before any ML worker launch. Accelerator free/total VRAM is measured by the successful PyTorch device probe. The model-load dry-run is a second process and cannot start until all configured disk/RAM/VRAM requirements pass.
+Disk and RAM are measured before any ML worker launch. If a nonzero disk/RAM requirement is configured but the host measurement is unavailable, preflight fails closed with an explicit unknown-budget blocker and launches no ML worker. Accelerator free/total VRAM is measured by the successful PyTorch device probe. The model-load dry-run is a second process and cannot start until all configured disk/RAM/VRAM requirements pass.
 
 Resource evidence uses the accepted R6 metric vocabulary (`storage_mb`, `ram_mb`, `vram_mb`). VRAM policy uses the same fail-closed semantics established by R9: insufficient current free VRAM blocks work, an impossible total requirement blocks work, and missing accelerator telemetry is `UNKNOWN`/blocked rather than guessed. R15.8 does not introduce a second GPU scheduler or unload unrelated workloads.
 
@@ -45,7 +45,7 @@ Worker stderr/stdout failure evidence is bounded and redacted for credential ass
 
 ## External compatibility note
 
-Official Hugging Face bitsandbytes documentation checked during R15.8 implementation documents NF4 as the recommended 4-bit type for QLoRA and documents backend-specific installation/support requirements. These references guide probe construction only; Kodepoia treats the actual bounded operation probe on the accepted runtime as authority.
+Official Hugging Face bitsandbytes documentation checked during R15.8 implementation documents NF4 as the recommended 4-bit type for QLoRA and current multi-backend support that can include CPU as well as accelerator paths. Backend/package support evolves, so Kodepoia deliberately does not encode device-name or backend-name support guesses: the actual bounded operation probe on the accepted runtime remains authority.
 
 ## Manual intervention
 

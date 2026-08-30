@@ -32,9 +32,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          rm scripts/r15_4_post_merge_normalize.py
-          rm .github/workflows/r15_4_post_merge_normalize.yml
-          git add -A
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git rm scripts/r15_4_post_merge_normalize.py
+          git rm .github/workflows/r15_4_post_merge_normalize.yml
           git commit -m "docs(r15.4): normalize post-merge continuity"
           changed="$(git diff --name-only 195920e06fb6487fe58be4247ba9b90a75b96dad...HEAD)"
           test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"

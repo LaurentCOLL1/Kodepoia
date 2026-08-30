@@ -3,7 +3,7 @@
 **Status:** COMPLETE — technical source accepted; exact-END re-gates pending
 **Normalized base:** `ca625d51808de6c1f9c950faecc2aa785e7a757d`
 **Immutable technical source:** `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac`
-**Implementation PR:** #322 (non-draft successor; draft PR #322 was closed unmerged because the connected ready-for-review mutation was incompatible with GitHub current GraphQL schema)
+**Implementation PR:** #322 (non-draft successor; draft PR #321 was closed unmerged because the connected ready-for-review mutation was incompatible with GitHub current GraphQL schema)
 **Manual state:** `CONDITIONAL / NOT TRIGGERED`
 
 ## Accepted scope

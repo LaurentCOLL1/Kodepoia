@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.12 are COMPLETE + NORMALIZED. R15.13 is COMPLETE on its accepted END candidate from normalized `main` `ca625d51808de6c1f9c950faecc2aa785e7a757d`; R15.14–R15.17 remain PLANNED and unauthorized until R15.13 post-merge normalization.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.14 are COMPLETE + NORMALIZED. R15.15 is COMPLETE on technical source `7ede682ec2c21d89e42886a5774115278b0fbb2c` from normalized R15.14 `main` `ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e`; its END-sync candidate must receive fresh exact-head R15.15 + R0 + full Python Core + KodeStudio UI Smoke evidence before PR #326 can merge, after which the unique continuity-only normalization remains mandatory. R15.16–R15.17 remain PLANNED and unauthorized.
 
 ## Purpose and authority
 
@@ -288,7 +288,7 @@ Before R15.1 implementation:
 | R15.12 | GGUF conversion + quantization matrix, quality-loss measurement + artifact validation | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.10–R15.11 + R6/R8/R9 |
 | R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | COMPLETE | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |
 | R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | COMPLETE + NORMALIZED | NONE | R15.10–R15.13 + R3/R8 |
-| R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | IN_PROGRESS | NONE | R15.1–R15.14 |
+| R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | COMPLETE | NONE | R15.1–R15.14 |
 | R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | PLANNED | CONDITIONAL | R15.1–R15.15 |
 | R15.17 | Adversarial integrated Experience/Bench/Fine-tuning acceptance | PLANNED | CONDITIONAL | R15.1–R15.16 |
 
@@ -1233,11 +1233,18 @@ UI starts training without explicit action; mutable tag shown instead of immutab
 
 ## Completion record
 
-**IN_PROGRESS — START-sync from normalized R15.14 `main` `ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e`.**
+**COMPLETE — technical source accepted; END-sync exact-head re-gates pending.**
 
+- normalized R15.14 base: `ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e`;
 - dedicated branch: `r15/15-cli-kodestudio-ux`;
+- immutable technical source before documentary END-sync: `7ede682ec2c21d89e42886a5774115278b0fbb2c`;
+- technical exact-head R15.15 Acceptance #5 / `33335194725`: SUCCESS Ubuntu 24.04 + Windows 2025;
+- technical exact-head R0 Repository Guard #2212 / `33335194680`: SUCCESS Ubuntu + Windows;
+- technical exact-head Python Core #2187 / `33335194694`: SUCCESS 5/5;
+- technical exact-head KodeStudio UI Smoke #2152 / `33335194748`: SUCCESS;
+- PR #326 carries the implementation/evidence source. This END synchronization changes documentary authority and therefore creates a new final PR head; that exact resulting head MUST receive fresh R15.15 + R0 + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`;
 - manual state: `NONE`;
-- R15.15 implementation/acceptance only is authorized on this branch. R15.16 remains unauthorized until R15.15 merges and its unique post-merge normalization succeeds.
+- exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.16 START-sync is authorized.
 
 ---
 

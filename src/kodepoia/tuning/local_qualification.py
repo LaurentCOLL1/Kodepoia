@@ -139,8 +139,10 @@ class LocalQualificationService:
         *,
         expected_source_sha: str,
         runtime_request: RuntimeRequest,
-        policy: QualificationPolicy = QualificationPolicy(),
+        policy: QualificationPolicy | None = None,
     ) -> dict[str, object]:
+        if policy is None:
+            policy = QualificationPolicy()
         expected = expected_source_sha.strip().lower()
         if _SHA40.fullmatch(expected) is None:
             raise QualificationError("expected_source_sha must be a 40-character lowercase Git SHA")

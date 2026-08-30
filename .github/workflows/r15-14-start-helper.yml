@@ -1,0 +1,56 @@
+name: R15.14 START helper
+on:
+  push:
+    branches:
+      - r15/14-specialized-model-registry
+permissions:
+  contents: write
+jobs:
+  sync:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/14-specialized-model-registry
+          fetch-depth: 0
+      - name: Synchronize START authority
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          plan = Path('docs/roadmap/R15_PLAN.md')
+          text = plan.read_text(encoding='utf-8')
+          start = text.index('# R15.14 —')
+          end = text.index('\n---\n\n# R15.15 —', start)
+          section = text[start:end]
+          section, n = re.subn(
+              r'## Completion record\n\nTo be appended when accepted\.',
+              '## Completion record\n\n**IN_PROGRESS — START-sync from normalized R15.13 `main` `d0225f4086c8ad1328fe6450a85e92fcc62644a6`.**',
+              section,
+              count=1,
+          )
+          assert n == 1
+          plan.write_text(text[:start] + section + text[end:], encoding='utf-8')
+          p = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          c = p.read_text(encoding='utf-8')
+          c = c.replace('R15.1–R15.13 COMPLETE + NORMALIZED; R15.14–R15.17 PLANNED.', 'R15.1–R15.13 COMPLETE + NORMALIZED; R15.14 IN_PROGRESS; R15.15–R15.17 PLANNED.', 1)
+          c = c.replace('| R15.14 | PLANNED | NONE |', '| R15.14 | IN_PROGRESS | NONE |', 1)
+          c, n = re.subn(
+              r'(?s)(## Next authorized action\n\n)\*\*.*?\*\*(\n\n## Permanent R-phase execution rule)',
+              r'\1**R15.14 only: implement and accept the specialized-model registry/promotion/rollback on branch `r15/14-specialized-model-registry`, rooted at normalized R15.13 `main` `d0225f4086c8ad1328fe6450a85e92fcc62644a6`. R15.15 remains unauthorized until R15.14 merge plus its unique continuity-only normalization. Manual state: NONE.**\2',
+              c,
+              count=1,
+          )
+          assert n == 1
+          p.write_text(c, encoding='utf-8')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          git commit -m "docs(r15.14): synchronize START authority"
+          git rm .github/workflows/r15-14-start-helper.yml
+          git commit -m "chore(r15.14): remove START helper"
+          git push origin HEAD:r15/14-specialized-model-registry

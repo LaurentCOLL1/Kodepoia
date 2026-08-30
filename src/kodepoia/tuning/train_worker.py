@@ -4,7 +4,6 @@ import hashlib
 import importlib.metadata
 import json
 import math
-import os
 import struct
 import sys
 from pathlib import Path
@@ -243,7 +242,17 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
         peft_config=peft_config,
     )
     resume = config.get("resume_checkpoint")
-    result = trainer.train(resume_from_checkpoint=None if not resume else str(_inside(root, str(resume))))
+    result = trainer.train(
+        resume_from_checkpoint=(
+            None
+            if not resume
+            else str(
+                _inside(root, str(resume)).parent
+                if str(resume).endswith(".json")
+                else _inside(root, str(resume))
+            )
+        )
+    )
     metrics = dict(result.metrics)
     eval_metrics = trainer.evaluate()
     adapter_dir = run_dir / "adapter"
@@ -282,7 +291,16 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
         "eval_loss": float(eval_metrics.get("eval_loss", 0.0)),
         "framework_versions": {
             name: _package_version(name)
-            for name in ("accelerate", "bitsandbytes", "datasets", "peft", "safetensors", "torch", "transformers", "trl")
+            for name in (
+                "accelerate",
+                "bitsandbytes",
+                "datasets",
+                "peft",
+                "safetensors",
+                "torch",
+                "transformers",
+                "trl",
+            )
         },
         "optimized_splits": ["train"],
         "plan_digest": config["plan_digest"],

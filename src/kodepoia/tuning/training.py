@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import math
-import os
 import platform
 import re
 import sys
@@ -476,7 +476,7 @@ class TrainingRunner:
                 raise TrainingError("resume checkpoint is already at or beyond max_steps")
             resumed_from = checkpoint.checkpoint_id
 
-        run_dir = self.root / ".kodepoia" / "tuning" / "runs" / plan.run_id
+        run_dir = self.root / "tuning-runs" / plan.run_id
         run_dir.mkdir(parents=True, exist_ok=True)
         payload = plan.worker_payload(self.root, run_dir, checkpoint_path)
         with tempfile.NamedTemporaryFile(
@@ -490,10 +490,8 @@ class TrainingRunner:
             config_path = Path(handle.name)
             json.dump(payload, handle, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         try:
-            try:
+            with contextlib.suppress(OSError):
                 config_path.chmod(0o600)
-            except OSError:
-                pass
             argv = [sys.executable, "-m", "kodepoia.tuning.train_worker", config_path.name]
             result = self.sandbox.run(
                 argv,
@@ -590,7 +588,10 @@ class TrainingRunner:
         if not isinstance(versions_raw, dict):
             raise TrainingError("framework_versions must be an object")
         versions = tuple(
-            sorted((str(name), None if version is None else str(version)) for name, version in versions_raw.items())
+            sorted(
+                (str(name), None if version is None else str(version))
+                for name, version in versions_raw.items()
+            )
         )
         optimized = tuple(str(item) for item in output["optimized_splits"])
         report = TrainingReport(
@@ -612,7 +613,10 @@ class TrainingRunner:
         )
         if report.completed_steps != plan.sft.max_steps:
             raise TrainingError("training worker did not reach declared max_steps")
-        if report.train_rows != plan.dataset.train_rows or report.validation_rows != plan.dataset.validation_rows:
+        if (
+            report.train_rows != plan.dataset.train_rows
+            or report.validation_rows != plan.dataset.validation_rows
+        ):
             raise TrainingError("training worker dataset row evidence mismatch")
         return report
 

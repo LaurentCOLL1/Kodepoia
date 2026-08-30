@@ -93,13 +93,7 @@ class FakeSandbox:
 
 def _checkpoint_metadata(root: Path, plan: TrainingPlan, step: int = 2) -> str:
     return str(
-        Path(".kodepoia")
-        / "tuning"
-        / "runs"
-        / plan.run_id
-        / "checkpoints"
-        / f"checkpoint-{step:08d}"
-        / "checkpoint.json"
+        Path("tuning-runs") / plan.run_id / "checkpoints" / f"checkpoint-{step:08d}" / "checkpoint.json"
     )
 
 
@@ -122,7 +116,9 @@ def test_real_training_requires_train_authorization_capability_and_explicit_data
             mode=TrainingMode.SFT,
             authorization=TrainingAuthorization.TRAIN,
             model=_model(),
-            dataset=replace(_dataset(), train_path="data/train.jsonl", validation_path="data/validation.jsonl"),
+            dataset=replace(
+                _dataset(), train_path="data/train.jsonl", validation_path="data/validation.jsonl"
+            ),
         )
 
 

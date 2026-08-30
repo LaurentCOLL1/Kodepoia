@@ -1169,7 +1169,7 @@ Global default changed from a role-specific win; mutable tag drift; stale regist
 
 ## Completion record
 
-To be appended when accepted.
+**IN_PROGRESS — START-sync from normalized R15.13 `main` `d0225f4086c8ad1328fe6450a85e92fcc62644a6`.**
 
 ---
 

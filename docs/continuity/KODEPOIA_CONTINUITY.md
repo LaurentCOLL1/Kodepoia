@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.4 COMPLETE + NORMALIZED; R15.5–R15.17 PLANNED.** R15.4 immutable technical source `b82c7595f69f94e173a6e7893073585c9f8c1aae`; final END-head `e91a2f18ef79f66672e42bdf04ad4d731ec7bf8d`; exact-END R15.4 #16 / `33284334173`, R0 #2097 / `33284334475`, Python #2072 / `33284334142`, UI #2037 / `33284334250` SUCCESS; PR #302 merged with `expected_head_sha=e91a2f18ef79f66672e42bdf04ad4d731ec7bf8d` as `195920e06fb6487fe58be4247ba9b90a75b96dad`; manual NONE. This record is the unique post-merge continuity-only R15.4 normalization authority; only its merged normalized `main` authorizes R15.5 START-sync.
+> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.4 COMPLETE + NORMALIZED; R15.5 IN_PROGRESS; R15.6–R15.17 PLANNED.** R15.5 exact branch point is normalized R15.4 `main` `8744df5f3a408595693c67819a29f95b3a82f1d7`; dedicated branch `r15/05-immutable-dataset-builder`; manual NONE. Dataset construction remains fail-closed: only curated, fully authorized, sanitized, uncontaminated records may enter; R15.4 duplicate groups must remain split-atomic and protected holdouts remain forbidden.
 
 ## État global
 
@@ -14,6 +14,7 @@
 - R15.2 : **COMPLETE + NORMALIZED** — clean START `135fd085002bf8074d87308beca35ab33c35ed47`; immutable technical source `48b519c09fa50f5407cc4a55a0b76baf6f8e8ffd`; final END-head `afbc8e9c41d25727dcdc786245281e605e73cf97`; exact-END R15.2 #11 / `33280685599`, R0 #2076 / `33280685519`, Python #2051 / `33280685583`, UI #2016 / `33280685572` SUCCESS; final non-draft PR #298 required R0 #2077 / `33280858482` SUCCESS and merged with expected head as `cf7f53fa9d491019fb9de941c3d703eb34a8f73d`; manual NONE. Capture remains disabled by default and training authorization UNKNOWN until later explicit governance. This is the unique post-merge continuity normalization; R15.3 is authorized only after this branch passes fresh R0/Python/UI and merges.
 - R15.3 : **COMPLETE + NORMALIZED** — clean START `ba719dd9d556909b08606d6c7ebb4d4ef18dbd37`; immutable technical source `e049a8f5c8155accb1d64ca4028deec5f85c4aa8`; final END-head `3a41e703bdedaf613e88dc672bee1b8ca01b62ff`; exact-END R15.3 #19 / `33283462348`, R0 #2088 / `33283462344`, Python #2063 / `33283462455`, UI #2028 / `33283462377` SUCCESS; PR #300 merge `4b37d7735194e9b4b21899d44ad4224c418979ed`; normalization head `db823f11fbc04007b304810fb94aa300fc8ddc48` passed R0 #2090 / `33283698522`, Python #2065 / `33283698570`, UI #2030 / `33283698532`; normalization PR #301 -> normalized `main` `ffb5a830cce35334b3f62e69fae2e2c02c717080`; manual NONE.
 - R15.4 : **COMPLETE + NORMALIZED** — clean START `68a6d1a5d35430128db8fa450bd9afa4e0c7c36e` from normalized R15.3 `main` `ffb5a830cce35334b3f62e69fae2e2c02c717080`; immutable technical source `b82c7595f69f94e173a6e7893073585c9f8c1aae`; technical R15.4 #7 / `33284070954` SUCCESS Ubuntu + Windows with 68 cumulative tests per OS + Ruff + compile, R0 #2092 / `33284070915` SUCCESS, Python #2067 / `33284070930` SUCCESS 5/5, UI #2032 / `33284070882` SUCCESS; final END-head `e91a2f18ef79f66672e42bdf04ad4d731ec7bf8d`; exact-END R15.4 #16 / `33284334173` SUCCESS Ubuntu + Windows, R0 #2097 / `33284334475` SUCCESS Ubuntu + Windows, Python #2072 / `33284334142` SUCCESS 5/5, UI #2037 / `33284334250` SUCCESS; PR #302 merged with `expected_head_sha=e91a2f18ef79f66672e42bdf04ad4d731ec7bf8d` as `195920e06fb6487fe58be4247ba9b90a75b96dad`; manual NONE. Exact/near groups and protected-holdout quarantine are policy-digest-bound and fail closed; raw holdout content is absent from safe reports. This is the unique post-merge continuity-only R15.4 normalization authority; R15.5 is authorized only after this normalization branch passes fresh R0/Python/UI and merges.
+- R15.5 : **IN_PROGRESS** — exact branch point normalized R15.4 `main` `8744df5f3a408595693c67819a29f95b3a82f1d7`; branch `r15/05-immutable-dataset-builder`; START-sync only, no R15.5 implementation precedes this state; manual NONE.
 - R14.1–R14.9 : **COMPLETE + NORMALIZED**.
 - R14.9 normalized `main` : **`1dc3f8206eb454ecb6638fd75a5b65609c4e4ebf`** après normalization PR #274.
 - R14.10 : **COMPLETE + NORMALIZED** — source technique `8a102a19512b076a8edb5c561e86b1d0101bc391`; END-head `37c7418e31e1467032eac0646b731eab1087f4eb`; PR #275 merge `c0059f02c193c4972daaaad851ce0d5a8fdcd715`; normalization head `d56246f65f834c87ef32a0ba645ca3a76ba898ab`; normalized `main` `a9db57de1c1cc550604edbe6fec095e0a8e13c40` via PR #276.
@@ -47,7 +48,7 @@
 | R15.2 | COMPLETE | NONE |
 | R15.3 | COMPLETE | NONE |
 | R15.4 | COMPLETE + NORMALIZED | NONE |
-| R15.5 | PLANNED | NONE |
+| R15.5 | IN_PROGRESS | NONE |
 | R15.6 | PLANNED | NONE |
 | R15.7 | PLANNED | NONE |
 | R15.8 | PLANNED | CONDITIONAL |
@@ -63,7 +64,7 @@
 
 ## Next authorized action
 
-**R15.4 implementation is merged as `195920e06fb6487fe58be4247ba9b90a75b96dad`. This branch is the unique continuity-only post-merge normalization: require fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, then merge only with `expected_head_sha`. Only the resulting normalized `main` authorizes R15.5 START-sync; `docs/roadmap/R15_PLAN.md` must not change.**
+**R15.5 START-sync is the active authority on `r15/05-immutable-dataset-builder`, based exactly on normalized R15.4 `main` `8744df5f3a408595693c67819a29f95b3a82f1d7`. Complete START synchronization and repository validation before implementation; then implement the immutable dataset builder, deterministic group-safe splits, manifests/cards/exporters and focused adversarial acceptance. R15.6 remains unauthorized until R15.5 completes, merges, and receives its unique post-merge normalization.**
 
 ## Permanent R-phase execution rule
 

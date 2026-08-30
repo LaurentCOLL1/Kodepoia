@@ -1,6 +1,24 @@
 """KodeBench public benchmark utilities."""
 
 from kodepoia.bench.baseline import BaselineBench, BenchmarkRole, BenchResult, BenchTask
+from kodepoia.bench.decision import (
+    AcceptanceTarget,
+    BackendCapability,
+    BudgetStatus,
+    DecisionDisposition,
+    DecisionEvidence,
+    DecisionPolicy,
+    DiagnosticComponent,
+    DiagnosticProbe,
+    ExpectedImpact,
+    GapDecision,
+    GapDecisionEngine,
+    GapDecisionError,
+    GapRecord,
+    ProbeStatus,
+    evaluate_saved_decision,
+    run_gap_decision_from_files,
+)
 from kodepoia.bench.kodebench import (
     BenchmarkSuite,
     BenchmarkTaskSpec,
@@ -19,17 +37,31 @@ from kodepoia.bench.kodebench import (
 )
 
 __all__ = [
+    "AcceptanceTarget",
+    "BackendCapability",
     "BaselineBench",
     "BenchmarkRole",
     "BenchmarkSuite",
     "BenchmarkTaskSpec",
     "BenchResult",
     "BenchTask",
+    "BudgetStatus",
+    "DecisionDisposition",
+    "DecisionEvidence",
+    "DecisionPolicy",
+    "DiagnosticComponent",
+    "DiagnosticProbe",
+    "ExpectedImpact",
+    "GapDecision",
+    "GapDecisionEngine",
+    "GapDecisionError",
+    "GapRecord",
     "KodeBenchError",
     "KodeBenchReport",
     "KodeBenchRunner",
     "ModelIdentity",
     "OutcomeCategory",
+    "ProbeStatus",
     "RepositoryScorerRegistry",
     "RunConfig",
     "ScorerKind",
@@ -37,4 +69,6 @@ __all__ = [
     "baseline_compat_suite",
     "compare_report_payloads",
     "compare_saved_reports",
+    "evaluate_saved_decision",
+    "run_gap_decision_from_files",
 ]

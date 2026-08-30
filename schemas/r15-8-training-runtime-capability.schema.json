@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r15-8-training-runtime-capability.schema.json",
+  "title": "Kodepoia R15.8 optional training runtime capability report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "backend",
+    "backend_capability",
+    "blockers",
+    "device",
+    "disposition",
+    "dtype_supported",
+    "four_bit_supported",
+    "model_load",
+    "packages",
+    "python_version",
+    "report_digest",
+    "request_digest",
+    "resources",
+    "schema",
+    "schema_version",
+    "seed_applied",
+    "stderr",
+    "torch_backend_version"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.r15.8.training-runtime-capability"},
+    "schema_version": {"const": 1},
+    "report_digest": {"$ref": "#/$defs/digest"},
+    "request_digest": {"$ref": "#/$defs/digest"},
+    "backend": {"enum": ["cpu", "cuda", "rocm"]},
+    "backend_capability": {"enum": ["supported", "unsupported", "unknown"]},
+    "disposition": {
+      "enum": ["ready", "unsupported", "budget_blocked", "failed", "cancelled", "timed_out"]
+    },
+    "dtype_supported": {"type": ["boolean", "null"]},
+    "four_bit_supported": {"type": ["boolean", "null"]},
+    "model_load": {"enum": ["supported", "unsupported", "unknown", null]},
+    "python_version": {"type": "string", "maxLength": 256},
+    "torch_backend_version": {"type": ["string", "null"], "maxLength": 256},
+    "seed_applied": {"type": ["boolean", "null"]},
+    "stderr": {"type": "string", "maxLength": 8192},
+    "blockers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "packages": {
+      "type": "object",
+      "additionalProperties": {"type": ["string", "null"], "maxLength": 256}
+    },
+    "device": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["backend_type", "index", "name"],
+          "properties": {
+            "backend_type": {"type": "string", "maxLength": 64},
+            "index": {"type": "integer", "minimum": 0},
+            "name": {"type": "string", "maxLength": 512}
+          }
+        }
+      ]
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blockers", "disk", "ram", "vram"],
+      "properties": {
+        "blockers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "disk": {"$ref": "#/$defs/resourceMetric"},
+        "ram": {"$ref": "#/$defs/resourceMetric"},
+        "vram": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["metric", "free_bytes", "total_bytes"],
+          "properties": {
+            "metric": {"const": "vram_mb"},
+            "free_bytes": {"type": ["integer", "null"], "minimum": 0},
+            "total_bytes": {"type": ["integer", "null"], "minimum": 0}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "resourceMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "free_bytes"],
+      "properties": {
+        "metric": {"enum": ["storage_mb", "ram_mb"]},
+        "free_bytes": {"type": ["integer", "null"], "minimum": 0}
+      }
+    }
+  }
+}

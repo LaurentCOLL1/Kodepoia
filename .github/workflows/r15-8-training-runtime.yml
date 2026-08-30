@@ -1,0 +1,63 @@
+name: R15.8 Training Runtime Acceptance
+
+on:
+  push:
+    branches: [r15/08-training-runtime-capability]
+  pull_request:
+    paths:
+      - 'src/kodepoia/tuning/**'
+      - 'tests/test_tuning_r15_8.py'
+      - 'schemas/r15-8-training-runtime-capability.schema.json'
+      - 'pyproject.toml'
+      - '.github/workflows/r15-8-training-runtime.yml'
+      - 'docs/roadmap/R15_8_*'
+      - 'docs/roadmap/R15_PLAN.md'
+      - 'docs/continuity/KODEPOIA_CONTINUITY.md'
+
+permissions:
+  contents: read
+
+jobs:
+  training-runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact checkout
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install core test dependencies only
+        run: python -m pip install -e ".[dev]"
+      - name: R15.8 focused tests without ML extras
+        run: python -m pytest -q tests/test_tuning_r15_8.py
+      - name: Ruff R15.8-owned surface
+        run: >-
+          python -m ruff check
+          src/kodepoia/tuning
+          tests/test_tuning_r15_8.py
+      - name: Compile tuning surface
+        run: python -m compileall -q src/kodepoia/tuning
+      - name: CLI help smoke without ML extras
+        run: python -m kodepoia.tuning --help
+      - name: Validate capability JSON schema
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          schema = json.loads(
+              Path('schemas/r15-8-training-runtime-capability.schema.json').read_text(encoding='utf-8')
+          )
+          Draft202012Validator.check_schema(schema)
+          PY

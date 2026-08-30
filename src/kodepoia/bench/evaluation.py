@@ -525,8 +525,12 @@ class BaseAdapterEvaluator:
         candidate_score = sum(_passed(row) for row in candidate_rows) / len(candidate_rows)
         aggregate_delta = candidate_score - base_score
 
-        target_values = [domain_delta_values[domain] for domain in policy.target_domains if domain in domain_delta_values]
-        target_gain = statistics.mean(target_values) if len(target_values) == len(policy.target_domains) else None
+        target_values = [
+            domain_delta_values[domain] for domain in policy.target_domains if domain in domain_delta_values
+        ]
+        target_gain = (
+            statistics.mean(target_values) if len(target_values) == len(policy.target_domains) else None
+        )
 
         base_errors = sum(row.get("error") is not None for row in base_rows)
         candidate_errors = sum(row.get("error") is not None for row in candidate_rows)
@@ -539,13 +543,17 @@ class BaseAdapterEvaluator:
                 if not isinstance(repeat, int):
                     raise CandidateEvaluationError("outcome repeat must be integer")
                 grouped[repeat].append(row)
-            values = [sum(_passed(row) for row in grouped[index]) / len(grouped[index]) for index in sorted(grouped)]
+            values = [
+                sum(_passed(row) for row in grouped[index]) / len(grouped[index]) for index in sorted(grouped)
+            ]
             return statistics.pstdev(values) if len(values) > 1 else 0.0
 
         base_repeat_stddev = repeat_stddev(base_rows)
         candidate_repeat_stddev = repeat_stddev(candidate_rows)
 
-        base_elapsed = _mean([value for row in base_rows if (value := _resource(row, "elapsed_s")) is not None])
+        base_elapsed = _mean(
+            [value for row in base_rows if (value := _resource(row, "elapsed_s")) is not None]
+        )
         candidate_elapsed = _mean(
             [value for row in candidate_rows if (value := _resource(row, "elapsed_s")) is not None]
         )
@@ -581,9 +589,8 @@ class BaseAdapterEvaluator:
         }
 
         ratio = training_loss.validation_to_train_ratio
-        overfit_risk = (
-            (ratio is None and training_loss.validation_loss > 0)
-            or (ratio is not None and ratio > policy.max_validation_train_loss_ratio)
+        overfit_risk = (ratio is None and training_loss.validation_loss > 0) or (
+            ratio is not None and ratio > policy.max_validation_train_loss_ratio
         )
 
         hard_reject: set[str] = set()

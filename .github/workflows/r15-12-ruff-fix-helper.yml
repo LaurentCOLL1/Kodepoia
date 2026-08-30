@@ -1,0 +1,41 @@
+name: R15.12 Ruff Fix Helper
+
+on:
+  push:
+    branches: [r15/12-gguf-conversion-quantization]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/12-gguf-conversion-quantization
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply bounded Ruff-only fix
+        run: python .github/scripts/r15_12_ruff_fix.py
+      - name: Verify and publish clean fixed head
+        shell: bash
+        run: |
+          rm .github/scripts/r15_12_ruff_fix.py
+          rm .github/workflows/r15-12-ruff-fix-helper.yml
+          actual="$(git diff --name-only | grep -v '^docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json$' | sort)"
+          expected="$(printf '%s\n' \
+            '.github/scripts/r15_12_ruff_fix.py' \
+            '.github/workflows/r15-12-ruff-fix-helper.yml' \
+            'src/kodepoia/tuning/gguf.py' \
+            'tests/test_gguf_conversion_r15_12.py' | sort)"
+          test "$actual" = "$expected"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/kodepoia/tuning/gguf.py tests/test_gguf_conversion_r15_12.py
+          git rm .github/scripts/r15_12_ruff_fix.py .github/workflows/r15-12-ruff-fix-helper.yml
+          git diff --cached --check
+          git commit -m 'fix(r15.12): satisfy owned-surface lint'
+          git push origin HEAD:r15/12-gguf-conversion-quantization

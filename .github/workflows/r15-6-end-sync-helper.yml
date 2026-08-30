@@ -1,0 +1,100 @@
+name: R15.6 END Sync Helper
+
+on:
+  push:
+    branches: [r15/06-kodebench-v2]
+    paths:
+      - '.github/workflows/r15-6-end-sync-helper.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  end-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: r15/06-kodebench-v2
+      - name: Apply bounded R15.6 END synchronization
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          technical = 'ae856396faa964fee19ee39e461bc7de4e775cd9'
+
+          design = Path('docs/roadmap/R15_6_DESIGN.md')
+          design.write_text('''# R15.6 — KodeBench v2 design\n\n**Status:** COMPLETE — technical design implemented  \n**Clean START / branch point:** `097e99db28508cd1c53eadfe00b2b33576a445af`  \n**Immutable technical source:** `ae856396faa964fee19ee39e461bc7de4e775cd9`  \n**Manual:** NONE\n\n## Objective\n\nExtend the accepted R3 `BaselineBench` into a deterministic KodeBench v2 authority without breaking the existing `bench-models` / `r3-accept` surface. R15.6 measures whether later specialization improves declared domains while keeping critical failures visible instead of hiding them in one aggregate score.\n\n## Implemented architecture\n\n- immutable `ScorerSpec`, `BenchmarkTaskSpec`, `BenchmarkSuite`, `RunConfig`, `ModelIdentity`, `BenchmarkOutcome` and `KodeBenchReport` contracts;\n- canonical JSON identities and SHA-256 suite/task/prompt/scorer/config/report digests;\n- exact, contains/forbidden, regex, JSON-schema and tool-call scorers plus a repository-code-owned custom scorer registry; arbitrary scorer imports from benchmark data are not allowed;\n- stable domain and critical labels with per-domain, critical and aggregate summaries plus repeated-seed score variance;\n- explicit `PASS`, `WRONG_ANSWER`, `MODEL_FAILURE`, `CAPABILITY_UNAVAILABLE` and `SCORER_FAILURE` categories so scorer/runtime faults are not misreported as model quality;\n- resource evidence for elapsed/load/total time, token rate, token counts and available Ollama model/VRAM sizes;\n- R15.4 `ProtectedHoldoutRegistry` binding. Suites referring to protected holdout IDs fail closed without the matching registry; persisted reports contain safe holdout IDs/digests and prompt/response digests, never protected raw prompt/response text;\n- deterministic report JSON plus strict Draft 2020-12 schema `schemas/kodebench-v2-report.schema.json`;\n- strict comparison requires equal suite, run-config and protection-manifest digests and exposes per-task deltas plus critical regressions;\n- `baseline_compat_suite()` maps existing R3 tasks into v2 contracts while execution continues to reuse `BaselineBench`;\n- `kodebench-compare` CLI compares two immutable saved reports without executing a model or changing model/router state.\n\n## Reproducibility contract\n\nA comparable run binds suite/task/scorer definitions, repeat count, seed base, generation options, model/runtime identity and protected-holdout manifest identity. Historical reports are immutable; changed scorers or suite content produce changed digests instead of rewriting old scores. Output report digest excludes wall-clock generation timestamps so the same semantic evidence can be reproduced deterministically.\n\n## Security and contamination boundaries\n\nBenchmark text never becomes a shell command. Custom scorers are registered by repository code, not loaded from model/dataset content. Protected holdout content remains outside the safe persisted report. A missing/mismatched holdout registry, model identity mismatch, incompatible comparison config or scorer failure fails closed or is represented as a separate failure category. R15.6 does not train, promote, download or publish models.\n\n## Backward compatibility\n\n`BaselineBench`, its eight accepted R3 default tasks, `bench-models` and `r3-accept` remain in place. The focused acceptance always runs `tests/test_bench.py` together with `tests/test_kodebench_v2.py`.\n\n## Informative external methodology baseline\n\nMLCommons/MLPerf benchmark methodology is used only as an informative reproducibility reference for fixed configurations, traceable results and comparable conditions. NIST TEVV material is used only as an informative reference for structured, evidence-backed evaluation. Neither source overrides the frozen R15 architecture or repository governance.\n\n- https://mlcommons.org/benchmarks/\n- https://www.nist.gov/artificial-intelligence\n\n## START synchronization repair note\n\nThe continuity authority was correctly changed to `R15.6 IN_PROGRESS` before any implementation bytes. `R15_PLAN.md`'s checkpoint/table row was inadvertently left at its older `PLANNED` wording during that same START work cycle. This END synchronization explicitly repairs that stale plan state. The repair does not claim that the plan had been synchronized earlier and does not reuse technical gates as final-END evidence; fresh R15.6/R0/Python/UI gates are mandatory on the repaired final head before merge.\n''', encoding='utf-8', newline='\n')
+
+          acceptance = Path('docs/roadmap/R15_6_ACCEPTANCE.md')
+          acceptance.write_text('''# R15.6 — Acceptance record\n\n**Acceptance state:** COMPLETE — TECHNICAL ACCEPTANCE RECORDED; FINAL END GATES REQUIRED  \n**Clean START:** `097e99db28508cd1c53eadfe00b2b33576a445af`  \n**Immutable technical source:** `ae856396faa964fee19ee39e461bc7de4e775cd9`  \n**Manual:** NONE\n\n## Acceptance contract\n\nR15.6 is merge-eligible only when the final documented END-head proves on Ubuntu and Windows that KodeBench v2 preserves R3 compatibility, produces deterministic suite/scorer/config identities, isolates scorer/runtime/model failures, reports domain/critical/resource evidence, binds protected holdouts fail-closed, validates its report schema, and the same exact head passes R0 Repository Guard, full Python Core and KodeStudio UI Smoke.\n\n## Required coverage\n\n- deterministic suite/task/scorer/config digests and task-order-independent suite identity;\n- all built-in scorer classes plus code-owned custom scorer isolation;\n- repeated seeds, domain summaries, critical summaries and variance;\n- separate wrong-answer/model-failure/capability-unavailable/scorer-failure categories;\n- latency/load/total/tokens-per-second/token-count/model-size/VRAM fields when available;\n- strict model/runtime identity and strict report comparability;\n- critical-regression detection;\n- R15.4 protected-holdout registry required for protected suites;\n- protected raw prompt/response text absent from saved safe reports;\n- Draft 2020-12 schema validates a generated report;\n- R3 `BaselineBench` compatibility tests remain green;\n- `kodebench-compare` CLI help smoke, Ruff on R15.6-owned code and compileall on benchmark/CLI surfaces.\n\n## Technical evidence\n\nTechnical source `ae856396faa964fee19ee39e461bc7de4e775cd9` passed:\n\n- R15.6 KodeBench v2 Acceptance #2 / `33295649414`: SUCCESS Ubuntu + Windows; 17 combined R3/R15.6 tests per OS plus Ruff/import checks, compile and CLI smoke;\n- R0 Repository Guard #2124 / `33295649494`: SUCCESS Ubuntu + Windows;\n- Python Core #2099 / `33295649527`: SUCCESS 5/5;\n- KodeStudio UI Smoke #2064 / `33295649458`: SUCCESS.\n\nThese prove the technical tree only. This END synchronization repairs the stale R15_PLAN START status noted in `R15_6_DESIGN.md`; therefore these prior runs are not used as final-END proof. The final PR head created after this record must receive fresh R15.6 Acceptance, R0, Python Core and UI success before expected-head merge.\n\n## Rollback / recovery\n\nKodeBench v2 adds derived benchmark contracts/reports and a compatibility layer. Rollback removes the v2 module/schema/CLI comparison surface and preserves the existing R3 baseline. Benchmark versions and historical reports are immutable; they are not rewritten during rollback.\n''', encoding='utf-8', newline='\n')
+
+          plan = Path('docs/roadmap/R15_PLAN.md')
+          text = plan.read_text(encoding='utf-8')
+          lines = text.splitlines()
+          checkpoint = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.5 are COMPLETE + NORMALIZED. R15.6 is COMPLETE on this documented END candidate after technical qualification of `ae856396faa964fee19ee39e461bc7de4e775cd9`; fresh exact-head R15.6/R0/Python/UI gates, expected-head merge and one continuity-only normalization remain required before R15.7. R15.7–R15.17 remain PLANNED.'
+          found = False
+          for i, line in enumerate(lines):
+              if line.startswith('**Execution checkpoint:**'):
+                  lines[i] = checkpoint
+                  found = True
+                  break
+          if not found:
+              raise SystemExit('R15 execution checkpoint marker missing')
+          row_found = False
+          for i, line in enumerate(lines):
+              if line.startswith('| R15.6 |'):
+                  parts = line.split('|')
+                  if len(parts) < 6:
+                      raise SystemExit('malformed R15.6 table row')
+                  parts[3] = ' COMPLETE '
+                  lines[i] = '|'.join(parts)
+                  row_found = True
+                  break
+          if not row_found:
+              raise SystemExit('R15.6 table row missing')
+          text = '\n'.join(lines) + '\n'
+          start = text.index('# R15.6 —')
+          end = text.index('# R15.7 —', start)
+          section = text[start:end]
+          marker = '## Completion record\n\nTo be appended when accepted.'
+          if section.count(marker) != 1:
+              raise SystemExit(f'unexpected R15.6 completion marker count: {section.count(marker)}')
+          completion = '''## Completion record\n\n**COMPLETE — technical acceptance recorded; fresh final-END gates required before merge.**\n\n- clean START / normalized R15.5 branch point: `097e99db28508cd1c53eadfe00b2b33576a445af`;\n- continuity START-sync preceded implementation; R15_PLAN checkpoint/table START status was stale and is repaired truthfully in this END-sync rather than retroactively claimed;\n- immutable technical source: `ae856396faa964fee19ee39e461bc7de4e775cd9`;\n- R15.6 #2 / `33295649414`: SUCCESS Ubuntu + Windows, 17 combined R3/R15.6 tests per OS, schema/Ruff/import/compile/CLI checks;\n- R0 #2124 / `33295649494`: SUCCESS Ubuntu + Windows;\n- Python Core #2099 / `33295649527`: SUCCESS 5/5;\n- KodeStudio UI Smoke #2064 / `33295649458`: SUCCESS;\n- manual state: `NONE`;\n- exact final documented END-head must receive fresh R15.6/R0/Python/UI evidence before protected merge; technical-source evidence above is not reused for that decision.\n'''
+          section = section.replace(marker, completion, 1)
+          text = text[:start] + section + text[end:]
+          plan.write_text(text, encoding='utf-8', newline='\n')
+
+          continuity = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          text = continuity.read_text(encoding='utf-8')
+          header_old = 'R15.1–R15.5 COMPLETE + NORMALIZED; R15.6 IN_PROGRESS; R15.7–R15.17 PLANNED.'
+          header_new = 'R15.1–R15.5 COMPLETE + NORMALIZED; R15.6 COMPLETE; R15.7–R15.17 PLANNED.'
+          if text.count(header_old) != 1:
+              raise SystemExit(f'unexpected continuity header count: {text.count(header_old)}')
+          text = text.replace(header_old, header_new, 1)
+          lines = text.splitlines()
+          entry_found = False
+          entry = '- R15.6 : **COMPLETE** — clean START / branch point `097e99db28508cd1c53eadfe00b2b33576a445af`; continuity START-sync preceded implementation, while the R15_PLAN checkpoint/table was inadvertently left stale and is repaired explicitly at END rather than laundered; immutable technical source `ae856396faa964fee19ee39e461bc7de4e775cd9`; technical R15.6 #2 / `33295649414` SUCCESS Ubuntu + Windows, R0 #2124 / `33295649494` SUCCESS Ubuntu + Windows, Python #2099 / `33295649527` SUCCESS 5/5, UI #2064 / `33295649458` SUCCESS; technical scope accepted: immutable suite/task/scorer/config identities, R3 compatibility, domain/critical scoring, failure isolation, resource metrics, strict comparisons, Draft 2020-12 report schema, R15.4 protected-holdout binding and safe prompt/response digests; manual NONE. Fresh exact-head R15.6/R0/Python/UI on the repaired final END tree remain mandatory before expected-head PR #307 merge, followed by exactly one continuity-only normalization before R15.7.'
+          for i, line in enumerate(lines):
+              if line.startswith('- R15.6 :'):
+                  lines[i] = entry
+                  entry_found = True
+                  break
+          if not entry_found:
+              raise SystemExit('R15.6 continuity entry missing')
+          continuity.write_text('\n'.join(lines) + '\n', encoding='utf-8', newline='\n')
+          PY
+          git rm .github/workflows/r15-6-end-sync-helper.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R15_6_DESIGN.md docs/roadmap/R15_6_ACCEPTANCE.md docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          changed=$(git diff --cached --name-only | sort)
+          printf '%s\n' "$changed"
+          for expected in docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_6_ACCEPTANCE.md docs/roadmap/R15_6_DESIGN.md docs/roadmap/R15_PLAN.md; do
+            printf '%s\n' "$changed" | grep -Fx "$expected" >/dev/null || { echo "missing expected change: $expected"; exit 1; }
+          done
+          test "$(printf '%s\n' "$changed" | wc -l)" -eq 4
+          git commit -m "docs(r15.6): synchronize END authority"
+          git push origin HEAD:r15/06-kodebench-v2

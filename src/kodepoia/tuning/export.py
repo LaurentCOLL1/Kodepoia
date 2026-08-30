@@ -63,7 +63,8 @@ def _require_safe_id(label: str, value: str) -> str:
 
 def _require_text(label: str, value: str, *, limit: int = 512) -> str:
     resolved = value.strip()
-    if not resolved or len(resolved) > limit or any(ord(char) < 32 and char not in "\n\t" for char in resolved):
+    invalid_control = any(ord(char) < 32 and char not in "\n\t" for char in resolved)
+    if not resolved or len(resolved) > limit or invalid_control:
         raise ModelExportError(f"{label} must be bounded non-empty text")
     lowered = resolved.lower()
     if any(marker in lowered for marker in _SECRET_MARKERS):
@@ -253,7 +254,10 @@ def _model_card(request: ExportRequest, merge: MergeDisposition) -> str:
         f"- Base model license/provenance expression: `{binding.base_license}`",
         f"- Adapter license/provenance expression: `{binding.adapter_license}`",
         "",
-        "No raw training examples, private source text, credentials, or source filesystem paths are embedded in this card.",
+        (
+            "No raw training examples, private source text, credentials, or source filesystem paths "
+            "are embedded in this card."
+        ),
         "",
     ]
     card = "\n".join(lines)

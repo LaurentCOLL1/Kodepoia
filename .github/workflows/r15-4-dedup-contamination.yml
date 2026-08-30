@@ -1,0 +1,52 @@
+name: R15.4 Dedup Contamination Acceptance
+on:
+  push:
+    branches: [r15/04-dedup-contamination]
+  pull_request:
+    paths:
+      - 'src/kodepoia/experience/**'
+      - 'tests/test_experience_*.py'
+      - 'schemas/experience-holdout-registry-v1.schema.json'
+      - '.github/workflows/r15-4-dedup-contamination.yml'
+      - 'docs/roadmap/R15_4_*'
+      - 'docs/roadmap/R15_PLAN.md'
+      - 'docs/continuity/KODEPOIA_CONTINUITY.md'
+permissions:
+  contents: read
+jobs:
+  dedup-contamination:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact checkout
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: R15 experience regression plus R15.4 dedup tests
+        run: >-
+          python -m pytest -q
+          tests/test_experience_contracts.py
+          tests/test_experience_collector.py
+          tests/test_experience_governance.py
+          tests/test_experience_dedup.py
+      - name: Ruff experience dedup surface
+        run: >-
+          python -m ruff check
+          src/kodepoia/experience
+          tests/test_experience_contracts.py
+          tests/test_experience_collector.py
+          tests/test_experience_governance.py
+          tests/test_experience_dedup.py
+      - name: Compile experience package
+        run: python -m compileall -q src/kodepoia/experience

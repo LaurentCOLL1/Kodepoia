@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from kodepoia.bench.baseline import BenchTask
 from kodepoia.bench.kodebench import (
@@ -58,7 +59,7 @@ class FakeBrain:
         return {"capabilities": ["completion"], "details": {"family": "fixture"}}
 
     def chat(self, model: str, messages: list[object], **kwargs: object) -> BrainResponse:
-        prompt = str(getattr(messages[0], "content"))
+        prompt = str(messages[0].content)
         self.calls.append((model, prompt, kwargs))
         content = self.responses.get(f"{model}:{prompt}", self.responses.get(prompt, "OK"))
         tool_calls = ()
@@ -123,7 +124,14 @@ def test_suite_and_scorer_digests_are_deterministic_and_order_independent() -> N
         domain="python",
         critical=True,
     ).digest
-    assert first.scorer.digest == first.scorer.digest
+    same = _exact_task(
+        "a",
+        "prompt-a",
+        "A",
+        domain="python",
+        critical=True,
+    )
+    assert first.scorer.digest == same.scorer.digest
 
 
 def test_scorer_config_must_be_canonical_json() -> None:
@@ -322,6 +330,11 @@ def test_protected_holdout_binding_fails_closed_and_report_has_no_raw_prompt(
     text = destination.read_text(encoding="utf-8")
     assert "SECRET_HOLDOUT_TEXT" not in text
     payload = json.loads(text)
+    schema = json.loads(
+        Path("schemas/kodebench-v2-report.schema.json").read_text(encoding="utf-8")
+    )
+    Draft202012Validator.check_schema(schema)
+    Draft202012Validator(schema).validate(payload)
     assert payload["protection_manifest_digest"] == suite.validate_protected_holdouts(
         registry
     )

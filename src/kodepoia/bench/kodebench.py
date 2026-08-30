@@ -9,7 +9,6 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
 
 from kodepoia.bench.baseline import (
     DEFAULT_TASKS,

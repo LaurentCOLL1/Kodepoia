@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.4 are COMPLETE + NORMALIZED. R15.5 is IN_PROGRESS from normalized R15.4 `main` `8744df5f3a408595693c67819a29f95b3a82f1d7` on dedicated branch `r15/05-immutable-dataset-builder`; R15.6–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.4 are COMPLETE + NORMALIZED. R15.5 is COMPLETE on this bounded END-sync recovery candidate after implementation merge `ceba5be8875e5eb9af62db202c050015be00e09a`; fresh exact-head recovery gates and an expected-head recovery merge remain required, followed by the unique continuity-only normalization before R15.6. R15.6–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -278,7 +278,7 @@ Before R15.1 implementation:
 | R15.2 | Governed validated-experience capture, outcome labeling + opt-in/source scope | COMPLETE | NONE | R15.1 + R1/R6/R8 |
 | R15.3 | Sanitization, secret/privacy filtering, license/provenance policy + revocation | COMPLETE | NONE | R15.1–R15.2 + R6/R7/R8 |
 | R15.4 | Exact/near deduplication, benchmark-contamination firewall + quarantine | COMPLETE | NONE | R15.1–R15.3 |
-| R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | IN_PROGRESS | NONE | R15.1–R15.4 |
+| R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | COMPLETE | NONE | R15.1–R15.4 |
 | R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | PLANNED | NONE | R15.1/R15.4–R15.5 + R3/R6 |
 | R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | PLANNED | NONE | R15.5–R15.6 + R3/R4/R7 |
 | R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | PLANNED | CONDITIONAL | R15.7 + R1/R6/R9 |
@@ -597,6 +597,18 @@ Data ordering changing splits; source revocation ignored; chat-template-specific
 ## Completion record
 
 To be appended when accepted.
+
+## R15.5 implementation and END-sync recovery evidence
+
+- Clean START: `4c9bee744e4c43ef130e50c4867ca3d467878c51` from normalized R15.4 `main` `8744df5f3a408595693c67819a29f95b3a82f1d7`.
+- Immutable technical source: `1ecdfda67a23d8659e48e4c76f805a45a1560ec5`.
+- Exact-source qualification: R15.5 #4 / `33288632868` SUCCESS Ubuntu + Windows; R0 #2102 / `33288632870` SUCCESS; Python Core #2077 / `33288632943` SUCCESS 5/5; KodeStudio UI Smoke #2042 / `33288632867` SUCCESS.
+- Technical scope accepted: policy-bound immutable dataset construction, authoritative R15.4 group-safe splits, contamination exclusion, deterministic domain and `(domain, task)` balancing, tokenizer-independent text/prompt-completion/conversational JSONL, safe provenance, strict manifest/card schemas and fail-closed manifest↔JSONL reconciliation.
+- Pre-recovery PR head `9cc528a3be1dba2f915b6383c1817191f78060d1` passed R15.5 #6 / `33288867382` SUCCESS Ubuntu + Windows, R0 #2103 / `33288867356` SUCCESS, Python Core #2078 / `33288867418` SUCCESS 5/5 and KodeStudio UI Smoke #2043 / `33288867394` SUCCESS, then PR #304 merged with exact expected head as `ceba5be8875e5eb9af62db202c050015be00e09a`.
+- Recovery reason: `.github/workflows/r15-5-end-sync-helper.yml` did not execute its intended documentary synchronization before PR #304 merged. The merge therefore left this phase plan, design, acceptance and continuity stale. No stale status or prior rejected evidence is laundered into normalization.
+- This END-sync recovery candidate changes documentary authority only. Its final exact head MUST receive fresh R15.5 acceptance + R0 + full Python Core + KodeStudio UI Smoke before the recovery PR may merge with `expected_head_sha`.
+- After recovery merge, exactly one continuity-only post-merge normalization remains mandatory before R15.6 START-sync.
+- Manual state: **NONE**.
 
 ---
 

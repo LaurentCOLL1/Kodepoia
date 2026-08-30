@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r15-16-local-qualification-v1.schema.json",
+  "title": "Kodepoia R15.16 local qualification report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "blockers",
+    "host",
+    "policy",
+    "report_sha256",
+    "result",
+    "runtime",
+    "schema",
+    "source",
+    "status",
+    "tools",
+    "warnings"
+  ],
+  "properties": {
+    "blockers": {
+      "type": "array",
+      "items": {"type": "string", "maxLength": 128},
+      "uniqueItems": true
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["machine", "os", "os_release", "python_version"],
+      "properties": {
+        "machine": {"type": "string", "maxLength": 128},
+        "os": {"type": "string", "maxLength": 128},
+        "os_release": {"type": "string", "maxLength": 128},
+        "python_version": {"type": "string", "maxLength": 64}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ollama_required", "training_required"],
+      "properties": {
+        "ollama_required": {"type": "boolean"},
+        "training_required": {"type": "boolean"}
+      }
+    },
+    "report_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "result": {
+      "enum": [
+        "source_sha_mismatch",
+        "no_train_required",
+        "training_backend_ready",
+        "training_backend_unavailable",
+        "resource_budget_blocked",
+        "ollama_required_unavailable"
+      ]
+    },
+    "runtime": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "required": ["disposition", "report_digest", "request_digest"],
+          "properties": {
+            "disposition": {"type": "string"},
+            "report_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "request_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        }
+      ]
+    },
+    "schema": {"const": "kodepoia.r15.16.local-qualification.v1"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actual_sha", "expected_sha", "match"],
+      "properties": {
+        "actual_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "expected_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "match": {"type": "boolean"}
+      }
+    },
+    "status": {"enum": ["pass", "blocked"]},
+    "tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ollama"],
+      "properties": {
+        "ollama": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["available", "version"],
+          "properties": {
+            "available": {"type": "boolean"},
+            "version": {"type": ["string", "null"], "maxLength": 256}
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string", "maxLength": 128},
+      "uniqueItems": true
+    }
+  }
+}

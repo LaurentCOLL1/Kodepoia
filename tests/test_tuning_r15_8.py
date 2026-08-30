@@ -143,6 +143,20 @@ def test_host_budget_blocks_without_subprocess(tmp_path: Path) -> None:
     assert fake.calls == []
 
 
+def test_unknown_requested_host_budget_blocks_without_subprocess(tmp_path: Path) -> None:
+    fake = FakeSandbox(worker_payload())
+    request = RuntimeRequest(resources=ResourceRequest(disk_required_bytes=1, ram_required_bytes=1))
+    report = TrainingRuntime(
+        tmp_path,
+        kill_switch=KillSwitch(),
+        sandbox=fake,
+        resource_probe=FixedResources(None, None),
+    ).probe(request)
+    assert report.disposition is RuntimeDisposition.BUDGET_BLOCKED
+    assert set(report.blockers) == {"ram_budget_unknown", "storage_budget_unknown"}
+    assert fake.calls == []
+
+
 def test_requested_quantization_requires_actual_four_bit_operation(tmp_path: Path) -> None:
     fake = FakeSandbox(worker_payload(backend="rocm", free=900, total=1000, four_bit=False))
     request = RuntimeRequest(
@@ -160,6 +174,24 @@ def test_requested_quantization_requires_actual_four_bit_operation(tmp_path: Pat
     assert report.disposition is RuntimeDisposition.UNSUPPORTED
     assert report.backend_capability is CapabilityState.SUPPORTED
     assert "four_bit_operation_unsupported" in report.blockers
+
+
+def test_cpu_nf4_support_is_decided_by_actual_operation_probe(tmp_path: Path) -> None:
+    fake = FakeSandbox(worker_payload(backend="cpu", four_bit=True))
+    request = RuntimeRequest(
+        backend=TrainingBackend.CPU,
+        quantization=QuantizationMode.BNB_NF4,
+    )
+    report = TrainingRuntime(
+        tmp_path,
+        kill_switch=KillSwitch(),
+        sandbox=fake,
+        resource_probe=FixedResources(),
+    ).probe(request)
+    assert report.disposition is RuntimeDisposition.READY
+    assert report.backend_capability is CapabilityState.SUPPORTED
+    assert report.four_bit_supported is True
+    assert len(fake.calls) == 1
 
 
 def test_model_load_is_second_local_only_worker_phase(tmp_path: Path) -> None:
@@ -237,9 +269,12 @@ def test_worker_failure_does_not_echo_unredacted_stdout(tmp_path: Path) -> None:
     assert "hunter2" not in report.stderr
 
 
-def test_contract_rejects_cpu_nf4_and_unsafe_refs() -> None:
-    with pytest.raises(TuningRuntimeError):
-        RuntimeRequest(quantization=QuantizationMode.BNB_NF4)
+def test_contract_allows_cpu_nf4_probe_and_rejects_unsafe_refs() -> None:
+    request = RuntimeRequest(
+        backend=TrainingBackend.CPU,
+        quantization=QuantizationMode.BNB_NF4,
+    )
+    assert request.quantization is QuantizationMode.BNB_NF4
     with pytest.raises(TuningRuntimeError):
         RuntimeRequest(model_ref="../outside")
 

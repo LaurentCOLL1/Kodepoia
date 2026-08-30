@@ -3,15 +3,13 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
-import platform
 import sys
 import tempfile
-from collections.abc import Mapping
 from pathlib import Path
 from typing import Protocol
 
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
-from kodepoia.core.sandbox import ProcessSandbox, SandboxResult
+from kodepoia.core.sandbox import ProcessSandbox
 
 from .contracts import CapabilityReport, RuntimeDisposition
 from .runtime import HostResourceProbe, SandboxRunner, redact_runtime_text
@@ -203,9 +201,18 @@ class TrainingOrchestrator:
                 if not adapter_file.is_file() or _sha256_file(adapter_file) != adapter_digest:
                     raise TrainingPlanError("adapter artifact digest mismatch")
             if checkpoint is not None:
-                checkpoint_file = _inside(self.root, checkpoint.checkpoint_path)
-                if not checkpoint_file.is_file() or _sha256_file(checkpoint_file) != checkpoint.state_digest:
-                    raise TrainingPlanError("checkpoint artifact digest mismatch")
+                checkpoint_dir = _inside(self.root, checkpoint.checkpoint_path)
+                metadata = checkpoint_dir / "kodepoia_checkpoint.json"
+                state_file = checkpoint_dir / "fixture_state.json"
+                if not state_file.is_file():
+                    state_file = checkpoint_dir / "trainer_state.json"
+                if not checkpoint_dir.is_dir() or not metadata.is_file() or not state_file.is_file():
+                    raise TrainingPlanError("checkpoint artifact is incomplete")
+                if _sha256_file(state_file) != checkpoint.state_digest:
+                    raise TrainingPlanError("checkpoint state digest mismatch")
+                recorded = _checkpoint_from_dict(json.loads(metadata.read_text(encoding="utf-8")))
+                if recorded != checkpoint:
+                    raise TrainingPlanError("checkpoint metadata mismatch")
             packages = tuple(sorted((str(k), None if v is None else str(v)) for k, v in dict(evidence.get("packages", {})).items()))
             return TrainingRunReport(
                 state=state,
@@ -259,11 +266,17 @@ class TrainingOrchestrator:
 
     def _validate_resume(self, plan: TrainingPlan, relative: str) -> str | None:
         checkpoint_path = _inside(self.root, relative)
-        if not checkpoint_path.is_file():
+        metadata = checkpoint_path / "kodepoia_checkpoint.json"
+        if not checkpoint_path.is_dir() or not metadata.is_file():
             return "resume_checkpoint_missing"
         try:
-            payload = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+            payload = json.loads(metadata.read_text(encoding="utf-8"))
             record = _checkpoint_from_dict(payload)
+            state_file = checkpoint_path / "fixture_state.json"
+            if not state_file.is_file():
+                state_file = checkpoint_path / "trainer_state.json"
+            if not state_file.is_file() or _sha256_file(state_file) != record.state_digest:
+                return "resume_checkpoint_state_mismatch"
         except (OSError, json.JSONDecodeError, TypeError, ValueError, TrainingPlanError):
             return "resume_checkpoint_invalid"
         expected = (

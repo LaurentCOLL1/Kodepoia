@@ -116,25 +116,25 @@ def _checkpoint_payload(plan: TrainingPlan, *, path: str, step: int, state_diges
 
 
 def _save_checkpoint(root: Path, output_dir: Path, plan: TrainingPlan, step: int, material: bytes) -> dict[str, object]:
-    relative = (output_dir / f"checkpoint-{step}.json").relative_to(root).as_posix()
-    path = root / relative
-    body = {
-        "base_model_digest": plan.base_model_digest,
-        "dataset_manifest_digest": plan.dataset_manifest_digest,
+    checkpoint_dir = output_dir / f"checkpoint-{step}"
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    state_path = checkpoint_dir / "fixture_state.json"
+    state = {
         "material_digest": hashlib.sha256(material).hexdigest(),
         "plan_digest": plan.digest,
         "step": step,
-        "tokenizer_digest": plan.tokenizer_digest,
-        "train_split_digest": plan.train_split_digest,
     }
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(body, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
-    state_digest = _sha256_file(path)
-    payload = _checkpoint_payload(plan, path=relative, step=step, state_digest=state_digest)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
-    payload["state_digest"] = _sha256_file(path)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
-    payload["state_digest"] = _sha256_file(path)
+    state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
+    payload = _checkpoint_payload(
+        plan,
+        path=checkpoint_dir.relative_to(root).as_posix(),
+        step=step,
+        state_digest=_sha256_file(state_path),
+    )
+    (checkpoint_dir / "kodepoia_checkpoint.json").write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
     return payload
 
 
@@ -149,7 +149,7 @@ def _fixture_train(root: Path, plan: TrainingPlan, output_dir: Path, resume: str
 
     start_step = 0
     if resume is not None:
-        checkpoint = json.loads((root / resume).read_text(encoding="utf-8"))
+        checkpoint = json.loads((root / resume / "kodepoia_checkpoint.json").read_text(encoding="utf-8"))
         start_step = int(checkpoint["step"])
     random.seed(plan.seed)
     material = (
@@ -272,6 +272,10 @@ def _trl_peft_train(root: Path, plan: TrainingPlan, output_dir: Path, resume: st
             path=checkpoint_dir.relative_to(root).as_posix(),
             step=int(checkpoint_dir.name.split("-")[-1]),
             state_digest=state_digest,
+        )
+        (checkpoint_dir / "kodepoia_checkpoint.json").write_text(
+            json.dumps(checkpoint_payload, ensure_ascii=False, indent=2, sort_keys=True),
+            encoding="utf-8",
         )
     metrics = dict(result.metrics)
     eval_loss = None

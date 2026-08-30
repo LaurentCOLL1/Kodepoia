@@ -21,7 +21,7 @@ jobs:
         shell: bash
         run: git merge-base --is-ancestor f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac HEAD
       - name: Apply bounded R15.13 END synchronization
-        shell: python
+        shell: python {0}
         run: |
           from pathlib import Path
 
@@ -61,6 +61,19 @@ jobs:
               raise SystemExit('R15.13 completion placeholder not found')
           section = section.replace(old, new, 1)
           plan = plan[:section_start] + section + plan[section_end:]
+          for idx in range(1, 13):
+              plan = plan.replace(f'| R15.{idx} | ', f'| R15.{idx} | ', 1)
+          # Normalize stale completed rows in the phase index without touching historical completion records.
+          lines = plan.splitlines()
+          for i, line in enumerate(lines):
+              if line.startswith('| R15.'):
+                  parts = line.split('|')
+                  if len(parts) >= 4:
+                      ident = parts[1].strip()
+                      if ident in {f'R15.{n}' for n in range(1, 13)} and parts[3].strip() == 'COMPLETE':
+                          parts[3] = ' COMPLETE + NORMALIZED '
+                          lines[i] = '|'.join(parts)
+          plan = '\n'.join(lines) + ('\n' if plan.endswith('\n') else '')
           plan_path.write_text(plan, encoding='utf-8')
 
           continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')

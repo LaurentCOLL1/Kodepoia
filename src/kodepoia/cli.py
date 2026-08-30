@@ -8,9 +8,10 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from kodepoia.assets.asset_cli import register_asset_commands
-from kodepoia.bench.baseline import BaselineBench, BenchmarkRole
-from kodepoia.blender3d.blender_cli import register_blender_commands
 from kodepoia.backend.r14_cli import register_r14_backend_commands
+from kodepoia.bench.baseline import BaselineBench, BenchmarkRole
+from kodepoia.bench.kodebench import compare_saved_reports
+from kodepoia.blender3d.blender_cli import register_blender_commands
 from kodepoia.brain.ollama import OllamaClient
 from kodepoia.comfyui.comfy_cli import register_comfy_commands
 from kodepoia.desktop.r12_cli import register_r12_commands
@@ -28,7 +29,6 @@ from kodepoia.mobile.r13_cli import register_r13_commands
 from kodepoia.project.dna import ApprovalPolicy, Dimension, Platform, ProjectType
 from kodepoia.project.initializer import ProjectInitializer
 from kodepoia.project.wizard import ProjectWizardState
-
 
 PRESELECTION_REPEATS = 4
 ACCEPTANCE_REPEATS = 5
@@ -166,6 +166,23 @@ def _bench_models(args: argparse.Namespace) -> int:
     return 0
 
 
+def _kodebench_compare(args: argparse.Namespace) -> int:
+    comparison = compare_saved_reports(
+        Path(args.base),
+        Path(args.candidate),
+        base_model=args.base_model,
+        candidate_model=args.candidate_model,
+    )
+    output = Path(args.output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        json.dumps(comparison, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    print(json.dumps({"output": str(output), **comparison}, ensure_ascii=False, indent=2))
+    return 0
+
+
 def _r3_accept(args: argparse.Namespace) -> int:
     _require_loopback_url(args.url)
     _validate_repeats(args.repeats, acceptance=True)
@@ -280,6 +297,17 @@ def build_parser() -> argparse.ArgumentParser:
     bench.add_argument("--url", default="http://127.0.0.1:11434")
     bench.add_argument("--output", default=".kodepoia/benchmarks/r3-baseline.json")
     bench.set_defaults(func=_bench_models)
+
+    compare = commands.add_parser("kodebench-compare")
+    compare.add_argument("--base", required=True)
+    compare.add_argument("--candidate", required=True)
+    compare.add_argument("--base-model", required=True)
+    compare.add_argument("--candidate-model", required=True)
+    compare.add_argument(
+        "--output",
+        default=".kodepoia/benchmarks/kodebench-comparison.json",
+    )
+    compare.set_defaults(func=_kodebench_compare)
 
     r3 = commands.add_parser("r3-accept")
     r3.add_argument("--model", action="append", required=True)

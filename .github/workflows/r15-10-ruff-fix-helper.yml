@@ -1,0 +1,36 @@
+name: R15.10 Ruff Fix Helper
+
+on:
+  push:
+    branches: [r15/10-base-adapter-evaluation]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/10-base-adapter-evaluation
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply bounded Ruff formatting
+        run: |
+          python -m pip install 'ruff>=0.12,<1'
+          python -m ruff format src/kodepoia/bench/evaluation.py
+          python -m ruff check src/kodepoia/bench/evaluation.py tests/test_candidate_evaluation_r15_10.py
+      - name: Publish clean technical head
+        shell: bash
+        run: |
+          rm .github/workflows/r15-10-ruff-fix-helper.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/kodepoia/bench/evaluation.py .github/workflows/r15-10-ruff-fix-helper.yml
+          git diff --cached --check
+          git commit -m 'style(r15.10): satisfy evaluation lint gate'
+          git push origin HEAD:r15/10-base-adapter-evaluation

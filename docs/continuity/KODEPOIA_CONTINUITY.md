@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.13 COMPLETE + NORMALIZED; R15.14–R15.17 PLANNED.** R15.13 immutable technical source `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac`; final exact END-head `ceecdffcfa207ce73f871c97f95728c0caac1c95` passed R15.13 #34 / `33331358480` Ubuntu + Windows, R0 #2199 / `33331358511` Ubuntu + Windows, Python Core #2174 / `33331358536` and KodeStudio UI Smoke #2139 / `33331358432`; PR #322 merged with `expected_head_sha=ceecdffcfa207ce73f871c97f95728c0caac1c95` as implementation/evidence `main` `6eec01b90790f94fdc32513727329961d884539a`. Manual state R15.13: CONDITIONAL / NOT TRIGGERED. This record is the unique post-merge continuity-only R15.13 normalization authority when merged; R15.14 START-sync is authorized only from the resulting normalized `main` after this branch passes fresh exact-head R0/Python/UI.
+> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.13 COMPLETE + NORMALIZED; R15.14 COMPLETE / NORMALIZATION PENDING; R15.15–R15.17 PLANNED.** R15.13 immutable technical source `f0dfcd1ed3e9d2382ad44efdcd2ec05dbac1b7ac`; final exact END-head `ceecdffcfa207ce73f871c97f95728c0caac1c95` passed R15.13 #34 / `33331358480` Ubuntu + Windows, R0 #2199 / `33331358511` Ubuntu + Windows, Python Core #2174 / `33331358536` and KodeStudio UI Smoke #2139 / `33331358432`; PR #322 merged with `expected_head_sha=ceecdffcfa207ce73f871c97f95728c0caac1c95` as implementation/evidence `main` `6eec01b90790f94fdc32513727329961d884539a`. Manual state R15.13: CONDITIONAL / NOT TRIGGERED. This record is the unique post-merge continuity-only R15.13 normalization authority when merged; R15.14 START-sync is authorized only from the resulting normalized `main` after this branch passes fresh exact-head R0/Python/UI.
 
 ## État global
 
@@ -65,14 +65,16 @@
 | R15.11 | COMPLETE + NORMALIZED | NONE |
 | R15.12 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R15.13 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
-| R15.14 | PLANNED | NONE |
+| R15.14 | COMPLETE / NORMALIZATION PENDING | NONE |
 | R15.15 | PLANNED | NONE |
 | R15.16 | PLANNED | CONDITIONAL |
 | R15.17 | PLANNED | CONDITIONAL |
 
+- R15.14 : **COMPLETE / NORMALIZATION PENDING** — clean START / normalized R15.13 `main` `d0225f4086c8ad1328fe6450a85e92fcc62644a6`; immutable technical source `d6e3aef8224cb45a329b76077d1dd39a9adda0c3`; technical R15.14 acceptance `33332947813` SUCCESS Ubuntu + Windows. Immutable digest-bound versions, explicit lineage/artifact variants/role eligibility, fail-closed rejected/non-promotable activation, mutable runtime-ref digest verification, atomic persisted promotion, SafeChange snapshot hook, health rollback, restart-safe exact rollback and R3 `KodeModelRouter` compatibility are implemented. Manual NONE. PR #324 carries this source; only fresh exact-head R15.14 + R0 + Python Core + UI evidence on the resulting END head may authorize its expected-head merge. Exactly one continuity-only post-merge normalization is mandatory before R15.15 START.
+
 ## Next authorized action
 
-**R15.13 implementation/evidence is merged as `main` `6eec01b90790f94fdc32513727329961d884539a`. Complete only this unique continuity-only normalization: require fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, then merge the normalization PR with exact `expected_head_sha`. R15.14 START-sync becomes authorized only from the normalized `main` produced by that merge.**
+**R15.14 only: freeze technical source `d6e3aef8224cb45a329b76077d1dd39a9adda0c3`; require fresh R15.14 Specialized Model Registry Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the exact final PR #324 END-head, then merge #324 with exact `expected_head_sha`. After that merge, perform exactly one continuity-only R15.14 normalization with fresh exact-head R0/Python/UI. R15.15 remains unauthorized until that normalization merges. Manual state: NONE.**
 
 ## Permanent R-phase execution rule
 

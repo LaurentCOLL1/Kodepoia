@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r15-14-model-registry.schema.json",
+  "title": "Kodepoia R15.14 Specialized Model Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "records", "active_roles", "rollback_roles"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "records": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/record"}
+    },
+    "active_roles": {
+      "type": "object",
+      "propertyNames": {"enum": ["fast", "core", "coder", "embed", "vision"]},
+      "additionalProperties": {"type": "string", "minLength": 2, "maxLength": 128}
+    },
+    "rollback_roles": {
+      "type": "object",
+      "propertyNames": {"enum": ["fast", "core", "coder", "embed", "vision"]},
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["prior_version_id", "promoted_version_id", "transaction_id"],
+        "properties": {
+          "prior_version_id": {"type": ["string", "null"]},
+          "promoted_version_id": {"type": "string"},
+          "transaction_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "artifact_id", "digest", "runtime_ref", "capabilities"],
+      "properties": {
+        "kind": {"enum": ["base", "adapter", "gguf", "ollama"]},
+        "artifact_id": {"type": "string"},
+        "digest": {"$ref": "#/$defs/sha"},
+        "runtime_ref": {"type": ["string", "null"]},
+        "capabilities": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version_id", "candidate_id", "state", "disposition", "base_model_id", "base_digest", "lineage", "role_eligibility", "domain_tags", "variants", "preferred_variant", "record_digest"],
+      "properties": {
+        "version_id": {"type": "string"},
+        "candidate_id": {"type": "string"},
+        "state": {"enum": ["candidate", "active", "rejected", "retired"]},
+        "disposition": {"type": "string"},
+        "base_model_id": {"type": "string"},
+        "base_digest": {"$ref": "#/$defs/sha"},
+        "lineage": {"type": "object", "additionalProperties": {"$ref": "#/$defs/sha"}, "minProperties": 1},
+        "role_eligibility": {"type": "array", "items": {"enum": ["fast", "core", "coder", "embed", "vision"]}, "uniqueItems": true, "minItems": 1},
+        "domain_tags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "variants": {"type": "array", "items": {"$ref": "#/$defs/variant"}, "minItems": 1},
+        "preferred_variant": {"enum": ["base", "adapter", "gguf", "ollama"]},
+        "record_digest": {"$ref": "#/$defs/sha"}
+      }
+    }
+  }
+}

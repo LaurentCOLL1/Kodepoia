@@ -1169,7 +1169,19 @@ Global default changed from a role-specific win; mutable tag drift; stale regist
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — immutable technical source accepted; fresh exact-END gates required before merge.**
+
+- clean START / normalized R15.13 `main`: `d0225f4086c8ad1328fe6450a85e92fcc62644a6`;
+- immutable technical source: `d6e3aef8224cb45a329b76077d1dd39a9adda0c3`;
+- R15.14 Specialized Model Registry Acceptance run `33332947813`: SUCCESS Ubuntu + Windows; focused registry/router compatibility tests, Ruff, compileall and Draft 2020-12 registry-schema validation PASS on the exact technical source;
+- registry versions are immutable digest-bound records with explicit base/lineage, artifact variants, capability/domain tags and role eligibility; mutable runtime refs must resolve to the bound immutable digest before activation;
+- `REJECTED` and non-`PROMOTE_TO_EXPORT` candidates fail closed; role-specific acceptance cannot silently become a global default;
+- promotion persists an atomic role mapping plus restart-safe rollback pointer, snapshots the registry through SafeChange where configured, audits transitions and restores the exact prior persisted document if the post-promotion health probe fails;
+- rollback validates the exact promoted mapping and restores the prior immutable role mapping; tampered record digests are rejected on reload;
+- existing R3 `ModelRegistry` / `KodeModelRouter` abstractions remain the routing boundary; R15.14 adds an adapter rather than replacing router architecture;
+- manual state: `NONE`;
+- PR #324 carries this implementation/evidence source. This END synchronization changes documentary authority only; its exact resulting PR head MUST receive fresh R15.14 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`. Technical-source evidence above is not reused for the END merge decision;
+- exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.15 START-sync is authorized.
 
 ---
 

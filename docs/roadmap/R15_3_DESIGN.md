@@ -12,7 +12,7 @@ R15.3 is a deterministic governance layer after R15.2 raw capture. It never trea
 
 The sanitizer creates a distinct sanitized content reference, SHA-256 output identity and digest-bound `TransformationRef`. Reports expose only categories, counts, digests, policy decisions and blockers; detected values and governed storage paths are never copied into the report.
 
-License handling supports SPDX-style compound expressions with `AND`, `OR`, `WITH`, parentheses and case-insensitive operators. Policy is fail-closed: missing licenses stay `UNKNOWN`; unsupported/custom/unknown expressions stay `REVIEW`; explicit deny rules produce `DENY`; only explicitly allowlisted identifiers/exceptions produce `ALLOW`.
+License handling supports SPDX-style compound expressions with `AND`, `OR`, `WITH`, parentheses and the SPDX 3.0.1 operator-case rule: operators may be written entirely uppercase or entirely lowercase; mixed-case operator spellings are not accepted as operators. Policy is fail-closed: missing licenses stay `UNKNOWN`; unsupported/custom/unknown expressions stay `REVIEW`; explicit deny rules produce `DENY`; only explicitly allowlisted identifiers/exceptions produce `ALLOW`.
 
 Revocation is lineage-aware. A governed source revocation transitions training-eligible records to `REVOKED`, observed records to `QUARANTINED`, computes downstream invalidation through dependency identities and stores only a reason digest in the safe report.
 

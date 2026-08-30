@@ -59,7 +59,7 @@ jobs:
       - name: Format and lint R15.9-owned surface
         run: |
           ruff format src/kodepoia/tuning/training.py src/kodepoia/tuning/train_worker.py tests/test_tuning_r15_9.py
-          ruff check --fix src/kodepoia/tuning/training.py src/kodepoia/tuning/train_worker.py tests/test_tuning_r15_9.py
+          ruff check --unsafe-fixes --fix src/kodepoia/tuning/training.py src/kodepoia/tuning/train_worker.py tests/test_tuning_r15_9.py
           ruff check src/kodepoia/tuning/training.py src/kodepoia/tuning/train_worker.py tests/test_tuning_r15_9.py
       - name: Compile R15.9 surface
         run: python -m compileall -q src/kodepoia/tuning/training.py src/kodepoia/tuning/train_worker.py tests/test_tuning_r15_9.py

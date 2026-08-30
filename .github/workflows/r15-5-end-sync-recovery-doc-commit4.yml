@@ -1,0 +1,83 @@
+name: R15.5 END Sync Recovery Docs Commit 4
+on:
+  push:
+    branches: [r15/05-end-sync-recovery]
+    paths: ['.github/workflows/r15-5-end-sync-recovery-doc-commit4.yml']
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/05-end-sync-recovery
+          fetch-depth: 0
+      - name: Apply bounded documentary recovery
+        shell: python
+        run: |
+          from pathlib import Path
+          src = Path('.github/workflows/r15-5-end-sync-recovery-doc-commit2.yml').read_text(encoding='utf-8').splitlines()
+          marker = next(i for i, line in enumerate(src) if line.strip() == '- name: Apply bounded R15.5 documentary recovery')
+          run_line = next(i for i in range(marker + 1, len(src)) if src[i].strip() == 'run: |')
+          code = []
+          for line in src[run_line + 1:]:
+              if not line.startswith('          '):
+                  break
+              code.append(line[10:])
+          exec(compile('\n'.join(code), 'r15-5-end-sync-recovery-doc-commit2', 'exec'), {})
+
+          plan_path = Path('docs/roadmap/R15_PLAN.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          old_row = '| R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | COMPLETE / END-SYNC RECOVERY | NONE | R15.1–R15.4 |'
+          new_row = '| R15.5 | Immutable dataset builder, group-safe deterministic splits, manifests + dataset cards | COMPLETE | NONE | R15.1–R15.4 |'
+          assert plan.count(old_row) == 1
+          plan = plan.replace(old_row, new_row, 1)
+          old_checkpoint = 'R15.5 implementation merged as `ceba5be8875e5eb9af62db202c050015be00e09a` but its pre-merge END-sync helper failed to update documentary authority; bounded END-sync recovery is therefore IN_PROGRESS and R15.6 remains blocked.'
+          new_checkpoint = 'R15.5 is COMPLETE on this bounded END-sync recovery candidate after implementation merge `ceba5be8875e5eb9af62db202c050015be00e09a`; fresh exact-head recovery gates and an expected-head recovery merge remain required, followed by the unique continuity-only normalization before R15.6.'
+          assert plan.count(old_checkpoint) == 1
+          plan = plan.replace(old_checkpoint, new_checkpoint, 1)
+          plan_path.write_text(plan, encoding='utf-8')
+
+          design_path = Path('docs/roadmap/R15_5_DESIGN.md')
+          design = design_path.read_text(encoding='utf-8')
+          old_design = '**Status:** COMPLETE / END-SYNC RECOVERY GATES PENDING  '
+          assert design.count(old_design) == 1
+          design = design.replace(old_design, '**Status:** COMPLETE', 1)
+          design_path.write_text(design, encoding='utf-8')
+
+          acceptance_path = Path('docs/roadmap/R15_5_ACCEPTANCE.md')
+          acceptance = acceptance_path.read_text(encoding='utf-8')
+          old_acceptance = '**Acceptance state:** COMPLETE / END-SYNC RECOVERY GATES PENDING  '
+          assert acceptance.count(old_acceptance) == 1
+          acceptance = acceptance.replace(old_acceptance, '**Acceptance state:** COMPLETE', 1)
+          acceptance_path.write_text(acceptance, encoding='utf-8')
+
+          continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          continuity = continuity_path.read_text(encoding='utf-8')
+          old_top = '**R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.4 COMPLETE + NORMALIZED; R15.5 COMPLETE / END-SYNC RECOVERY IN_PROGRESS; R15.6–R15.17 PLANNED.**'
+          new_top = '**R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.4 COMPLETE + NORMALIZED; R15.5 COMPLETE; R15.6–R15.17 PLANNED.**'
+          assert continuity.count(old_top) == 1
+          continuity = continuity.replace(old_top, new_top, 1)
+          old_line_status = '- R15.5 : **COMPLETE / END-SYNC RECOVERY IN_PROGRESS** —'
+          assert continuity.count(old_line_status) == 1
+          continuity = continuity.replace(old_line_status, '- R15.5 : **COMPLETE** —', 1)
+          old_table = '| R15.5 | IN_PROGRESS | NONE |'
+          assert continuity.count(old_table) == 1
+          continuity = continuity.replace(old_table, '| R15.5 | COMPLETE | NONE |', 1)
+          continuity_path.write_text(continuity, encoding='utf-8')
+      - name: Commit and push four END records
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_PLAN.md docs/roadmap/R15_5_DESIGN.md docs/roadmap/R15_5_ACCEPTANCE.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_PLAN.md docs/roadmap/R15_5_DESIGN.md docs/roadmap/R15_5_ACCEPTANCE.md
+          actual="$(git diff --cached --name-only | sort)"
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R15_5_ACCEPTANCE.md\ndocs/roadmap/R15_5_DESIGN.md\ndocs/roadmap/R15_PLAN.md'
+          printf 'CACHED\n%s\n' "$actual"
+          test "$actual" = "$expected"
+          git diff --cached --check
+          git commit -m "docs(r15.5): recover missed END synchronization"
+          git push origin HEAD:r15/05-end-sync-recovery

@@ -1,0 +1,67 @@
+name: R15.15 integration helper
+
+on:
+  push:
+    branches:
+      - r15/15-cli-kodestudio-ux
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/15-cli-kodestudio-ux
+          fetch-depth: 0
+      - name: Integrate structured R15 CLI and KodeStudio page
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          cli = Path('src/kodepoia/cli.py')
+          text = cli.read_text(encoding='utf-8')
+          marker = 'from kodepoia.project.wizard import ProjectWizardState\n'
+          addition = marker + 'from kodepoia.tuning.r15_cli import register_r15_commands\n'
+          assert marker in text and 'register_r15_commands' not in text
+          text = text.replace(marker, addition, 1)
+          marker = '    register_r13_commands(commands)\n    return parser\n'
+          replacement = '    register_r13_commands(commands)\n    register_r15_commands(commands)\n    return parser\n'
+          assert marker in text
+          cli.write_text(text.replace(marker, replacement, 1), encoding='utf-8')
+
+          app = Path('src/kodepoia/kodestudio/app.py')
+          text = app.read_text(encoding='utf-8')
+          marker = '    r14_service=None,\n):\n'
+          replacement = '    r14_service=None,\n    r15_service=None,\n):\n'
+          assert marker in text and 'r15_service=None' not in text
+          text = text.replace(marker, replacement, 1)
+
+          marker = '''    def r14_page() -> QWidget:\n        from kodepoia.kodestudio.backend_liveops_panel import create_backend_liveops_page\n\n        return create_backend_liveops_page(\n            root,\n            locale=locale,\n            service=r14_service,\n            status_bar=status,\n        )\n\n'''
+          assert marker in text
+          addition = marker + '''    def r15_page() -> QWidget:\n        from kodepoia.kodestudio.r15_tuning_panel import create_r15_tuning_page\n\n        return create_r15_tuning_page(\n            root,\n            locale=locale,\n            service=r15_service,\n            status_bar=status,\n        )\n\n'''
+          text = text.replace(marker, addition, 1)
+
+          marker = '    from kodepoia.kodestudio.r14_localization import r14_nav_text\n'
+          replacement = marker + '    from kodepoia.kodestudio.r15_localization import r15_nav_text\n'
+          assert marker in text
+          text = text.replace(marker, replacement, 1)
+
+          marker = '        (r14_nav_text(locale), r14_page),\n        (tr.text("app.nav.security"), security_page),\n'
+          replacement = '        (r14_nav_text(locale), r14_page),\n        (r15_nav_text(locale), r15_page),\n        (tr.text("app.nav.security"), security_page),\n'
+          assert marker in text
+          text = text.replace(marker, replacement, 1)
+          app.write_text(text, encoding='utf-8')
+          PY
+          python -m py_compile src/kodepoia/cli.py src/kodepoia/kodestudio/app.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git rm .github/workflows/r15-15-integrate-helper.yml
+          git add src/kodepoia/cli.py src/kodepoia/kodestudio/app.py
+          git diff --cached --check
+          git commit -m "feat(r15.15): integrate CLI and KodeStudio UX"
+          git push origin HEAD:r15/15-cli-kodestudio-ux

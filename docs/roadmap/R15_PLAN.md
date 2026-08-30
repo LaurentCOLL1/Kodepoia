@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.9 are COMPLETE + NORMALIZED. R15.10 is COMPLETE with immutable technical source `a4770042509dbba9397c974f2f5f153513f97b24`; its final documented END-head requires fresh exact-head R15.10/R0/Python/UI gates before protected merge. R15.11–R15.17 remain PLANNED.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.10 are COMPLETE + NORMALIZED. R15.11 is IN_PROGRESS from normalized `main` `76b1a2b98676376bf917b7fac4cb68bb3d34b2fb`; R15.12–R15.17 remain PLANNED.
 
 ## Purpose and authority
 
@@ -282,9 +282,9 @@ Before R15.1 implementation:
 | R15.6 | KodeBench v2 registry, domain/critical scoring, reproducibility + resource metrics | COMPLETE + NORMALIZED | NONE | R15.1/R15.4–R15.5 + R3/R6 |
 | R15.7 | Gap diagnosis + governed TRAIN/NO_TRAIN decision engine | COMPLETE + NORMALIZED | NONE | R15.5–R15.6 + R3/R4/R7 |
 | R15.8 | Optional training runtime, backend capability probes, dependency isolation + reproducibility | COMPLETE + NORMALIZED | CONDITIONAL | R15.7 + R1/R6/R9 |
-| R15.9 | QLoRA/SFT adapter training, checkpoints, resume/cancel/recovery + budget controls | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R15.5/R15.7–R15.8 |
-| R15.10 | Base-vs-adapter evaluation, critical-regression veto + candidate disposition | PLANNED | NONE | R15.6/R15.9 |
-| R15.11 | Accepted adapter/model export, merge compatibility, Safetensors/model card + lineage | PLANNED | NONE | R15.9–R15.10 + R8 |
+| R15.9 | QLoRA/SFT adapter training, checkpoints, resume/cancel/recovery + budget controls | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.5/R15.7–R15.8 |
+| R15.10 | Base-vs-adapter evaluation, critical-regression veto + candidate disposition | COMPLETE + NORMALIZED | NONE | R15.6/R15.9 |
+| R15.11 | Accepted adapter/model export, merge compatibility, Safetensors/model card + lineage | IN_PROGRESS | NONE | R15.9–R15.10 + R8 |
 | R15.12 | GGUF conversion + quantization matrix, quality-loss measurement + artifact validation | PLANNED | CONDITIONAL | R15.10–R15.11 + R6/R8/R9 |
 | R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | PLANNED | CONDITIONAL | R15.10–R15.12 + R3 |
 | R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | PLANNED | NONE | R15.10–R15.13 + R3/R8 |

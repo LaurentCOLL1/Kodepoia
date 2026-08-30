@@ -1,0 +1,43 @@
+name: R15.7 Post-Merge Normalization Helper
+
+on:
+  push:
+    branches: [r15/07-post-merge-normalization]
+    paths:
+      - 'scripts/r15_7_post_merge_normalize.py'
+      - '.github/workflows/r15-7-post-merge-normalization-helper.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/07-post-merge-normalization
+          fetch-depth: 0
+      - name: Apply bounded continuity normalization
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/r15_7_post_merge_normalize.py
+          git rm .github/workflows/r15-7-post-merge-normalization-helper.yml scripts/r15_7_post_merge_normalize.py
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          mapfile -t staged < <(git diff --cached --name-only | sort)
+          printf '%s\n' "${staged[@]}"
+          expected=(
+            '.github/workflows/r15-7-post-merge-normalization-helper.yml'
+            'docs/continuity/KODEPOIA_CONTINUITY.md'
+            'scripts/r15_7_post_merge_normalize.py'
+          )
+          if [[ "${staged[*]}" != "${expected[*]}" ]]; then
+            echo 'Unexpected staged scope' >&2
+            exit 1
+          fi
+          git diff --cached --exit-code -- docs/roadmap/R15_PLAN.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'docs(r15.7): normalize post-merge continuity'
+          git push origin HEAD:r15/07-post-merge-normalization

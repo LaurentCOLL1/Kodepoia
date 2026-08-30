@@ -51,8 +51,9 @@ jobs:
           set -euo pipefail
           changed="$(git diff --name-only)"
           printf '%s\n' "$changed"
-          test "$changed" = $'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R15_PLAN.md'
-          git diff --check
+          test "$changed" = $'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R10_7_LOCAL_ACCEPTANCE.json\ndocs/roadmap/R15_PLAN.md'
+          git diff --ignore-space-at-eol --exit-code -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_PLAN.md
       - name: Commit START sync and remove helper
         run: |
           set -euo pipefail

@@ -5,6 +5,7 @@ on:
     branches: [r15/13-ollama-import-packaging]
     paths:
       - '.github/workflows/r15-13-pr-successor-sync.yml'
+      - 'scripts/r15_13_pr_successor_sync.py'
 
 permissions:
   contents: write

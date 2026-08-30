@@ -1,0 +1,128 @@
+name: R15.9 QLoRA SFT Acceptance
+
+on:
+  push:
+    branches: [r15/09-qlora-sft]
+  pull_request:
+    paths:
+      - 'src/kodepoia/tuning/**'
+      - 'tests/test_tuning_r15_8.py'
+      - 'tests/test_tuning_r15_9.py'
+      - 'schemas/r15-8-training-runtime-capability.schema.json'
+      - 'schemas/r15-9-training-run.schema.json'
+      - 'pyproject.toml'
+      - '.github/workflows/r15-8-training-runtime.yml'
+      - '.github/workflows/r15-9-qlora-sft.yml'
+      - 'docs/roadmap/R15_9_*'
+      - 'docs/roadmap/R15_PLAN.md'
+      - 'docs/continuity/KODEPOIA_CONTINUITY.md'
+
+permissions:
+  contents: read
+
+jobs:
+  qlora-sft:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact checkout
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install core development dependencies only
+        run: python -m pip install -e ".[dev]"
+      - name: R15.8 and R15.9 focused tests without ML extras
+        run: python -m pytest -q tests/test_tuning_r15_8.py tests/test_tuning_r15_9.py
+      - name: Ruff R15.9-owned surface
+        run: >-
+          python -m ruff check
+          src/kodepoia/tuning
+          tests/test_tuning_r15_8.py
+          tests/test_tuning_r15_9.py
+      - name: Compile tuning surface
+        run: python -m compileall -q src/kodepoia/tuning
+      - name: Validate R15.8 and R15.9 JSON schemas
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+
+          for path in (
+              Path('schemas/r15-8-training-runtime-capability.schema.json'),
+              Path('schemas/r15-9-training-run.schema.json'),
+          ):
+              schema = json.loads(path.read_text(encoding='utf-8'))
+              Draft202012Validator.check_schema(schema)
+          PY
+      - name: Fixture training smoke and serialized report validation
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import tempfile
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+          from kodepoia.tuning.training import (
+              DatasetBinding,
+              ModelBinding,
+              SFTTrainingConfig,
+              TrainingAuthorization,
+              TrainingMode,
+              TrainingPlan,
+              TrainingRunner,
+          )
+
+          A = 'a' * 64
+          B = 'b' * 64
+          C = 'c' * 64
+          D = 'd' * 64
+          plan = TrainingPlan(
+              mode=TrainingMode.FIXTURE_SFT,
+              authorization=TrainingAuthorization.FIXTURE,
+              fixture_authorization='repository-owned-r15.9-fixture',
+              model=ModelBinding(
+                  model_ref='fixture/base',
+                  model_revision='fixture-rev-1',
+                  model_digest=A,
+                  tokenizer_ref='fixture/tokenizer',
+                  tokenizer_revision='fixture-tokenizer-rev-1',
+                  tokenizer_digest=B,
+                  assistant_mask_capable=True,
+              ),
+              dataset=DatasetBinding(
+                  dataset_id='fixture-dataset-v1',
+                  dataset_digest=C,
+                  manifest_digest=D,
+                  train_export_digest=A,
+                  validation_export_digest=B,
+                  train_rows=8,
+                  validation_rows=3,
+              ),
+              sft=SFTTrainingConfig(max_steps=4, checkpoint_steps=2, eval_steps=2),
+          )
+          with tempfile.TemporaryDirectory() as value:
+              root = Path(value)
+              report = TrainingRunner(root).run(plan)
+              output = root / 'training-report.json'
+              report.save(output)
+              payload = json.loads(output.read_text(encoding='utf-8'))
+              schema = json.loads(
+                  Path('schemas/r15-9-training-run.schema.json').read_text(encoding='utf-8')
+              )
+              Draft202012Validator(schema).validate(payload)
+              assert payload['state'] == 'completed'
+              assert payload['optimized_splits'] == ['train']
+              assert payload['adapter_digest']
+              assert payload['checkpoints']
+          PY

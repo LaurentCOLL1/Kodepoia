@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r15-9-training-run.schema.json",
+  "title": "Kodepoia R15.9 Training Run Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "adapter_digest",
+    "adapter_path",
+    "blockers",
+    "checkpoints",
+    "completed_steps",
+    "eval_loss",
+    "framework_versions",
+    "optimized_splits",
+    "plan_digest",
+    "report_digest",
+    "resource_maxima",
+    "resumed_from",
+    "run_id",
+    "schema",
+    "schema_version",
+    "state",
+    "stderr",
+    "train_loss",
+    "train_rows",
+    "validation_rows"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.r15.9.training-run"},
+    "schema_version": {"const": 1},
+    "plan_digest": {"$ref": "#/$defs/digest"},
+    "report_digest": {"$ref": "#/$defs/digest"},
+    "run_id": {"type": "string", "pattern": "^train-[0-9a-f]{20}$"},
+    "state": {
+      "enum": ["completed", "cancelled", "timed_out", "failed", "budget_blocked", "unsupported"]
+    },
+    "adapter_path": {"type": ["string", "null"], "minLength": 1, "maxLength": 1024},
+    "adapter_digest": {"anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]},
+    "completed_steps": {"type": "integer", "minimum": 0},
+    "train_loss": {"type": ["number", "null"], "minimum": 0},
+    "eval_loss": {"type": ["number", "null"], "minimum": 0},
+    "train_rows": {"type": "integer", "minimum": 1},
+    "validation_rows": {"type": "integer", "minimum": 1},
+    "optimized_splits": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"enum": ["train", "validation", "test"]}
+    },
+    "framework_versions": {
+      "type": "object",
+      "additionalProperties": {"type": ["string", "null"]}
+    },
+    "resource_maxima": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["peak_ram_bytes", "peak_vram_bytes", "wall_seconds"],
+      "properties": {
+        "peak_ram_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "peak_vram_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "wall_seconds": {"type": "number", "minimum": 0}
+      }
+    },
+    "resumed_from": {"type": ["string", "null"], "maxLength": 256},
+    "blockers": {"type": "array", "items": {"type": "string", "maxLength": 256}},
+    "stderr": {"type": "string", "maxLength": 8192},
+    "checkpoints": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/checkpoint"}
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"state": {"const": "completed"}}, "required": ["state"]},
+      "then": {
+        "properties": {
+          "adapter_path": {"type": "string", "minLength": 1},
+          "adapter_digest": {"$ref": "#/$defs/digest"},
+          "completed_steps": {"minimum": 1},
+          "optimized_splits": {"const": ["train"]}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_digest",
+        "artifact_path",
+        "checkpoint_id",
+        "eval_loss",
+        "plan_digest",
+        "step",
+        "train_loss"
+      ],
+      "properties": {
+        "artifact_digest": {"$ref": "#/$defs/digest"},
+        "artifact_path": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "checkpoint_id": {"type": "string", "pattern": "^checkpoint-[0-9]{8}$"},
+        "eval_loss": {"type": "number", "minimum": 0},
+        "plan_digest": {"$ref": "#/$defs/digest"},
+        "step": {"type": "integer", "minimum": 1},
+        "train_loss": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}

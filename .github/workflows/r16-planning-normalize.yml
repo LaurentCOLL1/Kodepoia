@@ -1,0 +1,82 @@
+name: R16 Planning Continuity Normalization
+
+on:
+  push:
+    branches:
+      - r16/planning-normalization
+    paths:
+      - .github/workflows/r16-planning-normalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/planning-normalization
+          fetch-depth: 0
+
+      - name: Normalize R16 planning continuity
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+
+          old_top = "**R1–R15 COMPLETE + NORMALIZED. R16 planning IN_PROGRESS from normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`; R16.1–R16.18 PLANNED; no R16 implementation is authorized before planning ACCEPTED + NORMALIZED.**"
+          new_top = "**R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED on the normalized `main` produced when this unique planning continuity normalization PR merges; R16.1 START-sync is authorized only from that normalized `main`; R16.2–R16.18 remain PLANNED.**"
+          assert text.count(old_top) == 1, "unexpected top R16 planning authority"
+          text = text.replace(old_top, new_top, 1)
+
+          old_global = "- R16 planning : **IN_PROGRESS** — branch `r16/00-phase-plan` from normalized R15 `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`; exhaustive `docs/roadmap/R16_PLAN.md` freezes R16.1–R16.18 before implementation; planning acceptance and its one continuity-only normalization remain pending."
+          new_global = "- R16 planning : **ACCEPTED + NORMALIZED** — branch point `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`; clean planning head `83cf6fb903aed458bb753f40259adcad52446b8c`; exact-head R0 #2256 / `33422594947` SUCCESS Ubuntu + Windows, Python Core #2228 / `33422594702` SUCCESS 5/5, KodeStudio UI Smoke #2193 / `33422595046` SUCCESS; planning PR #333 merged with `expected_head_sha=83cf6fb903aed458bb753f40259adcad52446b8c` as `6c9078a8b6b7e233a56ee4b157ce09079991dcaa`. This record is the unique post-merge R16 planning continuity-only normalization authority when its PR merges; only the resulting normalized `main` authorizes R16.1 START-sync."
+          assert text.count(old_global) == 1, "unexpected global R16 planning line"
+          text = text.replace(old_global, new_global, 1)
+
+          old_acceptance = "- Planning acceptance requires fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, planning PR merge with exact `expected_head_sha`, then exactly one continuity-only planning normalization with fresh exact-head R0/Python/UI and protected merge. Only the resulting normalized `main` authorizes R16.1."
+          new_acceptance = "- Planning acceptance technical authority: clean planning head `83cf6fb903aed458bb753f40259adcad52446b8c`; R0 Repository Guard #2256 / `33422594947` SUCCESS Ubuntu + Windows; full Python Core #2228 / `33422594702` SUCCESS 5/5; KodeStudio UI Smoke #2193 / `33422595046` SUCCESS; planning PR #333 merged with exact expected head as `6c9078a8b6b7e233a56ee4b157ce09079991dcaa`. Exactly one continuity-only planning normalization is permitted; it must receive fresh exact-head R0/Python/UI and protected merge before R16.1 START-sync is authorized."
+          assert text.count(old_acceptance) == 1, "unexpected planning acceptance rule"
+          text = text.replace(old_acceptance, new_acceptance, 1)
+
+          old_next = "Complete and re-gate the exhaustive R16 planning authority. Do **not** start R16.1 before the planning PR and its unique planning continuity normalization are both merged successfully."
+          new_next = "Start **R16.1** with its mandatory START-sync on a dedicated branch from the normalized `main` produced when this unique R16 planning continuity-only normalization PR merges. Do **not** begin R16.1 before this normalization has fresh exact-head R0/Python/UI SUCCESS and merges with exact `expected_head_sha`; do not begin R16.2 before R16.1 is COMPLETE + NORMALIZED."
+          assert text.count(old_next) == 1, "unexpected next-action marker"
+          text = text.replace(old_next, new_next, 1)
+
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+          check = path.read_text(encoding="utf-8")
+          assert check.count("R16 planning : **ACCEPTED + NORMALIZED**") == 1
+          assert check.count("83cf6fb903aed458bb753f40259adcad52446b8c") >= 2
+          assert check.count("33422594947") >= 2
+          assert check.count("33422594702") >= 2
+          assert check.count("33422595046") >= 2
+          assert check.count("planning PR #333") >= 2
+          assert "Start **R16.1**" in check
+          assert "| R16.1 | PLANNED | NONE |" in check
+          assert "| R16.18 | PLANNED | CONDITIONAL |" in check
+          PY
+
+      - name: Remove staging workflow and verify scope
+        shell: bash
+        run: |
+          git rm .github/workflows/r16-planning-normalize.yml
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-planning-normalize.yml
+          changed="$(git diff --name-only)"
+          printf '%s\n' "$changed"
+          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+
+      - name: Commit normalized continuity
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git commit -m "docs(r16): normalize planning continuity"
+          git push origin HEAD:r16/planning-normalization

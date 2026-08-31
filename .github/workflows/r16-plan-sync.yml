@@ -21,8 +21,13 @@ jobs:
           fetch-depth: 0
 
       - name: Synchronize R16 planning continuity
-        shell: python
+        shell: bash
+        env:
+          R16_BLOCK_B64: "IyMgUjE2IHBsYW5uaW5nIGF1dGhvcml0eQoKLSBFeGFjdCBicmFuY2ggcG9pbnQ6IG5vcm1hbGl6ZWQgUjE1IGBtYWluYCBgYjgzYzVjZjAzNTRmNjc1ZTQ2OGUzYWIzN2MyZWVmYTY2YWFhOWQ1NmAuCi0gRGVkaWNhdGVkIHBsYW5uaW5nIGJyYW5jaDogYHIxNi8wMC1waGFzZS1wbGFuYC4KLSBGcm96ZW4tcm9hZG1hcCB0aXRsZTogKipIYXJkZW5pbmcgLyBCZXRhIC8gdjEuMCoqLgotIFJvYWRtYXAgY2hhaW46IHJlZC10ZWFtIHByb21wdCBpbmplY3Rpb24gLyBtYWxpY2lvdXMgcmVwb3NpdG9yeSAvIHNlY3JldHMgLyBwbHVnaW5zIC8gZGVzdHJ1Y3RpdmUgY29tbWFuZHMgLyBjb3JydXB0ZWQgbWVtb3J5IC8gcmVjb3ZlcnksIGZvbGxvd2VkIGJ5IHJlcHJlc2VudGF0aXZlIEdvZG90IDJELzNELCBXaW5kb3dzIGRlc2t0b3AsIENvbWZ5VUksIGF1ZGlvL3ZvaWNlIGFuZCBsb25nLXRlcm0tcHJvamVjdCB2YWxpZGF0aW9uLgotIEV4aGF1c3RpdmUgcGxhbjogYGRvY3Mvcm9hZG1hcC9SMTZfUExBTi5tZGA7IHN1YmRpdmlzaW9uIHNldCAqKlIxNi4x4oCTUjE2LjE4KiogaXMgUExBTk5FRCBhbmQgbm8gUjE2IGltcGxlbWVudGF0aW9uIGlzIHByZXNlbnQgaW4gdGhlIHBsYW5uaW5nIGF1dGhvcml0eS4KLSBSZWQtdGVhbSBmaXh0dXJlcyBhcmUgc3ludGhldGljLCBib3VuZGVkIGFuZCBub24tZGVzdHJ1Y3RpdmU7IGxpdmUgc2VjcmV0cywgdW5jb250cm9sbGVkIG1hbHdhcmUsIGRlc3RydWN0aXZlIGhvc3QgY29tbWFuZHMgYW5kIHByb2R1Y3Rpb24gdGFyZ2V0cyBhcmUgZXhjbHVkZWQgZnJvbSBjb3JlIGFjY2VwdGFuY2UuCi0gU2VjdXJpdHkgZGVjaXNpb25zIGFyZSBmYWlsLWNsb3NlZCB3aXRoIGluc3RydWN0aW9uL2RhdGEgc2VwYXJhdGlvbiwgbGVhc3QgcHJpdmlsZWdlLCBzZWNyZXQgcmVkYWN0aW9uLCB1bnRydXN0ZWQgdG9vbC9wbHVnaW4gYm91bmRhcmllcywgbWVtb3J5LW5vdC1wb2xpY3ksIGJvdW5kZWQgcmVzb3VyY2VzLCByZWNvdmVyeS1iZWZvcmUtY29udGludWF0aW9uIGFuZCBjcml0aWNhbC12ZXRvIGludmFyaWFudHMuCi0gQ29yZSBwbGFubmluZy9pbXBsZW1lbnRhdGlvbiBhY2NlcHRhbmNlIGlzIENJLW93bmVkLiBMYXRlciBSMTYuMTMvUjE2LjE0L1IxNi4xNS9SMTYuMTcvUjE2LjE4IGNhcnJ5IENPTkRJVElPTkFMIGV4dGVybmFsL2hhcmR3YXJlL2xpdmUtZW52aXJvbm1lbnQgZ2F0ZXMgZXhhY3RseSBhcyBmcm96ZW4gaW4gdGhlIHBsYW47IGlmIG9uZSBpcyBleHBsaWNpdGx5IHRyaWdnZXJlZCBkdXJpbmcgaW1wbGVtZW50YXRpb24sIGV4ZWN1dGlvbiBzdG9wcyBiZWZvcmUgdGhlIGZvbGxvd2luZyBzdWJkaXZpc2lvbiB1bnRpbCBleGFjdCBldmlkZW5jZSBpcyByZXZpZXdlZC4KLSBQbGFubmluZyBhY2NlcHRhbmNlIHJlcXVpcmVzIGZyZXNoIGV4YWN0LWhlYWQgUjAgUmVwb3NpdG9yeSBHdWFyZCArIGZ1bGwgUHl0aG9uIENvcmUgKyBLb2RlU3R1ZGlvIFVJIFNtb2tlLCBwbGFubmluZyBQUiBtZXJnZSB3aXRoIGV4YWN0IGBleHBlY3RlZF9oZWFkX3NoYWAsIHRoZW4gZXhhY3RseSBvbmUgY29udGludWl0eS1vbmx5IHBsYW5uaW5nIG5vcm1hbGl6YXRpb24gd2l0aCBmcmVzaCBleGFjdC1oZWFkIFIwL1B5dGhvbi9VSSBhbmQgcHJvdGVjdGVkIG1lcmdlLiBPbmx5IHRoZSByZXN1bHRpbmcgbm9ybWFsaXplZCBgbWFpbmAgYXV0aG9yaXplcyBSMTYuMS4KCiMjIFIxNiBzdGF0dXMgaW5kZXgKCnwgSUQgfCBTdGF0dXMgfCBNYW51YWwgfAp8IC0tLSB8IC0tLSB8IC0tLSB8CnwgUjE2LjEgfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjIgfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjMgfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjQgfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjUgfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjYgfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjcgfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjggfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjkgfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjEwIHwgUExBTk5FRCB8IE5PTkUgfAp8IFIxNi4xMSB8IFBMQU5ORUQgfCBOT05FIHwKfCBSMTYuMTIgfCBQTEFOTkVEIHwgTk9ORSB8CnwgUjE2LjEzIHwgUExBTk5FRCB8IENPTkRJVElPTkFMIHwKfCBSMTYuMTQgfCBQTEFOTkVEIHwgQ09ORElUSU9OQUwgfAp8IFIxNi4xNSB8IFBMQU5ORUQgfCBDT05ESVRJT05BTCB8CnwgUjE2LjE2IHwgUExBTk5FRCB8IE5PTkUgfAp8IFIxNi4xNyB8IFBMQU5ORUQgfCBDT05ESVRJT05BTCB8CnwgUjE2LjE4IHwgUExBTk5FRCB8IENPTkRJVElPTkFMIHwKCiMjIE5leHQgYXV0aG9yaXplZCBhY3Rpb24KCkNvbXBsZXRlIGFuZCByZS1nYXRlIHRoZSBleGhhdXN0aXZlIFIxNiBwbGFubmluZyBhdXRob3JpdHkuIERvICoqbm90Kiogc3RhcnQgUjE2LjEgYmVmb3JlIHRoZSBwbGFubmluZyBQUiBhbmQgaXRzIHVuaXF1ZSBwbGFubmluZyBjb250aW51aXR5IG5vcm1hbGl6YXRpb24gYXJlIGJvdGggbWVyZ2VkIHN1Y2Nlc3NmdWxseS4KCg=="
         run: |
+          python - <<'PY'
+          import base64
+          import os
           from pathlib import Path
 
           path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
@@ -30,65 +35,21 @@ jobs:
 
           old_authority = "**R1–R15 COMPLETE + NORMALIZED. R16 planning AUTHORIZED on the normalized `main` produced when this unique R15 phase normalization PR merges.**"
           new_authority = "**R1–R15 COMPLETE + NORMALIZED. R16 planning IN_PROGRESS from normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`; R16.1–R16.18 PLANNED; no R16 implementation is authorized before planning ACCEPTED + NORMALIZED.**"
-          assert text.count(old_authority) == 1, "unexpected R16 top authority marker"
+          assert text.count(old_authority) == 1
           text = text.replace(old_authority, new_authority, 1)
 
-          global_marker = "\n\n- R15.1 :"
-          assert text.count(global_marker) == 1, "unexpected R15.1 insertion marker"
-          r16_global = (
-              "\n- R16 planning : **IN_PROGRESS** — branch `r16/00-phase-plan` from normalized R15 `main` "
-              "`b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`; exhaustive `docs/roadmap/R16_PLAN.md` freezes "
-              "R16.1–R16.18 before implementation; planning acceptance and its one continuity-only normalization remain pending."
-          )
-          text = text.replace(global_marker, r16_global + global_marker, 1)
+          marker = "\n\n- R15.1 :"
+          assert text.count(marker) == 1
+          global_line = "\n- R16 planning : **IN_PROGRESS** — branch `r16/00-phase-plan` from normalized R15 `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`; exhaustive `docs/roadmap/R16_PLAN.md` freezes R16.1–R16.18 before implementation; planning acceptance and its one continuity-only normalization remain pending."
+          text = text.replace(marker, global_line + marker, 1)
 
           start_marker = "## Next authorized action\n"
           end_marker = "## Permanent R-phase execution rule\n"
           start = text.find(start_marker)
           end = text.find(end_marker)
-          assert start >= 0 and end > start, "continuity terminal markers not found"
-
-          planning_block = """## R16 planning authority
-
-- Exact branch point: normalized R15 `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`.
-- Dedicated planning branch: `r16/00-phase-plan`.
-- Frozen-roadmap title: **Hardening / Beta / v1.0**.
-- Roadmap chain: red-team prompt injection / malicious repository / secrets / plugins / destructive commands / corrupted memory / recovery, followed by representative Godot 2D/3D, Windows desktop, ComfyUI, audio/voice and long-term-project validation.
-- Exhaustive plan: `docs/roadmap/R16_PLAN.md`; subdivision set **R16.1–R16.18** is PLANNED and no R16 implementation is present in the planning authority.
-- Red-team fixtures are synthetic, bounded and non-destructive; live secrets, uncontrolled malware, destructive host commands and production targets are excluded from core acceptance.
-- Security decisions are fail-closed with instruction/data separation, least privilege, secret redaction, untrusted tool/plugin boundaries, memory-not-policy, bounded resources, recovery-before-continuation and critical-veto invariants.
-- Core planning/implementation acceptance is CI-owned. Later R16.13/R16.14/R16.15/R16.17/R16.18 carry CONDITIONAL external/hardware/live-environment gates exactly as frozen in the plan; if one is explicitly triggered during implementation, execution stops before the following subdivision until exact evidence is reviewed.
-- Planning acceptance requires fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, planning PR merge with exact `expected_head_sha`, then exactly one continuity-only planning normalization with fresh exact-head R0/Python/UI and protected merge. Only the resulting normalized `main` authorizes R16.1.
-
-## R16 status index
-
-| ID | Status | Manual |
-| --- | --- | --- |
-| R16.1 | PLANNED | NONE |
-| R16.2 | PLANNED | NONE |
-| R16.3 | PLANNED | NONE |
-| R16.4 | PLANNED | NONE |
-| R16.5 | PLANNED | NONE |
-| R16.6 | PLANNED | NONE |
-| R16.7 | PLANNED | NONE |
-| R16.8 | PLANNED | NONE |
-| R16.9 | PLANNED | NONE |
-| R16.10 | PLANNED | NONE |
-| R16.11 | PLANNED | NONE |
-| R16.12 | PLANNED | NONE |
-| R16.13 | PLANNED | CONDITIONAL |
-| R16.14 | PLANNED | CONDITIONAL |
-| R16.15 | PLANNED | CONDITIONAL |
-| R16.16 | PLANNED | NONE |
-| R16.17 | PLANNED | CONDITIONAL |
-| R16.18 | PLANNED | CONDITIONAL |
-
-## Next authorized action
-
-Complete and re-gate the exhaustive R16 planning authority. Do **not** start R16.1 before the planning PR and its unique planning continuity normalization are both merged successfully.
-
-"""
-          text = text[:start] + planning_block + text[end:]
+          assert start >= 0 and end > start
+          block = base64.b64decode(os.environ["R16_BLOCK_B64"]).decode("utf-8")
+          text = text[:start] + block + text[end:]
           path.write_text(text, encoding="utf-8", newline="\n")
 
           check = path.read_text(encoding="utf-8")
@@ -97,6 +58,7 @@ Complete and re-gate the exhaustive R16 planning authority. Do **not** start R16
           assert check.count("| R16.18 | PLANNED | CONDITIONAL |") == 1
           assert "R16 planning IN_PROGRESS" in check
           assert "Do **not** start R16.1" in check
+          PY
 
       - name: Remove staging workflow and verify scope
         shell: bash
@@ -110,6 +72,6 @@ Complete and re-gate the exhaustive R16 planning authority. Do **not** start R16
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-plan-sync.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
           git commit -m "docs(r16): sync planning continuity"
           git push origin HEAD:r16/00-phase-plan

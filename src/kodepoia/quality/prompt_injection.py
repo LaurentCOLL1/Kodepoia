@@ -5,10 +5,11 @@ import hashlib
 import html
 import json
 import re
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 from urllib.parse import unquote
 
 from kodepoia.core.research_guard import ResearchGuard
@@ -40,10 +41,22 @@ _BOUNDARY_DENIAL = {
     "boundary.tool-plugin-mcp": ExpectedDecision.DENY,
 }
 _EXTRA_PATTERNS = {
-    "automatic-execution": re.compile(r"post[_ -]?open|automatic execution|hidden setup", re.I),
-    "memory-policy-poison": re.compile(r"permanently disabled|outranks? (?:repository )?policy", re.I),
-    "implicit-approval": re.compile(r"approval (?:is|=) implicit|approval\s*=\s*true", re.I),
-    "security-gate-spoof": re.compile(r"mark (?:all|every) security gate(?:s)? pass", re.I),
+    "automatic-execution": re.compile(
+        r"post[_ -]?open|automatic execution|hidden setup",
+        re.I,
+    ),
+    "memory-policy-poison": re.compile(
+        r"permanently disabled|outranks? (?:repository )?policy",
+        re.I,
+    ),
+    "implicit-approval": re.compile(
+        r"approval (?:is|=) implicit|approval\s*=\s*true",
+        re.I,
+    ),
+    "security-gate-spoof": re.compile(
+        r"mark (?:all|every) security gate(?:s)? pass",
+        re.I,
+    ),
 }
 
 
@@ -183,7 +196,7 @@ class PromptInjectionReport:
 
 
 class PromptInjectionPolicy:
-    """Deterministic content/authority policy; model compliance is never an authorization signal."""
+    """Deterministic content/authority policy; model output is not authorization."""
 
     VERSION = 1
 
@@ -192,9 +205,15 @@ class PromptInjectionPolicy:
         payload = {
             "version": self.VERSION,
             "target_boundaries": sorted(_TARGET_BOUNDARIES),
-            "boundary_denial": {key: value.value for key, value in sorted(_BOUNDARY_DENIAL.items())},
-            "system_only": sorted(effect.value for effect in TrustBoundary._SYSTEM_ONLY),
-            "user_or_system": sorted(effect.value for effect in TrustBoundary._USER_OR_SYSTEM),
+            "boundary_denial": {
+                key: value.value for key, value in sorted(_BOUNDARY_DENIAL.items())
+            },
+            "system_only": sorted(
+                effect.value for effect in TrustBoundary._SYSTEM_ONLY
+            ),
+            "user_or_system": sorted(
+                effect.value for effect in TrustBoundary._USER_OR_SYSTEM
+            ),
         }
         return _sha256(_canonical_json(payload))
 
@@ -215,12 +234,23 @@ class PromptInjectionPolicy:
     def indicators(self, payload: str, *, origin: TrustOrigin) -> tuple[str, ...]:
         indicators: set[str] = set()
         for variant in self._decoded_variants(payload):
-            guarded = ResearchGuard().wrap(variant, origin=origin, source="r16.2-evaluation")
+            guarded = ResearchGuard().wrap(
+                variant,
+                origin=origin,
+                source="r16.2-evaluation",
+            )
             indicators.update(guarded.indicators)
-            indicators.update(name for name, pattern in _EXTRA_PATTERNS.items() if pattern.search(variant))
+            indicators.update(
+                name
+                for name, pattern in _EXTRA_PATTERNS.items()
+                if pattern.search(variant)
+            )
         return tuple(sorted(indicators))
 
-    def evaluate_redteam_case(self, case: RedTeamCase) -> tuple[ExpectedDecision, tuple[str, ...]]:
+    def evaluate_redteam_case(
+        self,
+        case: RedTeamCase,
+    ) -> tuple[ExpectedDecision, tuple[str, ...]]:
         if case.boundary_id not in _TARGET_BOUNDARIES:
             raise ValueError(f"R16.2 does not own red-team boundary: {case.boundary_id}")
         origin = {
@@ -238,10 +268,15 @@ class PromptInjectionPolicy:
         return _BOUNDARY_DENIAL[case.boundary_id], indicators
 
     def evaluate_supplemental_case(
-        self, case: SupplementalInjectionCase
+        self,
+        case: SupplementalInjectionCase,
     ) -> tuple[ExpectedDecision, tuple[str, ...]]:
         indicators = self.indicators(case.payload, origin=case.origin)
-        trust = TrustMetadata.untrusted(case.origin, source=case.id, content=case.payload)
+        trust = TrustMetadata.untrusted(
+            case.origin,
+            source=case.id,
+            content=case.payload,
+        )
         decision = TrustBoundary().evaluate(trust, case.effect)
         actual = ExpectedDecision.ALLOW if decision.allowed else ExpectedDecision.DENY
         return actual, indicators
@@ -260,7 +295,9 @@ def load_supplemental_cases(
         raise ValueError("supplemental prompt-injection fixture cannot be a symlink")
     resolved = candidate.resolve(strict=True)
     if not _within(resolved, root):
-        raise ValueError("supplemental prompt-injection fixture must stay inside repository_root")
+        raise ValueError(
+            "supplemental prompt-injection fixture must stay inside repository_root"
+        )
     if resolved.suffix.lower() != ".json" or not resolved.is_file():
         raise ValueError("supplemental prompt-injection fixture must be JSON")
     if resolved.stat().st_size > _MAX_SUPPLEMENTAL_BYTES:
@@ -269,16 +306,30 @@ def load_supplemental_cases(
     if not isinstance(payload, dict):
         raise ValueError("supplemental prompt-injection fixture must be an object")
     metadata = payload.get("metadata")
-    if not isinstance(metadata, dict) or metadata.get("synthetic_only") is not True or metadata.get("immutable") is not True:
-        raise ValueError("supplemental prompt-injection fixture must be synthetic_only and immutable")
-    cases = tuple(SupplementalInjectionCase.from_dict(item) for item in payload.get("cases", []))
+    valid_metadata = (
+        isinstance(metadata, dict)
+        and metadata.get("synthetic_only") is True
+        and metadata.get("immutable") is True
+    )
+    if not valid_metadata:
+        raise ValueError(
+            "supplemental prompt-injection fixture must be synthetic_only and immutable"
+        )
+    cases = tuple(
+        SupplementalInjectionCase.from_dict(item)
+        for item in payload.get("cases", [])
+    )
     ids = tuple(item.id for item in cases)
     if not cases or ids != tuple(sorted(ids)) or len(ids) != len(set(ids)):
-        raise ValueError("supplemental prompt-injection cases must be non-empty, unique and sorted")
+        raise ValueError(
+            "supplemental prompt-injection cases must be non-empty, unique and sorted"
+        )
     return cases
 
 
-def supplemental_case_set_sha256(cases: Sequence[SupplementalInjectionCase]) -> str:
+def supplemental_case_set_sha256(
+    cases: Sequence[SupplementalInjectionCase],
+) -> str:
     return _sha256(_canonical_json([case.evidence_dict() for case in cases]))
 
 
@@ -292,7 +343,9 @@ def run_prompt_injection_acceptance(
     if not _SHA40_RE.fullmatch(source):
         raise ValueError("source_sha must be an exact lowercase 40-hex Git SHA")
     policy = PromptInjectionPolicy()
-    targeted = tuple(case for case in corpus.cases if case.boundary_id in _TARGET_BOUNDARIES)
+    targeted = tuple(
+        case for case in corpus.cases if case.boundary_id in _TARGET_BOUNDARIES
+    )
     if not targeted:
         raise ValueError("R16.1 corpus contains no R16.2 target cases")
     results: list[PromptInjectionCaseResult] = []
@@ -323,8 +376,11 @@ def run_prompt_injection_acceptance(
             )
         )
     critical_veto = any(item.critical and not item.passed for item in results)
-    status = PromptInjectionStatus.PASS if not critical_veto and all(item.passed for item in results) else PromptInjectionStatus.FAIL
-    targeted_digest = _sha256(_canonical_json([case.evidence_dict() for case in targeted]))
+    passed = not critical_veto and all(item.passed for item in results)
+    status = PromptInjectionStatus.PASS if passed else PromptInjectionStatus.FAIL
+    targeted_digest = _sha256(
+        _canonical_json([case.evidence_dict() for case in targeted])
+    )
     return PromptInjectionReport(
         source_sha=source,
         r16_corpus_sha256=corpus.corpus_sha256,

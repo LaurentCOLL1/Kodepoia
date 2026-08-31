@@ -1,0 +1,75 @@
+name: R15.17 Plan END Staging
+
+on:
+  push:
+    branches:
+      - 'r15/17-adversarial-integrated-acceptance'
+    paths:
+      - '.github/workflows/r15-17-plan-end-staging.yml'
+
+permissions:
+  contents: write
+
+env:
+  TECHNICAL_SOURCE: 125d40a23a0c6b40e449340e593dc0bcb342c421
+
+jobs:
+  stage-plan-end:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact staging commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Assert staging scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git diff --name-only "$TECHNICAL_SOURCE"..HEAD)" = ".github/workflows/r15-17-plan-end-staging.yml"
+
+      - name: Finalize frozen R15.17 plan record
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('docs/roadmap/R15_PLAN.md')
+          text = path.read_text(encoding='utf-8')
+          section_start = text.index('# R15.17 —')
+          completion_start = text.index('## Completion record', section_start)
+          completion_end = text.index('\n---\n', completion_start)
+          lines = [
+              '## Completion record',
+              '',
+              '**COMPLETE — immutable technical source accepted; canonical evidence and protected merge remain before the unique phase normalization.**',
+              '',
+              '- authorized normalized R15.16 base / branch point: `eb7ba3e01af9d96e0a49abfb20424e83261c2b14`;',
+              '- dedicated branch: `r15/17-adversarial-integrated-acceptance`;',
+              '- immutable technical source: `125d40a23a0c6b40e449340e593dc0bcb342c421`;',
+              '- exact-source R15 Integrated Acceptance #21 / `33411377302`: SUCCESS on Ubuntu 24.04 + Windows 2025 with the exact fourteen adversarial invariants, canonical JSON round-trip validation, schema validation and semantic digest recomputation;',
+              '- exact-source R0 Repository Guard #2231 / `33411377234`: SUCCESS; Python Core #2206 / `33411377186`: SUCCESS; KodeStudio UI Smoke #2171 / `33411377227`: SUCCESS;',
+              '- canonical exact-source scenario artifact: `9765260200`, `R15_17_INTEGRATED_SCENARIO-125d40a23a0c6b40e449340e593dc0bcb342c421`, archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772`; scenario semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`;',
+              '- scenario result is blocker-free `pass`, all 14 checks are true, eight dataset/benchmark/model/training/export/quantization identities are SHA-256-bound, secrets are not exposed and optional local capability remains truthfully `unavailable`;',
+              '- manual state remains `CONDITIONAL / NOT TRIGGERED`: R15.16 did not require real target-workstation promotion evidence, so no user-side GPU/llama.cpp/Ollama action is required for core phase closure;',
+              '- rejected and diagnostic candidates recorded in `R15_17_ACCEPTANCE.md` remain non-authoritative; no earlier PASS is reused as closure authority;',
+              '- `docs/roadmap/R15_17_SCENARIO_EVIDENCE.json`, `R15_17_CI_ACCEPTANCE.json` and `R15_INTEGRATED_ACCEPTANCE.json` must now be materialized from this exact technical source and its successful independent gates without changing this frozen completion record;',
+              '- after canonical evidence/acceptance/continuity END synchronization, the exact resulting END-head MUST receive fresh R15 Integrated Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke before PR #330 may merge with `expected_head_sha`;',
+              '- after implementation/evidence merge, exactly one continuity-only R15 phase normalization with fresh exact-head R0/Python/UI and exact expected-head merge is mandatory before R16 planning is authorized.',
+          ]
+          new_block = '\n'.join(lines)
+          path.write_text(text[:completion_start] + new_block + text[completion_end:], encoding='utf-8')
+          PY
+
+      - name: Commit final plan bytes only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/roadmap/R15_PLAN.md
+          test "$(git diff --cached --name-only)" = "docs/roadmap/R15_PLAN.md"
+          git commit -m 'R15.17 freeze final phase completion record'
+          git push origin HEAD:r15/17-adversarial-integrated-acceptance

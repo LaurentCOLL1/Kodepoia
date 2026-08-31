@@ -1,5 +1,6 @@
 name: R15.17 PR331 Sync Staging
 
+# second push intentionally triggers this branch-local staging workflow
 on:
   push:
     branches:

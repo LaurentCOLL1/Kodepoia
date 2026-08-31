@@ -1,0 +1,87 @@
+name: R16.1 Continuity Normalization Stage
+
+on:
+  push:
+    branches:
+      - r16/01-continuity-normalization
+    paths:
+      - .github/workflows/r16-1-normalization-stage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/01-continuity-normalization
+          fetch-depth: 0
+
+      - name: Apply unique R16.1 continuity normalization
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+
+          base = "fcb8d3c532949ce8e8d728e6bb1171e7132af342"
+          technical = "c2fd7d63af9bea5a11d357ae324df214c1651c39"
+          end_head = "3e4751b90ad4c530a51cb87808c0eb8ee3195557"
+          implementation_merge = "b57f56fe1c059ca6fbe4364397a40b3342066ecd"
+          branch = "r16/01-continuity-normalization"
+
+          old_top = f"> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED on exact `main` `{base}`. R16.1 COMPLETE on `r16/01-threat-model-red-team-harness` with immutable technical source `{technical}`; merge and post-merge normalization are pending. R16.2–R16.18 remain PLANNED.**"
+          new_top = f"> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1 COMPLETE + NORMALIZED through implementation merge `{implementation_merge}` and this unique continuity-only normalization branch `{branch}` when merged. R16.2–R16.18 remain PLANNED; R16.2 START-sync is authorized only from the normalized `main` produced by this normalization PR.**"
+          assert text.count(old_top) == 1, "unexpected continuity top state"
+          text = text.replace(old_top, new_top, 1)
+
+          old_global = f"- R16.1 : **COMPLETE / NORMALIZATION PENDING** — branch `r16/01-threat-model-red-team-harness` from `{base}`; clean START `e7b29e354610cef652b36f54f976010f18ab9c9b`; immutable technical source `{technical}`; technical R16.1 #3 / `33426065776`, R0 #2260 / `33426065732`, Python #2232 / `33426065658` 5/5 and UI #2197 / `33426065644` all SUCCESS. Acceptance `2b26d7095d0a89322c4ae3286f47b8bf420347a934ce03b98898b0a23db17c5f`; baseline `b8c75cf586b92be1767052e0607ecd9252f665b8f0b1d3427182590bf2470179` with `security_claim=false`; negative control `6934fd90e7da7ce953c235f883c38ae724afefeb185d0ed48099bda2dbe68063` FAIL with critical veto; corpus `faa7f8bafa48438351a7435c3a55946f0a42ab8695540935a070865659189a51`; case-set `8aca9cb7fd1f3cfe5445bebaee48569f7dbb21a63ca35567dc636a84f9c22963`; policy `bf9fc7cea89a07ed003829bef1d6e1d0de7670b217f9b3a2c96bbc9f0724139e`; 14 boundaries / 28 synthetic cases; no exposed secrets; manual NONE. Fresh exact-END re-gates, exact-head PR #335 merge and one continuity-only normalization remain mandatory before R16.2."
+          new_global = f"- R16.1 : **COMPLETE + NORMALIZED** — normalized R16 planning base `{base}`; clean START `e7b29e354610cef652b36f54f976010f18ab9c9b`; immutable technical source `{technical}`; technical R16.1 #3 / `33426065776`, R0 #2260 / `33426065732`, Python #2232 / `33426065658` 5/5 and UI #2197 / `33426065644` all SUCCESS; final exact-END head `{end_head}` passed fresh R16.1 #11 / `33427664878` SUCCESS Ubuntu + Windows, R0 #2265 / `33427664555` SUCCESS Ubuntu + Windows, Python Core #2237 / `33427664740` SUCCESS 5/5 and UI #2202 / `33427664793` SUCCESS; PR #335 merged with `expected_head_sha={end_head}` as implementation/evidence `main` `{implementation_merge}`. Acceptance `2b26d7095d0a89322c4ae3286f47b8bf420347a934ce03b98898b0a23db17c5f`; baseline `b8c75cf586b92be1767052e0607ecd9252f665b8f0b1d3427182590bf2470179` with `security_claim=false`; negative control `6934fd90e7da7ce953c235f883c38ae724afefeb185d0ed48099bda2dbe68063` FAIL with critical veto; corpus `faa7f8bafa48438351a7435c3a55946f0a42ab8695540935a070865659189a51`; case-set `8aca9cb7fd1f3cfe5445bebaee48569f7dbb21a63ca35567dc636a84f9c22963`; policy `bf9fc7cea89a07ed003829bef1d6e1d0de7670b217f9b3a2c96bbc9f0724139e`; 14 critical boundaries / 28 immutable synthetic cases; no exposed secrets; manual NONE. This record is the unique post-merge continuity-only R16.1 normalization authority when its PR merges; R16.2 START-sync is authorized only from the resulting normalized `main`."
+          assert text.count(old_global) == 1, "unexpected R16.1 global record"
+          text = text.replace(old_global, new_global, 1)
+
+          old_end = f"- END state: R16.1 COMPLETE / normalization pending; R16.2–R16.18 PLANNED; manual NONE.\n- This documentation commit establishes the final END-head. It must receive fresh exact-head R16.1/R0/Python/UI SUCCESS before PR #335 can merge; merge SHA and normalized authority are sealed only post-merge."
+          new_end = f"- Final exact-END head `{end_head}` passed fresh R16.1 #11 / `33427664878` SUCCESS Ubuntu + Windows, R0 #2265 / `33427664555` SUCCESS Ubuntu + Windows, Python Core #2237 / `33427664740` SUCCESS 5/5 and UI Smoke #2202 / `33427664793` SUCCESS.\n- PR #335 merged only with `expected_head_sha={end_head}` as implementation/evidence `main` `{implementation_merge}`.\n- Normalized state: R16.1 **COMPLETE + NORMALIZED** when this unique continuity-only normalization PR merges; R16.2–R16.18 remain PLANNED; manual NONE."
+          assert text.count(old_end) == 1, "unexpected R16.1 END authority tail"
+          text = text.replace(old_end, new_end, 1)
+
+          assert text.count("| R16.1 | COMPLETE | NONE |") == 1
+          text = text.replace("| R16.1 | COMPLETE | NONE |", "| R16.1 | COMPLETE + NORMALIZED | NONE |", 1)
+
+          old_next = "Finalize **R16.1** on `r16/01-threat-model-red-team-harness`: obtain fresh exact-END R16.1/R0/Python/UI SUCCESS, merge PR #335 only with exact `expected_head_sha`, then perform exactly one continuity-only post-merge normalization. Do **not** begin R16.2 before R16.1 is COMPLETE + NORMALIZED."
+          new_next = f"After this unique R16.1 continuity-only normalization receives fresh exact-head R0/Python/UI SUCCESS and merges with exact `expected_head_sha`, start **R16.2** with its mandatory START-sync on a dedicated branch from the resulting normalized `main`. Do **not** implement R16.2 before that normalization merge."
+          assert text.count(old_next) == 1, "unexpected next action"
+          text = text.replace(old_next, new_next, 1)
+
+          path.write_text(text, encoding="utf-8", newline="\n")
+          final = path.read_text(encoding="utf-8")
+          assert "| R16.1 | COMPLETE + NORMALIZED | NONE |" in final
+          assert f"final exact-END head `{end_head}`" in final
+          assert f"implementation/evidence `main` `{implementation_merge}`" in final
+          assert "R16.2 | PLANNED | NONE" in final
+          PY
+
+      - name: Stage continuity-only normalization and verify scope
+        shell: bash
+        run: |
+          git rm .github/workflows/r16-1-normalization-stage.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          changed="$(git diff --cached --name-only)"
+          expected="$(printf '%s\n' '.github/workflows/r16-1-normalization-stage.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' | sort)"
+          actual="$(printf '%s\n' "$changed" | sed '/^$/d' | sort)"
+          printf '%s\n' "$actual"
+          test "$actual" = "$expected"
+
+      - name: Commit continuity-only normalization
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(r16.1): normalize post-merge continuity"
+          git push origin HEAD:r16/01-continuity-normalization

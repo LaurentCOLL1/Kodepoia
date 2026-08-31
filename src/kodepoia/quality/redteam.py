@@ -3,10 +3,11 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any
 
 _SCHEMA_VERSION = 1
 _MAX_CORPUS_BYTES = 1_048_576

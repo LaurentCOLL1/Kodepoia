@@ -1,0 +1,195 @@
+name: R15 Integrated Acceptance
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'r15/**'
+    paths:
+      - '.github/workflows/r15-integrated-acceptance.yml'
+      - 'src/kodepoia/experience/**'
+      - 'src/kodepoia/bench/**'
+      - 'src/kodepoia/tuning/**'
+      - 'scripts/r15_17_*.py'
+      - 'tests/test_r15_17_*.py'
+      - 'schemas/r15/**'
+      - 'docs/roadmap/R15_PLAN.md'
+      - 'docs/roadmap/R15_17_DESIGN.md'
+      - 'docs/roadmap/R15_17_ACCEPTANCE.md'
+      - 'docs/roadmap/R15_17_SCENARIO_EVIDENCE.json'
+      - 'docs/roadmap/R15_17_CI_ACCEPTANCE.json'
+      - 'docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json'
+      - 'docs/continuity/KODEPOIA_CONTINUITY.md'
+  pull_request:
+    paths:
+      - '.github/workflows/r15-integrated-acceptance.yml'
+      - 'src/kodepoia/experience/**'
+      - 'src/kodepoia/bench/**'
+      - 'src/kodepoia/tuning/**'
+      - 'scripts/r15_17_*.py'
+      - 'tests/test_r15_17_*.py'
+      - 'schemas/r15/**'
+      - 'docs/roadmap/R15_PLAN.md'
+      - 'docs/roadmap/R15_17_DESIGN.md'
+      - 'docs/roadmap/R15_17_ACCEPTANCE.md'
+      - 'docs/roadmap/R15_17_SCENARIO_EVIDENCE.json'
+      - 'docs/roadmap/R15_17_CI_ACCEPTANCE.json'
+      - 'docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json'
+      - 'docs/continuity/KODEPOIA_CONTINUITY.md'
+
+permissions:
+  contents: read
+
+env:
+  EVIDENCE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  integrated-ubuntu:
+    name: integrated-ubuntu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SCENARIO_EVIDENCE: docs/roadmap/R15_17_SCENARIO_EVIDENCE-CI.json
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EVIDENCE_SOURCE_SHA }}
+
+      - name: Assert exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EVIDENCE_SOURCE_SHA"
+          printf '%s' "$EVIDENCE_SOURCE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install integrated dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[dev]'
+
+      - name: Compile integrated surfaces
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            src/kodepoia/tuning/integrated_acceptance.py \
+            scripts/r15_17_integrated_acceptance.py \
+            tests/test_r15_17_integrated_acceptance.py
+
+      - name: Lint R15.17 surfaces
+        run: >-
+          python -m ruff check
+          src/kodepoia/tuning/integrated_acceptance.py
+          scripts/r15_17_integrated_acceptance.py
+          tests/test_r15_17_integrated_acceptance.py
+
+      - name: Run R15.17 anti-circular tests
+        run: python -m pytest -q tests/test_r15_17_integrated_acceptance.py
+
+      - name: Run exact-head integrated scenario
+        run: >-
+          python scripts/r15_17_integrated_acceptance.py
+          --source-sha "$EVIDENCE_SOURCE_SHA"
+          --output "$SCENARIO_EVIDENCE"
+
+      - name: Validate scenario schema and claims
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+          from kodepoia.tuning.integrated_acceptance import CHECK_NAMES, validate_integrated_evidence
+
+          evidence = json.loads(Path(os.environ['SCENARIO_EVIDENCE']).read_text(encoding='utf-8'))
+          schema = json.loads(Path('schemas/r15/r15-integrated-evidence.schema.json').read_text(encoding='utf-8'))
+          Draft202012Validator.check_schema(schema)
+          Draft202012Validator(schema).validate(evidence)
+          validate_integrated_evidence(evidence)
+          assert evidence['source_sha'] == os.environ['EVIDENCE_SOURCE_SHA']
+          assert evidence['status'] == 'pass'
+          assert evidence['blockers'] == []
+          assert tuple(evidence['checks']) == CHECK_NAMES
+          assert all(evidence['checks'].values())
+          assert evidence['manual_state'] == 'conditional_not_triggered'
+          assert evidence['optional_capability_state'] == 'unavailable'
+          assert evidence['secrets_exposed'] is False
+          PY
+
+      - name: Upload integrated scenario evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: R15_17_INTEGRATED_SCENARIO-${{ env.EVIDENCE_SOURCE_SHA }}
+          path: ${{ env.SCENARIO_EVIDENCE }}
+          if-no-files-found: error
+
+  verifier-windows:
+    name: verifier-windows
+    runs-on: windows-2025
+    timeout-minutes: 20
+    env:
+      SCENARIO_EVIDENCE: R15_17_SCENARIO_EVIDENCE-WINDOWS.json
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EVIDENCE_SOURCE_SHA }}
+
+      - name: Assert exact checkout
+        shell: pwsh
+        run: |
+          if ((git rev-parse HEAD) -ne $env:EVIDENCE_SOURCE_SHA) { throw 'exact-head checkout mismatch' }
+          if ($env:EVIDENCE_SOURCE_SHA -notmatch '^[0-9a-f]{40}$') { throw 'invalid evidence SHA' }
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install portable verifier dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile R15.17 verifier surfaces
+        run: >-
+          python -m py_compile
+          src/kodepoia/tuning/integrated_acceptance.py
+          scripts/r15_17_integrated_acceptance.py
+          tests/test_r15_17_integrated_acceptance.py
+
+      - name: Run portable anti-circular verifier tests
+        run: python -m pytest -q tests/test_r15_17_integrated_acceptance.py
+
+      - name: Run Windows exact-head integrated scenario
+        shell: pwsh
+        run: |
+          python scripts/r15_17_integrated_acceptance.py --source-sha $env:EVIDENCE_SOURCE_SHA --output $env:SCENARIO_EVIDENCE
+          if ($LASTEXITCODE -ne 0) { throw 'R15.17 Windows scenario failed' }
+
+      - name: Validate Windows scenario claims
+        shell: pwsh
+        run: |
+          @'
+          import json
+          import os
+          from pathlib import Path
+          from jsonschema import Draft202012Validator
+          from kodepoia.tuning.integrated_acceptance import CHECK_NAMES, validate_integrated_evidence
+
+          evidence = json.loads(Path(os.environ['SCENARIO_EVIDENCE']).read_text(encoding='utf-8'))
+          schema = json.loads(Path('schemas/r15/r15-integrated-evidence.schema.json').read_text(encoding='utf-8'))
+          Draft202012Validator.check_schema(schema)
+          Draft202012Validator(schema).validate(evidence)
+          validate_integrated_evidence(evidence)
+          assert evidence['source_sha'] == os.environ['EVIDENCE_SOURCE_SHA']
+          assert tuple(evidence['checks']) == CHECK_NAMES
+          assert all(evidence['checks'].values())
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'R15.17 Windows evidence validation failed' }

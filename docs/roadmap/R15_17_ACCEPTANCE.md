@@ -46,11 +46,21 @@ Rejected and non-authoritative. Dedicated run `33353591840` passed compilation a
 
 Temporary helper run `33353846658` captured the next failure rather than hiding it. All seven focused tests reached the same root cause: the scenario had executed all fourteen checks but compared dictionary insertion order with the canonical check order. The guard was corrected to validate exact set/cardinality and then normalize the evidence dictionary explicitly according to `CHECK_NAMES` before semantic hashing.
 
-Temporary helper run `33353909274` then passed Ruff and all seven focused R15.17 tests before creating functional commit `f6001d70635da4d7f1510c0ed022122c0f741b43`. The helper and its temporary diagnostic file were removed immediately afterwards. This is preflight evidence only; it is not the authoritative R15.17 technical acceptance.
+Temporary helper run `33353909274` then passed Ruff and all seven focused R15.17 tests before creating functional commit `f6001d70635da4d7f1510c0ed022122c0f741b43`. This remained preflight evidence only.
+
+### `fe11086214a6f0aef73004d91efd63701a53040c`
+
+Rejected and non-authoritative. Dedicated run `33353973888` proved that exact checkout, compilation, Ruff, all seven focused anti-circular tests and the exact-head integrated scenario itself passed on Ubuntu. The subsequent JSON revalidation correctly exposed a serialization-boundary defect: canonical JSON uses sorted object keys, while the semantic validator incorrectly required the in-memory insertion order of the `checks` object to equal `CHECK_NAMES`.
+
+JSON object property order is not part of the evidence semantics. The validator and workflow assertions were therefore corrected to require the exact fourteen-key set and exact cardinality, without relying on property order. A dedicated canonical JSON round-trip test was added.
+
+Temporary round-trip helper run `33354039370` passed Ruff, all eight focused tests, scenario generation, JSON reload, Draft 2020-12 schema validation and semantic validation. Its final push was rejected only because the workflow `GITHUB_TOKEN` is not authorized to modify another workflow file; no functional acceptance step failed.
+
+Temporary helper run `33406621527` repeated the same functional validation successfully and then committed only the non-workflow Python/test changes as `b174c52eb701a81fc7b44e8d02cb7c4a2cc451eb`. The workflow assertion change was applied separately through the authorized GitHub connector in `02c794bd71470ebd1777f88eebaf9f571a7b5f50`. All temporary helpers were then removed, leaving only the seven intended R15.17 files in the net phase diff.
 
 ## Current candidate policy
 
-The connector-authored commit containing this record, after removal of every temporary helper and diagnostic file, is the next exact candidate to evaluate. Its status remains `IN_PROGRESS` until GitHub Actions demonstrates the dedicated Ubuntu and Windows integrated gates on that exact SHA. Any subsequent code or evidence change creates a new candidate SHA and invalidates earlier candidate success for closure purposes.
+The connector-authored commit containing this record, after removal of every temporary helper and diagnostic file and with the validated canonical round-trip fix present in both code and workflow, is the next exact candidate to evaluate. Its status remains `IN_PROGRESS` until GitHub Actions demonstrates the dedicated Ubuntu and Windows integrated gates on that exact SHA. Any subsequent code or evidence change creates a new candidate SHA and invalidates earlier candidate success for closure purposes.
 
 ## Closure boundary
 

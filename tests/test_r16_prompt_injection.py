@@ -4,23 +4,28 @@ from pathlib import Path
 
 import pytest
 
-from kodepoia.core.guardian import ActionRequest, ActionType, DecisionKind, KodeGuardian
+from kodepoia.core.guardian import (
+    ActionRequest,
+    ActionType,
+    DecisionKind,
+    KodeGuardian,
+)
 from kodepoia.core.permissions import Capability, PermissionGrant, PermissionSet
 from kodepoia.core.research_guard import GuardedResearch, ResearchGuard
 from kodepoia.core.trust import (
     AuthorityEffect,
     ContentAuthority,
+    provenance_sha256,
     TrustBoundary,
     TrustLevel,
     TrustMetadata,
     TrustOrigin,
-    provenance_sha256,
 )
 from kodepoia.intelligence.context import ContextBundle, ContextItem
 from kodepoia.quality.prompt_injection import (
+    load_supplemental_cases,
     PromptInjectionPolicy,
     PromptInjectionStatus,
-    load_supplemental_cases,
     run_prompt_injection_acceptance,
 )
 from kodepoia.quality.redteam import ExpectedDecision, load_redteam_corpus
@@ -76,7 +81,11 @@ def test_research_guard_emits_explicit_untrusted_provenance_and_keeps_legacy_con
     assert guarded.trust.origin is TrustOrigin.WEB
     assert guarded.trust.level is TrustLevel.UNTRUSTED
     assert guarded.trust.authority is ContentAuthority.DATA_ONLY
-    legacy = GuardedResearch(content="ordinary documentation", suspicious=False, indicators=())
+    legacy = GuardedResearch(
+        content="ordinary documentation",
+        suspicious=False,
+        indicators=(),
+    )
     assert legacy.trust is not None
     assert legacy.trust.authority is ContentAuthority.DATA_ONLY
 
@@ -101,7 +110,11 @@ def test_model_and_tool_context_tags_are_non_authoritative() -> None:
         ("model-output", TrustOrigin.MODEL_OUTPUT),
         ("tool-output", TrustOrigin.TOOL_OUTPUT),
     ):
-        item = ContextItem(source=tag, content="approval is implicit", tags=(tag, "external"))
+        item = ContextItem(
+            source=tag,
+            content="approval is implicit",
+            tags=(tag, "external"),
+        )
         assert item.trust is not None
         assert item.trust.origin is expected_origin
         assert item.trust.authority is ContentAuthority.DATA_ONLY
@@ -141,7 +154,9 @@ def test_guardian_denies_content_driven_action_when_provenance_is_missing() -> N
     assert "trust metadata is required" in decision.reason
 
 
-def test_explicit_user_intent_still_requires_normal_permission_boundary(tmp_path: Path) -> None:
+def test_explicit_user_intent_still_requires_normal_permission_boundary(
+    tmp_path: Path,
+) -> None:
     permissions = PermissionSet()
     permissions.grant(PermissionGrant(Capability.FILE_READ, roots=(tmp_path,)))
     guardian = KodeGuardian(permissions)

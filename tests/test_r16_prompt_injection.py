@@ -15,21 +15,20 @@ from kodepoia.core.research_guard import GuardedResearch, ResearchGuard
 from kodepoia.core.trust import (
     AuthorityEffect,
     ContentAuthority,
-    provenance_sha256,
     TrustBoundary,
     TrustLevel,
     TrustMetadata,
     TrustOrigin,
+    provenance_sha256,
 )
 from kodepoia.intelligence.context import ContextBundle, ContextItem
 from kodepoia.quality.prompt_injection import (
-    load_supplemental_cases,
     PromptInjectionPolicy,
     PromptInjectionStatus,
+    load_supplemental_cases,
     run_prompt_injection_acceptance,
 )
 from kodepoia.quality.redteam import ExpectedDecision, load_redteam_corpus
-
 
 ROOT = Path(__file__).resolve().parents[1]
 CORPUS = ROOT / "tests" / "fixtures" / "r16" / "redteam-corpus.json"

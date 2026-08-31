@@ -7,12 +7,11 @@ from pathlib import Path
 from typing import Any
 
 from kodepoia.quality.prompt_injection import (
-    load_supplemental_cases,
     PromptInjectionStatus,
+    load_supplemental_cases,
     run_prompt_injection_acceptance,
 )
 from kodepoia.quality.redteam import load_redteam_corpus
-
 
 ROOT = Path(__file__).resolve().parents[1]
 CANONICAL_CORPUS = ROOT / "tests" / "fixtures" / "r16" / "redteam-corpus.json"

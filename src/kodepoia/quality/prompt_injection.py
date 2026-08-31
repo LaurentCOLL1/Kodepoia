@@ -21,7 +21,6 @@ from kodepoia.quality.redteam import (
     RedTeamCorpus,
 )
 
-
 _SHA40_RE = re.compile(r"^[0-9a-f]{40}$")
 _MAX_SUPPLEMENTAL_BYTES = 262_144
 _TARGET_BOUNDARIES = frozenset(

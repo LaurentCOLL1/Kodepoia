@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED on `main` `fcb8d3c532949ce8e8d728e6bb1171e7132af342`. R16.1 is COMPLETE on `r16/01-threat-model-red-team-harness` with immutable technical source `c2fd7d63af9bea5a11d357ae324df214c1651c39` and exact-head technical acceptance recorded below; post-merge continuity normalization is pending. R16.2–R16.18 remain PLANNED and R16.2 is not authorized before R16.1 is COMPLETE + NORMALIZED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1 is COMPLETE + NORMALIZED on exact `main` `ad7ec8339ea3e61fefa29fad6693a0e476b6bc58`. R16.2 is IN_PROGRESS on `r16/02-prompt-injection-untrusted-content` from that exact normalized main; R16.3–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -167,8 +167,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 
 | ID | Title | Status | Manual |
 | --- | --- | --- | --- |
-| R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE | NONE |
-| R16.2 | Prompt-injection and untrusted-content hardening | PLANNED | NONE |
+| R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE + NORMALIZED | NONE |
+| R16.2 | Prompt-injection and untrusted-content hardening | IN_PROGRESS | NONE |
 | R16.3 | Malicious repository/workspace quarantine and safe bootstrap | PLANNED | NONE |
 | R16.4 | Secrets, privacy and exfiltration hardening | PLANNED | NONE |
 | R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | PLANNED | NONE |

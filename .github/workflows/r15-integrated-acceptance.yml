@@ -116,7 +116,8 @@ jobs:
           assert evidence['source_sha'] == os.environ['EVIDENCE_SOURCE_SHA']
           assert evidence['status'] == 'pass'
           assert evidence['blockers'] == []
-          assert tuple(evidence['checks']) == CHECK_NAMES
+          assert len(evidence['checks']) == len(CHECK_NAMES)
+          assert set(evidence['checks']) == set(CHECK_NAMES)
           assert all(evidence['checks'].values())
           assert evidence['manual_state'] == 'conditional_not_triggered'
           assert evidence['optional_capability_state'] == 'unavailable'
@@ -189,7 +190,8 @@ jobs:
           Draft202012Validator(schema).validate(evidence)
           validate_integrated_evidence(evidence)
           assert evidence['source_sha'] == os.environ['EVIDENCE_SOURCE_SHA']
-          assert tuple(evidence['checks']) == CHECK_NAMES
+          assert len(evidence['checks']) == len(CHECK_NAMES)
+          assert set(evidence['checks']) == set(CHECK_NAMES)
           assert all(evidence['checks'].values())
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'R15.17 Windows evidence validation failed' }

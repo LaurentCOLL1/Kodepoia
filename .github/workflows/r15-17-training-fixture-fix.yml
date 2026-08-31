@@ -24,20 +24,31 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Apply exact R15.9 fixture authorization and diagnose focused acceptance
+      - name: Apply exact R15.9 authorization and deterministic inventory normalization
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
+
           path = Path('src/kodepoia/tuning/integrated_acceptance.py')
           text = path.read_text(encoding='utf-8')
-          old = 'fixture_authorization="repository-owned-r15.17-fixture"'
-          new = 'fixture_authorization="repository-owned-r15.9-fixture"'
-          if text.count(old) != 1:
+
+          auth_old = 'fixture_authorization="repository-owned-r15.17-fixture"'
+          auth_new = 'fixture_authorization="repository-owned-r15.9-fixture"'
+          if text.count(auth_old) != 1:
               raise SystemExit('expected exactly one R15.17 fixture authorization')
-          path.write_text(text.replace(old, new), encoding='utf-8')
+          text = text.replace(auth_old, auth_new)
+
+          inventory_old = '''    if tuple(checks) != CHECK_NAMES:\n        raise RuntimeError("R15.17 scenario did not execute the exact adversarial inventory")\n\n    identities = {'''
+          inventory_new = '''    if len(checks) != len(CHECK_NAMES) or set(checks) != set(CHECK_NAMES):\n        raise RuntimeError("R15.17 scenario did not execute the exact adversarial inventory")\n    checks = {name: checks[name] for name in CHECK_NAMES}\n\n    identities = {'''
+          if text.count(inventory_old) != 1:
+              raise SystemExit('expected exactly one adversarial inventory guard')
+          text = text.replace(inventory_old, inventory_new)
+          path.write_text(text, encoding='utf-8')
           PY
+
+          rm -f docs/roadmap/.r15_17_failure.txt
           python -m pip install -e '.[dev]'
           python -m ruff check src/kodepoia/tuning/integrated_acceptance.py scripts/r15_17_integrated_acceptance.py tests/test_r15_17_integrated_acceptance.py
 
@@ -68,6 +79,6 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/kodepoia/tuning/integrated_acceptance.py
-          git commit -m 'R15.17 bind fixture training to R15.9 authorization'
+          git add -A src/kodepoia/tuning/integrated_acceptance.py docs/roadmap/.r15_17_failure.txt
+          git commit -m 'R15.17 bind training fixture and normalize check inventory'
           git push origin HEAD:r15/17-adversarial-integrated-acceptance

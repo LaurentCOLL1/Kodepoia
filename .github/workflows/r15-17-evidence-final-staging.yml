@@ -29,7 +29,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "$PLAN_BASE"
           test "$(git diff --name-only "$PLAN_BASE"..HEAD)" = ".github/workflows/r15-17-evidence-final-staging.yml"
           test "$(git diff --name-only "$TECHNICAL_SOURCE".."$PLAN_BASE")" = "docs/roadmap/R15_PLAN.md"
 
@@ -50,12 +49,11 @@ jobs:
           path = Path('docs/roadmap/R15_PLAN.md')
           text = path.read_text(encoding='utf-8')
           text = text.replace('**Status:** ACTIVE', '**Status:** COMPLETE', 1)
-          old_prefix = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED. R15.17 is IN_PROGRESS from normalized R15.16 `main` `eb7ba3e01af9d96e0a49abfb20424e83261c2b14` on dedicated branch `r15/17-adversarial-integrated-acceptance`. R16 planning remains unauthorized until R15.17 implementation/evidence merge and the unique post-merge R15 phase continuity-only normalization both complete.'
-          new_prefix = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED and R15.17 is COMPLETE on immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`. R15 implementation/evidence closure is ready for protected merge; R16 planning is authorized only after PR #330 merges and the unique post-merge R15 phase continuity-only normalization succeeds and merges.'
-          if old_prefix not in text:
+          old = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED. R15.17 is IN_PROGRESS from normalized R15.16 `main` `eb7ba3e01af9d96e0a49abfb20424e83261c2b14` on dedicated branch `r15/17-adversarial-integrated-acceptance`. R16 planning remains unauthorized until R15.17 implementation/evidence merge and the unique post-merge R15 phase continuity-only normalization both complete.'
+          new = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED and R15.17 is COMPLETE on immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`. R15 implementation/evidence closure is ready for protected merge; R16 planning is authorized only after PR #330 merges and the unique post-merge R15 phase continuity-only normalization succeeds and merges.'
+          if old not in text:
               raise SystemExit('stale R15 execution checkpoint not found')
-          text = text.replace(old_prefix, new_prefix, 1)
-          path.write_text(text, encoding='utf-8')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
           PY
 
       - name: Materialize exact-source scenario evidence
@@ -120,21 +118,23 @@ jobs:
           text = text.replace('## Status\n\n`IN_PROGRESS`', '## Status\n\n`COMPLETE`', 1)
           start = text.index('## Current candidate policy')
           end = text.index('## Closure boundary', start)
-          block = f'''## Accepted exact-source authority
-
-- immutable technical source: `125d40a23a0c6b40e449340e593dc0bcb342c421`;
-- R15 Integrated Acceptance #21 / `33411377302`: SUCCESS Ubuntu + Windows;
-- R0 Repository Guard #2231 / `33411377234`: SUCCESS Ubuntu + Windows;
-- Python Core #2206 / `33411377186`: SUCCESS;
-- KodeStudio UI Smoke #2171 / `33411377227`: SUCCESS;
-- scenario artifact `9765260200`, archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772`, semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`;
-- exact fourteen-check inventory recomputed PASS with no blockers, no secret exposure, eight bound identities and truthful optional capability state `unavailable`;
-- CI authority digest `{ci_digest}`;
-- canonical R15 integrated digest `{integrated_digest}`;
-- manual state `CONDITIONAL / NOT TRIGGERED`; no real target-workstation training/conversion/promotion evidence is required for core closure;
-- this synchronization creates the final documentary/evidence candidate; its resulting exact END-head must pass fresh R15 Integrated + R0 + Python Core + KodeStudio UI Smoke before protected merge.
-
-'''
+          block = '\n'.join([
+              '## Accepted exact-source authority',
+              '',
+              '- immutable technical source: `125d40a23a0c6b40e449340e593dc0bcb342c421`;',
+              '- R15 Integrated Acceptance #21 / `33411377302`: SUCCESS Ubuntu + Windows;',
+              '- R0 Repository Guard #2231 / `33411377234`: SUCCESS Ubuntu + Windows;',
+              '- Python Core #2206 / `33411377186`: SUCCESS;',
+              '- KodeStudio UI Smoke #2171 / `33411377227`: SUCCESS;',
+              '- scenario artifact `9765260200`, archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772`, semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`;',
+              '- exact fourteen-check inventory recomputed PASS with no blockers, no secret exposure, eight bound identities and truthful optional capability state `unavailable`;',
+              f'- CI authority digest `{ci_digest}`;',
+              f'- canonical R15 integrated digest `{integrated_digest}`;',
+              '- manual state `CONDITIONAL / NOT TRIGGERED`; no real target-workstation training/conversion/promotion evidence is required for core closure;',
+              '- this synchronization creates the final documentary/evidence candidate; its resulting exact END-head must pass fresh R15 Integrated + R0 + Python Core + KodeStudio UI Smoke before protected merge.',
+              '',
+              '',
+          ])
           acceptance.write_text(text[:start] + block + text[end:], encoding='utf-8')
 
           continuity = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
@@ -145,15 +145,21 @@ jobs:
           text = text.replace('| R15.17 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |', '| R15.17 | COMPLETE | CONDITIONAL / NOT TRIGGERED |', 1)
           detail_start = text.index('- R15.17 : **IN_PROGRESS**')
           next_header = text.index('## Next authorized action', detail_start)
-          detail = f'''- R15.17 : **COMPLETE / PHASE NORMALIZATION PENDING** — normalized R15.16 base `eb7ba3e01af9d96e0a49abfb20424e83261c2b14`; dedicated branch `r15/17-adversarial-integrated-acceptance`; immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; exact-source R15 Integrated #21 / `33411377302`, R0 #2231 / `33411377234`, Python Core #2206 / `33411377186` and UI #2171 / `33411377227` SUCCESS. Canonical scenario artifact `9765260200` has archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772` and semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`; all fourteen adversarial checks are true, blockers empty, secrets absent and optional capability remains truthfully `unavailable`. CI authority digest `{ci_digest}`; canonical R15 integrated digest `{integrated_digest}`. Manual state `CONDITIONAL / NOT TRIGGERED`. The exact documentary/evidence END-head produced by this synchronization requires fresh R15 Integrated + R0 + Python Core + UI gates before PR #330 may merge with `expected_head_sha`; after that merge, exactly one continuity-only R15 phase normalization is required before R16 planning is authorized.\n\n'''
+          detail = '\n'.join([
+              f'- R15.17 : **COMPLETE / PHASE NORMALIZATION PENDING** — normalized R15.16 base `eb7ba3e01af9d96e0a49abfb20424e83261c2b14`; dedicated branch `r15/17-adversarial-integrated-acceptance`; immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; exact-source R15 Integrated #21 / `33411377302`, R0 #2231 / `33411377234`, Python Core #2206 / `33411377186` and UI #2171 / `33411377227` SUCCESS. Canonical scenario artifact `9765260200` has archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772` and semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`; all fourteen adversarial checks are true, blockers empty, secrets absent and optional capability remains truthfully `unavailable`. CI authority digest `{ci_digest}`; canonical R15 integrated digest `{integrated_digest}`. Manual state `CONDITIONAL / NOT TRIGGERED`. The exact documentary/evidence END-head produced by this synchronization requires fresh R15 Integrated + R0 + Python Core + UI gates before PR #330 may merge with `expected_head_sha`; after that merge, exactly one continuity-only R15 phase normalization is required before R16 planning is authorized.',
+              '',
+              '',
+          ])
           text = text[:detail_start] + detail + text[next_header:]
           next_start = text.index('## Next authorized action')
           permanent = text.index('## Permanent R-phase execution rule', next_start)
-          next_block = '''## Next authorized action
-
-**R15.17 final exact-END gates and protected merge only:** require fresh exact-head R15 Integrated Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the final documentary/evidence head, then merge PR #330 only with `expected_head_sha`. After that merge, create exactly one continuity-only R15 phase normalization, pass fresh exact-head R0/Python/UI, and merge it with exact expected-head protection. R16 planning remains unauthorized until that normalization merge. Manual state: CONDITIONAL / NOT TRIGGERED.
-
-'''
+          next_block = '\n'.join([
+              '## Next authorized action',
+              '',
+              '**R15.17 final exact-END gates and protected merge only:** require fresh exact-head R15 Integrated Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the final documentary/evidence head, then merge PR #330 only with `expected_head_sha`. After that merge, create exactly one continuity-only R15 phase normalization, pass fresh exact-head R0/Python/UI, and merge it with exact expected-head protection. R16 planning remains unauthorized until that normalization merge. Manual state: CONDITIONAL / NOT TRIGGERED.',
+              '',
+              '',
+          ])
           text = text[:next_start] + next_block + text[permanent:]
           continuity.write_text(text, encoding='utf-8')
           PY

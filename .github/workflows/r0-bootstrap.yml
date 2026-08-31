@@ -11,19 +11,73 @@ on:
       - "research/**"
       - "agent/**"
       - "r14/**"
+      - "r15/**"
   pull_request:
     branches:
       - main
       - develop
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: r0-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  normalize-r15-continuity:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/r15/phase-normalization'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact staging head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Materialize unique R15 phase normalization authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          text = path.read_text(encoding='utf-8')
+
+          top = '> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning AUTHORIZED on the normalized `main` produced when this unique R15 phase normalization PR merges.** R15.17 immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; final exact-END head `56c7e916224cb7be4a27508a96c5bbe617966baf`; exact-head R15 Integrated #39 / `33418910230`, R0 #2249 / `33418910108`, Python Core #2224 / `33418910102` and UI #2189 / `33418910148` all SUCCESS; PR #331 merged that exact head as `09bdf0b1ce4434ff9d7a0b5f9029ef9784515379`. Draft PR #330 was superseded solely because the connected GitHub integration could not perform the draft-to-ready mutation; no content, evidence or gate bypass occurred. Canonical integrated digest `82eb91b671c8551168c95042f5f959a9fd29d807dbcde2f58265f8f9b3d03dad`. Manual state CONDITIONAL / NOT TRIGGERED; optional capability remains truthfully `unavailable`.'
+          lines = text.splitlines()
+          lines[0] = top
+          text = '\n'.join(lines) + '\n'
+
+          if '- R15 : **COMPLETE + NORMALIZED**' not in text:
+              marker = '- R15 planning : **ACCEPTED + NORMALIZED**'
+              start = text.index(marker)
+              end = text.index('\n', start)
+              aggregate = '\n- R15 : **COMPLETE + NORMALIZED** — canonical integrated digest `82eb91b671c8551168c95042f5f959a9fd29d807dbcde2f58265f8f9b3d03dad`; immutable R15.17 technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; final exact-END head `56c7e916224cb7be4a27508a96c5bbe617966baf`; implementation/evidence PR #331 merged with exact expected head as `09bdf0b1ce4434ff9d7a0b5f9029ef9784515379`. This record is the unique post-merge continuity-only R15 phase normalization authority when its PR merges; R16 planning is then the next authorized phase action. Draft PR #330 remains historical only and was superseded by non-draft PR #331 because the connected integration could not mark it ready; the final tree/evidence was re-gated on #331 before merge.\n'
+              text = text[:end] + aggregate + text[end:]
+
+          detail_start = text.index('- R15.17 :')
+          next_header = text.index('## Next authorized action', detail_start)
+          detail = '- R15.17 : **COMPLETE + NORMALIZED** — normalized R15.16 base `eb7ba3e01af9d96e0a49abfb20424e83261c2b14`; immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; final exact-END head `56c7e916224cb7be4a27508a96c5bbe617966baf`; exact-head R15 Integrated #39 / `33418910230` SUCCESS Ubuntu + Windows, R0 #2249 / `33418910108` SUCCESS Ubuntu + Windows, Python Core #2224 / `33418910102` SUCCESS 5/5 and UI #2189 / `33418910148` SUCCESS; final non-draft PR #331 merged with `expected_head_sha=56c7e916224cb7be4a27508a96c5bbe617966baf` as implementation/evidence `main` `09bdf0b1ce4434ff9d7a0b5f9029ef9784515379`. Canonical scenario artifact `9765260200` has archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772` and semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`; all fourteen adversarial checks are true, blockers empty, secrets absent and optional capability remains truthfully `unavailable`; canonical R15 integrated digest `82eb91b671c8551168c95042f5f959a9fd29d807dbcde2f58265f8f9b3d03dad`. Draft PR #330 was superseded only because the connected GitHub integration could not perform the draft-to-ready mutation; its frozen-plan references remain historical and no evidence/gate authority was reused in place of the fresh #331 exact-head runs. Manual state `CONDITIONAL / NOT TRIGGERED`. This continuity-only record is the unique R15 phase normalization authority when merged; no second normalization is authorized.\n\n'
+          text = text[:detail_start] + detail + text[next_header:]
+
+          next_start = text.index('## Next authorized action')
+          permanent = text.index('## Permanent R-phase execution rule', next_start)
+          next_block = '## Next authorized action\n\n**R16 planning only, after this unique R15 phase-normalization PR passes fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke and merges with `expected_head_sha`.** Once that normalized `main` exists, create/freeze/accept `R16_PLAN.md` and its planning continuity before any R16.1 implementation. No R15 code/evidence work or second R15 normalization is authorized. Manual state carried from R15.17: CONDITIONAL / NOT TRIGGERED.\n\n'
+          text = text[:next_start] + next_block + text[permanent:]
+          path.write_text(text, encoding='utf-8')
+          PY
+          git diff --check
+          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git commit -m 'R15 normalize final phase continuity authority'
+          git push origin HEAD:r15/phase-normalization
+
   bootstrap:
     name: repository-bootstrap-${{ matrix.os }}
     strategy:

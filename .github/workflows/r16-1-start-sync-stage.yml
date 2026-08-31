@@ -33,7 +33,7 @@ jobs:
           plan = plan_path.read_text(encoding="utf-8")
 
           old_status = "**Status:** PLANNING_IN_PROGRESS  "
-          new_status = "**Status:** IN_PROGRESS  "
+          new_status = "**Status:** IN_PROGRESS"
           assert plan.count(old_status) == 1, "unexpected R16 phase status"
           plan = plan.replace(old_status, new_status, 1)
 

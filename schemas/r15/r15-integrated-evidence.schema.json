@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/r15/r15-integrated-evidence.schema.json",
+  "title": "Kodepoia R15.17 integrated evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "source_sha",
+    "checks",
+    "check_count",
+    "identities",
+    "manual_state",
+    "optional_capability_state",
+    "secrets_exposed",
+    "status",
+    "blockers",
+    "semantic_digest"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.r15.integrated-acceptance"},
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unvalidated_unopted_experience_blocked",
+        "secret_private_fixture_not_emitted",
+        "unknown_disallowed_license_blocked",
+        "revocation_invalidates_dependent_lineage",
+        "duplicate_groups_do_not_cross_splits",
+        "benchmark_holdout_training_firewall",
+        "mixed_identity_evidence_rejected",
+        "system_defect_yields_fix_system_first",
+        "qlora_resume_lineage_mismatch_rejected",
+        "critical_regression_veto",
+        "wrong_base_export_ollama_rejected",
+        "quantization_quality_loss_rejected",
+        "rejected_promotion_and_exact_rollback",
+        "optional_capability_truthful_unavailable"
+      ],
+      "properties": {
+        "unvalidated_unopted_experience_blocked": {"const": true},
+        "secret_private_fixture_not_emitted": {"const": true},
+        "unknown_disallowed_license_blocked": {"const": true},
+        "revocation_invalidates_dependent_lineage": {"const": true},
+        "duplicate_groups_do_not_cross_splits": {"const": true},
+        "benchmark_holdout_training_firewall": {"const": true},
+        "mixed_identity_evidence_rejected": {"const": true},
+        "system_defect_yields_fix_system_first": {"const": true},
+        "qlora_resume_lineage_mismatch_rejected": {"const": true},
+        "critical_regression_veto": {"const": true},
+        "wrong_base_export_ollama_rejected": {"const": true},
+        "quantization_quality_loss_rejected": {"const": true},
+        "rejected_promotion_and_exact_rollback": {"const": true},
+        "optional_capability_truthful_unavailable": {"const": true}
+      }
+    },
+    "check_count": {"const": 14},
+    "identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset",
+        "benchmark_suite",
+        "benchmark_protection",
+        "base_model",
+        "training_plan",
+        "adapter",
+        "evaluation_binding",
+        "quantization_policy"
+      ],
+      "properties": {
+        "dataset": {"$ref": "#/$defs/sha256"},
+        "benchmark_suite": {"$ref": "#/$defs/sha256"},
+        "benchmark_protection": {"$ref": "#/$defs/sha256"},
+        "base_model": {"$ref": "#/$defs/sha256"},
+        "training_plan": {"$ref": "#/$defs/sha256"},
+        "adapter": {"$ref": "#/$defs/sha256"},
+        "evaluation_binding": {"$ref": "#/$defs/sha256"},
+        "quantization_policy": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "manual_state": {"const": "conditional_not_triggered"},
+    "optional_capability_state": {"const": "unavailable"},
+    "secrets_exposed": {"const": false},
+    "status": {"const": "pass"},
+    "blockers": {"type": "array", "maxItems": 0},
+    "semantic_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

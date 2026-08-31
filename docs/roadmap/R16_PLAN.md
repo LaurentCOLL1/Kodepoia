@@ -2,11 +2,11 @@
 
 **Phase:** R16  
 **Roadmap title:** Hardening / Beta / v1.0  
-**Status:** PLANNING_IN_PROGRESS  
+**Status:** IN_PROGRESS
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is the only authorized action. R16.1–R16.18 are PLANNED and no R16 implementation is authorized before this planning authority and its single planning continuity normalization are accepted, exact-head gated and merged.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED on `main` `fcb8d3c532949ce8e8d728e6bb1171e7132af342`. R16.1 is IN_PROGRESS on dedicated branch `r16/01-threat-model-red-team-harness` from that exact normalized main; R16.2–R16.18 remain PLANNED. R16.2 is not authorized before R16.1 is COMPLETE + NORMALIZED.
 
 ## Purpose and authority
 
@@ -167,7 +167,7 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 
 | ID | Title | Status | Manual |
 | --- | --- | --- | --- |
-| R16.1 | Threat model, adversarial corpus and red-team harness | PLANNED | NONE |
+| R16.1 | Threat model, adversarial corpus and red-team harness | IN_PROGRESS | NONE |
 | R16.2 | Prompt-injection and untrusted-content hardening | PLANNED | NONE |
 | R16.3 | Malicious repository/workspace quarantine and safe bootstrap | PLANNED | NONE |
 | R16.4 | Secrets, privacy and exfiltration hardening | PLANNED | NONE |

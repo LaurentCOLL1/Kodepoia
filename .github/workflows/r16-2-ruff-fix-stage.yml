@@ -1,0 +1,59 @@
+name: R16.2 Ruff Fix Stage
+
+on:
+  push:
+    branches:
+      - r16/02-prompt-injection-untrusted-content
+    paths:
+      - .github/workflows/r16-2-ruff-fix-stage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R16.2 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/02-prompt-injection-untrusted-content
+          fetch-depth: 0
+
+      - name: Install exact lint tool
+        run: python -m pip install "ruff==0.16.5"
+
+      - name: Apply Ruff auto-fixes only
+        run: >-
+          python -m ruff check --fix
+          scripts/r16_2_acceptance.py
+          src/kodepoia/core/trust.py
+          src/kodepoia/quality/prompt_injection.py
+          tests/test_r16_prompt_injection.py
+
+      - name: Verify fixed files
+        run: >-
+          python -m ruff check
+          scripts/r16_2_acceptance.py
+          src/kodepoia/core/trust.py
+          src/kodepoia/quality/prompt_injection.py
+          tests/test_r16_prompt_injection.py
+
+      - name: Stage exact auto-fix scope
+        shell: bash
+        run: |
+          git rm .github/workflows/r16-2-ruff-fix-stage.yml
+          git add scripts/r16_2_acceptance.py src/kodepoia/core/trust.py src/kodepoia/quality/prompt_injection.py tests/test_r16_prompt_injection.py
+          git diff --cached --check
+          actual="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' '.github/workflows/r16-2-ruff-fix-stage.yml' 'scripts/r16_2_acceptance.py' 'src/kodepoia/core/trust.py' 'src/kodepoia/quality/prompt_injection.py' 'tests/test_r16_prompt_injection.py' | sort)"
+          printf '%s\n' "$actual"
+          test "$actual" = "$expected"
+
+      - name: Commit clean Ruff fixes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "style(r16.2): apply exact Ruff auto-fixes"
+          git push origin HEAD:r16/02-prompt-injection-untrusted-content

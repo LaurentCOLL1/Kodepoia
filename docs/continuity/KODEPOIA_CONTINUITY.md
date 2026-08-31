@@ -70,7 +70,7 @@
 | R15.14 | COMPLETE + NORMALIZED | NONE |
 | R15.15 | COMPLETE + NORMALIZED | NONE |
 | R15.16 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
-| R15.17 | COMPLETE | CONDITIONAL / NOT TRIGGERED |
+| R15.17 | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 
 - R15.14 : **COMPLETE + NORMALIZED** — clean START / normalized R15.13 `main` `d0225f4086c8ad1328fe6450a85e92fcc62644a6`; immutable technical source `d6e3aef8224cb45a329b76077d1dd39a9adda0c3`; final exact END-head `c9ca0cb9b16870a2fa46eee280c3dd9d7cc0b140`; exact-END R15.14 #10 / `33333256059`, R0 #2207 / `33333258400`, Python Core #2182 / `33333258385` and KodeStudio UI Smoke #2147 / `33333258329` SUCCESS; implementation/evidence PR #324 merged exact head as `6277995cda41a2a34c101f634b89666d2e674d89`; unique continuity-only normalization head `02d2add7795fcdacbf0b385ae9ea1600801ff05b` passed R0 #2209 / `33334310234`, Python Core #2184 / `33334310434` 5/5 and UI #2149 / `33334310344`, then normalization PR #325 merged exact head as normalized `main` `ea724b4d1a84c9f6105d2419f85d6cdb6ecda30e`. Manual NONE.
 

@@ -1,0 +1,26 @@
+name: R15.17 PR Ready Staging
+
+on:
+  push:
+    branches:
+      - 'r15/17-adversarial-integrated-acceptance'
+    paths:
+      - '.github/workflows/r15-17-pr-ready-staging.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  mark-ready:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Assert PR head and mark ready
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh pr view 330 --repo LaurentCOLL1/Kodepoia --json headRefOid --jq .headRefOid)" = "$GITHUB_SHA"
+          gh pr ready 330 --repo LaurentCOLL1/Kodepoia
+          test "$(gh pr view 330 --repo LaurentCOLL1/Kodepoia --json isDraft --jq .isDraft)" = "false"

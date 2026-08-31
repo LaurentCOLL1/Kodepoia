@@ -3,9 +3,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 from kodepoia.bench.decision import (
     BackendCapability,
@@ -38,9 +39,11 @@ from kodepoia.experience.contracts import (
     ProvenanceDescriptor,
     SanitizationEvidence,
     SanitizationStatus,
-    TrainingAuthorization as ExperienceTrainingAuthorization,
     TransformationRef,
     transition_experience,
+)
+from kodepoia.experience.contracts import (
+    TrainingAuthorization as ExperienceTrainingAuthorization,
 )
 from kodepoia.experience.dataset import (
     DatasetBuilder,
@@ -100,12 +103,14 @@ from kodepoia.tuning.training import (
     DatasetBinding,
     ModelBinding,
     SFTTrainingConfig,
-    TrainingAuthorization as TuningTrainingAuthorization,
     TrainingError,
     TrainingMode,
     TrainingPlan,
     TrainingRunner,
     TrainingRunState,
+)
+from kodepoia.tuning.training import (
+    TrainingAuthorization as TuningTrainingAuthorization,
 )
 
 INTEGRATED_SCHEMA = "kodepoia.r15.integrated-acceptance"
@@ -165,7 +170,7 @@ def _tree_digest(path: Path) -> str:
     return canonical_sha256(rows)
 
 
-def _expect(exc_type: type[_T], action: Callable[[], object]) -> bool:
+def _expect[T: BaseException](exc_type: type[_T], action: Callable[[], object]) -> bool:
     try:
         action()
     except exc_type:
@@ -202,7 +207,7 @@ def _experience_record(
         )
         transformations = (
             TransformationRef(
-                transformation_id="r15.17-fixture-sanitize",
+                transformation_id="r15.3-sanitize-v1",
                 input_digest=origin_digest,
                 output_digest=content_digest,
                 policy_digest=governance_digest,

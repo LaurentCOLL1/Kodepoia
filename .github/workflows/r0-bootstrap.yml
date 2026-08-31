@@ -67,14 +67,14 @@ jobs:
           text = text[:next_start] + next_block + text[permanent:]
           path.write_text(text, encoding='utf-8')
           PY
-          git diff --check
-          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
-          if git diff --quiet; then
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+          if git diff --quiet -- docs/continuity/KODEPOIA_CONTINUITY.md; then
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git commit -m 'R15 normalize final phase continuity authority'
           git push origin HEAD:r15/phase-normalization
 

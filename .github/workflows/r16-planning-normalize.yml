@@ -70,7 +70,9 @@ jobs:
           git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-planning-normalize.yml
           changed="$(git diff --name-only)"
           printf '%s\n' "$changed"
-          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          printf '%s\n' "$changed" | grep -Fx 'docs/continuity/KODEPOIA_CONTINUITY.md'
+          printf '%s\n' "$changed" | grep -Fx '.github/workflows/r16-planning-normalize.yml'
+          test "$(printf '%s\n' "$changed" | sed '/^$/d' | wc -l)" -eq 2
 
       - name: Commit normalized continuity
         shell: bash

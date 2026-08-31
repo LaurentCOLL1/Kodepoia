@@ -63,13 +63,13 @@ jobs:
           assert "| R16.18 | PLANNED | CONDITIONAL |" in check
           PY
 
-      - name: Remove staging workflow and verify scope
+      - name: Stage exact normalization commit and verify index scope
         shell: bash
         run: |
           git rm .github/workflows/r16-planning-normalize.yml
-          git restore --worktree -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json || true
-          git diff --check HEAD -- docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-planning-normalize.yml
-          changed="$(git diff --name-only HEAD)"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          changed="$(git diff --cached --name-only)"
           printf '%s\n' "$changed"
           expected="$(printf '%s\n' '.github/workflows/r16-planning-normalize.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' | sort)"
           actual="$(printf '%s\n' "$changed" | sed '/^$/d' | sort)"
@@ -80,6 +80,5 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/continuity/KODEPOIA_CONTINUITY.md
           git commit -m "docs(r16): normalize planning continuity"
           git push origin HEAD:r16/planning-normalization

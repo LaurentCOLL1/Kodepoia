@@ -1,0 +1,136 @@
+name: R16.2 START Sync Stage
+
+on:
+  push:
+    branches:
+      - r16/02-prompt-injection-untrusted-content
+    paths:
+      - .github/workflows/r16-2-start-sync-stage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R16.2 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/02-prompt-injection-untrusted-content
+          fetch-depth: 0
+
+      - name: Apply mandatory R16.2 START sync
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          normalized_main = "ad7ec8339ea3e61fefa29fad6693a0e476b6bc58"
+          branch = "r16/02-prompt-injection-untrusted-content"
+
+          plan_path = Path("docs/roadmap/R16_PLAN.md")
+          plan = plan_path.read_text(encoding="utf-8")
+          checkpoint = (
+              "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. "
+              f"R16.1 is COMPLETE + NORMALIZED on exact `main` `{normalized_main}`. "
+              f"R16.2 is IN_PROGRESS on `{branch}` from that exact normalized main; R16.3–R16.18 remain PLANNED."
+          )
+          plan, n = re.subn(r"^\*\*Execution checkpoint:\*\*.*$", checkpoint, plan, count=1, flags=re.M)
+          assert n == 1, "R16 plan execution checkpoint not found exactly once"
+          assert plan.count("| R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE | NONE |") == 1
+          plan = plan.replace(
+              "| R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE | NONE |",
+              "| R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE + NORMALIZED | NONE |",
+              1,
+          )
+          assert plan.count("| R16.2 | Prompt-injection and untrusted-content hardening | PLANNED | NONE |") == 1
+          plan = plan.replace(
+              "| R16.2 | Prompt-injection and untrusted-content hardening | PLANNED | NONE |",
+              "| R16.2 | Prompt-injection and untrusted-content hardening | IN_PROGRESS | NONE |",
+              1,
+          )
+          plan_path.write_text(plan, encoding="utf-8", newline="\n")
+
+          continuity_path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          continuity = continuity_path.read_text(encoding="utf-8")
+          first_line, rest = continuity.split("\n", 1)
+          prefix_re = r"^> Kodepoia, architecture v1\.0 gelée\. \*\*.*?\*\*"
+          new_prefix = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. "
+              "R16 planning ACCEPTED + NORMALIZED. "
+              f"R16.1 COMPLETE + NORMALIZED on exact `main` `{normalized_main}`. "
+              f"R16.2 IN_PROGRESS on `{branch}` from that exact normalized main; "
+              "R16.3–R16.18 remain PLANNED.**"
+          )
+          first_line, n = re.subn(prefix_re, new_prefix, first_line, count=1)
+          assert n == 1, "continuity top state not found exactly once"
+          continuity = first_line + "\n" + rest
+
+          anchor = "- R16.1 : **COMPLETE + NORMALIZED**"
+          lines = continuity.splitlines()
+          matches = [i for i, line in enumerate(lines) if line.startswith(anchor)]
+          assert len(matches) == 1, "R16.1 global authority line not found exactly once"
+          assert not any(line.startswith("- R16.2 :") for line in lines), "R16.2 global record already exists"
+          r16_2_record = (
+              f"- R16.2 : **IN_PROGRESS** — dedicated branch `{branch}` from exact normalized R16.1 `main` `{normalized_main}`; "
+              "mandatory START-sync only at this checkpoint; no R16.2 implementation preceded START. Scope is frozen to prompt-injection/untrusted-content hardening, explicit trust-origin propagation, instruction/data separation, fail-closed missing/contradictory provenance, non-authoritative tool/model/research outputs, and benign false-positive controls. Manual **NONE**."
+          )
+          lines.insert(matches[0] + 1, r16_2_record)
+          continuity = "\n".join(lines) + "\n"
+
+          assert continuity.count("| R16.2 | PLANNED | NONE |") == 1
+          continuity = continuity.replace("| R16.2 | PLANNED | NONE |", "| R16.2 | IN_PROGRESS | NONE |", 1)
+
+          start_block = f"""## R16.2 START authority
+
+- Dedicated branch: `{branch}`.
+- Exact normalized branch point: `main` `{normalized_main}` after unique R16.1 continuity normalization PR #336.
+- State at START: R1–R15 COMPLETE + NORMALIZED; R16 planning ACCEPTED + NORMALIZED; R16.1 COMPLETE + NORMALIZED; R16.2 IN_PROGRESS; R16.3–R16.18 PLANNED.
+- Frozen scope: prompt-injection and untrusted-content hardening across repository, research, document, web, tool-output and model-output flows; explicit trust-origin labels; instruction/data separation; fail-closed absent/contradictory provenance; no untrusted permission/policy/tool authority; benign false-positive controls.
+- Manual state: **NONE**.
+- No R16.2 implementation preceded this START-sync.
+
+"""
+          marker = "## R16 status index\n"
+          assert continuity.count(marker) == 1, "R16 status index marker not found exactly once"
+          assert "## R16.2 START authority" not in continuity
+          continuity = continuity.replace(marker, start_block + marker, 1)
+
+          next_pattern = r"(## Next authorized action\n\n)(.*?)(\n\n## Permanent R-phase execution rule)"
+          next_text = (
+              f"Implement and accept **R16.2** on `{branch}` from exact normalized `main` `{normalized_main}`. "
+              "Freeze one immutable technical source, run the dedicated adversarial Ubuntu/Windows acceptance plus fresh exact-head R0, full Python Core and KodeStudio UI Smoke, then END-sync, re-gate any changed END head, merge with exact `expected_head_sha`, and perform exactly one continuity-only post-merge normalization before R16.3."
+          )
+          continuity, n = re.subn(next_pattern, lambda m: m.group(1) + next_text + m.group(3), continuity, count=1, flags=re.S)
+          assert n == 1, "next authorized action section not found exactly once"
+          continuity_path.write_text(continuity, encoding="utf-8", newline="\n")
+
+          final_plan = plan_path.read_text(encoding="utf-8")
+          final_cont = continuity_path.read_text(encoding="utf-8")
+          assert "| R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE + NORMALIZED | NONE |" in final_plan
+          assert "| R16.2 | Prompt-injection and untrusted-content hardening | IN_PROGRESS | NONE |" in final_plan
+          assert "| R16.2 | IN_PROGRESS | NONE |" in final_cont
+          assert f"Exact normalized branch point: `main` `{normalized_main}`" in final_cont
+          assert "R16.3 | PLANNED" in final_cont
+          PY
+
+      - name: Stage START sync and verify scope
+        shell: bash
+        run: |
+          git rm .github/workflows/r16-2-start-sync-stage.yml
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          actual="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' '.github/workflows/r16-2-start-sync-stage.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R16_PLAN.md' | sort)"
+          printf '%s\n' "$actual"
+          test "$actual" = "$expected"
+
+      - name: Commit clean R16.2 START sync
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(r16.2): mandatory START sync"
+          git push origin HEAD:r16/02-prompt-injection-untrusted-content

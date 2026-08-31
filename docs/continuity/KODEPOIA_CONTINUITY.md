@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning AUTHORIZED on the normalized `main` produced when this unique R15 phase normalization PR merges.** R15.17 immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; final exact-END head `56c7e916224cb7be4a27508a96c5bbe617966baf`; exact-head R15 Integrated #39 / `33418910230`, R0 #2249 / `33418910108`, Python Core #2224 / `33418910102` and UI #2189 / `33418910148` all SUCCESS; PR #331 merged that exact head as `09bdf0b1ce4434ff9d7a0b5f9029ef9784515379`. Draft PR #330 was superseded solely because the connected GitHub integration could not perform the draft-to-ready mutation; no content, evidence or gate bypass occurred. Canonical integrated digest `82eb91b671c8551168c95042f5f959a9fd29d807dbcde2f58265f8f9b3d03dad`. Manual state CONDITIONAL / NOT TRIGGERED; optional capability remains truthfully `unavailable`.
+> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning IN_PROGRESS from normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`; R16.1–R16.18 PLANNED; no R16 implementation is authorized before planning ACCEPTED + NORMALIZED.** R15.17 immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; final exact-END head `56c7e916224cb7be4a27508a96c5bbe617966baf`; exact-head R15 Integrated #39 / `33418910230`, R0 #2249 / `33418910108`, Python Core #2224 / `33418910102` and UI #2189 / `33418910148` all SUCCESS; PR #331 merged that exact head as `09bdf0b1ce4434ff9d7a0b5f9029ef9784515379`. Draft PR #330 was superseded solely because the connected GitHub integration could not perform the draft-to-ready mutation; no content, evidence or gate bypass occurred. Canonical integrated digest `82eb91b671c8551168c95042f5f959a9fd29d807dbcde2f58265f8f9b3d03dad`. Manual state CONDITIONAL / NOT TRIGGERED; optional capability remains truthfully `unavailable`.
 
 ## État global
 
@@ -11,6 +11,7 @@
 - R14 : **COMPLETE + NORMALIZED** — canonical integrated digest `06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189`; implementation/evidence merge `3327913047625ca26a70b5c96beb3f1608ff7720`; this record is the unique post-merge continuity-only phase normalization authority. R15 planning is the next authorized phase action after this normalization PR merges.
 - R15 planning : **ACCEPTED + NORMALIZED** — branch point `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`; clean planning head `5856021b73edeaa29f124fab90275a8cd89e956f`; exact-head R0 #2051 / `33268871882` SUCCESS Ubuntu + Windows, Python Core #2026 / `33268871682` SUCCESS 5/5, KodeStudio UI Smoke #1991 / `33268871753` SUCCESS; planning PR #292 merged with exact expected head as `e464260edbc4ef1d7962fdfe7401667600a2b50d`; this record is the unique post-merge planning continuity-only normalization authority. R15.1 is authorized only on the normalized main produced when this normalization PR merges.
 - R15 : **COMPLETE + NORMALIZED** — canonical integrated digest `82eb91b671c8551168c95042f5f959a9fd29d807dbcde2f58265f8f9b3d03dad`; immutable R15.17 technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; final exact-END head `56c7e916224cb7be4a27508a96c5bbe617966baf`; implementation/evidence PR #331 merged with exact expected head as `09bdf0b1ce4434ff9d7a0b5f9029ef9784515379`. This record is the unique post-merge continuity-only R15 phase normalization authority when its PR merges; R16 planning is then the next authorized phase action. Draft PR #330 remains historical only and was superseded by non-draft PR #331 because the connected integration could not mark it ready; the final tree/evidence was re-gated on #331 before merge.
+- R16 planning : **IN_PROGRESS** — branch `r16/00-phase-plan` from normalized R15 `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`; exhaustive `docs/roadmap/R16_PLAN.md` freezes R16.1–R16.18 before implementation; planning acceptance and its one continuity-only normalization remain pending.
 
 - R15.1 : **COMPLETE + NORMALIZED** — clean START `a474d0c85d27ca7113a8044b2c29a5e664ebd352`; immutable technical source `2da5e5d5aa712462c898270c41c5cafb42e6aeaa`; final END-head `ec335e5507de84cd447cbd0354416a36d56d7f17`; exact-END R15.1 #13 / `33271720105` SUCCESS Ubuntu + Windows, R0 #2064 / `33271720122` SUCCESS Ubuntu + Windows, Python #2039 / `33271720066` SUCCESS 5/5, UI #2004 / `33271720076` SUCCESS; PR #295 required R0 #2065 / `33272128985` SUCCESS and merged exact head as `f0860c1e0d1a27ec5317a10dabc1f28b409703c2`; manual NONE. Non-laundering remains normative: sanitizer/redaction PASS never overrides denied/unknown/review source, consent, provenance, license or privacy authorization. This record is the unique post-merge continuity-only R15.1 normalization authority; R15.2 START-sync is authorized only after this normalization branch passes fresh R0/Python/UI and merges to `main`.
 - R15.2 : **COMPLETE + NORMALIZED** — clean START `135fd085002bf8074d87308beca35ab33c35ed47`; immutable technical source `48b519c09fa50f5407cc4a55a0b76baf6f8e8ffd`; final END-head `afbc8e9c41d25727dcdc786245281e605e73cf97`; exact-END R15.2 #11 / `33280685599`, R0 #2076 / `33280685519`, Python #2051 / `33280685583`, UI #2016 / `33280685572` SUCCESS; final non-draft PR #298 required R0 #2077 / `33280858482` SUCCESS and merged with expected head as `cf7f53fa9d491019fb9de941c3d703eb34a8f73d`; manual NONE. Capture remains disabled by default and training authorization UNKNOWN until later explicit governance. This is the unique post-merge continuity normalization; R15.3 is authorized only after this branch passes fresh R0/Python/UI and merges.
@@ -80,9 +81,44 @@
 
 - R15.17 : **COMPLETE + NORMALIZED** — normalized R15.16 base `eb7ba3e01af9d96e0a49abfb20424e83261c2b14`; immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; final exact-END head `56c7e916224cb7be4a27508a96c5bbe617966baf`; exact-head R15 Integrated #39 / `33418910230` SUCCESS Ubuntu + Windows, R0 #2249 / `33418910108` SUCCESS Ubuntu + Windows, Python Core #2224 / `33418910102` SUCCESS 5/5 and UI #2189 / `33418910148` SUCCESS; final non-draft PR #331 merged with `expected_head_sha=56c7e916224cb7be4a27508a96c5bbe617966baf` as implementation/evidence `main` `09bdf0b1ce4434ff9d7a0b5f9029ef9784515379`. Canonical scenario artifact `9765260200` has archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772` and semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`; all fourteen adversarial checks are true, blockers empty, secrets absent and optional capability remains truthfully `unavailable`; canonical R15 integrated digest `82eb91b671c8551168c95042f5f959a9fd29d807dbcde2f58265f8f9b3d03dad`. Draft PR #330 was superseded only because the connected GitHub integration could not perform the draft-to-ready mutation; its frozen-plan references remain historical and no evidence/gate authority was reused in place of the fresh #331 exact-head runs. Manual state `CONDITIONAL / NOT TRIGGERED`. This continuity-only record is the unique R15 phase normalization authority when merged; no second normalization is authorized.
 
+## R16 planning authority
+
+- Exact branch point: normalized R15 `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`.
+- Dedicated planning branch: `r16/00-phase-plan`.
+- Frozen-roadmap title: **Hardening / Beta / v1.0**.
+- Roadmap chain: red-team prompt injection / malicious repository / secrets / plugins / destructive commands / corrupted memory / recovery, followed by representative Godot 2D/3D, Windows desktop, ComfyUI, audio/voice and long-term-project validation.
+- Exhaustive plan: `docs/roadmap/R16_PLAN.md`; subdivision set **R16.1–R16.18** is PLANNED and no R16 implementation is present in the planning authority.
+- Red-team fixtures are synthetic, bounded and non-destructive; live secrets, uncontrolled malware, destructive host commands and production targets are excluded from core acceptance.
+- Security decisions are fail-closed with instruction/data separation, least privilege, secret redaction, untrusted tool/plugin boundaries, memory-not-policy, bounded resources, recovery-before-continuation and critical-veto invariants.
+- Core planning/implementation acceptance is CI-owned. Later R16.13/R16.14/R16.15/R16.17/R16.18 carry CONDITIONAL external/hardware/live-environment gates exactly as frozen in the plan; if one is explicitly triggered during implementation, execution stops before the following subdivision until exact evidence is reviewed.
+- Planning acceptance requires fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke, planning PR merge with exact `expected_head_sha`, then exactly one continuity-only planning normalization with fresh exact-head R0/Python/UI and protected merge. Only the resulting normalized `main` authorizes R16.1.
+
+## R16 status index
+
+| ID | Status | Manual |
+| --- | --- | --- |
+| R16.1 | PLANNED | NONE |
+| R16.2 | PLANNED | NONE |
+| R16.3 | PLANNED | NONE |
+| R16.4 | PLANNED | NONE |
+| R16.5 | PLANNED | NONE |
+| R16.6 | PLANNED | NONE |
+| R16.7 | PLANNED | NONE |
+| R16.8 | PLANNED | NONE |
+| R16.9 | PLANNED | NONE |
+| R16.10 | PLANNED | NONE |
+| R16.11 | PLANNED | NONE |
+| R16.12 | PLANNED | NONE |
+| R16.13 | PLANNED | CONDITIONAL |
+| R16.14 | PLANNED | CONDITIONAL |
+| R16.15 | PLANNED | CONDITIONAL |
+| R16.16 | PLANNED | NONE |
+| R16.17 | PLANNED | CONDITIONAL |
+| R16.18 | PLANNED | CONDITIONAL |
+
 ## Next authorized action
 
-**R16 planning only, after this unique R15 phase-normalization PR passes fresh exact-head R0 Repository Guard + full Python Core + KodeStudio UI Smoke and merges with `expected_head_sha`.** Once that normalized `main` exists, create/freeze/accept `R16_PLAN.md` and its planning continuity before any R16.1 implementation. No R15 code/evidence work or second R15 normalization is authorized. Manual state carried from R15.17: CONDITIONAL / NOT TRIGGERED.
+Complete and re-gate the exhaustive R16 planning authority. Do **not** start R16.1 before the planning PR and its unique planning continuity normalization are both merged successfully.
 
 ## Permanent R-phase execution rule
 

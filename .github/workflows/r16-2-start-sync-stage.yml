@@ -83,16 +83,15 @@ jobs:
           assert continuity.count("| R16.2 | PLANNED | NONE |") == 1
           continuity = continuity.replace("| R16.2 | PLANNED | NONE |", "| R16.2 | IN_PROGRESS | NONE |", 1)
 
-          start_block = f"""## R16.2 START authority
-
-- Dedicated branch: `{branch}`.
-- Exact normalized branch point: `main` `{normalized_main}` after unique R16.1 continuity normalization PR #336.
-- State at START: R1–R15 COMPLETE + NORMALIZED; R16 planning ACCEPTED + NORMALIZED; R16.1 COMPLETE + NORMALIZED; R16.2 IN_PROGRESS; R16.3–R16.18 PLANNED.
-- Frozen scope: prompt-injection and untrusted-content hardening across repository, research, document, web, tool-output and model-output flows; explicit trust-origin labels; instruction/data separation; fail-closed absent/contradictory provenance; no untrusted permission/policy/tool authority; benign false-positive controls.
-- Manual state: **NONE**.
-- No R16.2 implementation preceded this START-sync.
-
-"""
+          start_block = (
+              "## R16.2 START authority\n\n"
+              f"- Dedicated branch: `{branch}`.\n"
+              f"- Exact normalized branch point: `main` `{normalized_main}` after unique R16.1 continuity normalization PR #336.\n"
+              "- State at START: R1–R15 COMPLETE + NORMALIZED; R16 planning ACCEPTED + NORMALIZED; R16.1 COMPLETE + NORMALIZED; R16.2 IN_PROGRESS; R16.3–R16.18 PLANNED.\n"
+              "- Frozen scope: prompt-injection and untrusted-content hardening across repository, research, document, web, tool-output and model-output flows; explicit trust-origin labels; instruction/data separation; fail-closed absent/contradictory provenance; no untrusted permission/policy/tool authority; benign false-positive controls.\n"
+              "- Manual state: **NONE**.\n"
+              "- No R16.2 implementation preceded this START-sync.\n\n"
+          )
           marker = "## R16 status index\n"
           assert continuity.count(marker) == 1, "R16 status index marker not found exactly once"
           assert "## R16.2 START authority" not in continuity

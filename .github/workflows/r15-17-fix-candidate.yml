@@ -1,0 +1,61 @@
+name: R15.17 Temporary Candidate Fix
+
+on:
+  push:
+    branches:
+      - 'r15/17-adversarial-integrated-acceptance'
+    paths:
+      - '.github/workflows/r15-17-fix-candidate.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/17-adversarial-integrated-acceptance
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Correct dataset lineage fixture and lint
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/kodepoia/tuning/integrated_acceptance.py')
+          text = path.read_text(encoding='utf-8')
+          old = 'transformation_id="r15.17-fixture-sanitize"'
+          new = 'transformation_id="r15.3-sanitize-v1"'
+          if text.count(old) != 1:
+              raise SystemExit('expected exactly one fixture transformation id')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+          python -m pip install 'ruff==0.16.5'
+          python -m ruff check --fix --unsafe-fixes \
+            src/kodepoia/tuning/integrated_acceptance.py \
+            scripts/r15_17_integrated_acceptance.py \
+            tests/test_r15_17_integrated_acceptance.py
+          python -m ruff check \
+            src/kodepoia/tuning/integrated_acceptance.py \
+            scripts/r15_17_integrated_acceptance.py \
+            tests/test_r15_17_integrated_acceptance.py
+          git diff --check
+
+      - name: Commit corrected candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/kodepoia/tuning/integrated_acceptance.py scripts/r15_17_integrated_acceptance.py tests/test_r15_17_integrated_acceptance.py
+          git commit -m 'R15.17 fix integrated fixture lineage and lint'
+          git push origin HEAD:r15/17-adversarial-integrated-acceptance

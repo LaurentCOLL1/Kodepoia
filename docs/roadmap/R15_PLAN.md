@@ -2,11 +2,11 @@
 
 **Phase:** R15  
 **Roadmap title:** Experience / Bench / Fine-tuning  
-**Status:** ACTIVE
+**Status:** COMPLETE
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED. R15.17 is IN_PROGRESS from normalized R15.16 `main` `eb7ba3e01af9d96e0a49abfb20424e83261c2b14` on dedicated branch `r15/17-adversarial-integrated-acceptance`. R16 planning remains unauthorized until R15.17 implementation/evidence merge and the unique post-merge R15 phase continuity-only normalization both complete.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED and R15.17 is COMPLETE on immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`. R15 implementation/evidence closure is ready for protected merge; R16 planning is authorized only after PR #330 merges and the unique post-merge R15 phase continuity-only normalization succeeds and merges.
 
 ## Purpose and authority
 
@@ -992,8 +992,16 @@ Merging into wrong base revision; tokenizer/template omitted; license metadata l
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — accepted and normalized; historical completion authority repaired during R15.17 closure from already accepted exact-head evidence.**
 
+- clean START / normalized R15.10 `main`: `76b1a2b98676376bf917b7fac4cb68bb3d34b2fb`;
+- immutable technical source: `6f49a72918d4ddb4ae4d779e85513ae721688c49`;
+- final exact END-head: `9a351386f9cebffb0458c99da3e02705bfefcd7a`;
+- exact-END R15.11 #8 / `33321151927`: SUCCESS Ubuntu + Windows; R0 #2174 / `33321151973`: SUCCESS Ubuntu + Windows; Python Core #2149 / `33321151901`: SUCCESS; KodeStudio UI Smoke #2114 / `33321151869`: SUCCESS;
+- PR #317 merged with `expected_head_sha=9a351386f9cebffb0458c99da3e02705bfefcd7a` as implementation/evidence `main` `43c33064935d1323a1993eae64b2c3a4385f1e36`;
+- the unique post-merge normalization produced normalized R15.11 `main` `3f931e4f5baa664fcea53c445846200bcf3b5bfd`, which is the recorded R15.12 branch point;
+- export remains restricted to R15.10 `PROMOTE_TO_EXPORT`, exact base/revision/adapter/dataset/training/evaluation lineage, immutable Safetensors/model-card manifests, source-weight immutability and adapter-only fallback when merge is unsupported;
+- manual state: `NONE`.
 ---
 
 # R15.12 — GGUF conversion + quantization matrix, quality-loss measurement + artifact validation
@@ -1046,8 +1054,16 @@ Architecture unsupported by converter; quant quality collapse; tokenizer/templat
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — accepted and normalized; historical completion authority repaired during R15.17 closure from already accepted exact-head evidence.**
 
+- clean START / normalized R15.11 `main`: `3f931e4f5baa664fcea53c445846200bcf3b5bfd`;
+- immutable technical source: `3841c6082437693a6b8f8661354451b677867ce8`;
+- final exact END-head: `3319089a1298f3e7d26e67073102d913d4d07f47`;
+- exact-END R15.12 #10 / `33323150172`: SUCCESS Ubuntu + Windows; R0 #2178 / `33323150197`: SUCCESS Ubuntu + Windows; Python Core #2153 / `33323150120`: SUCCESS; KodeStudio UI Smoke #2118 / `33323150243`: SUCCESS;
+- PR #319 merged with `expected_head_sha=3319089a1298f3e7d26e67073102d913d4d07f47` as implementation/evidence `main` `6c2b3b2c2c4943e3425601c92edd2dd05a7e4412`;
+- the unique post-merge normalization produced normalized R15.12 `main` `ca625d51808de6c1f9c950faecc2aa785e7a757d`, which is the recorded R15.13 branch point;
+- GGUF validation, exact source/export/evaluation lineage, structured converter/quantizer argv, high-precision-source preference, explicit requantization refusal, artifact budgets/hashes, optional importance-matrix binding and aggregate/critical quality veto remain authoritative;
+- manual state: `CONDITIONAL / NOT TRIGGERED`; real large-model conversion was not required for core acceptance.
 ---
 
 # R15.13 — Ollama import/Modelfile packaging, base-binding + local runtime verification

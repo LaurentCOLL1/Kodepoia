@@ -2,7 +2,7 @@
 
 ## Status
 
-`IN_PROGRESS`
+`COMPLETE`
 
 This file records the R15.17 acceptance protocol and observed candidate results. It is not itself a PASS artifact and must never be used as a substitute for re-executing the exact-source gates.
 
@@ -58,9 +58,19 @@ Temporary round-trip helper run `33354039370` passed Ruff, all eight focused tes
 
 Temporary helper run `33406621527` repeated the same functional validation successfully and then committed only the non-workflow Python/test changes as `b174c52eb701a81fc7b44e8d02cb7c4a2cc451eb`. The workflow assertion change was applied separately through the authorized GitHub connector in `02c794bd71470ebd1777f88eebaf9f571a7b5f50`. All temporary helpers were then removed, leaving only the seven intended R15.17 files in the net phase diff.
 
-## Current candidate policy
+## Accepted exact-source authority
 
-The connector-authored commit containing this record, after removal of every temporary helper and diagnostic file and with the validated canonical round-trip fix present in both code and workflow, is the next exact candidate to evaluate. Its status remains `IN_PROGRESS` until GitHub Actions demonstrates the dedicated Ubuntu and Windows integrated gates on that exact SHA. Any subsequent code or evidence change creates a new candidate SHA and invalidates earlier candidate success for closure purposes.
+- immutable technical source: `125d40a23a0c6b40e449340e593dc0bcb342c421`;
+- R15 Integrated Acceptance #21 / `33411377302`: SUCCESS Ubuntu + Windows;
+- R0 Repository Guard #2231 / `33411377234`: SUCCESS Ubuntu + Windows;
+- Python Core #2206 / `33411377186`: SUCCESS;
+- KodeStudio UI Smoke #2171 / `33411377227`: SUCCESS;
+- scenario artifact `9765260200`, archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772`, semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`;
+- exact fourteen-check inventory recomputed PASS with no blockers, no secret exposure, eight bound identities and truthful optional capability state `unavailable`;
+- CI authority digest `6b2d683434940eb3094051581ae03613a7db1b26d61747027a0c11798de7bd61`;
+- canonical R15 integrated digest `82eb91b671c8551168c95042f5f959a9fd29d807dbcde2f58265f8f9b3d03dad`;
+- manual state `CONDITIONAL / NOT TRIGGERED`; no real target-workstation training/conversion/promotion evidence is required for core closure;
+- this synchronization creates the final documentary/evidence candidate; its resulting exact END-head must pass fresh R15 Integrated + R0 + Python Core + KodeStudio UI Smoke before protected merge.
 
 ## Closure boundary
 

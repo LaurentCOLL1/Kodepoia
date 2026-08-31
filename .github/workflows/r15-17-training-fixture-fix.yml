@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Apply exact R15.9 fixture authorization
+      - name: Apply exact R15.9 fixture authorization and diagnose focused acceptance
         shell: bash
         run: |
           set -euo pipefail
@@ -40,7 +40,26 @@ jobs:
           PY
           python -m pip install -e '.[dev]'
           python -m ruff check src/kodepoia/tuning/integrated_acceptance.py scripts/r15_17_integrated_acceptance.py tests/test_r15_17_integrated_acceptance.py
-          python -m pytest -q tests/test_r15_17_integrated_acceptance.py
+
+          set +e
+          python -m pytest -q tests/test_r15_17_integrated_acceptance.py > /tmp/r15_17_pytest.txt 2>&1
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            {
+              echo "diagnostic_source_sha=$(git rev-parse HEAD)"
+              echo "pytest_exit_code=$status"
+              echo
+              cat /tmp/r15_17_pytest.txt
+            } > docs/roadmap/.r15_17_failure.txt
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add docs/roadmap/.r15_17_failure.txt
+            git commit -m 'R15.17 record temporary focused failure diagnostic'
+            git push origin HEAD:r15/17-adversarial-integrated-acceptance
+            exit "$status"
+          fi
+          cat /tmp/r15_17_pytest.txt
           git diff --check
 
       - name: Commit only after focused acceptance passes

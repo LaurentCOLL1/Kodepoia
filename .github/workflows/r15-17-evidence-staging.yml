@@ -1,0 +1,111 @@
+name: R15.17 Evidence Staging
+
+on:
+  push:
+    branches:
+      - 'r15/17-evidence-staging'
+    paths:
+      - '.github/workflows/r15-17-evidence-staging.yml'
+
+permissions:
+  contents: write
+
+env:
+  TECHNICAL_SOURCE: 6b2284ea5359c075907ca436bc99e504ba6adf6d
+
+jobs:
+  build-canonical-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+
+      - name: Assert staging provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "$TECHNICAL_SOURCE"
+          test "$(git diff --name-only "$TECHNICAL_SOURCE"..HEAD)" = ".github/workflows/r15-17-evidence-staging.yml"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install evidence dependencies
+        run: python -m pip install -e '.[dev]'
+
+      - name: Materialize exact technical-source scenario
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > docs/roadmap/R15_17_SCENARIO_EVIDENCE.json <<'JSON'
+          {"blockers":[],"check_count":14,"checks":{"benchmark_holdout_training_firewall":true,"critical_regression_veto":true,"duplicate_groups_do_not_cross_splits":true,"mixed_identity_evidence_rejected":true,"optional_capability_truthful_unavailable":true,"qlora_resume_lineage_mismatch_rejected":true,"quantization_quality_loss_rejected":true,"rejected_promotion_and_exact_rollback":true,"revocation_invalidates_dependent_lineage":true,"secret_private_fixture_not_emitted":true,"system_defect_yields_fix_system_first":true,"unknown_disallowed_license_blocked":true,"unvalidated_unopted_experience_blocked":true,"wrong_base_export_ollama_rejected":true},"identities":{"adapter":"8d55c59c1d36d440c95196a35b3beb2a2d96137acf79d715e5817352cf7660a4","base_model":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","benchmark_protection":"5555555555555555555555555555555555555555555555555555555555555555","benchmark_suite":"1ed6cc5a7db8d3db954a811b6060bed4a2a91d65fb674d9f7225514b75f738b6","dataset":"0bea18d2885e75de5e6d4f040ead8bfa47b3bd5bd3988db12678dcbc3826416d","evaluation_binding":"20b2bf6870c98e5880ed84e5146693aa8c9623af1c806eb426b78fc83e85b857","quantization_policy":"d3c72a65427d4cada416df77490034d98d8c9bc14b79d35040576424097ff649","training_plan":"a7db2c8b1349fa4ee85f93e38083050178a24e398d69d3d1f74c763f92b2b639"},"manual_state":"conditional_not_triggered","optional_capability_state":"unavailable","schema":"kodepoia.r15.integrated-acceptance","schema_version":1,"secrets_exposed":false,"semantic_digest":"0cf1e9d1496cc59df33bef4c40507cac49da625bf95736ea637a21cfcf714c67","source_sha":"6b2284ea5359c075907ca436bc99e504ba6adf6d","status":"pass"}
+          JSON
+          test "$(sha256sum docs/roadmap/R15_17_SCENARIO_EVIDENCE.json | cut -d' ' -f1)" = "6d42d31cea98fe0e9c2b0b57d17d48af0663e5f0a1d87ee64fe61ecbf0842e26"
+
+      - name: Build exact-source CI authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/r15_17_build_ci_evidence.py \
+            --source-sha "$TECHNICAL_SOURCE" \
+            --run 'R0 Repository Guard|33409647147|2230' \
+            --run 'Python Core|33409647203|2205' \
+            --run 'KodeStudio UI Smoke|33409647053|2170' \
+            --run 'R15 Integrated Acceptance|33409646903|19' \
+            --artifact "integrated_scenario|R15 Integrated Acceptance|9764612381|R15_17_INTEGRATED_SCENARIO-$TECHNICAL_SOURCE|0933654df6729b098e33b4f9be38688a25ce7e5a93d9f7050c71e1ff80ee4dd0"
+
+      - name: Build and validate canonical R15 report
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/r15_17_build_integrated_report.py --source-sha "$TECHNICAL_SOURCE"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from kodepoia.tuning.integrated_evidence import IntegratedReport, validate_repository_evidence
+
+          root = Path('.').resolve()
+
+          def read_bytes(source: str) -> bytes:
+              candidate = (root / source).resolve()
+              if candidate == root or root not in candidate.parents:
+                  raise ValueError(source)
+              if not candidate.is_file() or candidate.is_symlink():
+                  raise ValueError(source)
+              return candidate.read_bytes()
+
+          report = IntegratedReport.from_dict(
+              json.loads(Path('docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json').read_text(encoding='utf-8'))
+          )
+          validate_repository_evidence(report, read_bytes)
+          assert report.source_sha == '6b2284ea5359c075907ca436bc99e504ba6adf6d'
+          assert report.status == 'pass'
+          assert report.blockers == ()
+          PY
+          sha256sum \
+            docs/roadmap/R15_17_SCENARIO_EVIDENCE.json \
+            docs/roadmap/R15_17_CI_ACCEPTANCE.json \
+            docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json
+
+      - name: Commit staging evidence only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            docs/roadmap/R15_17_SCENARIO_EVIDENCE.json \
+            docs/roadmap/R15_17_CI_ACCEPTANCE.json \
+            docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json
+          git diff --cached --name-only | diff -u <(printf '%s\n' \
+            docs/roadmap/R15_17_CI_ACCEPTANCE.json \
+            docs/roadmap/R15_17_SCENARIO_EVIDENCE.json \
+            docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json) -
+          git commit -m 'R15.17 stage canonical exact-source evidence'
+          git push origin HEAD:r15/17-evidence-staging

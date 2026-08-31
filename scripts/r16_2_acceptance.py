@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from kodepoia.quality.prompt_injection import (
-    PromptInjectionStatus,
     load_supplemental_cases,
+    PromptInjectionStatus,
     run_prompt_injection_acceptance,
 )
 from kodepoia.quality.redteam import load_redteam_corpus
@@ -64,7 +64,9 @@ def build_acceptance(source_sha: str) -> dict[str, Any]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Emit exact-source R16.2 prompt-injection acceptance")
+    parser = argparse.ArgumentParser(
+        description="Emit exact-source R16.2 prompt-injection acceptance"
+    )
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--output", required=True)
     args = parser.parse_args()

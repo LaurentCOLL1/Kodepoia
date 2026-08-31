@@ -989,7 +989,7 @@ def run_integrated_scenario(source_sha: str, work_root: Path) -> dict[str, objec
         "base_model": binding.base_model_digest,
         "training_plan": training_plan.digest,
         "adapter": training_report.adapter_digest or "0" * 64,
-        "evaluation_binding": canonical_sha256(binding.to_dict()),
+        "evaluation_binding": binding.digest,
         "quantization_policy": canonical_sha256(
             {
                 "quant_type": quant_target.quant_type,

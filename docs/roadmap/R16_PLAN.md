@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED on `main` `fcb8d3c532949ce8e8d728e6bb1171e7132af342`. R16.1 is COMPLETE on `r16/01-threat-model-red-team-harness` with immutable technical source `c2fd7d63af9bea5a11d357ae324df214c1651c39` and exact-head technical acceptance recorded below; post-merge continuity normalization is pending. R16.2–R16.18 remain PLANNED and R16.2 is not authorized before R16.1 is COMPLETE + NORMALIZED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1 is COMPLETE + NORMALIZED on exact `main` `ad7ec8339ea3e61fefa29fad6693a0e476b6bc58`. R16.2 is COMPLETE at mandatory END-sync; fresh exact-END R16.2/R0/Python/UI re-gates are required before protected merge. R16.3–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -167,8 +167,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 
 | ID | Title | Status | Manual |
 | --- | --- | --- | --- |
-| R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE | NONE |
-| R16.2 | Prompt-injection and untrusted-content hardening | PLANNED | NONE |
+| R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE + NORMALIZED | NONE |
+| R16.2 | Prompt-injection and untrusted-content hardening | COMPLETE | NONE |
 | R16.3 | Malicious repository/workspace quarantine and safe bootstrap | PLANNED | NONE |
 | R16.4 | Secrets, privacy and exfiltration hardening | PLANNED | NONE |
 | R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | PLANNED | NONE |
@@ -301,6 +301,15 @@ Overblocking legitimate project instructions; provenance loss across serializati
 ## Manual intervention
 
 **NONE.**
+
+## R16.2 END acceptance authority
+
+- Normalized branch point: `main` `ad7ec8339ea3e61fefa29fad6693a0e476b6bc58`; clean START `c3095e36bde1d580f4496397c280304384157aa9`; immutable technical source `6d4aee8947f2350a16e2316aae217030195cb68f`.
+- Technical-source gates: R16.2 #12 / `33441078478` SUCCESS Ubuntu + Windows; R0 #2270 / `33441078505` SUCCESS Ubuntu + Windows; Python Core #2242 / `33441078446` SUCCESS 5/5; UI Smoke #2207 / `33441078170` SUCCESS.
+- Cross-platform acceptance content is byte-identical: JSON SHA-256 `daa1714932a36fb24ba2050e607c99e48d6d5f7fe9b3ef8eb72c57f6667b0ced`; semantic `17e3d997642f3d52e0f3e6fc2c792ef91d83d8566876596936630c249198a434`; policy `97878fe69267c6fa6f2266d5bdcc87793385a315ca0b18d699d773fc31a2b990`; canonical R16 corpus `faa7f8bafa48438351a7435c3a55946f0a42ab8695540935a070865659189a51`; R16 case-set `8aca9cb7fd1f3cfe5445bebaee48569f7dbb21a63ca35567dc636a84f9c22963`; targeted prompt/ingestion set `138328e20a43b6501f2413eb248bd4de29fadbc98a67ac975893ababf0d087ca`; supplemental R16.2 set `d2a31a206689f51668609812b32c4c9d7b3f247de7ac3dedeb29fabb7ea1ab8e`.
+- Acceptance exercises 18/18 cases with `security_claim=true`, `critical_veto=false`, synthetic-only fixtures, no live secrets and no destructive host actions. Linux artifact `9776303161` archive SHA-256 `9a248e5e71cb7ce92a7b06b67a3055d8956dda672ec858d043c191f520ba5bf7`; Windows artifact `9776290305` archive SHA-256 `39d1ea79415a7d15095461b6bd2f1c01eb28e8f8d0ab3c45d022a3c7c8b2cd7e`.
+- Compatibility regression found by full Python Core was corrected before acceptance: `ResearchGuard` retains its public R7.1 guard/schema version `1`; R16.2 trust provenance is additive and does not force a legacy schema migration.
+- Manual NONE. R16.2 is COMPLETE at END-sync. Fresh exact-END R16.2/R0/Python/UI re-gates are mandatory before protected merge; R16.3 remains PLANNED until the implementation merge and its unique post-merge continuity-only normalization complete.
 
 ---
 

@@ -10,6 +10,7 @@ from kodepoia.tuning.integrated_evidence import (
     R14_INTEGRATED_PATH,
     R15_CI_PATH,
     R15_DESIGN_PATH,
+    R15_PLAN_PATH,
     R15_SCENARIO_PATH,
     R15_SUBDIVISION_PATHS,
     IntegratedCIEvidence,
@@ -21,6 +22,20 @@ from kodepoia.tuning.integrated_evidence import (
 )
 
 SOURCE_SHA = "a" * 40
+EXPECTED_ACCEPTANCE_PATHS = (
+    "docs/roadmap/R15_1_ACCEPTANCE.md",
+    "docs/roadmap/R15_2_ACCEPTANCE.md",
+    "docs/roadmap/R15_3_ACCEPTANCE.md",
+    "docs/roadmap/R15_4_ACCEPTANCE.md",
+    "docs/roadmap/R15_5_ACCEPTANCE.md",
+    "docs/roadmap/R15_6_ACCEPTANCE.md",
+    "docs/roadmap/R15_7_ACCEPTANCE.md",
+    "docs/roadmap/R15_8_ACCEPTANCE.md",
+    "docs/roadmap/R15_13_ACCEPTANCE.md",
+    "docs/roadmap/R15_14_ACCEPTANCE.md",
+    "docs/roadmap/R15_15_ACCEPTANCE.md",
+    "docs/roadmap/R15_16_ACCEPTANCE.md",
+)
 
 
 def _runs() -> tuple[WorkflowRunBinding, ...]:
@@ -78,6 +93,15 @@ def _ci(source_sha: str = SOURCE_SHA) -> IntegratedCIEvidence:
     )
 
 
+def _phase_plan() -> bytes:
+    sections = []
+    for index in range(1, 17):
+        sections.append(
+            f"# R15.{index} — fixture\n\n## Completion record\n\nCOMPLETE\n"
+        )
+    return "\n".join(sections).encode("utf-8")
+
+
 def _repository_bytes(
     *,
     scenario_sha: str = SOURCE_SHA,
@@ -88,6 +112,7 @@ def _repository_bytes(
             {"evidence_sha256": R14_ACCEPTED_DIGEST},
             sort_keys=True,
         ).encode("utf-8"),
+        R15_PLAN_PATH: _phase_plan(),
         R15_DESIGN_PATH: b"# R15.17 design fixture\n",
         R15_SCENARIO_PATH: json.dumps(
             _scenario(scenario_sha),
@@ -98,6 +123,12 @@ def _repository_bytes(
     for path in R15_SUBDIVISION_PATHS:
         values[path] = f"# accepted {path}\n".encode()
     return values
+
+
+def test_standalone_acceptance_inventory_matches_repository_history() -> None:
+    assert R15_SUBDIVISION_PATHS == EXPECTED_ACCEPTANCE_PATHS
+    assert "docs/roadmap/R15_9_ACCEPTANCE.md" not in R15_SUBDIVISION_PATHS
+    assert "docs/roadmap/R15_12_ACCEPTANCE.md" not in R15_SUBDIVISION_PATHS
 
 
 def test_ci_authority_binds_exact_runs_artifact_and_semantic_digest() -> None:
@@ -134,12 +165,27 @@ def test_repository_report_rehashes_every_bound_file() -> None:
     validate_repository_evidence(report, values.__getitem__)
     assert report.status == "pass"
     assert report.blockers == ()
-    assert len(report.subdivision_acceptance) == 16
+    assert report.phase_plan.source == R15_PLAN_PATH
+    assert len(report.subdivision_acceptance) == len(EXPECTED_ACCEPTANCE_PATHS)
     assert report.evidence_sha256 == canonical_sha256(report.payload_without_digest())
 
     values[R15_DESIGN_PATH] += b"tampered"
     with pytest.raises(ValueError, match="bound evidence drift"):
         validate_repository_evidence(report, values.__getitem__)
+
+
+def test_repository_report_requires_plan_authority_for_r15_9_to_r15_12() -> None:
+    values = _repository_bytes()
+    values[R15_PLAN_PATH] = values[R15_PLAN_PATH].replace(
+        b"# R15.10 \xe2\x80\x94 fixture\n\n## Completion record\n\nCOMPLETE",
+        b"# R15.10 \xe2\x80\x94 fixture\n\n## Completion record\n\nPENDING",
+    )
+    with pytest.raises(ValueError, match="completion authority for R15.10"):
+        build_repository_report(
+            source_sha=SOURCE_SHA,
+            generated_at="2026-08-31T00:00:01Z",
+            read_bytes=values.__getitem__,
+        )
 
 
 def test_repository_report_rejects_mixed_scenario_and_ci_source_sha() -> None:

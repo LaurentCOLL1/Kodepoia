@@ -14,12 +14,24 @@ from kodepoia.tuning.integrated_acceptance import (
 
 R14_INTEGRATED_PATH = "docs/roadmap/R14_INTEGRATED_ACCEPTANCE.json"
 R14_ACCEPTED_DIGEST = "06dbdc830b20fd4b2966b11cbacfd4b010f93101b071d827766c8b9cbfd45189"
+R15_PLAN_PATH = "docs/roadmap/R15_PLAN.md"
 R15_CI_PATH = "docs/roadmap/R15_17_CI_ACCEPTANCE.json"
 R15_SCENARIO_PATH = "docs/roadmap/R15_17_SCENARIO_EVIDENCE.json"
 R15_DESIGN_PATH = "docs/roadmap/R15_17_DESIGN.md"
 R15_INTEGRATED_REPORT_PATH = "docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json"
-R15_SUBDIVISION_PATHS = tuple(
-    f"docs/roadmap/R15_{index}_ACCEPTANCE.md" for index in range(1, 17)
+R15_SUBDIVISION_PATHS = (
+    "docs/roadmap/R15_1_ACCEPTANCE.md",
+    "docs/roadmap/R15_2_ACCEPTANCE.md",
+    "docs/roadmap/R15_3_ACCEPTANCE.md",
+    "docs/roadmap/R15_4_ACCEPTANCE.md",
+    "docs/roadmap/R15_5_ACCEPTANCE.md",
+    "docs/roadmap/R15_6_ACCEPTANCE.md",
+    "docs/roadmap/R15_7_ACCEPTANCE.md",
+    "docs/roadmap/R15_8_ACCEPTANCE.md",
+    "docs/roadmap/R15_13_ACCEPTANCE.md",
+    "docs/roadmap/R15_14_ACCEPTANCE.md",
+    "docs/roadmap/R15_15_ACCEPTANCE.md",
+    "docs/roadmap/R15_16_ACCEPTANCE.md",
 )
 
 REQUIRED_RUNS = (
@@ -53,6 +65,26 @@ def _safe_source(value: str) -> str:
     if path.is_absolute() or any(part in {"", ".", ".."} for part in path.parts):
         raise ValueError("evidence source escapes repository boundary")
     return path.as_posix()
+
+
+def _validate_phase_plan(raw: bytes) -> None:
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("R15 phase plan must be UTF-8") from exc
+    for index in range(1, 17):
+        if f"# R15.{index} —" not in text:
+            raise ValueError(f"R15 phase plan is missing subdivision heading R15.{index}")
+    for index in range(9, 13):
+        start_marker = f"# R15.{index} —"
+        next_marker = f"# R15.{index + 1} —"
+        start = text.index(start_marker)
+        end = text.find(next_marker, start + len(start_marker))
+        section = text[start:] if end < 0 else text[start:end]
+        if "## Completion record" not in section or "COMPLETE" not in section:
+            raise ValueError(
+                f"R15 phase plan lacks accepted completion authority for R15.{index}"
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -269,6 +301,7 @@ class IntegratedReport:
     generated_at: str
     source_sha: str
     prior_phase: EvidenceBinding
+    phase_plan: EvidenceBinding
     subdivision_acceptance: tuple[EvidenceBinding, ...]
     design: EvidenceBinding
     scenario: EvidenceBinding
@@ -288,8 +321,10 @@ class IntegratedReport:
         _require_commit(self.source_sha, field="source_sha")
         if self.prior_phase.source != R14_INTEGRATED_PATH:
             raise ValueError("R15 must bind the accepted R14 integrated report")
-        if len(self.subdivision_acceptance) != 16:
-            raise ValueError("R15 report must bind R15.1-R15.16 acceptance docs exactly once")
+        if self.phase_plan.source != R15_PLAN_PATH:
+            raise ValueError("R15 integrated report must bind the phase plan")
+        if len(self.subdivision_acceptance) != len(R15_SUBDIVISION_PATHS):
+            raise ValueError("R15 report must bind every standalone subdivision acceptance")
         if tuple(item.source for item in self.subdivision_acceptance) != R15_SUBDIVISION_PATHS:
             raise ValueError("R15 subdivision acceptance binding order/path mismatch")
         expected = (R15_DESIGN_PATH, R15_SCENARIO_PATH, R15_CI_PATH)
@@ -314,6 +349,7 @@ class IntegratedReport:
             "generated_at": self.generated_at,
             "source_sha": self.source_sha,
             "prior_phase": self.prior_phase.to_dict(),
+            "phase_plan": self.phase_plan.to_dict(),
             "subdivision_acceptance": [item.to_dict() for item in self.subdivision_acceptance],
             "design": self.design.to_dict(),
             "scenario": self.scenario.to_dict(),
@@ -335,6 +371,7 @@ class IntegratedReport:
             "generated_at",
             "source_sha",
             "prior_phase",
+            "phase_plan",
             "subdivision_acceptance",
             "design",
             "scenario",
@@ -359,6 +396,7 @@ class IntegratedReport:
             generated_at=str(raw["generated_at"]),
             source_sha=str(raw["source_sha"]),
             prior_phase=EvidenceBinding.from_dict(raw["prior_phase"]),
+            phase_plan=EvidenceBinding.from_dict(raw["phase_plan"]),
             subdivision_acceptance=tuple(EvidenceBinding.from_dict(item) for item in subdivisions),
             design=EvidenceBinding.from_dict(raw["design"]),
             scenario=EvidenceBinding.from_dict(raw["scenario"]),
@@ -414,6 +452,8 @@ def build_repository_report(
     if prior_raw.get("evidence_sha256") != R14_ACCEPTED_DIGEST:
         raise ValueError("accepted R14 integrated semantic digest drift")
 
+    plan_raw = read_bytes(R15_PLAN_PATH)
+    _validate_phase_plan(plan_raw)
     scenario_raw = json.loads(read_bytes(R15_SCENARIO_PATH))
     validate_integrated_evidence(scenario_raw)
     ci = IntegratedCIEvidence.from_dict(json.loads(read_bytes(R15_CI_PATH)))
@@ -425,6 +465,7 @@ def build_repository_report(
         "generated_at": generated_at,
         "source_sha": source_sha,
         "prior_phase": _binding(R14_INTEGRATED_PATH, read_bytes).to_dict(),
+        "phase_plan": _binding(R15_PLAN_PATH, read_bytes).to_dict(),
         "subdivision_acceptance": [
             _binding(path, read_bytes).to_dict() for path in R15_SUBDIVISION_PATHS
         ],
@@ -448,6 +489,7 @@ def validate_repository_evidence(
 ) -> None:
     for binding in (
         report.prior_phase,
+        report.phase_plan,
         *report.subdivision_acceptance,
         report.design,
         report.scenario,
@@ -459,6 +501,7 @@ def validate_repository_evidence(
     prior = json.loads(read_bytes(R14_INTEGRATED_PATH))
     if prior.get("evidence_sha256") != R14_ACCEPTED_DIGEST:
         raise ValueError("accepted R14 integrated semantic digest drift")
+    _validate_phase_plan(read_bytes(R15_PLAN_PATH))
     ci = IntegratedCIEvidence.from_dict(json.loads(read_bytes(R15_CI_PATH)))
     scenario = json.loads(read_bytes(R15_SCENARIO_PATH))
     validate_integrated_evidence(scenario)
@@ -474,6 +517,7 @@ __all__ = [
     "R15_CI_PATH",
     "R15_DESIGN_PATH",
     "R15_INTEGRATED_REPORT_PATH",
+    "R15_PLAN_PATH",
     "R15_SCENARIO_PATH",
     "R15_SUBDIVISION_PATHS",
     "REQUIRED_ARTIFACT_KINDS",

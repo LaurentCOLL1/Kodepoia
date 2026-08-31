@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any, Mapping
+from typing import Any
 
 
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -83,15 +84,21 @@ class TrustMetadata:
                 raise ValueError("external content cannot be promoted above untrusted")
             if self.authority is not ContentAuthority.DATA_ONLY:
                 raise ValueError("external content must remain data-only")
-        if self.origin is TrustOrigin.SYSTEM:
-            if self.level is not TrustLevel.TRUSTED or self.authority is not ContentAuthority.POLICY:
-                raise ValueError("system trust metadata must be trusted policy")
-        if self.origin is TrustOrigin.USER:
-            if self.level is not TrustLevel.USER_AUTHORIZED or self.authority is not ContentAuthority.USER_INTENT:
-                raise ValueError("user trust metadata must be user-authorized intent")
-        if self.origin is TrustOrigin.UNKNOWN:
-            if self.level is not TrustLevel.UNKNOWN or self.authority is not ContentAuthority.DATA_ONLY:
-                raise ValueError("unknown provenance must fail closed as data-only")
+        if self.origin is TrustOrigin.SYSTEM and (
+            self.level is not TrustLevel.TRUSTED
+            or self.authority is not ContentAuthority.POLICY
+        ):
+            raise ValueError("system trust metadata must be trusted policy")
+        if self.origin is TrustOrigin.USER and (
+            self.level is not TrustLevel.USER_AUTHORIZED
+            or self.authority is not ContentAuthority.USER_INTENT
+        ):
+            raise ValueError("user trust metadata must be user-authorized intent")
+        if self.origin is TrustOrigin.UNKNOWN and (
+            self.level is not TrustLevel.UNKNOWN
+            or self.authority is not ContentAuthority.DATA_ONLY
+        ):
+            raise ValueError("unknown provenance must fail closed as data-only")
         object.__setattr__(self, "provenance_id", provenance)
 
     @classmethod
@@ -110,15 +117,30 @@ class TrustMetadata:
 
     @classmethod
     def user(cls, *, provenance_id: str) -> TrustMetadata:
-        return cls(TrustOrigin.USER, TrustLevel.USER_AUTHORIZED, ContentAuthority.USER_INTENT, provenance_id)
+        return cls(
+            TrustOrigin.USER,
+            TrustLevel.USER_AUTHORIZED,
+            ContentAuthority.USER_INTENT,
+            provenance_id,
+        )
 
     @classmethod
     def system(cls, *, provenance_id: str) -> TrustMetadata:
-        return cls(TrustOrigin.SYSTEM, TrustLevel.TRUSTED, ContentAuthority.POLICY, provenance_id)
+        return cls(
+            TrustOrigin.SYSTEM,
+            TrustLevel.TRUSTED,
+            ContentAuthority.POLICY,
+            provenance_id,
+        )
 
     @classmethod
     def unknown(cls, *, provenance_id: str) -> TrustMetadata:
-        return cls(TrustOrigin.UNKNOWN, TrustLevel.UNKNOWN, ContentAuthority.DATA_ONLY, provenance_id)
+        return cls(
+            TrustOrigin.UNKNOWN,
+            TrustLevel.UNKNOWN,
+            ContentAuthority.DATA_ONLY,
+            provenance_id,
+        )
 
     @classmethod
     def from_mapping(cls, payload: Mapping[str, Any] | None) -> TrustMetadata:
@@ -175,20 +197,45 @@ class TrustBoundary:
     def evaluate(self, metadata: TrustMetadata | None, effect: AuthorityEffect) -> TrustDecision:
         if effect is AuthorityEffect.INSPECT_DATA:
             if metadata is None:
-                return TrustDecision(effect, True, "Unlabelled content may be inspected only as data.")
-            return TrustDecision(effect, True, f"{metadata.origin.value} content remains inspectable as {metadata.authority.value}.")
+                return TrustDecision(
+                    effect,
+                    True,
+                    "Unlabelled content may be inspected only as data.",
+                )
+            reason = (
+                f"{metadata.origin.value} content remains inspectable "
+                f"as {metadata.authority.value}."
+            )
+            return TrustDecision(effect, True, reason)
         if metadata is None:
             return TrustDecision(effect, False, "Missing trust provenance fails closed.")
         if metadata.origin is TrustOrigin.UNKNOWN or metadata.level is TrustLevel.UNKNOWN:
-            return TrustDecision(effect, False, "Unknown trust provenance cannot authorize privileged effects.")
+            return TrustDecision(
+                effect,
+                False,
+                "Unknown trust provenance cannot authorize privileged effects.",
+            )
         if metadata.authority is ContentAuthority.DATA_ONLY:
             return TrustDecision(effect, False, "Data-only content cannot acquire authority.")
         if effect in self._SYSTEM_ONLY:
-            allowed = metadata.origin is TrustOrigin.SYSTEM and metadata.authority is ContentAuthority.POLICY
-            return TrustDecision(effect, allowed, "System policy authority verified." if allowed else "System policy authority required.")
+            allowed = (
+                metadata.origin is TrustOrigin.SYSTEM
+                and metadata.authority is ContentAuthority.POLICY
+            )
+            reason = (
+                "System policy authority verified."
+                if allowed
+                else "System policy authority required."
+            )
+            return TrustDecision(effect, allowed, reason)
         if effect in self._USER_OR_SYSTEM:
             allowed = metadata.origin in {TrustOrigin.SYSTEM, TrustOrigin.USER}
-            return TrustDecision(effect, allowed, "Explicit user/system authority verified." if allowed else "Explicit user/system authority required.")
+            reason = (
+                "Explicit user/system authority verified."
+                if allowed
+                else "Explicit user/system authority required."
+            )
+            return TrustDecision(effect, allowed, reason)
         return TrustDecision(effect, False, "Unknown authority effect fails closed.")
 
 

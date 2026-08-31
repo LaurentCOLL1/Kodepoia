@@ -38,9 +38,19 @@ Rejected and non-authoritative. Dedicated run `33353360083` proved exact checkou
 
 Both defects were corrected on the branch. No PASS claim is derived from this rejected candidate.
 
+### `214f2f2b80c5ee21fb792af05a9a64805cc2ce71`
+
+Rejected and non-authoritative. Dedicated run `33353591840` passed compilation and Ruff, then reached the executable R15.9 training contract and correctly rejected the invented fixture authorization token. The scenario now reuses the exact repository-owned R15.9 fixture authorization `repository-owned-r15.9-fixture`.
+
+### focused preflight after the R15.9 correction
+
+Temporary helper run `33353846658` captured the next failure rather than hiding it. All seven focused tests reached the same root cause: the scenario had executed all fourteen checks but compared dictionary insertion order with the canonical check order. The guard was corrected to validate exact set/cardinality and then normalize the evidence dictionary explicitly according to `CHECK_NAMES` before semantic hashing.
+
+Temporary helper run `33353909274` then passed Ruff and all seven focused R15.17 tests before creating functional commit `f6001d70635da4d7f1510c0ed022122c0f741b43`. The helper and its temporary diagnostic file were removed immediately afterwards. This is preflight evidence only; it is not the authoritative R15.17 technical acceptance.
+
 ## Current candidate policy
 
-The next connector-authored commit after removal of all temporary patch helpers is the next candidate to evaluate. Its status remains `IN_PROGRESS` until GitHub Actions demonstrates the required exact-source gates. Any subsequent code or evidence change creates a new candidate SHA and invalidates earlier candidate success for closure purposes.
+The connector-authored commit containing this record, after removal of every temporary helper and diagnostic file, is the next exact candidate to evaluate. Its status remains `IN_PROGRESS` until GitHub Actions demonstrates the dedicated Ubuntu and Windows integrated gates on that exact SHA. Any subsequent code or evidence change creates a new candidate SHA and invalidates earlier candidate success for closure purposes.
 
 ## Closure boundary
 

@@ -1,0 +1,54 @@
+name: R15.17 Temporary Training Fixture Fix
+
+on:
+  push:
+    branches:
+      - 'r15/17-adversarial-integrated-acceptance'
+    paths:
+      - '.github/workflows/r15-17-training-fixture-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix-and-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r15/17-adversarial-integrated-acceptance
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply exact R15.9 fixture authorization
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/kodepoia/tuning/integrated_acceptance.py')
+          text = path.read_text(encoding='utf-8')
+          old = 'fixture_authorization="repository-owned-r15.17-fixture"'
+          new = 'fixture_authorization="repository-owned-r15.9-fixture"'
+          if text.count(old) != 1:
+              raise SystemExit('expected exactly one R15.17 fixture authorization')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+          python -m pip install -e '.[dev]'
+          python -m ruff check src/kodepoia/tuning/integrated_acceptance.py scripts/r15_17_integrated_acceptance.py tests/test_r15_17_integrated_acceptance.py
+          python -m pytest -q tests/test_r15_17_integrated_acceptance.py
+          git diff --check
+
+      - name: Commit only after focused acceptance passes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/kodepoia/tuning/integrated_acceptance.py
+          git commit -m 'R15.17 bind fixture training to R15.9 authorization'
+          git push origin HEAD:r15/17-adversarial-integrated-acceptance

@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED on `main` `fcb8d3c532949ce8e8d728e6bb1171e7132af342`. R16.1 is IN_PROGRESS on dedicated branch `r16/01-threat-model-red-team-harness` from that exact normalized main; R16.2–R16.18 remain PLANNED. R16.2 is not authorized before R16.1 is COMPLETE + NORMALIZED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED on `main` `fcb8d3c532949ce8e8d728e6bb1171e7132af342`. R16.1 is COMPLETE on `r16/01-threat-model-red-team-harness` with immutable technical source `c2fd7d63af9bea5a11d357ae324df214c1651c39` and exact-head technical acceptance recorded below; post-merge continuity normalization is pending. R16.2–R16.18 remain PLANNED and R16.2 is not authorized before R16.1 is COMPLETE + NORMALIZED.
 
 ## Purpose and authority
 
@@ -167,7 +167,7 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 
 | ID | Title | Status | Manual |
 | --- | --- | --- | --- |
-| R16.1 | Threat model, adversarial corpus and red-team harness | IN_PROGRESS | NONE |
+| R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE | NONE |
 | R16.2 | Prompt-injection and untrusted-content hardening | PLANNED | NONE |
 | R16.3 | Malicious repository/workspace quarantine and safe bootstrap | PLANNED | NONE |
 | R16.4 | Secrets, privacy and exfiltration hardening | PLANNED | NONE |
@@ -242,6 +242,15 @@ False confidence from incomplete cases; unsafe fixture design; accidental secret
 ## Manual intervention
 
 **NONE.** Synthetic fixtures are authoritative.
+
+## R16.1 END acceptance authority
+
+- Normalized branch point: `main` `fcb8d3c532949ce8e8d728e6bb1171e7132af342`; clean START `e7b29e354610cef652b36f54f976010f18ab9c9b`; immutable technical source `c2fd7d63af9bea5a11d357ae324df214c1651c39`.
+- Technical-source gates: R16.1 #3 / `33426065776` SUCCESS Ubuntu + Windows; R0 #2260 / `33426065732` SUCCESS Ubuntu + Windows; Python Core #2232 / `33426065658` SUCCESS 5/5; UI Smoke #2197 / `33426065644` SUCCESS.
+- Semantic evidence identical cross-platform: acceptance `2b26d7095d0a89322c4ae3286f47b8bf420347a934ce03b98898b0a23db17c5f`; baseline `b8c75cf586b92be1767052e0607ecd9252f665b8f0b1d3427182590bf2470179`; negative control `6934fd90e7da7ce953c235f883c38ae724afefeb185d0ed48099bda2dbe68063`; corpus `faa7f8bafa48438351a7435c3a55946f0a42ab8695540935a070865659189a51`; case-set `8aca9cb7fd1f3cfe5445bebaee48569f7dbb21a63ca35567dc636a84f9c22963`; policy `bf9fc7cea89a07ed003829bef1d6e1d0de7670b217f9b3a2c96bbc9f0724139e`.
+- Coverage is 14 critical boundaries / 28 immutable synthetic cases, one benign + one adversarial per boundary. Baseline is mutation-free with `security_claim=false`; negative control is FAIL with `critical_veto=true`; `secrets_exposed=false`; manual NONE.
+- Technical-source artifacts: Linux `9770791161` archive SHA-256 `afdcfbbe1484423dd296663e2124577a5a944858c5df1d6c82159e4717c82c76`; Windows `9770836165` archive SHA-256 `95e63820eb9549b6a6c0d08ec550491acd80b825751b3bf2fa7868f7c447b895`.
+- R16.1 is COMPLETE at END-sync. Fresh exact-END R16.1/R0/Python/UI re-gates are mandatory before protected merge; R16.2 remains PLANNED until post-merge normalization.
 
 ---
 

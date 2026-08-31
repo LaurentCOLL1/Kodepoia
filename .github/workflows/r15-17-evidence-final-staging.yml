@@ -53,7 +53,47 @@ jobs:
           new = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED and R15.17 is COMPLETE on immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`. R15 implementation/evidence closure is ready for protected merge; R16 planning is authorized only after PR #330 merges and the unique post-merge R15 phase continuity-only normalization succeeds and merges.'
           if old not in text:
               raise SystemExit('stale R15 execution checkpoint not found')
-          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          text = text.replace(old, new, 1)
+
+          def fill_pending_completion(source: str, index: int, next_index: int, lines: list[str]) -> str:
+              section = source.index(f'# R15.{index} —')
+              next_section = source.index(f'# R15.{next_index} —', section)
+              completion = source.index('## Completion record', section, next_section)
+              divider = source.index('\n---\n', completion, next_section)
+              current = source[completion:divider]
+              if 'To be appended when accepted.' not in current:
+                  return source
+              return source[:completion] + '\n'.join(lines) + source[divider:]
+
+          text = fill_pending_completion(text, 11, 12, [
+              '## Completion record',
+              '',
+              '**COMPLETE — accepted and normalized; historical completion authority repaired during R15.17 closure from already accepted exact-head evidence.**',
+              '',
+              '- clean START / normalized R15.10 `main`: `76b1a2b98676376bf917b7fac4cb68bb3d34b2fb`;',
+              '- immutable technical source: `6f49a72918d4ddb4ae4d779e85513ae721688c49`;',
+              '- final exact END-head: `9a351386f9cebffb0458c99da3e02705bfefcd7a`;',
+              '- exact-END R15.11 #8 / `33321151927`: SUCCESS Ubuntu + Windows; R0 #2174 / `33321151973`: SUCCESS Ubuntu + Windows; Python Core #2149 / `33321151901`: SUCCESS; KodeStudio UI Smoke #2114 / `33321151869`: SUCCESS;',
+              '- PR #317 merged with `expected_head_sha=9a351386f9cebffb0458c99da3e02705bfefcd7a` as implementation/evidence `main` `43c33064935d1323a1993eae64b2c3a4385f1e36`;',
+              '- the unique post-merge normalization produced normalized R15.11 `main` `3f931e4f5baa664fcea53c445846200bcf3b5bfd`, which is the recorded R15.12 branch point;',
+              '- export remains restricted to R15.10 `PROMOTE_TO_EXPORT`, exact base/revision/adapter/dataset/training/evaluation lineage, immutable Safetensors/model-card manifests, source-weight immutability and adapter-only fallback when merge is unsupported;',
+              '- manual state: `NONE`.',
+          ])
+          text = fill_pending_completion(text, 12, 13, [
+              '## Completion record',
+              '',
+              '**COMPLETE — accepted and normalized; historical completion authority repaired during R15.17 closure from already accepted exact-head evidence.**',
+              '',
+              '- clean START / normalized R15.11 `main`: `3f931e4f5baa664fcea53c445846200bcf3b5bfd`;',
+              '- immutable technical source: `3841c6082437693a6b8f8661354451b677867ce8`;',
+              '- final exact END-head: `3319089a1298f3e7d26e67073102d913d4d07f47`;',
+              '- exact-END R15.12 #10 / `33323150172`: SUCCESS Ubuntu + Windows; R0 #2178 / `33323150197`: SUCCESS Ubuntu + Windows; Python Core #2153 / `33323150120`: SUCCESS; KodeStudio UI Smoke #2118 / `33323150243`: SUCCESS;',
+              '- PR #319 merged with `expected_head_sha=3319089a1298f3e7d26e67073102d913d4d07f47` as implementation/evidence `main` `6c2b3b2c2c4943e3425601c92edd2dd05a7e4412`;',
+              '- the unique post-merge normalization produced normalized R15.12 `main` `ca625d51808de6c1f9c950faecc2aa785e7a757d`, which is the recorded R15.13 branch point;',
+              '- GGUF validation, exact source/export/evaluation lineage, structured converter/quantizer argv, high-precision-source preference, explicit requantization refusal, artifact budgets/hashes, optional importance-matrix binding and aggregate/critical quality veto remain authoritative;',
+              '- manual state: `CONDITIONAL / NOT TRIGGERED`; real large-model conversion was not required for core acceptance.',
+          ])
+          path.write_text(text, encoding='utf-8')
           PY
 
       - name: Materialize exact-source scenario evidence

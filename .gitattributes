@@ -9,6 +9,12 @@
 tests/fixtures/comfyui/*.json text eol=lf
 docs/roadmap/*_LOCAL_ACCEPTANCE.json text eol=lf
 
+# R15.17 canonical integrated evidence is byte-bound to repository blobs.
+# Keep these sources LF on Windows so exact SHA-256 bindings are checkout-invariant.
+docs/roadmap/R14_INTEGRATED_ACCEPTANCE.json text eol=lf
+docs/roadmap/R15*.md text eol=lf
+docs/roadmap/R15*.json text eol=lf
+
 # Git LFS — heavy/non-mergeable source assets
 *.blend filter=lfs diff=lfs merge=lfs -text
 *.fbx filter=lfs diff=lfs merge=lfs -text

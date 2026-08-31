@@ -1,0 +1,46 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": 9765260200,
+      "kind": "integrated_scenario",
+      "name": "R15_17_INTEGRATED_SCENARIO-125d40a23a0c6b40e449340e593dc0bcb342c421",
+      "run_name": "R15 Integrated Acceptance",
+      "sha256": "16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772"
+    }
+  ],
+  "blockers": [],
+  "evidence_sha256": "6b2d683434940eb3094051581ae03613a7db1b26d61747027a0c11798de7bd61",
+  "generated_at": "2026-08-31T16:51:51.739158Z",
+  "manual_state": "conditional_not_triggered",
+  "optional_capability_state": "unavailable",
+  "runs": [
+    {
+      "conclusion": "success",
+      "name": "R0 Repository Guard",
+      "run_id": 33411377234,
+      "run_number": 2231
+    },
+    {
+      "conclusion": "success",
+      "name": "Python Core",
+      "run_id": 33411377186,
+      "run_number": 2206
+    },
+    {
+      "conclusion": "success",
+      "name": "KodeStudio UI Smoke",
+      "run_id": 33411377227,
+      "run_number": 2171
+    },
+    {
+      "conclusion": "success",
+      "name": "R15 Integrated Acceptance",
+      "run_id": 33411377302,
+      "run_number": 21
+    }
+  ],
+  "schema_version": 1,
+  "secrets_exposed": false,
+  "source_sha": "125d40a23a0c6b40e449340e593dc0bcb342c421",
+  "status": "pass"
+}

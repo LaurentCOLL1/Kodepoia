@@ -2,11 +2,11 @@
 
 **Phase:** R15  
 **Roadmap title:** Experience / Bench / Fine-tuning  
-**Status:** ACTIVE
+**Status:** COMPLETE
 **Phase planning started:** 2026-08-29  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `3f10bc62059e120d5ff467d00e39a0a7f9219cb9`  
-**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.15 are COMPLETE + NORMALIZED. R15.16 is COMPLETE on immutable technical source `d492bfe53dd805aadcfa14193a2cf4fba1711276` from normalized R15.15 `main` `01f91fd4b56ed2a02151b46d70502b734c771e7f`; its documentary END-sync candidate must receive fresh exact-head R15.16 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before protected merge, after which the unique continuity-only normalization remains mandatory. R15.17 remains PLANNED and unauthorized.
+**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED and R15.17 is COMPLETE on immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`. R15 implementation/evidence closure is ready for protected merge; R16 planning is authorized only after PR #330 merges and the unique post-merge R15 phase continuity-only normalization succeeds and merges.
 
 ## Purpose and authority
 
@@ -289,8 +289,8 @@ Before R15.1 implementation:
 | R15.13 | Ollama import/Modelfile packaging, base-binding + local runtime verification | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.10–R15.12 + R3 |
 | R15.14 | Specialized-model registry, promotion/rollback + ModelRouter compatibility | COMPLETE + NORMALIZED | NONE | R15.10–R15.13 + R3/R8 |
 | R15.15 | CLI + KodeStudio Experience/Bench/Tune UX, dry-run/status/evidence workflows | COMPLETE + NORMALIZED | NONE | R15.1–R15.14 |
-| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | COMPLETE | CONDITIONAL / NOT TRIGGERED | R15.1–R15.15 |
-| R15.17 | Adversarial integrated Experience/Bench/Fine-tuning acceptance | PLANNED | CONDITIONAL | R15.1–R15.16 |
+| R15.16 | Hardware-local end-to-end qualification + reproducibility/resource acceptance | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R15.1–R15.15 |
+| R15.17 | Adversarial integrated Experience/Bench/Fine-tuning acceptance | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED | R15.1–R15.16 |
 
 ---
 
@@ -992,8 +992,16 @@ Merging into wrong base revision; tokenizer/template omitted; license metadata l
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — accepted and normalized; historical completion authority repaired during R15.17 closure from already accepted exact-head evidence.**
 
+- clean START / normalized R15.10 `main`: `76b1a2b98676376bf917b7fac4cb68bb3d34b2fb`;
+- immutable technical source: `6f49a72918d4ddb4ae4d779e85513ae721688c49`;
+- final exact END-head: `9a351386f9cebffb0458c99da3e02705bfefcd7a`;
+- exact-END R15.11 #8 / `33321151927`: SUCCESS Ubuntu + Windows; R0 #2174 / `33321151973`: SUCCESS Ubuntu + Windows; Python Core #2149 / `33321151901`: SUCCESS; KodeStudio UI Smoke #2114 / `33321151869`: SUCCESS;
+- PR #317 merged with `expected_head_sha=9a351386f9cebffb0458c99da3e02705bfefcd7a` as implementation/evidence `main` `43c33064935d1323a1993eae64b2c3a4385f1e36`;
+- the unique post-merge normalization produced normalized R15.11 `main` `3f931e4f5baa664fcea53c445846200bcf3b5bfd`, which is the recorded R15.12 branch point;
+- export remains restricted to R15.10 `PROMOTE_TO_EXPORT`, exact base/revision/adapter/dataset/training/evaluation lineage, immutable Safetensors/model-card manifests, source-weight immutability and adapter-only fallback when merge is unsupported;
+- manual state: `NONE`.
 ---
 
 # R15.12 — GGUF conversion + quantization matrix, quality-loss measurement + artifact validation
@@ -1046,8 +1054,16 @@ Architecture unsupported by converter; quant quality collapse; tokenizer/templat
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — accepted and normalized; historical completion authority repaired during R15.17 closure from already accepted exact-head evidence.**
 
+- clean START / normalized R15.11 `main`: `3f931e4f5baa664fcea53c445846200bcf3b5bfd`;
+- immutable technical source: `3841c6082437693a6b8f8661354451b677867ce8`;
+- final exact END-head: `3319089a1298f3e7d26e67073102d913d4d07f47`;
+- exact-END R15.12 #10 / `33323150172`: SUCCESS Ubuntu + Windows; R0 #2178 / `33323150197`: SUCCESS Ubuntu + Windows; Python Core #2153 / `33323150120`: SUCCESS; KodeStudio UI Smoke #2118 / `33323150243`: SUCCESS;
+- PR #319 merged with `expected_head_sha=3319089a1298f3e7d26e67073102d913d4d07f47` as implementation/evidence `main` `6c2b3b2c2c4943e3425601c92edd2dd05a7e4412`;
+- the unique post-merge normalization produced normalized R15.12 `main` `ca625d51808de6c1f9c950faecc2aa785e7a757d`, which is the recorded R15.13 branch point;
+- GGUF validation, exact source/export/evaluation lineage, structured converter/quantizer argv, high-precision-source preference, explicit requantization refusal, artifact budgets/hashes, optional importance-matrix binding and aggregate/critical quality veto remain authoritative;
+- manual state: `CONDITIONAL / NOT TRIGGERED`; real large-model conversion was not required for core acceptance.
 ---
 
 # R15.13 — Ollama import/Modelfile packaging, base-binding + local runtime verification
@@ -1323,7 +1339,8 @@ Hardware support changing between ROCm/PyTorch/bitsandbytes versions; Windows-vs
 - current phase evidence does not require a real target-workstation training/conversion/promotion claim, so the conditional manual gate remains `CONDITIONAL / NOT TRIGGERED`; no user-side GPU command, credential, driver installation or destructive system action is required for this technical acceptance;
 - current external compatibility evidence remains advisory only: availability of a bitsandbytes ROCm wheel target does not override the actual PyTorch/HIP/device operation probe or vendor support state;
 - this END synchronization changes documentary authority only. Its exact resulting PR head MUST receive fresh R15.16 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke evidence before merge with `expected_head_sha`;
-- exactly one continuity-only post-merge normalization with fresh R0/Python/UI remains mandatory before R15.17 START-sync is authorized.
+- unique continuity-only normalization head `f8b83089df9d89c5ca69a15f340190863108445a` passed R0 #2222 / `33338144362` SUCCESS Ubuntu + Windows, Python Core #2197 / `33338144262` SUCCESS 5/5 and KodeStudio UI Smoke #2162 / `33338144365` SUCCESS; normalization PR #329 merged with exact expected-head protection as normalized `main` `eb7ba3e01af9d96e0a49abfb20424e83261c2b14`;
+- R15.16 is therefore COMPLETE + NORMALIZED; manual state remains `CONDITIONAL / NOT TRIGGERED`, and R15.17 START-sync is authorized only from that exact normalized `main`.
 
 ---
 
@@ -1396,8 +1413,20 @@ Circular evidence; contamination hidden by synthetic scores; optional external t
 
 ## Completion record
 
-To be appended when accepted.
+**COMPLETE — immutable technical source accepted; canonical evidence and protected merge remain before the unique phase normalization.**
 
+- authorized normalized R15.16 base / branch point: `eb7ba3e01af9d96e0a49abfb20424e83261c2b14`;
+- dedicated branch: `r15/17-adversarial-integrated-acceptance`;
+- immutable technical source: `125d40a23a0c6b40e449340e593dc0bcb342c421`;
+- exact-source R15 Integrated Acceptance #21 / `33411377302`: SUCCESS on Ubuntu 24.04 + Windows 2025 with the exact fourteen adversarial invariants, canonical JSON round-trip validation, schema validation and semantic digest recomputation;
+- exact-source R0 Repository Guard #2231 / `33411377234`: SUCCESS; Python Core #2206 / `33411377186`: SUCCESS; KodeStudio UI Smoke #2171 / `33411377227`: SUCCESS;
+- canonical exact-source scenario artifact: `9765260200`, `R15_17_INTEGRATED_SCENARIO-125d40a23a0c6b40e449340e593dc0bcb342c421`, archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772`; scenario semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`;
+- scenario result is blocker-free `pass`, all 14 checks are true, eight dataset/benchmark/model/training/export/quantization identities are SHA-256-bound, secrets are not exposed and optional local capability remains truthfully `unavailable`;
+- manual state remains `CONDITIONAL / NOT TRIGGERED`: R15.16 did not require real target-workstation promotion evidence, so no user-side GPU/llama.cpp/Ollama action is required for core phase closure;
+- rejected and diagnostic candidates recorded in `R15_17_ACCEPTANCE.md` remain non-authoritative; no earlier PASS is reused as closure authority;
+- `docs/roadmap/R15_17_SCENARIO_EVIDENCE.json`, `R15_17_CI_ACCEPTANCE.json` and `R15_INTEGRATED_ACCEPTANCE.json` must now be materialized from this exact technical source and its successful independent gates without changing this frozen completion record;
+- after canonical evidence/acceptance/continuity END synchronization, the exact resulting END-head MUST receive fresh R15 Integrated Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke before PR #330 may merge with `expected_head_sha`;
+- after implementation/evidence merge, exactly one continuity-only R15 phase normalization with fresh exact-head R0/Python/UI and exact expected-head merge is mandatory before R16 planning is authorized.
 ---
 
 ## Phase completion rule

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from kodepoia.tuning.integrated_evidence import (
@@ -41,7 +41,7 @@ def main() -> int:
 
     report = build_repository_report(
         source_sha=args.source_sha,
-        generated_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         read_bytes=read_bytes,
     )
     validate_repository_evidence(report, read_bytes)

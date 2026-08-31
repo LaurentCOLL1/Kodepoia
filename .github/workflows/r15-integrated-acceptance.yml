@@ -135,6 +135,33 @@ jobs:
           assert evidence['secrets_exposed'] is False
           PY
 
+      - name: Validate checked-in canonical repository report
+        if: ${{ hashFiles('docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json') != '' }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from kodepoia.tuning.integrated_evidence import IntegratedReport, validate_repository_evidence
+
+          root = Path('.').resolve()
+
+          def read_bytes(source: str) -> bytes:
+              candidate = (root / source).resolve()
+              if candidate == root or root not in candidate.parents:
+                  raise ValueError(f'repository source escapes root: {source}')
+              if not candidate.is_file() or candidate.is_symlink():
+                  raise ValueError(f'invalid repository evidence source: {source}')
+              return candidate.read_bytes()
+
+          report = IntegratedReport.from_dict(
+              json.loads(Path('docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json').read_text(encoding='utf-8'))
+          )
+          validate_repository_evidence(report, read_bytes)
+          assert report.status == 'pass'
+          assert report.blockers == ()
+          PY
+
       - name: Upload integrated scenario evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -213,3 +240,31 @@ jobs:
           assert all(evidence['checks'].values())
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'R15.17 Windows evidence validation failed' }
+
+      - name: Validate checked-in canonical repository report
+        if: ${{ hashFiles('docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json') != '' }}
+        shell: pwsh
+        run: |
+          @'
+          import json
+          from pathlib import Path
+          from kodepoia.tuning.integrated_evidence import IntegratedReport, validate_repository_evidence
+
+          root = Path('.').resolve()
+
+          def read_bytes(source: str) -> bytes:
+              candidate = (root / source).resolve()
+              if candidate == root or root not in candidate.parents:
+                  raise ValueError(f'repository source escapes root: {source}')
+              if not candidate.is_file() or candidate.is_symlink():
+                  raise ValueError(f'invalid repository evidence source: {source}')
+              return candidate.read_bytes()
+
+          report = IntegratedReport.from_dict(
+              json.loads(Path('docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json').read_text(encoding='utf-8'))
+          )
+          validate_repository_evidence(report, read_bytes)
+          assert report.status == 'pass'
+          assert report.blockers == ()
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'R15 canonical repository report validation failed' }

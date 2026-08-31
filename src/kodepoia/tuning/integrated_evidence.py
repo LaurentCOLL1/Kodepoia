@@ -3,9 +3,9 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import PurePosixPath
-from typing import Callable, Iterable
 
 from kodepoia.tuning.integrated_acceptance import (
     canonical_sha256,
@@ -71,7 +71,7 @@ class EvidenceBinding:
         return {"source": self.source, "sha256": self.sha256, "bytes": self.bytes}
 
     @classmethod
-    def from_dict(cls, raw: object) -> "EvidenceBinding":
+    def from_dict(cls, raw: object) -> EvidenceBinding:
         if not isinstance(raw, dict) or set(raw) != {"source", "sha256", "bytes"}:
             raise ValueError("evidence binding has invalid keys")
         return cls(str(raw["source"]), str(raw["sha256"]), int(raw["bytes"]))
@@ -103,7 +103,7 @@ class WorkflowRunBinding:
         }
 
     @classmethod
-    def from_dict(cls, raw: object) -> "WorkflowRunBinding":
+    def from_dict(cls, raw: object) -> WorkflowRunBinding:
         required = {"name", "run_id", "run_number", "conclusion"}
         if not isinstance(raw, dict) or set(raw) != required:
             raise ValueError("workflow run binding has invalid keys")
@@ -128,7 +128,11 @@ class WorkflowArtifactBinding:
             raise ValueError("unexpected R15.17 artifact kind")
         if self.run_name != "R15 Integrated Acceptance":
             raise ValueError("integrated scenario artifact must come from R15 Integrated Acceptance")
-        if not isinstance(self.artifact_id, int) or isinstance(self.artifact_id, bool) or self.artifact_id <= 0:
+        if (
+            not isinstance(self.artifact_id, int)
+            or isinstance(self.artifact_id, bool)
+            or self.artifact_id <= 0
+        ):
             raise ValueError("artifact_id must be positive")
         if not isinstance(self.name, str) or not self.name.strip() or "\x00" in self.name:
             raise ValueError("artifact name is required")
@@ -144,7 +148,7 @@ class WorkflowArtifactBinding:
         }
 
     @classmethod
-    def from_dict(cls, raw: object) -> "WorkflowArtifactBinding":
+    def from_dict(cls, raw: object) -> WorkflowArtifactBinding:
         required = {"kind", "run_name", "artifact_id", "name", "sha256"}
         if not isinstance(raw, dict) or set(raw) != required:
             raise ValueError("workflow artifact binding has invalid keys")
@@ -217,7 +221,7 @@ class IntegratedCIEvidence:
         return {**self.payload_without_digest(), "evidence_sha256": self.evidence_sha256}
 
     @classmethod
-    def from_dict(cls, raw: object) -> "IntegratedCIEvidence":
+    def from_dict(cls, raw: object) -> IntegratedCIEvidence:
         required = {
             "schema_version",
             "generated_at",
@@ -236,7 +240,11 @@ class IntegratedCIEvidence:
         runs_raw = raw["runs"]
         artifacts_raw = raw["artifacts"]
         blockers_raw = raw["blockers"]
-        if not isinstance(runs_raw, list) or not isinstance(artifacts_raw, list) or not isinstance(blockers_raw, list):
+        if (
+            not isinstance(runs_raw, list)
+            or not isinstance(artifacts_raw, list)
+            or not isinstance(blockers_raw, list)
+        ):
             raise ValueError("R15.17 CI evidence arrays are invalid")
         if not isinstance(raw["secrets_exposed"], bool):
             raise ValueError("R15.17 CI secrets_exposed must be boolean")
@@ -321,7 +329,7 @@ class IntegratedReport:
         return {**self.payload_without_digest(), "evidence_sha256": self.evidence_sha256}
 
     @classmethod
-    def from_dict(cls, raw: object) -> "IntegratedReport":
+    def from_dict(cls, raw: object) -> IntegratedReport:
         required = {
             "schema_version",
             "generated_at",

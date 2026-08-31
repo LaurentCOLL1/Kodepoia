@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from kodepoia.tuning.integrated_evidence import (
@@ -59,7 +59,7 @@ def main() -> int:
 
     evidence = build_ci_evidence(
         source_sha=args.source_sha,
-        generated_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         runs=runs,
         artifacts=artifacts,
     )

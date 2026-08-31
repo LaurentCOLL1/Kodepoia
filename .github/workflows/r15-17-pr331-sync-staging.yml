@@ -1,0 +1,52 @@
+name: R15.17 PR331 Sync Staging
+
+on:
+  push:
+    branches:
+      - 'r15/17-final-acceptance'
+    paths:
+      - '.github/workflows/r15-17-pr331-sync-staging.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync-pr-authority:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact staging head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Replace stale PR authority only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          paths = [Path('docs/roadmap/R15_PLAN.md'), Path('docs/continuity/KODEPOIA_CONTINUITY.md')]
+          total = 0
+          for path in paths:
+              text = path.read_text(encoding='utf-8')
+              count = text.count('PR #330')
+              if count == 0:
+                  raise SystemExit(f'no stale PR #330 reference in {path}')
+              total += count
+              path.write_text(text.replace('PR #330', 'PR #331'), encoding='utf-8')
+          if total != 5:
+              raise SystemExit(f'unexpected stale reference count: {total}')
+          PY
+          git diff --check
+          git diff --name-only | sort > /tmp/actual
+          printf '%s\n' docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R15_PLAN.md | sort > /tmp/expected
+          diff -u /tmp/expected /tmp/actual
+      - name: Commit synchronized PR authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/roadmap/R15_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git commit -m 'R15.17 synchronize final protected PR authority'
+          git push origin HEAD:r15/17-final-acceptance

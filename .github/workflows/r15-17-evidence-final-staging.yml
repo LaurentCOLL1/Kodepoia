@@ -1,0 +1,184 @@
+name: R15.17 Final Evidence Staging
+
+on:
+  push:
+    branches:
+      - 'r15/17-adversarial-integrated-acceptance'
+    paths:
+      - '.github/workflows/r15-17-evidence-final-staging.yml'
+
+permissions:
+  contents: write
+
+env:
+  TECHNICAL_SOURCE: 125d40a23a0c6b40e449340e593dc0bcb342c421
+  PLAN_BASE: 0722d05ca231913cae64e3fa4b332e8206218a80
+
+jobs:
+  materialize-final-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact staging commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Assert staging provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "$PLAN_BASE"
+          test "$(git diff --name-only "$PLAN_BASE"..HEAD)" = ".github/workflows/r15-17-evidence-final-staging.yml"
+          test "$(git diff --name-only "$TECHNICAL_SOURCE".."$PLAN_BASE")" = "docs/roadmap/R15_PLAN.md"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install evidence dependencies
+        run: python -m pip install -e '.[dev]'
+
+      - name: Synchronize final phase plan state
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('docs/roadmap/R15_PLAN.md')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace('**Status:** ACTIVE', '**Status:** COMPLETE', 1)
+          old_prefix = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED. R15.17 is IN_PROGRESS from normalized R15.16 `main` `eb7ba3e01af9d96e0a49abfb20424e83261c2b14` on dedicated branch `r15/17-adversarial-integrated-acceptance`. R16 planning remains unauthorized until R15.17 implementation/evidence merge and the unique post-merge R15 phase continuity-only normalization both complete.'
+          new_prefix = '**Execution checkpoint:** R1–R14 are COMPLETE + NORMALIZED; R15 planning is ACCEPTED + NORMALIZED. R15.1–R15.16 are COMPLETE + NORMALIZED and R15.17 is COMPLETE on immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`. R15 implementation/evidence closure is ready for protected merge; R16 planning is authorized only after PR #330 merges and the unique post-merge R15 phase continuity-only normalization succeeds and merges.'
+          if old_prefix not in text:
+              raise SystemExit('stale R15 execution checkpoint not found')
+          text = text.replace(old_prefix, new_prefix, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Materialize exact-source scenario evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > docs/roadmap/R15_17_SCENARIO_EVIDENCE.json <<'JSON'
+          {"blockers":[],"check_count":14,"checks":{"benchmark_holdout_training_firewall":true,"critical_regression_veto":true,"duplicate_groups_do_not_cross_splits":true,"mixed_identity_evidence_rejected":true,"optional_capability_truthful_unavailable":true,"qlora_resume_lineage_mismatch_rejected":true,"quantization_quality_loss_rejected":true,"rejected_promotion_and_exact_rollback":true,"revocation_invalidates_dependent_lineage":true,"secret_private_fixture_not_emitted":true,"system_defect_yields_fix_system_first":true,"unknown_disallowed_license_blocked":true,"unvalidated_unopted_experience_blocked":true,"wrong_base_export_ollama_rejected":true},"identities":{"adapter":"8d55c59c1d36d440c95196a35b3beb2a2d96137acf79d715e5817352cf7660a4","base_model":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","benchmark_protection":"5555555555555555555555555555555555555555555555555555555555555555","benchmark_suite":"1ed6cc5a7db8d3db954a811b6060bed4a2a91d65fb674d9f7225514b75f738b6","dataset":"0bea18d2885e75de5e6d4f040ead8bfa47b3bd5bd3988db12678dcbc3826416d","evaluation_binding":"20b2bf6870c98e5880ed84e5146693aa8c9623af1c806eb426b78fc83e85b857","quantization_policy":"d3c72a65427d4cada416df77490034d98d8c9bc14b79d35040576424097ff649","training_plan":"a7db2c8b1349fa4ee85f93e38083050178a24e398d69d3d1f74c763f92b2b639"},"manual_state":"conditional_not_triggered","optional_capability_state":"unavailable","schema":"kodepoia.r15.integrated-acceptance","schema_version":1,"secrets_exposed":false,"semantic_digest":"58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c","source_sha":"125d40a23a0c6b40e449340e593dc0bcb342c421","status":"pass"}
+          JSON
+          test "$(sha256sum docs/roadmap/R15_17_SCENARIO_EVIDENCE.json | cut -d' ' -f1)" = "1a4a882aaad5c36ae2d5618e02d55a25b9845118e61a4c386598e57494efa74c"
+
+      - name: Build exact-source CI authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/r15_17_build_ci_evidence.py \
+            --source-sha "$TECHNICAL_SOURCE" \
+            --run 'R0 Repository Guard|33411377234|2231' \
+            --run 'Python Core|33411377186|2206' \
+            --run 'KodeStudio UI Smoke|33411377227|2171' \
+            --run 'R15 Integrated Acceptance|33411377302|21' \
+            --artifact "integrated_scenario|R15 Integrated Acceptance|9765260200|R15_17_INTEGRATED_SCENARIO-$TECHNICAL_SOURCE|16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772"
+
+      - name: Build and validate canonical R15 report
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/r15_17_build_integrated_report.py --source-sha "$TECHNICAL_SOURCE"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from kodepoia.tuning.integrated_evidence import IntegratedReport, validate_repository_evidence
+          root = Path('.').resolve()
+          def read_bytes(source: str) -> bytes:
+              candidate = (root / source).resolve()
+              if candidate == root or root not in candidate.parents or not candidate.is_file() or candidate.is_symlink():
+                  raise ValueError(source)
+              return candidate.read_bytes()
+          report = IntegratedReport.from_dict(json.loads(Path('docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json').read_text(encoding='utf-8')))
+          validate_repository_evidence(report, read_bytes)
+          assert report.source_sha == '125d40a23a0c6b40e449340e593dc0bcb342c421'
+          assert report.status == 'pass' and report.blockers == ()
+          assert report.manual_state == 'conditional_not_triggered'
+          assert report.optional_capability_state == 'unavailable'
+          print('integrated_digest=' + report.evidence_sha256)
+          PY
+
+      - name: Synchronize acceptance and continuity with canonical digests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          ci = json.loads(Path('docs/roadmap/R15_17_CI_ACCEPTANCE.json').read_text(encoding='utf-8'))
+          report = json.loads(Path('docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json').read_text(encoding='utf-8'))
+          ci_digest = ci['evidence_sha256']
+          integrated_digest = report['evidence_sha256']
+
+          acceptance = Path('docs/roadmap/R15_17_ACCEPTANCE.md')
+          text = acceptance.read_text(encoding='utf-8')
+          text = text.replace('## Status\n\n`IN_PROGRESS`', '## Status\n\n`COMPLETE`', 1)
+          start = text.index('## Current candidate policy')
+          end = text.index('## Closure boundary', start)
+          block = f'''## Accepted exact-source authority
+
+- immutable technical source: `125d40a23a0c6b40e449340e593dc0bcb342c421`;
+- R15 Integrated Acceptance #21 / `33411377302`: SUCCESS Ubuntu + Windows;
+- R0 Repository Guard #2231 / `33411377234`: SUCCESS Ubuntu + Windows;
+- Python Core #2206 / `33411377186`: SUCCESS;
+- KodeStudio UI Smoke #2171 / `33411377227`: SUCCESS;
+- scenario artifact `9765260200`, archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772`, semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`;
+- exact fourteen-check inventory recomputed PASS with no blockers, no secret exposure, eight bound identities and truthful optional capability state `unavailable`;
+- CI authority digest `{ci_digest}`;
+- canonical R15 integrated digest `{integrated_digest}`;
+- manual state `CONDITIONAL / NOT TRIGGERED`; no real target-workstation training/conversion/promotion evidence is required for core closure;
+- this synchronization creates the final documentary/evidence candidate; its resulting exact END-head must pass fresh R15 Integrated + R0 + Python Core + KodeStudio UI Smoke before protected merge.
+
+'''
+          acceptance.write_text(text[:start] + block + text[end:], encoding='utf-8')
+
+          continuity = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          text = continuity.read_text(encoding='utf-8')
+          lines = text.splitlines()
+          lines[0] = f'> Kodepoia, architecture v1.0 gelée. **R1–R14 COMPLETE + NORMALIZED. R15 planning ACCEPTED + NORMALIZED. R15.1–R15.16 COMPLETE + NORMALIZED; R15.17 COMPLETE / PHASE NORMALIZATION PENDING.** R15.17 immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421` passed R15 Integrated #21 / `33411377302`, R0 #2231 / `33411377234`, Python Core #2206 / `33411377186` and UI #2171 / `33411377227`; canonical integrated digest `{integrated_digest}`. Final exact-END re-gates and protected PR #330 merge are required before the unique continuity-only R15 phase normalization. Manual state: CONDITIONAL / NOT TRIGGERED.'
+          text = '\n'.join(lines) + '\n'
+          text = text.replace('| R15.17 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |', '| R15.17 | COMPLETE | CONDITIONAL / NOT TRIGGERED |', 1)
+          detail_start = text.index('- R15.17 : **IN_PROGRESS**')
+          next_header = text.index('## Next authorized action', detail_start)
+          detail = f'''- R15.17 : **COMPLETE / PHASE NORMALIZATION PENDING** — normalized R15.16 base `eb7ba3e01af9d96e0a49abfb20424e83261c2b14`; dedicated branch `r15/17-adversarial-integrated-acceptance`; immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; exact-source R15 Integrated #21 / `33411377302`, R0 #2231 / `33411377234`, Python Core #2206 / `33411377186` and UI #2171 / `33411377227` SUCCESS. Canonical scenario artifact `9765260200` has archive SHA-256 `16fe30ed8a654dd2df7275dad9f37b0fdee6597e6a7d1252dd2edf2399cb1772` and semantic digest `58c93eec3a1a0e4d8cceab8f9ad23106c40648661fd64c30ca04aa8b75bd871c`; all fourteen adversarial checks are true, blockers empty, secrets absent and optional capability remains truthfully `unavailable`. CI authority digest `{ci_digest}`; canonical R15 integrated digest `{integrated_digest}`. Manual state `CONDITIONAL / NOT TRIGGERED`. The exact documentary/evidence END-head produced by this synchronization requires fresh R15 Integrated + R0 + Python Core + UI gates before PR #330 may merge with `expected_head_sha`; after that merge, exactly one continuity-only R15 phase normalization is required before R16 planning is authorized.\n\n'''
+          text = text[:detail_start] + detail + text[next_header:]
+          next_start = text.index('## Next authorized action')
+          permanent = text.index('## Permanent R-phase execution rule', next_start)
+          next_block = '''## Next authorized action
+
+**R15.17 final exact-END gates and protected merge only:** require fresh exact-head R15 Integrated Acceptance + R0 Repository Guard + full Python Core + KodeStudio UI Smoke on the final documentary/evidence head, then merge PR #330 only with `expected_head_sha`. After that merge, create exactly one continuity-only R15 phase normalization, pass fresh exact-head R0/Python/UI, and merge it with exact expected-head protection. R16 planning remains unauthorized until that normalization merge. Manual state: CONDITIONAL / NOT TRIGGERED.
+
+'''
+          text = text[:next_start] + next_block + text[permanent:]
+          continuity.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit canonical R15.17 closure bytes only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            docs/roadmap/R15_PLAN.md \
+            docs/roadmap/R15_17_SCENARIO_EVIDENCE.json \
+            docs/roadmap/R15_17_CI_ACCEPTANCE.json \
+            docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json \
+            docs/roadmap/R15_17_ACCEPTANCE.md \
+            docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --name-only | sort > /tmp/actual
+          printf '%s\n' \
+            docs/continuity/KODEPOIA_CONTINUITY.md \
+            docs/roadmap/R15_17_ACCEPTANCE.md \
+            docs/roadmap/R15_17_CI_ACCEPTANCE.json \
+            docs/roadmap/R15_17_SCENARIO_EVIDENCE.json \
+            docs/roadmap/R15_INTEGRATED_ACCEPTANCE.json \
+            docs/roadmap/R15_PLAN.md | sort > /tmp/expected
+          diff -u /tmp/expected /tmp/actual
+          git commit -m 'R15.17 finalize canonical integrated acceptance evidence'
+          git push origin HEAD:r15/17-adversarial-integrated-acceptance

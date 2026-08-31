@@ -538,7 +538,11 @@ def validate_integrated_evidence(evidence: dict[str, object]) -> None:
     if not isinstance(source_sha, str) or _COMMIT.fullmatch(source_sha) is None:
         raise ValueError("source_sha must be an exact lowercase commit SHA")
     checks = evidence["checks"]
-    if not isinstance(checks, dict) or tuple(checks) != CHECK_NAMES:
+    if (
+        not isinstance(checks, dict)
+        or len(checks) != len(CHECK_NAMES)
+        or set(checks) != set(CHECK_NAMES)
+    ):
         raise ValueError("R15.17 integrated check inventory mismatch")
     if evidence["check_count"] != len(CHECK_NAMES):
         raise ValueError("R15.17 integrated check count mismatch")

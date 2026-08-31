@@ -9,6 +9,7 @@ from jsonschema import Draft202012Validator
 
 from kodepoia.tuning.integrated_acceptance import (
     CHECK_NAMES,
+    canonical_json_bytes,
     canonical_sha256,
     run_integrated_scenario,
     validate_integrated_evidence,
@@ -27,7 +28,8 @@ def test_integrated_scenario_executes_exact_fourteen_invariants(tmp_path: Path) 
     assert evidence["status"] == "pass"
     assert evidence["blockers"] == []
     assert evidence["check_count"] == 14
-    assert tuple(evidence["checks"]) == CHECK_NAMES  # type: ignore[arg-type]
+    assert len(evidence["checks"]) == len(CHECK_NAMES)  # type: ignore[arg-type]
+    assert set(evidence["checks"]) == set(CHECK_NAMES)  # type: ignore[arg-type]
     assert all(evidence["checks"].values())  # type: ignore[union-attr]
     assert evidence["manual_state"] == "conditional_not_triggered"
     assert evidence["optional_capability_state"] == "unavailable"
@@ -50,6 +52,14 @@ def test_integrated_scenario_is_path_independent_and_deterministic(tmp_path: Pat
     first = run_integrated_scenario(SOURCE_SHA, tmp_path / "first")
     second = run_integrated_scenario(SOURCE_SHA, tmp_path / "second")
     assert first == second
+
+
+def test_canonical_json_round_trip_remains_authoritative(tmp_path: Path) -> None:
+    evidence = _run(tmp_path)
+    reloaded = json.loads(canonical_json_bytes(evidence))
+    validate_integrated_evidence(reloaded)
+    assert len(reloaded["checks"]) == len(CHECK_NAMES)
+    assert set(reloaded["checks"]) == set(CHECK_NAMES)
 
 
 def test_checked_in_pass_field_cannot_make_failed_check_authoritative(tmp_path: Path) -> None:

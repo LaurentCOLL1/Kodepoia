@@ -91,6 +91,6 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/kodepoia/tuning/integrated_acceptance.py tests/test_r15_17_integrated_acceptance.py .github/workflows/r15-integrated-acceptance.yml
+          git add src/kodepoia/tuning/integrated_acceptance.py tests/test_r15_17_integrated_acceptance.py
           git commit -m 'R15.17 make canonical evidence inventory order-independent'
           git push origin HEAD:r15/17-adversarial-integrated-acceptance

@@ -475,7 +475,7 @@ def _training_plan(dataset_digest: str) -> TrainingPlan:
     return TrainingPlan(
         mode=TrainingMode.FIXTURE_SFT,
         authorization=TuningTrainingAuthorization.FIXTURE,
-        fixture_authorization="repository-owned-r15.17-fixture",
+        fixture_authorization="repository-owned-r15.9-fixture",
         model=model,
         dataset=dataset,
         sft=SFTTrainingConfig(max_steps=4, checkpoint_steps=2, eval_steps=2),
@@ -984,8 +984,9 @@ def run_integrated_scenario(source_sha: str, work_root: Path) -> dict[str, objec
     )
     checks[CHECK_NAMES[13]] = optional_unavailable
 
-    if tuple(checks) != CHECK_NAMES:
+    if len(checks) != len(CHECK_NAMES) or set(checks) != set(CHECK_NAMES):
         raise RuntimeError("R15.17 scenario did not execute the exact adversarial inventory")
+    checks = {name: checks[name] for name in CHECK_NAMES}
 
     identities = {
         "dataset": dataset_digest,

@@ -79,18 +79,29 @@ jobs:
           set -euo pipefail
           python -m py_compile \
             src/kodepoia/tuning/integrated_acceptance.py \
+            src/kodepoia/tuning/integrated_evidence.py \
             scripts/r15_17_integrated_acceptance.py \
-            tests/test_r15_17_integrated_acceptance.py
+            scripts/r15_17_build_ci_evidence.py \
+            scripts/r15_17_build_integrated_report.py \
+            tests/test_r15_17_integrated_acceptance.py \
+            tests/test_r15_17_evidence_authority.py
 
       - name: Lint R15.17 surfaces
         run: >-
           python -m ruff check
           src/kodepoia/tuning/integrated_acceptance.py
+          src/kodepoia/tuning/integrated_evidence.py
           scripts/r15_17_integrated_acceptance.py
+          scripts/r15_17_build_ci_evidence.py
+          scripts/r15_17_build_integrated_report.py
           tests/test_r15_17_integrated_acceptance.py
+          tests/test_r15_17_evidence_authority.py
 
       - name: Run R15.17 anti-circular tests
-        run: python -m pytest -q tests/test_r15_17_integrated_acceptance.py
+        run: >-
+          python -m pytest -q
+          tests/test_r15_17_integrated_acceptance.py
+          tests/test_r15_17_evidence_authority.py
 
       - name: Run exact-head integrated scenario
         run: >-
@@ -162,11 +173,18 @@ jobs:
         run: >-
           python -m py_compile
           src/kodepoia/tuning/integrated_acceptance.py
+          src/kodepoia/tuning/integrated_evidence.py
           scripts/r15_17_integrated_acceptance.py
+          scripts/r15_17_build_ci_evidence.py
+          scripts/r15_17_build_integrated_report.py
           tests/test_r15_17_integrated_acceptance.py
+          tests/test_r15_17_evidence_authority.py
 
       - name: Run portable anti-circular verifier tests
-        run: python -m pytest -q tests/test_r15_17_integrated_acceptance.py
+        run: >-
+          python -m pytest -q
+          tests/test_r15_17_integrated_acceptance.py
+          tests/test_r15_17_evidence_authority.py
 
       - name: Run Windows exact-head integrated scenario
         shell: pwsh

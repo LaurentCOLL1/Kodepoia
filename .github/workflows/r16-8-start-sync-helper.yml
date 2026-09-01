@@ -20,11 +20,14 @@ jobs:
           ref: r16/08-fault-injection-recovery-drills
           fetch-depth: 0
 
-      - name: Assert normalized R16.7 parent
+      - name: Assert normalized R16.7 ancestry
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "951c53959956d1b88b3c9c3a8c4c328c1127236b"
+          base="951c53959956d1b88b3c9c3a8c4c328c1127236b"
+          git merge-base --is-ancestor "$base" HEAD
+          test "$(git rev-list --count "$base"..HEAD)" = "2"
+          test "$(git rev-parse HEAD^)" = "f83245392ba143afa86dc68037f1c1e8e207137d"
 
       - name: Apply bounded R16.8 START synchronization
         shell: python
@@ -102,6 +105,9 @@ jobs:
           set -euo pipefail
           python scripts/check_repo.py
           git diff --check
+          # check_repo.py normalizes this generated acceptance artifact in the working tree;
+          # it is deliberately outside R16.8 START scope and must never be staged here.
+          git restore --worktree -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           changed="$(git diff --name-only | sort)"
           expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R16_PLAN.md'
           test "$changed" = "$expected"

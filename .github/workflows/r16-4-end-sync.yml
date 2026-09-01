@@ -47,7 +47,7 @@ jobs:
               raise SystemExit("R16.4 subdivision row replacement failed")
           plan = plan.replace(old_row, new_row, 1)
 
-          marker = "\n---\n\n# R16.5 — Tool/plugin/MCP trust, capability and authorization hardening"
+          marker = "\n---\n\n# R16.5 — Plugin/MCP/tool trust, authorization and supply-chain boundary"
           end_lines = [
               "",
               "## R16.4 END acceptance authority",

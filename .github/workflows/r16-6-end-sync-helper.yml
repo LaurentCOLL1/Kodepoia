@@ -25,6 +25,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install R0 repository-check dependencies
+        run: python -m pip install -r scripts/requirements-r0.txt
+
       - name: Patch bounded R16.6 END records
         shell: python
         run: |

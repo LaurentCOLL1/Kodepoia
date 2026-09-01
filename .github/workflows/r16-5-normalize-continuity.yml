@@ -1,0 +1,79 @@
+name: R16.5 Continuity Normalization
+
+on:
+  push:
+    branches:
+      - r16/05-continuity-normalization
+    paths:
+      - .github/workflows/r16-5-normalize-continuity.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/05-continuity-normalization
+          fetch-depth: 0
+
+      - name: Normalize R16.5 continuity only
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+
+          old_header = (
+              "R16.1–R16.4 COMPLETE + NORMALIZED. R16.5 COMPLETE at mandatory END-sync on "
+              "`r16/05-plugin-mcp-tool-trust-hardening`; fresh exact-END re-gates are required before protected merge. "
+              "R16.6–R16.18 remain PLANNED."
+          )
+          new_header = (
+              "R16.1–R16.5 COMPLETE + NORMALIZED. R16.6–R16.18 remain PLANNED. "
+              "R16.6 START-sync is authorized only from the normalized `main` produced by the unique R16.5 post-merge continuity-only normalization."
+          )
+          if text.count(old_header) != 1:
+              raise SystemExit("R16.5 header normalization target missing or ambiguous")
+          text = text.replace(old_header, new_header, 1)
+
+          replacement = (
+              "- R16.5 : **COMPLETE + NORMALIZED** — normalized R16.4 `main` `eb62c9087dcb463917487ceb228d6926d6f9bb26`; "
+              "clean START `c5eb6aa7d4fcd7551acf203651f51643dde9a695`; immutable technical source `4a3c925592e1e2915e7075825ca2d40e45ba1f1b`; "
+              "technical R16.5 #3 / `33517964905` SUCCESS Ubuntu + Windows; final exact-END head `0e8b8fb6f7c3833a5511e299b34be6833ced1781` passed fresh R16.5 #5 / `33518216921` SUCCESS Ubuntu + Windows, "
+              "R0 #2285 / `33518216954` SUCCESS Ubuntu + Windows, Python Core #2257 / `33518216990` SUCCESS 5/5 and UI #2222 / `33518216697` SUCCESS; "
+              "PR #343 merged with `expected_head_sha=0e8b8fb6f7c3833a5511e299b34be6833ced1781` as implementation/evidence `main` `b9bb03e00938189d4be1eb97685f58108ebf398f`. "
+              "Semantic acceptance `c8143a0386d384818cc4eef908cc224994c06291074e6a7e266f757c6483b83c`; 12/12 PASS, `security_claim=true`, `critical_veto=false`, synthetic/local only, no live third-party server, live credentials or network calls, manual NONE. "
+              "Linux technical artifact `9804400604` / `e152d53eed46e710819b2980e8c6d7167f4cd61a06892fd77c2e52a93edfb1df`; Windows technical artifact `9804418715` / `0b9faf72095b15a5f629e387c9b83849eb4f731651f6bc411aa39eb526f9dd74`. "
+              "Discovery remains distinct from trust; tool metadata/results stay untrusted data-only; identity/version/artifact/definition are pinned; capability/runtime permission and exact intent/operation approvals are bound; credential issuer/audience are isolated; drift is quarantined and revocation clears grants. "
+              "This record is the unique post-merge continuity-only R16.5 normalization authority when its PR merges; R16.6 START-sync is authorized only from the resulting normalized `main`."
+          )
+          pattern = r"^- R16\.5 : \*\*COMPLETE\*\* — .*?$"
+          text, count = re.subn(pattern, replacement, text, count=1, flags=re.M)
+          if count != 1:
+              raise SystemExit("R16.5 continuity entry normalization failed")
+
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+      - name: Verify continuity-only scope
+        shell: bash
+        run: |
+          git rm .github/workflows/r16-5-normalize-continuity.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          actual="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' '.github/workflows/r16-5-normalize-continuity.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' | sort)"
+          test "$actual" = "$expected"
+
+      - name: Commit clean continuity normalization
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(r16.5): normalize post-merge continuity"
+          git push origin HEAD:r16/05-continuity-normalization

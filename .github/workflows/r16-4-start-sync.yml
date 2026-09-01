@@ -1,0 +1,105 @@
+name: R16.4 START Sync
+
+on:
+  push:
+    branches:
+      - r16/04-secrets-privacy-exfiltration-hardening
+    paths:
+      - .github/workflows/r16-4-start-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R16.4 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/04-secrets-privacy-exfiltration-hardening
+          fetch-depth: 0
+
+      - name: Synchronize R16.4 START authority
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          plan_path = Path("docs/roadmap/R16_PLAN.md")
+          continuity_path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          plan = plan_path.read_text(encoding="utf-8")
+          continuity = continuity_path.read_text(encoding="utf-8")
+
+          checkpoint = (
+              "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + "
+              "NORMALIZED. R16.1–R16.3 are COMPLETE + NORMALIZED. R16.4 is IN_PROGRESS on dedicated branch "
+              "`r16/04-secrets-privacy-exfiltration-hardening` from normalized `main` "
+              "`cb6ec02629fd94f9d23b04ebfed525571c8482d9`. R16.5–R16.18 remain PLANNED."
+          )
+          plan, count = re.subn(r"^\*\*Execution checkpoint:\*\*.*$", checkpoint, plan, count=1, flags=re.M)
+          if count != 1:
+              raise SystemExit("R16 plan checkpoint replacement failed")
+
+          old_row = "| R16.4 | Secrets, privacy and exfiltration hardening | PLANNED | NONE |"
+          new_row = "| R16.4 | Secrets, privacy and exfiltration hardening | IN_PROGRESS | NONE |"
+          if plan.count(old_row) != 1:
+              raise SystemExit("R16.4 subdivision row replacement failed")
+          plan = plan.replace(old_row, new_row, 1)
+
+          old_fragment = (
+              "R16.3 COMPLETE + NORMALIZED through implementation/evidence merge "
+              "`86c5cb49e5583607d5e7177045815dcb6c20d6e3` and this unique continuity-only normalization branch "
+              "`r16/03-continuity-normalization` when merged. R16.4–R16.18 remain PLANNED; R16.4 START-sync is "
+              "authorized only from the normalized `main` produced by this normalization PR."
+          )
+          new_fragment = (
+              "R16.3 COMPLETE + NORMALIZED on exact normalized `main` `cb6ec02629fd94f9d23b04ebfed525571c8482d9`. "
+              "R16.4 IN_PROGRESS on `r16/04-secrets-privacy-exfiltration-hardening` from that exact normalized main; "
+              "R16.5–R16.18 remain PLANNED."
+          )
+          if continuity.count(old_fragment) != 1:
+              raise SystemExit("continuity header replacement failed")
+          continuity = continuity.replace(old_fragment, new_fragment, 1)
+
+          anchor = "- R16.3 : **COMPLETE + NORMALIZED** —"
+          pos = continuity.find(anchor)
+          if pos < 0:
+              raise SystemExit("R16.3 continuity anchor missing")
+          line_end = continuity.find("\n", pos)
+          if line_end < 0:
+              raise SystemExit("R16.3 continuity line terminator missing")
+          entry = (
+              "\n- R16.4 : **IN_PROGRESS** — normalized R16.3 `main` "
+              "`cb6ec02629fd94f9d23b04ebfed525571c8482d9`; dedicated branch "
+              "`r16/04-secrets-privacy-exfiltration-hardening`; START sync is documentation-only and precedes any "
+              "technical implementation. Scope: synthetic secret classes/canaries, narrow secret resolution, taint/redaction "
+              "across argv/env/stdin/stdout/stderr/logs/reports/artifacts, exfiltration destination control, useful redacted "
+              "failure diagnostics, artifact leak scanning, and rotation/revocation-safe credential references. Manual NONE; "
+              "no live credential is authorized for acceptance."
+          )
+          if "- R16.4 : **IN_PROGRESS**" in continuity:
+              raise SystemExit("R16.4 continuity entry already exists")
+          continuity = continuity[:line_end] + entry + continuity[line_end:]
+
+          plan_path.write_text(plan, encoding="utf-8", newline="\n")
+          continuity_path.write_text(continuity, encoding="utf-8", newline="\n")
+
+      - name: Verify START sync scope
+        shell: bash
+        run: |
+          git rm .github/workflows/r16-4-start-sync.yml
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          actual="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' '.github/workflows/r16-4-start-sync.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R16_PLAN.md' | sort)"
+          printf '%s\n' "$actual"
+          test "$actual" = "$expected"
+
+      - name: Commit clean START sync
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(r16.4): synchronize START authority"
+          git push origin HEAD:r16/04-secrets-privacy-exfiltration-hardening

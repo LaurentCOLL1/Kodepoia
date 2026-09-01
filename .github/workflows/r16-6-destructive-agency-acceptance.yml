@@ -1,3 +1,4 @@
+# Temporary gate pulse; reverted in the next commit to preserve the exact END tree.
 name: R16.6 Destructive Agency Acceptance
 
 on:

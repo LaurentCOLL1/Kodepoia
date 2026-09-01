@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.4 are COMPLETE + NORMALIZED. R16.5 is COMPLETE at mandatory END-sync; fresh exact-END R16.5/R0/Python/UI re-gates are required before protected merge. R16.6–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.5 are COMPLETE + NORMALIZED. R16.6 is IN_PROGRESS on `r16/06-destructive-command-excessive-agency-hardening` from normalized `main` `727b0717dea86425eb566b53b3b1cc38c9937169`; R16.7–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -171,8 +171,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.2 | Prompt-injection and untrusted-content hardening | COMPLETE + NORMALIZED | NONE |
 | R16.3 | Malicious repository/workspace quarantine and safe bootstrap | COMPLETE + NORMALIZED | NONE |
 | R16.4 | Secrets, privacy and exfiltration hardening | COMPLETE + NORMALIZED | NONE |
-| R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE | NONE |
-| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | PLANNED | NONE |
+| R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE + NORMALIZED | NONE |
+| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | IN_PROGRESS | NONE |
 | R16.7 | Memory/context poisoning detection, quarantine and rebuild | PLANNED | NONE |
 | R16.8 | Fault injection, KillSwitch, backup and recovery drills | PLANNED | NONE |
 | R16.9 | Dependency/workflow/release supply-chain provenance hardening | PLANNED | NONE |

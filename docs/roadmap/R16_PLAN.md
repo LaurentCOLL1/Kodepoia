@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.4 are COMPLETE + NORMALIZED. R16.5 is COMPLETE at mandatory END-sync; fresh exact-END R16.5/R0/Python/UI re-gates are required before protected merge. R16.6–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.5 are COMPLETE + NORMALIZED. R16.6 is COMPLETE on immutable technical source `de2648e9c7648e59dd43f9d2dccd10d0ea93da18` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.7. R16.7–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -171,8 +171,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.2 | Prompt-injection and untrusted-content hardening | COMPLETE + NORMALIZED | NONE |
 | R16.3 | Malicious repository/workspace quarantine and safe bootstrap | COMPLETE + NORMALIZED | NONE |
 | R16.4 | Secrets, privacy and exfiltration hardening | COMPLETE + NORMALIZED | NONE |
-| R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE | NONE |
-| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | PLANNED | NONE |
+| R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE + NORMALIZED | NONE |
+| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE | NONE |
 | R16.7 | Memory/context poisoning detection, quarantine and rebuild | PLANNED | NONE |
 | R16.8 | Fault injection, KillSwitch, backup and recovery drills | PLANNED | NONE |
 | R16.9 | Dependency/workflow/release supply-chain provenance hardening | PLANNED | NONE |
@@ -537,6 +537,18 @@ False negatives from command aliases; platform-specific shells; approval TOCTOU;
 ## Manual intervention
 
 **NONE.**
+
+## R16.6 implementation evidence
+
+- Normalized R16.5 base: `727b0717dea86425eb566b53b3b1cc38c9937169`; dedicated branch `r16/06-destructive-command-excessive-agency-hardening`.
+- Immutable technical source: `de2648e9c7648e59dd43f9d2dccd10d0ea93da18`.
+- Exact-source focused acceptance: R16.6 #3 / 33532542824 SUCCESS on Ubuntu + Windows; exact checkout, compileall, Ruff, focused adversarial tests and acceptance emission all passed.
+- Exact-source repository qualification: R0 #2289 / 33532542438 SUCCESS, Python Core #2261 / 33532542746 SUCCESS across all five jobs, KodeStudio UI Smoke #2226 / 33532542489 SUCCESS.
+- Technical artifacts: Linux `9810360507 / sha256:8465a92f36edb6a2de014116aa0519bebdc7f9a828c89483b0e054a055d91c05`; Windows `9810383609 / sha256:081dff3ad19cd6fab0e6f9c29d5e966392b020389a6d4a6d9664b90a451ebe92`.
+- Accepted scope: structured impact classification; fail-closed unknown/unbounded mutation handling; exact one-shot approval binding across actor/action/target/scope/capability/tool/provider/operation; material-drift and replay rejection; authenticated bounded delegation against confused-deputy escalation; typed non-shell process commands constrained by PermissionSet allowlists; SafeChange snapshots; KillSwitch propagation and explicit `RECOVERY_REQUIRED` state after possible partial mutation.
+- Legacy `KodeGuardian.authorize(..., confirmed=True)` remains API-compatible but no longer converts a destructive `CONFIRM` into ambient `ALLOW`; bound authority must come from the R16.6 exact-intent path.
+- Tests remain synthetic/disposable and do not execute destructive host commands, live credential operations or production mutations. Manual state: **NONE**.
+- R16.7 remains blocked until this END-sync receives fresh exact-head R16.6/R0/Python/UI gates, PR #345 merges with `expected_head_sha`, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

@@ -1,0 +1,85 @@
+name: R16.3 Continuity Normalization
+
+on:
+  push:
+    branches:
+      - r16/03-continuity-normalization
+    paths:
+      - .github/workflows/r16-3-normalize-continuity.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/03-continuity-normalization
+          fetch-depth: 0
+
+      - name: Normalize R16.3 continuity only
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+
+          old_header = (
+              "R16.3 COMPLETE at mandatory END-sync on `r16/03-malicious-repository-workspace-quarantine`; "
+              "fresh exact-END re-gates are required before protected merge, and R16.4–R16.18 remain PLANNED."
+          )
+          new_header = (
+              "R16.3 COMPLETE + NORMALIZED through implementation/evidence merge "
+              "`86c5cb49e5583607d5e7177045815dcb6c20d6e3` and this unique continuity-only normalization branch "
+              "`r16/03-continuity-normalization` when merged. R16.4–R16.18 remain PLANNED; R16.4 START-sync is "
+              "authorized only from the normalized `main` produced by this normalization PR."
+          )
+          if text.count(old_header) != 1:
+              raise SystemExit("R16.3 header authority replacement failed")
+          text = text.replace(old_header, new_header, 1)
+
+          replacement = (
+              "- R16.3 : **COMPLETE + NORMALIZED** — normalized R16.2 `main` `71e9ab8e2b56457e856109aa509a863c110d3fa3`; "
+              "clean START `362bed9d2fc8ce3a12cbefaa1726e903fdb1469a`; immutable technical source "
+              "`66a6e9466f97cbc8c30e3f51544d6d5b0a553e69`; technical R16.3 #3 / `33467123726` SUCCESS Ubuntu + Windows; "
+              "final exact-END head `25fc5ed220d5bcc5914376da0bd752c1bfe96b7d` passed fresh R16.3 #5 / `33467291774` SUCCESS Ubuntu + Windows, "
+              "R0 #2277 / `33467291723` SUCCESS Ubuntu + Windows, Python Core #2249 / `33467291686` SUCCESS 5/5 and UI #2214 / `33467291903` SUCCESS; "
+              "PR #339 merged with `expected_head_sha=25fc5ed220d5bcc5914376da0bd752c1bfe96b7d` as implementation/evidence `main` `86c5cb49e5583607d5e7177045815dcb6c20d6e3`. "
+              "Cross-platform acceptance JSON SHA-256 `68df97e7a33cba9f9596eeed06d8aa6eb16b098dfd69d55a5372e07551fd4f16`; semantic "
+              "`40877687b4cefd11f5be78d6f32d09c963b12db1fbb74eaef4d9b692129e1eda`; 8/8 PASS, `security_claim=true`, "
+              "`critical_veto=false`, synthetic-only, no live secrets/destructive host actions, manual NONE. Linux technical artifact `9785244200` / "
+              "`5edb5ca2ada84c081ece142afb3a761d3856dbeb033ccf696905ffb757bb29d1`; Windows technical artifact `9785248696` / "
+              "`8e884c69f50d98e17bb5f7948b641d2fb0b2096722c3fbbd8fa89cda3cc0754d`. Exact-fingerprint approval is invalidated "
+              "by material workspace change; critical escapes/bounds fail closed; repository-controlled executable metadata stays non-authoritative. "
+              "This record is the unique post-merge continuity-only R16.3 normalization authority when its PR merges; R16.4 START-sync is authorized only from the resulting normalized `main`."
+          )
+          pattern = r"^- R16\.3 : \*\*COMPLETE\*\* — .*?$"
+          text, count = re.subn(pattern, replacement, text, count=1, flags=re.M)
+          if count != 1:
+              raise SystemExit("R16.3 continuity record replacement failed")
+
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+      - name: Verify continuity-only scope
+        shell: bash
+        run: |
+          git rm .github/workflows/r16-3-normalize-continuity.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          actual="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' '.github/workflows/r16-3-normalize-continuity.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' | sort)"
+          printf '%s\n' "$actual"
+          test "$actual" = "$expected"
+
+      - name: Commit clean continuity normalization
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(r16.3): normalize post-merge continuity"
+          git push origin HEAD:r16/03-continuity-normalization

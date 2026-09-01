@@ -1,0 +1,89 @@
+name: R16.7 Memory Context Poisoning Acceptance
+
+on:
+  push:
+    branches:
+      - r16/07-memory-context-poisoning-hardening
+  pull_request:
+    paths:
+      - .github/workflows/r16-7-memory-context-poisoning-acceptance.yml
+      - scripts/r16_7_memory_context_poisoning_acceptance.py
+      - src/kodepoia/intelligence/memory.py
+      - tests/test_memory_r16_7.py
+      - docs/roadmap/R16_PLAN.md
+      - docs/continuity/KODEPOIA_CONTINUITY.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  memory-context-poisoning:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: python
+        run: |
+          import os
+          import subprocess
+
+          expected = os.environ["EVIDENCE_SHA"].strip().lower()
+          actual = subprocess.check_output(
+              ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
+          ).strip().lower()
+          if actual != expected:
+              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
+
+      - name: Install focused acceptance dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile focused R16.7 sources
+        run: >-
+          python -m compileall -q
+          src/kodepoia/intelligence/memory.py
+          scripts/r16_7_memory_context_poisoning_acceptance.py
+          tests/test_memory_r16_7.py
+
+      - name: Ruff focused R16.7 sources
+        run: >-
+          python -m ruff check
+          src/kodepoia/intelligence/memory.py
+          scripts/r16_7_memory_context_poisoning_acceptance.py
+          tests/test_memory_r16_7.py
+
+      - name: Run focused R16.7 tests
+        run: python -m pytest -q tests/test_memory_r16_7.py
+
+      - name: Emit exact-source R16.7 acceptance
+        run: >-
+          python scripts/r16_7_memory_context_poisoning_acceptance.py
+          --source-sha "${{ env.EVIDENCE_SHA }}"
+          --output artifacts/r16_7_memory_context_poisoning_acceptance.json
+
+      - name: Upload exact-source acceptance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: r16-7-memory-context-poisoning-${{ runner.os }}-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r16_7_memory_context_poisoning_acceptance.json
+          if-no-files-found: error
+          retention-days: 30

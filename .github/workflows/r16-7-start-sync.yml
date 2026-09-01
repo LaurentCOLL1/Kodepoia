@@ -1,0 +1,72 @@
+name: R16.7 START Sync Helper
+
+on:
+  push:
+    branches:
+      - r16/07-memory-context-poisoning-hardening
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v5
+        with:
+          ref: r16/07-memory-context-poisoning-hardening
+          fetch-depth: 0
+      - name: Apply bounded R16.7 START sync
+        shell: python
+        run: |
+          from pathlib import Path
+
+          plan_path = Path('docs/roadmap/R16_PLAN.md')
+          continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          continuity = continuity_path.read_text(encoding='utf-8')
+
+          replacements = [
+              (
+                  'R16.1–R16.5 are COMPLETE + NORMALIZED. R16.6 is COMPLETE on immutable technical source `de2648e9c7648e59dd43f9d2dccd10d0ea93da18` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.7. R16.7–R16.18 remain PLANNED.',
+                  'R16.1–R16.6 are COMPLETE + NORMALIZED. R16.7 is IN_PROGRESS from normalized `main` `9c358e48e97352046160d48cee0417ade435b6ac` on dedicated branch `r16/07-memory-context-poisoning-hardening`. R16.8–R16.18 remain PLANNED.',
+              ),
+              (
+                  '| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE | NONE |\n| R16.7 | Memory/context poisoning detection, quarantine and rebuild | PLANNED | NONE |',
+                  '| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE + NORMALIZED | NONE |\n| R16.7 | Memory/context poisoning detection, quarantine and rebuild | IN_PROGRESS | NONE |',
+              ),
+          ]
+          for old, new in replacements:
+              if plan.count(old) != 1:
+                  raise SystemExit(f'R16_PLAN replacement count != 1 for: {old[:80]!r}')
+              plan = plan.replace(old, new, 1)
+
+          old_top = '> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.6 COMPLETE + NORMALIZED. R16.7–R16.18 remain PLANNED. R16.7 START-sync is authorized only from the normalized `main` produced by the unique R16.6 post-merge continuity-only normalization.**'
+          new_top = '> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.6 COMPLETE + NORMALIZED. R16.7 IN_PROGRESS on `r16/07-memory-context-poisoning-hardening` from normalized `main` `9c358e48e97352046160d48cee0417ade435b6ac`. R16.8–R16.18 remain PLANNED.**'
+          if continuity.count(old_top) != 1:
+              raise SystemExit('continuity top replacement count != 1')
+          continuity = continuity.replace(old_top, new_top, 1)
+
+          anchor = '- R16.6 : **COMPLETE + NORMALIZED** — normalized R16.5 `main` `727b0717dea86425eb566b53b3b1cc38c9937169`;'
+          if continuity.count(anchor) != 1:
+              raise SystemExit('R16.6 continuity anchor count != 1')
+          r16_6_line = next(line for line in continuity.splitlines() if line.startswith(anchor))
+          new_line = '- R16.7 : **IN_PROGRESS** — normalized R16.6 `main` `9c358e48e97352046160d48cee0417ade435b6ac`; dedicated branch `r16/07-memory-context-poisoning-hardening`; scope frozen to memory/context poisoning detection, quarantine and deterministic rebuild; manual NONE. R16.8 remains PLANNED.'
+          if new_line not in continuity:
+              continuity = continuity.replace(r16_6_line, r16_6_line + '\n' + new_line, 1)
+
+          plan_path.write_text(plan, encoding='utf-8', newline='\n')
+          continuity_path.write_text(continuity, encoding='utf-8', newline='\n')
+      - name: Commit START sync and self-delete helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r16-7-start-sync.yml
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --name-only
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = ".github/workflows/r16-7-start-sync.yml docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R16_PLAN.md "
+          git commit -m "docs(r16.7): START-sync memory poisoning hardening"
+          git push origin HEAD:r16/07-memory-context-poisoning-hardening

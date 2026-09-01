@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.3 are COMPLETE + NORMALIZED. R16.4 is COMPLETE at mandatory END-sync; fresh exact-END R16.4/R0/Python/UI re-gates are required before protected merge. R16.5–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.4 are COMPLETE + NORMALIZED. R16.5 is COMPLETE at mandatory END-sync; fresh exact-END R16.5/R0/Python/UI re-gates are required before protected merge. R16.6–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -169,9 +169,9 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | --- | --- | --- | --- |
 | R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE + NORMALIZED | NONE |
 | R16.2 | Prompt-injection and untrusted-content hardening | COMPLETE + NORMALIZED | NONE |
-| R16.3 | Malicious repository/workspace quarantine and safe bootstrap | COMPLETE | NONE |
-| R16.4 | Secrets, privacy and exfiltration hardening | COMPLETE | NONE |
-| R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | PLANNED | NONE |
+| R16.3 | Malicious repository/workspace quarantine and safe bootstrap | COMPLETE + NORMALIZED | NONE |
+| R16.4 | Secrets, privacy and exfiltration hardening | COMPLETE + NORMALIZED | NONE |
+| R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE | NONE |
 | R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | PLANNED | NONE |
 | R16.7 | Memory/context poisoning detection, quarantine and rebuild | PLANNED | NONE |
 | R16.8 | Fault injection, KillSwitch, backup and recovery drills | PLANNED | NONE |
@@ -478,6 +478,15 @@ Confusing discovery with trust; unstable tool identity; schema drift; overbroad 
 ## Manual intervention
 
 **NONE** for core fixtures. No live third-party MCP server is claimed.
+
+## R16.5 END acceptance authority
+
+- Normalized branch point: `main` `eb62c9087dcb463917487ceb228d6926d6f9bb26`; clean START `c5eb6aa7d4fcd7551acf203651f51643dde9a695`; immutable technical source `4a3c925592e1e2915e7075825ca2d40e45ba1f1b`.
+- Technical-source gate: R16.5 #3 / `33517964905` SUCCESS Ubuntu + Windows after exact checkout provenance, compile, Ruff, 12 focused tests and exact-source acceptance.
+- Cross-platform acceptance is semantically identical: semantic SHA-256 `c8143a0386d384818cc4eef908cc224994c06291074e6a7e266f757c6483b83c`; 12/12 critical cases PASS with `security_claim=true`, `critical_veto=false`, `manual_state=NONE`, synthetic local plugin/MCP/tool fixtures, no live third-party server, no live credentials and zero network calls.
+- Linux artifact `9804400604` archive SHA-256 `e152d53eed46e710819b2980e8c6d7167f4cd61a06892fd77c2e52a93edfb1df`, payload SHA-256 `a51107a56236025532b750452238a7d61a53621a7721724e2aa1da181ce9ef7e`; Windows artifact `9804418715` archive SHA-256 `0b9faf72095b15a5f629e387c9b83849eb4f731651f6bc411aa39eb526f9dd74`, payload SHA-256 `435ee5cf1059b23c1615d7d5f745801fe84bb8d52494fa56b6b944c13df4efce`.
+- Security boundary delivered: discovery/registration/trust/invocation are distinct; descriptions, schemas and tool results remain untrusted data-only; identity/version/artifact and definition digests are pinned; capability escalation and missing runtime permissions fail closed; invocation approval binds exact identity, operation, capability set and initiating intent; credential issuer/audience are identity-bound; cross-tool/replayed approvals are denied; definition or binary replacement is quarantined; revocation clears cached invocation grants.
+- Manual NONE. R16.5 is COMPLETE at END-sync. Fresh exact-END R16.5/R0/Python/UI re-gates are mandatory before protected merge; R16.6 remains PLANNED until implementation merge and unique post-merge continuity normalization complete.
 
 ---
 

@@ -154,7 +154,15 @@ def build_cases() -> list[dict[str, Any]]:
         )
     except ValueError:
         escalation_denied = True
-    cases.append(_case("R16.5-CAPABILITY-ESCALATION", "deny", "deny" if escalation_denied else "allow", escalation_denied))
+    escalation_observed = "deny" if escalation_denied else "allow"
+    cases.append(
+        _case(
+            "R16.5-CAPABILITY-ESCALATION",
+            "deny",
+            escalation_observed,
+            escalation_denied,
+        )
+    )
 
     registry = ToolTrustRegistry(_permissions())
     registry.register(original)
@@ -199,8 +207,17 @@ def build_cases() -> list[dict[str, Any]]:
         credential_issuer="https://issuer.invalid",
         credential_audience="another-server",
     )
-    cases.append(_case("R16.5-CREDENTIAL-ISSUER", "deny", bad_issuer.kind.value, not bad_issuer.allowed))
-    cases.append(_case("R16.5-CREDENTIAL-AUDIENCE", "deny", bad_audience.kind.value, not bad_audience.allowed))
+    cases.append(
+        _case("R16.5-CREDENTIAL-ISSUER", "deny", bad_issuer.kind.value, not bad_issuer.allowed)
+    )
+    cases.append(
+        _case(
+            "R16.5-CREDENTIAL-AUDIENCE",
+            "deny",
+            bad_audience.kind.value,
+            not bad_audience.allowed,
+        )
+    )
 
     second = _definition("fixture.mail", artifact="mail", audience="fixture.mail")
     registry = ToolTrustRegistry(_permissions(Capability.NETWORK))

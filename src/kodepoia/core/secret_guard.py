@@ -137,10 +137,10 @@ class SecretTaintGuard:
         variants = self._variant_map()
 
         def walk(item: Any, location: str, key: str = "") -> None:
-            if key and _SECRET_KEY_RE.search(key) and item not in (None, "", [], {}, ()):
-                leaks.append(SecretLeak(surface, location, "sensitive-field"))
             if isinstance(item, SecretRef):
                 return
+            if key and _SECRET_KEY_RE.search(key) and item not in (None, "", [], {}, ()):
+                leaks.append(SecretLeak(surface, location, "sensitive-field"))
             if isinstance(item, Mapping):
                 for child_key, child in item.items():
                     name = str(child_key)

@@ -212,9 +212,9 @@ class KodeGuardian:
             )
         if decision.kind is DecisionKind.CONFIRM and confirmed:
             return GuardianDecision(
-                DecisionKind.ALLOW,
+                DecisionKind.CONFIRM,
                 decision.risk,
-                f"Confirmed: {decision.reason}",
+                "Legacy boolean confirmation is non-authoritative; exact bound approval is required.",
                 decision.required_capability,
                 decision.snapshot_required,
             )

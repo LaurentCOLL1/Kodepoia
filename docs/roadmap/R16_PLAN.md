@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.2 are COMPLETE + NORMALIZED. R16.3 is IN_PROGRESS from normalized `main` `71e9ab8e2b56457e856109aa509a863c110d3fa3`; R16.4–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.2 are COMPLETE + NORMALIZED. R16.3 is COMPLETE at mandatory END-sync; fresh exact-END R16.3/R0/Python/UI re-gates are required before protected merge. R16.4–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -169,7 +169,7 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | --- | --- | --- | --- |
 | R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE + NORMALIZED | NONE |
 | R16.2 | Prompt-injection and untrusted-content hardening | COMPLETE + NORMALIZED | NONE |
-| R16.3 | Malicious repository/workspace quarantine and safe bootstrap | IN_PROGRESS | NONE |
+| R16.3 | Malicious repository/workspace quarantine and safe bootstrap | COMPLETE | NONE |
 | R16.4 | Secrets, privacy and exfiltration hardening | PLANNED | NONE |
 | R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | PLANNED | NONE |
 | R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | PLANNED | NONE |
@@ -360,6 +360,15 @@ Platform-specific path semantics; hidden execution paths; false positives on leg
 ## Manual intervention
 
 **NONE.** Host-destructive execution is never part of acceptance.
+
+## R16.3 END acceptance authority
+
+- Normalized branch point: `main` `71e9ab8e2b56457e856109aa509a863c110d3fa3`; clean START `362bed9d2fc8ce3a12cbefaa1726e903fdb1469a`; immutable technical source `66a6e9466f97cbc8c30e3f51544d6d5b0a553e69`.
+- Technical-source gate: R16.3 #3 / `33467123726` SUCCESS Ubuntu + Windows after exact checkout provenance, compile, Ruff, focused tests and acceptance on the same SHA.
+- Cross-platform acceptance JSON is byte-identical: SHA-256 `68df97e7a33cba9f9596eeed06d8aa6eb16b098dfd69d55a5372e07551fd4f16`; semantic `40877687b4cefd11f5be78d6f32d09c963b12db1fbb74eaef4d9b692129e1eda`; 8/8 critical cases PASS with `security_claim=true`, `critical_veto=false`, `manual_state=NONE`, synthetic-only fixtures, no live secrets and no destructive host actions.
+- Linux artifact `9785244200` archive SHA-256 `5edb5ca2ada84c081ece142afb3a761d3856dbeb033ccf696905ffb757bb29d1`; Windows artifact `9785248696` archive SHA-256 `8e884c69f50d98e17bb5f7948b641d2fb0b2096722c3fbbd8fa89cda3cc0754d`.
+- Security boundary delivered: new/materially changed workspaces default to quarantine; parse/index/read remains usable; write/execute requires exact-fingerprint approval; material change invalidates approval; critical symlink escape/resource-bound findings fail closed; repository hooks/scripts/tasks/instructions/archives/external references remain discoverable but non-authoritative; risk summaries exclude repository contents and external destinations.
+- Manual NONE. R16.3 is COMPLETE at END-sync. Fresh exact-END R16.3/R0/Python/UI re-gates are mandatory before protected merge; R16.4 remains PLANNED until the implementation merge and unique post-merge continuity-only normalization complete.
 
 ---
 

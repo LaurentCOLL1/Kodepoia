@@ -3,9 +3,10 @@ from __future__ import annotations
 import base64
 import json
 import re
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 from urllib.parse import urlsplit
 
 from kodepoia.core.sandbox import ProcessSandbox, SandboxResult
@@ -161,7 +162,7 @@ class SecretTaintGuard:
                 return
             walk(repr(item), location)
 
-        walk(value, "$" )
+        walk(value, "$")
         return tuple(leaks)
 
     def sanitize_payload(self, value: Any, *, key: str = "") -> Any:

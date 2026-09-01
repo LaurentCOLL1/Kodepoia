@@ -1,0 +1,100 @@
+name: R16.8 END Sync Helper
+
+on:
+  push:
+    branches:
+      - r16/08-fault-injection-recovery
+
+permissions:
+  contents: write
+
+jobs:
+  end-sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v5
+        with:
+          ref: r16/08-fault-injection-recovery
+          fetch-depth: 0
+
+      - name: Apply bounded R16.8 END sync
+        shell: python
+        run: |
+          from pathlib import Path
+
+          plan_path = Path('docs/roadmap/R16_PLAN.md')
+          continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          continuity = continuity_path.read_text(encoding='utf-8')
+
+          technical = '9bea715e7f575696ba66240d6ff127e72e85f82e'
+          semantic = 'f94ccc46356a24a8be2726a724191e1dc2eb148c049e184f38431be2f4af8c26'
+
+          old_checkpoint = '**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.7 are COMPLETE + NORMALIZED. R16.8 is IN_PROGRESS from normalized `main` `951c53959956d1b88b3c9c3a8c4c328c1127236b` on dedicated branch `r16/08-fault-injection-recovery`. R16.9–R16.18 remain PLANNED.'
+          new_checkpoint = f'**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.7 are COMPLETE + NORMALIZED. R16.8 is COMPLETE on immutable technical source `{technical}` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.9. R16.9–R16.18 remain PLANNED.'
+          if plan.count(old_checkpoint) != 1:
+              raise SystemExit('R16_PLAN execution-checkpoint replacement count != 1')
+          plan = plan.replace(old_checkpoint, new_checkpoint, 1)
+
+          old_row = '| R16.8 | Fault injection, KillSwitch, backup and recovery drills | IN_PROGRESS | NONE |'
+          new_row = '| R16.8 | Fault injection, KillSwitch, backup and recovery drills | COMPLETE | NONE |'
+          if plan.count(old_row) != 1:
+              raise SystemExit('R16_PLAN R16.8 row replacement count != 1')
+          plan = plan.replace(old_row, new_row, 1)
+
+          manual_anchor = '''## Manual intervention
+
+**NONE.**
+
+---
+
+# R16.9 — Dependency/workflow/release supply-chain provenance hardening'''
+          evidence = f'''## Manual intervention
+
+**NONE.**
+
+## R16.8 implementation evidence
+
+- Normalized R16.7 base: `951c53959956d1b88b3c9c3a8c4c328c1127236b`; clean START-sync head `692b0ab931d3d59bf9f14aef7643ad83cbedc412`; dedicated branch `r16/08-fault-injection-recovery`.
+- Immutable technical source: `{technical}`.
+- Exact-source focused acceptance: R16.8 #3 / `33561149190` SUCCESS on Ubuntu + Windows; exact checkout, compileall, Ruff, focused recovery/adversarial tests and machine-readable acceptance emission all passed.
+- Exact-source repository qualification: R0 #2308 / `33561149073` SUCCESS Ubuntu + Windows; Python Core #2280 / `33561148836` SUCCESS across all five jobs; KodeStudio UI Smoke #2245 / `33561148947` SUCCESS.
+- Cross-platform semantic acceptance SHA-256: `{semantic}`; 16/16 cases PASS with `security_claim=true`, `critical_veto=false`, `manual=NONE`, synthetic-only fixtures, zero network calls, zero live secrets, zero destructive host actions and no production disaster-recovery claim.
+- Exact-source artifacts: Linux `9821331886 / sha256:9d2efca69b657333aead766a044318d26c3bccd2fd63320343885172a43d8943`; Windows `9821324996 / sha256:0735008e3eb6610891f0af3f8d7bc9bd2b786f824ed5322a18efe27cd6d40bad`.
+- Accepted scope: deterministic one-shot fault points at prepare/write/commit/verify/cleanup; integrity-bound v2 recovery checkpoints; legacy checkpoints remain readable as data but cannot become recovery authority; synthetic ENOSPC/resource denial; KillSwitch before launch, against a hanging registered subprocess and during multi-step mutation; bounded timeout handling; corrupted checkpoints/snapshots/backups fail closed; verified known-good restoration; exact task binding; narrow single-file recovery that does not roll unrelated permissions/secrets/tool-trust state backward; repository-local recovery point objective only.
+- R16.8 is COMPLETE at END-sync. Fresh exact-END R16.8/R0/Python/UI re-gates are mandatory before PR #350 may merge with exact `expected_head_sha`; R16.9 remains PLANNED until the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
+
+---
+
+# R16.9 — Dependency/workflow/release supply-chain provenance hardening'''
+          if plan.count(manual_anchor) != 1:
+              raise SystemExit('R16_PLAN R16.8 manual/evidence anchor count != 1')
+          plan = plan.replace(manual_anchor, evidence, 1)
+
+          old_top = '> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.7 COMPLETE + NORMALIZED. R16.8 IN_PROGRESS on `r16/08-fault-injection-recovery` from normalized `main` `951c53959956d1b88b3c9c3a8c4c328c1127236b`. R16.9–R16.18 remain PLANNED.**'
+          new_top = f'> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.7 COMPLETE + NORMALIZED. R16.8 COMPLETE on immutable technical source `{technical}`; exact-END re-gates and the unique post-merge continuity normalization remain required before R16.9. R16.9–R16.18 remain PLANNED.**'
+          if continuity.count(old_top) != 1:
+              raise SystemExit('continuity top replacement count != 1')
+          continuity = continuity.replace(old_top, new_top, 1)
+
+          old_line = '- R16.8 : **IN_PROGRESS** — normalized R16.7 `main` `951c53959956d1b88b3c9c3a8c4c328c1127236b`; dedicated branch `r16/08-fault-injection-recovery`; scope frozen to deterministic fault injection, KillSwitch, backup integrity and recovery-before-continuation drills; manual NONE. R16.9 remains PLANNED.'
+          new_line = f'- R16.8 : **COMPLETE** — normalized R16.7 `main` `951c53959956d1b88b3c9c3a8c4c328c1127236b`; clean START `692b0ab931d3d59bf9f14aef7643ad83cbedc412`; immutable technical source `{technical}`; technical R16.8 #3 / `33561149190` SUCCESS Ubuntu + Windows, R0 #2308 / `33561149073` SUCCESS Ubuntu + Windows, Python Core #2280 / `33561148836` SUCCESS 5/5 and UI #2245 / `33561148947` SUCCESS; semantic acceptance `{semantic}` with 16/16 PASS, `security_claim=true`, `critical_veto=false`, synthetic-only, no live secrets/network/destructive host actions, manual NONE. Exact-source artifacts: Linux `9821331886 / sha256:9d2efca69b657333aead766a044318d26c3bccd2fd63320343885172a43d8943`; Windows `9821324996 / sha256:0735008e3eb6610891f0af3f8d7bc9bd2b786f824ed5322a18efe27cd6d40bad`. Recovery is integrity/task-bound and fail-closed under partial writes, resource denial, KillSwitch, timeout and corrupted checkpoint/snapshot/backup; restoration is verified and narrow, and repository-local RPO semantics make no production DR claim. Fresh exact-END gates and the unique continuity-only post-merge normalization are required before R16.9; R16.9 remains PLANNED.'
+          if continuity.count(old_line) != 1:
+              raise SystemExit('continuity R16.8 replacement count != 1')
+          continuity = continuity.replace(old_line, new_line, 1)
+
+          plan_path.write_text(plan, encoding='utf-8', newline='\n')
+          continuity_path.write_text(continuity, encoding='utf-8', newline='\n')
+
+      - name: Commit END sync and self-delete helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r16-8-end-sync.yml
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = ".github/workflows/r16-8-end-sync.yml docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R16_PLAN.md "
+          git commit -m "docs(r16.8): END-sync fault recovery acceptance"
+          git push origin HEAD:r16/08-fault-injection-recovery

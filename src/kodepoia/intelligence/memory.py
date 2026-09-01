@@ -6,11 +6,11 @@ import json
 import math
 import re
 import sqlite3
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Iterable, Mapping
 
 from kodepoia.core.governance import GovernancePolicy
 
@@ -1039,7 +1039,7 @@ class MemoryStore:
     def _finite_float(value: float, field: str) -> float:
         result = float(value)
         if not math.isfinite(result):
-            raise ValueError("f{field} must be finite")
+            raise ValueError(f"{field} must be finite")
         return result
 
     @staticmethod

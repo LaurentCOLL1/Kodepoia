@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "checkpoint": {
+    "task_id": "fixture-task",
+    "phase": "commit",
+    "state": {
+      "step": 2
+    },
+    "updated_at": "2026-09-01T00:00:00+00:00"
+  },
+  "checkpoint_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+}

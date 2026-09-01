@@ -3,10 +3,14 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import tempfile
+import uuid
 import zipfile
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
+
+from kodepoia.core.fault_injection import DeterministicFaultInjector
 
 
 @dataclass(frozen=True, slots=True)
@@ -27,9 +31,18 @@ class BackupManifest:
 class BackupManager:
     MANIFEST_NAME = ".kodepoia-backup-manifest.json"
 
-    def __init__(self, backup_root: Path) -> None:
+    def __init__(
+        self,
+        backup_root: Path,
+        fault_injector: DeterministicFaultInjector | None = None,
+    ) -> None:
         self.backup_root = backup_root
         self.backup_root.mkdir(parents=True, exist_ok=True)
+        self.fault_injector = fault_injector
+
+    def _fault(self, stage: str) -> None:
+        if self.fault_injector is not None:
+            self.fault_injector.hit("backup.restore", stage)
 
     @staticmethod
     def _sha256(path: Path) -> str:
@@ -113,18 +126,11 @@ class BackupManager:
         except (KeyError, OSError, ValueError, zipfile.BadZipFile, json.JSONDecodeError):
             return False
 
-    def restore(self, archive: Path, destination: Path, *, overwrite: bool = False) -> Path:
-        if not self.verify(archive):
-            raise ValueError("Refusing to restore an invalid or corrupted backup")
-        destination = destination.resolve(strict=False)
-        if destination.exists() and any(destination.iterdir()) and not overwrite:
-            raise FileExistsError(f"Restore destination is not empty: {destination}")
-        if overwrite and destination.exists():
-            shutil.rmtree(destination)
-        destination.mkdir(parents=True, exist_ok=True)
+    def _extract_validated(self, archive: Path, destination: Path) -> BackupManifest:
         manifest = self.read_manifest(archive)
         with zipfile.ZipFile(archive, "r") as zf:
             for entry in manifest.files:
+                self._fault("write")
                 target = (destination / entry.path).resolve(strict=False)
                 if target != destination and destination not in target.parents:
                     raise ValueError(f"Unsafe path in backup: {entry.path}")
@@ -132,7 +138,60 @@ class BackupManager:
                 with zf.open(entry.path, "r") as source, target.open("wb") as output:
                     shutil.copyfileobj(source, output)
         for entry in manifest.files:
+            self._fault("verify")
             restored = destination / entry.path
-            if self._sha256(restored) != entry.sha256:
+            if not restored.is_file() or self._sha256(restored) != entry.sha256:
                 raise OSError(f"Restored file failed verification: {entry.path}")
+        return manifest
+
+    def restore(self, archive: Path, destination: Path, *, overwrite: bool = False) -> Path:
+        if not self.verify(archive):
+            raise ValueError("Refusing to restore an invalid or corrupted backup")
+
+        destination = destination.resolve(strict=False)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if destination.exists() and destination.is_file():
+            raise FileExistsError(f"Restore destination is a file: {destination}")
+        if destination.exists() and any(destination.iterdir()) and not overwrite:
+            raise FileExistsError(f"Restore destination is not empty: {destination}")
+
+        self._fault("prepare")
+        stage = Path(
+            tempfile.mkdtemp(
+                prefix=f".{destination.name}.restore-",
+                dir=destination.parent,
+            )
+        )
+        rollback = destination.parent / f".{destination.name}.rollback-{uuid.uuid4().hex}"
+        moved_previous = False
+        committed = False
+        try:
+            self._extract_validated(archive, stage)
+            self._fault("commit")
+            if destination.exists():
+                destination.replace(rollback)
+                moved_previous = True
+                self._fault("commit")
+            stage.replace(destination)
+            committed = True
+
+            manifest = self.read_manifest(archive)
+            for entry in manifest.files:
+                self._fault("verify")
+                restored = destination / entry.path
+                if not restored.is_file() or self._sha256(restored) != entry.sha256:
+                    raise OSError(f"Committed restore failed verification: {entry.path}")
+            self._fault("cleanup")
+        except Exception:
+            if committed and destination.exists():
+                shutil.rmtree(destination)
+            if moved_previous and rollback.exists():
+                rollback.replace(destination)
+                moved_previous = False
+            raise
+        finally:
+            if stage.exists():
+                shutil.rmtree(stage, ignore_errors=True)
+            if moved_previous and rollback.exists():
+                shutil.rmtree(rollback, ignore_errors=True)
         return destination

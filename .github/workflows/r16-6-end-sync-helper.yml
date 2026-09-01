@@ -1,0 +1,91 @@
+name: R16.6 END Sync Helper
+
+on:
+  push:
+    branches:
+      - r16/06-destructive-command-excessive-agency-hardening
+    paths:
+      - .github/workflows/r16-6-end-sync-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R16.6 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/06-destructive-command-excessive-agency-hardening
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Patch bounded R16.6 END records
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          source = "de2648e9c7648e59dd43f9d2dccd10d0ea93da18"
+          focused = "R16.6 #3 / 33532542824"
+          r0 = "R0 #2289 / 33532542438"
+          python_core = "Python Core #2261 / 33532542746"
+          ui = "KodeStudio UI Smoke #2226 / 33532542489"
+          linux_artifact = "9810360507 / sha256:8465a92f36edb6a2de014116aa0519bebdc7f9a828c89483b0e054a055d91c05"
+          windows_artifact = "9810383609 / sha256:081dff3ad19cd6fab0e6f9c29d5e966392b020389a6d4a6d9664b90a451ebe92"
+
+          plan_path = Path("docs/roadmap/R16_PLAN.md")
+          plan = plan_path.read_text(encoding="utf-8")
+          old_checkpoint = "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.5 are COMPLETE + NORMALIZED. R16.6 is IN_PROGRESS on `r16/06-destructive-command-excessive-agency-hardening` from normalized `main` `727b0717dea86425eb566b53b3b1cc38c9937169`; R16.7–R16.18 remain PLANNED."
+          new_checkpoint = f"**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.5 are COMPLETE + NORMALIZED. R16.6 is COMPLETE on immutable technical source `{source}` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.7. R16.7–R16.18 remain PLANNED."
+          assert plan.count(old_checkpoint) == 1
+          plan = plan.replace(old_checkpoint, new_checkpoint, 1)
+
+          old_row = "| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | IN_PROGRESS | NONE |"
+          new_row = "| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE | NONE |"
+          assert plan.count(old_row) == 1
+          plan = plan.replace(old_row, new_row, 1)
+
+          marker = re.search(r"\n---\n\n# R16\.7\b", plan)
+          assert marker is not None
+          record = f'''\n## R16.6 implementation evidence\n\n- Normalized R16.5 base: `727b0717dea86425eb566b53b3b1cc38c9937169`; dedicated branch `r16/06-destructive-command-excessive-agency-hardening`.\n- Immutable technical source: `{source}`.\n- Exact-source focused acceptance: {focused} SUCCESS on Ubuntu + Windows; exact checkout, compileall, Ruff, focused adversarial tests and acceptance emission all passed.\n- Exact-source repository qualification: {r0} SUCCESS, {python_core} SUCCESS across all five jobs, {ui} SUCCESS.\n- Technical artifacts: Linux `{linux_artifact}`; Windows `{windows_artifact}`.\n- Accepted scope: structured impact classification; fail-closed unknown/unbounded mutation handling; exact one-shot approval binding across actor/action/target/scope/capability/tool/provider/operation; material-drift and replay rejection; authenticated bounded delegation against confused-deputy escalation; typed non-shell process commands constrained by PermissionSet allowlists; SafeChange snapshots; KillSwitch propagation and explicit `RECOVERY_REQUIRED` state after possible partial mutation.\n- Legacy `KodeGuardian.authorize(..., confirmed=True)` remains API-compatible but no longer converts a destructive `CONFIRM` into ambient `ALLOW`; bound authority must come from the R16.6 exact-intent path.\n- Tests remain synthetic/disposable and do not execute destructive host commands, live credential operations or production mutations. Manual state: **NONE**.\n- R16.7 remains blocked until this END-sync receives fresh exact-head R16.6/R0/Python/UI gates, PR #345 merges with `expected_head_sha`, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.\n'''
+          plan = plan[:marker.start()] + record + plan[marker.start():]
+          plan_path.write_text(plan, encoding="utf-8", newline="\n")
+
+          continuity_path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          continuity = continuity_path.read_text(encoding="utf-8")
+          old_top = "**R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.5 COMPLETE + NORMALIZED. R16.6 IN_PROGRESS on `r16/06-destructive-command-excessive-agency-hardening` from normalized `main` `727b0717dea86425eb566b53b3b1cc38c9937169`. R16.7–R16.18 remain PLANNED.**"
+          new_top = f"**R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.5 COMPLETE + NORMALIZED. R16.6 COMPLETE / NORMALIZATION PENDING on immutable technical source `{source}`. R16.7–R16.18 remain PLANNED.**"
+          assert continuity.count(old_top) == 1
+          continuity = continuity.replace(old_top, new_top, 1)
+
+          old_line = "- R16.6 : **IN_PROGRESS** — normalized R16.5 `main` `727b0717dea86425eb566b53b3b1cc38c9937169`; branch `r16/06-destructive-command-excessive-agency-hardening`; START-sync only, before functional implementation. Core acceptance is synthetic and disposable with manual NONE. Unknown/unbounded destructive impact fails closed; high-impact approvals must bind exact operation/target/scope/action digest; lower-trust sources cannot widen higher-trust capability; privileged process boundaries use typed command/argument contracts rather than model-authored shell policy; reversible SafeChange/backup/cancellation boundaries remain authoritative."
+          new_line = f"- R16.6 : **COMPLETE / NORMALIZATION PENDING** — normalized R16.5 `main` `727b0717dea86425eb566b53b3b1cc38c9937169`; immutable technical source `{source}`; exact-source {focused} SUCCESS Ubuntu + Windows, {r0} SUCCESS, {python_core} SUCCESS 5/5, {ui} SUCCESS; technical artifacts Linux `{linux_artifact}`, Windows `{windows_artifact}`; PR #345 remains open pending this END-sync exact-head re-gate. Exact one-shot approvals bind material intent and reject replay/drift; unknown/unbounded destructive impact fails closed; bounded delegation prevents confused-deputy widening; privileged process execution is typed/non-shell and allowlisted; SafeChange snapshots and KillSwitch partial-mutation recovery remain authoritative; legacy boolean confirmation is non-authoritative. Synthetic/disposable only, manual NONE. R16.7 remains blocked until merge plus unique continuity-only post-merge normalization."
+          assert continuity.count(old_line) == 1
+          continuity = continuity.replace(old_line, new_line, 1)
+          continuity_path.write_text(continuity, encoding="utf-8", newline="\n")
+
+      - name: Validate bounded sync
+        shell: bash
+        run: |
+          git diff --check
+          python scripts/check_repo.py
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R16_PLAN.md'
+          actual="$(git diff --name-only | sort)"
+          test "$actual" = "$expected"
+
+      - name: Commit END sync and remove helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r16-6-end-sync-helper.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R16_PLAN.md
+          git diff --cached --check
+          git commit -m "docs(r16.6): synchronize accepted technical source"
+          git push origin HEAD:r16/06-destructive-command-excessive-agency-hardening

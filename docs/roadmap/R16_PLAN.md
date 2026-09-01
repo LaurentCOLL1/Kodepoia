@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.5 are COMPLETE + NORMALIZED. R16.6 is COMPLETE on immutable technical source `de2648e9c7648e59dd43f9d2dccd10d0ea93da18` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.7. R16.7–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.6 are COMPLETE + NORMALIZED. R16.7 is IN_PROGRESS from normalized `main` `9c358e48e97352046160d48cee0417ade435b6ac` on dedicated branch `r16/07-memory-context-poisoning-hardening`. R16.8–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -172,8 +172,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.3 | Malicious repository/workspace quarantine and safe bootstrap | COMPLETE + NORMALIZED | NONE |
 | R16.4 | Secrets, privacy and exfiltration hardening | COMPLETE + NORMALIZED | NONE |
 | R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE + NORMALIZED | NONE |
-| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE | NONE |
-| R16.7 | Memory/context poisoning detection, quarantine and rebuild | PLANNED | NONE |
+| R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE + NORMALIZED | NONE |
+| R16.7 | Memory/context poisoning detection, quarantine and rebuild | IN_PROGRESS | NONE |
 | R16.8 | Fault injection, KillSwitch, backup and recovery drills | PLANNED | NONE |
 | R16.9 | Dependency/workflow/release supply-chain provenance hardening | PLANNED | NONE |
 | R16.10 | Representative real Godot 2D beta project | PLANNED | NONE |

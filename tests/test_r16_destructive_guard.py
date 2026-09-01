@@ -87,7 +87,10 @@ def test_benign_read_allowed_and_unknown_unbounded_denied(tmp_path: Path) -> Non
         operation="read",
     )
     assert guard.authorize(read).kind is DestructiveDecisionKind.ALLOW
-    assert guard.authorize(_intent(tmp_path, impact=ImpactLevel.UNKNOWN)).kind is DestructiveDecisionKind.DENY
+    assert (
+        guard.authorize(_intent(tmp_path, impact=ImpactLevel.UNKNOWN)).kind
+        is DestructiveDecisionKind.DENY
+    )
     assert guard.authorize(_intent(tmp_path, bounded=False)).kind is DestructiveDecisionKind.DENY
 
 
@@ -147,7 +150,13 @@ def test_stale_and_forged_approvals_are_denied(tmp_path: Path) -> None:
     approval = guard.issue_approval(intent, issuer=_user())
     guard.invalidate_approvals(new_policy_digest=_digest("r16.6-policy-v2"))
     assert guard.authorize(intent, approval=approval).kind is DestructiveDecisionKind.DENY
-    forged = BoundApproval(_digest("fake"), intent.digest, intent.actor, _digest("issuer"), guard.policy_digest)
+    forged = BoundApproval(
+        _digest("fake"),
+        intent.digest,
+        intent.actor,
+        _digest("issuer"),
+        guard.policy_digest,
+    )
     assert guard.authorize(intent, approval=forged).kind is DestructiveDecisionKind.DENY
 
 

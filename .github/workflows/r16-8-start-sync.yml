@@ -1,0 +1,72 @@
+name: R16.8 START Sync Helper
+
+on:
+  push:
+    branches:
+      - r16/08-fault-injection-recovery
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v5
+        with:
+          ref: r16/08-fault-injection-recovery
+          fetch-depth: 0
+      - name: Apply bounded R16.8 START sync
+        shell: python
+        run: |
+          from pathlib import Path
+
+          plan_path = Path('docs/roadmap/R16_PLAN.md')
+          continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          continuity = continuity_path.read_text(encoding='utf-8')
+
+          replacements = [
+              (
+                  'R16.1–R16.6 are COMPLETE + NORMALIZED. R16.7 is COMPLETE on immutable technical source `f095781fde179045fcbcf7fb89661f72f9c51c46` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.8. R16.8–R16.18 remain PLANNED.',
+                  'R16.1–R16.7 are COMPLETE + NORMALIZED. R16.8 is IN_PROGRESS from normalized `main` `951c53959956d1b88b3c9c3a8c4c328c1127236b` on dedicated branch `r16/08-fault-injection-recovery`. R16.9–R16.18 remain PLANNED.',
+              ),
+              (
+                  '| R16.7 | Memory/context poisoning detection, quarantine and rebuild | COMPLETE | NONE |\n| R16.8 | Fault injection, KillSwitch, backup and recovery drills | PLANNED | NONE |',
+                  '| R16.7 | Memory/context poisoning detection, quarantine and rebuild | COMPLETE + NORMALIZED | NONE |\n| R16.8 | Fault injection, KillSwitch, backup and recovery drills | IN_PROGRESS | NONE |',
+              ),
+          ]
+          for old, new in replacements:
+              if plan.count(old) != 1:
+                  raise SystemExit(f'R16_PLAN replacement count != 1 for: {old[:80]!r}')
+              plan = plan.replace(old, new, 1)
+
+          old_top = '**R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.7 COMPLETE + NORMALIZED. R16.8–R16.18 remain PLANNED. R16.8 START-sync is authorized only from the normalized `main` produced by the unique R16.7 post-merge continuity-only normalization.**'
+          new_top = '**R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.7 COMPLETE + NORMALIZED. R16.8 IN_PROGRESS on `r16/08-fault-injection-recovery` from normalized `main` `951c53959956d1b88b3c9c3a8c4c328c1127236b`. R16.9–R16.18 remain PLANNED.**'
+          if continuity.count(old_top) != 1:
+              raise SystemExit('continuity top replacement count != 1')
+          continuity = continuity.replace(old_top, new_top, 1)
+
+          anchor = '- R16.7 : **COMPLETE + NORMALIZED** — normalized R16.6 `main` `9c358e48e97352046160d48cee0417ade435b6ac`;'
+          if continuity.count(anchor) != 1:
+              raise SystemExit('R16.7 continuity anchor count != 1')
+          r16_7_line = next(line for line in continuity.splitlines() if line.startswith(anchor))
+          new_line = '- R16.8 : **IN_PROGRESS** — normalized R16.7 `main` `951c53959956d1b88b3c9c3a8c4c328c1127236b`; dedicated branch `r16/08-fault-injection-recovery`; scope frozen to deterministic fault injection, KillSwitch, backup integrity and recovery-before-continuation drills; manual NONE. R16.9 remains PLANNED.'
+          if new_line not in continuity:
+              continuity = continuity.replace(r16_7_line, r16_7_line + '\n' + new_line, 1)
+
+          plan_path.write_text(plan, encoding='utf-8', newline='\n')
+          continuity_path.write_text(continuity, encoding='utf-8', newline='\n')
+      - name: Commit START sync and self-delete helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r16-8-start-sync.yml
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --name-only
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = ".github/workflows/r16-8-start-sync.yml docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R16_PLAN.md "
+          git commit -m "docs(r16.8): START-sync fault recovery hardening"
+          git push origin HEAD:r16/08-fault-injection-recovery

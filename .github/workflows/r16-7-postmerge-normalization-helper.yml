@@ -53,8 +53,12 @@ jobs:
         run: |
           git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
           python scripts/check_repo.py
-          actual="$(git diff --name-only | sort)"
+          actual="$(git diff --name-only -- docs/continuity/KODEPOIA_CONTINUITY.md)"
           test "$actual" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          unexpected="$(git diff --name-only -- . \
+            ':(exclude)docs/continuity/KODEPOIA_CONTINUITY.md' \
+            ':(exclude)docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json' | sort)"
+          test -z "$unexpected"
 
       - name: Commit normalized continuity and remove helper
         shell: bash

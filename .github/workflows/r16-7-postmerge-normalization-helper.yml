@@ -1,0 +1,71 @@
+name: R16.7 Post-Merge Continuity Normalization Helper
+
+on:
+  push:
+    branches:
+      - r16/07-continuity-normalization
+    paths:
+      - .github/workflows/r16-7-postmerge-normalization-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/07-continuity-normalization
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install R0 checker dependencies
+        run: python -m pip install -r scripts/requirements-r0.txt
+
+      - name: Patch bounded R16.7 normalization record
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+
+          old_status = "**R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.6 COMPLETE + NORMALIZED. R16.7 COMPLETE / NORMALIZATION PENDING on immutable technical source `f095781fde179045fcbcf7fb89661f72f9c51c46`. R16.8–R16.18 remain PLANNED.**"
+          new_status = "**R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.7 COMPLETE + NORMALIZED. R16.8–R16.18 remain PLANNED. R16.8 START-sync is authorized only from the normalized `main` produced by the unique R16.7 post-merge continuity-only normalization.**"
+          assert text.count(old_status) == 1
+          text = text.replace(old_status, new_status, 1)
+
+          old_line = "- R16.7 : **COMPLETE / NORMALIZATION PENDING** — normalized R16.6 `main` `9c358e48e97352046160d48cee0417ade435b6ac`; immutable technical source `f095781fde179045fcbcf7fb89661f72f9c51c46`; exact-source R16.7 #3 / 33548649753 SUCCESS Ubuntu + Windows, R0 #2299 / 33548649697 SUCCESS, Python Core #2271 / 33548649730 SUCCESS 5/5, KodeStudio UI Smoke #2236 / 33548649767 SUCCESS; semantic `da712c044ecc6fc7a6a7263c512603ffabe7f55ef126d3ad6214e2135fe60136` with 15/15 PASS, `critical_veto=false`, manual NONE; technical artifacts Linux `9816508603 / archive sha256:20f5b1f01c3bcb9272813f82a8b54932a857a2910dfc1a16682c425ae2b04acc / payload sha256:a4a699a2da38d68c4571d846614fba07425746039bf510e8bdb83175dc1787ed`, Windows `9816556278 / archive sha256:65b69553bcd265e0d7cd1b681719abf0b383238a92003de77da31319a9ee7b7f / payload sha256:a79b8b777038efbeb7b1be985d4018de3828fa034a4b8aa26631dea439512fba`; PR #347 remains open pending this END-sync exact-head re-gate. Memory is provenance/version/integrity-bound, scoped and fail-closed under tamper/replay/conflict/stale/cross-project/expiry; secret-like or authority-spoofing payloads are rejected without raw persistence; bounded invalidation preserves unrelated valid memory; authoritative rebuild is deterministic or truthfully `INCONCLUSIVE`; action suggestions never become authority. R16.8 remains blocked until merge plus unique continuity-only post-merge normalization."
+          new_line = "- R16.7 : **COMPLETE + NORMALIZED** — normalized R16.6 `main` `9c358e48e97352046160d48cee0417ade435b6ac`; immutable technical source `f095781fde179045fcbcf7fb89661f72f9c51c46`; technical R16.7 #3 / `33548649753` SUCCESS Ubuntu + Windows; final exact-END head `86d538b8bda86ffa154380dcde088147f1ee1a51` passed fresh R16.7 #12 / `33549808430` SUCCESS Ubuntu + Windows, R0 #2304 / `33549808268` SUCCESS Ubuntu + Windows, Python Core #2276 / `33549808379` SUCCESS 5/5 and UI #2241 / `33549808341` SUCCESS; PR #347 merged with `expected_head_sha=86d538b8bda86ffa154380dcde088147f1ee1a51` as implementation/evidence `main` `4b250d6d7cb3b4d1d3a19b0ce422e6897b0d8174`. Cross-platform semantic acceptance `da712c044ecc6fc7a6a7263c512603ffabe7f55ef126d3ad6214e2135fe60136`; 15/15 PASS, `security_claim=true`, `critical_veto=false`, synthetic-only, no live secrets/network calls/raw poison persistence, manual NONE. Exact-END artifacts: Linux `9817176488 / sha256:fc2da5dfea46065b6c574a951267f889b0baa7094fbfa5b9041735829908246a`; Windows `9817054442 / sha256:879a4719edb979eecf4d1e7ff3ba437ff4c72bffe982ffb994b9652bb20213aa`. Memory is provenance/version/integrity-bound, scoped and fail-closed under tamper/replay/conflict/stale/cross-project/expiry; secret-like or authority-spoofing payloads are rejected without raw persistence; bounded invalidation preserves unrelated valid memory; authoritative rebuild is deterministic or truthfully `INCONCLUSIVE`; action suggestions never become authority. This record is the unique post-merge continuity-only R16.7 normalization authority when its PR merges; R16.8 START-sync is authorized only from the resulting normalized `main`."
+          assert text.count(old_line) == 1
+          text = text.replace(old_line, new_line, 1)
+
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+      - name: Validate continuity-only normalization
+        shell: bash
+        run: |
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+          python scripts/check_repo.py
+          actual="$(git diff --name-only | sort)"
+          test "$actual" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+
+      - name: Commit normalized continuity and remove helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r16-7-postmerge-normalization-helper.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          expected=$'.github/workflows/r16-7-postmerge-normalization-helper.yml\ndocs/continuity/KODEPOIA_CONTINUITY.md'
+          actual="$(git diff --cached --name-only | sort)"
+          test "$actual" = "$expected"
+          git diff --cached --check
+          git commit -m "docs(r16.7): normalize post-merge continuity"
+          git push origin HEAD:r16/07-continuity-normalization

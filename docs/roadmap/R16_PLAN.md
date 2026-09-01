@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.6 are COMPLETE + NORMALIZED. R16.7 is COMPLETE on immutable technical source `f095781fde179045fcbcf7fb89661f72f9c51c46` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.8. R16.8–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.7 are COMPLETE + NORMALIZED. R16.8 is IN_PROGRESS from normalized `main` `951c53959956d1b88b3c9c3a8c4c328c1127236b` on dedicated branch `r16/08-fault-injection-killswitch-backup-recovery-drills`. R16.9–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -173,8 +173,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.4 | Secrets, privacy and exfiltration hardening | COMPLETE + NORMALIZED | NONE |
 | R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE + NORMALIZED | NONE |
 | R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE + NORMALIZED | NONE |
-| R16.7 | Memory/context poisoning detection, quarantine and rebuild | COMPLETE | NONE |
-| R16.8 | Fault injection, KillSwitch, backup and recovery drills | PLANNED | NONE |
+| R16.7 | Memory/context poisoning detection, quarantine and rebuild | COMPLETE + NORMALIZED | NONE |
+| R16.8 | Fault injection, KillSwitch, backup and recovery drills | IN_PROGRESS | NONE |
 | R16.9 | Dependency/workflow/release supply-chain provenance hardening | PLANNED | NONE |
 | R16.10 | Representative real Godot 2D beta project | PLANNED | NONE |
 | R16.11 | Representative real Godot 3D beta project | PLANNED | NONE |

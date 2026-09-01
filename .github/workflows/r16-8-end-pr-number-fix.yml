@@ -1,0 +1,41 @@
+name: R16.8 END PR Number Correction
+
+on:
+  push:
+    branches:
+      - r16/08-fault-injection-recovery
+
+permissions:
+  contents: write
+
+jobs:
+  correct:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v5
+        with:
+          ref: r16/08-fault-injection-recovery
+          fetch-depth: 0
+      - name: Correct authoritative PR number only
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('docs/roadmap/R16_PLAN.md')
+          text = path.read_text(encoding='utf-8')
+          old = 'before PR #350 may merge with exact `expected_head_sha`'
+          new = 'before PR #349 may merge with exact `expected_head_sha`'
+          if text.count(old) != 1:
+              raise SystemExit('expected exactly one stale PR #350 END authority reference')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8', newline='\n')
+      - name: Commit correction and self-delete helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r16-8-end-pr-number-fix.yml
+          git add docs/roadmap/R16_PLAN.md
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = ".github/workflows/r16-8-end-pr-number-fix.yml docs/roadmap/R16_PLAN.md "
+          git commit -m "docs(r16.8): correct implementation PR authority"
+          git push origin HEAD:r16/08-fault-injection-recovery

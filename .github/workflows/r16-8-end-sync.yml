@@ -28,7 +28,6 @@ jobs:
           continuity_path = Path('docs/continuity/KODEPOIA_CONTINUITY.md')
           plan = plan_path.read_text(encoding='utf-8')
           continuity = continuity_path.read_text(encoding='utf-8')
-
           technical = '9bea715e7f575696ba66240d6ff127e72e85f82e'
           semantic = 'f94ccc46356a24a8be2726a724191e1dc2eb148c049e184f38431be2f4af8c26'
 
@@ -44,31 +43,28 @@ jobs:
               raise SystemExit('R16_PLAN R16.8 row replacement count != 1')
           plan = plan.replace(old_row, new_row, 1)
 
-          manual_anchor = '''## Manual intervention
-
-**NONE.**
-
----
-
-# R16.9 — Dependency/workflow/release supply-chain provenance hardening'''
-          evidence = f'''## Manual intervention
-
-**NONE.**
-
-## R16.8 implementation evidence
-
-- Normalized R16.7 base: `951c53959956d1b88b3c9c3a8c4c328c1127236b`; clean START-sync head `692b0ab931d3d59bf9f14aef7643ad83cbedc412`; dedicated branch `r16/08-fault-injection-recovery`.
-- Immutable technical source: `{technical}`.
-- Exact-source focused acceptance: R16.8 #3 / `33561149190` SUCCESS on Ubuntu + Windows; exact checkout, compileall, Ruff, focused recovery/adversarial tests and machine-readable acceptance emission all passed.
-- Exact-source repository qualification: R0 #2308 / `33561149073` SUCCESS Ubuntu + Windows; Python Core #2280 / `33561148836` SUCCESS across all five jobs; KodeStudio UI Smoke #2245 / `33561148947` SUCCESS.
-- Cross-platform semantic acceptance SHA-256: `{semantic}`; 16/16 cases PASS with `security_claim=true`, `critical_veto=false`, `manual=NONE`, synthetic-only fixtures, zero network calls, zero live secrets, zero destructive host actions and no production disaster-recovery claim.
-- Exact-source artifacts: Linux `9821331886 / sha256:9d2efca69b657333aead766a044318d26c3bccd2fd63320343885172a43d8943`; Windows `9821324996 / sha256:0735008e3eb6610891f0af3f8d7bc9bd2b786f824ed5322a18efe27cd6d40bad`.
-- Accepted scope: deterministic one-shot fault points at prepare/write/commit/verify/cleanup; integrity-bound v2 recovery checkpoints; legacy checkpoints remain readable as data but cannot become recovery authority; synthetic ENOSPC/resource denial; KillSwitch before launch, against a hanging registered subprocess and during multi-step mutation; bounded timeout handling; corrupted checkpoints/snapshots/backups fail closed; verified known-good restoration; exact task binding; narrow single-file recovery that does not roll unrelated permissions/secrets/tool-trust state backward; repository-local recovery point objective only.
-- R16.8 is COMPLETE at END-sync. Fresh exact-END R16.8/R0/Python/UI re-gates are mandatory before PR #350 may merge with exact `expected_head_sha`; R16.9 remains PLANNED until the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
-
----
-
-# R16.9 — Dependency/workflow/release supply-chain provenance hardening'''
+          manual_anchor = '## Manual intervention\n\n**NONE.**\n\n---\n\n# R16.9 — Dependency/workflow/release supply-chain provenance hardening'
+          evidence_lines = [
+              '## Manual intervention',
+              '',
+              '**NONE.**',
+              '',
+              '## R16.8 implementation evidence',
+              '',
+              '- Normalized R16.7 base: `951c53959956d1b88b3c9c3a8c4c328c1127236b`; clean START-sync head `692b0ab931d3d59bf9f14aef7643ad83cbedc412`; dedicated branch `r16/08-fault-injection-recovery`.',
+              f'- Immutable technical source: `{technical}`.',
+              '- Exact-source focused acceptance: R16.8 #3 / `33561149190` SUCCESS on Ubuntu + Windows; exact checkout, compileall, Ruff, focused recovery/adversarial tests and machine-readable acceptance emission all passed.',
+              '- Exact-source repository qualification: R0 #2308 / `33561149073` SUCCESS Ubuntu + Windows; Python Core #2280 / `33561148836` SUCCESS across all five jobs; KodeStudio UI Smoke #2245 / `33561148947` SUCCESS.',
+              f'- Cross-platform semantic acceptance SHA-256: `{semantic}`; 16/16 cases PASS with `security_claim=true`, `critical_veto=false`, `manual=NONE`, synthetic-only fixtures, zero network calls, zero live secrets, zero destructive host actions and no production disaster-recovery claim.',
+              '- Exact-source artifacts: Linux `9821331886 / sha256:9d2efca69b657333aead766a044318d26c3bccd2fd63320343885172a43d8943`; Windows `9821324996 / sha256:0735008e3eb6610891f0af3f8d7bc9bd2b786f824ed5322a18efe27cd6d40bad`.',
+              '- Accepted scope: deterministic one-shot fault points at prepare/write/commit/verify/cleanup; integrity-bound v2 recovery checkpoints; legacy checkpoints remain readable as data but cannot become recovery authority; synthetic ENOSPC/resource denial; KillSwitch before launch, against a hanging registered subprocess and during multi-step mutation; bounded timeout handling; corrupted checkpoints/snapshots/backups fail closed; verified known-good restoration; exact task binding; narrow single-file recovery that does not roll unrelated permissions/secrets/tool-trust state backward; repository-local recovery point objective only.',
+              '- R16.8 is COMPLETE at END-sync. Fresh exact-END R16.8/R0/Python/UI re-gates are mandatory before PR #350 may merge with exact `expected_head_sha`; R16.9 remains PLANNED until the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.',
+              '',
+              '---',
+              '',
+              '# R16.9 — Dependency/workflow/release supply-chain provenance hardening',
+          ]
+          evidence = '\n'.join(evidence_lines)
           if plan.count(manual_anchor) != 1:
               raise SystemExit('R16_PLAN R16.8 manual/evidence anchor count != 1')
           plan = plan.replace(manual_anchor, evidence, 1)
@@ -95,6 +91,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/r16-8-end-sync.yml
           git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --name-only
           test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = ".github/workflows/r16-8-end-sync.yml docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R16_PLAN.md "
           git commit -m "docs(r16.8): END-sync fault recovery acceptance"
           git push origin HEAD:r16/08-fault-injection-recovery

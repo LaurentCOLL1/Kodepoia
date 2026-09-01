@@ -1,0 +1,113 @@
+name: R16.4 END Sync
+
+on:
+  push:
+    branches:
+      - r16/04-secrets-privacy-exfiltration-hardening
+    paths:
+      - .github/workflows/r16-4-end-sync.yml
+
+permissions:
+  contents: write
+
+jobs:
+  end-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R16.4 branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/04-secrets-privacy-exfiltration-hardening
+          fetch-depth: 0
+
+      - name: Synchronize R16.4 END authority
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          plan_path = Path("docs/roadmap/R16_PLAN.md")
+          continuity_path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          plan = plan_path.read_text(encoding="utf-8")
+          continuity = continuity_path.read_text(encoding="utf-8")
+
+          checkpoint = (
+              "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + "
+              "NORMALIZED. R16.1–R16.3 are COMPLETE + NORMALIZED. R16.4 is COMPLETE at mandatory END-sync; "
+              "fresh exact-END R16.4/R0/Python/UI re-gates are required before protected merge. "
+              "R16.5–R16.18 remain PLANNED."
+          )
+          plan, count = re.subn(r"^\*\*Execution checkpoint:\*\*.*$", checkpoint, plan, count=1, flags=re.M)
+          if count != 1:
+              raise SystemExit("R16 plan checkpoint replacement failed")
+
+          old_row = "| R16.4 | Secrets, privacy and exfiltration hardening | IN_PROGRESS | NONE |"
+          new_row = "| R16.4 | Secrets, privacy and exfiltration hardening | COMPLETE | NONE |"
+          if plan.count(old_row) != 1:
+              raise SystemExit("R16.4 subdivision row replacement failed")
+          plan = plan.replace(old_row, new_row, 1)
+
+          marker = "\n---\n\n# R16.5 — Tool/plugin/MCP trust, capability and authorization hardening"
+          end_text = """
+## R16.4 END acceptance authority
+
+- Normalized branch point: `main` `cb6ec02629fd94f9d23b04ebfed525571c8482d9`; clean START `d244d98e6699b1872d2d9457fb87ca39cb58eaad`; immutable technical source `f4dfa88870ee25956edf99476f5bd130a1cec471`.
+- Technical-source gate: R16.4 #3 / `33514844394` SUCCESS Ubuntu + Windows after exact checkout provenance, compile, Ruff, 10 focused tests and exact-source acceptance.
+- Cross-platform acceptance JSON is byte-identical: SHA-256 `8fb41bde8798b0b0734d19f582e298da20f8af40b88c2d02faa72b8279c7fac1`; semantic `7f5101b4371a531b6b1e610b1908f6b54e0123b111de1e4343f41887f57cfa0f`; 10/10 critical cases PASS with `security_claim=true`, `critical_veto=false`, `manual_state=NONE`, synthetic-only fixtures, no live secrets, no destructive host actions and no network calls.
+- Linux artifact `9803136169` archive SHA-256 `041fb37ee017329c23c062ae26a81a29fcd83d40f6b0e08a9eebbcba9b93f43f`; Windows artifact `9803152318` archive SHA-256 `e82cb50a838704931fa99c038d32f353410b5c70a900285f0ec1e3f5093724bb`.
+- Security boundary delivered: `SecretRef` remains durable while secret values are resolved only at narrow use boundaries; raw/common encoded canaries are redacted; raw secrets are denied in argv and ordinary env maps; captured stdout/stderr and exceptions are sanitized; artifact scans are bounded/fail-closed; secret-tainted egress requires explicit destination plus payload authority and secret material is denied in URLs; fresh backend resolution observes rotation/revocation.
+- Manual NONE. R16.4 is COMPLETE at END-sync. Fresh exact-END R16.4/R0/Python/UI re-gates are mandatory before protected merge; R16.5 remains PLANNED until implementation merge and unique post-merge continuity normalization complete.
+"""
+          if plan.count(marker) != 1:
+              raise SystemExit("R16.5 insertion marker missing or ambiguous")
+          plan = plan.replace(marker, "\n" + end_text.strip() + marker, 1)
+
+          old_header = (
+              "R16.4 IN_PROGRESS on `r16/04-secrets-privacy-exfiltration-hardening` from that exact normalized main; "
+              "R16.5–R16.18 remain PLANNED."
+          )
+          new_header = (
+              "R16.4 COMPLETE at mandatory END-sync on `r16/04-secrets-privacy-exfiltration-hardening`; "
+              "fresh exact-END re-gates are required before protected merge, and R16.5–R16.18 remain PLANNED."
+          )
+          if continuity.count(old_header) != 1:
+              raise SystemExit("continuity header replacement failed")
+          continuity = continuity.replace(old_header, new_header, 1)
+
+          replacement = (
+              "- R16.4 : **COMPLETE** — normalized R16.3 `main` `cb6ec02629fd94f9d23b04ebfed525571c8482d9`; "
+              "clean START `d244d98e6699b1872d2d9457fb87ca39cb58eaad`; immutable technical source "
+              "`f4dfa88870ee25956edf99476f5bd130a1cec471`; technical R16.4 #3 / `33514844394` SUCCESS Ubuntu + Windows; "
+              "cross-platform JSON `8fb41bde8798b0b0734d19f582e298da20f8af40b88c2d02faa72b8279c7fac1`; semantic "
+              "`7f5101b4371a531b6b1e610b1908f6b54e0123b111de1e4343f41887f57cfa0f`; 10/10 PASS, `security_claim=true`, "
+              "`critical_veto=false`, synthetic-only, no live secrets/destructive host actions/network calls, manual NONE. "
+              "Linux artifact `9803136169` / `041fb37ee017329c23c062ae26a81a29fcd83d40f6b0e08a9eebbcba9b93f43f`; Windows artifact "
+              "`9803152318` / `e82cb50a838704931fa99c038d32f353410b5c70a900285f0ec1e3f5093724bb`. `SecretRef` stays durable/non-tainted; "
+              "secret values are narrow-use only, redacted across output/evidence, denied in argv/ordinary env and URLs, artifact-scanned, destination-gated, and re-resolved for rotation/revocation. "
+              "Fresh exact-END R16.4/R0/Python/UI re-gates are mandatory before merge; R16.5 remains PLANNED until post-merge normalization."
+          )
+          pattern = r"^- R16\.4 : \*\*IN_PROGRESS\*\* — .*?$"
+          continuity, count = re.subn(pattern, replacement, continuity, count=1, flags=re.M)
+          if count != 1:
+              raise SystemExit("continuity R16.4 entry replacement failed")
+
+          plan_path.write_text(plan, encoding="utf-8", newline="\n")
+          continuity_path.write_text(continuity, encoding="utf-8", newline="\n")
+
+      - name: Verify END sync scope
+        shell: bash
+        run: |
+          git rm .github/workflows/r16-4-end-sync.yml
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          actual="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' '.github/workflows/r16-4-end-sync.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R16_PLAN.md' | sort)"
+          test "$actual" = "$expected"
+
+      - name: Commit clean END sync
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(r16.4): synchronize END acceptance"
+          git push origin HEAD:r16/04-secrets-privacy-exfiltration-hardening

@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.6 are COMPLETE + NORMALIZED. R16.7 is IN_PROGRESS from normalized `main` `9c358e48e97352046160d48cee0417ade435b6ac` on dedicated branch `r16/07-memory-context-poisoning-hardening`. R16.8–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.6 are COMPLETE + NORMALIZED. R16.7 is COMPLETE on immutable technical source `f095781fde179045fcbcf7fb89661f72f9c51c46` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.8. R16.8–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -173,7 +173,7 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.4 | Secrets, privacy and exfiltration hardening | COMPLETE + NORMALIZED | NONE |
 | R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE + NORMALIZED | NONE |
 | R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE + NORMALIZED | NONE |
-| R16.7 | Memory/context poisoning detection, quarantine and rebuild | IN_PROGRESS | NONE |
+| R16.7 | Memory/context poisoning detection, quarantine and rebuild | COMPLETE | NONE |
 | R16.8 | Fault injection, KillSwitch, backup and recovery drills | PLANNED | NONE |
 | R16.9 | Dependency/workflow/release supply-chain provenance hardening | PLANNED | NONE |
 | R16.10 | Representative real Godot 2D beta project | PLANNED | NONE |
@@ -599,6 +599,18 @@ Legitimate historical context falsely quarantined; schema drift; silent scope co
 ## Manual intervention
 
 **NONE.**
+
+## R16.7 implementation evidence
+
+- Normalized R16.6 base: `9c358e48e97352046160d48cee0417ade435b6ac`; dedicated branch `r16/07-memory-context-poisoning-hardening`.
+- Immutable technical source: `f095781fde179045fcbcf7fb89661f72f9c51c46`.
+- Exact-source focused acceptance: R16.7 #3 / 33548649753 SUCCESS on Ubuntu + Windows; exact checkout, compileall, Ruff, 18 focused adversarial tests and 15-case acceptance emission all passed.
+- Exact-source repository qualification: R0 #2299 / 33548649697 SUCCESS Ubuntu + Windows, Python Core #2271 / 33548649730 SUCCESS across all five jobs, KodeStudio UI Smoke #2236 / 33548649767 SUCCESS.
+- Cross-platform acceptance semantic SHA-256: `da712c044ecc6fc7a6a7263c512603ffabe7f55ef126d3ad6214e2135fe60136`; 15/15 critical cases PASS with `security_claim=true`, `critical_veto=false`, `manual=NONE`, synthetic-only fixtures, zero network calls, zero live secrets and no raw poison persistence.
+- Technical artifacts: Linux `9816508603 / archive sha256:20f5b1f01c3bcb9272813f82a8b54932a857a2910dfc1a16682c425ae2b04acc / payload sha256:a4a699a2da38d68c4571d846614fba07425746039bf510e8bdb83175dc1787ed`; Windows `9816556278 / archive sha256:65b69553bcd265e0d7cd1b681719abf0b383238a92003de77da31319a9ee7b7f / payload sha256:a79b8b777038efbeb7b1be985d4018de3828fa034a4b8aa26631dea439512fba`.
+- Accepted scope: versioned provenance/project-scope/trust/record-class/integrity/expiry metadata; fail-closed tamper, replay, same-version conflict, stale-version, cross-project and expiry handling; hashed quarantine evidence without raw secret retention; memory content cannot self-authorize, alter policy/architecture or raise its trust class; bounded invalidation preserves unrelated valid memory; deterministic authoritative rebuild replaces only matching lineages and reports `INCONCLUSIVE` when no trustworthy source exists; action suggestions cannot become authoritative rebuild facts.
+- Legacy memory rows migrate as data-only/untrusted and legacy add/list/semantic-search behavior remains available. Tests are synthetic/disposable and do not use live secrets, production memory or network calls. Manual state: **NONE**.
+- R16.8 remains blocked until this END-sync receives fresh exact-head R16.7/R0/Python/UI gates, PR #347 merges with `expected_head_sha`, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

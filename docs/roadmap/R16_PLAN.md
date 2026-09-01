@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.7 are COMPLETE + NORMALIZED. R16.8 is IN_PROGRESS from normalized `main` `951c53959956d1b88b3c9c3a8c4c328c1127236b` on dedicated branch `r16/08-fault-injection-recovery`. R16.9–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.7 are COMPLETE + NORMALIZED. R16.8 is COMPLETE on immutable technical source `9bea715e7f575696ba66240d6ff127e72e85f82e` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.9. R16.9–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -174,7 +174,7 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE + NORMALIZED | NONE |
 | R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE + NORMALIZED | NONE |
 | R16.7 | Memory/context poisoning detection, quarantine and rebuild | COMPLETE + NORMALIZED | NONE |
-| R16.8 | Fault injection, KillSwitch, backup and recovery drills | IN_PROGRESS | NONE |
+| R16.8 | Fault injection, KillSwitch, backup and recovery drills | COMPLETE | NONE |
 | R16.9 | Dependency/workflow/release supply-chain provenance hardening | PLANNED | NONE |
 | R16.10 | Representative real Godot 2D beta project | PLANNED | NONE |
 | R16.11 | Representative real Godot 3D beta project | PLANNED | NONE |
@@ -661,6 +661,17 @@ Fault points that do not model real persistence order; nondeterministic process 
 ## Manual intervention
 
 **NONE.**
+
+## R16.8 implementation evidence
+
+- Normalized R16.7 base: `951c53959956d1b88b3c9c3a8c4c328c1127236b`; clean START-sync head `692b0ab931d3d59bf9f14aef7643ad83cbedc412`; dedicated branch `r16/08-fault-injection-recovery`.
+- Immutable technical source: `9bea715e7f575696ba66240d6ff127e72e85f82e`.
+- Exact-source focused acceptance: R16.8 #3 / `33561149190` SUCCESS on Ubuntu + Windows; exact checkout, compileall, Ruff, focused recovery/adversarial tests and machine-readable acceptance emission all passed.
+- Exact-source repository qualification: R0 #2308 / `33561149073` SUCCESS Ubuntu + Windows; Python Core #2280 / `33561148836` SUCCESS across all five jobs; KodeStudio UI Smoke #2245 / `33561148947` SUCCESS.
+- Cross-platform semantic acceptance SHA-256: `f94ccc46356a24a8be2726a724191e1dc2eb148c049e184f38431be2f4af8c26`; 16/16 cases PASS with `security_claim=true`, `critical_veto=false`, `manual=NONE`, synthetic-only fixtures, zero network calls, zero live secrets, zero destructive host actions and no production disaster-recovery claim.
+- Exact-source artifacts: Linux `9821331886 / sha256:9d2efca69b657333aead766a044318d26c3bccd2fd63320343885172a43d8943`; Windows `9821324996 / sha256:0735008e3eb6610891f0af3f8d7bc9bd2b786f824ed5322a18efe27cd6d40bad`.
+- Accepted scope: deterministic one-shot fault points at prepare/write/commit/verify/cleanup; integrity-bound v2 recovery checkpoints; legacy checkpoints remain readable as data but cannot become recovery authority; synthetic ENOSPC/resource denial; KillSwitch before launch, against a hanging registered subprocess and during multi-step mutation; bounded timeout handling; corrupted checkpoints/snapshots/backups fail closed; verified known-good restoration; exact task binding; narrow single-file recovery that does not roll unrelated permissions/secrets/tool-trust state backward; repository-local recovery point objective only.
+- R16.8 is COMPLETE at END-sync. Fresh exact-END R16.8/R0/Python/UI re-gates are mandatory before PR #350 may merge with exact `expected_head_sha`; R16.9 remains PLANNED until the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

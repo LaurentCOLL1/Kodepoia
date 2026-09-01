@@ -1,0 +1,93 @@
+name: R16.3 Workspace Quarantine Acceptance
+
+on:
+  push:
+    branches:
+      - r16/03-malicious-repository-workspace-quarantine
+  pull_request:
+    paths:
+      - .github/workflows/r16-3-workspace-quarantine-acceptance.yml
+      - docs/security/R16_3_WORKSPACE_QUARANTINE.md
+      - scripts/r16_3_acceptance.py
+      - src/kodepoia/kodecode/quarantine.py
+      - src/kodepoia/kodecode/workspace.py
+      - tests/test_r16_workspace_quarantine.py
+      - docs/roadmap/R16_PLAN.md
+      - docs/continuity/KODEPOIA_CONTINUITY.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  workspace-quarantine:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: python
+        run: |
+          import os
+          import subprocess
+
+          expected = os.environ["EVIDENCE_SHA"].strip().lower()
+          actual = subprocess.check_output(
+              ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
+          ).strip().lower()
+          if actual != expected:
+              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
+
+      - name: Install focused acceptance dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile focused R16.3 sources
+        run: >-
+          python -m compileall -q
+          src/kodepoia/kodecode/workspace.py
+          src/kodepoia/kodecode/quarantine.py
+          scripts/r16_3_acceptance.py
+          tests/test_r16_workspace_quarantine.py
+
+      - name: Ruff focused R16.3 sources
+        run: >-
+          python -m ruff check
+          src/kodepoia/kodecode/workspace.py
+          src/kodepoia/kodecode/quarantine.py
+          scripts/r16_3_acceptance.py
+          tests/test_r16_workspace_quarantine.py
+
+      - name: Run focused R16.3 tests
+        run: python -m pytest -q tests/test_r16_workspace_quarantine.py
+
+      - name: Emit exact-source R16.3 acceptance
+        run: >-
+          python scripts/r16_3_acceptance.py
+          --source-sha "${{ env.EVIDENCE_SHA }}"
+          --output artifacts/r16_3_acceptance.json
+
+      - name: Upload exact-source acceptance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: r16-3-workspace-quarantine-${{ runner.os }}-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r16_3_acceptance.json
+          if-no-files-found: error
+          retention-days: 30

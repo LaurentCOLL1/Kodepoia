@@ -6,7 +6,6 @@ import json
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Any
 
 from kodepoia.exceptions import PolicyDenied
 from kodepoia.kodecode.quarantine import (
@@ -28,7 +27,7 @@ def _git_head() -> str:
     ).strip().lower()
 
 
-def _sha256_json(value: Any) -> str:
+def _sha256_json(value: object) -> str:
     payload = json.dumps(
         value,
         ensure_ascii=False,
@@ -38,7 +37,7 @@ def _sha256_json(value: Any) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _case(case_id: str, passed: bool, observed: str) -> dict[str, Any]:
+def _case(case_id: str, passed: bool, observed: str) -> dict[str, object]:
     return {
         "id": case_id,
         "passed": bool(passed),
@@ -47,13 +46,13 @@ def _case(case_id: str, passed: bool, observed: str) -> dict[str, Any]:
     }
 
 
-def build_acceptance(source_sha: str) -> dict[str, Any]:
+def build_acceptance(source_sha: str) -> dict[str, object]:
     source = source_sha.strip().lower()
     actual = _git_head()
     if actual != source:
         raise ValueError(f"exact-source mismatch: expected {source}, got {actual}")
 
-    cases: list[dict[str, Any]] = []
+    cases: list[dict[str, object]] = []
     with tempfile.TemporaryDirectory(prefix="kodepoia-r16-3-") as temp:
         root = Path(temp)
         (root / "README.md").write_text(
@@ -95,7 +94,13 @@ def build_acceptance(source_sha: str) -> dict[str, Any]:
             preflight.require(WorkspaceOperation.EXECUTE)
         except PolicyDenied:
             denied = True
-        cases.append(_case("R16.3.ACC.EXECUTE_DENIED", denied, "denied" if denied else "allowed"))
+        cases.append(
+            _case(
+                "R16.3.ACC.EXECUTE_DENIED",
+                denied,
+                "denied" if denied else "allowed",
+            )
+        )
         approved = preflight.require(
             WorkspaceOperation.EXECUTE,
             approved_fingerprint=summary.workspace_fingerprint,
@@ -126,7 +131,10 @@ def build_acceptance(source_sha: str) -> dict[str, Any]:
             )
         )
         report_text = json.dumps(summary.to_dict(), sort_keys=True)
-        no_content_leak = "example.invalid" not in report_text and "touch SHOULD_NOT_EXIST" not in report_text
+        no_content_leak = (
+            "example.invalid" not in report_text
+            and "touch SHOULD_NOT_EXIST" not in report_text
+        )
         cases.append(
             _case(
                 "R16.3.ACC.SANITIZED_RISK_SUMMARY",
@@ -150,8 +158,8 @@ def build_acceptance(source_sha: str) -> dict[str, Any]:
             )
         )
 
-    passed = all(item["passed"] for item in cases)
-    payload = {
+    passed = all(bool(item["passed"]) for item in cases)
+    payload: dict[str, object] = {
         "schema_version": 1,
         "phase": "R16.3",
         "title": "Malicious repository/workspace quarantine and safe bootstrap",
@@ -172,7 +180,9 @@ def build_acceptance(source_sha: str) -> dict[str, Any]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Emit exact-source R16.3 workspace-quarantine acceptance")
+    parser = argparse.ArgumentParser(
+        description="Emit exact-source R16.3 workspace-quarantine acceptance"
+    )
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--output", required=True)
     args = parser.parse_args()

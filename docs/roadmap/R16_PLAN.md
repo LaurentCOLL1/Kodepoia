@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.2 are COMPLETE + NORMALIZED. R16.3 is COMPLETE at mandatory END-sync; fresh exact-END R16.3/R0/Python/UI re-gates are required before protected merge. R16.4–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.3 are COMPLETE + NORMALIZED. R16.4 is COMPLETE at mandatory END-sync; fresh exact-END R16.4/R0/Python/UI re-gates are required before protected merge. R16.5–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -170,7 +170,7 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.1 | Threat model, adversarial corpus and red-team harness | COMPLETE + NORMALIZED | NONE |
 | R16.2 | Prompt-injection and untrusted-content hardening | COMPLETE + NORMALIZED | NONE |
 | R16.3 | Malicious repository/workspace quarantine and safe bootstrap | COMPLETE | NONE |
-| R16.4 | Secrets, privacy and exfiltration hardening | PLANNED | NONE |
+| R16.4 | Secrets, privacy and exfiltration hardening | COMPLETE | NONE |
 | R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | PLANNED | NONE |
 | R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | PLANNED | NONE |
 | R16.7 | Memory/context poisoning detection, quarantine and rebuild | PLANNED | NONE |
@@ -419,6 +419,15 @@ Redaction breaking diagnostics; alternate encodings; structured-object serializa
 ## Manual intervention
 
 **NONE.** Synthetic secrets only.
+
+## R16.4 END acceptance authority
+
+- Normalized branch point: `main` `cb6ec02629fd94f9d23b04ebfed525571c8482d9`; clean START `d244d98e6699b1872d2d9457fb87ca39cb58eaad`; immutable technical source `f4dfa88870ee25956edf99476f5bd130a1cec471`.
+- Technical-source gate: R16.4 #3 / `33514844394` SUCCESS Ubuntu + Windows after exact checkout provenance, compile, Ruff, 10 focused tests and exact-source acceptance.
+- Cross-platform acceptance JSON is byte-identical: SHA-256 `8fb41bde8798b0b0734d19f582e298da20f8af40b88c2d02faa72b8279c7fac1`; semantic `7f5101b4371a531b6b1e610b1908f6b54e0123b111de1e4343f41887f57cfa0f`; 10/10 critical cases PASS with `security_claim=true`, `critical_veto=false`, `manual_state=NONE`, synthetic-only fixtures, no live secrets, no destructive host actions and no network calls.
+- Linux artifact `9803136169` archive SHA-256 `041fb37ee017329c23c062ae26a81a29fcd83d40f6b0e08a9eebbcba9b93f43f`; Windows artifact `9803152318` archive SHA-256 `e82cb50a838704931fa99c038d32f353410b5c70a900285f0ec1e3f5093724bb`.
+- Security boundary delivered: `SecretRef` remains durable while secret values are resolved only at narrow use boundaries; raw/common encoded canaries are redacted; raw secrets are denied in argv and ordinary env maps; captured stdout/stderr and exceptions are sanitized; artifact scans are bounded/fail-closed; secret-tainted egress requires explicit destination plus payload authority and secret material is denied in URLs; fresh backend resolution observes rotation/revocation.
+- Manual NONE. R16.4 is COMPLETE at END-sync. Fresh exact-END R16.4/R0/Python/UI re-gates are mandatory before protected merge; R16.5 remains PLANNED until implementation merge and unique post-merge continuity normalization complete.
 
 ---
 

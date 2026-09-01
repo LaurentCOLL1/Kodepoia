@@ -1,0 +1,93 @@
+name: R16.6 Continuity Normalization Helper
+
+on:
+  push:
+    branches:
+      - r16/06-continuity-normalization
+    paths:
+      - .github/workflows/r16-6-normalization-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization branch
+        uses: actions/checkout@v4
+        with:
+          ref: r16/06-continuity-normalization
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install R0 repository-check dependencies
+        run: python -m pip install -r scripts/requirements-r0.txt
+
+      - name: Patch unique R16.6 normalization record
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+          lines = text.splitlines()
+
+          old_banner_fragment = "R16.1–R16.5 COMPLETE + NORMALIZED. R16.6 COMPLETE / NORMALIZATION PENDING on immutable technical source `de2648e9c7648e59dd43f9d2dccd10d0ea93da18`. R16.7–R16.18 remain PLANNED."
+          new_banner_fragment = "R16.1–R16.6 COMPLETE + NORMALIZED. R16.7–R16.18 remain PLANNED. R16.7 START-sync is authorized only from the normalized `main` produced by the unique R16.6 post-merge continuity-only normalization."
+
+          banner_hits = 0
+          r16_6_hits = 0
+          new_r16_6 = "- R16.6 : **COMPLETE + NORMALIZED** — normalized R16.5 `main` `727b0717dea86425eb566b53b3b1cc38c9937169`; immutable technical source `de2648e9c7648e59dd43f9d2dccd10d0ea93da18`; technical R16.6 #3 / `33532542824` SUCCESS Ubuntu + Windows; final exact-END head `50574c8baca9d80d3618140fde35e6c8bef46362` passed fresh R16.6 #13 / `33534221003` SUCCESS Ubuntu + Windows, R0 #2295 / `33534221394` SUCCESS Ubuntu + Windows, Python Core #2267 / `33534221463` SUCCESS 5/5 and UI #2232 / `33534221298` SUCCESS; PR #345 merged with `expected_head_sha=50574c8baca9d80d3618140fde35e6c8bef46362` as implementation/evidence `main` `3ae1095004473555c45718dd4db0e9205e8cf054`. Technical artifacts: Linux `9810360507` / `sha256:8465a92f36edb6a2de014116aa0519bebdc7f9a828c89483b0e054a055d91c05`; Windows `9810383609` / `sha256:081dff3ad19cd6fab0e6f9c29d5e966392b020389a6d4a6d9664b90a451ebe92`. Exact one-shot approvals bind material actor/action/target/scope/capability/tool/provider/operation intent and reject replay/drift; unknown or unbounded destructive impact fails closed; bounded delegation prevents confused-deputy widening; privileged process execution remains typed/non-shell and PermissionSet-allowlisted; SafeChange snapshots and KillSwitch partial-mutation recovery remain authoritative; legacy boolean confirmation remains non-authoritative. Synthetic/disposable acceptance only; manual NONE. This record is the unique post-merge continuity-only R16.6 normalization authority when its PR merges; R16.7 START-sync is authorized only from the resulting normalized `main`."
+
+          for index, line in enumerate(lines):
+              if line.startswith("> Kodepoia, architecture v1.0 gelée."):
+                  if old_banner_fragment not in line:
+                      raise SystemExit("unexpected continuity banner state")
+                  lines[index] = line.replace(old_banner_fragment, new_banner_fragment, 1)
+                  banner_hits += 1
+              if line.startswith("- R16.6 : **COMPLETE / NORMALIZATION PENDING**"):
+                  required = [
+                      "de2648e9c7648e59dd43f9d2dccd10d0ea93da18",
+                      "R16.6 #3 / 33532542824",
+                      "PR #345 remains open pending this END-sync exact-head re-gate",
+                  ]
+                  if not all(item in line for item in required):
+                      raise SystemExit("unexpected R16.6 continuity record state")
+                  lines[index] = new_r16_6
+                  r16_6_hits += 1
+
+          if banner_hits != 1 or r16_6_hits != 1:
+              raise SystemExit(f"bounded normalization mismatch: banner={banner_hits}, r16.6={r16_6_hits}")
+
+          path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+      - name: Validate continuity-only normalization
+        shell: bash
+        run: |
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+          python scripts/check_repo.py
+          actual="$(git diff --name-only -- docs/continuity/KODEPOIA_CONTINUITY.md)"
+          test "$actual" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          unexpected="$(git diff --name-only -- . \
+            ':(exclude)docs/continuity/KODEPOIA_CONTINUITY.md' \
+            ':(exclude)docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json' | sort)"
+          test -z "$unexpected"
+
+      - name: Commit normalization and remove helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r16-6-normalization-helper.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          expected_staged=$'.github/workflows/r16-6-normalization-helper.yml\ndocs/continuity/KODEPOIA_CONTINUITY.md'
+          actual_staged="$(git diff --cached --name-only | sort)"
+          test "$actual_staged" = "$expected_staged"
+          git diff --cached --check
+          git commit -m "docs(r16.6): normalize post-merge continuity"
+          git push origin HEAD:r16/06-continuity-normalization

@@ -310,7 +310,10 @@ class ToolTrustRegistry:
 
         return ToolAuthorizationDecision(
             ToolDecisionKind.ALLOW,
-            "Trusted identity, pinned definition, least-privilege scope and exact invocation approval verified.",
+            (
+                "Trusted identity, pinned definition, least-privilege scope and exact invocation "
+                "approval verified."
+            ),
             stable_id,
             record.lifecycle,
         )

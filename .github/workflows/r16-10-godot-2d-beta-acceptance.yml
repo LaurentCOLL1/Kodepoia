@@ -1,5 +1,4 @@
 name: R16.10 Representative Godot 2D Beta Acceptance
-# Exact-head retrigger marker; removed by the next commit.
 
 on:
   push:

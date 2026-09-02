@@ -1,0 +1,99 @@
+name: R16.12 continuity normalization staging v2
+
+on:
+  push:
+    branches:
+      - r16/12-normalization-helper
+    paths:
+      - .github/workflows/r16-12-normalization-helper-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r16/12-normalization-helper
+          fetch-depth: 0
+      - name: Normalize R16.12 continuity only
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+          if not lines or not lines[0].startswith("> Kodepoia, architecture v1.0 gelée."):
+              raise SystemExit("continuity preamble not found")
+          lines[0] = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. "
+              "R16 planning ACCEPTED + NORMALIZED. R16.1–R16.12 COMPLETE + NORMALIZED. "
+              "R16.13–R16.18 remain PLANNED.** R16.12 implementation/evidence PR #357 merged exact "
+              "END head `4c92e0d1ee0bc737ebffbe7e097dded1bd4e8a90` as `main` "
+              "`3e92f7aa4e8c348fdd89bb110692d6473f855f65`. This record is the unique post-merge "
+              "continuity-only R16.12 normalization authority when its exact candidate passes fresh R0, "
+              "Python Core and KodeStudio UI Smoke and merges. R16.13 START-sync is authorized only from "
+              "the resulting normalized `main`. Manual NONE.\n"
+          )
+
+          hits = [i for i, line in enumerate(lines) if line.startswith("- R16.12 : **COMPLETE**")]
+          if len(hits) != 1:
+              raise SystemExit(f"expected one R16.12 COMPLETE record, got {len(hits)}")
+          line = lines[hits[0]].rstrip("\r\n")
+          line = line.replace(
+              "- R16.12 : **COMPLETE**",
+              "- R16.12 : **COMPLETE + NORMALIZED**",
+              1,
+          )
+          marker = " R16.13 remains unauthorized until"
+          if marker in line:
+              line = line.split(marker, 1)[0].rstrip()
+          line += (
+              " Final exact-END head `4c92e0d1ee0bc737ebffbe7e097dded1bd4e8a90` passed fresh "
+              "R16.12 #13 / `33677997712` SUCCESS Windows, R16.9 #41 / `33677997868` SUCCESS Ubuntu + Windows, "
+              "R0 #2355 / `33677997756` SUCCESS Ubuntu + Windows, Python Core #2327 / `33677997711` SUCCESS "
+              "5/5 and UI #2292 / `33677997768` SUCCESS. PR #357 merged with "
+              "`expected_head_sha=4c92e0d1ee0bc737ebffbe7e097dded1bd4e8a90` as implementation/evidence `main` "
+              "`3e92f7aa4e8c348fdd89bb110692d6473f855f65`. Exact-END acceptance remains 10/10 PASS, "
+              "`security_claim=true`, `critical_veto=false`, `secret_free=true`, `manual_state=NONE`, no live "
+              "credentials and no destructive host actions; WPF/.NET SDK `10.0.400` x64 is canonical, the "
+              "representative project path is 161 characters with spaces, and governed publish remains unsigned "
+              "at 5 files / 184779 bytes. Exact-END package manifest "
+              "`2e8eb95a117be2497a9ae70f7ea7affc5fbba6aee0aaf54ed5f67322dce0221e`; package binding "
+              "`16e7da1c46018565c9db4bad09669ceaeebe4346dcbf811ed5c80e3b2656a423`; semantic "
+              "`8b2be66de41e5bd4ea0716126fba466e68e9117b8052b8e5faa8a53b82c64df3`; evidence "
+              "`21c082143cc143470b62e4f4e809fcae238a879ed89b8cc70286308b2ddd8ef8`; artifact "
+              "`9865257768 / sha256:91286636eb53f15e01f52303fbece7e85c54c06e7a7d402b155336bb880a87d7`. "
+              "This record is the unique post-merge continuity-only R16.12 normalization authority when its exact "
+              "candidate passes fresh R0/Python/UI and merges; manual NONE. R16.13 START-sync is authorized only "
+              "from the resulting normalized `main`.\n"
+          )
+          lines[hits[0]] = line
+          path.write_text("".join(lines), encoding="utf-8", newline="\n")
+
+          final = path.read_text(encoding="utf-8")
+          for required in (
+              "R16.1–R16.12 COMPLETE + NORMALIZED",
+              "- R16.12 : **COMPLETE + NORMALIZED**",
+              "3e92f7aa4e8c348fdd89bb110692d6473f855f65",
+              "R16.13 START-sync is authorized only from the resulting normalized `main`",
+          ):
+              if required not in final:
+                  raise SystemExit(f"missing invariant: {required}")
+      - name: Stage and enforce continuity-only index
+        shell: bash
+        run: |
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          changed="$(git diff --cached --name-only)"
+          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+      - name: Commit normalization staging result
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --cached --exit-code && exit 1 || true
+          git commit -m "docs(r16.12): normalize post-merge continuity"
+          git push origin HEAD:r16/12-normalization-helper

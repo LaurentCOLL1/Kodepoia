@@ -1,0 +1,48 @@
+name: R16.9 Workflow Inventory Helper
+
+on:
+  push:
+    branches:
+      - r16/09-supply-chain-provenance-hardening
+
+permissions:
+  contents: write
+
+jobs:
+  inventory:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: r16/09-supply-chain-provenance-hardening
+          fetch-depth: 0
+      - name: Inventory workflow references and permissions
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          refs = {}
+          permission_blocks = []
+          for path in sorted(Path('.github/workflows').glob('*.y*ml')):
+              text = path.read_text(encoding='utf-8')
+              for match in re.finditer(r'^\s*-?\s*uses:\s*["\']?([^"\'\s#]+)', text, re.M):
+                  ref = match.group(1)
+                  refs.setdefault(ref, []).append(path.name)
+              top = re.search(r'^permissions:\s*(.*)$', text, re.M)
+              permission_blocks.append((path.name, top.group(1).strip() if top else '<missing>'))
+          print('=== UNIQUE USES REFS ===')
+          for ref, paths in sorted(refs.items()):
+              print(f'{ref} | {len(paths)} | {",".join(paths[:8])}')
+          print('=== TOP-LEVEL PERMISSIONS ===')
+          for name, value in permission_blocks:
+              print(f'{name} | {value}')
+          print(f'WORKFLOW_COUNT={len(permission_blocks)} UNIQUE_REFS={len(refs)}')
+      - name: Self-delete helper
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/r16-9-workflow-inventory-helper.yml
+          git commit -m "chore(r16.9): remove workflow inventory helper"
+          git push origin HEAD:r16/09-supply-chain-provenance-hardening

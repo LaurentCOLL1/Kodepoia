@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.11 are COMPLETE + NORMALIZED. R16.12 is COMPLETE on immutable technical source `7c51c1580ed2c2d9ee18758c6a8cb57dae1ce084` after R16.12 #11 / `33676531167`, R16.9 #40 / `33676531542`, R0 #2354 / `33676531431`, Python Core #2326 / `33676531657` and KodeStudio UI Smoke #2291 / `33676531178` all SUCCESS on that exact source. R16.13–R16.18 remain PLANNED and R16.13 is unauthorized until this END-sync head is freshly re-gated, PR #357 merges with its exact expected head, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges. Manual NONE for R16.12 unsigned/core CI acceptance.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.12 are COMPLETE + NORMALIZED. R16.13 is IN_PROGRESS on dedicated branch `r16/13-representative-comfyui-beta-workflow` from exact normalized `main` `86a174ab5d627ca9da8a5eb3979e05951582335b`; R16.14–R16.18 remain PLANNED. Manual state is NONE for core CI and CONDITIONAL only for an explicitly requested real local ComfyUI/GPU qualification claim. No R16.13 implementation preceded this START-sync.
 
 ## Purpose and authority
 
@@ -178,8 +178,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.9 | Dependency/workflow/release supply-chain provenance hardening | COMPLETE + NORMALIZED | NONE |
 | R16.10 | Representative real Godot 2D beta project | COMPLETE + NORMALIZED | NONE |
 | R16.11 | Representative real Godot 3D beta project | COMPLETE + NORMALIZED | NONE |
-| R16.12 | Representative real Windows desktop application | COMPLETE | NONE |
-| R16.13 | Representative ComfyUI beta workflow | PLANNED | CONDITIONAL |
+| R16.12 | Representative real Windows desktop application | COMPLETE + NORMALIZED | NONE |
+| R16.13 | Representative ComfyUI beta workflow | IN_PROGRESS | CONDITIONAL |
 | R16.14 | Representative audio/voice/cinematic beta workflow | PLANNED | CONDITIONAL |
 | R16.15 | Long-term project durability, resume and upgrade soak | PLANNED | CONDITIONAL |
 | R16.16 | Resource, concurrency, leak and diagnostics soak | PLANNED | NONE |
@@ -978,6 +978,14 @@ Protocol/version drift; large outputs; GPU-dependent claims; unsafe custom-node 
 ## Manual intervention
 
 **CONDITIONAL.** Only if a **real local ComfyUI/GPU qualification claim** is explicitly required. Core acceptance remains automated and does not trigger this gate.
+
+## R16.13 START authority
+
+- State: **IN_PROGRESS**; core manual **NONE**; optional live ComfyUI/GPU qualification **CONDITIONAL** only if explicitly requested.
+- Exact normalized base: `main` `86a174ab5d627ca9da8a5eb3979e05951582335b`; dedicated branch `r16/13-representative-comfyui-beta-workflow` created directly from that SHA.
+- Prior state: R16.1–R16.12 **COMPLETE + NORMALIZED**; R16.14–R16.18 remain **PLANNED**.
+- Frozen scope is unchanged: repository-owned representative ComfyUI workflow; authoritative local fixture server; validation, queue/execution transport, progress/events, output collection and cancellation; path escape, untrusted output location, arbitrary command intent and unsafe external-reference negative controls; RAM/VRAM/disk/time budgets; source/workflow/config digest binding and required sanitization. Real local ComfyUI/GPU qualification remains optional and cannot alter the core CI verdict.
+- No R16.13 implementation preceded this START-sync. Core acceptance requires no model download, GPU driver change, live ComfyUI server, live credentials or destructive host action.
 
 ---
 

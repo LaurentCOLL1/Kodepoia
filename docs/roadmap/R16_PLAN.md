@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.10 are COMPLETE + NORMALIZED. R16.11 is COMPLETE at END-sync on immutable technical source `4be69eef7300c380d125f35d484c57d8df054d72`; R16.12–R16.18 remain PLANNED. Fresh exact-END R16.11/R16.9/R0/Python/UI re-gates, exact-head implementation/evidence merge and the unique continuity-only post-merge normalization are still required before R16.12 is authorized.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.11 are COMPLETE + NORMALIZED. R16.12 is COMPLETE on immutable technical source `7c51c1580ed2c2d9ee18758c6a8cb57dae1ce084` after R16.12 #11 / `33676531167`, R16.9 #40 / `33676531542`, R0 #2354 / `33676531431`, Python Core #2326 / `33676531657` and KodeStudio UI Smoke #2291 / `33676531178` all SUCCESS on that exact source. R16.13–R16.18 remain PLANNED and R16.13 is unauthorized until this END-sync head is freshly re-gated, PR #357 merges with its exact expected head, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges. Manual NONE for R16.12 unsigned/core CI acceptance.
 
 ## Purpose and authority
 
@@ -177,8 +177,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.8 | Fault injection, KillSwitch, backup and recovery drills | COMPLETE + NORMALIZED | NONE |
 | R16.9 | Dependency/workflow/release supply-chain provenance hardening | COMPLETE + NORMALIZED | NONE |
 | R16.10 | Representative real Godot 2D beta project | COMPLETE + NORMALIZED | NONE |
-| R16.11 | Representative real Godot 3D beta project | COMPLETE | NONE |
-| R16.12 | Representative real Windows desktop application | PLANNED | NONE |
+| R16.11 | Representative real Godot 3D beta project | COMPLETE + NORMALIZED | NONE |
+| R16.12 | Representative real Windows desktop application | COMPLETE | NONE |
 | R16.13 | Representative ComfyUI beta workflow | PLANNED | CONDITIONAL |
 | R16.14 | Representative audio/voice/cinematic beta workflow | PLANNED | CONDITIONAL |
 | R16.15 | Long-term project durability, resume and upgrade soak | PLANNED | CONDITIONAL |
@@ -909,6 +909,26 @@ Hosted-runner toolchain drift; packaging framework differences; shell quoting; s
 ## Manual intervention
 
 **NONE** for unsigned/core CI acceptance.
+
+
+## R16.12 START authority
+
+- State: **IN_PROGRESS**; manual **NONE** for unsigned/core CI acceptance.
+- Exact normalized base: `main` `270e022a03d7a596eedd27d8989b22278f18cbca`; dedicated branch `r16/12-representative-windows-desktop-application` created directly from that SHA.
+- Prior state: R16.1–R16.11 **COMPLETE + NORMALIZED**; R16.13–R16.18 remain **PLANNED**.
+- Frozen scope is unchanged: one repository-supported Windows desktop path is canonical; other supported desktop adapters remain compatibility probes. Acceptance covers public create/open/edit surfaces, Windows path/process semantics, supported static/build/test/package checks with exact toolchain capability evidence, quoting/long-and-space paths, cancellation and failed-build recovery, source-bound secret-free package/build evidence, malicious project/config negative controls, IPC/persistence and SafeChange rollback.
+- No R16.12 implementation preceded this START-sync. No manual signing, installed system application or production target is required for core CI acceptance.
+
+## R16.12 END authority
+
+- State: **COMPLETE**; manual **NONE**. R16.13 remains **PLANNED** and unauthorized.
+- Exact normalized base: `main` `270e022a03d7a596eedd27d8989b22278f18cbca`; clean START `e654a7eff3bdfa7c7b5ee1e36d47cfbf20e03c3d`; immutable technical source `7c51c1580ed2c2d9ee18758c6a8cb57dae1ce084`.
+- Exact-source technical gates on that source: R16.12 #11 / `33676531167` SUCCESS Windows; R16.9 #40 / `33676531542` SUCCESS Ubuntu + Windows; R0 #2354 / `33676531431` SUCCESS Ubuntu + Windows; Python Core #2326 / `33676531657` SUCCESS 5/5; KodeStudio UI Smoke #2291 / `33676531178` SUCCESS.
+- R16.12 focused + supply-chain regression tests: 28/28 PASS. Representative acceptance: 10/10 PASS, `security_claim=true`, `critical_veto=false`, `secret_free=true`, `manual_state=NONE`, no live credentials and no destructive host actions.
+- Canonical exercised path: repository-supported WPF under .NET SDK `10.0.400` x64. The representative project path is 161 characters and contains spaces; build/runtime smoke and governed `dotnet publish` succeed without shell interpolation.
+- Package evidence on the technical source is unsigned and source-bound: 5 files / 184779 bytes; package manifest `ab2ce29a00714e61b89ef4a2ff5a9703ab17dd249a45b0c366bbe3e881ca4ce5`; package binding `7d569c2bfcc8cbd488cbf81b8c0c2b82c03f6ef66e326aa02c3fb142982c6fec`; diagnostic `528949bdd3f51da4618cc67e4829e5e65ab2095d0838b747a7109c5b41508af2`; semantic `4413d7f755d43759fdf460cc36fcbf4cc5f86b30a9563ccd185ccfd7c292f818`; evidence `65b519ff05e1cfe4dce0dee4b60c373fab134c6b39d1cf7ffce20cef1e0d8321`; artifact `9864607094`, archive SHA-256 `0f6026347f0527456d26ea2246f8043d3384f4d8f1fa7093dbf5408299996fab`.
+- Accepted boundaries: WorkspaceBoundary confinement and workspace-escape negative control; malicious project/config text remains data-only; bounded cancellation restores exact bytes; injected build failure recovers through SafeChange; typed SQLite persistence stays workspace-bounded; Windows named-pipe IPC remains local-only and rejects an unauthorized method; package/build evidence remains exact-source and secret-free.
+- R16.12 is COMPLETE at END-sync. R16.13 remains unauthorized until this documentation/evidence END head passes fresh exact-head R16.12/R16.9/R0/Python/UI gates, PR #357 merges with `expected_head_sha` equal to that exact END head, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

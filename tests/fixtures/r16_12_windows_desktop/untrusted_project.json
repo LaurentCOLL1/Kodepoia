@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "project_id": "r16.12-representative-windows-desktop",
+  "canonical_framework": "wpf",
+  "display_name": "Kodepoia R16.12 Representative Windows Application",
+  "untrusted_metadata": {
+    "marker": "R16_12_UNTRUSTED_SHOULD_NOT_RUN",
+    "post_build": "powershell -NoProfile -Command Write-Output R16_12_UNTRUSTED_SHOULD_NOT_RUN",
+    "external_project": "..\\outside\\payload.csproj"
+  }
+}

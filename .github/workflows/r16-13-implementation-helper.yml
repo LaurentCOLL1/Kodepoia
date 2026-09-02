@@ -1,0 +1,57 @@
+name: R16.13 temporary implementation staging helper
+
+on:
+  push:
+    branches:
+      - r16/13-implementation-helper
+
+permissions:
+  contents: write
+
+jobs:
+  stage-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r16/13-implementation-helper
+          fetch-depth: 0
+      - name: Update supply-chain authority inventory
+        shell: python
+        run: |
+          from pathlib import Path
+
+          policy = Path("configs/r16_supply_chain_policy.json")
+          text = policy.read_text(encoding="utf-8")
+          anchor = '      ".github/workflows/r16-12-windows-desktop-acceptance.yml",\n'
+          addition = anchor + '      ".github/workflows/r16-13-comfyui-beta-acceptance.yml",\n'
+          if text.count(anchor) != 1:
+              raise SystemExit("R16.12 authority workflow anchor missing")
+          if "r16-13-comfyui-beta-acceptance.yml" in text:
+              raise SystemExit("R16.13 authority workflow already present")
+          policy.write_text(text.replace(anchor, addition, 1), encoding="utf-8", newline="\n")
+
+          test = Path("tests/test_supply_chain_r16_9.py")
+          test_text = test.read_text(encoding="utf-8")
+          old = "assert len(policy.immutable_authority_workflows) == 15"
+          new = "assert len(policy.immutable_authority_workflows) == 16"
+          if test_text.count(old) != 1:
+              raise SystemExit("authority workflow count anchor missing")
+          test.write_text(test_text.replace(old, new, 1), encoding="utf-8", newline="\n")
+      - name: Stage exact policy/test diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -- configs/r16_supply_chain_policy.json tests/test_supply_chain_r16_9.py
+          git diff --cached --check
+          actual="$(git diff --cached --name-only | sort)"
+          expected=$'configs/r16_supply_chain_policy.json\ntests/test_supply_chain_r16_9.py'
+          test "$actual" = "$expected"
+      - name: Commit staging update
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "ci(r16.13): register acceptance authority"
+          git push origin HEAD:r16/13-implementation-helper

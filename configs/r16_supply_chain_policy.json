@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "policy_id": "r16.9-supply-chain-v1",
+  "pin_resolution_date": "2026-09-02",
+  "pin_resolution_authority": "verified GitHub git refs/tags; annotated tags dereferenced to commit",
+  "external_action_pins": {
+    "actions/checkout": {
+      "source_ref": "v4",
+      "commit_sha": "11d5960a326750d5838078e36cf38b85af677262"
+    },
+    "actions/setup-dotnet": {
+      "source_ref": "v4",
+      "commit_sha": "67a3573c9a986a3f9c594539f4ab511d57bb3ce9"
+    },
+    "actions/setup-java": {
+      "source_ref": "v4",
+      "commit_sha": "cf277c60eb25467037889841efdb72551f06f6c3"
+    },
+    "actions/setup-python": {
+      "source_ref": "v5",
+      "commit_sha": "a26af69be951a213d495a4c3e4e4022e16d87065"
+    },
+    "actions/upload-artifact": {
+      "source_ref": "v4",
+      "commit_sha": "ea165f8d65b6e75b540449e92b4886f43607fa02"
+    },
+    "android-actions/setup-android": {
+      "source_ref": "v3",
+      "commit_sha": "9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407"
+    },
+    "gradle/actions": {
+      "source_ref": "v4",
+      "commit_sha": "ed408507eac070d1f99cc633dbcf757c94c7933a"
+    }
+  },
+  "workflow_policy": {
+    "require_explicit_permissions": true,
+    "required_contents_permission": "read",
+    "allow_write_workflows": [],
+    "immutable_authority_workflows": [
+      ".github/workflows/python-core.yml",
+      ".github/workflows/r0-bootstrap.yml",
+      ".github/workflows/r16-1-red-team-acceptance.yml",
+      ".github/workflows/r16-2-prompt-injection-acceptance.yml",
+      ".github/workflows/r16-3-workspace-quarantine-acceptance.yml",
+      ".github/workflows/r16-4-secrets-privacy-acceptance.yml",
+      ".github/workflows/r16-5-tool-trust-acceptance.yml",
+      ".github/workflows/r16-6-destructive-agency-acceptance.yml",
+      ".github/workflows/r16-7-memory-context-poisoning-acceptance.yml",
+      ".github/workflows/r16-8-fault-recovery-acceptance.yml",
+      ".github/workflows/r16-9-supply-chain-provenance-acceptance.yml",
+      ".github/workflows/ui-smoke.yml"
+    ],
+    "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
+    "forbid_pull_request_target": true,
+    "forbid_untrusted_pr_shell_interpolation": true,
+    "forbid_parent_artifact_paths": true
+  },
+  "provenance_policy": {
+    "hash_algorithm": "sha256",
+    "require_exact_source_sha": true,
+    "require_build_manifest_binding": true,
+    "require_bom_evidence_binding": true,
+    "external_attestation_required_for_core": false,
+    "external_attestation_semantics": "provenance_only_not_security_verdict"
+  }
+}

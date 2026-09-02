@@ -1,16 +1,19 @@
-name: R16.8 Fault Recovery Acceptance
+name: R16.9 Supply Chain Provenance Acceptance
 
 on:
   push:
     branches:
-      - r16/08-fault-injection-recovery
+      - r16/09-supply-chain-provenance-hardening
   pull_request:
     paths:
-      - .github/workflows/r16-8-fault-recovery-acceptance.yml
-      - scripts/r16_8_fault_recovery_acceptance.py
-      - src/kodepoia/core/fault_recovery.py
-      - src/kodepoia/core/recovery.py
-      - tests/test_fault_recovery_r16_8.py
+      - .github/workflows/r16-9-supply-chain-provenance-acceptance.yml
+      - configs/r16_supply_chain_policy.json
+      - scripts/r16_9_supply_chain_acceptance.py
+      - src/kodepoia/quality/build.py
+      - src/kodepoia/quality/license_bom.py
+      - src/kodepoia/quality/supply_chain.py
+      - tests/test_supply_chain_r16_9.py
+      - pyproject.toml
       - docs/roadmap/R16_PLAN.md
       - docs/continuity/KODEPOIA_CONTINUITY.md
   workflow_dispatch:
@@ -19,7 +22,7 @@ permissions:
   contents: read
 
 jobs:
-  fault-recovery:
+  supply-chain-provenance:
     strategy:
       fail-fast: false
       matrix:
@@ -58,35 +61,37 @@ jobs:
       - name: Install focused acceptance dependencies
         run: python -m pip install -e ".[dev]"
 
-      - name: Compile focused R16.8 sources
+      - name: Build exact-source wheel and sdist
+        run: python -m build --wheel --sdist --outdir dist
+
+      - name: Compile focused R16.9 sources
         run: >-
           python -m compileall -q
-          src/kodepoia/core/fault_recovery.py
-          src/kodepoia/core/recovery.py
-          scripts/r16_8_fault_recovery_acceptance.py
-          tests/test_fault_recovery_r16_8.py
+          src/kodepoia/quality/supply_chain.py
+          scripts/r16_9_supply_chain_acceptance.py
+          tests/test_supply_chain_r16_9.py
 
-      - name: Ruff focused R16.8 sources
+      - name: Ruff focused R16.9 sources
         run: >-
           python -m ruff check
-          src/kodepoia/core/fault_recovery.py
-          src/kodepoia/core/recovery.py
-          scripts/r16_8_fault_recovery_acceptance.py
-          tests/test_fault_recovery_r16_8.py
+          src/kodepoia/quality/supply_chain.py
+          scripts/r16_9_supply_chain_acceptance.py
+          tests/test_supply_chain_r16_9.py
 
-      - name: Run focused R16.8 tests
-        run: python -m pytest -q tests/test_fault_recovery_r16_8.py
+      - name: Run focused R16.9 tests
+        run: python -m pytest -q tests/test_supply_chain_r16_9.py
 
-      - name: Emit exact-source R16.8 acceptance
+      - name: Emit exact-source R16.9 acceptance
         run: >-
-          python scripts/r16_8_fault_recovery_acceptance.py
+          python scripts/r16_9_supply_chain_acceptance.py
           --source-sha "${{ env.EVIDENCE_SHA }}"
-          --output artifacts/r16_8_fault_recovery_acceptance.json
+          --platform "${{ runner.os }}"
+          --output artifacts/r16_9_supply_chain_acceptance.json
 
       - name: Upload exact-source acceptance artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: r16-8-fault-recovery-${{ runner.os }}-${{ env.EVIDENCE_SHA }}
-          path: artifacts/r16_8_fault_recovery_acceptance.json
+          name: r16-9-supply-chain-${{ runner.os }}-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r16_9_supply_chain_acceptance.json
           if-no-files-found: error
           retention-days: 30

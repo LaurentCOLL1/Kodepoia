@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.7 are COMPLETE + NORMALIZED. R16.8 is COMPLETE on immutable technical source `9bea715e7f575696ba66240d6ff127e72e85f82e` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.9. R16.9–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.8 are COMPLETE + NORMALIZED. R16.9 is COMPLETE on immutable technical source `026ddc91672c144977453c9852a5288e9533af22` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.10. R16.10–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -174,8 +174,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.5 | Plugin/MCP/tool trust, authorization and supply-chain boundary | COMPLETE + NORMALIZED | NONE |
 | R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE + NORMALIZED | NONE |
 | R16.7 | Memory/context poisoning detection, quarantine and rebuild | COMPLETE + NORMALIZED | NONE |
-| R16.8 | Fault injection, KillSwitch, backup and recovery drills | COMPLETE | NONE |
-| R16.9 | Dependency/workflow/release supply-chain provenance hardening | PLANNED | NONE |
+| R16.8 | Fault injection, KillSwitch, backup and recovery drills | COMPLETE + NORMALIZED | NONE |
+| R16.9 | Dependency/workflow/release supply-chain provenance hardening | COMPLETE | NONE |
 | R16.10 | Representative real Godot 2D beta project | PLANNED | NONE |
 | R16.11 | Representative real Godot 3D beta project | PLANNED | NONE |
 | R16.12 | Representative real Windows desktop application | PLANNED | NONE |
@@ -722,6 +722,18 @@ Dependency resolver nondeterminism; action version compatibility; false assumpti
 ## Manual intervention
 
 **NONE** for core provenance. Production signing remains later conditional scope.
+
+## R16.9 implementation evidence
+
+- Clean START: `31249739d3b1a617bdf8aa2c8080d777875739c7` from normalized R16.8 `main` `9e62f7d8a85965c64d66cf317e028993b669f775`.
+- Immutable technical source: `026ddc91672c144977453c9852a5288e9533af22`.
+- Exact-source focused acceptance: R16.9 #7 / 33585517872 SUCCESS on Ubuntu + Windows; exact checkout, wheel+sdist build, compile, Ruff, 24/24 focused tests and 19/19 acceptance/tamper cases PASS per OS.
+- Exact-source repository qualification: R0 #2319 / 33585517967 SUCCESS Ubuntu + Windows; Python Core #2291 / 33585517983 SUCCESS 5/5; KodeStudio UI Smoke #2256 / 33585518000 SUCCESS.
+- Accepted scope: seven verified external action identities; twelve v1 promotion authority workflows pinned to full immutable commit SHAs with `contents: read`; forty-five historical workflows inventoried but non-authoritative for v1 promotion; deterministic 23-entry dependency/tool inventory; exact-source BuildManifest + BOM binding; fail-closed action drift/unapproved action, privileged permissions, `pull_request_target`, direct untrusted PR shell interpolation, artifact path escape, cross-source replay and serialized evidence tamper.
+- Evidence: policy `bee3cc2e13b43e5b6751913b45de6deed83ee4b4447cec71ca39bc5a004148ef`; semantic acceptance `3a115fd23a65085658a27c08a2f71cc0aa5a3f3157b091cca1091342ee06b0ce`; acceptance report `d4c44fb4dd6034e448fc1d63900721cb189dc33c97860bfb5e0573e0ef648fe5`; promotion manifest `3f4a487a52b087a26791080cb7b90ed333120cc87c98f53e9589fac28f951e81`; workflow audit `be9440ba570031b411389e7b85472ec05b043eace6e2d57b3a2540327ba5c743`; dependency inventory `b372e3383ee8ad1619a133c9e7de4cd274e3d3ca45dcc5247614642b85772ca2`.
+- Exact-source artifacts: Linux `9829927043 / sha256:c7af04d4cfd2e51419d57e9c4cef029bb75db7ddc1b48ec415e8f8955fe4141c`; Windows `9829937614 / sha256:0754ec9ab8eb1cc1d6a061437a0a1219ccb615efd3983fa8b161b4739866336b`.
+- External attestations remain optional provenance evidence and never a security verdict; core acceptance used no live credentials, signing key, network calls or destructive host actions. Manual state: **NONE**.
+- R16.10 remains blocked until this END-sync head passes fresh exact-head R16.9/R0/Python/UI gates, PR #351 merges with `expected_head_sha`, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
 
 ---
 

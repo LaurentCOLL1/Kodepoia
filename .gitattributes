@@ -9,6 +9,9 @@
 tests/fixtures/comfyui/*.json text eol=lf
 docs/roadmap/*_LOCAL_ACCEPTANCE.json text eol=lf
 
+# R16.10 representative Godot fixture is byte-bound across CI platforms.
+tests/fixtures/r16_10_godot_2d_beta/** text eol=lf
+
 # R15.17 canonical integrated evidence is byte-bound to repository blobs.
 # Keep these sources LF on Windows so exact SHA-256 bindings are checkout-invariant.
 docs/roadmap/R14_INTEGRATED_ACCEPTANCE.json text eol=lf

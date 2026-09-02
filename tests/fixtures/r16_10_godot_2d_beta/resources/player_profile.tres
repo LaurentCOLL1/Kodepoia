@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3]
+
+[resource]
+resource_name = "R16.10 Player Profile"
+metadata/role = "representative_beta_player"
+metadata/max_energy = 100

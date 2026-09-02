@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.8 are COMPLETE + NORMALIZED. R16.9 is COMPLETE on immutable technical source `026ddc91672c144977453c9852a5288e9533af22` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.10. R16.10–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.9 are COMPLETE + NORMALIZED. R16.10 is COMPLETE on dedicated branch `r16/10-representative-godot-2d-beta-project` from normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`; R16.11–R16.18 remain PLANNED. R16.10 still requires fresh exact-END re-gates, exact-head merge, and the unique continuity-only post-merge normalization before R16.11 is authorized.
 
 ## Purpose and authority
 
@@ -175,8 +175,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE + NORMALIZED | NONE |
 | R16.7 | Memory/context poisoning detection, quarantine and rebuild | COMPLETE + NORMALIZED | NONE |
 | R16.8 | Fault injection, KillSwitch, backup and recovery drills | COMPLETE + NORMALIZED | NONE |
-| R16.9 | Dependency/workflow/release supply-chain provenance hardening | COMPLETE | NONE |
-| R16.10 | Representative real Godot 2D beta project | PLANNED | NONE |
+| R16.9 | Dependency/workflow/release supply-chain provenance hardening | COMPLETE + NORMALIZED | NONE |
+| R16.10 | Representative real Godot 2D beta project | COMPLETE | NONE |
 | R16.11 | Representative real Godot 3D beta project | PLANNED | NONE |
 | R16.12 | Representative real Windows desktop application | PLANNED | NONE |
 | R16.13 | Representative ComfyUI beta workflow | PLANNED | CONDITIONAL |
@@ -783,6 +783,19 @@ Fixture becoming too synthetic; Godot-version differences; generated import/cach
 ## Manual intervention
 
 **NONE** for core acceptance.
+
+## R16.10 implementation evidence
+
+- Exact normalized base: `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`; dedicated branch `r16/10-representative-godot-2d-beta-project`; final immutable technical candidate before END-sync: `499292dd553460bb48f3092112d5bcb81544242b` (tree-identical retrigger of clean source `ee433680428fd525970456d740980e432d38bea5`).
+- Exact-source focused acceptance: R16.10 #20 / `33638816914` SUCCESS on Ubuntu + Windows. Both jobs passed exact checkout/provenance, wheel+sdist build, compile, Ruff, focused tests, machine-readable acceptance emission and artifact upload.
+- Exact-source supply-chain regression qualification: R16.9 #23 / `33638824052` SUCCESS Ubuntu + Windows after registering the R16.10 focused workflow as the 13th immutable authority while preserving strict `all(item.authoritative)` enforcement and full-SHA action pins.
+- Exact-source repository qualification: R0 #2333 / `33638823984` SUCCESS Ubuntu + Windows; Python Core #2305 / `33638824758` SUCCESS 5/5; standalone KodeStudio UI Smoke #2270 / `33638824596` SUCCESS.
+- Acceptance summary: 10/10 cases PASS on each OS; `security_claim=true`, `critical_veto=false`, `manual_state=NONE`, no live credentials, zero network calls, no destructive host action. Untrusted repository/project text remains data-only.
+- Godot live capability is truthfully `capability_absent` on both hosted runners; no executable/version/invocation is claimed.
+- Canonical cross-platform SHA-256: fixture/restored `e87b912f36b960e724b4d2eb6367794c6933ae0255353b5cbcbb400294c66b95`; changed `0312025cdbfef593ba21a4280d9d897c4ef8aa37ec8201ceeec9c9b9b96f054e`; diff `4226629a0be5da2ba2dfb3f344d56b973d9893462ef8cba64c7bc8b37a450542`; diagnostic `f61d0af7376d7deda7ad2ac65b5debdf47154f432403d41c150d351a59fc6b07`; recovery `6f107c6ff1c683ad31597e400512fb247ed56b6e4d035c1a9f0e4dce5ab5a7d5`; semantic `25b95aa0ae5ccd909a1b93e9e0d3540482a2f6c6c01491c6fd7845fd80bbe095`.
+- Exact-source artifacts: Linux `9850084807 / sha256:09eede99ef70a5b9faefdde5965001e1c3d33de8ad55d34242fa97582f2e5c28`; Windows `9850065450 / sha256:f0d2da48b853f1d27d8cc14e61884c32357438ed85a9d1616cd86ffdd6c252da`.
+- SafeChange rollback uses canonical LF manifest serialization and restores the original project digest exactly.
+- R16.10 is COMPLETE at END-sync. R16.11 remains unauthorized until fresh exact-END R16.10/R16.9/R0/Python/UI gates, PR #353 exact-head merge, and the unique continuity-only post-merge normalization all succeed.
 
 ---
 

@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.9 COMPLETE + NORMALIZED. R16.10–R16.18 remain PLANNED.** R16.9 immutable technical source `026ddc91672c144977453c9852a5288e9533af22`; final exact-END head `910e4d166782cc570b98f60470a13be48896a116` passed fresh R16.9 #16 / `33586184972` Ubuntu + Windows, R0 #2324 / `33586185066` Ubuntu + Windows, Python Core #2296 / `33586184754` 5/5 and KodeStudio UI Smoke #2261 / `33586184752`; implementation/evidence PR #351 merged exact expected head as `b81fe4248338ed5cabe6e3034f396cd11202ec39`. This continuity record is the unique post-merge R16.9 normalization authority and becomes authoritative only after its own fresh exact-head R0/Python/UI gates and exact-head normalization merge. R16.10 is authorized only from the resulting normalized `main`. Manual NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.9 COMPLETE + NORMALIZED. R16.10 COMPLETE at END-sync on `r16/10-representative-godot-2d-beta-project` from normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`; R16.11–R16.18 remain PLANNED and unauthorized until R16.10 merge + unique post-merge normalization.** R16.9 immutable technical source `026ddc91672c144977453c9852a5288e9533af22`; final exact-END head `910e4d166782cc570b98f60470a13be48896a116` passed R16.9 #16 / `33586184972`, R0 #2324 / `33586185066`, Python Core #2296 / `33586184754` 5/5 and UI #2261 / `33586184752`; PR #351 merged as `b81fe4248338ed5cabe6e3034f396cd11202ec39`; unique normalization head `661d16e97f5c5d348db0c98e3885420b1b40de14` passed R0 #2326 / `33587183979`, Python Core #2298 / `33587184006` 5/5 and UI #2263 / `33587184031`, then PR #352 merged exact head as normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`. R16.10 START is synchronized before implementation; manual NONE.
 
 ## État global
 
@@ -133,8 +133,30 @@
 - Implementation/evidence merge base: `b81fe4248338ed5cabe6e3034f396cd11202ec39`, produced only after final exact-END head `910e4d166782cc570b98f60470a13be48896a116` passed R16.9 #16 / `33586184972` Ubuntu + Windows, R0 #2324 / `33586185066` Ubuntu + Windows, Python Core #2296 / `33586184754` 5/5 and KodeStudio UI Smoke #2261 / `33586184752`.
 - Dedicated normalization branch: `r16/09-continuity-normalization`, created exactly from that implementation/evidence merge.
 - The authoritative normalization tree changes only `docs/continuity/KODEPOIA_CONTINUITY.md`; `docs/roadmap/R16_PLAN.md` and all implementation/evidence bytes remain identical to the implementation merge. Any temporary normalization helper must be absent from the decision head.
-- This is the single authorized post-merge normalization for R16.9. It becomes authoritative only after fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke all succeed and the normalization PR merges with exact expected-head protection.
-- Manual state remains **NONE**. R16.10 remains PLANNED until that normalized `main` exists.
+- This is the single authorized post-merge normalization for R16.9: candidate `661d16e97f5c5d348db0c98e3885420b1b40de14` passed R0 #2326 / `33587183979` Ubuntu + Windows, Python Core #2298 / `33587184006` 5/5 and KodeStudio UI Smoke #2263 / `33587184031`, then PR #352 merged with exact expected-head protection as normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`.
+- Manual state remains **NONE**. R16.10 START is authorized only from normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6` and is now synchronized on `r16/10-representative-godot-2d-beta-project` before implementation.
+
+## R16.10 START authority
+
+- Dedicated branch: `r16/10-representative-godot-2d-beta-project`.
+- Exact normalized branch point: `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6` after unique R16.9 continuity normalization PR #352.
+- State at START: R1–R15 COMPLETE + NORMALIZED; R16 planning ACCEPTED + NORMALIZED; R16.1–R16.9 COMPLETE + NORMALIZED; R16.10 IN_PROGRESS; R16.11–R16.18 PLANNED.
+- Frozen scope: representative repository-owned Godot 2D beta project; deterministic assets/scenes/scripts and provenance; public KodeGodot create/open/analyze/edit/validate/run-or-supported-headless paths; realistic multi-file change with SafeChange/rollback; benign untrusted project instructions retained as data; malicious negative-control text denied execution authority; project/diff/diagnostic/recovery digests; capability-probed Godot executable/version/invocation when available.
+- Core acceptance remains CI-owned and cross-platform; no external project, live secret, network dependency or destructive host action is required. Godot executable absence is recorded truthfully rather than inferred as PASS.
+- Manual state: **NONE**.
+- No R16.10 implementation preceded this START-sync.
+
+## R16.10 END authority
+
+- R16.10 state: **COMPLETE at END-sync**, manual **NONE**; R16.11–R16.18 remain PLANNED and R16.11 is not yet authorized.
+- Exact normalized base `3957a30053da791facb2de7fbbbb0614d0fa03d6`; immutable technical candidate `499292dd553460bb48f3092112d5bcb81544242b`, tree-identical to clean source `ee433680428fd525970456d740980e432d38bea5`.
+- Technical focused R16.10 #20 / `33638816914`: SUCCESS Ubuntu + Windows; artifacts Linux `9850084807 / sha256:09eede99ef70a5b9faefdde5965001e1c3d33de8ad55d34242fa97582f2e5c28`, Windows `9850065450 / sha256:f0d2da48b853f1d27d8cc14e61884c32357438ed85a9d1616cd86ffdd6c252da`.
+- Same-source gates: R16.9 #23 / `33638824052` SUCCESS Ubuntu + Windows; R0 #2333 / `33638823984` SUCCESS Ubuntu + Windows; Python Core #2305 / `33638824758` SUCCESS 5/5; UI #2270 / `33638824596` SUCCESS.
+- Acceptance: 10/10 PASS per OS, `security_claim=true`, `critical_veto=false`, manual NONE, no live credentials, zero network calls, no destructive host action; Godot is `capability_absent` on both hosted runners.
+- Canonical digests: fixture/restored `e87b912f36b960e724b4d2eb6367794c6933ae0255353b5cbcbb400294c66b95`; changed `0312025cdbfef593ba21a4280d9d897c4ef8aa37ec8201ceeec9c9b9b96f054e`; diff `4226629a0be5da2ba2dfb3f344d56b973d9893462ef8cba64c7bc8b37a450542`; diagnostic `f61d0af7376d7deda7ad2ac65b5debdf47154f432403d41c150d351a59fc6b07`; recovery `6f107c6ff1c683ad31597e400512fb247ed56b6e4d035c1a9f0e4dce5ab5a7d5`; semantic `25b95aa0ae5ccd909a1b93e9e0d3540482a2f6c6c01491c6fd7845fd80bbe095`.
+- R16.10 is the 13th immutable R16.9 workflow authority; strict full-SHA action pinning and least privilege remain unchanged.
+- The final END head must differ from `499292dd...` only in `docs/roadmap/R16_PLAN.md` and this continuity file, then pass fresh R16.10/R16.9/R0/Python/UI before PR #353 exact-head merge.
+- Exactly one post-merge continuity-only normalization is authorized; only its normalized `main` may authorize R16.11 START.
 
 ## R16 status index
 
@@ -149,7 +171,7 @@
 | R16.7 | COMPLETE + NORMALIZED | NONE |
 | R16.8 | COMPLETE + NORMALIZED | NONE |
 | R16.9 | COMPLETE + NORMALIZED | NONE |
-| R16.10 | PLANNED | NONE |
+| R16.10 | COMPLETE | NONE |
 | R16.11 | PLANNED | NONE |
 | R16.12 | PLANNED | NONE |
 | R16.13 | PLANNED | CONDITIONAL |
@@ -161,7 +183,7 @@
 
 ## Next authorized action
 
-Complete this **unique R16.9 continuity-only normalization** from implementation/evidence `main` `b81fe4248338ed5cabe6e3034f396cd11202ec39`: its final tree must change only `docs/continuity/KODEPOIA_CONTINUITY.md`, pass fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke, then merge with exact `expected_head_sha`. Only the resulting normalized `main` authorizes **R16.10 — Representative real Godot 2D beta project**; R16.10 must begin with its own dedicated branch and START-sync before implementation.
+Implement and accept **R16.10 — Representative real Godot 2D beta project** on `r16/10-representative-godot-2d-beta-project` from exact normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`. Use a bounded repository-owned real Godot 2D project; exercise public KodeGodot create/open/analyze/edit/validate/run-or-headless-check paths, multi-file SafeChange/rollback, deterministic project/diff/diagnostic evidence, benign untrusted project text and a malicious non-executing negative control. Godot engine availability is capability-probed and any live claim must record executable/version/invocation. Manual NONE. Freeze one immutable technical source, run focused Ubuntu/Windows acceptance plus fresh R0/Python/UI, END-sync and re-gate any changed END head before exact-head merge and the unique continuity-only post-merge normalization.
 
 ## Permanent R-phase execution rule
 

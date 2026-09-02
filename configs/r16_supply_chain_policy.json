@@ -49,6 +49,7 @@
       ".github/workflows/r16-7-memory-context-poisoning-acceptance.yml",
       ".github/workflows/r16-8-fault-recovery-acceptance.yml",
       ".github/workflows/r16-9-supply-chain-provenance-acceptance.yml",
+      ".github/workflows/r16-10-godot-2d-beta-acceptance.yml",
       ".github/workflows/ui-smoke.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,

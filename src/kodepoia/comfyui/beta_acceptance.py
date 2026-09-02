@@ -144,7 +144,15 @@ def _validate_security_metadata(metadata: dict[str, Any]) -> None:
 
 
 def validate_fixture_payload(payload: dict[str, Any]) -> tuple[WorkflowDefinition, R1613Budgets]:
-    expected = {"schema_version", "name", "graph", "allowed_node_classes", "metadata", "budgets", "negative_controls"}
+    expected = {
+        "schema_version",
+        "name",
+        "graph",
+        "allowed_node_classes",
+        "metadata",
+        "budgets",
+        "negative_controls",
+    }
     if set(payload) != expected or payload.get("schema_version") != 1:
         raise ComfyGovernanceError("R16.13 fixture fields/schema do not match the frozen contract")
     graph = payload.get("graph")
@@ -332,7 +340,12 @@ class _FixtureHandler(BaseHTTPRequestHandler):
         if target.path == "/history":
             with self.state.lock:
                 prompt_id = self.state.prompt_id
-            self._send_json({} if prompt_id is None else {prompt_id: {"status": {"status_str": "success", "completed": True}}})
+            payload = (
+                {}
+                if prompt_id is None
+                else {prompt_id: {"status": {"status_str": "success", "completed": True}}}
+            )
+            self._send_json(payload)
             return
         if target.path.startswith("/history/"):
             prompt_id = target.path.split("/", 2)[2]
@@ -725,7 +738,8 @@ def build_comfyui_beta_report(
         _case(
             "real-server-gpu-not-inferred",
             live["state"] == "NOT_EXERCISED" if live_endpoint is None else True,
-            "core CI truthfully separates synthetic fixture capability from optional real local ComfyUI/GPU evidence",
+            "core CI truthfully separates synthetic fixture capability from optional "
+            "real local ComfyUI/GPU evidence",
         )
     )
     security_claim = all(bool(item["pass"]) for item in cases)

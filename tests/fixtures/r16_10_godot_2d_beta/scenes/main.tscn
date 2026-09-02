@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="2_hud"]
+[ext_resource type="Texture2D" path="res://assets/player.svg" id="3_texture"]
+[ext_resource type="Resource" path="res://resources/player_profile.tres" id="4_profile"]
+
+[node name="BetaWorld" type="Node2D"]
+process_mode = 0
+script = ExtResource("1_main")
+player_profile = ExtResource("4_profile")
+
+[node name="Player" type="Sprite2D" parent="."]
+position = Vector2(160, 90)
+texture = ExtResource("3_texture")
+
+[node name="HUD" parent="." instance=ExtResource("2_hud")]

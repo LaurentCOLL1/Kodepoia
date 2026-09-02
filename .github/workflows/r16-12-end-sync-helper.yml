@@ -1,0 +1,139 @@
+name: R16.12 temporary END-sync helper
+
+on:
+  push:
+    branches:
+      - r16/12-end-sync-helper
+    paths:
+      - .github/workflows/r16-12-end-sync-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r16/12-end-sync-helper
+          fetch-depth: 0
+      - name: Synchronize R16.12 END authority
+        shell: python
+        run: |
+          from pathlib import Path
+
+          plan = Path("docs/roadmap/R16_PLAN.md")
+          plan_text = plan.read_text(encoding="utf-8")
+          old_checkpoint = (
+              "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. "
+              "R16.1–R16.11 are COMPLETE + NORMALIZED. R16.12 is IN_PROGRESS from normalized `main` "
+              "`270e022a03d7a596eedd27d8989b22278f18cbca` on dedicated branch "
+              "`r16/12-representative-windows-desktop-application` after mandatory START-sync and before implementation. "
+              "R16.13–R16.18 remain PLANNED. Manual NONE for R16.12 unsigned/core CI acceptance."
+          )
+          new_checkpoint = (
+              "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. "
+              "R16.1–R16.11 are COMPLETE + NORMALIZED. R16.12 is COMPLETE on immutable technical source "
+              "`7c51c1580ed2c2d9ee18758c6a8cb57dae1ce084` after R16.12 #11 / `33676531167`, "
+              "R16.9 #40 / `33676531542`, R0 #2354 / `33676531431`, Python Core #2326 / `33676531657` "
+              "and KodeStudio UI Smoke #2291 / `33676531178` all SUCCESS on that exact source. "
+              "R16.13–R16.18 remain PLANNED and R16.13 is unauthorized until this END-sync head is freshly re-gated, "
+              "PR #357 merges with its exact expected head, and the unique continuity-only post-merge normalization "
+              "passes fresh R0/Python/UI and merges. Manual NONE for R16.12 unsigned/core CI acceptance."
+          )
+          if plan_text.count(old_checkpoint) != 1:
+              raise SystemExit("expected one R16.12 checkpoint")
+          plan_text = plan_text.replace(old_checkpoint, new_checkpoint)
+
+          old_r1611 = "| R16.11 | Representative real Godot 3D beta project | COMPLETE | NONE |"
+          new_r1611 = "| R16.11 | Representative real Godot 3D beta project | COMPLETE + NORMALIZED | NONE |"
+          old_r1612 = "| R16.12 | Representative real Windows desktop application | PLANNED | NONE |"
+          new_r1612 = "| R16.12 | Representative real Windows desktop application | COMPLETE | NONE |"
+          if plan_text.count(old_r1611) != 1 or plan_text.count(old_r1612) != 1:
+              raise SystemExit("unexpected frozen subdivision index state")
+          plan_text = plan_text.replace(old_r1611, new_r1611).replace(old_r1612, new_r1612)
+
+          start_tail = (
+              "- No R16.12 implementation preceded this START-sync. No manual signing, installed system application "
+              "or production target is required for core CI acceptance."
+          )
+          end_block = """
+
+## R16.12 END authority
+
+- State: **COMPLETE**; manual **NONE**. R16.13 remains **PLANNED** and unauthorized.
+- Exact normalized base: `main` `270e022a03d7a596eedd27d8989b22278f18cbca`; clean START `e654a7eff3bdfa7c7b5ee1e36d47cfbf20e03c3d`; immutable technical source `7c51c1580ed2c2d9ee18758c6a8cb57dae1ce084`.
+- Exact-source technical gates on that source: R16.12 #11 / `33676531167` SUCCESS Windows; R16.9 #40 / `33676531542` SUCCESS Ubuntu + Windows; R0 #2354 / `33676531431` SUCCESS Ubuntu + Windows; Python Core #2326 / `33676531657` SUCCESS 5/5; KodeStudio UI Smoke #2291 / `33676531178` SUCCESS.
+- R16.12 focused + supply-chain regression tests: 28/28 PASS. Representative acceptance: 10/10 PASS, `security_claim=true`, `critical_veto=false`, `secret_free=true`, `manual_state=NONE`, no live credentials and no destructive host actions.
+- Canonical exercised path: repository-supported WPF under .NET SDK `10.0.400` x64. The representative project path is 161 characters and contains spaces; build/runtime smoke and governed `dotnet publish` succeed without shell interpolation.
+- Package evidence on the technical source is unsigned and source-bound: 5 files / 184779 bytes; package manifest `ab2ce29a00714e61b89ef4a2ff5a9703ab17dd249a45b0c366bbe3e881ca4ce5`; package binding `7d569c2bfcc8cbd488cbf81b8c0c2b82c03f6ef66e326aa02c3fb142982c6fec`; diagnostic `528949bdd3f51da4618cc67e4829e5e65ab2095d0838b747a7109c5b41508af2`; semantic `4413d7f755d43759fdf460cc36fcbf4cc5f86b30a9563ccd185ccfd7c292f818`; evidence `65b519ff05e1cfe4dce0dee4b60c373fab134c6b39d1cf7ffce20cef1e0d8321`; artifact `9864607094`, archive SHA-256 `0f6026347f0527456d26ea2246f8043d3384f4d8f1fa7093dbf5408299996fab`.
+- Accepted boundaries: WorkspaceBoundary confinement and workspace-escape negative control; malicious project/config text remains data-only; bounded cancellation restores exact bytes; injected build failure recovers through SafeChange; typed SQLite persistence stays workspace-bounded; Windows named-pipe IPC remains local-only and rejects an unauthorized method; package/build evidence remains exact-source and secret-free.
+- R16.12 is COMPLETE at END-sync. R16.13 remains unauthorized until this documentation/evidence END head passes fresh exact-head R16.12/R16.9/R0/Python/UI gates, PR #357 merges with `expected_head_sha` equal to that exact END head, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.
+"""
+          marker = start_tail + "\n\n---\n\n# R16.13 — Representative ComfyUI beta workflow"
+          replacement = start_tail + end_block + "\n---\n\n# R16.13 — Representative ComfyUI beta workflow"
+          if plan_text.count(marker) != 1:
+              raise SystemExit("expected one R16.12 START tail")
+          plan_text = plan_text.replace(marker, replacement)
+          plan.write_text(plan_text, encoding="utf-8", newline="\n")
+
+          continuity = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          cont_text = continuity.read_text(encoding="utf-8")
+          old_status = "R16.1–R16.11 COMPLETE + NORMALIZED. R16.12 IN_PROGRESS. R16.13–R16.18 remain PLANNED."
+          new_status = "R16.1–R16.11 COMPLETE + NORMALIZED. R16.12 COMPLETE. R16.13–R16.18 remain PLANNED."
+          if cont_text.count(old_status) != 1:
+              raise SystemExit("expected one continuity status preamble")
+          cont_text = cont_text.replace(old_status, new_status)
+
+          if "- R16.12 : **COMPLETE**" in cont_text or "- R16.12 : **COMPLETE + NORMALIZED**" in cont_text:
+              raise SystemExit("R16.12 continuity record already exists")
+          record = (
+              "- R16.12 : **COMPLETE** — normalized R16.11 `main` `270e022a03d7a596eedd27d8989b22278f18cbca`; "
+              "clean START `e654a7eff3bdfa7c7b5ee1e36d47cfbf20e03c3d`; immutable technical source "
+              "`7c51c1580ed2c2d9ee18758c6a8cb57dae1ce084`; technical R16.12 #11 / `33676531167` SUCCESS Windows "
+              "with 28/28 focused + supply-chain regression tests and 10/10 acceptance, R16.9 #40 / `33676531542` "
+              "SUCCESS Ubuntu + Windows, R0 #2354 / `33676531431` SUCCESS Ubuntu + Windows, Python Core #2326 / "
+              "`33676531657` SUCCESS 5/5 and UI #2291 / `33676531178` SUCCESS. WPF/.NET SDK `10.0.400` x64 is the canonical "
+              "exercised desktop path; project path 161 chars with spaces; governed unsigned publish is 5 files / 184779 bytes. "
+              "Technical-source package manifest `ab2ce29a00714e61b89ef4a2ff5a9703ab17dd249a45b0c366bbe3e881ca4ce5`; package binding "
+              "`7d569c2bfcc8cbd488cbf81b8c0c2b82c03f6ef66e326aa02c3fb142982c6fec`; diagnostic "
+              "`528949bdd3f51da4618cc67e4829e5e65ab2095d0838b747a7109c5b41508af2`; semantic "
+              "`4413d7f755d43759fdf460cc36fcbf4cc5f86b30a9563ccd185ccfd7c292f818`; evidence "
+              "`65b519ff05e1cfe4dce0dee4b60c373fab134c6b39d1cf7ffce20cef1e0d8321`; artifact `9864607094` / archive SHA-256 "
+              "`0f6026347f0527456d26ea2246f8043d3384f4d8f1fa7093dbf5408299996fab`. `security_claim=true`, "
+              "`critical_veto=false`, `secret_free=true`, no live credentials/destructive host actions, manual NONE. R16.13 remains "
+              "unauthorized until the exact documentation/evidence END head passes fresh R16.12/R16.9/R0/Python/UI, PR #357 merges "
+              "with exact `expected_head_sha`, and the unique continuity-only post-merge normalization passes fresh R0/Python/UI and merges.\n"
+          )
+          lines = cont_text.splitlines(keepends=True)
+          indices = [i for i, line in enumerate(lines) if line.startswith("- R16.11 : **COMPLETE + NORMALIZED**")]
+          if len(indices) != 1:
+              raise SystemExit("expected one R16.11 continuity record")
+          lines.insert(indices[0] + 1, record)
+          continuity.write_text("".join(lines), encoding="utf-8", newline="\n")
+
+          final_plan = plan.read_text(encoding="utf-8")
+          final_cont = continuity.read_text(encoding="utf-8")
+          required = [
+              "| R16.11 | Representative real Godot 3D beta project | COMPLETE + NORMALIZED | NONE |",
+              "| R16.12 | Representative real Windows desktop application | COMPLETE | NONE |",
+              "## R16.12 END authority",
+              "- R16.12 : **COMPLETE**",
+          ]
+          if not all(item in final_plan + final_cont for item in required):
+              raise SystemExit("END-sync invariant missing")
+      - name: Verify documentation diff
+        shell: bash
+        run: |
+          git diff --check
+          git diff -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+      - name: Commit END-sync staging result
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --exit-code && exit 1 || true
+          git commit -m "docs(r16.12): synchronize END authority"
+          git push origin HEAD:r16/12-end-sync-helper

@@ -3,7 +3,6 @@
   "policy_id": "r16.9-supply-chain-v1",
   "pin_resolution_date": "2026-09-02",
   "pin_resolution_authority": "verified GitHub git refs/tags; annotated tags dereferenced to commit",
-  "pin_helper_revision": 2,
   "external_action_pins": {
     "actions/checkout": {
       "source_ref": "v4",
@@ -37,7 +36,25 @@
   "workflow_policy": {
     "require_explicit_permissions": true,
     "required_contents_permission": "read",
-    "allow_write_workflows": []
+    "allow_write_workflows": [],
+    "immutable_authority_workflows": [
+      ".github/workflows/python-core.yml",
+      ".github/workflows/r0-bootstrap.yml",
+      ".github/workflows/r16-1-red-team-acceptance.yml",
+      ".github/workflows/r16-2-prompt-injection-acceptance.yml",
+      ".github/workflows/r16-3-workspace-quarantine-acceptance.yml",
+      ".github/workflows/r16-4-secrets-privacy-acceptance.yml",
+      ".github/workflows/r16-5-tool-trust-acceptance.yml",
+      ".github/workflows/r16-6-destructive-agency-acceptance.yml",
+      ".github/workflows/r16-7-memory-context-poisoning-acceptance.yml",
+      ".github/workflows/r16-8-fault-recovery-acceptance.yml",
+      ".github/workflows/r16-9-supply-chain-provenance-acceptance.yml",
+      ".github/workflows/ui-smoke.yml"
+    ],
+    "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
+    "forbid_pull_request_target": true,
+    "forbid_untrusted_pr_shell_interpolation": true,
+    "forbid_parent_artifact_paths": true
   },
   "provenance_policy": {
     "hash_algorithm": "sha256",

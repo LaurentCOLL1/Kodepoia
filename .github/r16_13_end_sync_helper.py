@@ -1,0 +1,194 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import subprocess
+from pathlib import Path
+
+BASE_SHA = "ef48343a0967920776a2c9849949f3203f5379b6"
+PLAN = Path("docs/roadmap/R16_PLAN.md")
+CONTINUITY = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+
+
+def replace_once(text: str, old: str, new: str, label: str) -> str:
+    if text.count(old) != 1:
+        raise SystemExit(f"{label}: expected exactly one anchor, got {text.count(old)}")
+    return text.replace(old, new, 1)
+
+
+def main() -> None:
+    subprocess.run(
+        ["git", "diff", "--exit-code", BASE_SHA, "--", PLAN.as_posix(), CONTINUITY.as_posix()],
+        check=True,
+    )
+
+    plan = PLAN.read_text(encoding="utf-8")
+    continuity = CONTINUITY.read_text(encoding="utf-8")
+
+    old_checkpoint = (
+        "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. "
+        "R16.1–R16.12 are COMPLETE + NORMALIZED. R16.13 is IN_PROGRESS on dedicated branch "
+        "`r16/13-representative-comfyui-beta-workflow` from exact normalized `main` "
+        "`86a174ab5d627ca9da8a5eb3979e05951582335b`; R16.14–R16.18 remain PLANNED. Manual state is NONE "
+        "for core CI and CONDITIONAL only for an explicitly requested real local ComfyUI/GPU qualification claim. "
+        "No R16.13 implementation preceded this START-sync."
+    )
+    new_checkpoint = (
+        "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. "
+        "R16.1–R16.12 are COMPLETE + NORMALIZED. R16.13 is COMPLETE at END-sync on dedicated branch "
+        "`r16/13-representative-comfyui-beta-workflow` from exact normalized `main` "
+        "`86a174ab5d627ca9da8a5eb3979e05951582335b`, with immutable technical source "
+        "`ef48343a0967920776a2c9849949f3203f5379b6`; R16.14–R16.18 remain PLANNED and unauthorized. "
+        "Core manual state is NONE; optional real local ComfyUI/GPU qualification is CONDITIONAL / NOT TRIGGERED. "
+        "Fresh exact-END R16.13/R16.9/R0/Python/UI re-gates are mandatory before PR #359 may merge; exactly one "
+        "post-merge continuity-only normalization is required before R16.14 START."
+    )
+    plan = replace_once(plan, old_checkpoint, new_checkpoint, "plan execution checkpoint")
+    plan = replace_once(
+        plan,
+        "| R16.13 | Representative ComfyUI beta workflow | IN_PROGRESS | CONDITIONAL |",
+        "| R16.13 | Representative ComfyUI beta workflow | COMPLETE | CONDITIONAL |",
+        "plan R16.13 status row",
+    )
+
+    plan_end = """## R16.13 END authority
+
+- State: **COMPLETE at END-sync**; core manual **NONE**; optional real local ComfyUI/GPU qualification **CONDITIONAL / NOT TRIGGERED**. R16.14 remains **PLANNED** and unauthorized.
+- Exact normalized base: `main` `86a174ab5d627ca9da8a5eb3979e05951582335b`; clean START-sync `6c16f115c35817dc96954d923688b4488bde515c`; immutable technical source `ef48343a0967920776a2c9849949f3203f5379b6`.
+- Fresh exact-technical-head gates on that immutable source are all SUCCESS: R16.13 #4 / `33682108327` Ubuntu + Windows; R16.9 #43 / `33682108284` Ubuntu + Windows; R0 Repository Guard #2359 / `33682108559` Ubuntu + Windows; Python Core #2331 / `33682108533` 5/5; KodeStudio UI Smoke #2296 / `33682108568`.
+- Per OS, focused R16.13 plus R16.9 supply-chain regression tests are **31/31 PASS** and representative acceptance is **12/12 PASS** with `security_claim=true`, `critical_veto=false`, `secret_free=true`, `core_manual_required=false`, `manual_state=CONDITIONAL_NOT_TRIGGERED`, zero live credentials, zero destructive host actions and zero external network calls.
+- The authoritative CI fixture is explicitly synthetic: `fixture_is_real_comfyui=false`, `fixture_is_real_gpu=false`; optional live local qualification remains `NOT_EXERCISED`, so no real ComfyUI server/GPU claim is inferred.
+- Canonical cross-platform SHA-256 values are identical for material semantics: fixture `703bdfc4383b7b21da105f59622995708b3126d162ee245862a7fe84a54d74ed`; workflow `c359e0505cf1809ad21c1b78749c0a4a5ad235545e3c6872fdd613723c7313c4`; prompt `927a95793dc85ed78ab19a831c5a9b6ac126884e2b1a38511f17317ebf68999b`; budget `68895e08ad203e0aced0b784065ab1fb08a97d7d1cc2a21586b4b165905aa7c3`; output `1a28b874c6e2c8cf8b02a1aede34837bf8ce7576eba1abcc377ee655d459eadb`; binding `2b67d1c077340e9eae70afe45f70208d38db92f052019adb8bb0b87202f04df5`; semantic `d149b518d08bf16f864a7f940ebca13071ae63a888ff08e7b4719c8d7a2247b5`.
+- Exact technical-head artifacts from R16.13 #4: Linux `9866650879 / sha256:59fb7a37a77a733216530e2be5ee3660e94a4cafcf8c651d263ff2d6bcb2693a`; Windows `9866670229 / sha256:217e542d8e42f4ff27e4771e6dfaf46d7b0261aaa2dd473480319f0e4252d282`. Platform-specific report evidence SHA-256 is Linux `de77a717a2cfec64a2d597dafa95f01b518986fe4378f4ca7490397f9385c1ab` and Windows `1678f769f51feb26b80d2996798262e46fee9fa6372f5301b72a2fe3d2d134ee`.
+- The earlier raw-byte fixture-digest attempt is non-authoritative because LF/CRLF checkout changed its digest. The accepted technical source digests parsed canonical JSON and includes an explicit LF/CRLF-independence regression test.
+- This END-sync may change only `docs/roadmap/R16_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the immutable technical source. Its resulting exact END head must receive fresh R16.13/R16.9/R0/Python/UI SUCCESS before PR #359 may merge with `expected_head_sha` equal to that exact head.
+- Exactly one post-merge continuity-only R16.13 normalization is authorized after the implementation/evidence merge. Only the resulting normalized `main` may mark R16.13 **COMPLETE + NORMALIZED** and authorize R16.14 START.
+"""
+    anchor = "\n---\n\n# R16.14 — Representative audio/voice/cinematic beta workflow"
+    plan = replace_once(
+        plan,
+        anchor,
+        "\n" + plan_end + "\n---\n\n# R16.14 — Representative audio/voice/cinematic beta workflow",
+        "plan R16.14 anchor",
+    )
+
+    top_re = re.compile(r"\A> Kodepoia, architecture v1\.0 gelée\..*?\n\n", re.S)
+    new_top = (
+        "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. "
+        "R16.1–R16.12 COMPLETE + NORMALIZED. R16.13 COMPLETE at END-sync. R16.14–R16.18 remain PLANNED and unauthorized.** "
+        "R16.13 immutable technical source `ef48343a0967920776a2c9849949f3203f5379b6` passed fresh exact-head R16.13 #4 / "
+        "`33682108327`, R16.9 #43 / `33682108284`, R0 #2359 / `33682108559`, Python Core #2331 / `33682108533` 5/5 "
+        "and KodeStudio UI Smoke #2296 / `33682108568`. Core manual NONE; optional real local ComfyUI/GPU qualification "
+        "CONDITIONAL / NOT TRIGGERED. This documentation-only END-sync must now pass fresh exact-END R16.13/R16.9/R0/Python/UI "
+        "before PR #359 exact-head merge; one continuity-only post-merge normalization remains mandatory before R16.14 START.\n\n"
+    )
+    continuity, count = top_re.subn(new_top, continuity, count=1)
+    if count != 1:
+        raise SystemExit("continuity top paragraph anchor mismatch")
+
+    global_re = re.compile(r"^- R16\.13 : \*\*IN_PROGRESS\*\* — .*?$", re.M)
+    global_line = (
+        "- R16.13 : **COMPLETE at END-sync** — normalized R16.12 `main` `86a174ab5d627ca9da8a5eb3979e05951582335b`; "
+        "clean START `6c16f115c35817dc96954d923688b4488bde515c`; immutable technical source `ef48343a0967920776a2c9849949f3203f5379b6`; "
+        "exact-technical-head R16.13 #4 / `33682108327` SUCCESS Ubuntu + Windows, R16.9 #43 / `33682108284` SUCCESS Ubuntu + Windows, "
+        "R0 #2359 / `33682108559` SUCCESS Ubuntu + Windows, Python Core #2331 / `33682108533` SUCCESS 5/5 and UI #2296 / `33682108568` SUCCESS. "
+        "Focused + supply-chain regression 31/31 PASS per OS; acceptance 12/12 PASS; `security_claim=true`, `critical_veto=false`, `secret_free=true`, "
+        "zero live credentials/destructive host actions/external network calls. Canonical digests: fixture `703bdfc4383b7b21da105f59622995708b3126d162ee245862a7fe84a54d74ed`; "
+        "workflow `c359e0505cf1809ad21c1b78749c0a4a5ad235545e3c6872fdd613723c7313c4`; prompt `927a95793dc85ed78ab19a831c5a9b6ac126884e2b1a38511f17317ebf68999b`; "
+        "budget `68895e08ad203e0aced0b784065ab1fb08a97d7d1cc2a21586b4b165905aa7c3`; output `1a28b874c6e2c8cf8b02a1aede34837bf8ce7576eba1abcc377ee655d459eadb`; "
+        "binding `2b67d1c077340e9eae70afe45f70208d38db92f052019adb8bb0b87202f04df5`; semantic `d149b518d08bf16f864a7f940ebca13071ae63a888ff08e7b4719c8d7a2247b5`. "
+        "Technical-head artifacts: Linux `9866650879 / sha256:59fb7a37a77a733216530e2be5ee3660e94a4cafcf8c651d263ff2d6bcb2693a`; Windows "
+        "`9866670229 / sha256:217e542d8e42f4ff27e4771e6dfaf46d7b0261aaa2dd473480319f0e4252d282`. Fixture is synthetic; real ComfyUI/GPU remains `NOT_EXERCISED`; "
+        "core manual NONE; conditional live qualification NOT TRIGGERED. Fresh exact-END five-gate qualification, PR #359 expected-head merge and the unique "
+        "post-merge continuity-only normalization remain mandatory before R16.14 START."
+    )
+    continuity, count = global_re.subn(global_line, continuity, count=1)
+    if count != 1:
+        raise SystemExit("continuity global R16.13 bullet anchor mismatch")
+
+    continuity = replace_once(
+        continuity,
+        "| R16.12 | IN_PROGRESS | NONE |\n| R16.13 | PLANNED | CONDITIONAL |",
+        "| R16.12 | COMPLETE + NORMALIZED | NONE |\n| R16.13 | COMPLETE | CONDITIONAL / NOT TRIGGERED |",
+        "continuity stale status index",
+    )
+
+    continuity_end = """## R16.13 END authority
+
+- R16.13 state: **COMPLETE at END-sync**; core manual **NONE**; optional real local ComfyUI/GPU qualification **CONDITIONAL / NOT TRIGGERED**. R16.14 remains PLANNED and unauthorized.
+- Exact normalized base `86a174ab5d627ca9da8a5eb3979e05951582335b`; clean START-sync `6c16f115c35817dc96954d923688b4488bde515c`; immutable technical source `ef48343a0967920776a2c9849949f3203f5379b6`.
+- Exact-technical-head gates are all SUCCESS: R16.13 #4 / `33682108327` Ubuntu + Windows; R16.9 #43 / `33682108284` Ubuntu + Windows; R0 #2359 / `33682108559` Ubuntu + Windows; Python Core #2331 / `33682108533` 5/5; KodeStudio UI Smoke #2296 / `33682108568`.
+- Focused R16.13 + R16.9 regression tests: 31/31 PASS per OS. Representative acceptance: 12/12 PASS, `security_claim=true`, `critical_veto=false`, `secret_free=true`, `core_manual_required=false`, `manual_state=CONDITIONAL_NOT_TRIGGERED`, no live credentials, no destructive host actions and zero external network calls.
+- CI is explicit-port loopback HTTP/WebSocket against a repository-owned synthetic fixture; `fixture_is_real_comfyui=false`, `fixture_is_real_gpu=false`, live qualification `NOT_EXERCISED`. No real server/GPU claim is inferred.
+- Cross-platform canonical digests: fixture `703bdfc4383b7b21da105f59622995708b3126d162ee245862a7fe84a54d74ed`; workflow `c359e0505cf1809ad21c1b78749c0a4a5ad235545e3c6872fdd613723c7313c4`; prompt `927a95793dc85ed78ab19a831c5a9b6ac126884e2b1a38511f17317ebf68999b`; budget `68895e08ad203e0aced0b784065ab1fb08a97d7d1cc2a21586b4b165905aa7c3`; output `1a28b874c6e2c8cf8b02a1aede34837bf8ce7576eba1abcc377ee655d459eadb`; binding `2b67d1c077340e9eae70afe45f70208d38db92f052019adb8bb0b87202f04df5`; semantic `d149b518d08bf16f864a7f940ebca13071ae63a888ff08e7b4719c8d7a2247b5`.
+- R16.13 #4 artifacts: Linux `9866650879 / sha256:59fb7a37a77a733216530e2be5ee3660e94a4cafcf8c651d263ff2d6bcb2693a`; Windows `9866670229 / sha256:217e542d8e42f4ff27e4771e6dfaf46d7b0261aaa2dd473480319f0e4252d282`.
+- This END-sync must remain documentation-only relative to `ef48343a...`. Its exact resulting head must pass fresh R16.13/R16.9/R0/Python/UI before PR #359 merges with exact `expected_head_sha`. Exactly one post-merge continuity-only normalization is then required; only that normalized `main` may authorize R16.14 START.
+
+"""
+    continuity = replace_once(
+        continuity,
+        "## R16 status index\n",
+        continuity_end + "## R16 status index\n",
+        "continuity R16 status index heading",
+    )
+
+    next_re = re.compile(r"## Next authorized action\n\n.*?\n\n## Permanent R-phase execution rule", re.S)
+    next_text = (
+        "## Next authorized action\n\n"
+        "R16.13 — **Representative ComfyUI beta workflow** — is COMPLETE at END-sync on `r16/13-representative-comfyui-beta-workflow`, "
+        "with immutable technical source `ef48343a0967920776a2c9849949f3203f5379b6`. The next authorized action is not R16.14 implementation: "
+        "first this exact documentation-only END head must pass fresh R16.13/R16.9/R0/Python/UI, then PR #359 must merge with `expected_head_sha` "
+        "equal to that exact END head, then exactly one continuity-only R16.13 post-merge normalization must pass fresh R0/Python/UI and merge. "
+        "Only the resulting normalized `main` authorizes R16.14 START-sync. Core manual **NONE**; optional real local ComfyUI/GPU qualification remains "
+        "**CONDITIONAL / NOT TRIGGERED**.\n\n"
+        "## Permanent R-phase execution rule"
+    )
+    continuity, count = next_re.subn(next_text, continuity, count=1)
+    if count != 1:
+        raise SystemExit("continuity next-action anchor mismatch")
+
+    if "| R16.12 | IN_PROGRESS | NONE |" in continuity:
+        raise SystemExit("stale R16.12 index remains")
+    if "| R16.13 | PLANNED | CONDITIONAL |" in continuity:
+        raise SystemExit("stale R16.13 index remains")
+
+    PLAN.write_text(plan, encoding="utf-8", newline="\n")
+    CONTINUITY.write_text(continuity, encoding="utf-8", newline="\n")
+
+    subprocess.run(["git", "diff", "--check", BASE_SHA, "--", PLAN.as_posix(), CONTINUITY.as_posix()], check=True)
+    changed = subprocess.check_output(
+        ["git", "diff", "--name-only", BASE_SHA, "--", PLAN.as_posix(), CONTINUITY.as_posix()],
+        text=True,
+        encoding="utf-8",
+    ).splitlines()
+    if sorted(changed) != sorted([PLAN.as_posix(), CONTINUITY.as_posix()]):
+        raise SystemExit(f"unexpected END-sync document diff: {changed}")
+
+    out = Path("out")
+    manifest = {
+        "phase": "R16.13",
+        "kind": "documentation-only-end-sync",
+        "base_sha": BASE_SHA,
+        "expected_changed_files": sorted(changed),
+        "files": {},
+    }
+    for src in (CONTINUITY, PLAN):
+        data = src.read_bytes()
+        dst = out / src
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        dst.write_bytes(data)
+        manifest["files"][src.as_posix()] = {
+            "bytes": len(data),
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
+    (out / "R16_13_END_SYNC_MANIFEST.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    print(json.dumps(manifest, indent=2, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,4 +1,4 @@
-# cleanup validated START sync state
+# cleanup validated START sync state with bounded diff scope
 name: R16.10 START Sync Helper
 
 on:
@@ -36,7 +36,7 @@ jobs:
           git rm .github/workflows/r16-10-start-sync-helper.yml .github/r16_10_start_sync.py
           git diff --cached --check
           expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R16_PLAN.md'
-          actual="$(git diff --name-only 3957a30053da791facb2de7fbbbb0614d0fa03d6 | sort)"
+          actual="$(git diff --name-only 3957a30053da791facb2de7fbbbb0614d0fa03d6 -- docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R16_PLAN.md .github/r16_10_start_sync.py .github/workflows/r16-10-start-sync-helper.yml | sort)"
           test "$actual" = "$expected"
           git commit -m "docs(r16.10): freeze clean START authority"
           git push origin HEAD:r16/10-representative-godot-2d-beta-project

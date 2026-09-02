@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.9 COMPLETE + NORMALIZED. R16.10 IN_PROGRESS on `r16/10-representative-godot-2d-beta-project` from normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`; R16.11–R16.18 remain PLANNED.** R16.9 immutable technical source `026ddc91672c144977453c9852a5288e9533af22`; final exact-END head `910e4d166782cc570b98f60470a13be48896a116` passed R16.9 #16 / `33586184972`, R0 #2324 / `33586185066`, Python Core #2296 / `33586184754` 5/5 and UI #2261 / `33586184752`; PR #351 merged as `b81fe4248338ed5cabe6e3034f396cd11202ec39`; unique normalization head `661d16e97f5c5d348db0c98e3885420b1b40de14` passed R0 #2326 / `33587183979`, Python Core #2298 / `33587184006` 5/5 and UI #2263 / `33587184031`, then PR #352 merged exact head as normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`. R16.10 START is synchronized before implementation; manual NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.9 COMPLETE + NORMALIZED. R16.10 COMPLETE at END-sync on `r16/10-representative-godot-2d-beta-project` from normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`; R16.11–R16.18 remain PLANNED and unauthorized until R16.10 merge + unique post-merge normalization.** R16.9 immutable technical source `026ddc91672c144977453c9852a5288e9533af22`; final exact-END head `910e4d166782cc570b98f60470a13be48896a116` passed R16.9 #16 / `33586184972`, R0 #2324 / `33586185066`, Python Core #2296 / `33586184754` 5/5 and UI #2261 / `33586184752`; PR #351 merged as `b81fe4248338ed5cabe6e3034f396cd11202ec39`; unique normalization head `661d16e97f5c5d348db0c98e3885420b1b40de14` passed R0 #2326 / `33587183979`, Python Core #2298 / `33587184006` 5/5 and UI #2263 / `33587184031`, then PR #352 merged exact head as normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`. R16.10 START is synchronized before implementation; manual NONE.
 
 ## État global
 
@@ -146,6 +146,18 @@
 - Manual state: **NONE**.
 - No R16.10 implementation preceded this START-sync.
 
+## R16.10 END authority
+
+- R16.10 state: **COMPLETE at END-sync**, manual **NONE**; R16.11–R16.18 remain PLANNED and R16.11 is not yet authorized.
+- Exact normalized base `3957a30053da791facb2de7fbbbb0614d0fa03d6`; immutable technical candidate `499292dd553460bb48f3092112d5bcb81544242b`, tree-identical to clean source `ee433680428fd525970456d740980e432d38bea5`.
+- Technical focused R16.10 #20 / `33638816914`: SUCCESS Ubuntu + Windows; artifacts Linux `9850084807 / sha256:09eede99ef70a5b9faefdde5965001e1c3d33de8ad55d34242fa97582f2e5c28`, Windows `9850065450 / sha256:f0d2da48b853f1d27d8cc14e61884c32357438ed85a9d1616cd86ffdd6c252da`.
+- Same-source gates: R16.9 #23 / `33638824052` SUCCESS Ubuntu + Windows; R0 #2333 / `33638823984` SUCCESS Ubuntu + Windows; Python Core #2305 / `33638824758` SUCCESS 5/5; UI #2270 / `33638824596` SUCCESS.
+- Acceptance: 10/10 PASS per OS, `security_claim=true`, `critical_veto=false`, manual NONE, no live credentials, zero network calls, no destructive host action; Godot is `capability_absent` on both hosted runners.
+- Canonical digests: fixture/restored `e87b912f36b960e724b4d2eb6367794c6933ae0255353b5cbcbb400294c66b95`; changed `0312025cdbfef593ba21a4280d9d897c4ef8aa37ec8201ceeec9c9b9b96f054e`; diff `4226629a0be5da2ba2dfb3f344d56b973d9893462ef8cba64c7bc8b37a450542`; diagnostic `f61d0af7376d7deda7ad2ac65b5debdf47154f432403d41c150d351a59fc6b07`; recovery `6f107c6ff1c683ad31597e400512fb247ed56b6e4d035c1a9f0e4dce5ab5a7d5`; semantic `25b95aa0ae5ccd909a1b93e9e0d3540482a2f6c6c01491c6fd7845fd80bbe095`.
+- R16.10 is the 13th immutable R16.9 workflow authority; strict full-SHA action pinning and least privilege remain unchanged.
+- The final END head must differ from `499292dd...` only in `docs/roadmap/R16_PLAN.md` and this continuity file, then pass fresh R16.10/R16.9/R0/Python/UI before PR #353 exact-head merge.
+- Exactly one post-merge continuity-only normalization is authorized; only its normalized `main` may authorize R16.11 START.
+
 ## R16 status index
 
 | ID | Status | Manual |
@@ -159,7 +171,7 @@
 | R16.7 | COMPLETE + NORMALIZED | NONE |
 | R16.8 | COMPLETE + NORMALIZED | NONE |
 | R16.9 | COMPLETE + NORMALIZED | NONE |
-| R16.10 | IN_PROGRESS | NONE |
+| R16.10 | COMPLETE | NONE |
 | R16.11 | PLANNED | NONE |
 | R16.12 | PLANNED | NONE |
 | R16.13 | PLANNED | CONDITIONAL |

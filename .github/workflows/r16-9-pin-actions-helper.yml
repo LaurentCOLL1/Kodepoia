@@ -15,7 +15,7 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         with:
           ref: r16/09-supply-chain-provenance-hardening
           fetch-depth: 0
@@ -64,7 +64,7 @@ jobs:
         shell: bash
         run: |
           test -f .github/workflows/r15-5-end-sync-helper.yml
-          git rm .github/workflows/r15-5-end-sync-helper.yml
+          git rm -f .github/workflows/r15-5-end-sync-helper.yml
           git rm .github/workflows/r16-9-pin-actions-helper.yml
           git add .github/workflows
           git diff --cached --check

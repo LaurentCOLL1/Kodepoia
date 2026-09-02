@@ -13,12 +13,20 @@ from kodepoia.comfyui.beta_acceptance import (
     validate_fixture_payload,
 )
 from kodepoia.comfyui.errors import ComfyGovernanceError
+from kodepoia.comfyui.serialization import canonical_sha256
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def _fixture() -> dict[str, object]:
     return json.loads((ROOT / FIXTURE_RELATIVE).read_text(encoding="utf-8"))
+
+
+def test_r16_13_fixture_digest_is_line_ending_independent() -> None:
+    raw = (ROOT / FIXTURE_RELATIVE).read_bytes()
+    payload_lf = json.loads(raw.decode("utf-8"))
+    payload_crlf = json.loads(raw.replace(b"\n", b"\r\n").decode("utf-8"))
+    assert canonical_sha256(payload_lf) == canonical_sha256(payload_crlf)
 
 
 def test_r16_13_fixture_is_deterministic_and_bounded() -> None:
@@ -79,6 +87,7 @@ def test_r16_13_full_loopback_fixture_report() -> None:
     assert report["summary"] == {"total": 12, "passed": 12, "failed": 0}
     assert report["secret_free"] is True
     assert len(report["fixture_sha256"]) == 64
+    assert report["fixture_sha256"] == canonical_sha256(_fixture())
     assert len(report["workflow_sha256"]) == 64
     assert len(report["budget_sha256"]) == 64
     assert len(report["output_sha256"]) == 64

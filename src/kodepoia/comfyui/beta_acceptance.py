@@ -550,7 +550,7 @@ def build_comfyui_beta_report(
 
     fixture, fixture_bytes = _load_fixture(repo_root)
     definition, budgets = validate_fixture_payload(fixture)
-    fixture_sha256 = hashlib.sha256(fixture_bytes).hexdigest()
+    fixture_sha256 = canonical_sha256(fixture)
     output_relative = _safe_relative_output(str(fixture["metadata"]["output_relative"]))
     negative = _negative_control_results(fixture)
     output_bytes = b"KODEPOIA-R16.13-DETERMINISTIC-COMFYUI-OUTPUT\n"
@@ -656,7 +656,8 @@ def build_comfyui_beta_report(
                 _case(
                     "deterministic-repository-workflow",
                     definition.definition_digest_sha256 == canonical_sha256(definition.identity_payload())
-                    and fixture_sha256 == hashlib.sha256(fixture_bytes).hexdigest(),
+                    and fixture_sha256 == canonical_sha256(fixture)
+                    and 0 < len(fixture_bytes) <= _MAX_FIXTURE_BYTES,
                     "repository-owned workflow fixture and canonical workflow identity are deterministic",
                 ),
                 _case(

@@ -1,4 +1,4 @@
-# retrigger existing workflow
+# retrigger existing workflow after script restore
 name: R16.10 START Sync Helper
 
 on:

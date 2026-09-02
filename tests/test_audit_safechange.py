@@ -19,3 +19,6 @@ def test_safechange_snapshot(tmp_path: Path) -> None:
     manager = SafeChangeManager(project, tmp_path / "snapshots")
     snapshot = manager.snapshot([file])
     assert (snapshot / "data.txt").read_text(encoding="utf-8") == "before"
+    manifest = (snapshot / "MANIFEST.txt").read_bytes()
+    assert b"\r\n" not in manifest
+    assert manifest.startswith(b"data.txt ")

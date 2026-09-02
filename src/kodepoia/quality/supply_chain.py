@@ -4,10 +4,11 @@ import hashlib
 import json
 import re
 import tomllib
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 from kodepoia.kodecode.workspace import WorkspaceBoundary
 from kodepoia.quality.build import BuildManifest, BuildStatus
@@ -451,12 +452,16 @@ def audit_workflows(project_root: str | Path, policy: SupplyChainPolicy) -> Work
         else:
             permissions[relative] = parsed_permissions
             contents = parsed_permissions.get("contents")
-            if contents != policy.required_contents_permission:
-                if relative not in policy.allow_write_workflows:
-                    blockers.append(f"workflow_contents_permission:{relative}:{contents or 'missing'}")
-            if any(value == "write" for value in parsed_permissions.values()):
-                if relative not in policy.allow_write_workflows:
-                    blockers.append(f"workflow_write_permission:{relative}")
+            if (
+                contents != policy.required_contents_permission
+                and relative not in policy.allow_write_workflows
+            ):
+                blockers.append(f"workflow_contents_permission:{relative}:{contents or 'missing'}")
+            if (
+                any(value == "write" for value in parsed_permissions.values())
+                and relative not in policy.allow_write_workflows
+            ):
+                blockers.append(f"workflow_write_permission:{relative}")
 
         if policy.forbid_pull_request_target and re.search(
             r"^\s*pull_request_target\s*:", text, re.MULTILINE
@@ -469,9 +474,10 @@ def audit_workflows(project_root: str | Path, policy: SupplyChainPolicy) -> Work
                     blockers.append(f"workflow_untrusted_pr_shell_interpolation:{relative}")
                     break
 
-        if policy.forbid_parent_artifact_paths:
-            if any(_unsafe_artifact_path(value) for value in _artifact_upload_paths(text)):
-                blockers.append(f"workflow_artifact_path_escape:{relative}")
+        if policy.forbid_parent_artifact_paths and any(
+            _unsafe_artifact_path(value) for value in _artifact_upload_paths(text)
+        ):
+            blockers.append(f"workflow_artifact_path_escape:{relative}")
 
         for reference in _USES_RE.findall(text):
             if reference.startswith("./"):
@@ -546,7 +552,7 @@ def declared_dependencies(project_root: str | Path) -> tuple[DependencyInput, ..
         if match is None:
             raise ValueError(f"cannot determine dependency name: {requirement}")
         normalized = re.sub(r"[-_.]+", "-", match.group(1)).lower()
-        digest = _sha256_bytes(f"{group}\0{requirement}".encode("utf-8"))
+        digest = _sha256_bytes(f"{group}\0{requirement}".encode())
         entries.append(DependencyInput(group, normalized, requirement, digest))
 
     for requirement in payload.get("build-system", {}).get("requires", []):

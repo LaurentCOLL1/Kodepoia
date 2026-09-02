@@ -58,10 +58,11 @@ jobs:
       - name: Validate and push bounded correction
         shell: bash
         run: |
-          git diff --check
-          test "$(git diff --name-only)" = "src/kodepoia/quality/supply_chain.py"
+          git diff --check -- src/kodepoia/quality/supply_chain.py
+          test -n "$(git diff --name-only -- src/kodepoia/quality/supply_chain.py)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/kodepoia/quality/supply_chain.py
+          test "$(git diff --cached --name-only)" = "src/kodepoia/quality/supply_chain.py"
           git commit -m "style(r16.9): satisfy focused Ruff gate"
           git push origin HEAD:r16/09-supply-chain-provenance-hardening

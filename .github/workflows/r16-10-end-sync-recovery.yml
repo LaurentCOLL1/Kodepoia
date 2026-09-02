@@ -1,0 +1,36 @@
+name: R16.10 END Sync Recovery
+
+on:
+  push:
+    branches:
+      - r16/10-end-sync-recovery
+    paths:
+      - .github/workflows/r16-10-end-sync-recovery.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout recovery branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r16/10-end-sync-recovery
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Apply END sync and remove temporary machinery
+        run: |
+          python scripts/r16_10_end_sync_tmp.py
+          git rm .github/workflows/r16-10-end-sync-recovery.yml scripts/r16_10_end_sync_tmp.py
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only | sort)" = $'.github/workflows/r16-10-end-sync-recovery.yml\ndocs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R16_PLAN.md\nscripts/r16_10_end_sync_tmp.py'
+          git commit -m "docs(r16.10): synchronize accepted END evidence"
+          git push origin HEAD:r16/10-end-sync-recovery

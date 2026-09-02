@@ -1,0 +1,78 @@
+name: R16.13 temporary canonical fixture digest helper
+
+on:
+  push:
+    branches:
+      - r16/13-canonical-fixture-digest-helper
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r16/13-canonical-fixture-digest-helper
+          fetch-depth: 0
+      - name: Canonicalize fixture evidence digest
+        shell: python
+        run: |
+          from pathlib import Path
+
+          module = Path("src/kodepoia/comfyui/beta_acceptance.py")
+          text = module.read_text(encoding="utf-8")
+          old_digest = "fixture_sha256 = hashlib.sha256(fixture_bytes).hexdigest()"
+          new_digest = "fixture_sha256 = canonical_sha256(fixture)"
+          if text.count(old_digest) != 1:
+              raise SystemExit("fixture digest anchor missing")
+          text = text.replace(old_digest, new_digest, 1)
+          old_case = "and fixture_sha256 == hashlib.sha256(fixture_bytes).hexdigest(),"
+          new_case = "and fixture_sha256 == canonical_sha256(fixture)\n                    and 0 < len(fixture_bytes) <= _MAX_FIXTURE_BYTES,"
+          if text.count(old_case) != 1:
+              raise SystemExit("deterministic fixture case anchor missing")
+          text = text.replace(old_case, new_case, 1)
+          module.write_text(text, encoding="utf-8", newline="\n")
+
+          test = Path("tests/test_r16_13_comfyui_beta.py")
+          t = test.read_text(encoding="utf-8")
+          import_anchor = "from kodepoia.comfyui.errors import ComfyGovernanceError\n"
+          import_add = import_anchor + "from kodepoia.comfyui.serialization import canonical_sha256\n"
+          if t.count(import_anchor) != 1 or "serialization import canonical_sha256" in t:
+              raise SystemExit("test import anchor invalid")
+          t = t.replace(import_anchor, import_add, 1)
+          fn_anchor = "def test_r16_13_fixture_is_deterministic_and_bounded() -> None:\n"
+          new_test = (
+              "def test_r16_13_fixture_digest_is_line_ending_independent() -> None:\n"
+              "    raw = (ROOT / FIXTURE_RELATIVE).read_bytes()\n"
+              "    payload_lf = json.loads(raw.decode(\"utf-8\"))\n"
+              "    payload_crlf = json.loads(raw.replace(b\"\\n\", b\"\\r\\n\").decode(\"utf-8\"))\n"
+              "    assert canonical_sha256(payload_lf) == canonical_sha256(payload_crlf)\n\n\n"
+          )
+          if t.count(fn_anchor) != 1:
+              raise SystemExit("test function anchor missing")
+          t = t.replace(fn_anchor, new_test + fn_anchor, 1)
+          report_anchor = "    assert len(report[\"fixture_sha256\"]) == 64\n"
+          report_add = report_anchor + "    assert report[\"fixture_sha256\"] == canonical_sha256(_fixture())\n"
+          if t.count(report_anchor) != 1:
+              raise SystemExit("report fixture assertion anchor missing")
+          t = t.replace(report_anchor, report_add, 1)
+          test.write_text(t, encoding="utf-8", newline="\n")
+      - name: Stage and verify exact patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -- src/kodepoia/comfyui/beta_acceptance.py tests/test_r16_13_comfyui_beta.py
+          git diff --cached --check
+          actual="$(git diff --cached --name-only | sort)"
+          expected=$'src/kodepoia/comfyui/beta_acceptance.py\ntests/test_r16_13_comfyui_beta.py'
+          test "$actual" = "$expected"
+      - name: Commit canonical digest patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "fix(r16.13): canonicalize fixture evidence digest"
+          git push origin HEAD:r16/13-canonical-fixture-digest-helper

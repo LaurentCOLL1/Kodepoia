@@ -1,0 +1,42 @@
+name: R16.9 Run Parser Fix Helper
+
+on:
+  push:
+    branches:
+      - r16/09-supply-chain-provenance-hardening
+    paths:
+      - .github/workflows/r16-9-run-parser-fix-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r16/09-supply-chain-provenance-hardening
+          fetch-depth: 0
+      - name: Cover YAML dash-run syntax
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("src/kodepoia/quality/supply_chain.py")
+          text = path.read_text(encoding="utf-8")
+          old = '        match = re.match(r"^(\\s*)run:\\s*(.*)$", line)\n'
+          new = '        match = re.match(r"^(\\s*)-?\\s*run:\\s*(.*)$", line)\n'
+          if text.count(old) != 1:
+              raise SystemExit("run parser replacement cardinality mismatch")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8", newline="\n")
+      - name: Push isolated parser correction
+        shell: bash
+        run: |
+          git diff --check -- src/kodepoia/quality/supply_chain.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/kodepoia/quality/supply_chain.py
+          test "$(git diff --cached --name-only)" = "src/kodepoia/quality/supply_chain.py"
+          git commit -m "fix(r16.9): audit dash-prefixed run steps"
+          git push origin HEAD:r16/09-supply-chain-provenance-hardening

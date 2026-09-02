@@ -1,0 +1,53 @@
+name: R16.11 Cross-Platform Digest Helper
+
+on:
+  push:
+    branches:
+      - r16/11-cross-platform-digest-helper
+    paths:
+      - .github/workflows/r16-11-cross-platform-digest-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout isolated helper branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Patch canonical project ordering on exact technical tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --detach 2f57cefb72230bae1b298e12fc847d85ac9b124a
+          git switch -c r16-11-digest-fix
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/kodepoia/kodegodot/beta_3d_acceptance.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''    for path in sorted(item for item in root.rglob("*") if item.is_file()):
+              relative = path.relative_to(root)
+          '''
+          new = '''    files = [item for item in root.rglob("*") if item.is_file()]
+              for path in sorted(
+                  files, key=lambda item: item.relative_to(root).as_posix()
+              ):
+                  relative = path.relative_to(root)
+          '''
+          if text.count(old) != 1:
+              raise SystemExit("unexpected project-digest loop")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8", newline="\n")
+          PY
+          python -m compileall -q src/kodepoia/kodegodot/beta_3d_acceptance.py
+          git diff --check -- src/kodepoia/kodegodot/beta_3d_acceptance.py
+          test "$(git diff --name-only)" = "src/kodepoia/kodegodot/beta_3d_acceptance.py"
+          git add src/kodepoia/kodegodot/beta_3d_acceptance.py
+          git commit -m "fix(r16.11): canonicalize cross-platform project digest ordering"
+          git push --force origin HEAD:refs/heads/r16/11-representative-godot-3d-beta-project

@@ -1,4 +1,4 @@
-name: R16.13 END Sync Helper
+name: R16.13 Normalization Helper
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  publish-end-sync:
+  publish-normalization:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout helper branch
@@ -20,28 +20,25 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Checkout official R16.13 branch
+      - name: Checkout R16.13 normalization branch
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: "r16/13-representative-comfyui-beta-workflow"
+          ref: "r16/13-continuity-normalization"
           path: repo
           fetch-depth: 0
 
-      - name: Generate and publish exact documentation-only END sync
+      - name: Generate and publish exact continuity-only normalization
         shell: bash
         run: |
           set -euo pipefail
-          BASE=ef48343a0967920776a2c9849949f3203f5379b6
+          BASE=38cd16fb7f99eaa46a11d83994a0fe50ce576f80
           test "$(git -C repo rev-parse HEAD)" = "$BASE"
-          cp helper/.github/r16_13_end_sync_helper.py /tmp/r16_13_end_sync_helper.py
+          cp helper/.github/r16_13_normalization_helper.py /tmp/r16_13_normalization_helper.py
           cd repo
-          python /tmp/r16_13_end_sync_helper.py
-          test "$(sha256sum docs/roadmap/R16_PLAN.md | awk '{print $1}')" = "382a479340ca51b9f8090d1c79c2607ab4ea8745e3338890f82fbe81b6f18e43"
-          test "$(sha256sum docs/continuity/KODEPOIA_CONTINUITY.md | awk '{print $1}')" = "cdd36855d33b9dd69c77be956f9372453d143cf32c262f400d894a009a44a54c"
-          rm -rf out
-          git add -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          python /tmp/r16_13_normalization_helper.py
+          git add -- docs/continuity/KODEPOIA_CONTINUITY.md
           mapfile -t staged < <(git diff --cached --name-only | sort)
-          expected=("docs/continuity/KODEPOIA_CONTINUITY.md" "docs/roadmap/R16_PLAN.md")
+          expected=("docs/continuity/KODEPOIA_CONTINUITY.md")
           test "${staged[*]}" = "${expected[*]}"
           git diff --cached --check
           tree=$(git write-tree)
@@ -49,8 +46,8 @@ jobs:
           export GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
           export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
           export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
-          commit=$(printf '%s\n' 'docs(r16.13): synchronize END authority' | git commit-tree "$tree" -p "$BASE")
+          commit=$(printf '%s\n' 'docs(r16.13): normalize post-merge continuity' | git commit-tree "$tree" -p "$BASE")
           mapfile -t committed < <(git diff-tree --no-commit-id --name-only -r "$commit" | sort)
           test "${committed[*]}" = "${expected[*]}"
-          echo "END_HEAD=$commit"
-          git push origin "$commit":refs/heads/r16/13-representative-comfyui-beta-workflow
+          echo "NORMALIZATION_HEAD=$commit"
+          git push origin "$commit":refs/heads/r16/13-continuity-normalization

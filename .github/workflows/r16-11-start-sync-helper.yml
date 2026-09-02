@@ -1,0 +1,43 @@
+name: R16.11 START Sync Helper
+
+on:
+  push:
+    branches:
+      - r16/11-start-sync-helper
+    paths:
+      - .github/workflows/r16-11-start-sync-helper.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: r16-11-start-sync-helper
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout isolated helper branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          lfs: false
+
+      - name: Build clean R16.11 START authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp scripts/r16_11_start_sync_helper.py /tmp/r16_11_start_sync_helper.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --detach 75e58ba578d6c5f654be1c3a8e35fae7f86cb72a
+          git switch -c r16/11-representative-godot-3d-beta-project
+          python /tmp/r16_11_start_sync_helper.py
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R16_PLAN.md'
+          actual="$(git diff --cached --name-only | sort)"
+          test "$actual" = "$expected"
+          git commit -m "docs(r16.11): synchronize START authority"
+          git push --force origin HEAD:refs/heads/r16/11-representative-godot-3d-beta-project

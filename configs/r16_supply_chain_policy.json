@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
   "policy_id": "r16.9-supply-chain-v1",
+  "pin_resolution_date": "2026-09-02",
+  "pin_resolution_authority": "verified GitHub git refs/tags; annotated tags dereferenced to commit",
   "external_action_pins": {
     "actions/checkout": {
       "source_ref": "v4",

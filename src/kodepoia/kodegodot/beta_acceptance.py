@@ -401,7 +401,7 @@ def build_report(
             "snapshot_manifest_sha256": _file_sha256(
                 aggregate_snapshot / "MANIFEST.txt"
             ),
-            "checkpoint_integrity_sha256": checkpoint.integrity_sha256,
+            "restored_paths": list(MUTATED_SCENES),
             "restored_project_sha256": restored_project,
         }
 
@@ -435,6 +435,7 @@ def build_report(
         "diff_sha256": diff_sha256,
         "diagnostic_sha256": _sha256_payload(static_diagnostics),
         "recovery_sha256": _sha256_payload(recovery),
+        "recovery_checkpoint_integrity_sha256": checkpoint.integrity_sha256,
         "trust": {
             "metadata": trust.to_dict(),
             "inspect_data": asdict(inspect_decision),

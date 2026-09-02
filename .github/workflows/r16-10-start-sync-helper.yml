@@ -1,4 +1,4 @@
-# retrigger existing workflow after script restore
+# cleanup validated START sync state
 name: R16.10 START Sync Helper
 
 on:
@@ -20,21 +20,23 @@ jobs:
         with:
           ref: r16/10-representative-godot-2d-beta-project
           fetch-depth: 0
-      - name: Patch bounded START authority
-        run: python .github/r16_10_start_sync.py
-      - name: Validate bounded START sync
+      - name: Validate synchronized START authority
         run: |
-          git diff --check -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -Fq 'R16.10 is IN_PROGRESS from normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6`' docs/roadmap/R16_PLAN.md
+          grep -Fq '| R16.9 | Dependency/workflow/release supply-chain provenance hardening | COMPLETE + NORMALIZED | NONE |' docs/roadmap/R16_PLAN.md
+          grep -Fq '| R16.10 | Representative real Godot 2D beta project | IN_PROGRESS | NONE |' docs/roadmap/R16_PLAN.md
+          grep -Fq '## R16.10 START authority' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -Fq '| R16.10 | IN_PROGRESS | NONE |' docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --check 3957a30053da791facb2de7fbbbb0614d0fa03d6 -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
           python scripts/check_repo.py
-      - name: Commit START sync and remove helpers
+      - name: Remove helpers and freeze clean START
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/r16-10-start-sync-helper.yml .github/r16_10_start_sync.py
-          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
           git diff --cached --check
-          expected=$'.github/r16_10_start_sync.py\n.github/workflows/r16-10-start-sync-helper.yml\ndocs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R16_PLAN.md'
-          actual="$(git diff --cached --name-only | sort)"
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R16_PLAN.md'
+          actual="$(git diff --name-only 3957a30053da791facb2de7fbbbb0614d0fa03d6 | sort)"
           test "$actual" = "$expected"
-          git commit -m "docs(r16.10): synchronize START authority"
+          git commit -m "docs(r16.10): freeze clean START authority"
           git push origin HEAD:r16/10-representative-godot-2d-beta-project

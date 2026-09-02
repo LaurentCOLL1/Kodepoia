@@ -243,7 +243,7 @@ def build_report(
             "r16.10-beta-edit",
             "prepared",
             {
-                "snapshot": aggregate_snapshot.relative_to(workspace).as_posix(),
+                "snapshot": aggregate_snapshot.relative_to(safe_change.project_root).as_posix(),
                 "project_sha256": before_project,
                 "paths": list(MUTATED_SCENES),
             },

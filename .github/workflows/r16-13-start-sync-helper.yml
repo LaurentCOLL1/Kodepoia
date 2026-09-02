@@ -1,0 +1,152 @@
+name: R16.13 temporary START sync helper
+
+on:
+  push:
+    branches:
+      - r16/13-start-sync-helper
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r16/13-start-sync-helper
+          fetch-depth: 0
+      - name: Synchronize R16.13 START authority
+        shell: python
+        run: |
+          from pathlib import Path
+
+          base = "86a174ab5d627ca9da8a5eb3979e05951582335b"
+          branch = "r16/13-representative-comfyui-beta-workflow"
+
+          plan = Path("docs/roadmap/R16_PLAN.md")
+          text = plan.read_text(encoding="utf-8")
+          lines = text.splitlines(keepends=True)
+          checkpoints = [i for i, line in enumerate(lines) if line.startswith("**Execution checkpoint:**")]
+          if len(checkpoints) != 1:
+              raise SystemExit(f"expected one execution checkpoint, got {len(checkpoints)}")
+          lines[checkpoints[0]] = (
+              "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. "
+              "R16.1–R16.12 are COMPLETE + NORMALIZED. R16.13 is IN_PROGRESS on dedicated branch "
+              f"`{branch}` from exact normalized `main` `{base}`; R16.14–R16.18 remain PLANNED. "
+              "Manual state is NONE for core CI and CONDITIONAL only for an explicitly requested real local "
+              "ComfyUI/GPU qualification claim. No R16.13 implementation preceded this START-sync.\n"
+          )
+          text = "".join(lines)
+
+          old12 = "| R16.12 | Representative real Windows desktop application | COMPLETE | NONE |"
+          new12 = "| R16.12 | Representative real Windows desktop application | COMPLETE + NORMALIZED | NONE |"
+          old13 = "| R16.13 | Representative ComfyUI beta workflow | PLANNED | CONDITIONAL |"
+          new13 = "| R16.13 | Representative ComfyUI beta workflow | IN_PROGRESS | CONDITIONAL |"
+          if text.count(old12) != 1 or text.count(old13) != 1:
+              raise SystemExit("R16.12/R16.13 frozen index precondition failed")
+          text = text.replace(old12, new12, 1).replace(old13, new13, 1)
+
+          manual = (
+              "## Manual intervention\n\n"
+              "**CONDITIONAL.** Only if a **real local ComfyUI/GPU qualification claim** is explicitly required. "
+              "Core acceptance remains automated and does not trigger this gate.\n"
+          )
+          marker = manual + "\n---"
+          if text.count(marker) != 1:
+              raise SystemExit(f"expected one R16.13 manual marker, got {text.count(marker)}")
+          start = (
+              manual
+              + "\n## R16.13 START authority\n\n"
+              + "- State: **IN_PROGRESS**; core manual **NONE**; optional live ComfyUI/GPU qualification "
+                "**CONDITIONAL** only if explicitly requested.\n"
+              + f"- Exact normalized base: `main` `{base}`; dedicated branch `{branch}` created directly from that SHA.\n"
+              + "- Prior state: R16.1–R16.12 **COMPLETE + NORMALIZED**; R16.14–R16.18 remain **PLANNED**.\n"
+              + "- Frozen scope is unchanged: repository-owned representative ComfyUI workflow; authoritative local fixture server; "
+                "validation, queue/execution transport, progress/events, output collection and cancellation; path escape, untrusted "
+                "output location, arbitrary command intent and unsafe external-reference negative controls; RAM/VRAM/disk/time budgets; "
+                "source/workflow/config digest binding and required sanitization. Real local ComfyUI/GPU qualification remains optional "
+                "and cannot alter the core CI verdict.\n"
+              + "- No R16.13 implementation preceded this START-sync. Core acceptance requires no model download, GPU driver change, "
+                "live ComfyUI server, live credentials or destructive host action.\n"
+              + "\n---"
+          )
+          text = text.replace(marker, start, 1)
+          required = (
+              "R16.1–R16.12 are COMPLETE + NORMALIZED",
+              "R16.13 is IN_PROGRESS",
+              new12,
+              new13,
+              "## R16.13 START authority",
+              base,
+              branch,
+          )
+          for item in required:
+              if item not in text:
+                  raise SystemExit(f"missing plan invariant: {item}")
+          plan.write_text(text, encoding="utf-8", newline="\n")
+
+          continuity = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          ctext = continuity.read_text(encoding="utf-8")
+          clines = ctext.splitlines(keepends=True)
+          if not clines or not clines[0].startswith("> Kodepoia, architecture v1.0 gelée."):
+              raise SystemExit("continuity preamble not found")
+          clines[0] = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. "
+              "R16.1–R16.12 COMPLETE + NORMALIZED. R16.13 IN_PROGRESS. R16.14–R16.18 remain PLANNED.** "
+              "R16.12 normalization PR #358 merged exact candidate `f78f4a82b2aa89f0b0edc71154da07b823d2f1e3` as normalized "
+              f"`main` `{base}` after fresh R0 #2357 / `33679286154` SUCCESS Ubuntu + Windows, Python Core #2329 / "
+              "`33679286239` SUCCESS 5/5 and KodeStudio UI Smoke #2294 / `33679286607` SUCCESS. R16.13 START-sync is "
+              f"authoritative only on `{branch}` from that exact normalized main; no implementation preceded the sync. "
+              "Manual NONE for core CI; CONDITIONAL only for an explicitly requested real local ComfyUI/GPU qualification.\n"
+          )
+
+          hits12 = [i for i, line in enumerate(clines) if line.startswith("- R16.12 : **COMPLETE + NORMALIZED**")]
+          hits13 = [i for i, line in enumerate(clines) if line.startswith("- R16.13 :")]
+          if len(hits12) != 1 or hits13:
+              raise SystemExit(f"continuity R16.12/R16.13 precondition failed: r12={len(hits12)} r13={len(hits13)}")
+          pending = (
+              "This record is the unique post-merge continuity-only R16.12 normalization authority when its exact candidate "
+              "passes fresh R0/Python/UI and merges; manual NONE. R16.13 START-sync is authorized only from the resulting normalized `main`."
+          )
+          if pending not in clines[hits12[0]]:
+              raise SystemExit("R16.12 pending-normalization phrase not found")
+          resolved = (
+              "Post-merge normalization candidate `f78f4a82b2aa89f0b0edc71154da07b823d2f1e3` passed fresh R0 #2357 / "
+              "`33679286154` SUCCESS Ubuntu + Windows, Python Core #2329 / `33679286239` SUCCESS 5/5 and UI #2294 / "
+              f"`33679286607` SUCCESS; PR #358 merged with `expected_head_sha=f78f4a82b2aa89f0b0edc71154da07b823d2f1e3` "
+              f"as normalized `main` `{base}`. Manual NONE for core. R16.13 START-sync is authorized only from this exact normalized "
+              f"main and is now synchronized on `{branch}` before implementation."
+          )
+          clines[hits12[0]] = clines[hits12[0]].replace(pending, resolved)
+          r13 = (
+              f"- R16.13 : **IN_PROGRESS** — normalized R16.12 `main` `{base}`; dedicated branch `{branch}` created directly from "
+              "that SHA before implementation. Frozen scope: repository-owned representative ComfyUI workflow and authoritative local "
+              "fixture server; validation/queue/progress/output/cancellation; workspace/output/path/command/external-reference negative "
+              "controls; bounded RAM/VRAM/disk/time; exact source/workflow/config digest binding and sanitization. Core CI requires no "
+              "model download, GPU driver change, live server, live credential or destructive host action. Manual **CONDITIONAL** only "
+              "for an explicitly requested real local ComfyUI/GPU qualification claim; core acceptance manual **NONE**.\n"
+          )
+          clines.insert(hits12[0] + 1, r13)
+          ctext = "".join(clines)
+          for item in ("R16.13 IN_PROGRESS", "- R16.13 : **IN_PROGRESS**", base, branch, "PR #358"):
+              if item not in ctext:
+                  raise SystemExit(f"missing continuity invariant: {item}")
+          continuity.write_text(ctext, encoding="utf-8", newline="\n")
+      - name: Stage and enforce START-only documentation diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --check
+          actual="$(git diff --cached --name-only | sort)"
+          expected=$'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R16_PLAN.md'
+          test "$actual" = "$expected"
+      - name: Commit START staging result
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs(r16.13): synchronize START authority"
+          git push origin HEAD:r16/13-start-sync-helper

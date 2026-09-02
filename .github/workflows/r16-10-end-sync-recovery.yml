@@ -1,5 +1,6 @@
 name: R16.10 END Sync Recovery
 
+# Registered in prior commit; this touch triggers the one-shot recovery job.
 on:
   push:
     branches:

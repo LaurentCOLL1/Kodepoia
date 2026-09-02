@@ -26,7 +26,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout --detach 2f57cefb72230bae1b298e12fc847d85ac9b124a
-          git reset --hard HEAD
           git switch -c r16-11-digest-fix
           python - <<'PY'
           from pathlib import Path
@@ -46,7 +45,7 @@ jobs:
           PY
           python -m compileall -q src/kodepoia/kodegodot/beta_3d_acceptance.py
           git diff --check -- src/kodepoia/kodegodot/beta_3d_acceptance.py
-          test "$(git diff --name-only)" = "src/kodepoia/kodegodot/beta_3d_acceptance.py"
           git add src/kodepoia/kodegodot/beta_3d_acceptance.py
+          test "$(git diff --cached --name-only)" = "src/kodepoia/kodegodot/beta_3d_acceptance.py"
           git commit -m "fix(r16.11): canonicalize cross-platform project digest ordering"
           git push --force origin HEAD:refs/heads/r16/11-representative-godot-3d-beta-project

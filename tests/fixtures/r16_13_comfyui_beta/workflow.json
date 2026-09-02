@@ -1,0 +1,48 @@
+{
+  "allowed_node_classes": [
+    "R16FixtureSource",
+    "R16FixtureOutput"
+  ],
+  "budgets": {
+    "disk_bytes": 1048576,
+    "ram_bytes": 536870912,
+    "timeout_seconds": 20,
+    "vram_estimate_bytes": 268435456,
+    "vram_headroom_bytes": 134217728,
+    "vram_reserve_bytes": 134217728
+  },
+  "graph": {
+    "1": {
+      "class_type": "R16FixtureSource",
+      "inputs": {
+        "height": 64,
+        "prompt": "synthetic repository-owned beta workflow",
+        "seed": 42,
+        "width": 64
+      }
+    },
+    "2": {
+      "class_type": "R16FixtureOutput",
+      "inputs": {
+        "filename_prefix": "r16_13/result",
+        "source": [
+          "1",
+          0
+        ]
+      }
+    }
+  },
+  "metadata": {
+    "command_intent": null,
+    "external_reference": null,
+    "output_relative": "outputs/result.bin",
+    "untrusted_note": "R16_13_UNTRUSTED_SHOULD_NOT_RUN"
+  },
+  "name": "r16.13-representative-comfyui-beta",
+  "negative_controls": {
+    "command_intent": "R16_13_COMMAND_INTENT_SHOULD_NOT_RUN",
+    "external_reference": "https://example.invalid/untrusted-model",
+    "path_escape": "../../outside.bin"
+  },
+  "schema_version": 1
+}

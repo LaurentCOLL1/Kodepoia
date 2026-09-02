@@ -6,25 +6,44 @@ on:
       - "r16/13-end-sync-helper"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build-end-sync:
+  publish-end-sync:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout helper branch
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: "r16/13-end-sync-helper"
+          path: helper
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout official R16.13 branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "r16/13-representative-comfyui-beta-workflow"
+          path: repo
           fetch-depth: 0
 
-      - name: Generate verified documentation-only END sync
-        run: python .github/r16_13_end_sync_helper.py
-
-      - name: Upload verified END-sync files
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: r16-13-end-sync-files-ef48343a0967920776a2c9849949f3203f5379b6
-          path: out
-          if-no-files-found: error
-          retention-days: 7
+      - name: Generate and commit exact documentation-only END sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C repo rev-parse HEAD)" = "ef48343a0967920776a2c9849949f3203f5379b6"
+          cp helper/.github/r16_13_end_sync_helper.py /tmp/r16_13_end_sync_helper.py
+          cd repo
+          python /tmp/r16_13_end_sync_helper.py
+          test "$(sha256sum docs/roadmap/R16_PLAN.md | awk '{print $1}')" = "382a479340ca51b9f8090d1c79c2607ab4ea8745e3338890f82fbe81b6f18e43"
+          test "$(sha256sum docs/continuity/KODEPOIA_CONTINUITY.md | awk '{print $1}')" = "cdd36855d33b9dd69c77be956f9372453d143cf32c262f400d894a009a44a54c"
+          rm -rf out
+          mapfile -t changed < <(git diff --name-only ef48343a0967920776a2c9849949f3203f5379b6 -- | sort)
+          expected=("docs/continuity/KODEPOIA_CONTINUITY.md" "docs/roadmap/R16_PLAN.md")
+          test "${changed[*]}" = "${expected[*]}"
+          git diff --check ef48343a0967920776a2c9849949f3203f5379b6 --
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git commit -m "docs(r16.13): synchronize END authority"
+          git push origin HEAD:refs/heads/r16/13-representative-comfyui-beta-workflow

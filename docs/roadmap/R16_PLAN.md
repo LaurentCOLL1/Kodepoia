@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.10 are COMPLETE + NORMALIZED. R16.11 is COMPLETE at END-sync on immutable technical source `4be69eef7300c380d125f35d484c57d8df054d72`; R16.12–R16.18 remain PLANNED. Fresh exact-END R16.11/R16.9/R0/Python/UI re-gates, exact-head implementation/evidence merge and the unique continuity-only post-merge normalization are still required before R16.12 is authorized.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.11 are COMPLETE + NORMALIZED. R16.12 is IN_PROGRESS from normalized `main` `270e022a03d7a596eedd27d8989b22278f18cbca` on dedicated branch `r16/12-representative-windows-desktop-application` after mandatory START-sync and before implementation. R16.13–R16.18 remain PLANNED. Manual NONE for R16.12 unsigned/core CI acceptance.
 
 ## Purpose and authority
 
@@ -909,6 +909,15 @@ Hosted-runner toolchain drift; packaging framework differences; shell quoting; s
 ## Manual intervention
 
 **NONE** for unsigned/core CI acceptance.
+
+
+## R16.12 START authority
+
+- State: **IN_PROGRESS**; manual **NONE** for unsigned/core CI acceptance.
+- Exact normalized base: `main` `270e022a03d7a596eedd27d8989b22278f18cbca`; dedicated branch `r16/12-representative-windows-desktop-application` created directly from that SHA.
+- Prior state: R16.1–R16.11 **COMPLETE + NORMALIZED**; R16.13–R16.18 remain **PLANNED**.
+- Frozen scope is unchanged: one repository-supported Windows desktop path is canonical; other supported desktop adapters remain compatibility probes. Acceptance covers public create/open/edit surfaces, Windows path/process semantics, supported static/build/test/package checks with exact toolchain capability evidence, quoting/long-and-space paths, cancellation and failed-build recovery, source-bound secret-free package/build evidence, malicious project/config negative controls, IPC/persistence and SafeChange rollback.
+- No R16.12 implementation preceded this START-sync. No manual signing, installed system application or production target is required for core CI acceptance.
 
 ---
 

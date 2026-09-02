@@ -56,7 +56,7 @@ class SafeChangeManager:
                 f"{relative.as_posix()} {self._hash(source) if source.is_file() else 'DIR'}"
             )
         (destination / "MANIFEST.txt").write_text(
-            "\n".join(manifest), encoding="utf-8"
+            "\n".join(manifest), encoding="utf-8", newline="\n"
         )
         return destination
 

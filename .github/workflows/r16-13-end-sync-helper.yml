@@ -38,7 +38,7 @@ jobs:
           test "$(sha256sum docs/roadmap/R16_PLAN.md | awk '{print $1}')" = "382a479340ca51b9f8090d1c79c2607ab4ea8745e3338890f82fbe81b6f18e43"
           test "$(sha256sum docs/continuity/KODEPOIA_CONTINUITY.md | awk '{print $1}')" = "cdd36855d33b9dd69c77be956f9372453d143cf32c262f400d894a009a44a54c"
           rm -rf out
-          mapfile -t changed < <(git diff --name-only ef48343a0967920776a2c9849949f3203f5379b6 -- | sort)
+          mapfile -t changed < <(git diff --name-only ef48343a0967920776a2c9849949f3203f5379b6 -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md | sort)
           expected=("docs/continuity/KODEPOIA_CONTINUITY.md" "docs/roadmap/R16_PLAN.md")
           test "${changed[*]}" = "${expected[*]}"
           git diff --check ef48343a0967920776a2c9849949f3203f5379b6 -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md

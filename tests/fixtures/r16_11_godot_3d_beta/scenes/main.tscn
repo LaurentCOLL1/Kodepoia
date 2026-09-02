@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/prop.tscn" id="2_prop"]
+[ext_resource type="Resource" path="res://resources/untrusted_metadata.tres" id="3_notes"]
+
+[node name="Beta3DWorld" type="Node3D"]
+process_mode = 0
+script = ExtResource("1_main")
+metadata/project_notes = ExtResource("3_notes")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 3.2, 7.5)
+current = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, -35, 0)
+shadow_enabled = true
+
+[node name="RepresentativeProp" parent="." instance=ExtResource("2_prop")]

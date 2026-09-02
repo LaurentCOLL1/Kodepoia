@@ -351,7 +351,7 @@ def _iter_run_scripts(text: str) -> tuple[str, ...]:
     index = 0
     while index < len(lines):
         line = lines[index]
-        match = re.match(r"^(\s*)run:\s*(.*)$", line)
+        match = re.match(r"^(\s*)-?\s*run:\s*(.*)$", line)
         if match is None:
             index += 1
             continue

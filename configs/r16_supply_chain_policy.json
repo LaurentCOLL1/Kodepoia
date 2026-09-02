@@ -29,7 +29,7 @@
       "commit_sha": "9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407"
     },
     "gradle/actions": {
-      "source_ref": "v4.4.3",
+      "source_ref": "v4",
       "commit_sha": "ed408507eac070d1f99cc633dbcf757c94c7933a"
     }
   },

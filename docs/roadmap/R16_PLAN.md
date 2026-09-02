@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.8 are COMPLETE + NORMALIZED. R16.9 is COMPLETE on immutable technical source `026ddc91672c144977453c9852a5288e9533af22` with fresh technical acceptance recorded below; post-merge continuity normalization is still required before R16.10. R16.10–R16.18 remain PLANNED.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.9 are COMPLETE + NORMALIZED. R16.10 is IN_PROGRESS from normalized `main` `3957a30053da791facb2de7fbbbb0614d0fa03d6` on dedicated branch `r16/10-representative-godot-2d-beta-project`; R16.11–R16.18 remain PLANNED.
 
 ## Purpose and authority
 
@@ -175,8 +175,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.6 | Destructive-command, excessive-agency and confused-deputy hardening | COMPLETE + NORMALIZED | NONE |
 | R16.7 | Memory/context poisoning detection, quarantine and rebuild | COMPLETE + NORMALIZED | NONE |
 | R16.8 | Fault injection, KillSwitch, backup and recovery drills | COMPLETE + NORMALIZED | NONE |
-| R16.9 | Dependency/workflow/release supply-chain provenance hardening | COMPLETE | NONE |
-| R16.10 | Representative real Godot 2D beta project | PLANNED | NONE |
+| R16.9 | Dependency/workflow/release supply-chain provenance hardening | COMPLETE + NORMALIZED | NONE |
+| R16.10 | Representative real Godot 2D beta project | IN_PROGRESS | NONE |
 | R16.11 | Representative real Godot 3D beta project | PLANNED | NONE |
 | R16.12 | Representative real Windows desktop application | PLANNED | NONE |
 | R16.13 | Representative ComfyUI beta workflow | PLANNED | CONDITIONAL |

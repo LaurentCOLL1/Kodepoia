@@ -1,4 +1,4 @@
-> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.10 COMPLETE + NORMALIZED. R16.11 IN_PROGRESS on `r16/11-representative-godot-3d-beta-project` from normalized `main` `75e58ba578d6c5f654be1c3a8e35fae7f86cb72a`; R16.12–R16.18 remain PLANNED.** R16.10 immutable technical source `499292dd553460bb48f3092112d5bcb81544242b`; final exact-END head `162abd7b9050bd9f9e35d0b2bf8049b1ed86984c` passed fresh R16.10 #27 / `33641853721`, R16.9 #26 / `33641853768`, R0 #2337 / `33641909778` attempt 2, Python Core #2308 / `33641853756` 5/5 and UI #2273 / `33641853653`; PR #353 merged as implementation/evidence `main` `e6c11e986ad2e0ee5b1cdd50c0ae2061117ca974`; unique normalization head `0cd2ecf320b48c13bd81c662e328fee3373f38ee` passed R0 #2339 / `33653846366` Ubuntu + Windows, Python Core #2311 / `33653846604` 5/5 and KodeStudio UI Smoke #2276 / `33653846942`, then PR #354 merged exact head as normalized `main` `75e58ba578d6c5f654be1c3a8e35fae7f86cb72a`. R16.11 START is synchronized before implementation; manual NONE.
+> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.10 COMPLETE + NORMALIZED. R16.11 COMPLETE at END-sync on immutable technical source `4be69eef7300c380d125f35d484c57d8df054d72`; R16.12–R16.18 remain PLANNED.** Technical R16.11 #12 / `33662240625`, R16.9 #34 / `33662240583`, R0 #2346 / `33662240657`, Python Core #2318 / `33662240501` and KodeStudio UI Smoke #2283 / `33662240630` are SUCCESS on the exact technical source as applicable. Fresh exact-END re-gates, exact-head implementation/evidence merge and unique post-merge continuity normalization remain required before R16.12. Manual NONE.
 
 ## État global
 
@@ -178,6 +178,18 @@
 - Manual state: **NONE**.
 - No R16.11 implementation preceded this START-sync.
 
+## R16.11 END authority
+
+- R16.11 state: **COMPLETE at END-sync**, manual **NONE**; R16.12–R16.18 remain PLANNED and R16.12 is not yet authorized.
+- Exact normalized base `75e58ba578d6c5f654be1c3a8e35fae7f86cb72a`; clean START-sync `58816b94d4823fd51612151a03c56e3dbe2fe117`; immutable technical source `4be69eef7300c380d125f35d484c57d8df054d72`.
+- Technical focused R16.11 #12 / `33662240625`: SUCCESS Ubuntu + Windows; technical artifacts Linux `9859239402 / sha256:0bff3e1437de0f0a04617d8beb9cf10b86deb15a034bd9daec8872781f7c7d3f`, Windows `9859245340 / sha256:3c195da388272bee3f6f29243ca626554fb568726f76b25c6756f50886207dab`.
+- Same-source gates: R16.9 #34 / `33662240583` SUCCESS Ubuntu + Windows; R0 #2346 / `33662240657` SUCCESS; Python Core #2318 / `33662240501` SUCCESS; UI #2283 / `33662240630` SUCCESS.
+- Acceptance: 15/15 PASS per OS, `security_claim=true`, `critical_veto=false`, manual NONE, zero network calls, no live credentials, no destructive host action; hosted runners truthfully report Godot `capability_absent`.
+- Fixture budget: 8 files / 3754 bytes / max 1388 bytes. Canonical digests: fixture/restored/cancel-restored `69f88a9cb0c250e33ce40783bc11de179cf06a86c669feaafcf1419f2234dcb1`; changed `4a59aaa65f06d04c3df3f088b625f5e3fba6b4999267769ab26e7ae82903d7ab`; diff `d701bff2aa3100c3b46d571deea69e7abc7a35068162e6141a9e6d9cd89e9fe6`; diagnostic `d041a7f188fd1ed47caca5753e1322ed1793cbc441930957616e7dc05ffe473e`; recovery `6d4ac38558c776ac3cc74c13f7ba5dce0cbe15d7dd6c4e27edffda8a3b30687d`; semantic `bc3ee5d201026acd880fab0b06e84e6a335e72e23685935611d8531b9c6ac294`; asset content `7e1702ec3110d793088cb7f779e5c0e30fdd1826110013b6c85e4062cd9c5f77`; asset revision `rev_c14815e60f06b6b3dca5ffdc7dfa5b84`.
+- Security/workflow scope is bounded to repository-owned synthetic 3D data and public KodeGodot/Vault/Workspace/SafeChange/Audit surfaces; malicious metadata and external references remain negative controls, not executable authority.
+- The final END head must differ from `4be69eef...` only in `docs/roadmap/R16_PLAN.md` and this continuity file, then pass fresh R16.11/R16.9/R0/Python/UI before exact-head implementation/evidence merge.
+- Exactly one post-merge continuity-only normalization is authorized; only its normalized `main` may authorize R16.12 START.
+
 ## R16 status index
 
 | ID | Status | Manual |
@@ -192,7 +204,7 @@
 | R16.8 | COMPLETE + NORMALIZED | NONE |
 | R16.9 | COMPLETE + NORMALIZED | NONE |
 | R16.10 | COMPLETE + NORMALIZED | NONE |
-| R16.11 | IN_PROGRESS | NONE |
+| R16.11 | COMPLETE | NONE |
 | R16.12 | PLANNED | NONE |
 | R16.13 | PLANNED | CONDITIONAL |
 | R16.14 | PLANNED | CONDITIONAL |
@@ -203,7 +215,7 @@
 
 ## Next authorized action
 
-Implement and accept **R16.11 — Representative real Godot 3D beta project** on `r16/11-representative-godot-3d-beta-project` from exact normalized `main` `75e58ba578d6c5f654be1c3a8e35fae7f86cb72a`. Use a bounded repository-owned 3D project with deterministic provenance and manageable CI size; exercise supported public KodeGodot inspection/edit/validation, workspace-bounded lineage-aware asset references, representative multi-file change plus failure/cancel/SafeChange rollback, resource-budget and malformed/external-reference negative controls, exact project/artifact/diff/diagnostic/recovery digests and truthful capability markers for unavailable external Godot/3D tools. Manual NONE. Freeze one immutable technical source, run focused Ubuntu/Windows acceptance plus fresh R16.9 supply-chain regression if workflow authority changes, R0/Python/UI, END-sync and fresh exact-END re-gates before exact-head merge and the unique continuity-only post-merge normalization.
+Finalize **R16.11** from immutable technical source `4be69eef7300c380d125f35d484c57d8df054d72`: the END-sync tree may change only `docs/roadmap/R16_PLAN.md` and this continuity file relative to that source, then must pass fresh exact-head R16.11, R16.9, R0, full Python Core and KodeStudio UI Smoke. Merge the implementation/evidence PR only with exact `expected_head_sha`; then perform exactly one continuity-only post-merge normalization with fresh R0/Python/UI. Only the resulting normalized `main` authorizes **R16.12 — Representative real Windows desktop application**. Manual NONE.
 
 ## Permanent R-phase execution rule
 

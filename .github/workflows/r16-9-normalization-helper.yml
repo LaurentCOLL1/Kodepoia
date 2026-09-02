@@ -1,4 +1,3 @@
-# retrigger existing workflow
 name: R16.9 Continuity Normalization Helper
 
 on:
@@ -20,112 +19,21 @@ jobs:
         with:
           ref: r16/09-continuity-normalization
           fetch-depth: 0
-
       - name: Patch bounded continuity authority
-        shell: python
-        run: |
-          from pathlib import Path
-
-          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
-          text = path.read_text(encoding="utf-8")
-
-          old_top = "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.8 COMPLETE + NORMALIZED. R16.9 COMPLETE / NORMALIZATION PENDING on `r16/09-supply-chain-provenance-hardening`; immutable technical source `026ddc91672c144977453c9852a5288e9533af22` passed fresh technical exact-source gates. R16.10–R16.18 remain PLANNED and R16.10 stays blocked pending PR #351 exact-END re-gates, merge and unique post-merge continuity-only normalization.** R15.17 immutable technical source `125d40a23a0c6b40e449340e593dc0bcb342c421`; final exact-END head `56c7e916224cb7be4a27508a96c5bbe617966baf`; exact-head R15 Integrated #39 / `33418910230`, R0 #2249 / `33418910108`, Python Core #2224 / `33418910102` and UI #2189 / `33418910148` all SUCCESS; PR #331 merged that exact head as `09bdf0b1ce4434ff9d7a0b5f9029ef9784515379`. Draft PR #330 was superseded solely because the connected GitHub integration could not perform the draft-to-ready mutation; no content, evidence or gate bypass occurred. Canonical integrated digest `82eb91b671c8551168c95042f5f959a9fd29d807dbcde2f58265f8f9b3d03dad`. Manual state CONDITIONAL / NOT TRIGGERED; optional capability remains truthfully `unavailable`."
-          new_top = "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.9 COMPLETE + NORMALIZED. R16.10–R16.18 remain PLANNED.** R16.9 immutable technical source `026ddc91672c144977453c9852a5288e9533af22`; final exact-END head `910e4d166782cc570b98f60470a13be48896a116` passed fresh R16.9 #16 / `33586184972` Ubuntu + Windows, R0 #2324 / `33586185066` Ubuntu + Windows, Python Core #2296 / `33586184754` 5/5 and KodeStudio UI Smoke #2261 / `33586184752`; implementation/evidence PR #351 merged exact expected head as `b81fe4248338ed5cabe6e3034f396cd11202ec39`. This continuity record is the unique post-merge R16.9 normalization authority and becomes authoritative only after its own fresh exact-head R0/Python/UI gates and exact-head normalization merge. R16.10 is authorized only from the resulting normalized `main`. Manual NONE."
-          assert text.count(old_top) == 1
-          text = text.replace(old_top, new_top, 1)
-
-          old_line = "- R16.9 : **COMPLETE / NORMALIZATION PENDING** — normalized R16.8 `main` `9e62f7d8a85965c64d66cf317e028993b669f775`; clean START `31249739d3b1a617bdf8aa2c8080d777875739c7`; immutable technical source `026ddc91672c144977453c9852a5288e9533af22`; technical R16.9 #7 / 33585517872 SUCCESS Ubuntu + Windows with 24/24 focused tests and 19/19 acceptance/tamper cases per OS; R0 #2319 / 33585517967 SUCCESS Ubuntu + Windows; Python Core #2291 / 33585517983 SUCCESS 5/5; KodeStudio UI Smoke #2256 / 33585518000 SUCCESS. Policy `bee3cc2e13b43e5b6751913b45de6deed83ee4b4447cec71ca39bc5a004148ef`; semantic `3a115fd23a65085658a27c08a2f71cc0aa5a3f3157b091cca1091342ee06b0ce`; promotion manifest `3f4a487a52b087a26791080cb7b90ed333120cc87c98f53e9589fac28f951e81`; 12 v1 authority workflows full-SHA/read-only, 45 legacy workflows inventoried/non-authoritative, 23 deterministic dependency inputs, BuildManifest+BOM exact-source binding, tamper/replay/privilege/PR-shell/artifact-path fail-closed. External attestations remain provenance-only, not a security verdict. PR #351 open pending fresh exact-END-head gates; manual NONE. R16.10 remains blocked until merge plus unique continuity-only normalization."
-          new_line = "- R16.9 : **COMPLETE + NORMALIZED** — normalized R16.8 `main` `9e62f7d8a85965c64d66cf317e028993b669f775`; clean START `31249739d3b1a617bdf8aa2c8080d777875739c7`; immutable technical source `026ddc91672c144977453c9852a5288e9533af22`; technical R16.9 #7 / `33585517872` SUCCESS Ubuntu + Windows with 24/24 focused tests and 19/19 acceptance/tamper cases per OS; technical R0 #2319 / `33585517967`, Python Core #2291 / `33585517983` 5/5 and UI #2256 / `33585518000` SUCCESS. Final exact-END head `910e4d166782cc570b98f60470a13be48896a116` is tree-identical to END-sync `f521e764029cee2a4ae2b65ff7b4b4b15990c730` after a net-zero user retrigger and passed fresh R16.9 #16 / `33586184972` SUCCESS Ubuntu + Windows, R0 #2324 / `33586185066` SUCCESS Ubuntu + Windows, Python Core #2296 / `33586184754` SUCCESS 5/5 and UI #2261 / `33586184752` SUCCESS; PR #351 merged with `expected_head_sha=910e4d166782cc570b98f60470a13be48896a116` as implementation/evidence `main` `b81fe4248338ed5cabe6e3034f396cd11202ec39`. Policy `bee3cc2e13b43e5b6751913b45de6deed83ee4b4447cec71ca39bc5a004148ef`; semantic `3a115fd23a65085658a27c08a2f71cc0aa5a3f3157b091cca1091342ee06b0ce`; promotion manifest `3f4a487a52b087a26791080cb7b90ed333120cc87c98f53e9589fac28f951e81`; 12 v1 authority workflows full-SHA/read-only, 45 legacy workflows inventoried/non-authoritative, 23 deterministic dependency inputs, BuildManifest+BOM exact-source binding, tamper/replay/privilege/PR-shell/artifact-path fail-closed. This record is the unique post-merge continuity-only normalization authority when its exact candidate passes fresh R0/Python/UI and merges; manual NONE. R16.10 is authorized only from the resulting normalized `main`."
-          assert text.count(old_line) == 1
-          text = text.replace(old_line, new_line, 1)
-
-          old_index = '''## R16 status index
-
-| ID | Status | Manual |
-| --- | --- | --- |
-| R16.1 | COMPLETE + NORMALIZED | NONE |
-| R16.2 | IN_PROGRESS | NONE |
-| R16.3 | PLANNED | NONE |
-| R16.4 | PLANNED | NONE |
-| R16.5 | PLANNED | NONE |
-| R16.6 | PLANNED | NONE |
-| R16.7 | PLANNED | NONE |
-| R16.8 | PLANNED | NONE |
-| R16.9 | PLANNED | NONE |
-| R16.10 | PLANNED | NONE |
-| R16.11 | PLANNED | NONE |
-| R16.12 | PLANNED | NONE |
-| R16.13 | PLANNED | CONDITIONAL |
-| R16.14 | PLANNED | CONDITIONAL |
-| R16.15 | PLANNED | CONDITIONAL |
-| R16.16 | PLANNED | NONE |
-| R16.17 | PLANNED | CONDITIONAL |
-| R16.18 | PLANNED | CONDITIONAL |'''
-          new_index = '''## R16 status index
-
-| ID | Status | Manual |
-| --- | --- | --- |
-| R16.1 | COMPLETE + NORMALIZED | NONE |
-| R16.2 | COMPLETE + NORMALIZED | NONE |
-| R16.3 | COMPLETE + NORMALIZED | NONE |
-| R16.4 | COMPLETE + NORMALIZED | NONE |
-| R16.5 | COMPLETE + NORMALIZED | NONE |
-| R16.6 | COMPLETE + NORMALIZED | NONE |
-| R16.7 | COMPLETE + NORMALIZED | NONE |
-| R16.8 | COMPLETE + NORMALIZED | NONE |
-| R16.9 | COMPLETE + NORMALIZED | NONE |
-| R16.10 | PLANNED | NONE |
-| R16.11 | PLANNED | NONE |
-| R16.12 | PLANNED | NONE |
-| R16.13 | PLANNED | CONDITIONAL |
-| R16.14 | PLANNED | CONDITIONAL |
-| R16.15 | PLANNED | CONDITIONAL |
-| R16.16 | PLANNED | NONE |
-| R16.17 | PLANNED | CONDITIONAL |
-| R16.18 | PLANNED | CONDITIONAL |'''
-          assert text.count(old_index) == 1
-          text = text.replace(old_index, new_index, 1)
-
-          old_next = '''## Next authorized action
-
-Implement and accept **R16.2** on `r16/02-prompt-injection-untrusted-content` from exact normalized `main` `ad7ec8339ea3e61fefa29fad6693a0e476b6bc58`. Freeze one immutable technical source, run the dedicated adversarial Ubuntu/Windows acceptance plus fresh exact-head R0, full Python Core and KodeStudio UI Smoke, then END-sync, re-gate any changed END head, merge with exact `expected_head_sha`, and perform exactly one continuity-only post-merge normalization before R16.3.'''
-          new_next = '''## Next authorized action
-
-Complete this **unique R16.9 continuity-only normalization** from implementation/evidence `main` `b81fe4248338ed5cabe6e3034f396cd11202ec39`: its final tree must change only `docs/continuity/KODEPOIA_CONTINUITY.md`, pass fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke, then merge with exact `expected_head_sha`. Only the resulting normalized `main` authorizes **R16.10 — Representative real Godot 2D beta project**; R16.10 must begin with its own dedicated branch and START-sync before implementation.'''
-          assert text.count(old_next) == 1
-          text = text.replace(old_next, new_next, 1)
-
-          marker = "\n## R16 status index\n"
-          assert text.count(marker) == 1
-          authority = '''
-## R16.9 post-merge normalization authority
-
-- Implementation/evidence merge base: `b81fe4248338ed5cabe6e3034f396cd11202ec39`, produced only after final exact-END head `910e4d166782cc570b98f60470a13be48896a116` passed R16.9 #16 / `33586184972` Ubuntu + Windows, R0 #2324 / `33586185066` Ubuntu + Windows, Python Core #2296 / `33586184754` 5/5 and KodeStudio UI Smoke #2261 / `33586184752`.
-- Dedicated normalization branch: `r16/09-continuity-normalization`, created exactly from that implementation/evidence merge.
-- The authoritative normalization tree changes only `docs/continuity/KODEPOIA_CONTINUITY.md`; `docs/roadmap/R16_PLAN.md` and all implementation/evidence bytes remain identical to the implementation merge. Any temporary normalization helper must be absent from the decision head.
-- This is the single authorized post-merge normalization for R16.9. It becomes authoritative only after fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke all succeed and the normalization PR merges with exact expected-head protection.
-- Manual state remains **NONE**. R16.10 remains PLANNED until that normalized `main` exists.
-'''
-          text = text.replace(marker, authority + marker, 1)
-
-          path.write_text(text, encoding="utf-8", newline="\n")
-
+        run: python .github/r16_9_normalize.py
       - name: Validate continuity-only normalization
-        shell: bash
         run: |
           git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
           python scripts/check_repo.py
           test -z "$(git diff --name-only -- docs/roadmap/R16_PLAN.md)"
-
-      - name: Commit normalization and remove helper
-        shell: bash
+      - name: Commit normalization and remove helpers
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rm .github/workflows/r16-9-normalization-helper.yml
+          git rm .github/workflows/r16-9-normalization-helper.yml .github/r16_9_normalize.py
           git add docs/continuity/KODEPOIA_CONTINUITY.md
           git diff --cached --check
-          expected=$'.github/workflows/r16-9-normalization-helper.yml\ndocs/continuity/KODEPOIA_CONTINUITY.md'
+          expected=$'.github/r16_9_normalize.py\n.github/workflows/r16-9-normalization-helper.yml\ndocs/continuity/KODEPOIA_CONTINUITY.md'
           actual="$(git diff --cached --name-only | sort)"
           test "$actual" = "$expected"
           git commit -m "docs(r16.9): normalize post-merge continuity"

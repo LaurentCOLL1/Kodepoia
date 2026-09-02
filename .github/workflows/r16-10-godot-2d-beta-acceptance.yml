@@ -1,4 +1,3 @@
-# retrigger exact tree after Windows path canonicalization
 name: R16.10 Representative Godot 2D Beta Acceptance
 
 on:

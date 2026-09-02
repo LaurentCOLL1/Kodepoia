@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "project": "Kodepoia R16.11 Beta 3D",
+  "ownership": "repository-owned acceptance fixture",
+  "third_party_assets": false,
+  "network_required": false,
+  "assets": [
+    {
+      "path": "assets/pillar.obj",
+      "origin": "repository-authored deterministic geometry",
+      "license": "same repository development license"
+    }
+  ]
+}

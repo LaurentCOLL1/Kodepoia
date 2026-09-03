@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.12 are COMPLETE + NORMALIZED. R16.13 is COMPLETE at END-sync on dedicated branch `r16/13-representative-comfyui-beta-workflow` from exact normalized `main` `86a174ab5d627ca9da8a5eb3979e05951582335b`, with immutable technical source `ef48343a0967920776a2c9849949f3203f5379b6`; R16.14–R16.18 remain PLANNED and unauthorized. Core manual state is NONE; optional real local ComfyUI/GPU qualification is CONDITIONAL / NOT TRIGGERED. Fresh exact-END R16.13/R16.9/R0/Python/UI re-gates are mandatory before PR #359 may merge; exactly one post-merge continuity-only normalization is required before R16.14 START.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.13 are COMPLETE + NORMALIZED. R16.14 is COMPLETE at END-sync on dedicated branch `r16/14-representative-audio-voice-cinematic-beta-workflow` from exact normalized `main` `429a018192bcb00221f9fc4e6ae64d0fdbc40cfd`, with clean START `7ed6f09262fc259bd875fc76c4583b758474090b` and immutable technical source `92505a002a77c29c5621cdfaa332d43385307b31`; R16.15–R16.18 remain PLANNED and unauthorized. Core manual state is NONE; optional human listening/device-quality qualification is CONDITIONAL / NOT TRIGGERED. Fresh exact-END R16.14/R16.9/R0/Python/UI re-gates are mandatory before PR #361 may merge, followed by exactly one post-merge continuity-only normalization before R16.15 START.
 
 ## Purpose and authority
 
@@ -179,8 +179,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.10 | Representative real Godot 2D beta project | COMPLETE + NORMALIZED | NONE |
 | R16.11 | Representative real Godot 3D beta project | COMPLETE + NORMALIZED | NONE |
 | R16.12 | Representative real Windows desktop application | COMPLETE + NORMALIZED | NONE |
-| R16.13 | Representative ComfyUI beta workflow | COMPLETE | CONDITIONAL |
-| R16.14 | Representative audio/voice/cinematic beta workflow | PLANNED | CONDITIONAL |
+| R16.13 | Representative ComfyUI beta workflow | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
+| R16.14 | Representative audio/voice/cinematic beta workflow | COMPLETE | CONDITIONAL / NOT TRIGGERED |
 | R16.15 | Long-term project durability, resume and upgrade soak | PLANNED | CONDITIONAL |
 | R16.16 | Resource, concurrency, leak and diagnostics soak | PLANNED | NONE |
 | R16.17 | v1.0 packaging, migration, rollback and release readiness | PLANNED | CONDITIONAL |
@@ -1048,6 +1048,27 @@ Codec/backend differences; nondeterministic TTS output; subjective quality mista
 ## Manual intervention
 
 **CONDITIONAL.** Only for an explicitly requested human listening/device-quality claim; core acceptance is automated.
+
+## R16.14 START authority
+
+- State: **IN_PROGRESS**; core manual **NONE**; optional human listening/device-quality qualification **CONDITIONAL / NOT TRIGGERED** and only if explicitly requested.
+- Exact normalized base: `main` `429a018192bcb00221f9fc4e6ae64d0fdbc40cfd`; dedicated branch `r16/14-representative-audio-voice-cinematic-beta-workflow` created directly from that SHA before implementation.
+- Prior state: R16.1–R16.13 **COMPLETE + NORMALIZED**; R16.15–R16.18 remain **PLANNED**.
+- Frozen scope is unchanged: one repository-owned short media scenario using synthetic/public-domain text/audio fixtures; audio inspection/QA; supported TTS path; voice-governance/profile checks; alignment/viseme generation; cinematic timing/metadata flow; workspace-bounded generated media/output paths with source/provenance linkage; malformed/unsafe markup and external-reference rejection; resource limits; cancellation/failure with partial-output non-promotion.
+- No R16.14 implementation preceded this START-sync. Core acceptance requires no microphone, speakers, device playback, live provider credentials, external service, or destructive host action.
+
+## R16.14 END authority
+
+- State: **COMPLETE at END-sync**; core manual **NONE**; optional human listening/device-quality qualification **CONDITIONAL / NOT TRIGGERED**. R16.15 remains **PLANNED** and unauthorized.
+- Exact normalized base: `main` `429a018192bcb00221f9fc4e6ae64d0fdbc40cfd`; clean START-sync `7ed6f09262fc259bd875fc76c4583b758474090b`; immutable technical source `92505a002a77c29c5621cdfaa332d43385307b31`.
+- Fresh exact-technical-head gates on that immutable source are all SUCCESS: R16.14 #2 / `33709267769` Ubuntu + Windows; R16.9 #47 / `33709267732` Ubuntu + Windows; R0 Repository Guard #2365 / `33709267690` Ubuntu + Windows; Python Core #2337 / `33709267539` 5/5; KodeStudio UI Smoke #2302 / `33709267641`.
+- Representative media acceptance is **16/16 PASS** on both hosted OS paths with `security_claim=true`, `critical_veto=false`, `secret_free=true`, `core_manual_required=false`, `manual_state=CONDITIONAL_NOT_TRIGGERED`, `live_credentials_used=false`, `destructive_host_actions=false` and `external_network_calls=0`. Focused R16.14 plus R16.9 supply-chain regression tests also pass on both OS paths.
+- The authoritative CI fixture is explicit synthetic media: `fixture_is_synthetic_audio=true`, `fixture_is_real_tts_runtime=false`, `fixture_is_human_listened=false`; optional human/device listening remains `NOT_EXERCISED`, so no real TTS engine, microphone, speaker, playback-device or subjective-quality claim is inferred.
+- Accepted audio facts are deterministic and cross-platform: mono 16-bit PCM WAV, 16000 Hz, 16000 frames, 1.0 second, zero clipped samples. Workspace escape, unsafe external reference, unapproved voice identity/profile use, malformed/unsafe markup, resource-boundary and cancellation/partial-output promotion controls fail closed as required.
+- Canonical cross-platform SHA-256 values are identical for material semantics: fixture `bee1f3459d97bc059de630c49afd75aa8156ba14ae3367151660d791f5f5a452`; text `7ac74b671415b23c03a7a044514cf3e5560a9b5b760b31e2c46c857c804ff2d7`; profile `5b3c28c2afd1ac53f1a4e7834bf5e0adc1bde8cb5227250deda853e6f0446dd3`; voice binding `904865b55a531339d527b16be0d3acfc429aa7fa4a322c5ba9550070e6e9f68b`; TTS request `4f2cd932ac4a1e02c78b614eb39226b05909a774925c6abb5ee210be6a5403db`; audio `4d4a7b63ec4e6c9765e5451ec36b4c2c9d28f5fb3a69cba1886d67b9bd29966f`; alignment `e7bf2de62066cfdd2c0c56f9f46e375fdc135cde16821b2047470f1b591da478`; viseme `9bb00001a32380616488ac85b91d8480e1d8e923fed486811af299a354927349`; cinematic `55e4a9044e8cfb8e8cd14cbf0ed574f7f3581061c88cd590ad52670e22bde6d9`; binding `210a9a6cc10890ff4d5467b9783373d45417358181a144d8d060f7b0726a703d`; semantic `62db8be0c807002d2a04549db58a509b613cf6ba18d9493af82e98f3c1bdc3fd`.
+- Exact technical-head artifacts from R16.14 #2: Linux `9876404530 / sha256:144502ee168b12fd8e8018da236e7c109fdaf79f17bd98bd0ddeb1c27dc78ee9`; Windows `9876415748 / sha256:20f3669edd24624dd43ca3313c5a8197d7e66104b8861dbd79074cfc4a1d3506`. Report file SHA-256 is Linux `3c5f9b7f857855061b4a473dc643baaacdd4eb4dfd9943ec96837a790919fa9e` and Windows `1a572d3986f653a6de23bf8f61223828f25d859ddc1a362fc507ab9d8ecf55a6`; platform-specific evidence SHA-256 is Linux `4f4419fc01410e68acf3d6fb20a6e4655e4a0ed8149d361bfdbbb0a4fab1c55f` and Windows `9096479309bd95a7f788cdf718a7a6a9fad8845ac5dee05e325a4b901a8690ad`.
+- This END-sync may change only `docs/roadmap/R16_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the immutable technical source. Its resulting exact END head must receive fresh R16.14/R16.9/R0/Python/UI SUCCESS before PR #361 may merge with `expected_head_sha` equal to that exact head.
+- Exactly one post-merge continuity-only R16.14 normalization is authorized after the implementation/evidence merge. Only the resulting normalized `main` may mark R16.14 **COMPLETE + NORMALIZED** and authorize R16.15 START.
 
 ---
 

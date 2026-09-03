@@ -53,6 +53,7 @@
       ".github/workflows/r16-11-godot-3d-beta-acceptance.yml",
       ".github/workflows/r16-12-windows-desktop-acceptance.yml",
       ".github/workflows/r16-13-comfyui-beta-acceptance.yml",
+      ".github/workflows/r16-14-media-beta-acceptance.yml",
       ".github/workflows/ui-smoke.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,

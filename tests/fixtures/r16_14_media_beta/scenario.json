@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "name": "r16.14-representative-audio-voice-cinematic-beta",
+  "locale": "fr-FR",
+  "text": "Bonjour Kodepoia.",
+  "output_relative": "artifacts/media/r16_14/dialogue.wav",
+  "external_reference": "",
+  "voice": {
+    "backend_id": "piper.local.synthetic",
+    "binding_id": "voice.synthetic.fr",
+    "profile_id": "profile.synthetic.fr",
+    "scope_id": "r16.14.fixture",
+    "model_seed": "r16.14-synthetic-model",
+    "config_seed": "r16.14-synthetic-config",
+    "provenance_id": "r16.14.synthetic-public-domain",
+    "license_id": "cc0-1.0",
+    "allowed_use": "internal"
+  },
+  "audio": {
+    "sample_rate_hz": 16000,
+    "duration_ms": 1000,
+    "frequency_hz": 400,
+    "amplitude": 8000,
+    "channels": 1,
+    "sample_width_bytes": 2,
+    "waveform": "triangle"
+  },
+  "alignment": {
+    "words": [
+      {"text": "Bonjour", "start_seconds": 0.05, "end_seconds": 0.45},
+      {"text": "Kodepoia", "start_seconds": 0.50, "end_seconds": 0.90}
+    ],
+    "phonemes": [
+      {"phoneme": "b", "start_seconds": 0.05, "end_seconds": 0.12, "word_index": 0},
+      {"phoneme": "o", "start_seconds": 0.12, "end_seconds": 0.20, "word_index": 0},
+      {"phoneme": "n", "start_seconds": 0.20, "end_seconds": 0.28, "word_index": 0},
+      {"phoneme": "zh", "start_seconds": 0.28, "end_seconds": 0.36, "word_index": 0},
+      {"phoneme": "k", "start_seconds": 0.50, "end_seconds": 0.58, "word_index": 1},
+      {"phoneme": "o", "start_seconds": 0.58, "end_seconds": 0.66, "word_index": 1},
+      {"phoneme": "d", "start_seconds": 0.66, "end_seconds": 0.74, "word_index": 1},
+      {"phoneme": "e", "start_seconds": 0.74, "end_seconds": 0.82, "word_index": 1},
+      {"phoneme": "a", "start_seconds": 0.82, "end_seconds": 0.90, "word_index": 1}
+    ]
+  },
+  "cinematic": {
+    "fps_num": 24,
+    "fps_den": 1,
+    "duration_frames": 24,
+    "dialogue_start_frame": 0,
+    "dialogue_duration_frames": 24,
+    "speaker_id": "fixture.speaker"
+  },
+  "budgets": {
+    "max_fixture_bytes": 262144,
+    "max_output_bytes": 1048576,
+    "max_duration_seconds": 2.0,
+    "timeout_seconds": 10.0
+  },
+  "negative_controls": {
+    "path_escape": "../../escape.wav",
+    "external_reference": "https://example.invalid/voice-model",
+    "unsafe_markup": "<speak>R16_14_UNSAFE_MARKUP</speak>",
+    "cinematic_payload_key": "command"
+  }
+}

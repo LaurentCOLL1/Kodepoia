@@ -40,23 +40,25 @@ jobs:
           lfs: false
           clean: true
 
-      - name: Assert exact fix base
+      - name: Assert exact fix base and isolate known checkout noise
         shell: bash
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
-          test -z "$(git status --porcelain)"
+          unexpected="$(git status --porcelain | grep -v 'docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json$' || true)"
+          test -z "$unexpected"
+          test -z "$(git diff --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md)"
 
       - name: Apply exact R16.9 policy-integrity fix
         run: python /tmp/r16_17_r16_9_pin_integrity_fix.py
 
-      - name: Assert bounded one-file diff
+      - name: Assert bounded one-file candidate diff
         shell: bash
         run: |
           set -euo pipefail
           git diff --check
-          test "$(git diff --name-only | wc -l)" -eq 1
-          test "$(git diff --name-only)" = "scripts/r16_9_supply_chain_acceptance.py"
+          candidate_paths="$(git diff --name-only | grep -v '^docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json$' || true)"
+          test "$candidate_paths" = "scripts/r16_9_supply_chain_acceptance.py"
           test -z "$(git diff --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md)"
           grep -Fq '"actions/download-artifact": "634f93cb2916e3fdff6788551b99b062d0335ce0"' scripts/r16_9_supply_chain_acceptance.py
 
@@ -76,7 +78,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add scripts/r16_9_supply_chain_acceptance.py
-          test "$(git diff --cached --name-only | wc -l)" -eq 1
+          test "$(git diff --cached --name-only)" = "scripts/r16_9_supply_chain_acceptance.py"
           git diff --cached --check
           git commit -m "fix(r16.17): bind R16.9 acceptance to eight action pins"
           test "$(git rev-parse HEAD^)" = "$TARGET_SHA"
@@ -100,4 +102,5 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD^)" = "$TARGET_SHA"
+          test "$(git diff --name-only HEAD^ HEAD)" = "scripts/r16_9_supply_chain_acceptance.py"
           git push --force origin HEAD:refs/heads/r16/17-r16-9-pin-integrity-fix-transport

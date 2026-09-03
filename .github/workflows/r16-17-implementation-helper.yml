@@ -9,12 +9,10 @@ permissions:
   contents: write
 
 jobs:
-  build-candidate:
+  build-determinism-fix:
     runs-on: ubuntu-latest
     env:
-      SOURCE_DATE_EPOCH: "946684800"
-      PYTHONHASHSEED: "0"
-      START_SHA: "5cbae3c525467c3230d7156649b008e418c3d604"
+      TARGET_SHA: "6ec43b584b386d8e36bc07238c0595e7c9602937"
     steps:
       - name: Checkout helper source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -23,190 +21,199 @@ jobs:
           fetch-depth: 0
           lfs: false
 
-      - name: Preserve isolated implementation patch
-        shell: bash
-        run: cp .github/helpers/r16_17_implementation_patch.py /tmp/r16_17_implementation_patch.py
-
-      - name: Checkout exact R16.17 START head
+      - name: Checkout exact superseded technical head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ env.START_SHA }}
+          ref: ${{ env.TARGET_SHA }}
           fetch-depth: 0
           lfs: false
           clean: true
 
-      - name: Assert exact isolated START base
+      - name: Assert exact fix base
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$START_SHA"
-          test ! -e .github/workflows/r16-17-implementation-helper.yml
-          test ! -e .github/helpers/r16_17_implementation_patch.py
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
           git reset --mixed HEAD
 
-      - name: Remove helper-only pre-stage diff assertion
+      - name: Apply bounded cross-platform determinism fix
         shell: python
         run: |
+          from __future__ import annotations
+
+          import json
           from pathlib import Path
-          path = Path("/tmp/r16_17_implementation_patch.py")
-          text = path.read_text(encoding="utf-8")
-          marker = "\nexpected = {\n"
-          if text.count(marker) != 1:
-              raise SystemExit("implementation helper terminal assertion marker drifted")
-          path.write_text(text.split(marker, 1)[0] + "\n", encoding="utf-8")
 
-      - name: Apply bounded R16.17 implementation patch
-        shell: bash
-        run: python /tmp/r16_17_implementation_patch.py
+          attrs = Path(".gitattributes")
+          if attrs.exists():
+              raise SystemExit("unexpected pre-existing .gitattributes on exact fix base")
+          attrs.write_text(
+              "* text=auto eol=lf\n"
+              "*.bat text eol=crlf\n"
+              "*.cmd text eol=crlf\n"
+              "*.ps1 text eol=crlf\n",
+              encoding="utf-8",
+          )
 
-      - name: Chain rollback exception explicitly
+          policy_path = Path("configs/r16_supply_chain_policy.json")
+          policy = json.loads(policy_path.read_text(encoding="utf-8"))
+          pins = policy["external_action_pins"]
+          if "actions/download-artifact" in pins:
+              raise SystemExit("download-artifact pin already exists unexpectedly")
+          pins["actions/download-artifact"] = {
+              "source_ref": "v5",
+              "commit_sha": "634f93cb2916e3fdff6788551b99b062d0335ce0",
+          }
+          policy["pin_resolution_date"] = "2026-09-03"
+          policy_path.write_text(
+              json.dumps(policy, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+
+          test_path = Path("tests/test_supply_chain_r16_9.py")
+          test_text = test_path.read_text(encoding="utf-8")
+          old = '    assert len(policy.pins) == 7\n    assert len(policy.digest_sha256) == 64\n'
+          new = (
+              '    assert len(policy.pins) == 8\n'
+              '    assert policy.pins["actions/download-artifact"].commit_sha == (\n'
+              '        "634f93cb2916e3fdff6788551b99b062d0335ce0"\n'
+              '    )\n'
+              '    assert len(policy.digest_sha256) == 64\n'
+          )
+          if test_text.count(old) != 1:
+              raise SystemExit("supply-chain pin-count test anchor drifted")
+          test_path.write_text(test_text.replace(old, new), encoding="utf-8")
+
+          workflow_path = Path(".github/workflows/r16-17-release-readiness-acceptance.yml")
+          workflow = workflow_path.read_text(encoding="utf-8")
+          checkout_anchor = "    steps:\n      - name: Checkout exact evidence source\n"
+          checkout_replacement = (
+              "    steps:\n"
+              "      - name: Canonicalize checkout line endings\n"
+              "        shell: python\n"
+              "        run: |\n"
+              "          import subprocess\n"
+              "          subprocess.run([\"git\", \"config\", \"--global\", \"core.autocrlf\", \"false\"], check=True)\n"
+              "          subprocess.run([\"git\", \"config\", \"--global\", \"core.eol\", \"lf\"], check=True)\n"
+              "\n"
+              "      - name: Checkout exact evidence source\n"
+          )
+          if workflow.count(checkout_anchor) != 1:
+              raise SystemExit("R16.17 checkout anchor drifted")
+          workflow = workflow.replace(checkout_anchor, checkout_replacement)
+
+          aggregate = '''
+
+  cross-platform-package-determinism:
+    needs: release-readiness
+    runs-on: ubuntu-latest
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Download exact-head RC evidence
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          pattern: r16-17-release-readiness-*-${{ env.EVIDENCE_SHA }}
+          path: downloaded
+
+      - name: Assert Linux and Windows package bytes are identical
         shell: python
         run: |
+          import json
           from pathlib import Path
-          path = Path("src/kodepoia/quality/release_readiness.py")
-          text = path.read_text(encoding="utf-8")
-          old_except = "    except Exception:\n        manager.restore(archive, project_root, overwrite=True)\n"
-          new_except = "    except Exception as exc:\n        manager.restore(archive, project_root, overwrite=True)\n"
-          old_raise = '            raise ReleaseReadinessError("migration rollback failed to restore exact prior bytes")\n'
-          new_raise = '            raise ReleaseReadinessError("migration rollback failed to restore exact prior bytes") from exc\n'
-          if text.count(old_except) != 1 or text.count(old_raise) != 1:
-              raise SystemExit("rollback exception anchors drifted")
-          path.write_text(text.replace(old_except, new_except).replace(old_raise, new_raise), encoding="utf-8")
 
-      - name: Assert implementation START invariants
+          manifests = sorted(Path("downloaded").glob("*/artifacts/r16_17_baseline_build.json"))
+          if len(manifests) != 2:
+              raise SystemExit(f"expected two cross-platform package manifests, got {manifests}")
+          payloads = []
+          platforms = set()
+          for path in manifests:
+              artifact_name = path.parents[1].name
+              if "-Linux-" in artifact_name:
+                  platforms.add("Linux")
+              if "-Windows-" in artifact_name:
+                  platforms.add("Windows")
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              artifacts = payload.get("artifacts")
+              if not isinstance(artifacts, dict) or len(artifacts) != 2:
+                  raise SystemExit(f"invalid package hash manifest: {path}")
+              payloads.append(dict(sorted(artifacts.items())))
+          if platforms != {"Linux", "Windows"}:
+              raise SystemExit(f"missing expected platform evidence: {platforms}")
+          if payloads[0] != payloads[1]:
+              raise SystemExit(
+                  "cross-platform package bytes differ: "
+                  + json.dumps(payloads, sort_keys=True)
+              )
+          print(json.dumps({"cross_platform_identical": True, "artifacts": payloads[0]}, sort_keys=True))
+'''
+          if "cross-platform-package-determinism:" in workflow:
+              raise SystemExit("aggregate determinism job already exists unexpectedly")
+          workflow_path.write_text(workflow.rstrip() + aggregate + "\n", encoding="utf-8")
+
+      - name: Assert bounded fix diff
         shell: bash
         run: |
           set -euo pipefail
-          git diff HEAD --check
-          test -z "$(git diff HEAD --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md)"
-          grep -Fq '| R16.17 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |' docs/continuity/KODEPOIA_CONTINUITY.md
-          grep -Fq '| R16.18 | PLANNED | CONDITIONAL |' docs/continuity/KODEPOIA_CONTINUITY.md
-          grep -Fq 'version = "1.0.0rc1"' pyproject.toml
-          grep -Fq '__version__ = "1.0.0rc1"' src/kodepoia/__init__.py
+          git diff --check
+          test "$(git status --short | wc -l)" -eq 4
+          test -z "$(git diff --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md)"
+          grep -Fq 'actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0' .github/workflows/r16-17-release-readiness-acceptance.yml
+          grep -Fq '* text=auto eol=lf' .gitattributes
 
-      - name: Install implementation validation dependencies
+      - name: Install focused validation dependencies
         run: python -m pip install -e ".[dev]"
 
-      - name: Ruff format and safe autofix implementation
-        run: |
-          python -m ruff format \
-            src/kodepoia/quality/release_readiness.py \
-            scripts/r16_17_release_readiness_acceptance.py \
-            tests/test_r16_17_release_readiness.py
-          python -m ruff check --fix \
-            src/kodepoia/quality/release_readiness.py \
-            scripts/r16_17_release_readiness_acceptance.py \
-            tests/test_r16_17_release_readiness.py
-
-      - name: Compile implementation
-        run: >-
-          python -m compileall -q
-          src/kodepoia/quality/release_readiness.py
-          scripts/r16_17_release_readiness_acceptance.py
-          tests/test_r16_17_release_readiness.py
-
-      - name: Ruff implementation
+      - name: Ruff focused regression sources
         run: >-
           python -m ruff check
-          src/kodepoia/quality/release_readiness.py
-          scripts/r16_17_release_readiness_acceptance.py
+          tests/test_supply_chain_r16_9.py
           tests/test_r16_17_release_readiness.py
 
-      - name: Run focused implementation and supply-chain tests
+      - name: Run focused R16.17 and supply-chain regressions
         run: >-
           python -m pytest -q
           tests/test_r16_17_release_readiness.py
           tests/test_supply_chain_r16_9.py
 
-      - name: Prove same-source package reproducibility
-        shell: python
-        run: |
-          import hashlib
-          import shutil
-          import subprocess
-          import sys
-          from pathlib import Path
-
-          def build() -> dict[str, str]:
-              shutil.rmtree("dist", ignore_errors=True)
-              subprocess.run(
-                  [sys.executable, "-m", "build", "--wheel", "--sdist", "--outdir", "dist"],
-                  check=True,
-              )
-              values = {}
-              for path in sorted(Path("dist").iterdir()):
-                  if path.is_file() and (path.suffix == ".whl" or path.name.endswith(".tar.gz")):
-                      values[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
-              if len(values) != 2:
-                  raise SystemExit(f"expected two package artifacts, got {sorted(values)}")
-              return values
-
-          first = build()
-          second = build()
-          if first != second:
-              raise SystemExit(f"non-reproducible exact-source package build: {first} != {second}")
-
-      - name: Build and verify exact technical candidate object
+      - name: Build and verify exact fix commit object
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git reset --mixed HEAD
           git add \
+            .gitattributes \
             .github/workflows/r16-17-release-readiness-acceptance.yml \
             configs/r16_supply_chain_policy.json \
-            docs/release/V1_0_RC1_RELEASE_NOTES.md \
-            docs/release/V1_0_RC1_SECURITY_OPERATIONS.md \
-            pyproject.toml \
-            scripts/r16_17_release_readiness_acceptance.py \
-            src/kodepoia/__init__.py \
-            src/kodepoia/quality/release_readiness.py \
-            tests/fixtures/r16_17_release_readiness/prior_release_state.json \
-            tests/test_r16_17_release_readiness.py \
             tests/test_supply_chain_r16_9.py
-          test "$(git diff --cached --name-only | wc -l)" -eq 11
-          test -z "$(git diff --cached --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md)"
+          test "$(git diff --cached --name-only | wc -l)" -eq 4
           git diff --cached --check
-          git commit -m "feat(r16.17): build v1.0 RC release-readiness authority"
-          test "$(git rev-parse HEAD^)" = "$START_SHA"
-          test "$(git diff --name-only HEAD^ HEAD | wc -l)" -eq 11
+          git commit -m "fix(r16.17): enforce cross-platform RC package determinism"
+          test "$(git rev-parse HEAD^)" = "$TARGET_SHA"
+          test "$(git diff --name-only HEAD^ HEAD | wc -l)" -eq 4
           git diff HEAD^ HEAD --check
 
-      - name: Publish validated content transport without workflow path
+      - name: Publish validated determinism-fix transport
         shell: bash
         run: |
           set -euo pipefail
           candidate="$(git rev-parse HEAD)"
-          git reset --hard "$START_SHA"
+          git reset --hard "$TARGET_SHA"
           git checkout "$candidate" -- \
+            .gitattributes \
             configs/r16_supply_chain_policy.json \
-            docs/release/V1_0_RC1_RELEASE_NOTES.md \
-            docs/release/V1_0_RC1_SECURITY_OPERATIONS.md \
-            pyproject.toml \
-            scripts/r16_17_release_readiness_acceptance.py \
-            src/kodepoia/__init__.py \
-            src/kodepoia/quality/release_readiness.py \
-            tests/fixtures/r16_17_release_readiness/prior_release_state.json \
-            tests/test_r16_17_release_readiness.py \
             tests/test_supply_chain_r16_9.py
-          transport="docs/release/R16_17_RELEASE_READINESS_WORKFLOW.transport.txt"
+          transport="docs/release/R16_17_DETERMINISM_WORKFLOW.transport.txt"
           git show "$candidate:.github/workflows/r16-17-release-readiness-acceptance.yml" > "$transport"
           git add \
+            .gitattributes \
             "$transport" \
             configs/r16_supply_chain_policy.json \
-            docs/release/V1_0_RC1_RELEASE_NOTES.md \
-            docs/release/V1_0_RC1_SECURITY_OPERATIONS.md \
-            pyproject.toml \
-            scripts/r16_17_release_readiness_acceptance.py \
-            src/kodepoia/__init__.py \
-            src/kodepoia/quality/release_readiness.py \
-            tests/fixtures/r16_17_release_readiness/prior_release_state.json \
-            tests/test_r16_17_release_readiness.py \
             tests/test_supply_chain_r16_9.py
-          test "$(git diff --cached --name-only | wc -l)" -eq 11
+          test "$(git diff --cached --name-only | wc -l)" -eq 4
           test -z "$(git diff --cached --name-only | grep '^\.github/workflows/' || true)"
           git diff --cached --check
-          git commit -m "chore(r16.17): transport validated candidate content"
-          test "$(git rev-parse HEAD^)" = "$START_SHA"
-          git push --force origin HEAD:refs/heads/r16/17-validated-content-transport
+          git commit -m "chore(r16.17): transport validated determinism fix"
+          test "$(git rev-parse HEAD^)" = "$TARGET_SHA"
+          git push --force origin HEAD:refs/heads/r16/17-determinism-fix-transport

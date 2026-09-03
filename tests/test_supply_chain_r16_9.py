@@ -95,9 +95,13 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     assert len(policy.pins) == 7
     assert len(policy.digest_sha256) == 64
     assert policy.required_contents_permission == "read"
-    assert len(policy.immutable_authority_workflows) == 18
+    assert len(policy.immutable_authority_workflows) == 19
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
+        in policy.immutable_authority_workflows
+    )
+    assert (
+        ".github/workflows/r16-16-resource-soak-acceptance.yml"
         in policy.immutable_authority_workflows
     )
     assert policy.legacy_workflows_are_non_authoritative_for_v1_promotion

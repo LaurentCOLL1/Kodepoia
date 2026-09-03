@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "application_version": "0.1.0a4",
+  "configuration": {
+    "network_default": "off",
+    "plugin_trust": "deny_unknown",
+    "production_publication": "disabled"
+  },
+  "release_history": [
+    "0.1.0a4"
+  ]
+}

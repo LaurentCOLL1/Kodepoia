@@ -1,0 +1,67 @@
+name: R16.15 Fixture Digest Repair Helper
+
+on:
+  push:
+    branches:
+      - r16/15-fixture-digest-helper
+    paths:
+      - .github/r16_15_fixture_digest_helper.py
+      - .github/workflows/r16-15-fixture-digest-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair-fixture-digest:
+    runs-on: ubuntu-latest
+    env:
+      TECHNICAL_SHA: 6b42a4c41c8cb89a464ec45236aea6fee2709101
+      TARGET_BRANCH: r16/15-long-term-project-durability-resume-upgrade-soak
+    steps:
+      - name: Checkout helper authority
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          path: helper
+          persist-credentials: false
+
+      - name: Checkout exact technical source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.TECHNICAL_SHA }}
+          fetch-depth: 0
+          path: repo
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
+      - name: Apply bounded canonical-fixture repair
+        run: python helper/.github/r16_15_fixture_digest_helper.py repo
+
+      - name: Verify exact repair scope
+        working-directory: repo
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=$'src/kodepoia/project/r16_15_acceptance.py\ntests/test_r16_15_project_durability.py'
+          actual="$(git diff --name-only | sort)"
+          test "$actual" = "$expected"
+          git diff --check
+
+      - name: Commit exact repair onto implementation branch
+        working-directory: repo
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TECHNICAL_SHA"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/kodepoia/project/r16_15_acceptance.py tests/test_r16_15_project_durability.py
+          tree="$(git write-tree)"
+          commit="$(printf '%s\n' 'fix(r16.15): canonicalize fixture evidence digest' | git commit-tree "$tree" -p "$TECHNICAL_SHA")"
+          changed="$(git diff-tree --no-commit-id --name-only -r "$commit" | sort)"
+          expected=$'src/kodepoia/project/r16_15_acceptance.py\ntests/test_r16_15_project_durability.py'
+          test "$changed" = "$expected"
+          git push origin "$commit:refs/heads/$TARGET_BRANCH"
+          echo "candidate_sha=$commit" >> "$GITHUB_STEP_SUMMARY"

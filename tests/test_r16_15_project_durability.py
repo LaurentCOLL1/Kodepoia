@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 
@@ -9,6 +10,7 @@ import pytest
 from kodepoia.project.r16_15_acceptance import (
     FIXTURE_RELATIVE,
     DurabilityGovernanceError,
+    _load_fixture,
     build_project_durability_report,
     qualify_extended_local_soak,
     validate_fixture_payload,
@@ -28,6 +30,22 @@ def test_r16_15_fixture_is_deterministic_and_bounded() -> None:
     assert len(validated["sessions"]) == 3
     assert validated["budgets"]["soak_cycles"] == 8
     assert validated["authority"]["permission_epoch"] == 7
+
+
+def test_r16_15_fixture_digest_is_line_ending_independent(tmp_path: Path) -> None:
+    raw = (ROOT / FIXTURE_RELATIVE).read_bytes().replace(b"\r\n", b"\n")
+    digests: list[str] = []
+    for name, content in (
+        ("lf", raw),
+        ("crlf", raw.replace(b"\n", b"\r\n")),
+    ):
+        root = tmp_path / name
+        fixture_path = root / FIXTURE_RELATIVE
+        fixture_path.parent.mkdir(parents=True, exist_ok=True)
+        fixture_path.write_bytes(content)
+        _payload, canonical_bytes = _load_fixture(root)
+        digests.append(hashlib.sha256(canonical_bytes).hexdigest())
+    assert digests[0] == digests[1]
 
 
 @pytest.mark.parametrize(

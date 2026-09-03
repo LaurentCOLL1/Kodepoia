@@ -196,7 +196,7 @@ def _load_fixture(repo_root: Path) -> tuple[dict[str, Any], bytes]:
     payload = json.loads(raw.decode("utf-8"))
     if not isinstance(payload, dict):
         raise DurabilityGovernanceError("fixture root must be an object")
-    return validate_fixture_payload(payload), raw
+    return validate_fixture_payload(payload), _canonical(payload).encode("utf-8")
 
 
 def _write_bound(path: Path, payload: dict[str, Any]) -> None:

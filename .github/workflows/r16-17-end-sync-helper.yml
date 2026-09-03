@@ -56,7 +56,12 @@ jobs:
           )
           if text.count(old) != 1:
               raise SystemExit("unexpected R16.17 migration evidence wording")
-          path.write_text(text.replace(old, new, 1), encoding="utf-8", newline="\n")
+          text = text.replace(old, new, 1)
+          stale_title = "rollback & release readiness"
+          if text.count(stale_title) != 2:
+              raise SystemExit("unexpected R16.17 plan-title anchor count")
+          text = text.replace(stale_title, "rollback and release readiness")
+          path.write_text(text, encoding="utf-8", newline="\n")
           PY
 
           cd repo

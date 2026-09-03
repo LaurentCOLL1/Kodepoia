@@ -31,7 +31,7 @@ jobs:
           lfs: false
           clean: true
 
-      - name: Assert and normalize exact isolated base
+      - name: Assert exact isolated base
         shell: bash
         run: |
           set -euo pipefail
@@ -39,7 +39,6 @@ jobs:
           test ! -e .github/workflows/r16-16-normalization-helper.yml
           test ! -e .github/helpers/r16_16_normalize_continuity.py
           git reset --mixed HEAD
-          git diff HEAD --quiet
 
       - name: Apply normalization patch
         shell: bash
@@ -53,13 +52,9 @@ jobs:
         shell: bash
         run: '! git diff HEAD --quiet -- docs/continuity/KODEPOIA_CONTINUITY.md'
 
-      - name: Assert no other tracked change
+      - name: Assert clean continuity diff
         shell: bash
-        run: git diff HEAD --quiet -- . ':(exclude)docs/continuity/KODEPOIA_CONTINUITY.md'
-
-      - name: Assert clean textual diff
-        shell: bash
-        run: git diff HEAD --check
+        run: git diff HEAD --check -- docs/continuity/KODEPOIA_CONTINUITY.md
 
       - name: Assert R16.16 normalized candidate state
         shell: bash
@@ -69,17 +64,22 @@ jobs:
         shell: bash
         run: grep -Fq '| R16.17 | PLANNED | CONDITIONAL |' docs/continuity/KODEPOIA_CONTINUITY.md
 
-      - name: Commit and publish exact normalization candidate
+      - name: Build and verify exact continuity-only commit
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -C r16/16-continuity-normalization 068f522b052b820c40474ab8a3c689ac47610761
           git reset --mixed HEAD
           git add docs/continuity/KODEPOIA_CONTINUITY.md
           test -z "$(git diff --cached --name-only -- docs/roadmap/R16_PLAN.md)"
           test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git diff --cached --check
           git commit -m "docs(r16.16): normalize post-merge continuity"
-          git push origin HEAD:refs/heads/r16/16-continuity-normalization
+          test "$(git rev-parse HEAD^)" = "068f522b052b820c40474ab8a3c689ac47610761"
+          test "$(git diff --name-only HEAD^ HEAD)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git diff HEAD^ HEAD --check
+
+      - name: Publish exact normalization candidate
+        shell: bash
+        run: git push origin HEAD:refs/heads/r16/16-continuity-normalization

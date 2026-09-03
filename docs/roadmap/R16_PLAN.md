@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.12 are COMPLETE + NORMALIZED. R16.13 is COMPLETE at END-sync on dedicated branch `r16/13-representative-comfyui-beta-workflow` from exact normalized `main` `86a174ab5d627ca9da8a5eb3979e05951582335b`, with immutable technical source `ef48343a0967920776a2c9849949f3203f5379b6`; R16.14–R16.18 remain PLANNED and unauthorized. Core manual state is NONE; optional real local ComfyUI/GPU qualification is CONDITIONAL / NOT TRIGGERED. Fresh exact-END R16.13/R16.9/R0/Python/UI re-gates are mandatory before PR #359 may merge; exactly one post-merge continuity-only normalization is required before R16.14 START.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.13 are COMPLETE + NORMALIZED. R16.14 is IN_PROGRESS on dedicated branch `r16/14-representative-audio-voice-cinematic-beta-workflow` from exact normalized `main` `429a018192bcb00221f9fc4e6ae64d0fdbc40cfd`; R16.15–R16.18 remain PLANNED. Core manual state is NONE; optional human listening/device-quality qualification is CONDITIONAL / NOT TRIGGERED. No R16.14 implementation preceded this START-sync.
 
 ## Purpose and authority
 
@@ -179,8 +179,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.10 | Representative real Godot 2D beta project | COMPLETE + NORMALIZED | NONE |
 | R16.11 | Representative real Godot 3D beta project | COMPLETE + NORMALIZED | NONE |
 | R16.12 | Representative real Windows desktop application | COMPLETE + NORMALIZED | NONE |
-| R16.13 | Representative ComfyUI beta workflow | COMPLETE | CONDITIONAL |
-| R16.14 | Representative audio/voice/cinematic beta workflow | PLANNED | CONDITIONAL |
+| R16.13 | Representative ComfyUI beta workflow | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
+| R16.14 | Representative audio/voice/cinematic beta workflow | IN_PROGRESS | CONDITIONAL |
 | R16.15 | Long-term project durability, resume and upgrade soak | PLANNED | CONDITIONAL |
 | R16.16 | Resource, concurrency, leak and diagnostics soak | PLANNED | NONE |
 | R16.17 | v1.0 packaging, migration, rollback and release readiness | PLANNED | CONDITIONAL |
@@ -1048,6 +1048,14 @@ Codec/backend differences; nondeterministic TTS output; subjective quality mista
 ## Manual intervention
 
 **CONDITIONAL.** Only for an explicitly requested human listening/device-quality claim; core acceptance is automated.
+
+## R16.14 START authority
+
+- State: **IN_PROGRESS**; core manual **NONE**; optional human listening/device-quality qualification **CONDITIONAL / NOT TRIGGERED** and only if explicitly requested.
+- Exact normalized base: `main` `429a018192bcb00221f9fc4e6ae64d0fdbc40cfd`; dedicated branch `r16/14-representative-audio-voice-cinematic-beta-workflow` created directly from that SHA before implementation.
+- Prior state: R16.1–R16.13 **COMPLETE + NORMALIZED**; R16.15–R16.18 remain **PLANNED**.
+- Frozen scope is unchanged: one repository-owned short media scenario using synthetic/public-domain text/audio fixtures; audio inspection/QA; supported TTS path; voice-governance/profile checks; alignment/viseme generation; cinematic timing/metadata flow; workspace-bounded generated media/output paths with source/provenance linkage; malformed/unsafe markup and external-reference rejection; resource limits; cancellation/failure with partial-output non-promotion.
+- No R16.14 implementation preceded this START-sync. Core acceptance requires no microphone, speakers, device playback, live provider credentials, external service, or destructive host action.
 
 ---
 

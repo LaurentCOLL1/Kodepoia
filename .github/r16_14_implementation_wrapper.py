@@ -106,4 +106,10 @@ data = replace_exact(
     b'raw.replace(b"\\n", b"\\r\\n").decode("utf-8")',
     label="test line-ending escape",
 )
+data = replace_exact(
+    data,
+    b'assert report["audio_qa"]["state"] == "pass"',
+    b'assert report["audio_qa"]["state"] == "PASS"',
+    label="audio QA MediaState expectation",
+)
 test.write_bytes(data)

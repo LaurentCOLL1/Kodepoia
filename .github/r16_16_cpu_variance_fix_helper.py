@@ -31,17 +31,12 @@ def main() -> None:
     POLICY.write_text(policy, encoding="utf-8", newline="\n")
 
     harness = HARNESS.read_text(encoding="utf-8")
-    harness = replace_once(
-        harness,
-        '        "max_repeat_cpu_ratio",\n        "timeout_seconds",\n',
+    shared = '        "max_repeat_cpu_ratio",\n        "timeout_seconds",\n'
+    if harness.count(shared) != 2:
+        raise SystemExit("budget key contract: expected exactly two anchors")
+    harness = harness.replace(
+        shared,
         '        "max_repeat_cpu_ratio",\n        "min_repeat_cpu_sample_ms",\n        "timeout_seconds",\n',
-        "budget key contract",
-    )
-    harness = replace_once(
-        harness,
-        '        "max_repeat_cpu_ratio",\n        "timeout_seconds",\n    }\n    non_negative',
-        '        "max_repeat_cpu_ratio",\n        "min_repeat_cpu_sample_ms",\n        "timeout_seconds",\n    }\n    non_negative',
-        "positive budget contract",
     )
     harness = replace_once(
         harness,

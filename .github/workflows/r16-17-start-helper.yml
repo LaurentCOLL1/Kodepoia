@@ -1,0 +1,77 @@
+name: R16.17 START Sync Helper
+
+on:
+  push:
+    branches:
+      - "r16/17-start-helper"
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout helper source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+
+      - name: Preserve isolated patch helper
+        shell: bash
+        run: cp .github/helpers/r16_17_start_sync.py /tmp/r16_17_start_sync.py
+
+      - name: Checkout exact normalized R16.16 main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 68cc2bb761329b3f1b4932319302db3dcc01cd2b
+          fetch-depth: 0
+          lfs: false
+          clean: true
+
+      - name: Assert exact isolated base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "68cc2bb761329b3f1b4932319302db3dcc01cd2b"
+          test ! -e .github/workflows/r16-17-start-helper.yml
+          test ! -e .github/helpers/r16_17_start_sync.py
+          git reset --mixed HEAD
+
+      - name: Apply R16.17 documentation-only START sync
+        shell: bash
+        run: python /tmp/r16_17_start_sync.py
+
+      - name: Assert START-sync diff is documentation-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff HEAD --check -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff HEAD --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md | wc -l)" -eq 2
+          git diff HEAD --quiet -- . ':(exclude)docs/roadmap/R16_PLAN.md' ':(exclude)docs/continuity/KODEPOIA_CONTINUITY.md'
+          grep -Fq 'R16.17 is IN_PROGRESS' docs/roadmap/R16_PLAN.md
+          grep -Fq '| R16.17 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -Fq '| R16.18 | PLANNED | CONDITIONAL |' docs/continuity/KODEPOIA_CONTINUITY.md
+
+      - name: Build and verify exact START-sync commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git reset --mixed HEAD
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only | wc -l)" -eq 2
+          test "$(git diff --cached --name-only | sed -n '1p')" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test "$(git diff --cached --name-only | sed -n '2p')" = "docs/roadmap/R16_PLAN.md"
+          git diff --cached --check
+          git commit -m "docs(r16.17): START-sync release readiness"
+          test "$(git rev-parse HEAD^)" = "68cc2bb761329b3f1b4932319302db3dcc01cd2b"
+          test "$(git diff --name-only HEAD^ HEAD | wc -l)" -eq 2
+          git diff HEAD^ HEAD --check
+
+      - name: Publish exact R16.17 START candidate
+        shell: bash
+        run: git push origin HEAD:refs/heads/r16/17-v1-packaging-migration-rollback-release-readiness

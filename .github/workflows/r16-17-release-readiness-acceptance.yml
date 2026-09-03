@@ -37,6 +37,13 @@ jobs:
       SOURCE_DATE_EPOCH: "946684800"
       PYTHONHASHSEED: "0"
     steps:
+      - name: Canonicalize checkout line endings
+        shell: python
+        run: |
+          import subprocess
+          subprocess.run(["git", "config", "--global", "core.autocrlf", "false"], check=True)
+          subprocess.run(["git", "config", "--global", "core.eol", "lf"], check=True)
+
       - name: Checkout exact evidence source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -136,3 +143,46 @@ jobs:
             dist/*.tar.gz
           if-no-files-found: error
           retention-days: 30
+
+  cross-platform-package-determinism:
+    needs: release-readiness
+    runs-on: ubuntu-latest
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Download exact-head RC evidence
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          pattern: r16-17-release-readiness-*-${{ env.EVIDENCE_SHA }}
+          path: downloaded
+
+      - name: Assert Linux and Windows package bytes are identical
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          manifests = sorted(Path("downloaded").glob("*/artifacts/r16_17_baseline_build.json"))
+          if len(manifests) != 2:
+              raise SystemExit(f"expected two cross-platform package manifests, got {manifests}")
+          payloads = []
+          platforms = set()
+          for path in manifests:
+              artifact_name = path.parents[1].name
+              if "-Linux-" in artifact_name:
+                  platforms.add("Linux")
+              if "-Windows-" in artifact_name:
+                  platforms.add("Windows")
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              artifacts = payload.get("artifacts")
+              if not isinstance(artifacts, dict) or len(artifacts) != 2:
+                  raise SystemExit(f"invalid package hash manifest: {path}")
+              payloads.append(dict(sorted(artifacts.items())))
+          if platforms != {"Linux", "Windows"}:
+              raise SystemExit(f"missing expected platform evidence: {platforms}")
+          if payloads[0] != payloads[1]:
+              raise SystemExit(
+                  "cross-platform package bytes differ: "
+                  + json.dumps(payloads, sort_keys=True)
+              )
+          print(json.dumps({"cross_platform_identical": True, "artifacts": payloads[0]}, sort_keys=True))

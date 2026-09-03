@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_id": "r16.9-supply-chain-v1",
-  "pin_resolution_date": "2026-09-02",
+  "pin_resolution_date": "2026-09-03",
   "pin_resolution_authority": "verified GitHub git refs/tags; annotated tags dereferenced to commit",
   "external_action_pins": {
     "actions/checkout": {
@@ -31,6 +31,10 @@
     "gradle/actions": {
       "source_ref": "v4",
       "commit_sha": "ed408507eac070d1f99cc633dbcf757c94c7933a"
+    },
+    "actions/download-artifact": {
+      "source_ref": "v5",
+      "commit_sha": "634f93cb2916e3fdff6788551b99b062d0335ce0"
     }
   },
   "workflow_policy": {
@@ -56,6 +60,7 @@
       ".github/workflows/r16-14-media-beta-acceptance.yml",
       ".github/workflows/r16-15-project-durability-acceptance.yml",
       ".github/workflows/r16-16-resource-soak-acceptance.yml",
+      ".github/workflows/r16-17-release-readiness-acceptance.yml",
       ".github/workflows/ui-smoke.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,

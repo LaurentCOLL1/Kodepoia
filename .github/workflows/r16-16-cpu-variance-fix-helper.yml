@@ -1,0 +1,59 @@
+name: R16.16 CPU Variance Fix Helper
+
+on:
+  push:
+    branches:
+      - "r16/16-cpu-variance-fix-helper"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout helper branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "r16/16-cpu-variance-fix-helper"
+          path: helper
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout exact rejected R16.16 source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "3e2c9ec39f19664ba51a81f3b09e6a67cd4f77c9"
+          path: repo
+          fetch-depth: 0
+
+      - name: Apply and publish truthful CPU variance fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE=3e2c9ec39f19664ba51a81f3b09e6a67cd4f77c9
+          expected=(
+            "configs/r16_16_resource_soak_policy.json"
+            "src/kodepoia/quality/resource_soak.py"
+            "tests/test_r16_16_resource_soak.py"
+          )
+          test "$(git -C repo rev-parse HEAD)" = "$SOURCE"
+          cp helper/.github/r16_16_cpu_variance_fix_helper.py /tmp/fix.py
+          cd repo
+          git update-index --assume-unchanged docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
+          python /tmp/fix.py
+          git add -- "${expected[@]}"
+          mapfile -t staged < <(git diff --cached --name-only | sort)
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          test "${staged[*]}" = "${expected_sorted[*]}"
+          git diff --cached --check
+          tree=$(git write-tree)
+          export GIT_AUTHOR_NAME="github-actions[bot]"
+          export GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          commit=$(printf '%s\n' 'fix(r16.16): treat sub-significance CPU variance as inconclusive' | git commit-tree "$tree" -p "$SOURCE")
+          mapfile -t committed < <(git diff-tree --no-commit-id --name-only -r "$commit" | sort)
+          test "${committed[*]}" = "${expected_sorted[*]}"
+          echo "R16_16_FIXED_HEAD=$commit"
+          git push origin "$commit":refs/heads/r16/16-resource-concurrency-leak-diagnostics-soak

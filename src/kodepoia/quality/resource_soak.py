@@ -11,10 +11,11 @@ import sys
 import threading
 import time
 import tracemalloc
+from collections.abc import Mapping
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 from kodepoia.core.kill_switch import KillSwitch
 from kodepoia.core.sandbox import ProcessSandbox
@@ -571,8 +572,6 @@ def build_resource_soak_report(
     cases.append(_case("policy_contract_valid", True, "resource and diagnostic policy validated"))
 
     repetitions: list[RepetitionMetrics] = []
-    with Path(os.path.abspath(repo_root)).resolve():
-        pass
     import tempfile
 
     with tempfile.TemporaryDirectory(prefix="kodepoia-r16-16-") as name:
@@ -590,7 +589,13 @@ def build_resource_soak_report(
             )
         )
         all_budgeted = all(metrics_within_budget(item.to_dict(), budgets) for item in repetitions)
-        cases.append(_case("absolute_resource_budgets", all_budgeted, "all bounded repetitions fit hard budgets"))
+        cases.append(
+            _case(
+                "absolute_resource_budgets",
+                all_budgeted,
+                "all bounded repetitions fit hard budgets",
+            )
+        )
         cases.append(
             _case(
                 "temp_artifacts_cleaned",
@@ -601,7 +606,10 @@ def build_resource_soak_report(
         cases.append(
             _case(
                 "thread_count_recovers",
-                all(item.thread_delta_after <= int(budgets["max_thread_delta_after"]) for item in repetitions),
+                all(
+                    item.thread_delta_after <= int(budgets["max_thread_delta_after"])
+                    for item in repetitions
+                ),
                 "thread count returns within frozen tolerance",
             )
         )
@@ -660,10 +668,17 @@ def build_resource_soak_report(
         _case(
             "required_capacity_preflight",
             required_ok,
-            "required resource probes are available" if required_ok else f"missing={','.join(missing_required)}",
+            (
+                "required resource probes are available"
+                if required_ok
+                else f"missing={','.join(missing_required)}"
+            ),
         )
     )
-    vram_truthful = availability["vram"]["state"] == "INCONCLUSIVE" and "vram" in policy["optional_capacities"]
+    vram_truthful = (
+        availability["vram"]["state"] == "INCONCLUSIVE"
+        and "vram" in policy["optional_capacities"]
+    )
     cases.append(
         _case(
             "optional_vram_truthful_inconclusive",
@@ -690,7 +705,7 @@ def build_resource_soak_report(
             "synthetic wall-budget breach is rejected",
         )
     )
-    orphan_budget_ok = 1 <= int(budgets["max_active_processes_after"])
+    orphan_budget_ok = int(budgets["max_active_processes_after"]) >= 1
     cases.append(
         _case(
             "orphan_process_negative_control",
@@ -698,7 +713,7 @@ def build_resource_soak_report(
             "one synthetic active process exceeds the zero-orphan final budget",
         )
     )
-    temp_leak_ok = 1 <= int(budgets["max_temp_files_after"])
+    temp_leak_ok = int(budgets["max_temp_files_after"]) >= 1
     cases.append(
         _case(
             "temp_leak_negative_control",

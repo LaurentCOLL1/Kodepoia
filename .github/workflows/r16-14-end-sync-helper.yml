@@ -1,0 +1,59 @@
+name: R16.14 END Sync Helper
+
+on:
+  push:
+    branches:
+      - "r16/14-end-sync-helper"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-end-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout helper branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "r16/14-end-sync-helper"
+          path: helper
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout exact immutable R16.14 technical source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "92505a002a77c29c5621cdfaa332d43385307b31"
+          path: repo
+          fetch-depth: 0
+
+      - name: Build and publish documentation-only END-sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          TECHNICAL=92505a002a77c29c5621cdfaa332d43385307b31
+          test "$(git -C repo rev-parse HEAD)" = "$TECHNICAL"
+          cp helper/.github/r16_14_end_sync_helper.py /tmp/r16_14_end_sync_helper.py
+          cd repo
+          python /tmp/r16_14_end_sync_helper.py
+
+          expected=(
+            "docs/continuity/KODEPOIA_CONTINUITY.md"
+            "docs/roadmap/R16_PLAN.md"
+          )
+          git add -- "${expected[@]}"
+          mapfile -t staged < <(git diff --cached --name-only | sort)
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          test "${staged[*]}" = "${expected_sorted[*]}"
+          git diff --cached --check
+
+          tree=$(git write-tree)
+          export GIT_AUTHOR_NAME="github-actions[bot]"
+          export GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          commit=$(printf '%s\n' 'docs(r16.14): synchronize END authority' | git commit-tree "$tree" -p "$TECHNICAL")
+          mapfile -t committed < <(git diff-tree --no-commit-id --name-only -r "$commit" | sort)
+          test "${committed[*]}" = "${expected_sorted[*]}"
+          echo "R16_14_END_HEAD=$commit"
+          git push origin "$commit":refs/heads/r16/14-representative-audio-voice-cinematic-beta-workflow

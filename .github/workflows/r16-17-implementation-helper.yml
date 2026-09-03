@@ -9,10 +9,10 @@ permissions:
   contents: write
 
 jobs:
-  build-determinism-fix:
+  build-r16-9-pin-integrity-fix:
     runs-on: ubuntu-latest
     env:
-      TARGET_SHA: "6ec43b584b386d8e36bc07238c0595e7c9602937"
+      TARGET_SHA: "a81134543fd35fa3755a13a26e0a66d95e577006"
     steps:
       - name: Checkout helper source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -21,11 +21,11 @@ jobs:
           fetch-depth: 0
           lfs: false
 
-      - name: Preserve isolated determinism patch
+      - name: Preserve isolated R16.9 acceptance patch
         shell: bash
-        run: cp .github/helpers/r16_17_determinism_fix.py /tmp/r16_17_determinism_fix.py
+        run: cp .github/helpers/r16_17_r16_9_pin_integrity_fix.py /tmp/r16_17_r16_9_pin_integrity_fix.py
 
-      - name: Checkout exact superseded technical head
+      - name: Checkout exact failed technical head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ env.TARGET_SHA }}
@@ -40,68 +40,57 @@ jobs:
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
           git reset --mixed HEAD
 
-      - name: Apply bounded cross-platform determinism fix
-        run: python /tmp/r16_17_determinism_fix.py
+      - name: Apply exact R16.9 policy-integrity fix
+        run: python /tmp/r16_17_r16_9_pin_integrity_fix.py
 
-      - name: Assert bounded fix diff
+      - name: Assert bounded one-file diff
         shell: bash
         run: |
           set -euo pipefail
           git diff --check
+          test "$(git diff --name-only | wc -l)" -eq 1
+          test "$(git diff --name-only)" = "scripts/r16_9_supply_chain_acceptance.py"
           test -z "$(git diff --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md)"
-          grep -Fq 'actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0' .github/workflows/r16-17-release-readiness-acceptance.yml
-          grep -Fq '"core.autocrlf", "false"' .github/workflows/r16-17-release-readiness-acceptance.yml
+          grep -Fq '"actions/download-artifact": "634f93cb2916e3fdff6788551b99b062d0335ce0"' scripts/r16_9_supply_chain_acceptance.py
 
       - name: Install focused validation dependencies
         run: python -m pip install -e ".[dev]"
 
-      - name: Ruff focused regression sources
-        run: >-
-          python -m ruff check
-          tests/test_supply_chain_r16_9.py
-          tests/test_r16_17_release_readiness.py
+      - name: Ruff R16.9 acceptance source
+        run: python -m ruff check scripts/r16_9_supply_chain_acceptance.py
 
-      - name: Run focused R16.17 and supply-chain regressions
-        run: >-
-          python -m pytest -q
-          tests/test_r16_17_release_readiness.py
-          tests/test_supply_chain_r16_9.py
+      - name: Run R16.9 regression tests
+        run: python -m pytest -q tests/test_supply_chain_r16_9.py
 
-      - name: Build and verify exact fix commit object
+      - name: Build exact candidate commit
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            .github/workflows/r16-17-release-readiness-acceptance.yml \
-            configs/r16_supply_chain_policy.json \
-            tests/test_supply_chain_r16_9.py
-          test "$(git diff --cached --name-only | wc -l)" -eq 3
+          git add scripts/r16_9_supply_chain_acceptance.py
+          test "$(git diff --cached --name-only | wc -l)" -eq 1
           git diff --cached --check
-          git commit -m "fix(r16.17): enforce cross-platform RC package determinism"
+          git commit -m "fix(r16.17): bind R16.9 acceptance to eight action pins"
           test "$(git rev-parse HEAD^)" = "$TARGET_SHA"
-          test "$(git diff --name-only HEAD^ HEAD | wc -l)" -eq 3
-          git diff HEAD^ HEAD --check
+          test "$(git diff --name-only HEAD^ HEAD)" = "scripts/r16_9_supply_chain_acceptance.py"
 
-      - name: Publish validated determinism-fix transport
+      - name: Build exact-source package evidence
+        run: python -m build --wheel --sdist --outdir dist
+
+      - name: Prove R16.9 acceptance on exact candidate
         shell: bash
         run: |
           set -euo pipefail
           candidate="$(git rev-parse HEAD)"
-          git reset --hard "$TARGET_SHA"
-          git checkout "$candidate" -- \
-            configs/r16_supply_chain_policy.json \
-            tests/test_supply_chain_r16_9.py
-          transport="docs/release/R16_17_DETERMINISM_WORKFLOW.transport.txt"
-          git show "$candidate:.github/workflows/r16-17-release-readiness-acceptance.yml" > "$transport"
-          git add \
-            "$transport" \
-            configs/r16_supply_chain_policy.json \
-            tests/test_supply_chain_r16_9.py
-          test "$(git diff --cached --name-only | wc -l)" -eq 3
-          test -z "$(git diff --cached --name-only | grep '^\.github/workflows/' || true)"
-          git diff --cached --check
-          git commit -m "chore(r16.17): transport validated determinism fix"
+          python scripts/r16_9_supply_chain_acceptance.py \
+            --source-sha "$candidate" \
+            --platform "Helper-Linux" \
+            --output artifacts/r16_9_supply_chain_acceptance.json
+
+      - name: Publish exact validated candidate
+        shell: bash
+        run: |
+          set -euo pipefail
           test "$(git rev-parse HEAD^)" = "$TARGET_SHA"
-          git push --force origin HEAD:refs/heads/r16/17-determinism-fix-transport
+          git push --force origin HEAD:refs/heads/r16/17-r16-9-pin-integrity-fix-transport

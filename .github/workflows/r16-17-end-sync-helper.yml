@@ -1,0 +1,86 @@
+name: R16.17 END Sync Helper
+
+on:
+  push:
+    branches:
+      - "r16/17-end-sync-helper"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-end-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout helper branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "r16/17-end-sync-helper"
+          path: helper
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout exact immutable R16.17 technical source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "496d43bf48d23dd9ffe8283e910aa4bcaa1a2cf0"
+          path: repo
+          fetch-depth: 0
+          lfs: false
+
+      - name: Build and publish documentation-only END-sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          TECHNICAL=496d43bf48d23dd9ffe8283e910aa4bcaa1a2cf0
+          DECISION_BRANCH=r16/17-v1-packaging-migration-rollback-release-readiness
+          test "$(git -C repo rev-parse HEAD)" = "$TECHNICAL"
+          current_remote="$(git -C repo ls-remote origin "refs/heads/$DECISION_BRANCH" | cut -f1)"
+          test "$current_remote" = "$TECHNICAL"
+
+          cp helper/.github/r16_17_end_sync_helper.py /tmp/r16_17_end_sync_helper.py
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("/tmp/r16_17_end_sync_helper.py")
+          text = path.read_text(encoding="utf-8")
+          old = (
+              "Declared migration from prior fixture version `0.1.0a4` to `1.0.0rc1` passes backup verification, "
+              "migration and exact rollback/recovery. The representative fixture set proves three migrated, three "
+              "round-trip and three rollback paths without a critical failure."
+          )
+          new = (
+              "Declared migration from prior fixture version `0.1.0a4` to `1.0.0rc1` passes backup verification, "
+              "migration and exact rollback/recovery; both migration and failed-migration exact-rollback critical "
+              "cases PASS."
+          )
+          if text.count(old) != 1:
+              raise SystemExit("unexpected R16.17 migration evidence wording")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8", newline="\n")
+          PY
+
+          cd repo
+          git update-index --assume-unchanged docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
+          python /tmp/r16_17_end_sync_helper.py
+
+          expected=(
+            "docs/continuity/KODEPOIA_CONTINUITY.md"
+            "docs/roadmap/R16_PLAN.md"
+          )
+          git add -- "${expected[@]}"
+          mapfile -t staged < <(git diff --cached --name-only | sort)
+          mapfile -t expected_sorted < <(printf '%s\n' "${expected[@]}" | sort)
+          test "${staged[*]}" = "${expected_sorted[*]}"
+          git diff --cached --check
+
+          tree=$(git write-tree)
+          export GIT_AUTHOR_NAME="github-actions[bot]"
+          export GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          commit=$(printf '%s\n' 'docs(r16.17): synchronize END authority' | git commit-tree "$tree" -p "$TECHNICAL")
+          test "$(git rev-parse "$commit^")" = "$TECHNICAL"
+          mapfile -t committed < <(git diff-tree --no-commit-id --name-only -r "$commit" | sort)
+          test "${committed[*]}" = "${expected_sorted[*]}"
+          echo "R16_17_END_HEAD=$commit"
+          git push origin "$commit:refs/heads/$DECISION_BRANCH"

@@ -1,0 +1,142 @@
+name: R16.17 Implementation Helper
+
+on:
+  push:
+    branches:
+      - "r16/17-implementation-helper"
+
+permissions:
+  contents: write
+
+jobs:
+  build-candidate:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_DATE_EPOCH: "946684800"
+      PYTHONHASHSEED: "0"
+    steps:
+      - name: Checkout helper source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+
+      - name: Preserve isolated implementation patch
+        shell: bash
+        run: cp .github/helpers/r16_17_implementation_patch.py /tmp/r16_17_implementation_patch.py
+
+      - name: Checkout exact R16.17 START head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 5cbae3c525467c3230d7156649b008e418c3d604
+          fetch-depth: 0
+          lfs: false
+          clean: true
+
+      - name: Assert exact isolated START base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "5cbae3c525467c3230d7156649b008e418c3d604"
+          test ! -e .github/workflows/r16-17-implementation-helper.yml
+          test ! -e .github/helpers/r16_17_implementation_patch.py
+          git reset --mixed HEAD
+
+      - name: Apply bounded R16.17 implementation patch
+        shell: bash
+        run: python /tmp/r16_17_implementation_patch.py
+
+      - name: Assert implementation diff and START invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff HEAD --check
+          test -z "$(git diff HEAD --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md)"
+          test "$(git diff HEAD --name-only | wc -l)" -eq 11
+          grep -Fq '| R16.17 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -Fq '| R16.18 | PLANNED | CONDITIONAL |' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -Fq 'version = "1.0.0rc1"' pyproject.toml
+          grep -Fq '__version__ = "1.0.0rc1"' src/kodepoia/__init__.py
+
+      - name: Install implementation validation dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile implementation
+        run: >-
+          python -m compileall -q
+          src/kodepoia/quality/release_readiness.py
+          scripts/r16_17_release_readiness_acceptance.py
+          tests/test_r16_17_release_readiness.py
+
+      - name: Ruff implementation
+        run: >-
+          python -m ruff check
+          src/kodepoia/quality/release_readiness.py
+          scripts/r16_17_release_readiness_acceptance.py
+          tests/test_r16_17_release_readiness.py
+
+      - name: Run focused implementation and supply-chain tests
+        run: >-
+          python -m pytest -q
+          tests/test_r16_17_release_readiness.py
+          tests/test_supply_chain_r16_9.py
+
+      - name: Prove same-source package reproducibility before publication
+        shell: python
+        run: |
+          import hashlib
+          import shutil
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          def build() -> dict[str, str]:
+              shutil.rmtree("dist", ignore_errors=True)
+              subprocess.run(
+                  [sys.executable, "-m", "build", "--wheel", "--sdist", "--outdir", "dist"],
+                  check=True,
+              )
+              values = {}
+              for path in sorted(Path("dist").iterdir()):
+                  if path.is_file() and (path.suffix == ".whl" or path.name.endswith(".tar.gz")):
+                      values[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
+              if len(values) != 2:
+                  raise SystemExit(f"expected two package artifacts, got {sorted(values)}")
+              return values
+
+          first = build()
+          second = build()
+          if first != second:
+              raise SystemExit(f"non-reproducible exact-source package build: {first} != {second}")
+
+      - name: Build and verify exact technical commit object
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git reset --mixed HEAD
+          git add \
+            .github/workflows/r16-17-release-readiness-acceptance.yml \
+            configs/r16_supply_chain_policy.json \
+            docs/release/V1_0_RC1_RELEASE_NOTES.md \
+            docs/release/V1_0_RC1_SECURITY_OPERATIONS.md \
+            pyproject.toml \
+            scripts/r16_17_release_readiness_acceptance.py \
+            src/kodepoia/__init__.py \
+            src/kodepoia/quality/release_readiness.py \
+            tests/fixtures/r16_17_release_readiness/prior_release_state.json \
+            tests/test_r16_17_release_readiness.py \
+            tests/test_supply_chain_r16_9.py
+          test "$(git diff --cached --name-only | wc -l)" -eq 11
+          test -z "$(git diff --cached --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md)"
+          git diff --cached --check
+          git commit -m "feat(r16.17): build v1.0 RC release-readiness authority"
+          test "$(git rev-parse HEAD^)" = "5cbae3c525467c3230d7156649b008e418c3d604"
+          test "$(git diff --name-only HEAD^ HEAD | wc -l)" -eq 11
+          git diff HEAD^ HEAD --check
+
+      - name: Publish exact R16.17 technical candidate
+        shell: bash
+        run: git push origin HEAD:refs/heads/r16/17-v1-packaging-migration-rollback-release-readiness

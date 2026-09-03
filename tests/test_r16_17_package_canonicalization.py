@@ -46,13 +46,14 @@ def _write_sdist(path: Path, *, script_mode: int) -> None:
         generated_info.mtime = EPOCH
         archive.addfile(generated_info, io.BytesIO(generated))
     with path.open("wb") as handle:
-        with gzip.GzipFile(filename="", mode="wb", fileobj=handle, compresslevel=9, mtime=EPOCH) as stream:
+        with gzip.GzipFile(
+            filename="",
+            mode="wb",
+            fileobj=handle,
+            compresslevel=9,
+            mtime=EPOCH,
+        ) as stream:
             stream.write(tar_buffer.getvalue())
-
-
-def test_wheel_create_system_canonicalization_is_byte_identical() -> None:
-    with pytest.MonkeyPatch.context():
-        pass
 
 
 def test_wheel_create_system_canonicalization_is_byte_identical(tmp_path: Path) -> None:
@@ -70,7 +71,9 @@ def test_wheel_create_system_canonicalization_is_byte_identical(tmp_path: Path) 
     assert windows_report["metadata_entries_changed"] == 1
     with zipfile.ZipFile(windows) as archive:
         assert archive.testzip() is None
-        assert all(info.create_system == CANONICAL_ZIP_CREATE_SYSTEM for info in archive.infolist())
+        assert all(
+            info.create_system == CANONICAL_ZIP_CREATE_SYSTEM for info in archive.infolist()
+        )
 
 
 def test_sdist_git_mode_canonicalization_is_byte_identical(tmp_path: Path) -> None:
@@ -96,7 +99,9 @@ def test_repository_git_index_is_the_executable_mode_authority() -> None:
     assert modes["scripts/check_repo.py"] == 0o755
 
 
-def test_release_package_canonicalizer_requires_one_wheel_and_one_sdist(tmp_path: Path) -> None:
+def test_release_package_canonicalizer_requires_one_wheel_and_one_sdist(
+    tmp_path: Path,
+) -> None:
     with pytest.raises(PackageCanonicalizationError, match="exactly one wheel and one sdist"):
         canonicalize_release_packages(tmp_path, repo_root=ROOT, source_date_epoch=EPOCH)
 

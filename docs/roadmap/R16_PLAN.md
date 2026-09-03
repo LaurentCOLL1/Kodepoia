@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.13 are COMPLETE + NORMALIZED. R16.14 is COMPLETE at END-sync on dedicated branch `r16/14-representative-audio-voice-cinematic-beta-workflow` from exact normalized `main` `429a018192bcb00221f9fc4e6ae64d0fdbc40cfd`, with clean START `7ed6f09262fc259bd875fc76c4583b758474090b` and immutable technical source `92505a002a77c29c5621cdfaa332d43385307b31`; R16.15–R16.18 remain PLANNED and unauthorized. Core manual state is NONE; optional human listening/device-quality qualification is CONDITIONAL / NOT TRIGGERED. Fresh exact-END R16.14/R16.9/R0/Python/UI re-gates are mandatory before PR #361 may merge, followed by exactly one post-merge continuity-only normalization before R16.15 START.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.14 are COMPLETE + NORMALIZED. R16.15 is IN_PROGRESS on dedicated branch `r16/15-long-term-project-durability-resume-upgrade-soak` from exact normalized `main` `00cd7b978ea62417cb0bf7ed175d2b2c9e6fe12f`; R16.16–R16.18 remain PLANNED and unauthorized. R16.14 post-merge normalization candidate `82e019f49fe82dc2c2e7c98ce8da70f54a06a548` passed fresh R0 #2369 / `33711020942` Ubuntu + Windows, Python Core #2341 / `33711020891` 5/5 and KodeStudio UI Smoke #2306 / `33711021031`, then PR #362 merged with exact expected head as normalized `main` `00cd7b978ea62417cb0bf7ed175d2b2c9e6fe12f`. R16.15 core manual state is NONE; optional extended local wall-clock soak is CONDITIONAL / NOT TRIGGERED. No R16.15 implementation preceded this START-sync.
 
 ## Purpose and authority
 
@@ -180,8 +180,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.11 | Representative real Godot 3D beta project | COMPLETE + NORMALIZED | NONE |
 | R16.12 | Representative real Windows desktop application | COMPLETE + NORMALIZED | NONE |
 | R16.13 | Representative ComfyUI beta workflow | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
-| R16.14 | Representative audio/voice/cinematic beta workflow | COMPLETE | CONDITIONAL / NOT TRIGGERED |
-| R16.15 | Long-term project durability, resume and upgrade soak | PLANNED | CONDITIONAL |
+| R16.14 | Representative audio/voice/cinematic beta workflow | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
+| R16.15 | Long-term project durability, resume and upgrade soak | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |
 | R16.16 | Resource, concurrency, leak and diagnostics soak | PLANNED | NONE |
 | R16.17 | v1.0 packaging, migration, rollback and release readiness | PLANNED | CONDITIONAL |
 | R16.18 | Integrated adversarial + real-project RC acceptance | PLANNED | CONDITIONAL |
@@ -1119,6 +1119,15 @@ Tests too short to expose accumulation bugs; migration asymmetry; stale cache; n
 ## Manual intervention
 
 **CONDITIONAL.** Only for an optional extended wall-clock/local-environment soak beyond the authoritative bounded CI profile.
+
+## R16.15 START authority
+
+- State: **IN_PROGRESS**; core manual **NONE**; optional extended wall-clock/local-environment soak **CONDITIONAL / NOT TRIGGERED** and non-authoritative for core CI unless explicitly requested.
+- Exact normalized base: `main` `00cd7b978ea62417cb0bf7ed175d2b2c9e6fe12f`; dedicated branch `r16/15-long-term-project-durability-resume-upgrade-soak` created directly from that SHA before implementation.
+- R16.14 normalization authority is complete: candidate `82e019f49fe82dc2c2e7c98ce8da70f54a06a548` changed only continuity, passed fresh R0 #2369 / `33711020942` Ubuntu + Windows, Python Core #2341 / `33711020891` 5/5 and KodeStudio UI Smoke #2306 / `33711021031`, then PR #362 merged with `expected_head_sha=82e019f49fe82dc2c2e7c98ce8da70f54a06a548` as normalized `main` `00cd7b978ea62417cb0bf7ed175d2b2c9e6fe12f`.
+- Prior state: R16.1–R16.14 **COMPLETE + NORMALIZED**; R16.16–R16.18 remain **PLANNED** and unauthorized.
+- Frozen R16.15 scope is unchanged: deterministic long-lived project fixture; repeated clean-process session resume; durable-authority reconstruction; representative cross-domain change history; forward schema/version migration and supported rollback/recovery; injected stale/corrupt memory, interrupted-write and partial-artifact checkpoints; orphan/duplicate-authority, silent-loss and stale permission/secret-state rejection; bounded deterministic CI soak plus separately truthful optional extended local soak.
+- No R16.15 implementation preceded this START-sync. Core acceptance must remain deterministic, synthetic/bounded, non-destructive, network-independent and free of live credentials.
 
 ---
 

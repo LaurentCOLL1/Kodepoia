@@ -157,6 +157,7 @@ def validate_policy_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         "max_active_processes_after",
         "max_repeat_wall_ratio",
         "max_repeat_cpu_ratio",
+        "min_repeat_cpu_sample_ms",
         "timeout_seconds",
     }
     if not isinstance(budgets, Mapping) or set(budgets) != expected_budget_keys:
@@ -170,6 +171,7 @@ def validate_policy_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         "max_peak_temp_bytes",
         "max_repeat_wall_ratio",
         "max_repeat_cpu_ratio",
+        "min_repeat_cpu_sample_ms",
         "timeout_seconds",
     }
     non_negative = expected_budget_keys - positive
@@ -183,6 +185,8 @@ def validate_policy_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
             raise ResourceSoakGovernanceError(f"{key} must be non-negative")
     if float(budgets["max_wall_ms"]) > 60000 or float(budgets["timeout_seconds"]) > 60:
         raise ResourceSoakGovernanceError("wall-clock budgets exceed bounded CI authority")
+    if float(budgets["min_repeat_cpu_sample_ms"]) > float(budgets["max_cpu_ms"]):
+        raise ResourceSoakGovernanceError("CPU significance floor exceeds the absolute CPU budget")
     diagnostics = payload.get("diagnostics")
     expected_diag = {
         "aggregate_only",
@@ -539,6 +543,29 @@ def _repeat_ratio(values: list[float], floor: float) -> float:
     return round(high / max(low, floor), 6)
 
 
+def classify_cpu_repeatability(
+    values: list[float], budgets: Mapping[str, Any]
+) -> dict[str, Any]:
+    if not values:
+        raise ValueError("CPU repeatability requires at least one sample")
+    floor = float(budgets["min_repeat_cpu_sample_ms"])
+    if min(values) < floor:
+        return {
+            "state": "INCONCLUSIVE",
+            "ratio": None,
+            "significance_floor_ms": floor,
+            "detail": "CPU samples are below the frozen significance floor",
+        }
+    ratio = _repeat_ratio(values, floor)
+    state = "PASS" if ratio <= float(budgets["max_repeat_cpu_ratio"]) else "FAIL"
+    return {
+        "state": state,
+        "ratio": ratio,
+        "significance_floor_ms": floor,
+        "detail": "CPU repeat ratio evaluated from significant samples",
+    }
+
+
 def sanitize_diagnostic(value: Any) -> Any:
     redacted = redact_privacy_evidence(value)
 
@@ -614,16 +641,22 @@ def build_resource_soak_report(
             )
         )
         wall_ratio = _repeat_ratio([item.wall_ms for item in repetitions], 1.0)
-        cpu_ratio = _repeat_ratio([item.cpu_ms for item in repetitions], 1.0)
+        cpu_repeatability = classify_cpu_repeatability(
+            [item.cpu_ms for item in repetitions], budgets
+        )
         repeat_ok = (
             wall_ratio <= float(budgets["max_repeat_wall_ratio"])
-            and cpu_ratio <= float(budgets["max_repeat_cpu_ratio"])
+            and cpu_repeatability["state"] != "FAIL"
         )
         cases.append(
             _case(
                 "repeat_runtime_variance_bounded",
                 repeat_ok,
-                f"normalized wall ratio={wall_ratio}; cpu ratio={cpu_ratio}",
+                (
+                    f"normalized wall ratio={wall_ratio}; "
+                    f"cpu state={cpu_repeatability['state']}; "
+                    f"cpu ratio={cpu_repeatability['ratio']}"
+                ),
             )
         )
         cancellation = _run_cancellation_race(
@@ -782,7 +815,10 @@ def build_resource_soak_report(
         "manual_state": "NONE",
         "availability": availability,
         "runtime_metrics": [item.to_dict() for item in repetitions],
-        "repeatability": {"wall_ratio": wall_ratio, "cpu_ratio": cpu_ratio},
+        "repeatability": {
+            "wall_ratio": wall_ratio,
+            "cpu": cpu_repeatability,
+        },
         "concurrency": cancellation,
         "process_cleanup": process_cleanup,
         "diagnostics": diagnostic,

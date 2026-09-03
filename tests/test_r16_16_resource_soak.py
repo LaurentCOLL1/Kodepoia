@@ -11,6 +11,7 @@ from kodepoia.quality.resource_soak import (
     ResourceSoakGovernanceError,
     build_resource_soak_report,
     canonical_sha256,
+    classify_cpu_repeatability,
     load_fixture,
     load_policy,
     metrics_within_budget,
@@ -102,6 +103,21 @@ def test_budget_evaluator_rejects_overrun() -> None:
         "thread_delta_after": 0,
     }
     assert metrics_within_budget(metrics, budgets) is False
+
+
+def test_cpu_repeatability_is_inconclusive_below_significance_floor() -> None:
+    budgets = load_policy(ROOT)["budgets"]
+    result = classify_cpu_repeatability([31.25, 0.0], budgets)
+    assert result["state"] == "INCONCLUSIVE"
+    assert result["ratio"] is None
+    assert result["significance_floor_ms"] == 50.0
+
+
+def test_cpu_repeatability_fails_when_significant_samples_regress() -> None:
+    budgets = load_policy(ROOT)["budgets"]
+    result = classify_cpu_repeatability([50.0, 1100.0], budgets)
+    assert result["state"] == "FAIL"
+    assert result["ratio"] == 22.0
 
 
 def test_diagnostics_redact_sensitive_values_and_paths() -> None:

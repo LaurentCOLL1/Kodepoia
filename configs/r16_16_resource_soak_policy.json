@@ -28,6 +28,7 @@
     "max_active_processes_after": 0,
     "max_repeat_wall_ratio": 20.0,
     "max_repeat_cpu_ratio": 20.0,
+    "min_repeat_cpu_sample_ms": 50.0,
     "timeout_seconds": 30.0
   },
   "diagnostics": {

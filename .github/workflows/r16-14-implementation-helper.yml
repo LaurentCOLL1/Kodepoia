@@ -34,8 +34,9 @@ jobs:
           START=7ed6f09262fc259bd875fc76c4583b758474090b
           test "$(git -C repo rev-parse HEAD)" = "$START"
           cp helper/.github/r16_14_implementation_helper.py /tmp/r16_14_implementation_helper.py
+          cp helper/.github/r16_14_implementation_wrapper.py /tmp/r16_14_implementation_wrapper.py
           cd repo
-          python /tmp/r16_14_implementation_helper.py
+          python /tmp/r16_14_implementation_wrapper.py
 
           python -m pip install -e ".[dev]"
           python -m compileall -q \

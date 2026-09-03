@@ -58,6 +58,20 @@ jobs:
         shell: bash
         run: python /tmp/r16_17_implementation_patch.py
 
+      - name: Chain rollback exception explicitly
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path("src/kodepoia/quality/release_readiness.py")
+          text = path.read_text(encoding="utf-8")
+          old_except = "    except Exception:\n        manager.restore(archive, project_root, overwrite=True)\n"
+          new_except = "    except Exception as exc:\n        manager.restore(archive, project_root, overwrite=True)\n"
+          old_raise = '            raise ReleaseReadinessError("migration rollback failed to restore exact prior bytes")\n'
+          new_raise = '            raise ReleaseReadinessError("migration rollback failed to restore exact prior bytes") from exc\n'
+          if text.count(old_except) != 1 or text.count(old_raise) != 1:
+              raise SystemExit("rollback exception anchors drifted")
+          path.write_text(text.replace(old_except, new_except).replace(old_raise, new_raise), encoding="utf-8")
+
       - name: Assert implementation START invariants
         shell: bash
         run: |

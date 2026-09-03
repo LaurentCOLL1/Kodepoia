@@ -43,15 +43,29 @@ jobs:
         shell: bash
         run: python /tmp/r16_16_normalize_continuity.py
 
-      - name: Assert continuity-only decision diff
+      - name: Assert phase plan byte-identical
+        shell: bash
+        run: test -z "$(git diff --name-only -- docs/roadmap/R16_PLAN.md)"
+
+      - name: Assert single changed path
         shell: bash
         run: |
           set -euo pipefail
-          test -z "$(git diff --name-only -- docs/roadmap/R16_PLAN.md)"
-          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
-          git diff --check
-          grep -Fq '| R16.16 | COMPLETE + NORMALIZED | NONE |' docs/continuity/KODEPOIA_CONTINUITY.md
-          grep -Fq '| R16.17 | PLANNED | CONDITIONAL |' docs/continuity/KODEPOIA_CONTINUITY.md
+          changed="$(git diff --name-only)"
+          printf '%s\n' "$changed"
+          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+
+      - name: Assert clean textual diff
+        shell: bash
+        run: git diff --check
+
+      - name: Assert R16.16 normalized candidate state
+        shell: bash
+        run: grep -Fq '| R16.16 | COMPLETE + NORMALIZED | NONE |' docs/continuity/KODEPOIA_CONTINUITY.md
+
+      - name: Assert R16.17 remains planned
+        shell: bash
+        run: grep -Fq '| R16.17 | PLANNED | CONDITIONAL |' docs/continuity/KODEPOIA_CONTINUITY.md
 
       - name: Commit and publish exact normalization candidate
         shell: bash

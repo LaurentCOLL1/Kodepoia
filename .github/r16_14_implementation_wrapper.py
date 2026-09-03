@@ -13,6 +13,16 @@ def replace_exact(data: bytes, old: bytes, new: bytes, *, label: str) -> bytes:
     return data.replace(old, new, 1)
 
 
+fixture = Path("tests/fixtures/r16_14_media_beta/scenario.json")
+data = fixture.read_bytes()
+data = replace_exact(
+    data,
+    b'"license_id": "CC0-1.0"',
+    b'"license_id": "cc0-1.0"',
+    label="fixture stable license id",
+)
+fixture.write_bytes(data)
+
 runner = Path("scripts/r16_14_media_beta_acceptance.py")
 data = runner.read_bytes()
 data = replace_exact(

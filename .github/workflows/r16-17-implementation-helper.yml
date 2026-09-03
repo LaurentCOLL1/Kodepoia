@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
-          git reset --mixed HEAD
+          test -z "$(git status --porcelain)"
 
       - name: Apply exact R16.9 policy-integrity fix
         run: python /tmp/r16_17_r16_9_pin_integrity_fix.py

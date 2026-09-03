@@ -34,6 +34,17 @@ jobs:
           TECHNICAL=fb34d4a92131fa5cc51e3211405ac38908246d6c
           test "$(git -C repo rev-parse HEAD)" = "$TECHNICAL"
           cp helper/.github/r16_16_end_sync_helper.py /tmp/r16_16_end_sync_helper.py
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("/tmp/r16_16_end_sync_helper.py")
+          text = path.read_text(encoding="utf-8")
+          old = 'r"^\\*\\*Execution checkpoint:\\*\\*.*$"'
+          new = 'r"^\\*\\*Execution checkpoint:\\*\\*[^\\n]*$"'
+          if text.count(old) != 1:
+              raise SystemExit("unexpected R16.16 checkpoint helper source")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8", newline="\n")
+          PY
           cd repo
           git update-index --assume-unchanged docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           python /tmp/r16_16_end_sync_helper.py

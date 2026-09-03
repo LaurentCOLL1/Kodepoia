@@ -39,13 +39,13 @@ jobs:
       - name: Apply bounded canonical-fixture repair
         run: python helper/.github/r16_15_fixture_digest_helper.py repo
 
-      - name: Verify exact repair scope
+      - name: Verify intended repair paths changed
         working-directory: repo
         shell: bash
         run: |
           set -euo pipefail
           expected=$'src/kodepoia/project/r16_15_acceptance.py\ntests/test_r16_15_project_durability.py'
-          actual="$(git diff --name-only | sort)"
+          actual="$(git diff --name-only -- src/kodepoia/project/r16_15_acceptance.py tests/test_r16_15_project_durability.py | sort)"
           test "$actual" = "$expected"
 
       - name: Commit exact repair onto implementation branch

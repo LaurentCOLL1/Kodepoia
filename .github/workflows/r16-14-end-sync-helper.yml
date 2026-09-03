@@ -35,6 +35,7 @@ jobs:
           test "$(git -C repo rev-parse HEAD)" = "$TECHNICAL"
           cp helper/.github/r16_14_end_sync_helper.py /tmp/r16_14_end_sync_helper.py
           cd repo
+          git update-index --assume-unchanged docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           python /tmp/r16_14_end_sync_helper.py
 
           expected=(

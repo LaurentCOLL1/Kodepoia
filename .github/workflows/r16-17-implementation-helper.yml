@@ -72,6 +72,17 @@ jobs:
       - name: Install implementation validation dependencies
         run: python -m pip install -e ".[dev]"
 
+      - name: Ruff format and safe autofix implementation
+        run: |
+          python -m ruff format \
+            src/kodepoia/quality/release_readiness.py \
+            scripts/r16_17_release_readiness_acceptance.py \
+            tests/test_r16_17_release_readiness.py
+          python -m ruff check --fix \
+            src/kodepoia/quality/release_readiness.py \
+            scripts/r16_17_release_readiness_acceptance.py \
+            tests/test_r16_17_release_readiness.py
+
       - name: Compile implementation
         run: >-
           python -m compileall -q

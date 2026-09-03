@@ -33,9 +33,9 @@ from kodepoia.desktop.persistence import (
     QueryFilter,
     QueryIntent,
     QueryOperation,
+    SchemaDefinition,
     SQLitePersistenceService,
     SQLiteValueType,
-    SchemaDefinition,
     TableDefinition,
 )
 from kodepoia.intelligence.memory import AuthoritativeMemory, MemoryStore, RebuildState

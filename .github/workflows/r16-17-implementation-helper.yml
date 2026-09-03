@@ -14,6 +14,7 @@ jobs:
     env:
       SOURCE_DATE_EPOCH: "946684800"
       PYTHONHASHSEED: "0"
+      START_SHA: "5cbae3c525467c3230d7156649b008e418c3d604"
     steps:
       - name: Checkout helper source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -29,7 +30,7 @@ jobs:
       - name: Checkout exact R16.17 START head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: 5cbae3c525467c3230d7156649b008e418c3d604
+          ref: ${{ env.START_SHA }}
           fetch-depth: 0
           lfs: false
           clean: true
@@ -38,7 +39,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "5cbae3c525467c3230d7156649b008e418c3d604"
+          test "$(git rev-parse HEAD)" = "$START_SHA"
           test ! -e .github/workflows/r16-17-implementation-helper.yml
           test ! -e .github/helpers/r16_17_implementation_patch.py
           git reset --mixed HEAD
@@ -117,7 +118,7 @@ jobs:
           tests/test_r16_17_release_readiness.py
           tests/test_supply_chain_r16_9.py
 
-      - name: Prove same-source package reproducibility before publication
+      - name: Prove same-source package reproducibility
         shell: python
         run: |
           import hashlib
@@ -145,7 +146,7 @@ jobs:
           if first != second:
               raise SystemExit(f"non-reproducible exact-source package build: {first} != {second}")
 
-      - name: Build and verify exact technical commit object
+      - name: Build and verify exact technical candidate object
         shell: bash
         run: |
           set -euo pipefail
@@ -168,10 +169,45 @@ jobs:
           test -z "$(git diff --cached --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md)"
           git diff --cached --check
           git commit -m "feat(r16.17): build v1.0 RC release-readiness authority"
-          test "$(git rev-parse HEAD^)" = "5cbae3c525467c3230d7156649b008e418c3d604"
+          test "$(git rev-parse HEAD^)" = "$START_SHA"
           test "$(git diff --name-only HEAD^ HEAD | wc -l)" -eq 11
           git diff HEAD^ HEAD --check
 
-      - name: Publish exact R16.17 technical candidate
+      - name: Publish validated content transport without workflow path
         shell: bash
-        run: git push origin HEAD:refs/heads/r16/17-v1-packaging-migration-rollback-release-readiness
+        run: |
+          set -euo pipefail
+          candidate="$(git rev-parse HEAD)"
+          git reset --hard "$START_SHA"
+          git checkout "$candidate" -- \
+            configs/r16_supply_chain_policy.json \
+            docs/release/V1_0_RC1_RELEASE_NOTES.md \
+            docs/release/V1_0_RC1_SECURITY_OPERATIONS.md \
+            pyproject.toml \
+            scripts/r16_17_release_readiness_acceptance.py \
+            src/kodepoia/__init__.py \
+            src/kodepoia/quality/release_readiness.py \
+            tests/fixtures/r16_17_release_readiness/prior_release_state.json \
+            tests/test_r16_17_release_readiness.py \
+            tests/test_supply_chain_r16_9.py
+          mkdir -p artifacts
+          git show "$candidate:.github/workflows/r16-17-release-readiness-acceptance.yml" \
+            > artifacts/r16_17_release_readiness_acceptance.yml.txt
+          git add \
+            artifacts/r16_17_release_readiness_acceptance.yml.txt \
+            configs/r16_supply_chain_policy.json \
+            docs/release/V1_0_RC1_RELEASE_NOTES.md \
+            docs/release/V1_0_RC1_SECURITY_OPERATIONS.md \
+            pyproject.toml \
+            scripts/r16_17_release_readiness_acceptance.py \
+            src/kodepoia/__init__.py \
+            src/kodepoia/quality/release_readiness.py \
+            tests/fixtures/r16_17_release_readiness/prior_release_state.json \
+            tests/test_r16_17_release_readiness.py \
+            tests/test_supply_chain_r16_9.py
+          test "$(git diff --cached --name-only | wc -l)" -eq 11
+          test -z "$(git diff --cached --name-only | grep '^\.github/workflows/' || true)"
+          git diff --cached --check
+          git commit -m "chore(r16.17): transport validated candidate content"
+          test "$(git rev-parse HEAD^)" = "$START_SHA"
+          git push --force origin HEAD:refs/heads/r16/17-validated-content-transport

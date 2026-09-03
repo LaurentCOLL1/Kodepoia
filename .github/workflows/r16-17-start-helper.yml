@@ -44,18 +44,18 @@ jobs:
         shell: bash
         run: python /tmp/r16_17_start_sync.py
 
-      - name: Assert START-sync diff is documentation-only
+      - name: Assert START-sync document invariants
         shell: bash
         run: |
           set -euo pipefail
           git diff HEAD --check -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
-          test "$(git diff HEAD --name-only -- docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md | wc -l)" -eq 2
-          git diff HEAD --quiet -- . ':(exclude)docs/roadmap/R16_PLAN.md' ':(exclude)docs/continuity/KODEPOIA_CONTINUITY.md'
+          ! git diff HEAD --quiet -- docs/roadmap/R16_PLAN.md
+          ! git diff HEAD --quiet -- docs/continuity/KODEPOIA_CONTINUITY.md
           grep -Fq 'R16.17 is IN_PROGRESS' docs/roadmap/R16_PLAN.md
           grep -Fq '| R16.17 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |' docs/continuity/KODEPOIA_CONTINUITY.md
           grep -Fq '| R16.18 | PLANNED | CONDITIONAL |' docs/continuity/KODEPOIA_CONTINUITY.md
 
-      - name: Build and verify exact START-sync commit
+      - name: Build and verify exact START-sync commit object
         shell: bash
         run: |
           set -euo pipefail
@@ -70,6 +70,8 @@ jobs:
           git commit -m "docs(r16.17): START-sync release readiness"
           test "$(git rev-parse HEAD^)" = "68cc2bb761329b3f1b4932319302db3dcc01cd2b"
           test "$(git diff --name-only HEAD^ HEAD | wc -l)" -eq 2
+          test "$(git diff --name-only HEAD^ HEAD | sed -n '1p')" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test "$(git diff --name-only HEAD^ HEAD | sed -n '2p')" = "docs/roadmap/R16_PLAN.md"
           git diff HEAD^ HEAD --check
 
       - name: Publish exact R16.17 START candidate

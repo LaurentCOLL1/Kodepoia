@@ -69,7 +69,55 @@ jobs:
           scripts/r16_15_project_durability_acceptance.py
           tests/test_r16_15_project_durability.py
 
-      - name: Ruff focused R16.15 sources
+      - name: Ruff E501 focused R16.15 sources
+        run: >-
+          python -m ruff check --select E501
+          src/kodepoia/project/r16_15_acceptance.py
+          scripts/r16_15_project_durability_acceptance.py
+          tests/test_r16_15_project_durability.py
+
+      - name: Ruff I001 focused R16.15 sources
+        if: always()
+        run: >-
+          python -m ruff check --select I001
+          src/kodepoia/project/r16_15_acceptance.py
+          scripts/r16_15_project_durability_acceptance.py
+          tests/test_r16_15_project_durability.py
+
+      - name: Ruff F focused R16.15 sources
+        if: always()
+        run: >-
+          python -m ruff check --select F
+          src/kodepoia/project/r16_15_acceptance.py
+          scripts/r16_15_project_durability_acceptance.py
+          tests/test_r16_15_project_durability.py
+
+      - name: Ruff B focused R16.15 sources
+        if: always()
+        run: >-
+          python -m ruff check --select B
+          src/kodepoia/project/r16_15_acceptance.py
+          scripts/r16_15_project_durability_acceptance.py
+          tests/test_r16_15_project_durability.py
+
+      - name: Ruff UP focused R16.15 sources
+        if: always()
+        run: >-
+          python -m ruff check --select UP
+          src/kodepoia/project/r16_15_acceptance.py
+          scripts/r16_15_project_durability_acceptance.py
+          tests/test_r16_15_project_durability.py
+
+      - name: Ruff SIM focused R16.15 sources
+        if: always()
+        run: >-
+          python -m ruff check --select SIM
+          src/kodepoia/project/r16_15_acceptance.py
+          scripts/r16_15_project_durability_acceptance.py
+          tests/test_r16_15_project_durability.py
+
+      - name: Ruff full focused R16.15 sources
+        if: always()
         run: >-
           python -m ruff check
           src/kodepoia/project/r16_15_acceptance.py

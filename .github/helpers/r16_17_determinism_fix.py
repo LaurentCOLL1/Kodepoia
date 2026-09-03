@@ -5,17 +5,6 @@ from pathlib import Path
 
 DOWNLOAD_ACTION_SHA = "634f93cb2916e3fdff6788551b99b062d0335ce0"
 
-attrs = Path(".gitattributes")
-if attrs.exists():
-    raise SystemExit("unexpected pre-existing .gitattributes on exact fix base")
-attrs.write_text(
-    "* text=auto eol=lf\n"
-    "*.bat text eol=crlf\n"
-    "*.cmd text eol=crlf\n"
-    "*.ps1 text eol=crlf\n",
-    encoding="utf-8",
-)
-
 policy_path = Path("configs/r16_supply_chain_policy.json")
 policy = json.loads(policy_path.read_text(encoding="utf-8"))
 pins = policy["external_action_pins"]
@@ -113,7 +102,6 @@ if "cross-platform-package-determinism:" in workflow:
 workflow_path.write_text(workflow.rstrip() + aggregate + "\n", encoding="utf-8")
 
 expected = {
-    ".gitattributes",
     ".github/workflows/r16-17-release-readiness-acceptance.yml",
     "configs/r16_supply_chain_policy.json",
     "tests/test_supply_chain_r16_9.py",

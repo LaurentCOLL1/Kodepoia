@@ -31,13 +31,15 @@ jobs:
           lfs: false
           clean: true
 
-      - name: Assert exact isolated base
+      - name: Assert and normalize exact isolated base
         shell: bash
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "068f522b052b820c40474ab8a3c689ac47610761"
           test ! -e .github/workflows/r16-16-normalization-helper.yml
           test ! -e .github/helpers/r16_16_normalize_continuity.py
+          git reset --mixed HEAD
+          git diff HEAD --quiet
 
       - name: Apply normalization patch
         shell: bash

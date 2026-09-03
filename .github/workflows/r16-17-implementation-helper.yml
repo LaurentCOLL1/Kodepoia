@@ -190,11 +190,10 @@ jobs:
             tests/fixtures/r16_17_release_readiness/prior_release_state.json \
             tests/test_r16_17_release_readiness.py \
             tests/test_supply_chain_r16_9.py
-          mkdir -p artifacts
-          git show "$candidate:.github/workflows/r16-17-release-readiness-acceptance.yml" \
-            > artifacts/r16_17_release_readiness_acceptance.yml.txt
+          transport="docs/release/R16_17_RELEASE_READINESS_WORKFLOW.transport.txt"
+          git show "$candidate:.github/workflows/r16-17-release-readiness-acceptance.yml" > "$transport"
           git add \
-            artifacts/r16_17_release_readiness_acceptance.yml.txt \
+            "$transport" \
             configs/r16_supply_chain_policy.json \
             docs/release/V1_0_RC1_RELEASE_NOTES.md \
             docs/release/V1_0_RC1_SECURITY_OPERATIONS.md \

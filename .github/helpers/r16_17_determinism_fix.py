@@ -99,7 +99,7 @@ aggregate = f'''
 '''
 if "cross-platform-package-determinism:" in workflow:
     raise SystemExit("aggregate determinism job already exists unexpectedly")
-workflow_path.write_text(workflow.rstrip() + aggregate + "\n", encoding="utf-8")
+workflow_path.write_text(workflow.rstrip() + aggregate.rstrip() + "\n", encoding="utf-8")
 
 expected = {
     ".github/workflows/r16-17-release-readiness-acceptance.yml",

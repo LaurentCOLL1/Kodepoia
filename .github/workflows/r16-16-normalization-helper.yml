@@ -24,12 +24,18 @@ jobs:
         run: cp .github/helpers/r16_16_normalize_continuity.py /tmp/r16_16_normalize_continuity.py
 
       - name: Checkout exact implementation merge
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 068f522b052b820c40474ab8a3c689ac47610761
+          fetch-depth: 0
+          lfs: false
+          clean: true
+
+      - name: Assert exact isolated base
         shell: bash
         run: |
           set -euo pipefail
-          git checkout --detach 068f522b052b820c40474ab8a3c689ac47610761
           test "$(git rev-parse HEAD)" = "068f522b052b820c40474ab8a3c689ac47610761"
-          test -z "$(git status --porcelain)"
           test ! -e .github/workflows/r16-16-normalization-helper.yml
           test ! -e .github/helpers/r16_16_normalize_continuity.py
 

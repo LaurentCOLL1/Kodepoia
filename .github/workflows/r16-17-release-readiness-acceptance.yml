@@ -10,9 +10,11 @@ on:
       - configs/r16_supply_chain_policy.json
       - pyproject.toml
       - src/kodepoia/__init__.py
+      - src/kodepoia/quality/release_package.py
       - src/kodepoia/quality/release_readiness.py
       - scripts/r16_17_release_readiness_acceptance.py
       - tests/fixtures/r16_17_release_readiness/**
+      - tests/test_r16_17_package_canonicalization.py
       - tests/test_r16_17_release_readiness.py
       - tests/test_supply_chain_r16_9.py
       - docs/release/V1_0_RC1_RELEASE_NOTES.md
@@ -74,25 +76,37 @@ jobs:
       - name: Compile focused R16.17 sources
         run: >-
           python -m compileall -q
+          src/kodepoia/quality/release_package.py
           src/kodepoia/quality/release_readiness.py
           scripts/r16_17_release_readiness_acceptance.py
+          tests/test_r16_17_package_canonicalization.py
           tests/test_r16_17_release_readiness.py
 
       - name: Ruff focused R16.17 sources
         run: >-
           python -m ruff check
+          src/kodepoia/quality/release_package.py
           src/kodepoia/quality/release_readiness.py
           scripts/r16_17_release_readiness_acceptance.py
+          tests/test_r16_17_package_canonicalization.py
           tests/test_r16_17_release_readiness.py
 
       - name: Run focused R16.17 and supply-chain regression tests
         run: >-
           python -m pytest -q
+          tests/test_r16_17_package_canonicalization.py
           tests/test_r16_17_release_readiness.py
           tests/test_supply_chain_r16_9.py
 
       - name: Build baseline exact-source wheel and sdist
         run: python -m build --wheel --sdist --outdir dist
+
+      - name: Canonicalize baseline package archive metadata
+        run: >-
+          python -m kodepoia.quality.release_package
+          --dist dist
+          --repo-root .
+          --source-date-epoch "${{ env.SOURCE_DATE_EPOCH }}"
 
       - name: Record baseline package hashes
         shell: python
@@ -123,6 +137,13 @@ jobs:
               [sys.executable, "-m", "build", "--wheel", "--sdist", "--outdir", "dist"],
               check=True,
           )
+
+      - name: Canonicalize rebuilt package archive metadata
+        run: >-
+          python -m kodepoia.quality.release_package
+          --dist dist
+          --repo-root .
+          --source-date-epoch "${{ env.SOURCE_DATE_EPOCH }}"
 
       - name: Emit exact-source R16.17 acceptance
         run: >-
@@ -185,4 +206,9 @@ jobs:
                   "cross-platform package bytes differ: "
                   + json.dumps(payloads, sort_keys=True)
               )
-          print(json.dumps({"cross_platform_identical": True, "artifacts": payloads[0]}, sort_keys=True))
+          print(
+              json.dumps(
+                  {"cross_platform_identical": True, "artifacts": payloads[0]},
+                  sort_keys=True,
+              )
+          )

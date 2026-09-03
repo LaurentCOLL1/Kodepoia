@@ -1,0 +1,56 @@
+name: R16.16 Supply Chain Count Fix Helper
+
+on:
+  push:
+    branches:
+      - "r16/16-supply-chain-count-fix-helper"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout helper branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "r16/16-supply-chain-count-fix-helper"
+          path: helper
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout exact R16.16 source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "532cb5b0f1d87da987fb0d6ab197d297623566f9"
+          path: repo
+          fetch-depth: 0
+
+      - name: Apply and publish supply-chain regression fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE=532cb5b0f1d87da987fb0d6ab197d297623566f9
+          TARGET=tests/test_supply_chain_r16_9.py
+          test "$(git -C repo rev-parse HEAD)" = "$SOURCE"
+          cp helper/.github/r16_16_supply_chain_count_fix_helper.py /tmp/fix.py
+          cd repo
+          git update-index --assume-unchanged docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
+          python /tmp/fix.py
+          git add -- "$TARGET"
+          mapfile -t staged < <(git diff --cached --name-only)
+          test "${#staged[@]}" -eq 1
+          test "${staged[0]}" = "$TARGET"
+          git diff --cached --check
+          tree=$(git write-tree)
+          export GIT_AUTHOR_NAME="github-actions[bot]"
+          export GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          commit=$(printf '%s\n' 'test(r16.16): register new immutable authority count' | git commit-tree "$tree" -p "$SOURCE")
+          mapfile -t committed < <(git diff-tree --no-commit-id --name-only -r "$commit")
+          test "${#committed[@]}" -eq 1
+          test "${committed[0]}" = "$TARGET"
+          echo "R16_16_FIXED_HEAD=$commit"
+          git push origin "$commit":refs/heads/r16/16-resource-concurrency-leak-diagnostics-soak

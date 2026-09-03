@@ -1,14 +1,32 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import platform
+import sqlite3
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from kodepoia.project.r16_15_acceptance import build_project_durability_report  # noqa: E402
+from kodepoia.project.r16_15_acceptance import (  # noqa: E402
+    FIXTURE_RELATIVE,
+    build_project_durability_report,
+)
+
+
+def _canonical_digest(value: Any) -> str:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def main() -> int:
@@ -33,6 +51,23 @@ def main() -> int:
         source_sha=args.source_sha,
         platform=args.platform,
         require_extended_local_soak=args.require_extended_local_soak,
+    )
+    policy_payload = json.loads(
+        (ROOT / "configs/r16_supply_chain_policy.json").read_text(encoding="utf-8")
+    )
+    fixture_payload = json.loads((ROOT / FIXTURE_RELATIVE).read_text(encoding="utf-8"))
+    report["policy_sha256"] = _canonical_digest(policy_payload)
+    report["authority_sha256"] = _canonical_digest(fixture_payload["authority"])
+    report["runtime"] = {
+        "python": platform.python_version(),
+        "sqlite": sqlite3.sqlite_version,
+    }
+    report["evidence_sha256"] = _canonical_digest(
+        {
+            key: value
+            for key, value in report.items()
+            if key not in {"elapsed_seconds", "evidence_sha256"}
+        }
     )
     output = (ROOT / args.output).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)

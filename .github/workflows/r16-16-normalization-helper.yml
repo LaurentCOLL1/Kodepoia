@@ -8,111 +8,44 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: r16-16-continuity-normalization-helper
-  cancel-in-progress: true
-
 jobs:
   normalize:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout exact R16.16 implementation merge
+      - name: Checkout helper source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: 068f522b052b820c40474ab8a3c689ac47610761
+          ref: ${{ github.sha }}
           fetch-depth: 0
           lfs: false
 
-      - name: Assert exact clean base
+      - name: Preserve isolated patch helper
+        shell: bash
+        run: cp .github/helpers/r16_16_normalize_continuity.py /tmp/r16_16_normalize_continuity.py
+
+      - name: Checkout exact implementation merge
         shell: bash
         run: |
           set -euo pipefail
+          git checkout --detach 068f522b052b820c40474ab8a3c689ac47610761
           test "$(git rev-parse HEAD)" = "068f522b052b820c40474ab8a3c689ac47610761"
           test -z "$(git status --porcelain)"
+          test ! -e .github/workflows/r16-16-normalization-helper.yml
+          test ! -e .github/helpers/r16_16_normalize_continuity.py
 
-      - name: Apply fail-closed R16.16 continuity-only normalization
+      - name: Apply normalization patch
         shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
-          text = path.read_text(encoding="utf-8")
-
-          def replace_once(old: str, new: str) -> None:
-              global text
-              count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f"expected exactly one anchor, found {count}: {old[:120]!r}")
-              text = text.replace(old, new, 1)
-
-          old_header = "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.15 COMPLETE + NORMALIZED. R16.16 COMPLETE at END-sync. R16.17–R16.18 remain PLANNED and unauthorized.** R16.16 immutable technical source `fb34d4a92131fa5cc51e3211405ac38908246d6c` passed fresh exact-head R16.16 #6 / `33777526743`, R16.9 #58 / `33777526756`, R0 #2380 / `33777526844`, Python Core #2352 / `33777526769` 5/5 and KodeStudio UI Smoke #2317 / `33777526726`. Acceptance is 18/18 PASS per OS with canonical cross-platform fixture/policy/semantic/authority digests, zero post-cancel mutation, zero orphan process and diagnostics redaction; CPU repeatability below 50 ms and hosted-runner VRAM remain truthfully INCONCLUSIVE while hard budgets remain PASS/fail-closed. Manual NONE. This documentation-only END-sync must now pass fresh exact-END R16.16/R16.9/R0/Python/UI before PR #365 exact-head merge; one continuity-only post-merge normalization remains mandatory before R16.17 START."
-          new_header = "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. R16.1–R16.15 COMPLETE + NORMALIZED. R16.16 implementation/evidence is merged and its unique post-merge continuity-only normalization is the only remaining R16.16 action. R16.17–R16.18 remain PLANNED and unauthorized.** Final exact-END `96a1068b678d33778893fc23e096decd3e41e04b` passed R16.16 #9 / `33779722512` Ubuntu + Windows, R16.9 #60 / `33779722137` Ubuntu + Windows, R0 #2382 / `33779722619` Ubuntu + Windows, Python Core #2354 / `33779722505` 5/5 and KodeStudio UI Smoke #2319 / `33779722529`, then PR #365 merged with exact expected head as implementation/evidence `main` `068f522b052b820c40474ab8a3c689ac47610761`. Acceptance remains 36/36 focused + supply-chain tests and 18/18 representative cases per OS, with zero post-cancel mutation/orphan process and truthful sub-50 ms CPU repeatability plus hosted VRAM `INCONCLUSIVE` boundaries. Manual NONE. This single continuity-only normalization must pass fresh R0/Python/UI and merge before R16.17 START is authorized."
-          replace_once(old_header, new_header)
-
-          lines = text.splitlines(keepends=True)
-          hits = [i for i, line in enumerate(lines) if line.startswith("- R16.16 : **COMPLETE at END-sync**")]
-          if len(hits) != 1:
-              raise SystemExit(f"expected one global R16.16 END entry, found {len(hits)}")
-          i = hits[0]
-          newline = "\n" if lines[i].endswith("\n") else ""
-          lines[i] = (
-              "- R16.16 : **COMPLETE + NORMALIZED** — normalized R16.15 `main` `d19a8b1fa32fa5e28fa23b036407bc5bd902ef92`; clean START `ff971a012a0066b995d52deb1e4e8b0ac0a413de`; immutable technical source `fb34d4a92131fa5cc51e3211405ac38908246d6c`; final exact-END `96a1068b678d33778893fc23e096decd3e41e04b` passed fresh R16.16 #9 / `33779722512` SUCCESS Ubuntu + Windows, R16.9 #60 / `33779722137` SUCCESS Ubuntu + Windows, R0 #2382 / `33779722619` SUCCESS Ubuntu + Windows, Python Core #2354 / `33779722505` SUCCESS 5/5 and UI #2319 / `33779722529` SUCCESS; PR #365 merged with exact expected head as implementation/evidence `main` `068f522b052b820c40474ab8a3c689ac47610761`. Exact-END acceptance remains 36/36 focused + supply-chain tests and 18/18 representative cases per OS with `resource_claim=true`, `critical_veto=false`, `secret_free=true`, canonical fixture `72a344812fbcca004dc3b4047b33e5488c2d7da85007a4568d8148034b9ce74c`, policy `f1222282157aa947b8fbeee223e95ad1604cb65a60889745ba186eb9ca3c75de`, semantic `92e9dad3a2d5e0a02e44f5f6c3d8bb6d1d83a438fe87e5565b3aa669a0638dfc`, authority `7e2f33450b1b4ae3a119435385c99cbcdb8d64138197fb20e869129e69e01001` and representative semantic `749eaf6bcb2b6ea2999baa0a6d43917527e270e827803b3f0b602fce6be60206`. Exact-END artifacts are Linux `9903094447 / sha256:a67b86d1429715ac6d80e291d7d55bc34bcccbd6ed37aeb91f360e56cd0fa87f` and Windows `9903157380 / sha256:5eeb7d41e63dd9295f583413205ef54b0eb2ac1f990341b0779478e1b0dd0dbc`. Manual NONE. This record is the unique post-merge continuity-only R16.16 normalization authority when its PR merges; R16.17 START is authorized only from the resulting normalized `main`."
-              + newline
-          )
-          text = "".join(lines)
-
-          old_end_1 = "- This END-sync may change only `docs/roadmap/R16_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the immutable technical source. Its exact resulting head must pass fresh R16.16/R16.9/R0/Python/UI SUCCESS before PR #365 may merge with `expected_head_sha` equal to that exact head."
-          new_end_1 = "- Final exact-END `96a1068b678d33778893fc23e096decd3e41e04b` passed fresh R16.16 #9 / `33779722512` Ubuntu + Windows, R16.9 #60 / `33779722137` Ubuntu + Windows, R0 #2382 / `33779722619` Ubuntu + Windows, Python Core #2354 / `33779722505` 5/5 and UI #2319 / `33779722529`. Exact-END artifacts are Linux `9903094447 / sha256:a67b86d1429715ac6d80e291d7d55bc34bcccbd6ed37aeb91f360e56cd0fa87f` and Windows `9903157380 / sha256:5eeb7d41e63dd9295f583413205ef54b0eb2ac1f990341b0779478e1b0dd0dbc`, both bound by GitHub to that exact head. PR #365 then merged with `expected_head_sha=96a1068b678d33778893fc23e096decd3e41e04b` as implementation/evidence `main` `068f522b052b820c40474ab8a3c689ac47610761`."
-          replace_once(old_end_1, new_end_1)
-
-          old_end_2 = "- Exactly one post-merge continuity-only R16.16 normalization is authorized. Only the resulting normalized `main` may mark R16.16 **COMPLETE + NORMALIZED** and authorize R16.17 START."
-          new_end_2 = "- Exactly one post-merge continuity-only R16.16 normalization is authorized from that merge. Only its fresh R0/Python/UI-gated exact-head merge may establish R16.16 **COMPLETE + NORMALIZED** and authorize R16.17 START."
-          replace_once(old_end_2, new_end_2)
-
-          marker = "\n## R16 status index\n"
-          if text.count(marker) != 1:
-              raise SystemExit(f"expected one R16 status index marker, found {text.count(marker)}")
-          if "## R16.16 post-merge normalization authority" in text:
-              raise SystemExit("R16.16 normalization authority already exists")
-          section = """
-
-## R16.16 post-merge normalization authority
-
-- Implementation/evidence merge base: `068f522b052b820c40474ab8a3c689ac47610761`, produced only after final exact-END `96a1068b678d33778893fc23e096decd3e41e04b` passed R16.16 #9 / `33779722512` Ubuntu + Windows, R16.9 #60 / `33779722137` Ubuntu + Windows, R0 #2382 / `33779722619` Ubuntu + Windows, Python Core #2354 / `33779722505` 5/5 and KodeStudio UI Smoke #2319 / `33779722529`.
-- Dedicated normalization branch: `r16/16-continuity-normalization`, created exactly from that implementation/evidence merge.
-- The authoritative normalization tree changes only `docs/continuity/KODEPOIA_CONTINUITY.md`; `docs/roadmap/R16_PLAN.md`, all implementation/evidence bytes and all R16.16 workflow/runtime/test bytes remain identical to the implementation merge. The isolated helper workflow is absent from the normalization decision head.
-- Exact-END artifacts are Linux `9903094447 / sha256:a67b86d1429715ac6d80e291d7d55bc34bcccbd6ed37aeb91f360e56cd0fa87f` and Windows `9903157380 / sha256:5eeb7d41e63dd9295f583413205ef54b0eb2ac1f990341b0779478e1b0dd0dbc`, both source-bound by GitHub to `96a1068b678d33778893fc23e096decd3e41e04b`.
-- This is the single authorized post-merge normalization for R16.16. Its exact candidate head must pass fresh R0 Repository Guard Ubuntu + Windows, Python Core 5/5 and KodeStudio UI Smoke before an exact-head merge. No second R16.16 normalization is permitted.
-- Core manual state remains **NONE**. CPU absolute budgets remain PASS; repeatability below the 50 ms significance floor and hosted-runner VRAM remain truthfully `INCONCLUSIVE`, not promoted to PASS by normalization.
-- Only the normalized `main` produced by this exact gated normalization merge may authorize R16.17 START; R16.17 implementation must still begin with its own START-sync before any implementation bytes.
-"""
-          text = text.replace(marker, section + marker, 1)
-
-          replace_once("| R16.16 | COMPLETE | NONE |", "| R16.16 | COMPLETE + NORMALIZED | NONE |")
-
-          old_next = "R16.16 is **COMPLETE at END-sync** on exact immutable technical source `fb34d4a92131fa5cc51e3211405ac38908246d6c` after fresh technical-head R16.16/R16.9/R0/Python/UI success. The only authorized next action inside R16.16 is fresh qualification of the exact documentation END head by those same five authorities, followed by PR #365 merge only with `expected_head_sha` equal to that exact successful END head, then exactly one continuity-only post-merge normalization with fresh R0 + full Python Core + KodeStudio UI Smoke. **No R16.17 action is authorized before the normalized main produced by that single normalization merge.** Manual intervention remains NONE."
-          new_next = "R16.16 implementation/evidence is merged as `main` `068f522b052b820c40474ab8a3c689ac47610761` after final exact-END `96a1068b678d33778893fc23e096decd3e41e04b` passed all five required authorities. This file is the single authorized post-merge continuity-only normalization candidate. The next authorized action is fresh R0 Repository Guard Ubuntu + Windows, Python Core 5/5 and KodeStudio UI Smoke on this one exact normalization head, followed only on full SUCCESS by exact-head merge of its normalization PR. R16.17 remains unauthorized until that normalized `main` exists; once it exists, only R16.17 START-sync is authorized before any R16.17 implementation. Manual intervention remains NONE."
-          replace_once(old_next, new_next)
-
-          if "| R16.17 | PLANNED | CONDITIONAL |" not in text:
-              raise SystemExit("R16.17 PLANNED invariant missing")
-          if "| R16.17 | IN_PROGRESS" in text:
-              raise SystemExit("R16.17 was incorrectly started")
-          path.write_text(text, encoding="utf-8")
-          PY
+        run: python /tmp/r16_16_normalize_continuity.py
 
       - name: Assert continuity-only decision diff
         shell: bash
         run: |
           set -euo pipefail
           test -z "$(git diff --name-only -- docs/roadmap/R16_PLAN.md)"
-          changed="$(git diff --name-only)"
-          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git diff --check
           grep -Fq '| R16.16 | COMPLETE + NORMALIZED | NONE |' docs/continuity/KODEPOIA_CONTINUITY.md
           grep -Fq '| R16.17 | PLANNED | CONDITIONAL |' docs/continuity/KODEPOIA_CONTINUITY.md
-          test ! -e .github/workflows/r16-16-normalization-helper.yml
 
       - name: Commit and publish exact normalization candidate
         shell: bash

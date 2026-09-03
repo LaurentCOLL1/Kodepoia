@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.14 are COMPLETE + NORMALIZED. R16.15 is COMPLETE at END-sync on dedicated branch `r16/15-long-term-project-durability-resume-upgrade-soak` from exact normalized `main` `00cd7b978ea62417cb0bf7ed175d2b2c9e6fe12f`, with clean START `cf29886a7f48f1d43e2f57e34a9c3483f4ada519` and immutable technical source `377040f326d2cf87eec4d68b0f90ca2ed615cc04`; R16.16–R16.18 remain PLANNED and unauthorized. Fresh exact-technical-head gates are SUCCESS: R16.15 #13 / `33771718895` Ubuntu + Windows, R16.9 #54 / `33771719752` Ubuntu + Windows, R0 #2374 / `33771719659` Ubuntu + Windows, Python Core #2346 / `33771718602` 5/5 and KodeStudio UI Smoke #2311 / `33771718965`. Core manual state is NONE; optional extended local wall-clock soak is CONDITIONAL / NOT TRIGGERED and NOT_EXERCISED. Fresh exact-END R16.15/R16.9/R0/Python/UI re-gates, PR #363 exact-head merge and exactly one continuity-only post-merge normalization remain mandatory before R16.16 START.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.15 are COMPLETE + NORMALIZED. R16.16 is IN_PROGRESS on dedicated branch `r16/16-resource-concurrency-leak-diagnostics-soak` created directly from exact normalized `main` `d19a8b1fa32fa5e28fa23b036407bc5bd902ef92` before implementation; R16.17–R16.18 remain PLANNED and unauthorized. R16.15 final exact-END `46dc20e7bd734c2902e0c2ac2deb2ef909cf43b3` passed R16.15 #16 / `33773493932` Ubuntu + Windows, R16.9 #56 / `33773493833` Ubuntu + Windows, R0 #2376 / `33773493409` Ubuntu + Windows, Python Core #2348 / `33773494099` 5/5 and KodeStudio UI Smoke #2313 / `33773493773`; PR #363 merged as `f1a57893f136e5b5b058aa420adcd4f24bf81c9e`. The unique continuity-only normalization candidate `86eb24e3e8e42fa6ca46bd1731a42a1877188d80` then passed fresh R0 #2378 / `33774559173` Ubuntu + Windows, Python Core #2350 / `33774558881` 5/5 and UI #2315 / `33774559462`, and PR #364 merged with exact expected head as normalized `main` `d19a8b1fa32fa5e28fa23b036407bc5bd902ef92`. R16.16 manual state is NONE. No R16.16 implementation precedes this START-sync.
 
 ## Purpose and authority
 
@@ -182,7 +182,7 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.13 | Representative ComfyUI beta workflow | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R16.14 | Representative audio/voice/cinematic beta workflow | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
 | R16.15 | Long-term project durability, resume and upgrade soak | COMPLETE | CONDITIONAL / NOT TRIGGERED |
-| R16.16 | Resource, concurrency, leak and diagnostics soak | PLANNED | NONE |
+| R16.16 | Resource, concurrency, leak and diagnostics soak | IN_PROGRESS | NONE |
 | R16.17 | v1.0 packaging, migration, rollback and release readiness | PLANNED | CONDITIONAL |
 | R16.18 | Integrated adversarial + real-project RC acceptance | PLANNED | CONDITIONAL |
 
@@ -1191,6 +1191,17 @@ Noisy hosted-runner metrics; false leak signals; insufficient repetitions; diagn
 ## Manual intervention
 
 **NONE.**
+
+## R16.16 START authority
+
+- State: **IN_PROGRESS**; manual intervention **NONE**.
+- Exact normalized R16.15 base: `main` `d19a8b1fa32fa5e28fa23b036407bc5bd902ef92`; dedicated branch `r16/16-resource-concurrency-leak-diagnostics-soak` created directly from that SHA before implementation.
+- R16.15 final exact-END `46dc20e7bd734c2902e0c2ac2deb2ef909cf43b3` passed R16.15 #16 / `33773493932` Ubuntu + Windows, R16.9 #56 / `33773493833` Ubuntu + Windows, R0 #2376 / `33773493409` Ubuntu + Windows, Python Core #2348 / `33773494099` 5/5 and KodeStudio UI Smoke #2313 / `33773493773`; PR #363 merged with exact expected head as implementation/evidence `main` `f1a57893f136e5b5b058aa420adcd4f24bf81c9e`.
+- The unique R16.15 post-merge continuity-only normalization candidate `86eb24e3e8e42fa6ca46bd1731a42a1877188d80` changed only `docs/continuity/KODEPOIA_CONTINUITY.md`, passed fresh R0 #2378 / `33774559173` Ubuntu + Windows, Python Core #2350 / `33774558881` 5/5 and KodeStudio UI Smoke #2315 / `33774559462`, then PR #364 merged with exact expected head as normalized `main` `d19a8b1fa32fa5e28fa23b036407bc5bd902ef92`. No second R16.15 normalization is authorized.
+- Prior state: R16.1–R16.15 **COMPLETE + NORMALIZED**; R16.17–R16.18 remain **PLANNED** and unauthorized.
+- Frozen R16.16 scope: deterministic bounded load profiles for representative code/Godot/ComfyUI/media/desktop fixtures; CPU/RAM/VRAM/disk/process/time budgets; repeated/concurrent workloads; supported cancellation races; worker/process/file-handle/temp-artifact cleanup; privacy-safe diagnostics; frozen regression thresholds/baselines; explicit environment variance and `INCONCLUSIVE` handling.
+- Core acceptance remains bounded, deterministic, network-independent, non-destructive and free of live credentials. Unknown capacity or ambiguous resource state fails closed where the frozen scope requires it.
+- No R16.16 implementation bytes precede this START-sync.
 
 ---
 

@@ -1,0 +1,60 @@
+name: R16.17 Normalization Helper
+
+on:
+  push:
+    branches:
+      - "r16/17-normalization-helper"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-normalization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout helper branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "r16/17-normalization-helper"
+          path: helper
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout exact R16.17 implementation merge
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "9ccf3415d8090449001dbdd57cec76248a29af00"
+          path: repo
+          fetch-depth: 0
+          lfs: false
+
+      - name: Build and publish continuity-only normalization candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          MERGE=9ccf3415d8090449001dbdd57cec76248a29af00
+          DECISION_BRANCH=r16/17-continuity-normalization
+          test "$(git -C repo rev-parse HEAD)" = "$MERGE"
+          current_remote="$(git -C repo ls-remote origin "refs/heads/$DECISION_BRANCH" | cut -f1)"
+          test "$current_remote" = "$MERGE"
+
+          cp helper/.github/r16_17_normalization_helper.py /tmp/r16_17_normalization_helper.py
+          cd repo
+          git update-index --assume-unchanged docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
+          python /tmp/r16_17_normalization_helper.py
+
+          expected="docs/continuity/KODEPOIA_CONTINUITY.md"
+          git add -- "$expected"
+          test "$(git diff --cached --name-only)" = "$expected"
+          git diff --cached --check
+
+          tree=$(git write-tree)
+          export GIT_AUTHOR_NAME="github-actions[bot]"
+          export GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          commit=$(printf '%s\n' 'docs(r16.17): normalize post-merge continuity' | git commit-tree "$tree" -p "$MERGE")
+          test "$(git rev-parse "$commit^")" = "$MERGE"
+          test "$(git diff-tree --no-commit-id --name-only -r "$commit")" = "$expected"
+          echo "R16_17_NORMALIZATION_BOT_HEAD=$commit"
+          git push origin "$commit:refs/heads/$DECISION_BRANCH"

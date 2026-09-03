@@ -1,0 +1,1 @@
+trigger implementation helper after workflow registration

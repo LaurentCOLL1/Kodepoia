@@ -44,7 +44,7 @@ jobs:
             "scripts/r16_14_media_beta_acceptance.py"
             "tests/test_r16_14_media_beta.py"
           )
-          python -m ruff check --fix "${targets[@]}"
+          python -m ruff check --select F401 --fix "${targets[@]}"
           python -m ruff format "${targets[@]}"
           python -m compileall -q "${targets[@]}"
           python -m ruff check "${targets[@]}"

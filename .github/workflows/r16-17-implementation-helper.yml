@@ -25,6 +25,13 @@ jobs:
         shell: bash
         run: cp .github/helpers/r16_17_r16_9_pin_integrity_fix.py /tmp/r16_17_r16_9_pin_integrity_fix.py
 
+      - name: Canonicalize target checkout line endings
+        shell: python
+        run: |
+          import subprocess
+          subprocess.run(["git", "config", "--global", "core.autocrlf", "false"], check=True)
+          subprocess.run(["git", "config", "--global", "core.eol", "lf"], check=True)
+
       - name: Checkout exact failed technical head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:

@@ -1,0 +1,52 @@
+{
+  "authority": {
+    "permission_epoch": 7,
+    "secret_refs": [
+      "secret-ref://r16.15/synthetic/signing-placeholder"
+    ]
+  },
+  "budgets": {
+    "max_fixture_bytes": 262144,
+    "max_project_bytes": 16777216,
+    "soak_cycles": 8,
+    "timeout_seconds": 30.0
+  },
+  "name": "r16.15-long-term-project-durability-resume-upgrade-soak",
+  "negative_controls": {
+    "failed_migration": true,
+    "interrupted_registry_write": true,
+    "partial_artifact": true,
+    "stale_authority": true,
+    "tampered_memory": true
+  },
+  "project": {
+    "engine": "Godot",
+    "engine_version": "4.5.0",
+    "genres": [
+      "adventure",
+      "simulation"
+    ],
+    "name": "R16_15_Durable_Project"
+  },
+  "schema_version": 1,
+  "sessions": [
+    {
+      "artifact": "artifacts/world/scene-001.txt",
+      "content": "fixture-session-001: seed world and editor state",
+      "id": "session-001",
+      "memory_content": "Session 001 committed baseline world state."
+    },
+    {
+      "artifact": "artifacts/code/system-002.txt",
+      "content": "fixture-session-002: add deterministic gameplay system",
+      "id": "session-002",
+      "memory_content": "Session 002 committed gameplay system provenance."
+    },
+    {
+      "artifact": "artifacts/media/cue-003.txt",
+      "content": "fixture-session-003: add synthetic media cue",
+      "id": "session-003",
+      "memory_content": "Session 003 committed synthetic media cue provenance."
+    }
+  ]
+}

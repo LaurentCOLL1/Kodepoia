@@ -6,7 +6,7 @@
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.13 are COMPLETE + NORMALIZED. R16.14 is COMPLETE at END-sync on dedicated branch `r16/14-representative-audio-voice-cinematic-beta-workflow` from exact normalized `main` `429a018192bcb00221f9fc4e6ae64d0fdbc40cfd`, with clean START `7ed6f09262fc259bd875fc76c4583b758474090b` and immutable technical source `92505a002a77c29c5621cdfaa332d43385307b31`; R16.15–R16.18 remain PLANNED and unauthorized. Core manual state is NONE; optional human listening/device-quality qualification is CONDITIONAL / NOT TRIGGERED. Fresh exact-END R16.14/R16.9/R0/Python/UI re-gates are mandatory before PR #361 may merge, followed by exactly one post-merge continuity-only normalization before R16.15 START.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.14 are COMPLETE + NORMALIZED. R16.15 is COMPLETE at END-sync on dedicated branch `r16/15-long-term-project-durability-resume-upgrade-soak` from exact normalized `main` `00cd7b978ea62417cb0bf7ed175d2b2c9e6fe12f`, with clean START `cf29886a7f48f1d43e2f57e34a9c3483f4ada519` and immutable technical source `377040f326d2cf87eec4d68b0f90ca2ed615cc04`; R16.16–R16.18 remain PLANNED and unauthorized. Fresh exact-technical-head gates are SUCCESS: R16.15 #13 / `33771718895` Ubuntu + Windows, R16.9 #54 / `33771719752` Ubuntu + Windows, R0 #2374 / `33771719659` Ubuntu + Windows, Python Core #2346 / `33771718602` 5/5 and KodeStudio UI Smoke #2311 / `33771718965`. Core manual state is NONE; optional extended local wall-clock soak is CONDITIONAL / NOT TRIGGERED and NOT_EXERCISED. Fresh exact-END R16.15/R16.9/R0/Python/UI re-gates, PR #363 exact-head merge and exactly one continuity-only post-merge normalization remain mandatory before R16.16 START.
 
 ## Purpose and authority
 
@@ -180,8 +180,8 @@ A report is invalid if it contains an unhashed live secret, depends on a differe
 | R16.11 | Representative real Godot 3D beta project | COMPLETE + NORMALIZED | NONE |
 | R16.12 | Representative real Windows desktop application | COMPLETE + NORMALIZED | NONE |
 | R16.13 | Representative ComfyUI beta workflow | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
-| R16.14 | Representative audio/voice/cinematic beta workflow | COMPLETE | CONDITIONAL / NOT TRIGGERED |
-| R16.15 | Long-term project durability, resume and upgrade soak | PLANNED | CONDITIONAL |
+| R16.14 | Representative audio/voice/cinematic beta workflow | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |
+| R16.15 | Long-term project durability, resume and upgrade soak | COMPLETE | CONDITIONAL / NOT TRIGGERED |
 | R16.16 | Resource, concurrency, leak and diagnostics soak | PLANNED | NONE |
 | R16.17 | v1.0 packaging, migration, rollback and release readiness | PLANNED | CONDITIONAL |
 | R16.18 | Integrated adversarial + real-project RC acceptance | PLANNED | CONDITIONAL |
@@ -1119,6 +1119,28 @@ Tests too short to expose accumulation bugs; migration asymmetry; stale cache; n
 ## Manual intervention
 
 **CONDITIONAL.** Only for an optional extended wall-clock/local-environment soak beyond the authoritative bounded CI profile.
+
+## R16.15 START authority
+
+- State: **IN_PROGRESS**; core manual **NONE**; optional extended wall-clock/local-environment soak **CONDITIONAL / NOT TRIGGERED** and non-authoritative for core CI unless explicitly requested.
+- Exact normalized base: `main` `00cd7b978ea62417cb0bf7ed175d2b2c9e6fe12f`; dedicated branch `r16/15-long-term-project-durability-resume-upgrade-soak` created directly from that SHA before implementation.
+- R16.14 normalization authority is complete: candidate `82e019f49fe82dc2c2e7c98ce8da70f54a06a548` changed only continuity, passed fresh R0 #2369 / `33711020942` Ubuntu + Windows, Python Core #2341 / `33711020891` 5/5 and KodeStudio UI Smoke #2306 / `33711021031`, then PR #362 merged with `expected_head_sha=82e019f49fe82dc2c2e7c98ce8da70f54a06a548` as normalized `main` `00cd7b978ea62417cb0bf7ed175d2b2c9e6fe12f`.
+- Prior state: R16.1–R16.14 **COMPLETE + NORMALIZED**; R16.16–R16.18 remain **PLANNED** and unauthorized.
+- Frozen R16.15 scope is unchanged: deterministic long-lived project fixture; repeated clean-process session resume; durable-authority reconstruction; representative cross-domain change history; forward schema/version migration and supported rollback/recovery; injected stale/corrupt memory, interrupted-write and partial-artifact checkpoints; orphan/duplicate-authority, silent-loss and stale permission/secret-state rejection; bounded deterministic CI soak plus separately truthful optional extended local soak.
+- No R16.15 implementation preceded this START-sync. Core acceptance must remain deterministic, synthetic/bounded, non-destructive, network-independent and free of live credentials.
+
+## R16.15 END authority
+
+- State: **COMPLETE at END-sync**; core manual **NONE**; optional extended wall-clock/local-environment soak **CONDITIONAL / NOT TRIGGERED** and `NOT_EXERCISED`. R16.16 remains **PLANNED** and unauthorized.
+- Exact normalized base: `main` `00cd7b978ea62417cb0bf7ed175d2b2c9e6fe12f`; clean START-sync `cf29886a7f48f1d43e2f57e34a9c3483f4ada519`; immutable technical source `377040f326d2cf87eec4d68b0f90ca2ed615cc04`.
+- Fresh exact-technical-head gates on that immutable source are all SUCCESS: R16.15 #13 / `33771718895` Ubuntu + Windows; R16.9 #54 / `33771719752` Ubuntu + Windows; R0 Repository Guard #2374 / `33771719659` Ubuntu + Windows; Python Core #2346 / `33771718602` 5/5; KodeStudio UI Smoke #2311 / `33771718965`.
+- Focused R16.15 plus R16.9 supply-chain regression is **31/31 PASS** on both hosted OS paths. Representative durability acceptance is **20/20 PASS** per OS with `durability_claim=true`, `critical_veto=false`, `secret_free=true`, `core_manual_required=false`, `manual_state=CONDITIONAL_NOT_TRIGGERED`, `external_network_calls=0` and `destructive_host_actions=0`.
+- The authoritative bounded profile performs 3 clean-process resume sessions and 8 deterministic soak cycles. Final durable database version is 2 with schema SHA-256 `a489ab34411a5f0ce00b02e09fde1be0a45b3935df6fa696267c3b15ebd91ff5`; failed migration rollback, memory tamper quarantine/recovery and artifact-registry recovery all succeed without promoting corrupt/partial state.
+- Canonical cross-platform material SHA-256 values are identical: fixture `9bd8b2e63b1c17b351744e9552da7927c911e7da78ddcd8b25e4dc19a0e899b5`; semantic `1f128da121ebb957b7a1f29dc96007d381ef6ad4f2e340e3c59c10eb0f56dd7c`; policy `f921f368f516523f6a803fd01320a825cc8086189c1ebc77165fd9cd6f77dc05`; authority `be7bf480b34a47175bd4cf8c492ecd3b4d11a097cbe09ee2ba8f132ddda6d5b7`. The earlier raw-checkout-byte fixture digest was rejected as non-authoritative because LF/CRLF checkout differences changed it; the accepted source hashes canonical parsed JSON and includes an explicit LF/CRLF regression.
+- Runtime evidence is truthful rather than normalized away: Ubuntu uses CPython 3.12.14 / SQLite 3.45.1; Windows uses CPython 3.12.10 / SQLite 3.49.1. Platform-specific project byte counts and evidence digests are allowed while material semantic/config/fixture authority digests remain identical.
+- Exact technical-head artifacts from R16.15 #13 are Linux `9900010682 / sha256:2fee659600eb57e5e58a5988c08c238aeed9538d17e01b8dacff3eab01af96d7` with evidence SHA-256 `333b8a6a4c4caf76444c8800d3243182dcc21906d713c77418bdef810234c8ab`, and Windows `9900045779 / sha256:39fae32fc3e65bb004796a46c7391bea3f82f4bd7d04664f123aa0f918f90f3a` with evidence SHA-256 `653544c4d7555afa64529d53456618819d807ecf7bb720e85cd0abf1e3bbc1f4`.
+- This END-sync may change only `docs/roadmap/R16_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to the immutable technical source. Its resulting exact END head must receive fresh R16.15/R16.9/R0/Python/UI SUCCESS before PR #363 may merge with `expected_head_sha` equal to that exact head.
+- Exactly one post-merge continuity-only R16.15 normalization is authorized after the implementation/evidence merge. Only the resulting normalized `main` may mark R16.15 **COMPLETE + NORMALIZED** and authorize R16.16 START.
 
 ---
 

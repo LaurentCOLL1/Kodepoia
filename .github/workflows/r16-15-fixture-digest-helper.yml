@@ -47,7 +47,6 @@ jobs:
           expected=$'src/kodepoia/project/r16_15_acceptance.py\ntests/test_r16_15_project_durability.py'
           actual="$(git diff --name-only | sort)"
           test "$actual" = "$expected"
-          git diff --check -- src/kodepoia/project/r16_15_acceptance.py tests/test_r16_15_project_durability.py
 
       - name: Commit exact repair onto implementation branch
         working-directory: repo

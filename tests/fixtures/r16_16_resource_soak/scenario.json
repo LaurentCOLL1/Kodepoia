@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "name": "r16.16-resource-concurrency-leak-diagnostics-soak",
+  "profiles": [
+    {
+      "id": "code",
+      "cycles": 3,
+      "payload_kib": 16,
+      "hash_rounds": 48
+    },
+    {
+      "id": "godot",
+      "cycles": 3,
+      "payload_kib": 32,
+      "hash_rounds": 56
+    },
+    {
+      "id": "comfyui",
+      "cycles": 3,
+      "payload_kib": 64,
+      "hash_rounds": 64
+    },
+    {
+      "id": "media",
+      "cycles": 3,
+      "payload_kib": 48,
+      "hash_rounds": 60
+    },
+    {
+      "id": "desktop",
+      "cycles": 3,
+      "payload_kib": 24,
+      "hash_rounds": 52
+    }
+  ],
+  "synthetic_secret_token": "R16_16_SYNTHETIC_SECRET_CANARY_DO_NOT_PERSIST",
+  "negative_controls": {
+    "required_unknown_capacity": true,
+    "over_budget": true,
+    "orphan_process": true,
+    "temp_leak": true,
+    "sensitive_diagnostic": true,
+    "post_cancel_mutation": true
+  }
+}

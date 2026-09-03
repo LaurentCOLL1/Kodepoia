@@ -1,0 +1,53 @@
+name: R16.14 Normalization Helper
+
+on:
+  push:
+    branches:
+      - "r16/14-normalization-helper"
+
+permissions:
+  contents: write
+
+jobs:
+  publish-normalization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout helper branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "r16/14-normalization-helper"
+          path: helper
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout exact implementation merge
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: "f9303eaa58902849953338e3400df34094fad0c6"
+          path: repo
+          fetch-depth: 0
+
+      - name: Build and publish continuity-only normalization
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=f9303eaa58902849953338e3400df34094fad0c6
+          test "$(git -C repo rev-parse HEAD)" = "$BASE"
+          cp helper/.github/r16_14_normalization_helper.py /tmp/r16_14_normalization_helper.py
+          cd repo
+          python /tmp/r16_14_normalization_helper.py
+
+          expected="docs/continuity/KODEPOIA_CONTINUITY.md"
+          git add -- "$expected"
+          test "$(git diff --cached --name-only)" = "$expected"
+          git diff --cached --check
+
+          tree=$(git write-tree)
+          export GIT_AUTHOR_NAME="github-actions[bot]"
+          export GIT_AUTHOR_EMAIL="41898282+github-actions[bot]@users.noreply.github.com"
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          commit=$(printf '%s\n' 'docs(r16.14): normalize post-merge continuity' | git commit-tree "$tree" -p "$BASE")
+          test "$(git diff-tree --no-commit-id --name-only -r "$commit")" = "$expected"
+          echo "R16_14_NORMALIZATION_HEAD=$commit"
+          git push origin "$commit":refs/heads/r16/14-continuity-normalization

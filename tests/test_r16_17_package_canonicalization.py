@@ -45,15 +45,14 @@ def _write_sdist(path: Path, *, script_mode: int) -> None:
         generated_info.mode = 0o644
         generated_info.mtime = EPOCH
         archive.addfile(generated_info, io.BytesIO(generated))
-    with path.open("wb") as handle:
-        with gzip.GzipFile(
-            filename="",
-            mode="wb",
-            fileobj=handle,
-            compresslevel=9,
-            mtime=EPOCH,
-        ) as stream:
-            stream.write(tar_buffer.getvalue())
+    with path.open("wb") as handle, gzip.GzipFile(
+        filename="",
+        mode="wb",
+        fileobj=handle,
+        compresslevel=9,
+        mtime=EPOCH,
+    ) as stream:
+        stream.write(tar_buffer.getvalue())
 
 
 def test_wheel_create_system_canonicalization_is_byte_identical(tmp_path: Path) -> None:

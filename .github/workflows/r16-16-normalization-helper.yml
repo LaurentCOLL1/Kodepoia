@@ -45,19 +45,19 @@ jobs:
 
       - name: Assert phase plan byte-identical
         shell: bash
-        run: git diff --quiet -- docs/roadmap/R16_PLAN.md
+        run: git diff HEAD --quiet -- docs/roadmap/R16_PLAN.md
 
       - name: Assert continuity changed
         shell: bash
-        run: '! git diff --quiet -- docs/continuity/KODEPOIA_CONTINUITY.md'
+        run: '! git diff HEAD --quiet -- docs/continuity/KODEPOIA_CONTINUITY.md'
 
       - name: Assert no other tracked change
         shell: bash
-        run: git diff --quiet -- . ':(exclude)docs/continuity/KODEPOIA_CONTINUITY.md'
+        run: git diff HEAD --quiet -- . ':(exclude)docs/continuity/KODEPOIA_CONTINUITY.md'
 
       - name: Assert clean textual diff
         shell: bash
-        run: git diff --check
+        run: git diff HEAD --check
 
       - name: Assert R16.16 normalized candidate state
         shell: bash
@@ -74,6 +74,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C r16/16-continuity-normalization 068f522b052b820c40474ab8a3c689ac47610761
+          git reset --mixed HEAD
           git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test -z "$(git diff --cached --name-only -- docs/roadmap/R16_PLAN.md)"
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git diff --cached --check
           git commit -m "docs(r16.16): normalize post-merge continuity"
           git push origin HEAD:refs/heads/r16/16-continuity-normalization

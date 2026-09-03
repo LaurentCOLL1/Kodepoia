@@ -11,7 +11,13 @@ old = b'json.dumps(report, indent=2, sort_keys=True) + "' + b"\n" + b'", encodin
 new = b'json.dumps(report, indent=2, sort_keys=True) + "\\n", encoding='
 if data.count(old) != 1:
     raise RuntimeError(f"runner newline escape anchor count={data.count(old)}")
-runner.write_bytes(data.replace(old, new, 1))
+data = data.replace(old, new, 1)
+old = b'newline="' + b"\n" + b'"'
+new = b'newline="\\n"'
+if data.count(old) != 1:
+    raise RuntimeError(f"runner newline parameter anchor count={data.count(old)}")
+data = data.replace(old, new, 1)
+runner.write_bytes(data)
 
 test = Path("tests/test_r16_14_media_beta.py")
 data = test.read_bytes()

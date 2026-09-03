@@ -45,15 +45,15 @@ jobs:
 
       - name: Assert phase plan byte-identical
         shell: bash
-        run: test -z "$(git diff --name-only -- docs/roadmap/R16_PLAN.md)"
+        run: git diff --quiet -- docs/roadmap/R16_PLAN.md
 
-      - name: Assert single changed path
+      - name: Assert continuity changed
         shell: bash
-        run: |
-          set -euo pipefail
-          changed="$(git diff --name-only)"
-          printf '%s\n' "$changed"
-          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+        run: '! git diff --quiet -- docs/continuity/KODEPOIA_CONTINUITY.md'
+
+      - name: Assert no other tracked change
+        shell: bash
+        run: git diff --quiet -- . ':(exclude)docs/continuity/KODEPOIA_CONTINUITY.md'
 
       - name: Assert clean textual diff
         shell: bash

@@ -1,0 +1,118 @@
+name: Temporary R18 Planning Continuity Builder
+
+on:
+  push:
+    branches:
+      - r18/00-phase-plan
+
+permissions:
+  contents: write
+
+jobs:
+  build-planning-continuity:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout trigger head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Assert plan present
+        shell: bash
+        run: |
+          test -f docs/roadmap/R18_PLAN.md
+          grep -q "# R18 — Trusted Release, Updates & Distribution Channels" docs/roadmap/R18_PLAN.md
+
+      - name: Build planning continuity
+        shell: bash
+        run: |
+          git reset --hard HEAD
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+
+          global_heading = "\n\n## État global\n"
+          if global_heading not in text:
+              raise SystemExit("missing global heading")
+          _, body = text.split(global_heading, 1)
+          banner = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED on canonical `main` "
+              "`58e488d80e60d04fc675e305bc8f040a3ab2bb9c`. R18 — Trusted Release, Updates & Distribution "
+              "Channels is PLANNING on `r18/00-phase-plan`, rooted at that normalized main. No R18.1 implementation "
+              "is authorized until the exhaustive R18 plan and planning continuity pass fresh exact-head gates, merge, "
+              "and one planning continuity-only normalization is re-gated and merged.** Production signing, public GitHub "
+              "Release publication and public WinGet submission remain CONDITIONAL / NOT TRIGGERED."
+          )
+          text = banner + global_heading + body
+
+          r18_global = (
+              "- R18 planning : **PLANNING** — explicit post-R17 roadmap extension `Trusted Release, Updates & Distribution "
+              "Channels`; normalized base `58e488d80e60d04fc675e305bc8f040a3ab2bb9c`; branch `r18/00-phase-plan`; "
+              "initial exhaustive plan source `b011bb4763878eeafde7bb469833341e70a4b96e`; 11 frozen subdivisions "
+              "R18.1–R18.11: canonical release identity/channels, deterministic release bundle, SBOM/provenance/attestations, "
+              "Authenticode boundary, immutable GitHub Release staging, TUF-secured update metadata, update UX, verified "
+              "user-consented install/rollback, WinGet readiness, revocation/recovery drills, integrated adversarial acceptance. "
+              "Production certificate use, public GitHub Release publication and public WinGet submission are CONDITIONAL / "
+              "NOT TRIGGERED. Fresh planning gates and one post-merge planning normalization are required before R18.1.\n"
+          )
+          if "\n- R18 planning : **PLANNING**" not in text:
+              marker = "\n- R16.1 :"
+              if marker not in text:
+                  raise SystemExit("missing global insertion marker")
+              text = text.replace(marker, "\n" + r18_global + "- R16.1 :", 1)
+
+          next_heading = "## Next authorized action"
+          r17_heading = "## R17 — Distribution & Guided Creation UX"
+          next_pos = text.rfind(next_heading)
+          r17_pos = text.rfind(r17_heading)
+          if next_pos < 0 or r17_pos < 0 or next_pos >= r17_pos:
+              raise SystemExit("unexpected continuity tail")
+          prefix = text[:next_pos]
+          r17_tail = text[r17_pos:]
+          next_block = """## Next authorized action
+
+          Complete and merge the exhaustive R18 planning record from normalized R17 `main`, then perform exactly one planning continuity-only normalization with fresh exact-head required gates. **Do not begin R18.1 from the planning branch, the planning merge, or an unmerged normalization candidate.** R18.1 START-sync is authorized only from the resulting normalized `main`.
+
+          """
+          next_block = "\n".join(line[10:] if line.startswith("          ") else line for line in next_block.splitlines()) + "\n"
+          text = prefix + next_block + r17_tail
+
+          r18_section = """
+
+          ## R18 — Trusted Release, Updates & Distribution Channels
+
+          - State: **PLANNING — implementation NOT YET AUTHORIZED**.
+          - Normalized branch point: `main` `58e488d80e60d04fc675e305bc8f040a3ab2bb9c` — R17 COMPLETE + NORMALIZED.
+          - Dedicated planning branch: `r18/00-phase-plan`.
+          - Initial exhaustive plan source: `b011bb4763878eeafde7bb469833341e70a4b96e` (`docs/roadmap/R18_PLAN.md`).
+          - Frozen title established by this explicit post-R17 roadmap extension: **Trusted Release, Updates & Distribution Channels**; frozen v1.0/R1–R16 history and architecture are not rewritten.
+          - Frozen subdivision count: **11**, R18.1 through R18.11, covering canonical release identity/version/channels; deterministic release bundle; SBOM/provenance/attestations; Windows Authenticode; immutable GitHub Release staging; TUF-secured update metadata; KodeStudio update/channel UX; verified user-consented installer handoff and rollback; WinGet readiness; revocation/compromise drills; and integrated adversarial acceptance.
+          - Current official research basis: GitHub immutable releases + attestations for release/build integrity and provenance; Microsoft SignTool with SHA-256 for Authenticode; Windows Package Manager manifest validation before public repository acceptance; TUF roles/protections for secure update systems. Re-verify platform specifics when each subdivision is implemented.
+          - Architecture boundaries remain mandatory: local-first/offline operation, WorkspaceBoundary, ProcessSandbox, Guardian/PermissionSet, KillSwitch, SafeChange, audit/secrets/budget/data-governance constraints and structured tool APIs. Update network content is untrusted until cryptographically/structurally verified.
+          - Manual/effect boundary: no user secret is required for core planning or CI. Production signing, public GitHub Release publication and public WinGet submission are **CONDITIONAL / NOT TRIGGERED** and cannot be inferred from readiness evidence.
+          - Planning acceptance: the final planning head must pass fresh exact-head R0 Repository Guard Ubuntu + Windows, full Python Core Ubuntu + Windows and KodeStudio UI Smoke Windows; planning PR must merge with expected-head protection; exactly one planning continuity-only normalization must then be re-gated and merged before R18.1 START-sync.
+          """
+          r18_section = "\n".join(line[10:] if line.startswith("          ") else line for line in r18_section.splitlines())
+          if "## R18 — Trusted Release, Updates & Distribution Channels" not in text:
+              text = text.rstrip() + "\n" + r18_section + "\n"
+
+          path.write_text(text, encoding="utf-8", newline="\n")
+          PY
+
+          git checkout -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json || true
+          test -n "$(git diff --name-only -- docs/continuity/KODEPOIA_CONTINUITY.md)"
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+
+      - name: Commit and push continuity
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git commit -m "docs: sync R18 planning continuity"
+          git push origin HEAD:r18/00-phase-plan

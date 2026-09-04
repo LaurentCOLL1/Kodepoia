@@ -82,23 +82,24 @@ jobs:
           before_next = text[: text.rfind(next_marker)]
           normalized_tail = """## Next authorized action
 
-No post-R17 implementation phase is authorized by the current continuity record. After this unique R17 phase-normalization record is re-gated and merged to `main`, any later phase must begin with explicit planning/roadmap authorization from that normalized `main`; do not infer or start R18 implementation from R17 alone.
+          No post-R17 implementation phase is authorized by the current continuity record. After this unique R17 phase-normalization record is re-gated and merged to `main`, any later phase must begin with explicit planning/roadmap authorization from that normalized `main`; do not infer or start R18 implementation from R17 alone.
 
-## R17 — Distribution & Guided Creation UX
+          ## R17 — Distribution & Guided Creation UX
 
-- State: **COMPLETE + NORMALIZED effective when this unique continuity-only phase-normalization record enters `main` through its fresh exact-head required gates and exact-head merge**.
-- Normalized R16 base: `main` `11194ec5bbb6a986d0fa206517ad3759378a80cf` — R16 COMPLETE + NORMALIZED / v1.0 complete.
-- Immutable accepted technical source: **`7ed0731c1aa3c94d8a5feb13a08ae7ad953a86c9`**.
-- Final exact END-head: **`a27d8720a7aabb12488805488e6f5909c08b1270`**; END-sync relative to the technical source changed only `docs/roadmap/R17_PLAN.md` and this continuity file.
-- Fresh exact-END acceptance run `33902640480`: R0 Repository Guard **SUCCESS Ubuntu + Windows**; full Python Core **SUCCESS Ubuntu + Windows**; KodeStudio + R17 UI smoke **SUCCESS Windows**; full R17 Windows installer exact-head cycle **SUCCESS**.
-- END installer evidence: focused R17 tests **11 passed**; Nuitka 4.2 standalone build **SUCCESS**; Inno Setup 6.7.1 **SUCCESS**; `KodepoiaSetup.exe` version `1.1.0-rc1`, SHA-256 **`75638c7481a28ed2fe878c46ffb6ea91bad3501d69997e3bd5bcbecf53de00f9`**, `production_signed=false`.
-- END installer independence: clean silent install **SUCCESS**; installed KodepoiaStudio smoke from a separate empty working directory with developer `python.exe`/`pip.exe` unavailable and `PYTHONHOME`/`PYTHONPATH` cleared **SUCCESS**; silent uninstall **SUCCESS**; installed executable confirmed removed.
-- END Actions artifact: ID **`9949042322`**, name `KodepoiaSetup-Windows-END-a27d8720`, **33,442,136 bytes**, ZIP digest **`sha256:11f92808edd2bf557574a9aa258fd9a0fca008f446d7bda0cd4f844c7e8827e7`**.
-- Exact-head implementation/evidence PR **#377** merged with `expected_head_sha=a27d8720a7aabb12488805488e6f5909c08b1270` as `main` **`18c47e542c93d9ffecb3f2e3d1e615829055677b`**, after required `repository-bootstrap-windows-latest` and `repository-bootstrap-ubuntu-latest` both succeeded on that latest head.
-- R17 delivered the standalone Windows end-user distribution, French-first v1.1 shell/localization, guided project creation, functional local Chat/Vision with deterministic fallback, packaging/static/runtime tests and end-user install guidance while preserving the existing local-first guarded architecture.
-- Truth boundary: production code signing, public GitHub Release/store publication, signing certificates/keys, store credentials and third-party model/Ollama bundling remain **CONDITIONAL / NOT TRIGGERED**. Core manual state: **NONE**.
-- This record is the **single authorized post-merge continuity-only R17 phase normalization authority**. It must itself pass the repository's fresh exact-head required R0 checks and merge with its exact expected head. **No second R17 phase normalization is authorized.**
-"""
+          - State: **COMPLETE + NORMALIZED effective when this unique continuity-only phase-normalization record enters `main` through its fresh exact-head required gates and exact-head merge**.
+          - Normalized R16 base: `main` `11194ec5bbb6a986d0fa206517ad3759378a80cf` — R16 COMPLETE + NORMALIZED / v1.0 complete.
+          - Immutable accepted technical source: **`7ed0731c1aa3c94d8a5feb13a08ae7ad953a86c9`**.
+          - Final exact END-head: **`a27d8720a7aabb12488805488e6f5909c08b1270`**; END-sync relative to the technical source changed only `docs/roadmap/R17_PLAN.md` and this continuity file.
+          - Fresh exact-END acceptance run `33902640480`: R0 Repository Guard **SUCCESS Ubuntu + Windows**; full Python Core **SUCCESS Ubuntu + Windows**; KodeStudio + R17 UI smoke **SUCCESS Windows**; full R17 Windows installer exact-head cycle **SUCCESS**.
+          - END installer evidence: focused R17 tests **11 passed**; Nuitka 4.2 standalone build **SUCCESS**; Inno Setup 6.7.1 **SUCCESS**; `KodepoiaSetup.exe` version `1.1.0-rc1`, SHA-256 **`75638c7481a28ed2fe878c46ffb6ea91bad3501d69997e3bd5bcbecf53de00f9`**, `production_signed=false`.
+          - END installer independence: clean silent install **SUCCESS**; installed KodepoiaStudio smoke from a separate empty working directory with developer `python.exe`/`pip.exe` unavailable and `PYTHONHOME`/`PYTHONPATH` cleared **SUCCESS**; silent uninstall **SUCCESS**; installed executable confirmed removed.
+          - END Actions artifact: ID **`9949042322`**, name `KodepoiaSetup-Windows-END-a27d8720`, **33,442,136 bytes**, ZIP digest **`sha256:11f92808edd2bf557574a9aa258fd9a0fca008f446d7bda0cd4f844c7e8827e7`**.
+          - Exact-head implementation/evidence PR **#377** merged with `expected_head_sha=a27d8720a7aabb12488805488e6f5909c08b1270` as `main` **`18c47e542c93d9ffecb3f2e3d1e615829055677b`**, after required `repository-bootstrap-windows-latest` and `repository-bootstrap-ubuntu-latest` both succeeded on that latest head.
+          - R17 delivered the standalone Windows end-user distribution, French-first v1.1 shell/localization, guided project creation, functional local Chat/Vision with deterministic fallback, packaging/static/runtime tests and end-user install guidance while preserving the existing local-first guarded architecture.
+          - Truth boundary: production code signing, public GitHub Release/store publication, signing certificates/keys, store credentials and third-party model/Ollama bundling remain **CONDITIONAL / NOT TRIGGERED**. Core manual state: **NONE**.
+          - This record is the **single authorized post-merge continuity-only R17 phase normalization authority**. It must itself pass the repository's fresh exact-head required R0 checks and merge with its exact expected head. **No second R17 phase normalization is authorized.**
+          """
+          normalized_tail = "\n".join(line[10:] if line.startswith("          ") else line for line in normalized_tail.splitlines()) + "\n"
           text = before_next + normalized_tail
           path.write_text(text, encoding="utf-8", newline="\n")
           PY

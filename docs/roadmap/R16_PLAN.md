@@ -2,11 +2,11 @@
 
 **Phase:** R16  
 **Roadmap title:** Hardening / Beta / v1.0  
-**Status:** IN_PROGRESS
+**Status:** COMPLETE
 **Phase planning started:** 2026-08-31  
 **Architecture:** v1.0 frozen  
 **Source of truth at planning branch point:** normalized `main` `b83c5cf0354f675e468e3ab37c2eefa66aaa9d56`  
-**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.17 are COMPLETE + NORMALIZED on exact normalized `main` `41706493d974799b7011953e584b887ca6db1996`. R16.18 is IN_PROGRESS on dedicated branch `r16/18-integrated-adversarial-real-project-rc-acceptance` created directly from that SHA before implementation. R16.17 normalization candidate `12aaecf1c49bf55453797e67e47df4540510305f` passed R0 #2394 / `33800330466` Ubuntu + Windows, Python Core #2366 / `33800330339` 5/5 and UI #2331 / `33800330429`, then PR #372 merged exact head as normalized `main` `41706493d974799b7011953e584b887ca6db1996`. R16.18 core acceptance is CI-owned; optional live capability/manual evidence remains CONDITIONAL / NOT TRIGGERED. No R16.18 implementation bytes precede this START-sync and no public release is authorized by it.
+**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. R16.1–R16.17 are COMPLETE + NORMALIZED on exact normalized `main` `41706493d974799b7011953e584b887ca6db1996`. R16.18 is COMPLETE at END-sync on immutable technical source `230ff65feaaa50e9b0c740658e06c74976448908` after fresh exact-source R16.18 #8 / `33833525270`, R16.9 #76 / `33833525226`, R0 #2399 / `33833525292`, Python Core #2371 / `33833525209` 5/5, KodeStudio UI Smoke #2336 / `33833525297` and standalone R16.17 #21 / `33833525293` all SUCCESS. Phase closure remains pending fresh exact-END re-gates, exact-head PR #373 merge, and the unique post-merge continuity-only R16 phase normalization. Optional live capability/manual evidence remains CONDITIONAL / NOT TRIGGERED; no public release/signing/provider cutover is claimed.
 
 ## Purpose and authority
 
@@ -1364,6 +1364,18 @@ Circular evidence; flaky large integrated suite; optional capability mistaken fo
 - Core R16.18 acceptance remains CI-owned, synthetic/bounded where external live capability is not required, non-destructive, network-independent for core verdicts and free of live production credentials. Earlier subdivision PASS reports are informative only; final critical verdicts must be re-executed or independently verified against the exact R16.18 source according to the frozen plan.
 - No R16.18 implementation bytes precede this START-sync. No v1.0 public release, production signing, store/public registry publication or provider/domain cutover is authorized by this START.
 
+## R16.18 END authority
+
+- R16.18 state: **COMPLETE at END-sync**; core integrated acceptance manual state **NONE**. Optional live-capability evidence remains **CONDITIONAL / NOT TRIGGERED** and `NOT_EXERCISED`. R16/v1.0 phase closure remains pending fresh exact-END re-gates, exact-head implementation/evidence merge, and the unique post-merge continuity-only R16 phase normalization.
+- Exact normalized base: `main` `41706493d974799b7011953e584b887ca6db1996`; immutable technical source `230ff65feaaa50e9b0c740658e06c74976448908`.
+- Fresh exact-technical-head gates are all SUCCESS: R16.18 #8 / `33833525270`; R16.9 #76 / `33833525226`; R0 Repository Guard #2399 / `33833525292`; Python Core #2371 / `33833525209` 5/5; KodeStudio UI Smoke #2336 / `33833525297`; standalone R16.17 #21 / `33833525293`.
+- Canonical non-circular integrated authority received **33/33** fresh exact-source case/platform reports with `blockers=[]`, `critical_veto=false`, `rc_acceptance_claim=true`, `cross_platform_rc_packages_identical=true`, `historical_evidence_used_for_verdict=false`, `core_manual_required=false` and `manual_state=CONDITIONAL_NOT_TRIGGERED`.
+- Canonical digests: authority `43bb342e1c888a07f6ce64c75b7da5e9aadf0e3e09fada478f81cb320def359a`; policy `9835509598f3be0aa32c404dd73cb5f550ba381ac27919f257b79efd35c4e83a`; execution policy `2d35ee076677f247f96a911756bc535119db688e347007f1c46f4c8a0797713c`; integrated contract `71fa8fe1fcab744c30905884a74ac121f8cf41e4ea7d5442fe1c07d59a01d5d3`; canonical report file `a4c43067f369f2c03d84948cf7fad4a7a162c82e80a9edfaff4f3027c7e73600`; GitHub artifact archive `28c905ea2bbafbd755a1cb62037af0ddde6cba64a3868f55000bd301a46171d4`.
+- Exact-source RC package SHA-256 is cross-platform identical: wheel `e27ae68aabd90f6c6d22d5223650272c53dfa4fd3bdb342c7085ed79928765af`; sdist `947605aa27d3db7e0bec3e86f39470fd656a2df4c6cf5f9e3d578e96d647f2f0`.
+- The superseded cross-platform package mismatch was repaired without weakening the veto by canonicalizing Git checkout line endings before checkout in integrated-case jobs, matching the already accepted R16.17 release-readiness discipline. The accepted exact source remains fail-closed if Linux/Windows RC bytes differ.
+- Optional/live truth remains explicit: `optional_live_capabilities=NOT_EXERCISED`; no production credential use, production signing, public release, store/public-registry publication or provider/domain cutover occurred.
+- This END-sync changes only `docs/roadmap/R16_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to immutable technical source `230ff65feaaa50e9b0c740658e06c74976448908`. Its exact resulting END head must pass fresh R16.18/R16.9/R0/Python/UI SUCCESS before PR #373 may merge with `expected_head_sha` equal to that exact head.
+- Exactly one post-merge continuity-only R16 phase normalization is authorized. Only the normalized `main` produced by its fresh exact-head R0/Python/UI-gated merge may be called **R16 COMPLETE + NORMALIZED / v1.0 phase complete**. No public release is implied by phase completion.
 ---
 
 ## Planning acceptance and authorization boundary

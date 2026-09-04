@@ -8,7 +8,7 @@ version = "1.0.0rc1"
 description = "Local-first AI development environment for games and applications"
 readme = "README.md"
 requires-python = ">=3.12"
-license = {text = "All rights reserved"}
+license = {text = "All rights reserved - private development"}
 authors = [{name = "LaurentCOLL1"}]
 dependencies = [
   "PyYAML>=6.0.2,<7",

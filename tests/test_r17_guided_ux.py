@@ -70,8 +70,29 @@ def test_guided_fallback_asks_for_missing_precision() -> None:
     assert result.mode == "guided"
     assert result.draft.summary == "Je veux créer un RPG contemporain."
     assert result.clarifying_questions
-    assert len(result.clarifying_questions) <= 4
-    assert "précisions" in result.assistant_message
+    assert len(result.clarifying_questions) == 1
+    assert "précision" in result.assistant_message
+
+
+def test_guided_fallback_progressively_builds_vision() -> None:
+    assistant = VisionAssistant(client=FakeOllama())
+    result = assistant.refine("Un jeu de gestion spatiale", locale="fr")
+    result = assistant.refine("Construire une station; survivre 100 jours", current=result.draft, locale="fr")
+    assert result.draft.goals == ["Construire une station", "survivre 100 jours"]
+    result = assistant.refine("60 FPS; aucune sauvegarde corrompue", current=result.draft, locale="fr")
+    assert result.draft.success_metrics == ["60 FPS", "aucune sauvegarde corrompue"]
+    result = assistant.refine("Windows; hors ligne; public adulte", current=result.draft, locale="fr")
+    result = assistant.refine("Construire une pièce; produire de l'oxygène", current=result.draft, locale="fr")
+    result = assistant.refine("Pas de multijoueur", current=result.draft, locale="fr")
+    result = assistant.refine("Construire une station habitable", current=result.draft, locale="fr")
+    assert result.draft.requirements[0].title == "Construire une station habitable"
+    result = assistant.refine("La station garde de l'oxygène pendant 10 minutes", current=result.draft, locale="fr")
+    assert result.draft.requirements[0].acceptance_criteria == [
+        "La station garde de l'oxygène pendant 10 minutes"
+    ]
+    assert result.clarifying_questions == []
+    changed = assistant.refine("Objectifs: Construire une colonie autonome", current=result.draft, locale="fr")
+    assert changed.draft.goals == ["Construire une colonie autonome"]
 
 
 def test_local_ollama_structures_vision() -> None:

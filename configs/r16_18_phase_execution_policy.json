@@ -1,0 +1,214 @@
+{
+  "base_policy_id": "r16.18-integrated-adversarial-real-project-rc-v1",
+  "cases": [
+    {
+      "id": "r16.1-red-team",
+      "phase": "R16.1",
+      "platform_arg": false,
+      "preparation": "none",
+      "script": "scripts/r16_1_acceptance.py",
+      "verdict": {
+        "mode": "all_true_mapping",
+        "path": "checks"
+      }
+    },
+    {
+      "id": "r16.2-prompt-injection",
+      "phase": "R16.2",
+      "platform_arg": false,
+      "preparation": "none",
+      "script": "scripts/r16_2_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "summary.status",
+        "value": "pass"
+      }
+    },
+    {
+      "id": "r16.3-workspace-quarantine",
+      "phase": "R16.3",
+      "platform_arg": false,
+      "preparation": "none",
+      "script": "scripts/r16_3_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "status",
+        "value": "pass"
+      }
+    },
+    {
+      "id": "r16.4-secrets-privacy",
+      "phase": "R16.4",
+      "platform_arg": false,
+      "preparation": "none",
+      "script": "scripts/r16_4_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "status",
+        "value": "pass"
+      }
+    },
+    {
+      "id": "r16.5-tool-trust",
+      "phase": "R16.5",
+      "platform_arg": false,
+      "preparation": "none",
+      "script": "scripts/r16_5_tool_trust_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "status",
+        "value": "pass"
+      }
+    },
+    {
+      "id": "r16.6-destructive-agency",
+      "phase": "R16.6",
+      "platform_arg": false,
+      "preparation": "none",
+      "script": "scripts/r16_6_destructive_agency_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "critical_veto",
+        "value": false
+      }
+    },
+    {
+      "id": "r16.7-memory-poisoning",
+      "phase": "R16.7",
+      "platform_arg": false,
+      "preparation": "none",
+      "script": "scripts/r16_7_memory_context_poisoning_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "critical_veto",
+        "value": false
+      }
+    },
+    {
+      "id": "r16.8-fault-recovery",
+      "phase": "R16.8",
+      "platform_arg": false,
+      "preparation": "none",
+      "script": "scripts/r16_8_fault_recovery_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "critical_veto",
+        "value": false
+      }
+    },
+    {
+      "id": "r16.9-supply-chain",
+      "phase": "R16.9",
+      "platform_arg": true,
+      "preparation": "build_dist",
+      "script": "scripts/r16_9_supply_chain_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "security_claim",
+        "value": true
+      }
+    },
+    {
+      "id": "r16.10-godot-2d",
+      "phase": "R16.10",
+      "platform_arg": true,
+      "preparation": "build_dist",
+      "script": "scripts/r16_10_godot_beta_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "security_claim",
+        "value": true
+      }
+    },
+    {
+      "id": "r16.11-godot-3d",
+      "phase": "R16.11",
+      "platform_arg": true,
+      "preparation": "build_dist",
+      "script": "scripts/r16_11_godot_3d_beta_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "security_claim",
+        "value": true
+      }
+    },
+    {
+      "id": "r16.12-windows-desktop",
+      "phase": "R16.12",
+      "platform_arg": true,
+      "preparation": "build_dist",
+      "script": "scripts/r16_12_windows_desktop_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "security_claim",
+        "value": true
+      }
+    },
+    {
+      "id": "r16.13-comfyui",
+      "phase": "R16.13",
+      "platform_arg": true,
+      "preparation": "build_dist",
+      "script": "scripts/r16_13_comfyui_beta_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "security_claim",
+        "value": true
+      }
+    },
+    {
+      "id": "r16.14-media",
+      "phase": "R16.14",
+      "platform_arg": true,
+      "preparation": "build_dist",
+      "script": "scripts/r16_14_media_beta_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "security_claim",
+        "value": true
+      }
+    },
+    {
+      "id": "r16.15-durability",
+      "phase": "R16.15",
+      "platform_arg": true,
+      "preparation": "build_dist",
+      "script": "scripts/r16_15_project_durability_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "durability_claim",
+        "value": true
+      }
+    },
+    {
+      "id": "r16.16-resource-soak",
+      "phase": "R16.16",
+      "platform_arg": true,
+      "preparation": "build_dist",
+      "script": "scripts/r16_16_resource_soak_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "resource_claim",
+        "value": true
+      }
+    },
+    {
+      "id": "r16.17-release-readiness",
+      "phase": "R16.17",
+      "platform_arg": true,
+      "preparation": "release_package",
+      "script": "scripts/r16_17_release_readiness_acceptance.py",
+      "verdict": {
+        "mode": "path_equals",
+        "path": "release_claim",
+        "value": true
+      }
+    }
+  ],
+  "policy_id": "r16.18-phase-reexecution-v1",
+  "reject_critical_veto": true,
+  "reject_manual_required": true,
+  "require_phase_acceptance": true,
+  "require_phase_source_binding": true,
+  "schema_version": 1
+}

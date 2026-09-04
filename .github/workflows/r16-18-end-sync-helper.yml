@@ -6,6 +6,11 @@ on:
       - r16/18-integrated-adversarial-real-project-rc-acceptance
     paths:
       - .github/workflows/r16-18-end-sync-helper.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/r16-18-end-sync-helper.yml
 
 permissions:
   contents: write
@@ -14,18 +19,20 @@ jobs:
   end-sync:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
     steps:
       - name: Checkout staging head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
+          ref: ${{ env.EVIDENCE_SHA }}
           fetch-depth: 0
       - name: Synchronize R16.18 END authority and remove helper
         shell: python
         run: |
           from pathlib import Path
 
-          technical = "230ff65feaaa50e9b0c740658e06c74976448908"
-          base = "41706493d974799b7011953e584b887ca6db1996"
           plan = Path("docs/roadmap/R16_PLAN.md")
           continuity = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
 
@@ -86,10 +93,9 @@ jobs:
               "Integrated authority is 33/33 fresh, non-circular, `critical_veto=false`, cross-platform RC bytes identical. Optional live-capability/manual evidence remains CONDITIONAL / NOT TRIGGERED; no production signing/publication/provider cutover is claimed."
           )
           c = "\n".join(c_lines) + "\n"
-          old_record_prefix = "- R16.18 : **IN_PROGRESS** —"
           record_lines = c.splitlines()
           for i, line in enumerate(record_lines):
-              if line.startswith(old_record_prefix):
+              if line.startswith("- R16.18 : **IN_PROGRESS** —"):
                   record_lines[i] = (
                       "- R16.18 : **COMPLETE at END-sync** — exact normalized R16.17 base `main` `41706493d974799b7011953e584b887ca6db1996`; immutable technical source "
                       "`230ff65feaaa50e9b0c740658e06c74976448908`; technical R16.18 #8 / `33833525270`, R16.9 #76 / `33833525226`, R0 #2399 / `33833525292`, Python Core #2371 / `33833525209` 5/5, "
@@ -99,17 +105,12 @@ jobs:
                   )
                   break
           c = "\n".join(record_lines) + "\n"
-          c_end = end_block
           insert_marker = "\n## R16 status index"
           if "## R16.18 END authority" not in c:
               if insert_marker not in c:
                   raise SystemExit("continuity R16 status marker missing")
-              c = c.replace(insert_marker, "\n" + c_end.rstrip() + "\n" + insert_marker, 1)
-          c = c.replace(
-              "| R16.18 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |",
-              "| R16.18 | COMPLETE | CONDITIONAL / NOT TRIGGERED |",
-              1,
-          )
+              c = c.replace(insert_marker, "\n" + end_block.rstrip() + "\n" + insert_marker, 1)
+          c = c.replace("| R16.18 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |", "| R16.18 | COMPLETE | CONDITIONAL / NOT TRIGGERED |", 1)
           next_start = c.find("## Next authorized action", c.find("## R16 status index"))
           next_end = c.find("## Permanent R-phase execution rule", next_start)
           if next_start < 0 or next_end < 0:
@@ -123,8 +124,7 @@ jobs:
           c = c[:next_start] + next_block + c[next_end:]
           continuity.write_text(c, encoding="utf-8", newline="\n")
 
-          helper = Path(".github/workflows/r16-18-end-sync-helper.yml")
-          helper.unlink()
+          Path(".github/workflows/r16-18-end-sync-helper.yml").unlink()
       - name: Commit documentation-only END sync
         shell: bash
         run: |
@@ -133,4 +133,4 @@ jobs:
           git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-18-end-sync-helper.yml
           git diff --cached --name-only
           git commit -m "R16.18: synchronize END authority"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git push origin "HEAD:${TARGET_BRANCH}"

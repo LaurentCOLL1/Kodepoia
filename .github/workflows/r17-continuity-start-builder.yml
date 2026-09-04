@@ -1,0 +1,62 @@
+name: Temporary R17 START Continuity Builder
+
+on:
+  push:
+    branches:
+      - scratch/r17-continuity-start
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target R17 branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r17/distribution-guided-ux
+          fetch-depth: 0
+
+      - name: Append R17 START continuity record
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+          marker = "## R17 — Distribution & Guided Creation UX"
+          if marker not in text:
+              record = r'''
+
+          ## R17 — Distribution & Guided Creation UX
+
+          - State: **IN_PROGRESS**.
+          - Authorized normalized base: `main` `11194ec5bbb6a986d0fa206517ad3759378a80cf` — R16 COMPLETE + NORMALIZED / v1.0 phase complete.
+          - Dedicated branch: `r17/distribution-guided-ux`.
+          - START plan: `docs/roadmap/R17_PLAN.md`.
+          - Frozen scope: standalone Windows `KodepoiaSetup.exe`; French-first guided shell/onboarding; beginner project-creation catalogs without breaking the accepted R12–R14 widget contract; functional local Chat/Vision assistant for Summary, Goals, Success metrics, Constraints, MVP, Out of scope, Requirements and Acceptance criteria; deterministic clarification fallback; README/install guidance and exact-source packaging CI.
+          - Architecture boundary: R17 extends the frozen v1.0 product without rewriting R1–R16 history or weakening Guardian/Sandbox/Secrets/provenance rules.
+          - Installer truth boundary: target users must not require Python or `pip`; production signing/public release remain **CONDITIONAL / NOT TRIGGERED** until separately evidenced.
+          - Core R17 manual state at START: **NONE**.
+          - R17 may be called COMPLETE only after focused/adversarial tests, successful Windows installer build + silent install + packaged UI smoke, exact-head R0/full Python Core/UI gates, END-sync, exact-head merge, then the single authorized post-merge continuity-only normalization.
+          '''
+              path.write_text(text.rstrip() + record + "\n", encoding="utf-8")
+          PY
+          git diff --check
+          git diff -- docs/continuity/KODEPOIA_CONTINUITY.md
+
+      - name: Commit and push START sync only
+        shell: bash
+        run: |
+          if git diff --quiet -- docs/continuity/KODEPOIA_CONTINUITY.md; then
+            echo "R17 START continuity already present."
+            exit 0
+          fi
+          test "$(git diff --name-only | wc -l)" -eq 1
+          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git config user.name "LaurentCOLL1"
+          git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git commit -m "docs(r17): sync START continuity"
+          git push origin HEAD:r17/distribution-guided-ux

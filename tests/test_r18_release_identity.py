@@ -143,6 +143,12 @@ def test_repository_surfaces_match_canonical_identity() -> None:
     assert "pyproject.toml version" in build_script
     assert "source_sha = [string]$ReleaseIdentity.source_sha" in build_script
     assert "build_type = [string]$ReleaseIdentity.build_type" in build_script
+    assert 'Join-Path $Root "src\\kodepoia\\release\\release_identity.json"' in build_script
+    assert "Canonical release identity data file is missing" in build_script
+    assert (
+        "--include-data-files=$ReleaseIdentityData=kodepoia/release/release_identity.json"
+        in build_script
+    )
 
     ui = (ROOT / "src/kodepoia/kodestudio/app_v11.py").read_text(encoding="utf-8")
     assert 'setProperty("kodepoiaReleaseVersion", CURRENT_RELEASE.display_version)' in ui

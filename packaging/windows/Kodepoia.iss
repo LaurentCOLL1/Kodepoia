@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "1.1.0-rc1"
+  #error AppVersion must be supplied from the canonical Kodepoia release identity
 #endif
 #ifndef SourceDir
   #define SourceDir "..\..\build\windows\KodepoiaStudio.dist"

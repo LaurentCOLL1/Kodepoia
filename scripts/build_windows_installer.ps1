@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "1.1.0-rc1",
+    [string]$Version = "",
     [string]$Python = "python",
     [string]$Iscc = ""
 )
@@ -10,6 +10,21 @@ Set-Location $Root
 
 Write-Host "== Kodepoia Windows standalone build =="
 & $Python -m pip install -e ".[ui,code,packaging]"
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to install Kodepoia build dependencies."
+}
+
+$ReleaseLines = & $Python -c "import json; from kodepoia.release_identity import CURRENT_RELEASE; print(json.dumps(CURRENT_RELEASE.to_dict(), sort_keys=True))"
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to read canonical Kodepoia release identity."
+}
+$ReleaseIdentity = (($ReleaseLines -join "`n") | ConvertFrom-Json)
+$CanonicalVersion = [string]$ReleaseIdentity.display_version
+if (-not $Version) {
+    $Version = $CanonicalVersion
+} elseif ($Version -ne $CanonicalVersion) {
+    throw "Requested installer version $Version does not match canonical release identity $CanonicalVersion."
+}
 
 $BuildRoot = Join-Path $Root "build\windows"
 $FinalDist = Join-Path $BuildRoot "KodepoiaStudio.dist"
@@ -90,6 +105,9 @@ Write-Host "Installer: $Setup"
 Write-Host "SHA-256: $Hash"
 @{
     version = $Version
+    pep440_version = [string]$ReleaseIdentity.pep440_version
+    channel = [string]$ReleaseIdentity.channel
+    release_identity_schema = [int]$ReleaseIdentity.schema_version
     installer = "KodepoiaSetup.exe"
     sha256 = $Hash
     standalone_executable = "KodepoiaStudio.exe"

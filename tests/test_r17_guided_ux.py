@@ -45,10 +45,16 @@ class FakeOllama:
         return BrainResponse(content=json.dumps(payload), model=model)
 
 
-def test_french_locale_resolution_and_catalog() -> None:
+def test_french_locale_resolution_and_catalog(monkeypatch) -> None:
+    # System-locale detection must be testable independently from the workflow's
+    # explicit KODEPOIA_LOCALE=fr setting. An explicit user/environment choice
+    # intentionally takes precedence over OS detection.
+    monkeypatch.delenv("KODEPOIA_LOCALE", raising=False)
     assert resolve_locale(system_name="fr_FR") == "fr"
     assert resolve_locale(system_name="en_US") == "en"
     assert resolve_locale("fr-FR", system_name="en_US") == "fr"
+    monkeypatch.setenv("KODEPOIA_LOCALE", "fr")
+    assert resolve_locale(system_name="en_US") == "fr"
     assert V11Translator("fr").text("nav.projects") == "Projets"
     assert V11Translator("fr").text("chat.send") == "Envoyer"
 

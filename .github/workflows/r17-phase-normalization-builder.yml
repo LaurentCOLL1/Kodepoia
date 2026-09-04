@@ -1,0 +1,119 @@
+name: Temporary R17 Phase Normalization Builder
+
+on:
+  push:
+    branches:
+      - scratch/r17-normalization-builder
+
+permissions:
+  contents: write
+
+jobs:
+  build-normalization:
+    runs-on: ubuntu-latest
+    env:
+      KODEPOIA_BASE_SHA: 18c47e542c93d9ffecb3f2e3d1e615829055677b
+      KODEPOIA_TARGET_BRANCH: r17/phase-continuity-normalization
+    steps:
+      - name: Checkout exact post-R17 merge
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.KODEPOIA_BASE_SHA }}
+          fetch-depth: 0
+
+      - name: Assert exact base
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$KODEPOIA_BASE_SHA"
+
+      - name: Build unique continuity-only R17 normalization
+        shell: bash
+        run: |
+          git checkout -B "$KODEPOIA_TARGET_BRANCH"
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+
+          global_heading = "\n\n## État global\n"
+          if global_heading not in text:
+              raise SystemExit("missing État global heading")
+          _, body = text.split(global_heading, 1)
+          banner = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R16 COMPLETE + NORMALIZED. "
+              "R17 final exact-END `a27d8720a7aabb12488805488e6f5909c08b1270` passed fresh exact-head "
+              "R0 Repository Guard Ubuntu + Windows, full Python Core Ubuntu + Windows, KodeStudio + R17 UI smoke "
+              "Windows and the full Windows installer cycle, then PR #377 merged with "
+              "`expected_head_sha=a27d8720a7aabb12488805488e6f5909c08b1270` as implementation/evidence "
+              "`main` `18c47e542c93d9ffecb3f2e3d1e615829055677b`. This record is the unique "
+              "post-merge continuity-only R17 phase normalization authority; once this exact record is present on "
+              "`main` through its fresh exact-head required R0 merge gates, R17 is COMPLETE + NORMALIZED.** "
+              "Immutable accepted R17 technical source remains `7ed0731c1aa3c94d8a5feb13a08ae7ad953a86c9`; "
+              "production signing and public/store publication remain CONDITIONAL / NOT TRIGGERED."
+          )
+          text = banner + global_heading + body
+
+          r17_global = (
+              "- R17 : **COMPLETE + NORMALIZED effective when this unique phase-normalization record enters `main` "
+              "through its exact gated merge** — normalized R16 base `11194ec5bbb6a986d0fa206517ad3759378a80cf`; "
+              "immutable accepted technical source `7ed0731c1aa3c94d8a5feb13a08ae7ad953a86c9`; final exact-END "
+              "`a27d8720a7aabb12488805488e6f5909c08b1270`; fresh END gate run `33902640480` proved R0 Ubuntu/Windows, "
+              "full Python Core Ubuntu/Windows, KodeStudio + R17 UI Windows and the full Windows installer cycle SUCCESS; "
+              "PR #377 merged with exact expected head as implementation/evidence `main` "
+              "`18c47e542c93d9ffecb3f2e3d1e615829055677b`. END installer `KodepoiaSetup.exe` version `1.1.0-rc1` "
+              "SHA-256 `75638c7481a28ed2fe878c46ffb6ea91bad3501d69997e3bd5bcbecf53de00f9`, `production_signed=false`; "
+              "Actions artifact `9949042322` / `KodepoiaSetup-Windows-END-a27d8720`, 33,442,136 bytes, ZIP digest "
+              "`sha256:11f92808edd2bf557574a9aa258fd9a0fca008f446d7bda0cd4f844c7e8827e7`. Clean silent install, packaged "
+              "UI smoke without developer Python/pip and silent uninstall all succeeded. This continuity-only record is the "
+              "single authorized R17 phase normalization authority; no second R17 phase normalization is authorized. "
+              "No production signing or public/store publication is claimed.\n"
+          )
+          if "\n- R17 : **COMPLETE + NORMALIZED" not in text:
+              marker = "\n- R16.1 :"
+              if marker not in text:
+                  raise SystemExit("missing R16.1 insertion marker")
+              text = text.replace(marker, "\n" + r17_global + "- R16.1 :", 1)
+
+          next_marker = "## Next authorized action"
+          r17_marker = "## R17 — Distribution & Guided Creation UX"
+          if next_marker not in text or r17_marker not in text:
+              raise SystemExit("missing R17 authority markers")
+          before_next = text[: text.rfind(next_marker)]
+          normalized_tail = """## Next authorized action
+
+No post-R17 implementation phase is authorized by the current continuity record. After this unique R17 phase-normalization record is re-gated and merged to `main`, any later phase must begin with explicit planning/roadmap authorization from that normalized `main`; do not infer or start R18 implementation from R17 alone.
+
+## R17 — Distribution & Guided Creation UX
+
+- State: **COMPLETE + NORMALIZED effective when this unique continuity-only phase-normalization record enters `main` through its fresh exact-head required gates and exact-head merge**.
+- Normalized R16 base: `main` `11194ec5bbb6a986d0fa206517ad3759378a80cf` — R16 COMPLETE + NORMALIZED / v1.0 complete.
+- Immutable accepted technical source: **`7ed0731c1aa3c94d8a5feb13a08ae7ad953a86c9`**.
+- Final exact END-head: **`a27d8720a7aabb12488805488e6f5909c08b1270`**; END-sync relative to the technical source changed only `docs/roadmap/R17_PLAN.md` and this continuity file.
+- Fresh exact-END acceptance run `33902640480`: R0 Repository Guard **SUCCESS Ubuntu + Windows**; full Python Core **SUCCESS Ubuntu + Windows**; KodeStudio + R17 UI smoke **SUCCESS Windows**; full R17 Windows installer exact-head cycle **SUCCESS**.
+- END installer evidence: focused R17 tests **11 passed**; Nuitka 4.2 standalone build **SUCCESS**; Inno Setup 6.7.1 **SUCCESS**; `KodepoiaSetup.exe` version `1.1.0-rc1`, SHA-256 **`75638c7481a28ed2fe878c46ffb6ea91bad3501d69997e3bd5bcbecf53de00f9`**, `production_signed=false`.
+- END installer independence: clean silent install **SUCCESS**; installed KodepoiaStudio smoke from a separate empty working directory with developer `python.exe`/`pip.exe` unavailable and `PYTHONHOME`/`PYTHONPATH` cleared **SUCCESS**; silent uninstall **SUCCESS**; installed executable confirmed removed.
+- END Actions artifact: ID **`9949042322`**, name `KodepoiaSetup-Windows-END-a27d8720`, **33,442,136 bytes**, ZIP digest **`sha256:11f92808edd2bf557574a9aa258fd9a0fca008f446d7bda0cd4f844c7e8827e7`**.
+- Exact-head implementation/evidence PR **#377** merged with `expected_head_sha=a27d8720a7aabb12488805488e6f5909c08b1270` as `main` **`18c47e542c93d9ffecb3f2e3d1e615829055677b`**, after required `repository-bootstrap-windows-latest` and `repository-bootstrap-ubuntu-latest` both succeeded on that latest head.
+- R17 delivered the standalone Windows end-user distribution, French-first v1.1 shell/localization, guided project creation, functional local Chat/Vision with deterministic fallback, packaging/static/runtime tests and end-user install guidance while preserving the existing local-first guarded architecture.
+- Truth boundary: production code signing, public GitHub Release/store publication, signing certificates/keys, store credentials and third-party model/Ollama bundling remain **CONDITIONAL / NOT TRIGGERED**. Core manual state: **NONE**.
+- This record is the **single authorized post-merge continuity-only R17 phase normalization authority**. It must itself pass the repository's fresh exact-head required R0 checks and merge with its exact expected head. **No second R17 phase normalization is authorized.**
+"""
+          text = before_next + normalized_tail
+          path.write_text(text, encoding="utf-8", newline="\n")
+          PY
+
+          changed="$(git diff --name-only)"
+          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test -z "$(git diff --name-only -- docs/roadmap/R17_PLAN.md)"
+          git diff --check
+
+      - name: Commit and push normalization candidate
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git commit -m "docs: normalize R17 phase continuity"
+          test "$(git diff-tree --no-commit-id --name-only -r HEAD)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git push origin "HEAD:refs/heads/$KODEPOIA_TARGET_BRANCH"

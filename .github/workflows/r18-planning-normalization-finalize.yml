@@ -1,0 +1,60 @@
+name: Temporary R18 Planning Normalization Finalizer
+
+on:
+  push:
+    branches:
+      - r18/planning-normalization
+
+permissions:
+  contents: write
+
+jobs:
+  finalize-normalization:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout finalizer head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Assert planning merge ancestry
+        shell: bash
+        run: |
+          git merge-base --is-ancestor 7869f674e8e5b9298b526c2c3c2a9b4295ce798d HEAD
+
+      - name: Build final continuity-only candidate
+        shell: bash
+        run: |
+          git reset --hard HEAD
+          python - <<'PY'
+          from pathlib import Path
+
+          helper = Path('.github/workflows/r18-planning-normalization-temp.yml').read_text(encoding='utf-8')
+          start_marker = "          python - <<'PY'\n"
+          end_marker = "\n          PY\n"
+          start = helper.index(start_marker) + len(start_marker)
+          end = helper.index(end_marker, start)
+          raw = helper[start:end]
+          code = "\n".join(line[10:] if line.startswith("          ") else line for line in raw.splitlines())
+          exec(compile(code, '<r18-planning-normalization-transform>', 'exec'), {})
+          PY
+
+          git rm .github/workflows/r18-planning-normalization-temp.yml
+          git rm .github/workflows/r18-planning-normalization-recovery.yml
+          git rm .github/workflows/r18-planning-normalization-finalize.yml
+          git checkout -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json || true
+          expected="$(printf '%s\n' '.github/workflows/r18-planning-normalization-finalize.yml' '.github/workflows/r18-planning-normalization-recovery.yml' '.github/workflows/r18-planning-normalization-temp.yml' 'docs/continuity/KODEPOIA_CONTINUITY.md' | sort)"
+          actual="$(git diff HEAD --name-only | sort)"
+          test "$actual" = "$expected"
+          git diff --check HEAD
+
+      - name: Commit and push normalization candidate
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git commit -m "docs: normalize R18 planning continuity"
+          git push origin HEAD:r18/planning-normalization

@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: r16-18-${{ github.ref }}
@@ -28,18 +28,21 @@ concurrency:
 
 jobs:
   temporary-end-sync-helper:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
     env:
+      EVIDENCE_SHA: ${{ github.sha }}
       TARGET_BRANCH: r16/18-integrated-adversarial-real-project-rc-acceptance
-      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Checkout staging head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ env.EVIDENCE_SHA }}
           fetch-depth: 0
-      - name: Create documentation-only END tree
+      - name: Synchronize END documentation
         shell: python
         run: |
           from pathlib import Path
@@ -73,7 +76,7 @@ jobs:
               "| R16.18 | Integrated adversarial + real-project RC acceptance | COMPLETE | CONDITIONAL / NOT TRIGGERED |",
               1,
           )
-          end_block = r'''
+          end_block = '''
 ## R16.18 END authority
 
 - R16.18 state: **COMPLETE at END-sync**; core integrated acceptance manual state **NONE**. Optional live-capability evidence remains **CONDITIONAL / NOT TRIGGERED** and `NOT_EXERCISED`. R16/v1.0 phase closure remains pending fresh exact-END re-gates, exact-head implementation/evidence merge, and the unique post-merge continuity-only R16 phase normalization.
@@ -134,15 +137,15 @@ jobs:
           )
           c = c[:next_start] + next_block + c[next_end:]
           continuity.write_text(c, encoding="utf-8", newline="\n")
-
-          Path(".github/workflows/r16-18-end-sync-helper.yml").unlink()
       - name: Restore technical workflow and push staged END tree
         shell: bash
         run: |
           git checkout 230ff65feaaa50e9b0c740658e06c74976448908 -- .github/workflows/r16-18-integrated-rc-acceptance.yml
+          rm -f .github/workflows/r16-18-end-sync-helper.yml
           git config user.name "LaurentCOLL1"
           git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
-          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-18-integrated-rc-acceptance.yml .github/workflows/r16-18-end-sync-helper.yml
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-18-integrated-rc-acceptance.yml
+          git add -u .github/workflows/r16-18-end-sync-helper.yml || true
           git diff --cached --name-only
           git commit -m "R16.18: synchronize END authority"
           git push origin "HEAD:${TARGET_BRANCH}"

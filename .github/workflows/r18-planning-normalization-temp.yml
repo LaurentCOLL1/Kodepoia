@@ -1,0 +1,134 @@
+name: Temporary R18 Planning Normalization Builder
+
+on:
+  push:
+    branches:
+      - r18/planning-normalization
+
+permissions:
+  contents: write
+
+jobs:
+  build-planning-normalization:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout normalization trigger head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Assert exact planning merge parent
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD^)" = "7869f674e8e5b9298b526c2c3c2a9b4295ce798d"
+
+      - name: Normalize R18 planning continuity
+        shell: bash
+        run: |
+          git reset --hard HEAD
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+
+          global_heading = "\n\n## État global\n"
+          if global_heading not in text:
+              raise SystemExit("missing global heading")
+          _, body = text.split(global_heading, 1)
+          banner = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED. R18 planning ACCEPTED + "
+              "NORMALIZED effective when this unique planning-normalization record enters `main` through its fresh exact-head "
+              "R0/Python/UI gated merge. R18 planning exact head `5eb837c61688541c6b77b6208b8ae35827f3b0db` passed fresh "
+              "R0 #2417 / `33907839275` Ubuntu + Windows, Python Core #2389 / `33907839126` 5/5 and KodeStudio UI "
+              "Smoke #2354 / `33907839056`, then PR #379 merged with exact expected head as planning `main` "
+              "`7869f674e8e5b9298b526c2c3c2a9b4295ce798d`.** This record is the single authorized post-merge "
+              "R18 planning continuity-only normalization; no second planning normalization is authorized. R18.1 START-sync "
+              "is authorized only from the normalized `main` produced when this exact record merges. Production signing, "
+              "public GitHub Release publication and public WinGet submission remain CONDITIONAL / NOT TRIGGERED."
+          )
+          text = banner + global_heading + body
+
+          lines = text.splitlines()
+          replaced = False
+          normalized_global = (
+              "- R18 planning : **ACCEPTED + NORMALIZED effective when this unique planning-normalization record enters `main`** — "
+              "normalized R17 base `58e488d80e60d04fc675e305bc8f040a3ab2bb9c`; exhaustive planning head "
+              "`5eb837c61688541c6b77b6208b8ae35827f3b0db`; fresh R0 Repository Guard #2417 / `33907839275` SUCCESS "
+              "Ubuntu + Windows, Python Core #2389 / `33907839126` SUCCESS 5/5 and KodeStudio UI Smoke #2354 / "
+              "`33907839056` SUCCESS; planning PR #379 merged with `expected_head_sha=5eb837c61688541c6b77b6208b8ae35827f3b0db` "
+              "as planning `main` `7869f674e8e5b9298b526c2c3c2a9b4295ce798d`. Frozen R18 scope remains 11 subdivisions "
+              "R18.1–R18.11 under `Trusted Release, Updates & Distribution Channels`. This continuity-only record is the "
+              "single authorized R18 planning normalization authority; no second planning normalization is authorized. R18.1 "
+              "START-sync is authorized only from the normalized `main` produced by this record's exact gated merge. Production "
+              "signing/public GitHub Release/public WinGet submission remain CONDITIONAL / NOT TRIGGERED."
+          )
+          for i, line in enumerate(lines):
+              if line.startswith("- R18 planning : **PLANNING**"):
+                  lines[i] = normalized_global
+                  replaced = True
+                  break
+          if not replaced:
+              raise SystemExit("missing R18 planning global record")
+          text = "\n".join(lines) + "\n"
+
+          next_heading = "## Next authorized action"
+          r17_heading = "## R17 — Distribution & Guided Creation UX"
+          next_pos = text.rfind(next_heading)
+          r17_pos = text.rfind(r17_heading)
+          if next_pos < 0 or r17_pos < 0 or next_pos >= r17_pos:
+              raise SystemExit("unexpected continuity tail")
+          prefix = text[:next_pos]
+          r17_tail = text[r17_pos:]
+          next_block = """## Next authorized action
+
+          R18.1 — Canonical release identity, versions and channels — is the next authorized subdivision **only after this exact planning-normalization record passes fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke and merges to `main` with exact expected-head protection**. Begin R18.1 START-sync from that resulting normalized `main`; do not start it from planning merge `7869f674e8e5b9298b526c2c3c2a9b4295ce798d` or from this unmerged normalization candidate.
+
+          """
+          next_block = "\n".join(line[10:] if line.startswith("          ") else line for line in next_block.splitlines()) + "\n"
+          text = prefix + next_block + r17_tail
+
+          section_heading = "## R18 — Trusted Release, Updates & Distribution Channels"
+          pos = text.rfind(section_heading)
+          if pos < 0:
+              raise SystemExit("missing R18 section")
+          section = text[pos:]
+          old_state = "- State: **PLANNING — implementation NOT YET AUTHORIZED**."
+          new_state = "- State: **PLANNING ACCEPTED + NORMALIZED effective when this unique planning-normalization record enters `main` through fresh exact-head gates and exact-head merge**."
+          if old_state not in section:
+              raise SystemExit("missing R18 planning state")
+          section = section.replace(old_state, new_state, 1)
+          marker = "- Initial exhaustive plan source: `b011bb4763878eeafde7bb469833341e70a4b96e` (`docs/roadmap/R18_PLAN.md`)."
+          evidence = (
+              marker + "\n"
+              "- Final exhaustive planning head: **`5eb837c61688541c6b77b6208b8ae35827f3b0db`**; final planning diff contained only `docs/roadmap/R18_PLAN.md` and this continuity file relative to normalized R17 `main`.\n"
+              "- Fresh planning acceptance: R0 Repository Guard #2417 / `33907839275` **SUCCESS Ubuntu + Windows**; Python Core #2389 / `33907839126` **SUCCESS 5/5**; KodeStudio UI Smoke #2354 / `33907839056` **SUCCESS Windows**.\n"
+              "- Planning PR **#379** merged with `expected_head_sha=5eb837c61688541c6b77b6208b8ae35827f3b0db` as planning `main` **`7869f674e8e5b9298b526c2c3c2a9b4295ce798d`**."
+          )
+          if marker not in section:
+              raise SystemExit("missing R18 plan source marker")
+          section = section.replace(marker, evidence, 1)
+          old_accept = "- Planning acceptance: the final planning head must pass fresh exact-head R0 Repository Guard Ubuntu + Windows, full Python Core Ubuntu + Windows and KodeStudio UI Smoke Windows; planning PR must merge with expected-head protection; exactly one planning continuity-only normalization must then be re-gated and merged before R18.1 START-sync."
+          new_accept = "- Planning normalization rule: this record is the **single authorized post-merge planning continuity-only normalization**. It must pass fresh exact-head R0 Repository Guard Ubuntu + Windows, full Python Core Ubuntu + Windows and KodeStudio UI Smoke Windows, then merge with exact expected-head protection. **No second R18 planning normalization is authorized.** Once merged, R18.1 START-sync is authorized from that normalized `main`."
+          if old_accept not in section:
+              raise SystemExit("missing planning acceptance marker")
+          section = section.replace(old_accept, new_accept, 1)
+          text = text[:pos] + section
+
+          path.write_text(text, encoding="utf-8", newline="\n")
+          PY
+
+          git rm .github/workflows/r18-planning-normalization-temp.yml
+          git checkout -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json || true
+          git diff --check
+
+      - name: Commit and push normalization candidate
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r18-planning-normalization-temp.yml
+          git commit -m "docs: normalize R18 planning continuity"
+          git push origin HEAD:r18/planning-normalization

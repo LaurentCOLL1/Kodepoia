@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from kodepoia.kodestudio.v11_localization import V11Translator, resolve_locale
+from kodepoia.kodestudio.vision_assistant import VisionDraft
 
 
 SETTINGS_PATH = Path.home() / ".kodepoia" / "settings.json"
@@ -67,6 +68,18 @@ def _settings_page(locale: str):
     return page
 
 
+def _draft_has_content(draft: VisionDraft) -> bool:
+    return bool(
+        draft.summary
+        or draft.goals
+        or draft.success_metrics
+        or draft.constraints
+        or draft.mvp
+        or draft.out_of_scope
+        or draft.requirements
+    )
+
+
 def build_window(*, locale: str | None = None, project_root: Path | None = None):
     from PySide6.QtWidgets import QLabel, QListWidget, QPushButton, QStackedWidget
 
@@ -90,7 +103,17 @@ def build_window(*, locale: str | None = None, project_root: Path | None = None)
     if nav is None or pages is None:
         raise RuntimeError("Accepted KodeStudio shell navigation contract is missing")
 
-    chat_page = create_vision_chat_page(root, locale=chosen_locale)
+    def open_project_with_draft(draft: VisionDraft | None = None) -> None:
+        dialog = create_project_dialog(window, locale=chosen_locale)
+        if draft is not None and _draft_has_content(draft):
+            dialog._kodepoia_apply_vision_draft(draft)
+        dialog.exec()
+
+    chat_page = create_vision_chat_page(
+        root,
+        locale=chosen_locale,
+        apply_callback=open_project_with_draft,
+    )
     _replace_stack_page(pages, 0, chat_page)
 
     new_project = window.findChild(QPushButton, "newProjectButton")
@@ -100,7 +123,13 @@ def build_window(*, locale: str | None = None, project_root: Path | None = None)
         except (RuntimeError, TypeError):
             pass
         new_project.setText(tr.text("projects.new"))
-        new_project.clicked.connect(lambda: create_project_dialog(window, locale=chosen_locale).exec())
+
+        def open_project() -> None:
+            state = getattr(chat_page, "_kodepoia_vision_state", {})
+            draft = state.get("draft") if isinstance(state, dict) else None
+            open_project_with_draft(draft if isinstance(draft, VisionDraft) else None)
+
+        new_project.clicked.connect(open_project)
 
     # Replace the former placeholder Settings page with a real language setting.
     settings_index = nav.count() - 1
@@ -140,6 +169,7 @@ def build_window(*, locale: str | None = None, project_root: Path | None = None)
 
     window._kodepoia_chat_page = chat_page
     window._kodepoia_project_root = root
+    window._kodepoia_open_project_with_draft = open_project_with_draft
     return window
 
 

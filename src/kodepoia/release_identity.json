@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "product": "Kodepoia",
+  "channel": "beta",
+  "version": {
+    "major": 1,
+    "minor": 1,
+    "patch": 0,
+    "stage": "rc",
+    "serial": 1
+  }
+}

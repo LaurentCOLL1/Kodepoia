@@ -73,12 +73,11 @@ jobs:
           scripts/r18_1_release_identity_acceptance.py
           tests/test_r18_release_identity.py
 
-      - name: Ruff focused R18.1 sources
+      - name: Ruff R18.1-owned Python sources
         run: >-
           python -m ruff check
           src/kodepoia/release_identity.py
           src/kodepoia/cli.py
-          src/kodepoia/kodestudio/app_v11.py
           scripts/r18_1_release_identity_acceptance.py
           tests/test_r18_release_identity.py
 

@@ -1,0 +1,52 @@
+name: Temporary R17 Core Fix Helper
+
+on:
+  push:
+    branches:
+      - scratch/r17-core-fix-helper
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: scratch/r17-core-fixes
+          fetch-depth: 0
+      - name: Update supply-chain authority regression
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path("tests/test_supply_chain_r16_9.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''    assert len(policy.immutable_authority_workflows) == 21
+    assert (
+        ".github/workflows/r16-15-project-durability-acceptance.yml"
+        in policy.immutable_authority_workflows
+    )
+'''
+          new = '''    assert len(policy.immutable_authority_workflows) == 22
+    assert ".github/workflows/windows-installer.yml" in policy.immutable_authority_workflows
+    assert (
+        ".github/workflows/r16-15-project-durability-acceptance.yml"
+        in policy.immutable_authority_workflows
+    )
+'''
+          if text.count(old) != 1:
+              raise SystemExit("expected unique supply-chain authority assertion block")
+          path.write_text(text.replace(old, new), encoding="utf-8")
+      - name: Validate diff and push target-only patch
+        shell: bash
+        run: |
+          git diff --check
+          test "$(git diff --name-only)" = "tests/test_supply_chain_r16_9.py"
+          git config user.name "LaurentCOLL1"
+          git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
+          git add tests/test_supply_chain_r16_9.py
+          test "$(git diff --cached --name-only)" = "tests/test_supply_chain_r16_9.py"
+          git commit -m "test(r17): extend supply-chain authority regression"
+          git push origin HEAD:scratch/r17-core-fixes

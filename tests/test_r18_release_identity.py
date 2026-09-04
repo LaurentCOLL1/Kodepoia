@@ -78,7 +78,7 @@ def test_pep440_monotonicity_across_channels() -> None:
         "1.1.0rc1",
         "1.1.0",
     ]
-    assert all(new.is_newer_than(old) for old, new in zip(ordered, ordered[1:], strict=True))
+    assert all(new.is_newer_than(old) for old, new in zip(ordered[:-1], ordered[1:], strict=True))
 
 
 def test_channel_transition_rules_block_same_release_regressions() -> None:

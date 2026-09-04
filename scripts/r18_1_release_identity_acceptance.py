@@ -118,7 +118,7 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
         ),
         "pep440_precedence_contract": (
             [item.pep440_version for item in ordered] == expected_pep440_order
-            and all(new.is_newer_than(old) for old, new in zip(ordered, ordered[1:], strict=True))
+            and all(new.is_newer_than(old) for old, new in zip(ordered[:-1], ordered[1:], strict=True))
         ),
         "channel_transition_contract": (
             ordered[1].can_transition_to(ordered[4])

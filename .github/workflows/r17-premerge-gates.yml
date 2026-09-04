@@ -17,7 +17,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
-      KODEPOIA_SOURCE_SHA: 4cd308200ec9fbdef6f15f660373962fee02d2b0
+      KODEPOIA_SOURCE_SHA: 7ed0731c1aa3c94d8a5feb13a08ae7ad953a86c9
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -44,7 +44,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
-      KODEPOIA_SOURCE_SHA: 4cd308200ec9fbdef6f15f660373962fee02d2b0
+      KODEPOIA_SOURCE_SHA: 7ed0731c1aa3c94d8a5feb13a08ae7ad953a86c9
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -66,7 +66,7 @@ jobs:
     name: kodestudio-ui-windows
     runs-on: windows-latest
     env:
-      KODEPOIA_SOURCE_SHA: 4cd308200ec9fbdef6f15f660373962fee02d2b0
+      KODEPOIA_SOURCE_SHA: 7ed0731c1aa3c94d8a5feb13a08ae7ad953a86c9
       QT_QPA_PLATFORM: offscreen
       KODEPOIA_LOCALE: fr
     steps:
@@ -84,4 +84,4 @@ jobs:
       - name: Compile
         run: python -m compileall -q src tests
       - name: KodeStudio + R17 smoke
-        run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py tests/test_r6_6_localization_ui.py tests/test_r7_10_research_ui.py tests/test_r8_10_kodestudio.py tests/test_r17_guided_ux.py
+        run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py tests/test_r6_6_localization_ui.py tests/test_r7_10_research_ui.py tests/test_r8_10_kodestudio.py tests/test_r17_guided_ux.py tests/test_r17_packaged_entrypoint.py

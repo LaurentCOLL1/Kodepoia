@@ -25,8 +25,13 @@ jobs:
           set -euo pipefail
           git config user.name "LaurentCOLL1"
           git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
+          git config core.autocrlf false
+          git config core.eol lf
           git fetch origin c03d5cb003aec4140d8f7429240980d26d01b7ba
           git checkout -B r16/phase-continuity-normalization c03d5cb003aec4140d8f7429240980d26d01b7ba
+          git reset --hard c03d5cb003aec4140d8f7429240980d26d01b7ba
+          git clean -fdx
+          test -z "$(git status --porcelain)"
           python - <<'PY'
           from pathlib import Path
 
@@ -34,7 +39,6 @@ jobs:
           text = path.read_text(encoding="utf-8")
           trailing_newline = text.endswith("\n")
 
-          # Replace the leading authority paragraph without touching historical detail.
           _, remainder = text.split("\n\n", 1)
           first = (
               "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. "
@@ -43,27 +47,27 @@ jobs:
               "R16.9 #86 / `33859618312`, R0 #2409 / `33859618319`, Python Core #2381 / `33859618371` 5/5 and "
               "KodeStudio UI Smoke #2346 / `33859618310`, then PR #373 merged with exact expected head as implementation/evidence "
               "`main` `c03d5cb003aec4140d8f7429240980d26d01b7ba`. This record is the unique post-merge continuity-only R16 phase "
-              "normalization authority when its PR merges; only the resulting normalized `main` may be called R16 COMPLETE + NORMALIZED / "
-              "v1.0 phase complete.** Immutable R16.18 technical source remains `230ff65feaaa50e9b0c740658e06c74976448908`; integrated authority "
-              "is 33/33 fresh and non-circular with `critical_veto=false` and cross-platform RC bytes identical. Optional live-capability/manual "
-              "evidence remains CONDITIONAL / NOT TRIGGERED; no production signing, public/store publication or provider/domain cutover is claimed."
+              "normalization authority; once this exact record is present on `main` through its fresh exact-head R0/Python/UI-gated merge, "
+              "R16 is COMPLETE + NORMALIZED and the v1.0 phase is complete.** Immutable R16.18 technical source remains "
+              "`230ff65feaaa50e9b0c740658e06c74976448908`; integrated authority is 33/33 fresh and non-circular with `critical_veto=false` "
+              "and cross-platform RC bytes identical. Optional live-capability/manual evidence remains CONDITIONAL / NOT TRIGGERED; no production "
+              "signing, public/store publication or provider/domain cutover is claimed."
           )
           text = first + "\n\n" + remainder
 
-          # Add one global R16 phase record immediately after the planning record.
           lines = text.splitlines()
           if not any(line.startswith("- R16 :") for line in lines):
               planning_idx = next(i for i, line in enumerate(lines) if line.startswith("- R16 planning :"))
               lines.insert(
                   planning_idx + 1,
-                  "- R16 : **COMPLETE + NORMALIZED when this unique phase-normalization PR merges** — immutable R16.18 technical source "
+                  "- R16 : **COMPLETE + NORMALIZED effective when this unique phase-normalization record enters `main` through its exact gated merge** — immutable R16.18 technical source "
                   "`230ff65feaaa50e9b0c740658e06c74976448908`; final exact-END `1efcf82721ccef000d3cf335ad89132fb742fceb`; exact-END "
                   "R16.18 #21 / `33859618254`, R16.9 #86 / `33859618312`, R0 #2409 / `33859618319`, Python Core #2381 / `33859618371` "
                   "5/5 and UI #2346 / `33859618310` all SUCCESS; PR #373 merged with `expected_head_sha=1efcf82721ccef000d3cf335ad89132fb742fceb` "
                   "as implementation/evidence `main` `c03d5cb003aec4140d8f7429240980d26d01b7ba`. Canonical integrated authority digest "
                   "`43bb342e1c888a07f6ce64c75b7da5e9aadf0e3e09fada478f81cb320def359a`; 33/33 exact-source reports, blockers empty, "
                   "`critical_veto=false`, RC packages byte-identical cross-platform. This continuity-only record is the single authorized R16 phase "
-                  "normalization authority when merged; no second R16 phase normalization is authorized. Phase completion does not imply a public release."
+                  "normalization authority; no second R16 phase normalization is authorized. Phase completion does not imply a public release."
               )
           text = "\n".join(lines) + ("\n" if trailing_newline else "")
 
@@ -75,7 +79,7 @@ jobs:
           new_state = (
               "- R16.18 state: **COMPLETE at END-sync**; core integrated acceptance manual state **NONE**. Optional live-capability evidence remains "
               "**CONDITIONAL / NOT TRIGGERED** and `NOT_EXERCISED`. Fresh exact-END re-gates and the exact-head implementation/evidence merge are complete; "
-              "R16/v1.0 phase closure now depends only on this single continuity-only R16 phase normalization passing fresh exact-head R0/Python/UI and merging."
+              "the single remaining authority boundary is this continuity-only R16 phase normalization receiving fresh exact-head R0/Python/UI and entering `main` by exact-head merge."
           )
           if old_state not in text:
               raise SystemExit("R16.18 state authority anchor missing")
@@ -124,11 +128,12 @@ jobs:
               "`c03d5cb003aec4140d8f7429240980d26d01b7ba`. Its authoritative decision tree may change only "
               "`docs/continuity/KODEPOIA_CONTINUITY.md`; `docs/roadmap/R16_PLAN.md`, workflows, implementation/runtime/test bytes, policies and RC package logic remain "
               "identical to the implementation/evidence merge. No temporary helper or helper workflow may exist on the normalization decision head.\n"
-              "- This is the single authorized post-merge R16 phase normalization. Its exact candidate head must pass fresh R0 Repository Guard Ubuntu + Windows, "
-              "full Python Core 5/5 and KodeStudio UI Smoke, then merge with `expected_head_sha` equal to that exact candidate. No second R16 phase normalization is permitted.\n"
+              "- This is the single authorized post-merge R16 phase normalization. Before this record may enter `main`, its exact candidate head must pass fresh "
+              "R0 Repository Guard Ubuntu + Windows, full Python Core 5/5 and KodeStudio UI Smoke, then merge with `expected_head_sha` equal to that exact candidate. "
+              "No second R16 phase normalization is permitted.\n"
               "- Core R16.18 manual state remains **NONE**; optional live-capability evidence remains **CONDITIONAL / NOT TRIGGERED** / `NOT_EXERCISED`. "
               "No production credential, production signing, public/store publication, provider/domain cutover or automatic public release is claimed by normalization.\n"
-              "- Only the normalized `main` produced by this exact gated normalization merge may be called **R16 COMPLETE + NORMALIZED / v1.0 phase complete**.\n\n"
+              "- Once this exact continuity record is present on `main` as the result of that gated exact-head merge, R16 is **COMPLETE + NORMALIZED** and the v1.0 phase is complete; no further R16 normalization or subdivision is authorized.\n\n"
           )
           marker = "## R16 status index\n"
           if marker not in text:
@@ -136,7 +141,7 @@ jobs:
           text = text.replace(marker, section + marker, 1)
 
           old_row = "| R16.18 | COMPLETE | CONDITIONAL / NOT TRIGGGERED |"
-          new_row = "| R16.18 | COMPLETE + NORMALIZED when this normalization merges | CONDITIONAL / NOT TRIGGERED |"
+          new_row = "| R16.18 | COMPLETE + NORMALIZED (effective on phase-normalization merge) | CONDITIONAL / NOT TRIGGERED |"
           if old_row not in text:
               raise SystemExit("R16.18 status row missing")
           text = text.replace(old_row, new_row, 1)
@@ -145,15 +150,15 @@ jobs:
           permanent_heading = "\n## Permanent R-phase execution rule"
           start = text.index(next_heading)
           end = text.index(permanent_heading, start)
-          next_block = (
-              "## Next authorized action\n\n"
-              "The implementation/evidence merge is complete on `main` `c03d5cb003aec4140d8f7429240980d26d01b7ba`. This continuity-only branch is the single authorized "
-              "R16 phase-normalization candidate. Run fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke on its exact candidate head; if all are SUCCESS, "
-              "merge the normalization PR only with `expected_head_sha` equal to that exact head. Only the resulting normalized `main` closes R16/v1.0 as COMPLETE + NORMALIZED. "
-              "No further R16 normalization is authorized, and phase completion does not imply public release/signing/publication/provider cutover. Optional live-capability claims remain "
-              "CONDITIONAL / NOT TRIGGERED.\n"
+          final_block = (
+              "## Final phase state\n\n"
+              "This continuity-only record is the single authorized R16 phase-normalization authority. Before it may enter `main`, its exact candidate head must receive fresh SUCCESS from "
+              "R0 Repository Guard, full Python Core and KodeStudio UI Smoke, and the normalization PR must merge only with `expected_head_sha` equal to that candidate. "
+              "Once this exact record is present on `main` as the result of that gated merge, R16 is **COMPLETE + NORMALIZED** and the v1.0 phase is complete; no further R16 "
+              "normalization or subdivision is authorized. Phase completion does not imply public release, production signing, public/store publication or provider/domain cutover, "
+              "and optional live-capability claims remain CONDITIONAL / NOT TRIGGERED.\n"
           )
-          text = text[:start] + next_block + text[end:]
+          text = text[:start] + final_block + text[end:]
 
           path.write_text(text, encoding="utf-8", newline="\n")
           PY

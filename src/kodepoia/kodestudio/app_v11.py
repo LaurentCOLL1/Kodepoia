@@ -68,12 +68,7 @@ def _settings_page(locale: str):
 
 
 def build_window(*, locale: str | None = None, project_root: Path | None = None):
-    from PySide6.QtWidgets import (
-        QLabel,
-        QListWidget,
-        QPushButton,
-        QStackedWidget,
-    )
+    from PySide6.QtWidgets import QLabel, QListWidget, QPushButton, QStackedWidget
 
     from kodepoia.kodestudio.app import build_window as build_v10_window
     from kodepoia.kodestudio.guided_project_wizard import create_project_dialog
@@ -105,9 +100,7 @@ def build_window(*, locale: str | None = None, project_root: Path | None = None)
         except (RuntimeError, TypeError):
             pass
         new_project.setText(tr.text("projects.new"))
-        new_project.clicked.connect(
-            lambda: create_project_dialog(window, locale=chosen_locale).exec()
-        )
+        new_project.clicked.connect(lambda: create_project_dialog(window, locale=chosen_locale).exec())
 
     # Replace the former placeholder Settings page with a real language setting.
     settings_index = nav.count() - 1
@@ -151,6 +144,9 @@ def build_window(*, locale: str | None = None, project_root: Path | None = None)
 
 
 def main() -> int:
+    smoke_test = "--smoke-test" in sys.argv
+    if smoke_test:
+        os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     try:
         from PySide6.QtWidgets import QApplication
     except ImportError:
@@ -162,6 +158,12 @@ def main() -> int:
 
     app = QApplication.instance() or QApplication(sys.argv)
     window = build_window()
+    if smoke_test:
+        window.show()
+        app.processEvents()
+        window.close()
+        app.processEvents()
+        return 0
     window.show()
     return app.exec()
 

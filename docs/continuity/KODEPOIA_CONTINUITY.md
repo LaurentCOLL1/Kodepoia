@@ -798,3 +798,15 @@ Les détails complets restent immuables dans `docs/roadmap/R14_PLAN.md` et dans 
 ## Next authorized action
 
 R15 planning is the next authorized action on the normalized `main` produced by this continuity-only normalization PR. Do not begin R15 from the implementation merge or an unmerged normalization candidate; only the successfully re-gated and merged normalized `main` is authoritative.
+
+## R17 — Distribution & Guided Creation UX
+
+- State: **IN_PROGRESS**.
+- Authorized normalized base: `main` `11194ec5bbb6a986d0fa206517ad3759378a80cf` — R16 COMPLETE + NORMALIZED / v1.0 phase complete.
+- Dedicated branch: `r17/distribution-guided-ux`.
+- START plan: `docs/roadmap/R17_PLAN.md`.
+- Frozen scope: standalone Windows `KodepoiaSetup.exe`; French-first guided shell/onboarding; beginner project-creation catalogs without breaking the accepted R12–R14 widget contract; functional local Chat/Vision assistant for Summary, Goals, Success metrics, Constraints, MVP, Out of scope, Requirements and Acceptance criteria; deterministic clarification fallback; README/install guidance and exact-source packaging CI.
+- Architecture boundary: R17 extends the frozen v1.0 product without rewriting R1–R16 history or weakening Guardian/Sandbox/Secrets/provenance rules.
+- Installer truth boundary: target users must not require Python or `pip`; production signing/public release remain **CONDITIONAL / NOT TRIGGERED** until separately evidenced.
+- Core R17 manual state at START: **NONE**.
+- R17 may be called COMPLETE only after focused/adversarial tests, successful Windows installer build + silent install + packaged UI smoke, exact-head R0/full Python Core/UI gates, END-sync, exact-head merge, then the single authorized post-merge continuity-only normalization.

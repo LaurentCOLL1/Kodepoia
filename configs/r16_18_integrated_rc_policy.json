@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {"critical":true,"id":"r16.1-red-team","phase":"R16.1","pytest":["tests/test_r16_redteam.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.2-prompt-injection","phase":"R16.2","pytest":["tests/test_r16_prompt_injection.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.3-workspace-quarantine","phase":"R16.3","pytest":["tests/test_r16_workspace_quarantine.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.4-secrets-privacy","phase":"R16.4","pytest":["tests/test_r16_secret_guard.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.5-tool-trust","phase":"R16.5","pytest":["tests/test_r16_tool_trust.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.6-destructive-agency","phase":"R16.6","pytest":["tests/test_r16_destructive_guard.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.7-memory-poisoning","phase":"R16.7","pytest":["tests/test_memory_r16_7.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.8-fault-recovery","phase":"R16.8","pytest":["tests/test_fault_recovery_r16_8.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.9-supply-chain","phase":"R16.9","pytest":["tests/test_supply_chain_r16_9.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.10-godot-2d","phase":"R16.10","pytest":["tests/test_r16_10_godot_beta.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.11-godot-3d","phase":"R16.11","pytest":["tests/test_r16_11_godot_3d_beta.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.12-windows-desktop","phase":"R16.12","pytest":["tests/test_r16_12_windows_desktop.py"],"targets":[{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.13-comfyui","phase":"R16.13","pytest":["tests/test_r16_13_comfyui_beta.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.14-media","phase":"R16.14","pytest":["tests/test_r16_14_media_beta.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.15-durability","phase":"R16.15","pytest":["tests/test_r16_15_project_durability.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.16-resource-soak","phase":"R16.16","pytest":["tests/test_r16_16_resource_soak.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]},
+    {"critical":true,"id":"r16.17-release-readiness","phase":"R16.17","pytest":["tests/test_r16_17_package_canonicalization.py","tests/test_r16_17_release_readiness.py"],"targets":[{"platform":"Linux","runner":"ubuntu-latest"},{"platform":"Windows","runner":"windows-latest"}]}
+  ],
+  "historical_evidence_may_decide_verdict": false,
+  "non_circular": true,
+  "policy_id": "r16.18-integrated-adversarial-real-project-rc-v1",
+  "reject_skipped_tests": true,
+  "require_all_cases": true,
+  "require_exact_source_sha": true,
+  "schema_version": 1
+}

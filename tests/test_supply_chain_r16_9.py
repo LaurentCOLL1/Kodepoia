@@ -98,7 +98,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     assert len(policy.digest_sha256) == 64
     assert policy.required_contents_permission == "read"
-    assert len(policy.immutable_authority_workflows) == 20
+    assert len(policy.immutable_authority_workflows) == 21
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
         in policy.immutable_authority_workflows
@@ -109,6 +109,10 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     assert (
         ".github/workflows/r16-17-release-readiness-acceptance.yml"
+        in policy.immutable_authority_workflows
+    )
+    assert (
+        ".github/workflows/r16-18-integrated-rc-acceptance.yml"
         in policy.immutable_authority_workflows
     )
     assert policy.legacy_workflows_are_non_authoritative_for_v1_promotion
@@ -236,7 +240,7 @@ def test_r16_9_untrusted_pr_shell_interpolation_is_forbidden(tmp_path: Path) -> 
         tmp_path,
         "permissions:\n  contents: read\njobs:\n  t:\n    steps:\n"
         "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n"
-        "      - run: echo \"${{ github.event.pull_request.title }}\"\n",
+        '      - run: echo "${{ github.event.pull_request.title }}"\n',
     )
     audit = audit_workflows(root, _policy())
     assert any("workflow_untrusted_pr_shell_interpolation" in blocker for blocker in audit.blockers)
@@ -249,7 +253,7 @@ def test_r16_9_safe_exact_pr_sha_context_is_not_treated_as_shell_injection(tmp_p
         "  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}\n"
         "jobs:\n  t:\n    steps:\n"
         "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n"
-        "      - run: echo \"${{ env.SOURCE_SHA }}\"\n",
+        '      - run: echo "${{ env.SOURCE_SHA }}"\n',
     )
     audit = audit_workflows(root, _policy())
     assert audit.status is SupplyChainStatus.PASS

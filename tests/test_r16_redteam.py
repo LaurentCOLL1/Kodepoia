@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 
 import pytest
@@ -90,13 +89,18 @@ def test_loader_rejects_outside_repository(tmp_path: Path) -> None:
         load_redteam_corpus(outside, repository_root=ROOT)
 
 
-@pytest.mark.skipif(os.name == "nt", reason="symlink creation is not reliably available on Windows runners")
-def test_loader_rejects_symlink_fixture(tmp_path: Path) -> None:
-    link = tmp_path / "corpus.json"
-    link.symlink_to(CORPUS)
+def test_loader_rejects_symlink_fixture(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    candidate = repo / "corpus.json"
+    candidate.write_text(CORPUS.read_text(encoding="utf-8"), encoding="utf-8")
+    monkeypatch.setattr(Path, "is_symlink", lambda path: path == candidate)
 
     with pytest.raises(ValueError, match="cannot be a symlink"):
-        load_redteam_corpus(link, repository_root=tmp_path)
+        load_redteam_corpus(candidate, repository_root=repo)
 
 
 def test_loader_rejects_digest_tampering(tmp_path: Path) -> None:

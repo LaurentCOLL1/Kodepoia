@@ -68,6 +68,11 @@ $NuitkaArgs = @(
     "--output-dir=$BuildRoot",
     "--output-filename=KodepoiaStudio.exe"
 )
+$ReleaseIdentityData = Join-Path $Root "src\kodepoia\release\release_identity.json"
+if (-not (Test-Path $ReleaseIdentityData)) {
+    throw "Canonical release identity data file is missing: $ReleaseIdentityData"
+}
+$NuitkaArgs += "--include-data-files=$ReleaseIdentityData=kodepoia/release/release_identity.json"
 if (Test-Path (Join-Path $Root "configs")) {
     $NuitkaArgs += "--include-data-dir=$Root\configs=configs"
 }

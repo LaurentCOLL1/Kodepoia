@@ -1,0 +1,120 @@
+name: Scratch R18.1 release surface sync
+
+on:
+  push:
+    branches:
+      - r18/01-release-identity
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact helper source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Bind CLI UI and installer surfaces
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              target = Path(path)
+              text = target.read_text(encoding="utf-8")
+              if text.count(old) != 1:
+                  raise SystemExit(f"expected exactly one replacement target in {path!r}")
+              target.write_text(text.replace(old, new, 1), encoding="utf-8", newline="\n")
+
+          replace_once(
+              "src/kodepoia/cli.py",
+              "from kodepoia.project.wizard import ProjectWizardState\nfrom kodepoia.tuning.r15_cli import register_r15_commands\n",
+              "from kodepoia.project.wizard import ProjectWizardState\nfrom kodepoia.release_identity import CURRENT_RELEASE\nfrom kodepoia.tuning.r15_cli import register_r15_commands\n",
+          )
+          replace_once(
+              "src/kodepoia/cli.py",
+              '    parser = argparse.ArgumentParser(prog="kodepoia")\n    commands = parser.add_subparsers(dest="command", required=True)\n',
+              '    parser = argparse.ArgumentParser(prog="kodepoia")\n'
+              '    parser.add_argument(\n'
+              '        "--version",\n'
+              '        action="version",\n'
+              '        version=f"%(prog)s {CURRENT_RELEASE.display_version} ({CURRENT_RELEASE.channel})",\n'
+              '    )\n'
+              '    commands = parser.add_subparsers(dest="command", required=True)\n',
+          )
+
+          replace_once(
+              "src/kodepoia/kodestudio/app_v11.py",
+              "from kodepoia.kodestudio.vision_assistant import VisionDraft\n",
+              "from kodepoia.kodestudio.vision_assistant import VisionDraft\nfrom kodepoia.release_identity import CURRENT_RELEASE\n",
+          )
+          replace_once(
+              "src/kodepoia/kodestudio/app_v11.py",
+              '    window.setWindowTitle(tr.text("app.title"))\n    window._kodepoia_locale = chosen_locale\n',
+              '    window.setWindowTitle(f"{tr.text(\'app.title\')} — {CURRENT_RELEASE.display_version}")\n'
+              '    window.setProperty("kodepoiaReleaseVersion", CURRENT_RELEASE.display_version)\n'
+              '    window.setProperty("kodepoiaReleaseChannel", CURRENT_RELEASE.channel)\n'
+              '    window._kodepoia_locale = chosen_locale\n',
+          )
+
+          replace_once(
+              "packaging/windows/Kodepoia.iss",
+              '#ifndef AppVersion\n  #define AppVersion "1.1.0-rc1"\n#endif\n',
+              '#ifndef AppVersion\n  #error AppVersion must be supplied from the canonical Kodepoia release identity\n#endif\n',
+          )
+
+          replace_once(
+              "scripts/build_windows_installer.ps1",
+              '    [string]$Version = "1.1.0-rc1",\n',
+              '    [string]$Version = "",\n',
+          )
+          replace_once(
+              "scripts/build_windows_installer.ps1",
+              'Write-Host "== Kodepoia Windows standalone build =="\n& $Python -m pip install -e ".[ui,code,packaging]"\n\n$BuildRoot',
+              'Write-Host "== Kodepoia Windows standalone build =="\n'
+              '& $Python -m pip install -e ".[ui,code,packaging]"\n'
+              'if ($LASTEXITCODE -ne 0) {\n'
+              '    throw "Failed to install Kodepoia build dependencies."\n'
+              '}\n\n'
+              '$ReleaseLines = & $Python -c "import json; from kodepoia.release_identity import CURRENT_RELEASE; print(json.dumps(CURRENT_RELEASE.to_dict(), sort_keys=True))"\n'
+              'if ($LASTEXITCODE -ne 0) {\n'
+              '    throw "Failed to read canonical Kodepoia release identity."\n'
+              '}\n'
+              '$ReleaseIdentity = (($ReleaseLines -join "`n") | ConvertFrom-Json)\n'
+              '$CanonicalVersion = [string]$ReleaseIdentity.display_version\n'
+              'if (-not $Version) {\n'
+              '    $Version = $CanonicalVersion\n'
+              '} elseif ($Version -ne $CanonicalVersion) {\n'
+              '    throw "Requested installer version $Version does not match canonical release identity $CanonicalVersion."\n'
+              '}\n\n'
+              '$BuildRoot',
+          )
+          replace_once(
+              "scripts/build_windows_installer.ps1",
+              '    version = $Version\n    installer = "KodepoiaSetup.exe"\n',
+              '    version = $Version\n'
+              '    pep440_version = [string]$ReleaseIdentity.pep440_version\n'
+              '    channel = [string]$ReleaseIdentity.channel\n'
+              '    release_identity_schema = [int]$ReleaseIdentity.schema_version\n'
+              '    installer = "KodepoiaSetup.exe"\n',
+          )
+
+      - name: Compile patched Python surfaces
+        run: python -m compileall -q src/kodepoia/cli.py src/kodepoia/kodestudio/app_v11.py src/kodepoia/release_identity.py
+
+      - name: Commit surface sync and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/scratch-r18-1-surface-sync.yml
+          git add src/kodepoia/cli.py src/kodepoia/kodestudio/app_v11.py packaging/windows/Kodepoia.iss scripts/build_windows_installer.ps1
+          git diff --cached --quiet && { echo "No release-surface changes staged"; exit 1; }
+          git commit -m "feat(r18.1): bind release surfaces to canonical identity"
+          git push origin HEAD:r18/01-release-identity

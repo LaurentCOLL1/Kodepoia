@@ -28,15 +28,16 @@ concurrency:
 
 jobs:
   temporary-end-sync-helper:
-    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
       TARGET_BRANCH: r16/18-integrated-adversarial-real-project-rc-acceptance
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Checkout staging head
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
+          ref: ${{ env.EVIDENCE_SHA }}
           fetch-depth: 0
       - name: Create documentation-only END tree
         shell: python
@@ -133,14 +134,15 @@ jobs:
           )
           c = c[:next_start] + next_block + c[next_end:]
           continuity.write_text(c, encoding="utf-8", newline="\n")
-      - name: Restore technical workflow and remove temporary helper
+
+          Path(".github/workflows/r16-18-end-sync-helper.yml").unlink()
+      - name: Restore technical workflow and push staged END tree
         shell: bash
         run: |
           git checkout 230ff65feaaa50e9b0c740658e06c74976448908 -- .github/workflows/r16-18-integrated-rc-acceptance.yml
-          git rm -f .github/workflows/r16-18-end-sync-helper.yml
           git config user.name "LaurentCOLL1"
           git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
-          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-18-integrated-rc-acceptance.yml
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-18-integrated-rc-acceptance.yml .github/workflows/r16-18-end-sync-helper.yml
           git diff --cached --name-only
           git commit -m "R16.18: synchronize END authority"
           git push origin "HEAD:${TARGET_BRANCH}"
@@ -181,7 +183,7 @@ jobs:
           tests/test_r16_18_integrated_rc.py
       - name: Ruff R16.18 sources
         run: >-
-          python -m ruff check src/kodepoia/quality/inated_rc_acceptance.py
+          python -m ruff check src/kodepoia/quality/integrated_rc_acceptance.py
           src/kodepoia/quality/integrated_rc_execution.py scripts/r16_18_integrated_acceptance.py
           tests/test_r16_18_integrated_rc.py
       - name: Run R16.18 contract and supply-chain regression tests

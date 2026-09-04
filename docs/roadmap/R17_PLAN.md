@@ -1,6 +1,6 @@
 # R17 — Distribution & Guided Creation UX
 
-Status: **IN_PROGRESS**
+Status: **COMPLETE AT END-SYNC — PENDING EXACT-HEAD MERGE + PHASE NORMALIZATION**
 
 Normalized base: `11194ec5bbb6a986d0fa206517ad3759378a80cf` (R16 / v1.0 COMPLETE + NORMALIZED)
 
@@ -50,6 +50,19 @@ R17 is acceptable only when all of the following are demonstrated on the same te
 - Windows packaging CI produces an artifact containing exactly a `KodepoiaSetup.exe` installer and verifies it exists/non-empty;
 - R0 Repository Guard, full Python Core and KodeStudio UI smoke are green on the accepted source;
 - no production signing/publication claim is made unless separately evidenced.
+
+## Technical acceptance evidence
+
+- Immutable accepted technical source: `7ed0731c1aa3c94d8a5feb13a08ae7ad953a86c9`.
+- R17 Windows Installer #8 / `33899936010`: **SUCCESS** on Windows Server 2025. Focused R17 packaging/UX tests: **11 passed**. Nuitka 4.2 built the complete standalone distribution and Inno Setup 6.7.1 produced `KodepoiaSetup.exe`.
+- Installer identity: version `1.1.0-rc1`; `KodepoiaSetup.exe` SHA-256 `e1871a7f01a08685aadd993e3a51d8ecf01e5bcbdd52bb050652b5bcdf1f9cc2`; `production_signed=false`.
+- Installer artifact: Actions artifact `9947822021`, name `KodepoiaSetup-Windows`, 33,444,079 bytes, ZIP digest `sha256:877d884568024b3653cbb725eea73e3c8a2fab7b6fdaed1f763bc26e81546f06`.
+- End-user independence was exercised, not inferred: silent install succeeded; installed `KodepoiaStudio.exe` launched from a clean temporary working directory while developer `python.exe` and `pip.exe` were absent from `PATH` and `PYTHONHOME`/`PYTHONPATH` were cleared; packaged UI smoke returned success; silent uninstall succeeded; the installed executable was confirmed removed.
+- Exact-source general gates: Temporary R17 Exact-Head Premerge Gates #6 / `33900785285` — R0 Repository Guard **SUCCESS** Ubuntu + Windows, full Python Core **SUCCESS** Ubuntu + Windows, and KodeStudio + R17 UI smoke **SUCCESS** Windows.
+- Superseded diagnostic predecessor `4cd308200ec9fbdef6f15f660373962fee02d2b0` / installer run #7 `33895528885` is **NON-AUTHORITATIVE** for the final decision because its installed packaged smoke failed. Its failure was used only to harden diagnostics and isolation; its PASS fragments are not reused as final acceptance evidence.
+- Diagnostic candidate `d703abf62321e9c8cbdde2cb1ceb9adf39035d42` and targeted run `33899782461` validated the diagnostic/clean-smoke contract before integration but are not the immutable final technical source.
+- Core manual intervention: **NONE**. Production code signing and public/store publication remain **CONDITIONAL / NOT TRIGGERED**; no certificate, production signing identity, store credential or publication action was exercised.
+- This END-sync is documentation-only relative to the immutable technical source. Its resulting exact END-head must pass fresh R17 Windows Installer + R0 + full Python Core + KodeStudio UI gates before the implementation/evidence PR may merge to `main`.
 
 ## Out of scope
 

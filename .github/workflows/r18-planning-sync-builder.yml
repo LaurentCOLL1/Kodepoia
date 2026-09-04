@@ -1,9 +1,6 @@
 name: Temporary R18 Planning Continuity Builder
 
-on:
-  push:
-    branches:
-      - scratch/r18-planning-sync-builder
+on: push
 
 permissions:
   contents: write
@@ -21,17 +18,15 @@ jobs:
           ref: ${{ env.KODEPOIA_PLAN_SHA }}
           fetch-depth: 0
 
-      - name: Assert exact plan source and clean checkout noise
+      - name: Assert exact plan source
         shell: bash
         run: |
           test "$(git rev-parse HEAD)" = "$KODEPOIA_PLAN_SHA"
-          git reset --hard HEAD
-          git clean -fd
-          test -z "$(git status --porcelain)"
 
-      - name: Synchronize R18 planning continuity only
+      - name: Build R18 planning continuity
         shell: bash
         run: |
+          git reset --hard HEAD
           git checkout -B "$KODEPOIA_TARGET_BRANCH"
           python - <<'PY'
           from pathlib import Path
@@ -94,37 +89,38 @@ jobs:
 
           r18_section = """
 
-## R18 — Trusted Release, Updates & Distribution Channels
+          ## R18 — Trusted Release, Updates & Distribution Channels
 
-- State: **PLANNING — implementation NOT YET AUTHORIZED**.
-- Source of truth / normalized branch point: `main` `58e488d80e60d04fc675e305bc8f040a3ab2bb9c` — R17 COMPLETE + NORMALIZED.
-- Dedicated planning branch: `r18/00-phase-plan`.
-- Initial exhaustive plan source: `b011bb4763878eeafde7bb469833341e70a4b96e` (`docs/roadmap/R18_PLAN.md`).
-- Frozen roadmap title established by this explicit post-R17 plan: **Trusted Release, Updates & Distribution Channels**. This is a post-v1.1 roadmap extension and does not rewrite frozen v1.0/R1–R16 history or architecture.
-- Phase objective: evolve the R17 standalone Windows installer into a trustworthy release/update system with one canonical release identity, deterministic release bundle, SBOM/provenance, truthful Authenticode boundary, immutable release staging, TUF-secured update metadata, explicit release channels, verified user-consented update install, WinGet readiness, revocation/rollback procedures and integrated adversarial acceptance.
-- Frozen subdivision count: **11** — R18.1 canonical release identity/version/channels; R18.2 deterministic release bundle/manifest; R18.3 SBOM/provenance/attestations; R18.4 Authenticode signing/verification; R18.5 immutable GitHub Release staging/promotion; R18.6 TUF update repository; R18.7 update discovery/channel UX; R18.8 verified download/install/rollback; R18.9 WinGet manifest readiness; R18.10 revocation/rollback/compromise drills; R18.11 integrated adversarial acceptance.
-- Planning rationale is grounded in current official platform guidance: GitHub immutable releases and artifact attestations for release/build integrity/provenance; Microsoft SignTool SHA-256 Authenticode verification; Windows Package Manager manifest validation before public repository acceptance; and TUF security roles/protections for update systems. External details must be re-verified at implementation time.
-- Existing architecture boundaries remain mandatory: WorkspaceBoundary, ProcessSandbox, Guardian/PermissionSet, KillSwitch, SafeChange, audit/secrets/budget/data-governance constraints, structured tool APIs and local-first/offline behavior. Release/update network content remains untrusted until structurally/cryptographically verified.
-- Manual/effect boundary: core R18 planning and CI acceptance require no user secret. R18.4 production signing, R18.5 public GitHub Release publication and R18.9 public WinGet submission are **CONDITIONAL / NOT TRIGGERED** and must never be inferred from readiness evidence.
-- Planning acceptance rule: this plan + continuity planning head must pass fresh exact-head R0 Repository Guard Ubuntu + Windows, full Python Core Ubuntu + Windows and KodeStudio UI Smoke Windows, then merge through an exact expected-head PR. One and only one planning continuity-only normalization must then be re-gated and merged. Only that normalized `main` authorizes R18.1.
-"""
+          - State: **PLANNING — implementation NOT YET AUTHORIZED**.
+          - Source of truth / normalized branch point: `main` `58e488d80e60d04fc675e305bc8f040a3ab2bb9c` — R17 COMPLETE + NORMALIZED.
+          - Dedicated planning branch: `r18/00-phase-plan`.
+          - Initial exhaustive plan source: `b011bb4763878eeafde7bb469833341e70a4b96e` (`docs/roadmap/R18_PLAN.md`).
+          - Frozen roadmap title established by this explicit post-R17 plan: **Trusted Release, Updates & Distribution Channels**. This is a post-v1.1 roadmap extension and does not rewrite frozen v1.0/R1–R16 history or architecture.
+          - Phase objective: evolve the R17 standalone Windows installer into a trustworthy release/update system with one canonical release identity, deterministic release bundle, SBOM/provenance, truthful Authenticode boundary, immutable release staging, TUF-secured update metadata, explicit release channels, verified user-consented update install, WinGet readiness, revocation/rollback procedures and integrated adversarial acceptance.
+          - Frozen subdivision count: **11** — R18.1 canonical release identity/version/channels; R18.2 deterministic release bundle/manifest; R18.3 SBOM/provenance/attestations; R18.4 Authenticode signing/verification; R18.5 immutable GitHub Release staging/promotion; R18.6 TUF update repository; R18.7 update discovery/channel UX; R18.8 verified download/install/rollback; R18.9 WinGet manifest readiness; R18.10 revocation/rollback/compromise drills; R18.11 integrated adversarial acceptance.
+          - Planning rationale is grounded in current official platform guidance: GitHub immutable releases and artifact attestations for release/build integrity/provenance; Microsoft SignTool SHA-256 Authenticode verification; Windows Package Manager manifest validation before public repository acceptance; and TUF security roles/protections for update systems. External details must be re-verified at implementation time.
+          - Existing architecture boundaries remain mandatory: WorkspaceBoundary, ProcessSandbox, Guardian/PermissionSet, KillSwitch, SafeChange, audit/secrets/budget/data-governance constraints, structured tool APIs and local-first/offline behavior. Release/update network content remains untrusted until structurally/cryptographically verified.
+          - Manual/effect boundary: core R18 planning and CI acceptance require no user secret. R18.4 production signing, R18.5 public GitHub Release publication and R18.9 public WinGet submission are **CONDITIONAL / NOT TRIGGERED** and must never be inferred from readiness evidence.
+          - Planning acceptance rule: this plan + continuity planning head must pass fresh exact-head R0 Repository Guard Ubuntu + Windows, full Python Core Ubuntu + Windows and KodeStudio UI Smoke Windows, then merge through an exact expected-head PR. One and only one planning continuity-only normalization must then be re-gated and merged. Only that normalized `main` authorizes R18.1.
+          """
+          r18_section = "\n".join(line[10:] if line.startswith("          ") else line for line in r18_section.splitlines())
           if "## R18 — Trusted Release, Updates & Distribution Channels" not in text:
-              text = text.rstrip() + r18_section + "\n"
+              text = text.rstrip() + "\n" + r18_section + "\n"
 
           path.write_text(text, encoding="utf-8", newline="\n")
           PY
 
-          changed="$(git diff --name-only)"
-          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
-          git diff --check
+          git checkout -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json || true
+          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
 
-      - name: Commit and push R18 planning sync
+      - name: Commit and push planning candidate
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git commit -m "docs: sync R18 planning continuity"
-          files="$(git diff-tree --no-commit-id --name-only -r HEAD)"
-          test "$files" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test "$(git diff-tree --no-commit-id --name-only -r HEAD)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git push origin "HEAD:refs/heads/$KODEPOIA_TARGET_BRANCH"

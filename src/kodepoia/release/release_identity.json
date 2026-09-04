@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "product": "Kodepoia",
+  "package": "kodepoia",
+  "channel": "beta",
+  "build_type": "prerelease",
+  "source_binding": "exact-head",
+  "version": {
+    "major": 1,
+    "minor": 1,
+    "patch": 0,
+    "stage": "rc",
+    "serial": 1
+  }
+}

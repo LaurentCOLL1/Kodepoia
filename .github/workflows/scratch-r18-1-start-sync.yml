@@ -1,0 +1,68 @@
+name: Scratch R18.1 START sync
+
+on:
+  push:
+    branches:
+      - r18/01-release-identity
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact helper source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Patch R18.1 START continuity
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+          lines = text.splitlines()
+          assert lines and lines[0].startswith("> Kodepoia, architecture v1.0 gelée."), "continuity authority header missing"
+          lines[0] = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED. "
+              "R18 planning ACCEPTED + NORMALIZED on canonical `main` "
+              "`bbffc382d4fb8a7d947345da11b56459d0fec825` after planning PR #379 and the unique "
+              "exact-head gated planning-normalization PR #380. R18.1 Canonical release identity, versions and "
+              "channels is STARTED from that exact normalized main on `r18/01-release-identity`.** "
+              "Production signing, public GitHub Release publication and public WinGet submission remain "
+              "CONDITIONAL / NOT TRIGGERED."
+          )
+
+          marker_prefix = "- R18 planning : **ACCEPTED + NORMALIZED"
+          insert_at = next((i + 1 for i, line in enumerate(lines) if line.startswith(marker_prefix)), None)
+          assert insert_at is not None, "R18 planning authority marker missing"
+          r18_1 = (
+              "- R18.1 : **IN PROGRESS / START-SYNC** — normalized R18 planning base "
+              "`bbffc382d4fb8a7d947345da11b56459d0fec825`; dedicated branch "
+              "`r18/01-release-identity`; scope frozen to canonical release identity, versions and channels from "
+              "`docs/roadmap/R18_PLAN.md`. Required channels are `stable`, `beta`, `nightly`; Python version output "
+              "must be PEP 440-normalized; `pyproject.toml`, Inno Setup and CLI/UI version surfaces must be derived "
+              "or validated against the single machine-readable authority; monotonicity and channel transitions "
+              "must be tested. No production signing/public release/WinGet submission is authorized by this START."
+          )
+          lines = [line for line in lines if not line.startswith("- R18.1 : **IN PROGRESS / START-SYNC**")]
+          insert_at = next(i + 1 for i, line in enumerate(lines) if line.startswith(marker_prefix))
+          lines.insert(insert_at, r18_1)
+          path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+      - name: Commit START sync and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/scratch-r18-1-start-sync.yml
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --quiet && { echo "No START-sync changes staged"; exit 1; }
+          git commit -m "docs: sync R18.1 start continuity"
+          git push origin HEAD:r18/01-release-identity

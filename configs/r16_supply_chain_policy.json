@@ -63,7 +63,8 @@
       ".github/workflows/r16-17-release-readiness-acceptance.yml",
       ".github/workflows/r16-18-integrated-rc-acceptance.yml",
       ".github/workflows/ui-smoke.yml",
-      ".github/workflows/windows-installer.yml"
+      ".github/workflows/windows-installer.yml",
+      ".github/workflows/r18-1-release-identity-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

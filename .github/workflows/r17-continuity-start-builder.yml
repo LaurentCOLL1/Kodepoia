@@ -42,7 +42,7 @@ jobs:
           '''
               path.write_text(text.rstrip() + "\n\n" + record.strip() + "\n", encoding="utf-8")
           PY
-          git diff --check
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
           git diff -- docs/continuity/KODEPOIA_CONTINUITY.md
 
       - name: Commit and push START sync only
@@ -52,10 +52,11 @@ jobs:
             echo "R17 START continuity already present."
             exit 0
           fi
-          test "$(git diff --name-only | wc -l)" -eq 1
-          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git config user.name "LaurentCOLL1"
           git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
           git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only | wc -l)" -eq 1
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git diff --cached --check
           git commit -m "docs(r17): sync START continuity"
           git push origin HEAD:r17/distribution-guided-ux

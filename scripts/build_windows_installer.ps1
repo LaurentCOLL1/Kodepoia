@@ -35,7 +35,7 @@ if (Test-Path (Join-Path $Root "configs")) {
 if (Test-Path (Join-Path $Root "schemas")) {
     $NuitkaArgs += "--include-data-dir=$Root\schemas=schemas"
 }
-$NuitkaArgs += "src\kodepoia\kodestudio\app_v11.py"
+$NuitkaArgs += "src\kodepoia\kodestudio\app_v11_entry.py"
 
 & $Python @NuitkaArgs
 if ($LASTEXITCODE -ne 0) {

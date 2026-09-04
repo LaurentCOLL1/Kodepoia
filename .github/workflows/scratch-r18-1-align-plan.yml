@@ -145,11 +145,11 @@ jobs:
 
           path = Path("scripts/build_windows_installer.ps1")
           text = path.read_text(encoding="utf-8")
-          text = text.replace(
-              '    [string]$Version = "",\n    [string]$OutputDir = "artifacts/windows",\n',
-              '    [string]$Version = "",\n    [string]$SourceSha = "",\n    [string]$OutputDir = "artifacts/windows",\n',
-              1,
-          )
+          old_param = '    [string]$Version = "",\n    [string]$OutputDir = "artifacts/windows",\n'
+          new_param = '    [string]$Version = "",\n    [string]$SourceSha = "",\n    [string]$OutputDir = "artifacts/windows",\n'
+          if text.count(old_param) != 1:
+              raise SystemExit("Windows builder Version parameter block not found exactly once")
+          text = text.replace(old_param, new_param, 1)
           old = '$ReleaseLines = & $Python -c "import json; from kodepoia.release_identity import CURRENT_RELEASE; print(json.dumps(CURRENT_RELEASE.to_dict(), sort_keys=True))"\n'
           new = (
               'if (-not $SourceSha) {\n'
@@ -164,20 +164,14 @@ jobs:
               '$SourceSha = $SourceSha.ToLowerInvariant()\n'
               '$ReleaseLines = & $Python -m kodepoia.release.identity --source-sha $SourceSha --json\n'
           )
-          if old not in text:
-              raise SystemExit("Windows builder canonical identity command not found")
+          if text.count(old) != 1:
+              raise SystemExit("Windows builder canonical identity command not found exactly once")
           text = text.replace(old, new, 1)
           marker = '    release_identity_schema = [int]$ReleaseIdentity.schema_version\n'
-          if marker not in text:
-              raise SystemExit("Windows builder manifest marker not found")
+          if text.count(marker) != 1:
+              raise SystemExit("Windows builder manifest marker not found exactly once")
           text = text.replace(marker, marker + '    source_sha = [string]$ReleaseIdentity.source_sha\n    build_type = [string]$ReleaseIdentity.build_type\n', 1)
           path.write_text(text, encoding="utf-8", newline="\n")
-
-          workflow = Path(".github/workflows/r18-1-release-identity-acceptance.yml")
-          text = workflow.read_text(encoding="utf-8")
-          text = text.replace("      - src/kodepoia/release_identity.json\n      - src/kodepoia/release_identity.py\n", "      - schemas/release_identity.schema.json\n      - src/kodepoia/release/**\n")
-          text = text.replace("          src/kodepoia/release_identity.py\n", "          src/kodepoia/release/identity.py\n")
-          workflow.write_text(text, encoding="utf-8", newline="\n")
 
       - name: Remove superseded root identity files
         shell: bash
@@ -202,6 +196,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/scratch-r18-1-align-plan.yml
-          git add .github/workflows/r18-1-release-identity-acceptance.yml schemas/release_identity.schema.json src/kodepoia/release src/kodepoia/__init__.py src/kodepoia/cli.py src/kodepoia/kodestudio/app_v11.py scripts/build_windows_installer.ps1 scripts/r18_1_release_identity_acceptance.py tests/test_r18_release_identity.py
+          git add schemas/release_identity.schema.json src/kodepoia/release src/kodepoia/__init__.py src/kodepoia/cli.py src/kodepoia/kodestudio/app_v11.py scripts/build_windows_installer.ps1 scripts/r18_1_release_identity_acceptance.py tests/test_r18_release_identity.py
           git commit -m "refactor(r18.1): align release identity with frozen plan"
           git push origin HEAD:r18/01-release-identity

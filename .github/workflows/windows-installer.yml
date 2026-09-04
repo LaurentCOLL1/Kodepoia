@@ -66,10 +66,15 @@ jobs:
           Get-FileHash $setup -Algorithm SHA256
           Get-Content "dist/windows/installer-manifest.json"
 
-      - name: Silent install and packaged UI smoke
+      - name: Silent clean-environment install, packaged UI smoke and uninstall
         shell: pwsh
         run: |
           $installDir = Join-Path $env:RUNNER_TEMP "Kodepoia-installed"
+          $smokeDir = Join-Path $env:RUNNER_TEMP "Kodepoia-smoke-cwd"
+          Remove-Item $installDir -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $smokeDir -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $smokeDir | Out-Null
+
           $process = Start-Process -FilePath "dist/windows/KodepoiaSetup.exe" -ArgumentList @(
             "/VERYSILENT",
             "/SUPPRESSMSGBOXES",
@@ -78,18 +83,55 @@ jobs:
             "/DIR=$installDir"
           ) -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw "Installer exited with $($process.ExitCode)" }
+
           $exe = Join-Path $installDir "KodepoiaStudio.exe"
           if (-not (Test-Path $exe)) { throw "Installed KodepoiaStudio.exe missing" }
-          & $exe --smoke-test
-          if ($LASTEXITCODE -ne 0) { throw "Packaged KodeStudio smoke failed" }
           $uninstall = Join-Path $installDir "unins000.exe"
           if (-not (Test-Path $uninstall)) { throw "Uninstaller missing" }
+
+          # Prove the installed application starts independently of the repository
+          # checkout and without a developer Python/pip being visible on PATH.
+          $originalPath = $env:PATH
+          $originalPythonHome = $env:PYTHONHOME
+          $originalPythonPath = $env:PYTHONPATH
+          $env:PATH = @(
+            (Join-Path $env:SystemRoot "System32"),
+            $env:SystemRoot,
+            (Join-Path $env:SystemRoot "System32\Wbem")
+          ) -join ";"
+          $env:PYTHONHOME = $null
+          $env:PYTHONPATH = $null
+          try {
+            if (Get-Command python.exe -ErrorAction SilentlyContinue) {
+              throw "Developer Python is still visible during packaged smoke"
+            }
+            if (Get-Command pip.exe -ErrorAction SilentlyContinue) {
+              throw "Developer pip is still visible during packaged smoke"
+            }
+            $smokeProcess = Start-Process -FilePath $exe -ArgumentList @("--smoke-test") -WorkingDirectory $smokeDir -Wait -PassThru
+            if ($smokeProcess.ExitCode -ne 0) {
+              throw "Packaged KodeStudio smoke failed with $($smokeProcess.ExitCode)"
+            }
+          }
+          finally {
+            $env:PATH = $originalPath
+            $env:PYTHONHOME = $originalPythonHome
+            $env:PYTHONPATH = $originalPythonPath
+          }
+
           $uninstallProcess = Start-Process -FilePath $uninstall -ArgumentList @(
             "/VERYSILENT",
             "/SUPPRESSMSGBOXES",
             "/NORESTART"
           ) -Wait -PassThru
           if ($uninstallProcess.ExitCode -ne 0) { throw "Uninstaller failed" }
+
+          for ($attempt = 0; $attempt -lt 40 -and (Test-Path $exe); $attempt++) {
+            Start-Sleep -Milliseconds 250
+          }
+          if (Test-Path $exe) {
+            throw "KodepoiaStudio.exe still exists after successful uninstaller exit"
+          }
 
       - name: Upload Windows installer
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

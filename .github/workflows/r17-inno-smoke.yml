@@ -1,0 +1,45 @@
+name: Temporary R17 Inno Smoke
+
+on:
+  push:
+    branches:
+      - scratch/r17-inno-smoke
+
+permissions:
+  contents: read
+
+jobs:
+  inno-smoke:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: e450941f090ab3b3adaedf2c3f07903c7342d585
+      - name: Install Inno Setup 6
+        run: choco install innosetup --yes --no-progress
+      - name: Prepare minimal standalone payload
+        shell: pwsh
+        run: |
+          $dist = Join-Path $PWD "build\windows\KodepoiaStudio.dist"
+          New-Item -ItemType Directory -Force -Path $dist | Out-Null
+          Set-Content -Path (Join-Path $dist "KodepoiaStudio.exe") -Value "synthetic R17 Inno smoke payload"
+          New-Item -ItemType Directory -Force -Path (Join-Path $PWD "dist\windows") | Out-Null
+      - name: Compile real Kodepoia Inno script with 6.x-compatible defines
+        shell: pwsh
+        run: |
+          $candidates = @(
+            (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
+            (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe")
+          ) | Where-Object { $_ -and (Test-Path $_) }
+          $iscc = $candidates | Select-Object -First 1
+          if (-not $iscc) { throw "ISCC.exe not found" }
+          $dist = (Resolve-Path "build\windows\KodepoiaStudio.dist").Path
+          & $iscc "-dAppVersion=1.1.0-rc1" "-dSourceDir=$dist" "packaging\windows\Kodepoia.iss"
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed: $LASTEXITCODE" }
+      - name: Assert KodepoiaSetup output
+        shell: pwsh
+        run: |
+          $setup = Join-Path $PWD "dist\windows\KodepoiaSetup.exe"
+          if (-not (Test-Path $setup)) { throw "KodepoiaSetup.exe missing" }
+          if ((Get-Item $setup).Length -le 0) { throw "KodepoiaSetup.exe empty" }
+          Get-FileHash $setup -Algorithm SHA256

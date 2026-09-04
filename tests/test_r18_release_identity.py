@@ -7,9 +7,10 @@ import tomllib
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 
 import kodepoia
-from kodepoia.release_identity import CURRENT_RELEASE, ReleaseIdentity
+from kodepoia.release import CURRENT_RELEASE, ReleaseIdentity
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -23,10 +24,18 @@ def _release(
     minor: int = 1,
     patch: int = 0,
 ) -> ReleaseIdentity:
+    build_type = {
+        "stable": "release",
+        "beta": "prerelease",
+        "nightly": "development",
+    }[channel]
     return ReleaseIdentity(
         schema_version=1,
         product="Kodepoia",
+        package="kodepoia",
         channel=channel,
+        build_type=build_type,
+        source_binding="exact-head",
         major=major,
         minor=minor,
         patch=patch,
@@ -36,21 +45,36 @@ def _release(
 
 
 def test_current_release_identity_is_canonical_beta_rc1() -> None:
+    assert CURRENT_RELEASE.package == "kodepoia"
     assert CURRENT_RELEASE.channel == "beta"
+    assert CURRENT_RELEASE.build_type == "prerelease"
+    assert CURRENT_RELEASE.source_binding == "exact-head"
     assert CURRENT_RELEASE.pep440_version == "1.1.0rc1"
-    assert CURRENT_RELEASE.display_version == "1.1.0-rc1"
+    assert CURRENT_RELEASE.public_version == "1.1.0-rc1"
+    assert CURRENT_RELEASE.installer_version == "1.1.0-rc1"
     assert kodepoia.__version__ == CURRENT_RELEASE.pep440_version
 
-    payload = json.loads((ROOT / "src/kodepoia/release_identity.json").read_text(encoding="utf-8"))
+    identity_path = ROOT / "src/kodepoia/release/release_identity.json"
+    payload = json.loads(identity_path.read_text(encoding="utf-8"))
     assert payload == {
         "schema_version": 1,
         "product": "Kodepoia",
+        "package": "kodepoia",
         "channel": "beta",
+        "build_type": "prerelease",
+        "source_binding": "exact-head",
         "version": {"major": 1, "minor": 1, "patch": 0, "stage": "rc", "serial": 1},
     }
+    assert not (ROOT / "src/kodepoia/release_identity.json").exists()
+
+    schema = json.loads((ROOT / "schemas/release_identity.schema.json").read_text(encoding="utf-8"))
+    Draft202012Validator(schema).validate(payload)
+    bound = CURRENT_RELEASE.bind_source("A" * 40).to_dict()
+    Draft202012Validator(schema).validate(bound)
+    assert bound["source_sha"] == "a" * 40
 
 
-def test_channel_stage_and_serial_contract_is_strict() -> None:
+def test_channel_stage_build_type_and_source_contract_is_strict() -> None:
     with pytest.raises(ValueError, match="incompatible"):
         _release(channel="stable", stage="rc", serial=1)
     with pytest.raises(ValueError, match="incompatible"):
@@ -59,6 +83,14 @@ def test_channel_stage_and_serial_contract_is_strict() -> None:
         _release(channel="stable", stage="final", serial=1)
     with pytest.raises(ValueError, match="serial >= 1"):
         _release(channel="beta", stage="rc", serial=0)
+
+    beta = _release(channel="beta", stage="rc", serial=1)
+    with pytest.raises(ValueError, match="requires build type"):
+        ReleaseIdentity(
+            **{**beta.__dict__, "build_type": "release"},
+        )
+    with pytest.raises(ValueError, match="source SHA"):
+        beta.bind_source("not-a-sha")
 
 
 def test_pep440_monotonicity_across_channels() -> None:
@@ -105,18 +137,22 @@ def test_repository_surfaces_match_canonical_identity() -> None:
     assert "AppVersion={#AppVersion}" in iss
 
     build_script = (ROOT / "scripts/build_windows_installer.ps1").read_text(encoding="utf-8")
-    assert '[string]$Version = ""' in build_script
-    assert "from kodepoia.release_identity import CURRENT_RELEASE" in build_script
+    assert '[string]$SourceSha = ""' in build_script
+    assert "kodepoia.release.identity --source-sha" in build_script
     assert "does not match canonical release identity" in build_script
-    assert "pep440_version" in build_script
-    assert "release_identity_schema" in build_script
+    assert "pyproject.toml version" in build_script
+    assert "source_sha = [string]$ReleaseIdentity.source_sha" in build_script
+    assert "build_type = [string]$ReleaseIdentity.build_type" in build_script
 
     ui = (ROOT / "src/kodepoia/kodestudio/app_v11.py").read_text(encoding="utf-8")
     assert 'setProperty("kodepoiaReleaseVersion", CURRENT_RELEASE.display_version)' in ui
     assert 'setProperty("kodepoiaReleaseChannel", CURRENT_RELEASE.channel)' in ui
 
 
-def test_cli_version_surface_matches_canonical_identity() -> None:
+def test_cli_and_compatibility_surface_match_canonical_identity() -> None:
+    from kodepoia.release_identity import CURRENT_RELEASE as COMPAT_RELEASE
+
+    assert COMPAT_RELEASE is CURRENT_RELEASE
     result = subprocess.run(
         [sys.executable, "-m", "kodepoia.cli", "--version"],
         cwd=ROOT,

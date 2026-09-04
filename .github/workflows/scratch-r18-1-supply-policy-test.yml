@@ -1,0 +1,59 @@
+name: Scratch R18.1 supply policy test sync
+
+on:
+  push:
+    branches:
+      - r18/01-release-identity
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact helper source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Update R16.9 authority regression expectations
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("tests/test_supply_chain_r16_9.py")
+          text = path.read_text(encoding="utf-8")
+          old_count = "    assert len(policy.immutable_authority_workflows) == 22\n"
+          if text.count(old_count) != 1:
+              raise SystemExit("expected exactly one R16.9 authority-count assertion")
+          text = text.replace(
+              old_count,
+              "    assert len(policy.immutable_authority_workflows) == 23\n",
+              1,
+          )
+          marker = '    assert ".github/workflows/windows-installer.yml" in policy.immutable_authority_workflows\n'
+          if text.count(marker) != 1:
+              raise SystemExit("expected exactly one Windows installer authority assertion")
+          addition = (
+              marker
+              + "    assert (\n"
+              + '        ".github/workflows/r18-1-release-identity-acceptance.yml"\n'
+              + "        in policy.immutable_authority_workflows\n"
+              + "    )\n"
+          )
+          text = text.replace(marker, addition, 1)
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+      - name: Commit regression sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/test_supply_chain_r16_9.py
+          git diff --cached --check
+          git commit -m "test(r18.1): register release identity workflow authority"
+          git push origin HEAD:r18/01-release-identity

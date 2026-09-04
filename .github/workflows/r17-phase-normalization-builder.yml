@@ -104,10 +104,10 @@ jobs:
           path.write_text(text, encoding="utf-8", newline="\n")
           PY
 
-          changed="$(git diff --name-only)"
-          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test -n "$(git diff --name-only -- docs/continuity/KODEPOIA_CONTINUITY.md)"
           test -z "$(git diff --name-only -- docs/roadmap/R17_PLAN.md)"
-          git diff --check
+          test -z "$(git diff --cached --name-only)"
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
 
       - name: Commit and push normalization candidate
         shell: bash
@@ -115,6 +115,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git commit -m "docs: normalize R17 phase continuity"
           test "$(git diff-tree --no-commit-id --name-only -r HEAD)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git push origin "HEAD:refs/heads/$KODEPOIA_TARGET_BRANCH"

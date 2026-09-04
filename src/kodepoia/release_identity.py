@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from importlib.resources import files
-from typing import Any, Mapping
+from typing import Any
 
 _ALLOWED_CHANNELS = ("stable", "beta", "nightly")
 _ALLOWED_STAGES = ("dev", "a", "b", "rc", "final")

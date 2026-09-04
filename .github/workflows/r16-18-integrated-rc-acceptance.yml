@@ -11,31 +11,31 @@ permissions:
 
 jobs:
   build-normalization:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout scratch builder
+      - name: Checkout scratch builder object database
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
-      - name: Build unique continuity-only normalization
+      - name: Build unique continuity-only normalization from Git objects
         shell: bash
+        env:
+          BASE_SHA: c03d5cb003aec4140d8f7429240980d26d01b7ba
+          TARGET_BRANCH: r16/phase-continuity-normalization
         run: |
           set -euo pipefail
           git config user.name "LaurentCOLL1"
           git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
-          git config core.autocrlf false
-          git config core.eol lf
-          git fetch origin c03d5cb003aec4140d8f7429240980d26d01b7ba
-          git checkout -B r16/phase-continuity-normalization c03d5cb003aec4140d8f7429240980d26d01b7ba
-          git reset --hard c03d5cb003aec4140d8f7429240980d26d01b7ba
-          git clean -fdx
-          test -z "$(git status --porcelain)"
-          python - <<'PY'
+          git fetch origin "$BASE_SHA"
+          tmp="$RUNNER_TEMP/KODEPOIA_CONTINUITY.md"
+          git show "$BASE_SHA:docs/continuity/KODEPOIA_CONTINUITY.md" > "$tmp"
+          CONTINUITY_TMP="$tmp" python - <<'PY'
+          import os
           from pathlib import Path
 
-          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          path = Path(os.environ["CONTINUITY_TMP"])
           text = path.read_text(encoding="utf-8")
           trailing_newline = text.endswith("\n")
 
@@ -162,10 +162,17 @@ jobs:
 
           path.write_text(text, encoding="utf-8", newline="\n")
           PY
-          changed="$(git diff --name-only)"
+
+          blob_sha="$(git hash-object -w "$tmp")"
+          export GIT_INDEX_FILE="$RUNNER_TEMP/r16-normalization.index"
+          rm -f "$GIT_INDEX_FILE"
+          git read-tree "$BASE_SHA"
+          git update-index --cacheinfo 100644,"$blob_sha",docs/continuity/KODEPOIA_CONTINUITY.md
+          tree_sha="$(git write-tree)"
+          commit_sha="$(printf '%s\n' 'R16: normalize phase continuity' | git commit-tree "$tree_sha" -p "$BASE_SHA")"
+          changed="$(git diff-tree --no-commit-id --name-only -r "$commit_sha")"
           test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
-          git add docs/continuity/KODEPOIA_CONTINUITY.md
-          staged="$(git diff --cached --name-only)"
-          test "$staged" = "docs/continuity/KODEPOIA_CONTINUITY.md"
-          git commit -m "R16: normalize phase continuity"
-          git push origin HEAD:r16/phase-continuity-normalization --force-with-lease
+          test "$(git rev-parse "$commit_sha^")" = "$BASE_SHA"
+          test "$(git show "$commit_sha:.github/workflows/r16-18-integrated-rc-acceptance.yml" | git hash-object --stdin)" = "ca252eb658375e2a7bfcf9e20aafd522037ac6cf"
+          git push origin "$commit_sha:refs/heads/$TARGET_BRANCH" --force-with-lease="refs/heads/$TARGET_BRANCH:$BASE_SHA"
+          echo "normalization_sha=$commit_sha"

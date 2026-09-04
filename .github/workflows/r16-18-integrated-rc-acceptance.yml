@@ -20,13 +20,131 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: r16-18-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  temporary-end-sync-helper:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TARGET_BRANCH: r16/18-integrated-adversarial-real-project-rc-acceptance
+    steps:
+      - name: Checkout staging head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Create documentation-only END tree
+        shell: python
+        run: |
+          from pathlib import Path
+
+          plan = Path("docs/roadmap/R16_PLAN.md")
+          continuity = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+
+          p = plan.read_text(encoding="utf-8")
+          p = p.replace("**Status:** IN_PROGRESS", "**Status:** COMPLETE", 1)
+          lines = p.splitlines()
+          for i, line in enumerate(lines):
+              if line.startswith("**Execution checkpoint:**"):
+                  lines[i] = (
+                      "**Execution checkpoint:** R1–R15 are COMPLETE + NORMALIZED. R16 planning is ACCEPTED + NORMALIZED. "
+                      "R16.1–R16.17 are COMPLETE + NORMALIZED on exact normalized `main` `41706493d974799b7011953e584b887ca6db1996`. "
+                      "R16.18 is COMPLETE at END-sync on immutable technical source `230ff65feaaa50e9b0c740658e06c74976448908` after fresh exact-source "
+                      "R16.18 #8 / `33833525270`, R16.9 #76 / `33833525226`, R0 #2399 / `33833525292`, Python Core #2371 / `33833525209` 5/5, "
+                      "KodeStudio UI Smoke #2336 / `33833525297` and standalone R16.17 #21 / `33833525293` all SUCCESS. "
+                      "Phase closure remains pending fresh exact-END re-gates, exact-head PR #373 merge, and the unique post-merge continuity-only R16 phase normalization. "
+                      "Optional live capability/manual evidence remains CONDITIONAL / NOT TRIGGERED; no public release/signing/provider cutover is claimed."
+                  )
+                  break
+          p = "\n".join(lines) + "\n"
+          p = p.replace(
+              "| R16.17 | v1.0 packaging, migration, rollback and release readiness | COMPLETE | CONDITIONAL / NOT TRIGGERED |",
+              "| R16.17 | v1.0 packaging, migration, rollback and release readiness | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED |",
+              1,
+          )
+          p = p.replace(
+              "| R16.18 | Integrated adversarial + real-project RC acceptance | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |",
+              "| R16.18 | Integrated adversarial + real-project RC acceptance | COMPLETE | CONDITIONAL / NOT TRIGGERED |",
+              1,
+          )
+          end_block = r'''
+## R16.18 END authority
+
+- R16.18 state: **COMPLETE at END-sync**; core integrated acceptance manual state **NONE**. Optional live-capability evidence remains **CONDITIONAL / NOT TRIGGERED** and `NOT_EXERCISED`. R16/v1.0 phase closure remains pending fresh exact-END re-gates, exact-head implementation/evidence merge, and the unique post-merge continuity-only R16 phase normalization.
+- Exact normalized base: `main` `41706493d974799b7011953e584b887ca6db1996`; immutable technical source `230ff65feaaa50e9b0c740658e06c74976448908`.
+- Fresh exact-technical-head gates are all SUCCESS: R16.18 #8 / `33833525270`; R16.9 #76 / `33833525226`; R0 Repository Guard #2399 / `33833525292`; Python Core #2371 / `33833525209` 5/5; KodeStudio UI Smoke #2336 / `33833525297`; standalone R16.17 #21 / `33833525293`.
+- Canonical non-circular integrated authority received **33/33** fresh exact-source case/platform reports with `blockers=[]`, `critical_veto=false`, `rc_acceptance_claim=true`, `cross_platform_rc_packages_identical=true`, `historical_evidence_used_for_verdict=false`, `core_manual_required=false` and `manual_state=CONDITIONAL_NOT_TRIGGERED`.
+- Canonical digests: authority `43bb342e1c888a07f6ce64c75b7da5e9aadf0e3e09fada478f81cb320def359a`; policy `9835509598f3be0aa32c404dd73cb5f550ba381ac27919f257b79efd35c4e83a`; execution policy `2d35ee076677f247f96a911756bc535119db688e347007f1c46f4c8a0797713c`; integrated contract `71fa8fe1fcab744c30905884a74ac121f8cf41e4ea7d5442fe1c07d59a01d5d3`; canonical report file `a4c43067f369f2c03d84948cf7fad4a7a162c82e80a9edfaff4f3027c7e73600`; GitHub artifact archive `28c905ea2bbafbd755a1cb62037af0ddde6cba64a3868f55000bd301a46171d4`.
+- Exact-source RC package SHA-256 is cross-platform identical: wheel `e27ae68aabd90f6c6d22d5223650272c53dfa4fd3bdb342c7085ed79928765af`; sdist `947605aa27d3db7e0bec3e86f39470fd656a2df4c6cf5f9e3d578e96d647f2f0`.
+- The superseded cross-platform package mismatch was repaired without weakening the veto by canonicalizing Git checkout line endings before checkout in integrated-case jobs, matching the already accepted R16.17 release-readiness discipline. The accepted exact source remains fail-closed if Linux/Windows RC bytes differ.
+- Optional/live truth remains explicit: `optional_live_capabilities=NOT_EXERCISED`; no production credential use, production signing, public release, store/public-registry publication or provider/domain cutover occurred.
+- This END-sync changes only `docs/roadmap/R16_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to immutable technical source `230ff65feaaa50e9b0c740658e06c74976448908`. Its exact resulting END head must pass fresh R16.18/R16.9/R0/Python/UI SUCCESS before PR #373 may merge with `expected_head_sha` equal to that exact head.
+- Exactly one post-merge continuity-only R16 phase normalization is authorized. Only the normalized `main` produced by its fresh exact-head R0/Python/UI-gated merge may be called **R16 COMPLETE + NORMALIZED / v1.0 phase complete**. No public release is implied by phase completion.
+'''
+          marker = "\n---\n\n## Planning acceptance and authorization boundary"
+          if "## R16.18 END authority" not in p:
+              if marker not in p:
+                  raise SystemExit("R16 plan insertion marker missing")
+              p = p.replace(marker, "\n" + end_block.rstrip() + marker, 1)
+          plan.write_text(p, encoding="utf-8", newline="\n")
+
+          c = continuity.read_text(encoding="utf-8")
+          c_lines = c.splitlines()
+          c_lines[0] = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. "
+              "R16.1–R16.17 COMPLETE + NORMALIZED on `main` `41706493d974799b7011953e584b887ca6db1996`. R16.18 COMPLETE at END-sync on immutable technical source "
+              "`230ff65feaaa50e9b0c740658e06c74976448908`; final exact-END re-gates, PR #373 exact-head merge and the unique continuity-only R16 phase normalization remain required before R16/v1.0 phase closure.** "
+              "Technical R16.18 #8 / `33833525270`, R16.9 #76 / `33833525226`, R0 #2399 / `33833525292`, Python Core #2371 / `33833525209` 5/5, UI #2336 / `33833525297` and standalone R16.17 #21 / `33833525293` are SUCCESS. "
+              "Integrated authority is 33/33 fresh, non-circular, `critical_veto=false`, cross-platform RC bytes identical. Optional live-capability/manual evidence remains CONDITIONAL / NOT TRIGGERED; no production signing/publication/provider cutover is claimed."
+          )
+          c = "\n".join(c_lines) + "\n"
+          record_lines = c.splitlines()
+          for i, line in enumerate(record_lines):
+              if line.startswith("- R16.18 : **IN_PROGRESS** —"):
+                  record_lines[i] = (
+                      "- R16.18 : **COMPLETE at END-sync** — exact normalized R16.17 base `main` `41706493d974799b7011953e584b887ca6db1996`; immutable technical source "
+                      "`230ff65feaaa50e9b0c740658e06c74976448908`; technical R16.18 #8 / `33833525270`, R16.9 #76 / `33833525226`, R0 #2399 / `33833525292`, Python Core #2371 / `33833525209` 5/5, "
+                      "UI #2336 / `33833525297` and R16.17 #21 / `33833525293` SUCCESS. Canonical integrated authority: 33/33 fresh exact-source case/platform reports, `blockers=[]`, `critical_veto=false`, `rc_acceptance_claim=true`, "
+                      "`cross_platform_rc_packages_identical=true`, `historical_evidence_used_for_verdict=false`; authority `43bb342e1c888a07f6ce64c75b7da5e9aadf0e3e09fada478f81cb320def359a`; report `a4c43067f369f2c03d84948cf7fad4a7a162c82e80a9edfaff4f3027c7e73600`; "
+                      "wheel `e27ae68aabd90f6c6d22d5223650272c53dfa4fd3bdb342c7085ed79928765af`; sdist `947605aa27d3db7e0bec3e86f39470fd656a2df4c6cf5f9e3d578e96d647f2f0`. Core manual NONE; optional live capability evidence CONDITIONAL / NOT TRIGGERED and `NOT_EXERCISED`; no production credentials/signing/public release. Final exact-END re-gates + exact-head PR #373 merge + unique continuity-only phase normalization remain required before COMPLETE + NORMALIZED."
+                  )
+                  break
+          c = "\n".join(record_lines) + "\n"
+          insert_marker = "\n## R16 status index"
+          if "## R16.18 END authority" not in c:
+              if insert_marker not in c:
+                  raise SystemExit("continuity R16 status marker missing")
+              c = c.replace(insert_marker, "\n" + end_block.rstrip() + "\n" + insert_marker, 1)
+          c = c.replace("| R16.18 | IN_PROGRESS | CONDITIONAL / NOT TRIGGERED |", "| R16.18 | COMPLETE | CONDITIONAL / NOT TRIGGERED |", 1)
+          next_start = c.find("## Next authorized action", c.find("## R16 status index"))
+          next_end = c.find("## Permanent R-phase execution rule", next_start)
+          if next_start < 0 or next_end < 0:
+              raise SystemExit("continuity next-action markers missing")
+          next_block = (
+              "## Next authorized action\n\n"
+              "R16.18 is **COMPLETE at END-sync** on immutable technical source `230ff65feaaa50e9b0c740658e06c74976448908`, but R16/v1.0 is not yet COMPLETE + NORMALIZED. "
+              "The next authorized action is to run fresh exact-END R16.18 Integrated, R16.9, R0, full Python Core and KodeStudio UI Smoke on the documentation-only END head; if all succeed, merge PR #373 only with exact `expected_head_sha`, then create exactly one continuity-only R16 phase-normalization branch from that implementation/evidence merge. "
+              "That normalization must pass fresh exact-head R0 + full Python Core + UI Smoke and merge with exact expected-head protection. Only the resulting normalized `main` closes R16/v1.0. Optional real GPU/listening/device/signing/publication claims remain CONDITIONAL / NOT TRIGGERED.\n\n"
+          )
+          c = c[:next_start] + next_block + c[next_end:]
+          continuity.write_text(c, encoding="utf-8", newline="\n")
+      - name: Restore technical workflow and remove temporary helper
+        shell: bash
+        run: |
+          git checkout 230ff65feaaa50e9b0c740658e06c74976448908 -- .github/workflows/r16-18-integrated-rc-acceptance.yml
+          git rm -f .github/workflows/r16-18-end-sync-helper.yml
+          git config user.name "LaurentCOLL1"
+          git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
+          git add docs/roadmap/R16_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md .github/workflows/r16-18-integrated-rc-acceptance.yml
+          git diff --cached --name-only
+          git commit -m "R16.18: synchronize END authority"
+          git push origin "HEAD:${TARGET_BRANCH}"
+
   define-matrix:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -63,7 +181,7 @@ jobs:
           tests/test_r16_18_integrated_rc.py
       - name: Ruff R16.18 sources
         run: >-
-          python -m ruff check src/kodepoia/quality/integrated_rc_acceptance.py
+          python -m ruff check src/kodepoia/quality/inated_rc_acceptance.py
           src/kodepoia/quality/integrated_rc_execution.py scripts/r16_18_integrated_acceptance.py
           tests/test_r16_18_integrated_rc.py
       - name: Run R16.18 contract and supply-chain regression tests

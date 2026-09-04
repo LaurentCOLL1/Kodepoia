@@ -1,214 +1,166 @@
-name: R16.18 Integrated Adversarial Real-Project RC Acceptance
+name: Temporary R16 Phase Normalization Builder
 
 on:
   push:
     branches:
-      - r16/18-integrated-adversarial-real-project-rc-acceptance
-  pull_request:
-    paths:
-      - .github/workflows/r16-18-integrated-rc-acceptance.yml
-      - configs/r16_18_integrated_rc_policy.json
-      - configs/r16_18_phase_execution_policy.json
-      - configs/r16_supply_chain_policy.json
-      - src/kodepoia/quality/integrated_rc_acceptance.py
-      - src/kodepoia/quality/integrated_rc_execution.py
-      - scripts/r16_18_integrated_acceptance.py
-      - tests/test_r16_18_integrated_rc.py
-      - tests/test_supply_chain_r16_9.py
-      - docs/roadmap/R16_PLAN.md
-      - docs/continuity/KODEPOIA_CONTINUITY.md
+      - scratch/r16-phase-normalization-builder
   workflow_dispatch:
 
 permissions:
-  contents: read
-
-concurrency:
-  group: r16-18-${{ github.ref }}
-  cancel-in-progress: true
+  contents: write
 
 jobs:
-  define-matrix:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    outputs:
-      matrix: ${{ steps.matrix.outputs.matrix }}
-    env:
-      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  build-normalization:
+    runs-on: macos-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout exact evidence source
+      - name: Checkout scratch builder
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ env.EVIDENCE_SHA }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: "3.12"
-          cache: pip
-      - name: Assert exact checkout provenance
-        shell: python
-        run: |
-          import os
-          import subprocess
-          expected = os.environ["EVIDENCE_SHA"].strip().lower()
-          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, encoding="utf-8").strip().lower()
-          if actual != expected:
-              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
-      - name: Install acceptance dependencies
-        run: python -m pip install -e ".[dev]"
-      - name: Compile R16.18 sources
-        run: >-
-          python -m compileall -q src/kodepoia/quality/integrated_rc_acceptance.py
-          src/kodepoia/quality/integrated_rc_execution.py scripts/r16_18_integrated_acceptance.py
-          tests/test_r16_18_integrated_rc.py
-      - name: Ruff R16.18 sources
-        run: >-
-          python -m ruff check src/kodepoia/quality/integrated_rc_acceptance.py
-          src/kodepoia/quality/integrated_rc_execution.py scripts/r16_18_integrated_acceptance.py
-          tests/test_r16_18_integrated_rc.py
-      - name: Run R16.18 contract and supply-chain regression tests
-        run: >-
-          python -m pytest -q tests/test_r16_18_integrated_rc.py tests/test_supply_chain_r16_9.py
-      - name: Freeze exact integrated execution matrix
-        id: matrix
+      - name: Build unique continuity-only normalization
         shell: bash
-        run: echo "matrix=$(python scripts/r16_18_integrated_acceptance.py --matrix)" >> "$GITHUB_OUTPUT"
-
-  contract-windows:
-    runs-on: windows-latest
-    timeout-minutes: 20
-    env:
-      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-    steps:
-      - name: Checkout exact evidence source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          ref: ${{ env.EVIDENCE_SHA }}
-          fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: "3.12"
-          cache: pip
-      - name: Assert exact checkout provenance
-        shell: python
         run: |
-          import os
-          import subprocess
-          expected = os.environ["EVIDENCE_SHA"].strip().lower()
-          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, encoding="utf-8").strip().lower()
-          if actual != expected:
-              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
-      - name: Install acceptance dependencies
-        run: python -m pip install -e ".[dev]"
-      - name: Compile R16.18 sources
-        run: >-
-          python -m compileall -q src/kodepoia/quality/integrated_rc_acceptance.py
-          src/kodepoia/quality/integrated_rc_execution.py scripts/r16_18_integrated_acceptance.py
-          tests/test_r16_18_integrated_rc.py
-      - name: Ruff R16.18 sources
-        run: >-
-          python -m ruff check src/kodepoia/quality/integrated_rc_acceptance.py
-          src/kodepoia/quality/integrated_rc_execution.py scripts/r16_18_integrated_acceptance.py
-          tests/test_r16_18_integrated_rc.py
-      - name: Run R16.18 contract and supply-chain regression tests
-        run: >-
-          python -m pytest -q tests/test_r16_18_integrated_rc.py tests/test_supply_chain_r16_9.py
+          set -euo pipefail
+          git config user.name "LaurentCOLL1"
+          git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
+          git fetch origin c03d5cb003aec4140d8f7429240980d26d01b7ba
+          git checkout -B r16/phase-continuity-normalization c03d5cb003aec4140d8f7429240980d26d01b7ba
+          python - <<'PY'
+          from pathlib import Path
 
-  integrated-case:
-    needs: [define-matrix, contract-windows]
-    strategy:
-      fail-fast: false
-      max-parallel: 6
-      matrix: ${{ fromJSON(needs.define-matrix.outputs.matrix) }}
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 40
-    env:
-      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      SOURCE_DATE_EPOCH: "946684800"
-      PYTHONHASHSEED: "0"
-    steps:
-      - name: Canonicalize checkout line endings
-        shell: python
-        run: |
-          import subprocess
-          subprocess.run(["git", "config", "--global", "core.autocrlf", "false"], check=True)
-          subprocess.run(["git", "config", "--global", "core.eol", "lf"], check=True)
-      - name: Checkout exact evidence source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          ref: ${{ env.EVIDENCE_SHA }}
-          fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: "3.12"
-          cache: pip
-      - name: Set up accepted .NET 10 SDK for Windows desktop case
-        if: matrix.case_id == 'r16.12-windows-desktop'
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
-        with:
-          dotnet-version: "10.0.x"
-      - name: Assert exact checkout provenance
-        shell: python
-        run: |
-          import os
-          import subprocess
-          expected = os.environ["EVIDENCE_SHA"].strip().lower()
-          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, encoding="utf-8").strip().lower()
-          if actual != expected:
-              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
-      - name: Install acceptance dependencies
-        run: python -m pip install -e ".[dev]"
-      - name: Re-execute exact-source phase authority and critical tests
-        run: >-
-          python scripts/r16_18_integrated_acceptance.py --source-sha "${{ env.EVIDENCE_SHA }}"
-          --case-id "${{ matrix.case_id }}" --platform "${{ matrix.platform }}"
-          --output "artifacts/r16_18_cases/${{ matrix.case_id }}-${{ matrix.platform }}.json"
-      - name: Upload exact-source case evidence
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: r16-18-case-${{ matrix.case_id }}-${{ matrix.platform }}-${{ env.EVIDENCE_SHA }}
-          path: artifacts/r16_18_cases/**
-          if-no-files-found: error
-          retention-days: 30
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          text = path.read_text(encoding="utf-8")
+          trailing_newline = text.endswith("\n")
 
-  aggregate:
-    if: always()
-    needs: [define-matrix, contract-windows, integrated-case]
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-    steps:
-      - name: Checkout exact evidence source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          ref: ${{ env.EVIDENCE_SHA }}
-          fetch-depth: 0
-      - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
-        with:
-          python-version: "3.12"
-          cache: pip
-      - name: Install acceptance dependencies
-        run: python -m pip install -e ".[dev]"
-      - name: Download all exact-source case evidence
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
-        with:
-          pattern: r16-18-case-*-${{ env.EVIDENCE_SHA }}
-          path: downloaded
-          merge-multiple: true
-      - name: Aggregate non-circular R16.18 authority
-        run: >-
-          python scripts/r16_18_integrated_acceptance.py --source-sha "${{ env.EVIDENCE_SHA }}"
-          --aggregate-dir downloaded --output artifacts/r16_18_integrated_acceptance.json
-      - name: Upload canonical R16.18 integrated authority
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: r16-18-integrated-${{ env.EVIDENCE_SHA }}
-          path: artifacts/r16_18_integrated_acceptance.json
-          if-no-files-found: error
-          retention-days: 30
+          # Replace the leading authority paragraph without touching historical detail.
+          _, remainder = text.split("\n\n", 1)
+          first = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R15 COMPLETE + NORMALIZED. R16 planning ACCEPTED + NORMALIZED. "
+              "R16.1–R16.17 COMPLETE + NORMALIZED on `main` `41706493d974799b7011953e584b887ca6db1996`. "
+              "R16.18 final exact-END `1efcf82721ccef000d3cf335ad89132fb742fceb` passed fresh R16.18 #21 / `33859618254`, "
+              "R16.9 #86 / `33859618312`, R0 #2409 / `33859618319`, Python Core #2381 / `33859618371` 5/5 and "
+              "KodeStudio UI Smoke #2346 / `33859618310`, then PR #373 merged with exact expected head as implementation/evidence "
+              "`main` `c03d5cb003aec4140d8f7429240980d26d01b7ba`. This record is the unique post-merge continuity-only R16 phase "
+              "normalization authority when its PR merges; only the resulting normalized `main` may be called R16 COMPLETE + NORMALIZED / "
+              "v1.0 phase complete.** Immutable R16.18 technical source remains `230ff65feaaa50e9b0c740658e06c74976448908`; integrated authority "
+              "is 33/33 fresh and non-circular with `critical_veto=false` and cross-platform RC bytes identical. Optional live-capability/manual "
+              "evidence remains CONDITIONAL / NOT TRIGGERED; no production signing, public/store publication or provider/domain cutover is claimed."
+          )
+          text = first + "\n\n" + remainder
+
+          # Add one global R16 phase record immediately after the planning record.
+          lines = text.splitlines()
+          if not any(line.startswith("- R16 :") for line in lines):
+              planning_idx = next(i for i, line in enumerate(lines) if line.startswith("- R16 planning :"))
+              lines.insert(
+                  planning_idx + 1,
+                  "- R16 : **COMPLETE + NORMALIZED when this unique phase-normalization PR merges** — immutable R16.18 technical source "
+                  "`230ff65feaaa50e9b0c740658e06c74976448908`; final exact-END `1efcf82721ccef000d3cf335ad89132fb742fceb`; exact-END "
+                  "R16.18 #21 / `33859618254`, R16.9 #86 / `33859618312`, R0 #2409 / `33859618319`, Python Core #2381 / `33859618371` "
+                  "5/5 and UI #2346 / `33859618310` all SUCCESS; PR #373 merged with `expected_head_sha=1efcf82721ccef000d3cf335ad89132fb742fceb` "
+                  "as implementation/evidence `main` `c03d5cb003aec4140d8f7429240980d26d01b7ba`. Canonical integrated authority digest "
+                  "`43bb342e1c888a07f6ce64c75b7da5e9aadf0e3e09fada478f81cb320def359a`; 33/33 exact-source reports, blockers empty, "
+                  "`critical_veto=false`, RC packages byte-identical cross-platform. This continuity-only record is the single authorized R16 phase "
+                  "normalization authority when merged; no second R16 phase normalization is authorized. Phase completion does not imply a public release."
+              )
+          text = "\n".join(lines) + ("\n" if trailing_newline else "")
+
+          old_state = (
+              "- R16.18 state: **COMPLETE at END-sync**; core integrated acceptance manual state **NONE**. Optional live-capability evidence remains "
+              "**CONDITIONAL / NOT TRIGGERED** and `NOT_EXERCISED`. R16/v1.0 phase closure remains pending fresh exact-END re-gates, exact-head "
+              "implementation/evidence merge, and the unique post-merge continuity-only R16 phase normalization."
+          )
+          new_state = (
+              "- R16.18 state: **COMPLETE at END-sync**; core integrated acceptance manual state **NONE**. Optional live-capability evidence remains "
+              "**CONDITIONAL / NOT TRIGGERED** and `NOT_EXERCISED`. Fresh exact-END re-gates and the exact-head implementation/evidence merge are complete; "
+              "R16/v1.0 phase closure now depends only on this single continuity-only R16 phase normalization passing fresh exact-head R0/Python/UI and merging."
+          )
+          if old_state not in text:
+              raise SystemExit("R16.18 state authority anchor missing")
+          text = text.replace(old_state, new_state, 1)
+
+          source_anchor = (
+              "- Exact normalized base: `main` `41706493d974799b7011953e584b887ca6db1996`; immutable technical source "
+              "`230ff65feaaa50e9b0c740658e06c74976448908`.\n"
+          )
+          source_addition = (
+              "- Final exact-END head `1efcf82721ccef000d3cf335ad89132fb742fceb` is a direct child of the immutable technical source and changes only "
+              "`docs/roadmap/R16_PLAN.md` plus `docs/continuity/KODEPOIA_CONTINUITY.md`; helper/workflow staging is absent from the decision head.\n"
+              "- Fresh exact-END gates on that exact SHA are all SUCCESS: R16.18 #21 / `33859618254`; R16.9 #86 / `33859618312`; "
+              "R0 Repository Guard #2409 / `33859618319`; Python Core #2381 / `33859618371` 5/5; KodeStudio UI Smoke #2346 / `33859618310`.\n"
+              "- PR #373 merged only with `expected_head_sha=1efcf82721ccef000d3cf335ad89132fb742fceb` as implementation/evidence `main` "
+              "`c03d5cb003aec4140d8f7429240980d26d01b7ba`.\n"
+          )
+          if source_anchor not in text:
+              raise SystemExit("R16.18 source anchor missing")
+          text = text.replace(source_anchor, source_anchor + source_addition, 1)
+
+          old_end_requirement = (
+              "- This END-sync changes only `docs/roadmap/R16_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to immutable technical source "
+              "`230ff65feaaa50e9b0c740658e06c74976448908`. Its exact resulting END head must pass fresh R16.18/R16.9/R0/Python/UI SUCCESS before "
+              "PR #373 may merge with `expected_head_sha` equal to that exact head."
+          )
+          new_end_requirement = (
+              "- The accepted END-sync changes only `docs/roadmap/R16_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` relative to immutable technical "
+              "source `230ff65feaaa50e9b0c740658e06c74976448908`; final exact-END `1efcf82721ccef000d3cf335ad89132fb742fceb` passed the required fresh "
+              "R16.18/R16.9/R0/Python/UI gates and PR #373 merged from that exact head."
+          )
+          if old_end_requirement not in text:
+              raise SystemExit("R16.18 END requirement anchor missing")
+          text = text.replace(old_end_requirement, new_end_requirement, 1)
+
+          section = (
+              "## R16 phase post-merge normalization authority\n\n"
+              "- Implementation/evidence merge base: `main` `c03d5cb003aec4140d8f7429240980d26d01b7ba`, produced only after final exact-END "
+              "`1efcf82721ccef000d3cf335ad89132fb742fceb` passed fresh R16.18 #21 / `33859618254`, R16.9 #86 / `33859618312`, "
+              "R0 Repository Guard #2409 / `33859618319`, Python Core #2381 / `33859618371` 5/5 and KodeStudio UI Smoke #2346 / `33859618310`.\n"
+              "- PR #373 merged with exact expected-head protection from `1efcf82721ccef000d3cf335ad89132fb742fceb` as implementation/evidence `main` "
+              "`c03d5cb003aec4140d8f7429240980d26d01b7ba`. The accepted R16.18 technical source remains "
+              "`230ff65feaaa50e9b0c740658e06c74976448908`; canonical authority digest remains "
+              "`43bb342e1c888a07f6ce64c75b7da5e9aadf0e3e09fada478f81cb320def359a`.\n"
+              "- Dedicated normalization branch: `r16/phase-continuity-normalization`, created exactly from implementation/evidence `main` "
+              "`c03d5cb003aec4140d8f7429240980d26d01b7ba`. Its authoritative decision tree may change only "
+              "`docs/continuity/KODEPOIA_CONTINUITY.md`; `docs/roadmap/R16_PLAN.md`, workflows, implementation/runtime/test bytes, policies and RC package logic remain "
+              "identical to the implementation/evidence merge. No temporary helper or helper workflow may exist on the normalization decision head.\n"
+              "- This is the single authorized post-merge R16 phase normalization. Its exact candidate head must pass fresh R0 Repository Guard Ubuntu + Windows, "
+              "full Python Core 5/5 and KodeStudio UI Smoke, then merge with `expected_head_sha` equal to that exact candidate. No second R16 phase normalization is permitted.\n"
+              "- Core R16.18 manual state remains **NONE**; optional live-capability evidence remains **CONDITIONAL / NOT TRIGGERED** / `NOT_EXERCISED`. "
+              "No production credential, production signing, public/store publication, provider/domain cutover or automatic public release is claimed by normalization.\n"
+              "- Only the normalized `main` produced by this exact gated normalization merge may be called **R16 COMPLETE + NORMALIZED / v1.0 phase complete**.\n\n"
+          )
+          marker = "## R16 status index\n"
+          if marker not in text:
+              raise SystemExit("R16 status marker missing")
+          text = text.replace(marker, section + marker, 1)
+
+          old_row = "| R16.18 | COMPLETE | CONDITIONAL / NOT TRIGGGERED |"
+          new_row = "| R16.18 | COMPLETE + NORMALIZED when this normalization merges | CONDITIONAL / NOT TRIGGERED |"
+          if old_row not in text:
+              raise SystemExit("R16.18 status row missing")
+          text = text.replace(old_row, new_row, 1)
+
+          next_heading = "## Next authorized action\n"
+          permanent_heading = "\n## Permanent R-phase execution rule"
+          start = text.index(next_heading)
+          end = text.index(permanent_heading, start)
+          next_block = (
+              "## Next authorized action\n\n"
+              "The implementation/evidence merge is complete on `main` `c03d5cb003aec4140d8f7429240980d26d01b7ba`. This continuity-only branch is the single authorized "
+              "R16 phase-normalization candidate. Run fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke on its exact candidate head; if all are SUCCESS, "
+              "merge the normalization PR only with `expected_head_sha` equal to that exact head. Only the resulting normalized `main` closes R16/v1.0 as COMPLETE + NORMALIZED. "
+              "No further R16 normalization is authorized, and phase completion does not imply public release/signing/publication/provider cutover. Optional live-capability claims remain "
+              "CONDITIONAL / NOT TRIGGERED.\n"
+          )
+          text = text[:start] + next_block + text[end:]
+
+          path.write_text(text, encoding="utf-8", newline="\n")
+          PY
+          changed="$(git diff --name-only)"
+          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          staged="$(git diff --cached --name-only)"
+          test "$staged" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git commit -m "R16: normalize phase continuity"
+          git push origin HEAD:r16/phase-continuity-normalization --force-with-lease

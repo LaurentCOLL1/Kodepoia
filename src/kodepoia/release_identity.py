@@ -1,8 +1,8 @@
 """Compatibility shim for the canonical :mod:`kodepoia.release` identity API."""
 
 from kodepoia.release.identity import (
-    BoundReleaseIdentity,
     CURRENT_RELEASE,
+    BoundReleaseIdentity,
     ReleaseIdentity,
     load_release_identity,
     main,

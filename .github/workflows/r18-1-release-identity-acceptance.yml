@@ -9,11 +9,12 @@ on:
       - .github/workflows/r18-1-release-identity-acceptance.yml
       - pyproject.toml
       - packaging/windows/Kodepoia.iss
+      - schemas/release_identity.schema.json
       - scripts/build_windows_installer.ps1
       - scripts/r18_1_release_identity_acceptance.py
       - src/kodepoia/__init__.py
       - src/kodepoia/cli.py
-      - src/kodepoia/release_identity.json
+      - src/kodepoia/release/**
       - src/kodepoia/release_identity.py
       - src/kodepoia/kodestudio/app_v11.py
       - tests/test_r18_release_identity.py
@@ -67,6 +68,7 @@ jobs:
       - name: Compile focused R18.1 sources
         run: >-
           python -m compileall -q
+          src/kodepoia/release
           src/kodepoia/release_identity.py
           src/kodepoia/cli.py
           src/kodepoia/kodestudio/app_v11.py
@@ -76,6 +78,7 @@ jobs:
       - name: Ruff R18.1-owned Python sources
         run: >-
           python -m ruff check
+          src/kodepoia/release
           src/kodepoia/release_identity.py
           src/kodepoia/cli.py
           scripts/r18_1_release_identity_acceptance.py
@@ -83,6 +86,29 @@ jobs:
 
       - name: Run focused R18.1 tests
         run: python -m pytest -q tests/test_r18_release_identity.py
+
+      - name: Verify packaged release identity
+        shell: python
+        run: |
+          import pathlib
+          import subprocess
+          import sys
+          import zipfile
+
+          out = pathlib.Path("artifacts/r18_1_wheel")
+          out.mkdir(parents=True, exist_ok=True)
+          subprocess.run(
+              [sys.executable, "-m", "build", "--wheel", "--outdir", str(out)],
+              check=True,
+          )
+          wheels = sorted(out.glob("kodepoia-*.whl"))
+          if len(wheels) != 1:
+              raise SystemExit(f"expected exactly one wheel, got {len(wheels)}")
+          with zipfile.ZipFile(wheels[0]) as archive:
+              names = set(archive.namelist())
+          required = "kodepoia/release/release_identity.json"
+          if required not in names:
+              raise SystemExit(f"packaged canonical release identity missing: {required}")
 
       - name: Emit exact-source R18.1 acceptance
         run: >-

@@ -28,7 +28,6 @@ jobs:
           marker = "## R17 — Distribution & Guided Creation UX"
           if marker not in text:
               record = r'''
-
           ## R17 — Distribution & Guided Creation UX
 
           - State: **IN_PROGRESS**.
@@ -41,7 +40,7 @@ jobs:
           - Core R17 manual state at START: **NONE**.
           - R17 may be called COMPLETE only after focused/adversarial tests, successful Windows installer build + silent install + packaged UI smoke, exact-head R0/full Python Core/UI gates, END-sync, exact-head merge, then the single authorized post-merge continuity-only normalization.
           '''
-              path.write_text(text.rstrip() + record + "\n", encoding="utf-8")
+              path.write_text(text.rstrip() + "\n\n" + record.strip() + "\n", encoding="utf-8")
           PY
           git diff --check
           git diff -- docs/continuity/KODEPOIA_CONTINUITY.md

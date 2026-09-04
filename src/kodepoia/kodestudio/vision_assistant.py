@@ -28,18 +28,9 @@ VISION_SCHEMA: dict[str, Any] = {
                     "priority": {"type": "string"},
                     "title": {"type": "string"},
                     "description": {"type": "string"},
-                    "acceptance_criteria": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                    },
+                    "acceptance_criteria": {"type": "array", "items": {"type": "string"}},
                 },
-                "required": [
-                    "id",
-                    "priority",
-                    "title",
-                    "description",
-                    "acceptance_criteria",
-                ],
+                "required": ["id", "priority", "title", "description", "acceptance_criteria"],
             },
         },
         "clarifying_questions": {"type": "array", "items": {"type": "string"}},
@@ -112,17 +103,6 @@ class VisionDraft:
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
-    def merge(self, newer: "VisionDraft") -> "VisionDraft":
-        return VisionDraft(
-            summary=newer.summary or self.summary,
-            goals=_merge_unique(self.goals, newer.goals),
-            success_metrics=_merge_unique(self.success_metrics, newer.success_metrics),
-            constraints=_merge_unique(self.constraints, newer.constraints),
-            mvp=_merge_unique(self.mvp, newer.mvp),
-            out_of_scope=_merge_unique(self.out_of_scope, newer.out_of_scope),
-            requirements=_merge_requirements(self.requirements, newer.requirements),
-        )
-
 
 @dataclass(slots=True)
 class VisionAssistantResult:
@@ -159,30 +139,12 @@ def _string_list(value: Any) -> list[str]:
     return result
 
 
-def _merge_unique(base: list[str], newer: list[str]) -> list[str]:
-    result = list(base)
-    for value in newer:
-        if value and value not in result:
-            result.append(value)
-    return result
-
-
-def _merge_requirements(
-    base: list[VisionRequirement], newer: list[VisionRequirement]
-) -> list[VisionRequirement]:
-    result = list(base)
-    positions = {item.id: index for index, item in enumerate(result)}
-    for item in newer:
-        if item.id in positions:
-            result[positions[item.id]] = item
-        else:
-            positions[item.id] = len(result)
-            result.append(item)
-    return result
+def _copy_draft(draft: VisionDraft) -> VisionDraft:
+    return VisionDraft.from_mapping(draft.to_dict())
 
 
 class VisionAssistant:
-    """Local-first project vision assistant with a non-LLM guided fallback."""
+    """Local-first project Vision assistant with a deterministic guided fallback."""
 
     def __init__(self, client: OllamaClient | None = None) -> None:
         self.client = client or OllamaClient(timeout=8.0)
@@ -214,6 +176,8 @@ class VisionAssistant:
                     locale=locale,
                 )
             except (BrainUnavailable, ValueError, json.JSONDecodeError, TypeError):
+                # The user must never be blocked because the local model is unavailable
+                # or returned malformed structured data.
                 pass
         return self._guided_refine(message, current=current_draft, locale=locale)
 
@@ -229,9 +193,10 @@ class VisionAssistant:
         system = (
             "You are Kodepoia Vision Guide, a local-first product discovery assistant. "
             "Help a beginner turn an idea into a precise, testable project vision. "
-            "Never silently invent a major product decision: when information is missing, "
-            "put a concise question in clarifying_questions. Preserve explicit user choices "
-            "and treat a later user message as a possible vision change. Return only JSON "
+            "Return the COMPLETE revised vision, not a patch. Preserve explicit choices unless "
+            "the user clearly changes them. Never silently invent a major product decision: when "
+            "information is missing, put a concise question in clarifying_questions. Treat later "
+            "messages as possible vision changes and reconcile them explicitly. Return only JSON "
             f"matching the provided schema. Write all human-facing text in {language}."
         )
         context = json.dumps(current.to_dict(), ensure_ascii=False, indent=2)
@@ -252,8 +217,7 @@ class VisionAssistant:
         payload = json.loads(response.content)
         if not isinstance(payload, dict):
             raise ValueError("Structured vision response must be a JSON object")
-        incoming = VisionDraft.from_mapping(payload)
-        draft = current.merge(incoming)
+        draft = VisionDraft.from_mapping(payload)
         questions = _string_list(payload.get("clarifying_questions"))
         return VisionAssistantResult(
             draft=draft,
@@ -270,9 +234,11 @@ class VisionAssistant:
         current: VisionDraft,
         locale: str,
     ) -> VisionAssistantResult:
-        incoming = VisionDraft(summary=message if not current.summary else "")
-        draft = current.merge(incoming)
-        questions = _missing_questions(draft, message=message, locale=locale)
+        draft = _copy_draft(current)
+        explicit = _apply_explicit_update(draft, message, locale=locale)
+        if not explicit:
+            _apply_next_guided_answer(draft, message)
+        questions = _next_guided_questions(draft, locale=locale)
         return VisionAssistantResult(
             draft=draft,
             clarifying_questions=questions,
@@ -281,63 +247,123 @@ class VisionAssistant:
         )
 
 
-def _missing_questions(draft: VisionDraft, *, message: str, locale: str) -> list[str]:
+def _apply_next_guided_answer(draft: VisionDraft, message: str) -> None:
+    values = _string_list(message)
+    if not draft.summary:
+        draft.summary = message.strip()
+    elif not draft.goals:
+        draft.goals = values
+    elif not draft.success_metrics:
+        draft.success_metrics = values
+    elif not draft.constraints:
+        draft.constraints = values
+    elif not draft.mvp:
+        draft.mvp = values
+    elif not draft.out_of_scope:
+        draft.out_of_scope = values
+    elif not draft.requirements:
+        draft.requirements = [
+            VisionRequirement(id=f"REQ-{index:03d}", title=value, priority="P1")
+            for index, value in enumerate(values, start=1)
+        ]
+    else:
+        missing = next((item for item in draft.requirements if not item.acceptance_criteria), None)
+        if missing is not None:
+            missing.acceptance_criteria = values
+
+
+def _apply_explicit_update(draft: VisionDraft, message: str, *, locale: str) -> bool:
+    stripped = message.strip()
+    lower = stripped.casefold()
+    prefixes: tuple[tuple[tuple[str, ...], str], ...] = (
+        (("résumé:", "resume:", "summary:"), "summary"),
+        (("objectifs:", "goals:"), "goals"),
+        (("mesures de réussite:", "indicateurs de réussite:", "success metrics:"), "success_metrics"),
+        (("contraintes:", "constraints:"), "constraints"),
+        (("mvp:",), "mvp"),
+        (("hors périmètre:", "hors perimetre:", "out of scope:"), "out_of_scope"),
+        (("exigences:", "requirements:"), "requirements"),
+    )
+    for candidates, field_name in prefixes:
+        for prefix in candidates:
+            if lower.startswith(prefix):
+                value = stripped[len(prefix):].strip()
+                if field_name == "summary":
+                    draft.summary = value
+                elif field_name == "requirements":
+                    items = _string_list(value)
+                    draft.requirements = [
+                        VisionRequirement(id=f"REQ-{index:03d}", title=item, priority="P1")
+                        for index, item in enumerate(items, start=1)
+                    ]
+                else:
+                    setattr(draft, field_name, _string_list(value))
+                return True
+    acceptance_prefixes = ("critères d'acceptation:", "criteres d'acceptation:", "acceptance criteria:")
+    for prefix in acceptance_prefixes:
+        if lower.startswith(prefix):
+            values = _string_list(stripped[len(prefix):].strip())
+            if not draft.requirements:
+                draft.requirements.append(VisionRequirement(id="REQ-001", title="Requirement"))
+            target = next((item for item in draft.requirements if not item.acceptance_criteria), draft.requirements[-1])
+            target.acceptance_criteria = values
+            return True
+    return False
+
+
+def _next_guided_questions(draft: VisionDraft, *, locale: str) -> list[str]:
     french = locale.lower().startswith("fr")
-    lower = message.casefold()
-    questions: list[str] = []
     if not draft.goals:
-        questions.append(
+        return [
             "Quels sont les 1 à 3 objectifs principaux que le projet doit atteindre ?"
-            if french
-            else "What are the 1–3 main goals the project must achieve?"
-        )
+            if french else "What are the 1–3 main goals the project must achieve?"
+        ]
     if not draft.success_metrics:
-        questions.append(
-            "Comment sauras-tu que le projet est réussi (FPS, stabilité, utilisateurs, ventes, durée, qualité…) ?"
-            if french
-            else "How will you know the project succeeded (FPS, stability, users, sales, duration, quality…)?"
-        )
+        return [
+            "Comment sauras-tu que le projet est réussi ? Donne des mesures concrètes : FPS, stabilité, utilisateurs, ventes, durée, qualité…"
+            if french else "How will you know the project succeeded? Give concrete measures: FPS, stability, users, sales, duration, quality…"
+        ]
     if not draft.constraints:
-        questions.append(
-            "Quelles contraintes sont importantes : plateformes, budget, matériel, délai, hors-ligne, équipe ou technologies ?"
-            if french
-            else "Which constraints matter: platforms, budget, hardware, deadline, offline use, team or technologies?"
-        )
+        return [
+            "Quelles contraintes sont importantes : public, plateformes, budget, matériel, délai, hors-ligne, équipe ou technologies ?"
+            if french else "Which constraints matter: audience, platforms, budget, hardware, deadline, offline use, team or technologies?"
+        ]
     if not draft.mvp:
-        questions.append(
+        return [
             "Quelle est la plus petite version jouable/utilisable qui prouverait que l'idée fonctionne ?"
-            if french
-            else "What is the smallest playable/usable version that would prove the idea works?"
-        )
+            if french else "What is the smallest playable/usable version that would prove the idea works?"
+        ]
     if not draft.out_of_scope:
-        questions.append(
+        return [
             "Que veux-tu explicitement exclure de la première version pour éviter que le projet devienne trop large ?"
-            if french
-            else "What should be explicitly excluded from the first version to keep scope under control?"
-        )
-    audience_terms = ("public", "joueur", "player", "utilisateur", "audience", "âge", "age")
-    if not any(term in lower for term in audience_terms):
-        questions.append(
-            "À qui s'adresse principalement ce projet ?"
-            if french
-            else "Who is the primary audience for this project?"
-        )
-    return questions[:4]
+            if french else "What should be explicitly excluded from the first version to keep scope under control?"
+        ]
+    if not draft.requirements:
+        return [
+            "Quelles capacités sont indispensables ? Écris une ou plusieurs exigences séparées par des points-virgules."
+            if french else "Which capabilities are mandatory? Write one or more requirements separated by semicolons."
+        ]
+    missing = next((item for item in draft.requirements if not item.acceptance_criteria), None)
+    if missing is not None:
+        return [
+            f"Comment vérifier objectivement « {missing.title} » ? Donne un ou plusieurs critères d'acceptation séparés par des points-virgules."
+            if french else f"How can “{missing.title}” be verified objectively? Give one or more acceptance criteria separated by semicolons."
+        ]
+    return []
 
 
 def _assistant_summary(draft: VisionDraft, questions: list[str], *, locale: str) -> str:
     french = locale.lower().startswith("fr")
     if questions:
         return (
-            "J'ai structuré ce que tu m'as donné. Pour rendre la Vision exploitable, "
-            "j'ai encore besoin de quelques précisions."
+            "J'ai mis à jour la Vision avec ta dernière réponse. Voici la prochaine précision utile."
             if french
-            else "I structured what you gave me. I still need a few clarifications to make the Vision actionable."
+            else "I updated the Vision with your latest answer. Here is the next useful clarification."
         )
     return (
-        "La Vision est suffisamment structurée pour être relue et appliquée au projet."
+        "La Vision contient maintenant les éléments essentiels, les exigences et leurs critères d'acceptation. Tu peux encore modifier un champ avec « Objectifs: … », « Contraintes: … », « MVP: … », etc."
         if french
-        else "The Vision is structured enough to review and apply to the project."
+        else "The Vision now contains its essential elements, requirements and acceptance criteria. You can still change a field using “Goals: …”, “Constraints: …”, “MVP: …”, etc."
     )
 
 

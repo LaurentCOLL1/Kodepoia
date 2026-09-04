@@ -1,5 +1,6 @@
 param(
     [string]$Version = "",
+    [string]$SourceSha = "",
     [string]$Python = "python",
     [string]$Iscc = ""
 )
@@ -14,16 +15,39 @@ if ($LASTEXITCODE -ne 0) {
     throw "Failed to install Kodepoia build dependencies."
 }
 
-$ReleaseLines = & $Python -c "import json; from kodepoia.release_identity import CURRENT_RELEASE; print(json.dumps(CURRENT_RELEASE.to_dict(), sort_keys=True))"
+if (-not $SourceSha) {
+    $SourceSha = (& git rev-parse HEAD).Trim().ToLowerInvariant()
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to resolve exact Git source SHA for the installer build."
+    }
+}
+if ($SourceSha -notmatch "^[0-9a-fA-F]{40}$") {
+    throw "SourceSha must be an exact 40-character hexadecimal Git commit."
+}
+$SourceSha = $SourceSha.ToLowerInvariant()
+
+$ReleaseLines = & $Python -m kodepoia.release.identity --source-sha $SourceSha --json
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to read canonical Kodepoia release identity."
 }
 $ReleaseIdentity = (($ReleaseLines -join "`n") | ConvertFrom-Json)
-$CanonicalVersion = [string]$ReleaseIdentity.display_version
+if ([string]$ReleaseIdentity.source_sha -ne $SourceSha) {
+    throw "Canonical release identity source SHA does not match requested installer source SHA."
+}
+$CanonicalVersion = [string]$ReleaseIdentity.installer_version
 if (-not $Version) {
     $Version = $CanonicalVersion
 } elseif ($Version -ne $CanonicalVersion) {
     throw "Requested installer version $Version does not match canonical release identity $CanonicalVersion."
+}
+
+$PyprojectVersionLines = & $Python -c "import pathlib,tomllib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8'))['project']['version'])"
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to read pyproject.toml package version."
+}
+$PyprojectVersion = (($PyprojectVersionLines -join "`n").Trim())
+if ($PyprojectVersion -ne [string]$ReleaseIdentity.pep440_version) {
+    throw "pyproject.toml version $PyprojectVersion does not match canonical release identity $($ReleaseIdentity.pep440_version)."
 }
 
 $BuildRoot = Join-Path $Root "build\windows"
@@ -105,8 +129,13 @@ Write-Host "Installer: $Setup"
 Write-Host "SHA-256: $Hash"
 @{
     version = $Version
+    public_version = [string]$ReleaseIdentity.public_version
     pep440_version = [string]$ReleaseIdentity.pep440_version
+    installer_version = [string]$ReleaseIdentity.installer_version
     channel = [string]$ReleaseIdentity.channel
+    build_type = [string]$ReleaseIdentity.build_type
+    package = [string]$ReleaseIdentity.package
+    source_sha = [string]$ReleaseIdentity.source_sha
     release_identity_schema = [int]$ReleaseIdentity.schema_version
     installer = "KodepoiaSetup.exe"
     sha256 = $Hash

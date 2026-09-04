@@ -69,7 +69,10 @@ if (-not $Iscc -or -not (Test-Path $Iscc)) {
 }
 
 $Iss = Join-Path $Root "packaging\windows\Kodepoia.iss"
-& $Iscc "--define=AppVersion=$Version" "--define=SourceDir=$FinalDist" $Iss
+# Inno Setup 6.x accepts the ISPP short form -dNAME=VALUE across the
+# supported 6.x line. Keep it instead of the newer long --define form so
+# Chocolatey runners pinned to e.g. 6.7.1 remain compatible.
+& $Iscc "-dAppVersion=$Version" "-dSourceDir=$FinalDist" $Iss
 if ($LASTEXITCODE -ne 0) {
     throw "Inno Setup failed with exit code $LASTEXITCODE"
 }

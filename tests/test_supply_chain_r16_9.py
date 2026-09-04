@@ -98,7 +98,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     assert len(policy.digest_sha256) == 64
     assert policy.required_contents_permission == "read"
-    assert len(policy.immutable_authority_workflows) == 21
+    assert len(policy.immutable_authority_workflows) == 22
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
         in policy.immutable_authority_workflows
@@ -115,6 +115,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
         ".github/workflows/r16-18-integrated-rc-acceptance.yml"
         in policy.immutable_authority_workflows
     )
+    assert ".github/workflows/windows-installer.yml" in policy.immutable_authority_workflows
     assert policy.legacy_workflows_are_non_authoritative_for_v1_promotion
     assert policy.forbid_pull_request_target
     assert policy.forbid_untrusted_pr_shell_interpolation

@@ -17,7 +17,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
-      KODEPOIA_SOURCE_SHA: d8c0028fc3b1a29172728d89f8cae58bc8a9d254
+      KODEPOIA_SOURCE_SHA: d7972c3f26d0c7448fde80930a3eac5131475a2f
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -44,7 +44,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
-      KODEPOIA_SOURCE_SHA: d8c0028fc3b1a29172728d89f8cae58bc8a9d254
+      KODEPOIA_SOURCE_SHA: d7972c3f26d0c7448fde80930a3eac5131475a2f
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -66,7 +66,7 @@ jobs:
     name: kodestudio-ui-windows
     runs-on: windows-latest
     env:
-      KODEPOIA_SOURCE_SHA: d8c0028fc3b1a29172728d89f8cae58bc8a9d254
+      KODEPOIA_SOURCE_SHA: d7972c3f26d0c7448fde80930a3eac5131475a2f
       QT_QPA_PLATFORM: offscreen
       KODEPOIA_LOCALE: fr
     steps:

@@ -9,8 +9,10 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator
+
 import kodepoia
-from kodepoia.release_identity import CURRENT_RELEASE, ReleaseIdentity
+from kodepoia.release import CURRENT_RELEASE, ReleaseIdentity
 
 
 def _canonical_json(value: Any) -> str:
@@ -36,10 +38,18 @@ def _release(
     minor: int = 1,
     patch: int = 0,
 ) -> ReleaseIdentity:
+    build_type = {
+        "stable": "release",
+        "beta": "prerelease",
+        "nightly": "development",
+    }[channel]
     return ReleaseIdentity(
         schema_version=1,
         product="Kodepoia",
+        package="kodepoia",
         channel=channel,
+        build_type=build_type,
+        source_binding="exact-head",
         major=major,
         minor=minor,
         patch=patch,
@@ -53,8 +63,14 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
     if _git_head(root) != exact_source:
         raise RuntimeError("R18.1 acceptance source SHA does not match checked-out HEAD")
 
-    identity_path = root / "src/kodepoia/release_identity.json"
+    identity_path = root / "src/kodepoia/release/release_identity.json"
+    schema_path = root / "schemas/release_identity.schema.json"
     identity_payload = json.loads(identity_path.read_text(encoding="utf-8"))
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    bound_identity = CURRENT_RELEASE.bind_source(exact_source)
+    Draft202012Validator(schema).validate(identity_payload)
+    Draft202012Validator(schema).validate(bound_identity.to_dict())
+
     pyproject = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
     iss = (root / "packaging/windows/Kodepoia.iss").read_text(encoding="utf-8")
     build_script = (root / "scripts/build_windows_installer.ps1").read_text(encoding="utf-8")
@@ -67,6 +83,22 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
         capture_output=True,
         text=True,
     ).stdout.strip()
+
+    identity_cli = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "kodepoia.release.identity",
+            "--source-sha",
+            exact_source,
+            "--json",
+        ],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    identity_cli_payload = json.loads(identity_cli.stdout)
 
     ordered = [
         _release(channel="nightly", stage="dev", serial=1),
@@ -86,17 +118,29 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
     ]
     next_nightly = _release(channel="nightly", stage="dev", serial=1, minor=2)
 
+    expected_static_identity = {
+        "schema_version": 1,
+        "product": "Kodepoia",
+        "package": "kodepoia",
+        "channel": "beta",
+        "build_type": "prerelease",
+        "source_binding": "exact-head",
+        "version": {"major": 1, "minor": 1, "patch": 0, "stage": "rc", "serial": 1},
+    }
+
     checks = {
         "exact_source_bound": _git_head(root) == exact_source,
-        "single_machine_identity_schema": identity_payload == {
-            "schema_version": 1,
-            "product": "Kodepoia",
-            "channel": "beta",
-            "version": {"major": 1, "minor": 1, "patch": 0, "stage": "rc", "serial": 1},
-        },
+        "single_machine_identity_schema": identity_payload == expected_static_identity,
+        "duplicate_root_identity_absent": not (root / "src/kodepoia/release_identity.json").exists(),
+        "schema_validates_static_and_bound_identity": True,
+        "bound_source_sha_exact": bound_identity.source_sha == exact_source,
+        "identity_cli_matches_bound_identity": identity_cli_payload == bound_identity.to_dict(),
+        "canonical_package_name": CURRENT_RELEASE.package == "kodepoia",
         "canonical_channel_beta": CURRENT_RELEASE.channel == "beta",
+        "canonical_build_type": CURRENT_RELEASE.build_type == "prerelease",
         "canonical_pep440_version": CURRENT_RELEASE.pep440_version == "1.1.0rc1",
-        "canonical_display_version": CURRENT_RELEASE.display_version == "1.1.0-rc1",
+        "canonical_public_version": CURRENT_RELEASE.public_version == "1.1.0-rc1",
+        "canonical_installer_version": CURRENT_RELEASE.installer_version == "1.1.0-rc1",
         "package_version_derived": kodepoia.__version__ == CURRENT_RELEASE.pep440_version,
         "pyproject_matches_canonical": pyproject["project"]["version"] == CURRENT_RELEASE.pep440_version,
         "cli_matches_canonical": cli == "kodepoia 1.1.0-rc1 (beta)",
@@ -106,11 +150,12 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
             and "AppVersion={#AppVersion}" in iss
         ),
         "windows_builder_reads_and_validates_canonical": (
-            '[string]$Version = ""' in build_script
-            and "from kodepoia.release_identity import CURRENT_RELEASE" in build_script
+            '[string]$SourceSha = ""' in build_script
+            and "kodepoia.release.identity --source-sha" in build_script
             and "does not match canonical release identity" in build_script
-            and "pep440_version" in build_script
-            and "release_identity_schema" in build_script
+            and "pyproject.toml version" in build_script
+            and "source_sha = [string]$ReleaseIdentity.source_sha" in build_script
+            and "build_type = [string]$ReleaseIdentity.build_type" in build_script
         ),
         "ui_version_surface_bound": (
             'setProperty("kodepoiaReleaseVersion", CURRENT_RELEASE.display_version)' in ui
@@ -137,7 +182,8 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
         "phase": "R18.1",
         "source_sha": exact_source,
         "release_identity_sha256": _sha256(identity_path),
-        "release": CURRENT_RELEASE.to_dict(),
+        "release_identity_schema_sha256": _sha256(schema_path),
+        "release": bound_identity.to_dict(),
         "cli_version": cli,
         "checks": checks,
         "production_signing_triggered": False,

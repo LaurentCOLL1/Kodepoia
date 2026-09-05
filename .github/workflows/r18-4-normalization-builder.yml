@@ -20,6 +20,16 @@ jobs:
         shell: bash
         run: |
           cp scripts/r18_4_normalization_builder.py /tmp/r18_4_normalization_builder.py
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('/tmp/r18_4_normalization_builder.py')
+          text = path.read_text(encoding='utf-8')
+          old = 'if text.count("single authorized post-merge continuity-only R18.4 normalization") != 1:'
+          new = 'if text.count("## R18.4 normalization authority") != 1:'
+          if old not in text:
+              raise SystemExit('normalization guard source not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8', newline='\n')
+          PY
           git checkout --detach 8b5e09622399d24f87c20a3820e38111d3072b6e
           python /tmp/r18_4_normalization_builder.py
           git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md

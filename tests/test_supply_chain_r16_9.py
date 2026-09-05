@@ -101,7 +101,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     assert len(policy.digest_sha256) == 64
     assert policy.required_contents_permission == "read"
-    assert len(policy.immutable_authority_workflows) == 25
+    assert len(policy.immutable_authority_workflows) == 26
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
         in policy.immutable_authority_workflows
@@ -129,6 +129,8 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     r18_3_workflow = ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"
     assert r18_3_workflow in policy.immutable_authority_workflows
+    r18_4_workflow = ".github/workflows/r18-4-windows-authenticode-acceptance.yml"
+    assert r18_4_workflow in policy.immutable_authority_workflows
     assert policy.allow_write_workflows == (r18_3_workflow,)
     assert policy.legacy_workflows_are_non_authoritative_for_v1_promotion
     assert policy.forbid_pull_request_target

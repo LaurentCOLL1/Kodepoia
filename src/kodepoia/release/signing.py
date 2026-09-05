@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 HASH_ALGORITHM = "SHA256"
 CERT_THUMBPRINT_RE = re.compile(r"^[0-9A-F]{40}$")
 SOURCE_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 class SigningPolicyError(ValueError):
@@ -80,6 +81,7 @@ class SubjectEvidence:
     timestamp_subject: str | None
     timestamp_verified: bool
     signtool_verified: bool
+    pre_sign_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -149,9 +151,20 @@ def build_signing_evidence(
     if not material:
         raise SigningPolicyError("signing evidence requires at least one subject")
 
+    for item in material:
+        if not SHA256_RE.fullmatch(item.sha256):
+            raise SigningPolicyError(f"invalid post-sign SHA-256 for {item.filename}")
+        if item.pre_sign_sha256 is not None:
+            if not SHA256_RE.fullmatch(item.pre_sign_sha256):
+                raise SigningPolicyError(f"invalid pre-sign SHA-256 for {item.filename}")
+            if item.pre_sign_sha256 == item.sha256:
+                raise SigningPolicyError(f"signing did not change subject digest for {item.filename}")
+
     if policy.mode is SigningMode.UNSIGNED:
         if any(item.authenticode_status.lower() != "notsigned" for item in material):
             raise SigningPolicyError("unsigned evidence contains a signed subject")
+        if any(item.pre_sign_sha256 is not None for item in material):
+            raise SigningPolicyError("unsigned evidence cannot contain a pre-sign transition digest")
         production_signed = False
         public_trust_claim = False
     else:

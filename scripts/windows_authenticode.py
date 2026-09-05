@@ -92,6 +92,7 @@ def _subject_evidence(
     subject: Path,
     *,
     require_signature: bool,
+    pre_sign_sha256: str | None = None,
 ) -> SubjectEvidence:
     metadata = _powershell_signature(subject)
     verify = _run(signtool_verify_args(signtool, subject), check=False)
@@ -123,6 +124,7 @@ def _subject_evidence(
         timestamp_subject=(str(timestamp_subject) if timestamp_subject is not None else None),
         timestamp_verified=timestamp_verified,
         signtool_verified=verify_ok,
+        pre_sign_sha256=pre_sign_sha256,
     )
 
 
@@ -155,9 +157,12 @@ def main() -> int:
             raise SigningPolicyError(f"release signing subject is missing or empty: {subject}")
 
     signtool = _discover_signtool(args.signtool)
+    pre_sign_digests: dict[Path, str] = {}
 
     if policy.mode is not SigningMode.UNSIGNED and not args.verify_only:
         for subject in subjects:
+            resolved = subject.resolve()
+            pre_sign_digests[resolved] = sha256_file(subject)
             completed = _run(signtool_sign_args(signtool, subject, policy), check=False)
             if completed.returncode != 0:
                 raise SigningPolicyError(
@@ -170,6 +175,7 @@ def main() -> int:
             signtool,
             subject,
             require_signature=policy.mode is not SigningMode.UNSIGNED,
+            pre_sign_sha256=pre_sign_digests.get(subject.resolve()),
         )
         for subject in subjects
     ]

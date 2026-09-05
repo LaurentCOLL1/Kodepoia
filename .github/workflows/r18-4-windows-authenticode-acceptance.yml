@@ -208,6 +208,8 @@ jobs:
           python scripts/r18_4_authenticode_acceptance.py `
             --source-sha "$env:EVIDENCE_SHA" `
             --actual-evidence "artifacts/r18_4/windows-authenticode-evidence.json" `
+            --signing-evidence "artifacts/r18_4/standalone-signing.json" `
+            --signing-evidence "artifacts/r18_4/installer-signing.json" `
             --output "artifacts/r18_4/R18_4_WINDOWS_AUTHENTICODE_ACCEPTANCE.json"
 
       - name: Prove hashed-section tamper fails closed

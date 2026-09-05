@@ -131,6 +131,62 @@ def test_test_evidence_never_becomes_production_claim() -> None:
     assert evidence.public_trust_claim is False
 
 
+def test_signed_evidence_preserves_pre_post_sign_transition() -> None:
+    policy = SigningPolicy(
+        SigningMode.TEST,
+        SOURCE,
+        timestamp_url=TSA,
+        certificate_thumbprint=THUMB,
+    )
+    evidence = build_signing_evidence(
+        policy,
+        signtool_version="10.0",
+        subjects=[
+            SubjectEvidence(
+                filename="KodepoiaSetup.exe",
+                sha256="1" * 64,
+                authenticode_status="Valid",
+                signer_subject="CN=Kodepoia Test",
+                signer_thumbprint=THUMB,
+                timestamp_subject="CN=RFC3161 TSA",
+                timestamp_verified=True,
+                signtool_verified=True,
+                pre_sign_sha256="0" * 64,
+            )
+        ],
+    )
+    subject = evidence.to_dict()["subjects"][0]
+    assert subject["pre_sign_sha256"] == "0" * 64
+    assert subject["sha256"] == "1" * 64
+
+
+def test_signed_evidence_rejects_unchanged_pre_post_digest() -> None:
+    policy = SigningPolicy(
+        SigningMode.TEST,
+        SOURCE,
+        timestamp_url=TSA,
+        certificate_thumbprint=THUMB,
+    )
+    with pytest.raises(SigningPolicyError, match="did not change"):
+        build_signing_evidence(
+            policy,
+            signtool_version="10.0",
+            subjects=[
+                SubjectEvidence(
+                    filename="KodepoiaSetup.exe",
+                    sha256="1" * 64,
+                    authenticode_status="Valid",
+                    signer_subject="CN=Kodepoia Test",
+                    signer_thumbprint=THUMB,
+                    timestamp_subject="CN=RFC3161 TSA",
+                    timestamp_verified=True,
+                    signtool_verified=True,
+                    pre_sign_sha256="1" * 64,
+                )
+            ],
+        )
+
+
 def test_signed_evidence_rejects_missing_timestamp() -> None:
     policy = SigningPolicy(
         SigningMode.TEST,

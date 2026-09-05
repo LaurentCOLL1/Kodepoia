@@ -1,0 +1,57 @@
+name: R18.4 R16.9 authority-count fix helper
+
+on:
+  push:
+    branches:
+      - scratch/r18-4-r16-9-fix
+
+permissions:
+  contents: write
+
+jobs:
+  patch-target:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout R18.4 target branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r18/04-windows-authenticode-signing
+          fetch-depth: 0
+
+      - name: Patch exact R16.9 authority expectations
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("tests/test_supply_chain_r16_9.py")
+          text = path.read_text(encoding="utf-8")
+          old_count = "assert len(policy.immutable_authority_workflows) == 25"
+          new_count = "assert len(policy.immutable_authority_workflows) == 26"
+          if text.count(old_count) != 1:
+              raise SystemExit(f"expected one old authority count, got {text.count(old_count)}")
+          text = text.replace(old_count, new_count, 1)
+
+          anchor = (
+              '    r18_3_workflow = ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"\n'
+              "    assert r18_3_workflow in policy.immutable_authority_workflows\n"
+          )
+          replacement = anchor + (
+              '    r18_4_workflow = ".github/workflows/r18-4-windows-authenticode-acceptance.yml"\n'
+              "    assert r18_4_workflow in policy.immutable_authority_workflows\n"
+          )
+          if text.count(anchor) != 1:
+              raise SystemExit(f"expected one R18.3 authority anchor, got {text.count(anchor)}")
+          text = text.replace(anchor, replacement, 1)
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+      - name: Commit target-only test fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git diff --name-only)" = "tests/test_supply_chain_r16_9.py"
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/test_supply_chain_r16_9.py
+          git commit -m "R18.4 — Synchronize R16.9 authority tests"
+          git push origin HEAD:r18/04-windows-authenticode-signing

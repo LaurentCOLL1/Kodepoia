@@ -203,12 +203,49 @@ jobs:
             --actual-evidence "artifacts/r18_4/windows-authenticode-evidence.json" `
             --output "artifacts/r18_4/R18_4_WINDOWS_AUTHENTICODE_ACCEPTANCE.json"
 
-      - name: Prove tampered signed installer fails closed
+      - name: Prove hashed-section tamper fails closed
         shell: pwsh
         run: |
           $tampered = "artifacts/r18_4/KodepoiaSetup-tampered.exe"
           Copy-Item "dist/windows/KodepoiaSetup.exe" $tampered
-          python -c "from pathlib import Path; p=Path(r'$tampered'); p.write_bytes(p.read_bytes()+b'R18.4-TAMPER')"
+          $env:KODEPOIA_R18_4_TAMPERED = (Resolve-Path $tampered).Path
+          $mutator = @'
+          import os
+          import struct
+          from pathlib import Path
+
+          path = Path(os.environ["KODEPOIA_R18_4_TAMPERED"])
+          data = bytearray(path.read_bytes())
+          if len(data) < 0x40 or data[:2] != b"MZ":
+              raise SystemExit("tamper fixture is not a PE image")
+          pe_offset = struct.unpack_from("<I", data, 0x3C)[0]
+          if pe_offset + 24 > len(data) or data[pe_offset:pe_offset + 4] != b"PE\x00\x00":
+              raise SystemExit("tamper fixture has no valid PE header")
+          section_count = struct.unpack_from("<H", data, pe_offset + 6)[0]
+          optional_size = struct.unpack_from("<H", data, pe_offset + 20)[0]
+          section_table = pe_offset + 24 + optional_size
+          mutated = False
+          for index in range(section_count):
+              header = section_table + (index * 40)
+              if header + 40 > len(data):
+                  break
+              raw_size = struct.unpack_from("<I", data, header + 16)[0]
+              raw_offset = struct.unpack_from("<I", data, header + 20)[0]
+              if raw_size <= 0 or raw_offset >= len(data):
+                  continue
+              mutate_at = raw_offset + min(16, raw_size - 1)
+              if mutate_at >= len(data):
+                  continue
+              data[mutate_at] ^= 0x01
+              path.write_bytes(data)
+              print(f"mutated hashed PE section {index} at file offset {mutate_at}")
+              mutated = True
+              break
+          if not mutated:
+              raise SystemExit("could not locate a hashed PE section to mutate")
+          '@
+          $mutator | python -
+          if ($LASTEXITCODE -ne 0) { throw "Failed to construct hashed-section tamper fixture" }
           python scripts/windows_authenticode.py `
             --mode test `
             --source-sha "$env:EVIDENCE_SHA" `

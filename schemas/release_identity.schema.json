@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/release_identity.schema.json",
+  "title": "Kodepoia Release Identity",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "product",
+    "package",
+    "channel",
+    "build_type",
+    "source_binding",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "product": {"type": "string", "minLength": 1},
+    "package": {"type": "string", "minLength": 1},
+    "channel": {"enum": ["stable", "beta", "nightly"]},
+    "build_type": {"enum": ["release", "prerelease", "development"]},
+    "source_binding": {"const": "exact-head"},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["major", "minor", "patch", "stage", "serial"],
+      "properties": {
+        "major": {"type": "integer", "minimum": 0},
+        "minor": {"type": "integer", "minimum": 0},
+        "patch": {"type": "integer", "minimum": 0},
+        "stage": {"enum": ["dev", "a", "b", "rc", "final"]},
+        "serial": {"type": "integer", "minimum": 0}
+      }
+    },
+    "pep440_version": {"type": "string", "minLength": 1},
+    "public_version": {"type": "string", "minLength": 1},
+    "installer_version": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"channel": {"const": "stable"}}},
+      "then": {
+        "properties": {
+          "build_type": {"const": "release"},
+          "version": {
+            "properties": {"stage": {"const": "final"}, "serial": {"const": 0}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"channel": {"const": "beta"}}},
+      "then": {
+        "properties": {
+          "build_type": {"const": "prerelease"},
+          "version": {"properties": {"stage": {"enum": ["a", "b", "rc"]}, "serial": {"minimum": 1}}}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"channel": {"const": "nightly"}}},
+      "then": {
+        "properties": {
+          "build_type": {"const": "development"},
+          "version": {"properties": {"stage": {"const": "dev"}, "serial": {"minimum": 1}}}
+        }
+      }
+    }
+  ]
+}

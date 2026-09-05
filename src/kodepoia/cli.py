@@ -30,6 +30,7 @@ from kodepoia.mobile.r13_cli import register_r13_commands
 from kodepoia.project.dna import ApprovalPolicy, Dimension, Platform, ProjectType
 from kodepoia.project.initializer import ProjectInitializer
 from kodepoia.project.wizard import ProjectWizardState
+from kodepoia.release_identity import CURRENT_RELEASE
 from kodepoia.tuning.r15_cli import register_r15_commands
 
 PRESELECTION_REPEATS = 4
@@ -276,6 +277,11 @@ def _research_media_acceptance(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="kodepoia")
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {CURRENT_RELEASE.display_version} ({CURRENT_RELEASE.channel})",
+    )
     commands = parser.add_subparsers(dest="command", required=True)
 
     project = commands.add_parser("project-init")

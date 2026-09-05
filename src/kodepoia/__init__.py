@@ -1,3 +1,5 @@
 """Kodepoia local-first development environment."""
 
-__version__ = "1.0.0rc1"
+from kodepoia.release_identity import CURRENT_RELEASE
+
+__version__ = CURRENT_RELEASE.pep440_version

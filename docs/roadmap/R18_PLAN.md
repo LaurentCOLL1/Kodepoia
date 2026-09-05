@@ -1,12 +1,12 @@
 # R18 — Trusted Release, Updates & Distribution Channels
 
-Status: **PLANNING**
+Status: **IN_PROGRESS**
 
 Started: **2026-09-04**
 
 Normalized source of truth: `main` `58e488d80e60d04fc675e305bc8f040a3ab2bb9c` — R17 COMPLETE + NORMALIZED.
 
-Roadmap status: this document is the explicit post-R17 roadmap authorization for R18. It does **not** rewrite the frozen v1.0/R1–R16 architecture or history. No R18 implementation is authorized until this complete plan and its planning continuity record are re-gated and merged to `main`.
+Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE at END-sync on immutable technical source `8fda649829acfd5abae2ea31e9c744f8554b8d06`; its implementation/evidence merge and the unique post-merge continuity-only normalization remain required before R18.2 may start. The frozen v1.0/R1–R16 architecture and history are not rewritten.
 
 ## Phase objective
 
@@ -57,7 +57,7 @@ Before R18.1 begins:
 
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
-| R18.1 | Canonical release identity, versions and channels | PLANNED | NONE | R17 normalized main |
+| R18.1 | Canonical release identity, versions and channels | COMPLETE | NONE | R17 normalized main |
 | R18.2 | Deterministic release bundle and manifest contract | PLANNED | NONE | R18.1 |
 | R18.3 | SBOM, provenance and artifact attestations | PLANNED | NONE | R18.2 |
 | R18.4 | Windows Authenticode signing and verification boundary | PLANNED | CONDITIONAL | R18.2–R18.3 |
@@ -110,6 +110,8 @@ Focused unit tests; invalid/mismatch negative cases; installer static tests; R0 
 ## Validation and evidence
 
 Preserve exact head SHA, normalized identity JSON, all derived version strings and CI run IDs. Evidence must demonstrate zero version disagreement.
+
+END-sync technical acceptance: immutable source `8fda649829acfd5abae2ea31e9c744f8554b8d06`; R18.1 run `33928967043` SUCCESS on Ubuntu 24.04 and Windows with compile, Ruff, 6/6 focused tests, packaged-wheel identity verification and exact-source evidence emission. Canonical identity is `Kodepoia` / `kodepoia`, channel `beta`, build type `prerelease`, PEP 440 `1.1.0rc1`, public/installer `1.1.0-rc1`, source binding `exact-head`; acceptance SHA-256 `1bf94b74713522149083b608c0664c215ba12304244fb6d6ec04e280291f883d`, identity SHA-256 `d0cd93c16846980ac8e633bd23f2930969f2d249040452c5529095de1cd40ef1`, schema SHA-256 `0c4dfdd550cd14bccbdcf03a6f3b1403e0bff3c2afed6b61803f7e1ee6612b4f`. Manual state is `NONE`; production signing, public GitHub Release and public WinGet submission are not triggered. Because this END-sync changes documentation bytes, fresh R18.1 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke gates on the resulting exact END-head are mandatory before exact-head merge.
 
 ## Rollback / recovery
 

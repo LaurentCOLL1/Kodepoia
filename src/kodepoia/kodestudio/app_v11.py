@@ -7,6 +7,7 @@ from pathlib import Path
 
 from kodepoia.kodestudio.v11_localization import V11Translator, resolve_locale
 from kodepoia.kodestudio.vision_assistant import VisionDraft
+from kodepoia.release_identity import CURRENT_RELEASE
 
 
 SETTINGS_PATH = Path.home() / ".kodepoia" / "settings.json"
@@ -95,7 +96,9 @@ def build_window(*, locale: str | None = None, project_root: Path | None = None)
     # tested contracts. Locale is propagated to panels that already support it.
     window = build_v10_window(locale=chosen_locale, project_root=root)
     window.setObjectName("kodepoiaV11MainWindow")
-    window.setWindowTitle(tr.text("app.title"))
+    window.setWindowTitle(f"{tr.text('app.title')} — {CURRENT_RELEASE.display_version}")
+    window.setProperty("kodepoiaReleaseVersion", CURRENT_RELEASE.display_version)
+    window.setProperty("kodepoiaReleaseChannel", CURRENT_RELEASE.channel)
     window._kodepoia_locale = chosen_locale
 
     nav = window.findChild(QListWidget, "mainNavigation")

@@ -1,3 +1,4 @@
+from kodepoia.update.bootstrap import PackagedRootMaterial, load_synthetic_packaged_root
 from kodepoia.update.trust import (
     MemoryUpdateTransport,
     PackagedRootPin,
@@ -11,6 +12,7 @@ from kodepoia.update.trust import (
 
 __all__ = [
     "MemoryUpdateTransport",
+    "PackagedRootMaterial",
     "PackagedRootPin",
     "SyntheticUpdateRepositoryBuilder",
     "UpdateCandidate",
@@ -18,4 +20,5 @@ __all__ = [
     "UpdateClient",
     "UpdateTargetSpec",
     "UpdateTransportOffline",
+    "load_synthetic_packaged_root",
 ]

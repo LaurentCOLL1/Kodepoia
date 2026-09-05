@@ -1,0 +1,331 @@
+name: R18.4 Windows Authenticode Signing Acceptance
+
+on:
+  push:
+    branches:
+      - r18/04-windows-authenticode-signing
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/r18-4-windows-authenticode-acceptance.yml
+      - scripts/windows_authenticode.py
+      - scripts/r18_4_authenticode_acceptance.py
+      - src/kodepoia/release/**
+      - tests/test_r18_authenticode.py
+      - docs/roadmap/R18_PLAN.md
+      - docs/continuity/KODEPOIA_CONTINUITY.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r18-4-authenticode-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: python
+        run: |
+          import os
+          import subprocess
+          expected = os.environ["EVIDENCE_SHA"].strip().lower()
+          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip().lower()
+          if actual != expected:
+              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
+
+      - name: Install focused dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile R18.4 sources
+        run: >-
+          python -m compileall -q
+          src/kodepoia/release/signing.py
+          scripts/windows_authenticode.py
+          scripts/r18_4_authenticode_acceptance.py
+          tests/test_r18_authenticode.py
+
+      - name: Ruff R18.4 sources
+        run: >-
+          python -m ruff check
+          src/kodepoia/release/signing.py
+          scripts/windows_authenticode.py
+          scripts/r18_4_authenticode_acceptance.py
+          tests/test_r18_authenticode.py
+
+      - name: Run focused R18.4 tests
+        run: python -m pytest -q tests/test_r18_authenticode.py
+
+      - name: Emit synthetic exact-source R18.4 acceptance
+        run: >-
+          python scripts/r18_4_authenticode_acceptance.py
+          --source-sha "${{ env.EVIDENCE_SHA }}"
+          --output artifacts/r18_4_synthetic_acceptance.json
+
+      - name: Upload contract evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r18-4-contract-${{ runner.os }}-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r18_4_synthetic_acceptance.json
+          if-no-files-found: error
+          retention-days: 30
+
+  windows-test-signing:
+    if: github.event_name != 'pull_request'
+    runs-on: windows-latest
+    env:
+      EVIDENCE_SHA: ${{ github.sha }}
+      KODEPOIA_LOCALE: fr
+      QT_QPA_PLATFORM: offscreen
+      KODEPOIA_R18_4_TIMESTAMP_URL: http://timestamp.digicert.com
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: pwsh
+        run: |
+          $expected = ([string]$env:EVIDENCE_SHA).Trim().ToLowerInvariant()
+          $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
+          if ($actual -ne $expected) { throw "Expected $expected, got $actual" }
+
+      - name: Install build and test dependencies
+        run: python -m pip install -e ".[dev,ui,code,packaging]"
+
+      - name: Install Inno Setup 6
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build exact-source unsigned Windows installer
+        shell: pwsh
+        run: ./scripts/build_windows_installer.ps1 -SourceSha "$env:EVIDENCE_SHA"
+
+      - name: Create ephemeral R18.4 test signing certificate
+        timeout-minutes: 3
+        shell: pwsh
+        run: |
+          Write-Host "Creating ephemeral R18.4 test signing certificate"
+          $cert = New-SelfSignedCertificate `
+            -Type CodeSigningCert `
+            -Subject "CN=Kodepoia R18.4 CI Test Signing" `
+            -CertStoreLocation "Cert:\CurrentUser\My" `
+            -Provider "Microsoft Software Key Storage Provider" `
+            -KeyAlgorithm RSA `
+            -KeyLength 2048 `
+            -HashAlgorithm SHA256 `
+            -NotAfter (Get-Date).AddDays(2)
+          if (-not $cert) { throw "Failed to create R18.4 test signing certificate" }
+          "KODEPOIA_R18_4_TEST_THUMBPRINT=$($cert.Thumbprint)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "Created ephemeral certificate $($cert.Thumbprint)"
+
+          $storeNames = @(
+            [System.Security.Cryptography.X509Certificates.StoreName]::Root,
+            [System.Security.Cryptography.X509Certificates.StoreName]::TrustedPublisher
+          )
+          foreach ($storeName in $storeNames) {
+            Write-Host "Adding ephemeral certificate to LocalMachine/$storeName using X509Store"
+            $store = [System.Security.Cryptography.X509Certificates.X509Store]::new(
+              $storeName,
+              [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine
+            )
+            try {
+              $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+              $store.Add($cert)
+            }
+            finally {
+              $store.Close()
+              $store.Dispose()
+            }
+          }
+
+      - name: Test-sign standalone executable with SHA-256 and RFC3161
+        shell: pwsh
+        run: |
+          python scripts/windows_authenticode.py `
+            --mode test `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --subject "build/windows/KodepoiaStudio.dist/KodepoiaStudio.exe" `
+            --certificate-thumbprint "$env:KODEPOIA_R18_4_TEST_THUMBPRINT" `
+            --timestamp-url "$env:KODEPOIA_R18_4_TIMESTAMP_URL" `
+            --output "artifacts/r18_4/standalone-signing.json"
+
+      - name: Rebuild installer around the signed standalone executable
+        shell: pwsh
+        run: |
+          $identity = ((python -m kodepoia.release.identity --source-sha "$env:EVIDENCE_SHA" --json) -join "`n") | ConvertFrom-Json
+          $iscc = @(
+            (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
+            (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe")
+          ) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $iscc) { throw "Inno Setup 6 compiler not found" }
+          $sourceDir = (Resolve-Path "build/windows/KodepoiaStudio.dist").Path
+          & $iscc "-dAppVersion=$($identity.installer_version)" "-dSourceDir=$sourceDir" "packaging/windows/Kodepoia.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Signed-payload installer rebuild failed with exit code $LASTEXITCODE" }
+
+      - name: Test-sign rebuilt installer with SHA-256 and RFC3161
+        shell: pwsh
+        run: |
+          python scripts/windows_authenticode.py `
+            --mode test `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --subject "dist/windows/KodepoiaSetup.exe" `
+            --certificate-thumbprint "$env:KODEPOIA_R18_4_TEST_THUMBPRINT" `
+            --timestamp-url "$env:KODEPOIA_R18_4_TIMESTAMP_URL" `
+            --output "artifacts/r18_4/installer-signing.json"
+
+      - name: Verify exact signed standalone and installer together
+        shell: pwsh
+        run: |
+          python scripts/windows_authenticode.py `
+            --mode test `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --subject "build/windows/KodepoiaStudio.dist/KodepoiaStudio.exe" `
+            --subject "dist/windows/KodepoiaSetup.exe" `
+            --certificate-thumbprint "$env:KODEPOIA_R18_4_TEST_THUMBPRINT" `
+            --timestamp-url "$env:KODEPOIA_R18_4_TIMESTAMP_URL" `
+            --verify-only `
+            --output "artifacts/r18_4/windows-authenticode-evidence.json"
+          python scripts/r18_4_authenticode_acceptance.py `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --actual-evidence "artifacts/r18_4/windows-authenticode-evidence.json" `
+            --signing-evidence "artifacts/r18_4/standalone-signing.json" `
+            --signing-evidence "artifacts/r18_4/installer-signing.json" `
+            --output "artifacts/r18_4/R18_4_WINDOWS_AUTHENTICODE_ACCEPTANCE.json"
+
+      - name: Prove hashed-section tamper fails closed
+        shell: pwsh
+        run: |
+          $tampered = "artifacts/r18_4/KodepoiaSetup-tampered.exe"
+          Copy-Item "dist/windows/KodepoiaSetup.exe" $tampered
+          $env:KODEPOIA_R18_4_TAMPERED = (Resolve-Path $tampered).Path
+          $mutator = @'
+          import os
+          import struct
+          from pathlib import Path
+
+          path = Path(os.environ["KODEPOIA_R18_4_TAMPERED"])
+          data = bytearray(path.read_bytes())
+          if len(data) < 0x40 or data[:2] != b"MZ":
+              raise SystemExit("tamper fixture is not a PE image")
+          pe_offset = struct.unpack_from("<I", data, 0x3C)[0]
+          if pe_offset + 24 > len(data) or data[pe_offset:pe_offset + 4] != b"PE\x00\x00":
+              raise SystemExit("tamper fixture has no valid PE header")
+          section_count = struct.unpack_from("<H", data, pe_offset + 6)[0]
+          optional_size = struct.unpack_from("<H", data, pe_offset + 20)[0]
+          section_table = pe_offset + 24 + optional_size
+          mutated = False
+          for index in range(section_count):
+              header = section_table + (index * 40)
+              if header + 40 > len(data):
+                  break
+              raw_size = struct.unpack_from("<I", data, header + 16)[0]
+              raw_offset = struct.unpack_from("<I", data, header + 20)[0]
+              if raw_size <= 0 or raw_offset >= len(data):
+                  continue
+              mutate_at = raw_offset + min(16, raw_size - 1)
+              if mutate_at >= len(data):
+                  continue
+              data[mutate_at] ^= 0x01
+              path.write_bytes(data)
+              print(f"mutated hashed PE section {index} at file offset {mutate_at}")
+              mutated = True
+              break
+          if not mutated:
+              raise SystemExit("could not locate a hashed PE section to mutate")
+          '@
+          $mutator | python -
+          if ($LASTEXITCODE -ne 0) { throw "Failed to construct hashed-section tamper fixture" }
+          python scripts/windows_authenticode.py `
+            --mode test `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --subject "$tampered" `
+            --certificate-thumbprint "$env:KODEPOIA_R18_4_TEST_THUMBPRINT" `
+            --timestamp-url "$env:KODEPOIA_R18_4_TIMESTAMP_URL" `
+            --verify-only `
+            --output "artifacts/r18_4/tamper-should-not-exist.json"
+          if ($LASTEXITCODE -eq 0) { throw "Tampered Authenticode subject unexpectedly verified" }
+          $global:LASTEXITCODE = 0
+
+      - name: Remove ephemeral test certificate
+        if: always()
+        shell: pwsh
+        run: |
+          $thumb = ([string]$env:KODEPOIA_R18_4_TEST_THUMBPRINT).Replace(" ", "").ToUpperInvariant()
+          if ($thumb) {
+            $storeTargets = @(
+              @{
+                Name = [System.Security.Cryptography.X509Certificates.StoreName]::My
+                Location = [System.Security.Cryptography.X509Certificates.StoreLocation]::CurrentUser
+              },
+              @{
+                Name = [System.Security.Cryptography.X509Certificates.StoreName]::Root
+                Location = [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine
+              },
+              @{
+                Name = [System.Security.Cryptography.X509Certificates.StoreName]::TrustedPublisher
+                Location = [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine
+              }
+            )
+            foreach ($target in $storeTargets) {
+              $store = [System.Security.Cryptography.X509Certificates.X509Store]::new(
+                $target.Name,
+                $target.Location
+              )
+              try {
+                $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+                $matches = $store.Certificates.Find(
+                  [System.Security.Cryptography.X509Certificates.X509FindType]::FindByThumbprint,
+                  $thumb,
+                  $false
+                )
+                foreach ($match in $matches) {
+                  $store.Remove($match)
+                }
+              }
+              finally {
+                $store.Close()
+                $store.Dispose()
+              }
+            }
+          }
+
+      - name: Upload R18.4 signing evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r18-4-authenticode-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r18_4
+          if-no-files-found: error
+          retention-days: 30

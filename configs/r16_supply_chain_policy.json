@@ -72,7 +72,8 @@
       ".github/workflows/windows-installer.yml",
       ".github/workflows/r18-1-release-identity-acceptance.yml",
       ".github/workflows/r18-2-deterministic-release-bundle-acceptance.yml",
-      ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"
+      ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml",
+      ".github/workflows/r18-4-windows-authenticode-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

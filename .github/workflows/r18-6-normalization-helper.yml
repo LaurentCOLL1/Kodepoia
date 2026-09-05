@@ -11,121 +11,22 @@ permissions:
   contents: write
 
 jobs:
-  normalize-continuity:
+  normalize:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout normalization branch
+      - name: Checkout branch
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: r18/06-continuity-normalization
           fetch-depth: 0
-
-      - name: Apply bounded continuity-only normalization
-        shell: python
-        run: |
-          from pathlib import Path
-          import re
-
-          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
-          text = path.read_text(encoding="utf-8")
-
-          lines = text.splitlines()
-          expected_prefix = "> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED."
-          if not lines or not lines[0].startswith(expected_prefix):
-              raise SystemExit("unexpected continuity banner")
-          lines[0] = (
-              "> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED. "
-              "R18 planning ACCEPTED + NORMALIZED. R18.1 Canonical release identity, versions and channels is COMPLETE + NORMALIZED on canonical `main` `c611131268041b06f53de66eaadd45120e2b750d`. "
-              "R18.2 Deterministic release bundle and manifest contract is COMPLETE + NORMALIZED on canonical `main` `c376d0af789e584e1ef307f43e42a62ce024b052`. "
-              "R18.3 SBOM, provenance and artifact attestations is COMPLETE + NORMALIZED on canonical `main` `66314ff1c86e51d84f1abe15d107a6182ef9e54a`. "
-              "R18.4 Windows Authenticode signing and verification boundary is COMPLETE + NORMALIZED on canonical `main` `b6aa853c59921bf51e346b7860e709cca63a4a2e` after implementation/evidence PR #389 and unique normalization PR #390. "
-              "R18.5 Immutable GitHub Release staging and promotion is COMPLETE + NORMALIZED on canonical `main` `2f0929c30f717ad608523cc1837ecfb1129a28f1` after implementation/evidence PR #391 and unique normalization PR #392. "
-              "R18.6 TUF-secured update repository and metadata lifecycle is COMPLETE + NORMALIZED effective when this unique post-merge continuity-only normalization record enters `main` through fresh exact-head R0/Python/UI gates and exact expected-head merge; immutable technical source `071d5a8715d0d28c73283a9313730a339d72cc44`, final exact-END `5bed28375d99b068eb765c40e90197fcd1312e1d`, implementation/evidence PR #393 merge `ac966e4fc678b51857c99fdeb9cc93487ea6888f`. "
-              "R18.7–R18.11 remain PLANNED and R18.7 is authorized only from the normalized `main` produced by this record.** "
-              "Production signing, public GitHub Release publication, immutable-release repository setting changes, production TUF key custody/hosting and public WinGet submission remain CONDITIONAL / NOT TRIGGERED."
-          )
-          text = "\n".join(lines) + "\n"
-
-          global_pattern = re.compile(r"^- R18\.6 : \*\*COMPLETE at END-sync\*\* — .*?$", re.MULTILINE)
-          global_matches = global_pattern.findall(text)
-          if len(global_matches) != 1:
-              raise SystemExit(f"expected one global R18.6 status line, found {len(global_matches)}")
-          global_replacement = (
-              "- R18.6 : **COMPLETE + NORMALIZED effective when this unique post-merge continuity-only normalization record enters `main` through fresh exact-head R0/Python/UI gates and exact expected-head merge** — exact normalized R18.5 base `main` `2f0929c30f717ad608523cc1837ecfb1129a28f1`; immutable technical source `071d5a8715d0d28c73283a9313730a339d72cc44`; final exact-END `5bed28375d99b068eb765c40e90197fcd1312e1d` passed R18.6 #50 / `33993086014` Ubuntu + Windows, R16.9 #158 / `33993085919` Ubuntu + Windows, R0 #2500 / `33993085982` Ubuntu + Windows, Python Core #2472 / `33993085851` 5/5 and UI #2437 / `33993085986`; PR #393 merged with `expected_head_sha=5bed28375d99b068eb765c40e90197fcd1312e1d` as implementation/evidence `main` `ac966e4fc678b51857c99fdeb9cc93487ea6888f`. Embedded synthetic root remains v1, 2-of-2, 2044 exact bytes, SHA-256 `885bc87c3a5e9fe8b378cac85eb89fc37f99fcd8ba0bc7c494ee1e407da96670`, acceptance-only and explicit opt-in. This record is the single authorized R18.6 post-merge continuity-only normalization authority; no second R18.6 normalization is authorized. R18.7 START-sync is authorized only from the normalized `main` produced by this record's exact gated merge. Production TUF root/key custody/hosting and all public/production distribution effects remain NOT TRIGGERED."
-          )
-          text = global_pattern.sub(global_replacement, text, count=1)
-
-          end_pattern = re.compile(
-              r"## R18\.6 END authority\n\n.*?(?=\n## Next authorized action)",
-              re.DOTALL,
-          )
-          end_matches = end_pattern.findall(text)
-          if len(end_matches) != 1:
-              raise SystemExit(f"expected one R18.6 END authority section, found {len(end_matches)}")
-          end_section = """## R18.6 END authority
-
-- R18.6 state: **COMPLETE at END-sync**; manual intervention **NONE**. R18.7–R18.11 remain **PLANNED** and R18.7 is not authorized until the unique post-merge normalization enters `main`.
-- Exact normalized R18.5 base: `main` `2f0929c30f717ad608523cc1837ecfb1129a28f1`; dedicated implementation branch `r18/06-tuf-rollback-freeze-verification`; immutable technical source `071d5a8715d0d28c73283a9313730a339d72cc44`.
-- Dedicated R18.6 #46 / `33991430903` is SUCCESS Ubuntu + Windows. Both exact-source jobs passed checkout/provenance, compile, Ruff, 18 focused tests, wheel build, exact packaged-root resource verification, fresh synthetic-root generation, exact-source acceptance, security-matrix assertions and artifact upload.
-- Acceptance is 14/14 expected verdicts: 7/7 core TUF cases and 7/7 product-update cases, including valid trusted-state refresh, timestamp/snapshot rollback refusal, expired/freeze refusal, wrong target digest refusal, root-threshold refusal, restart restore, channel/platform/source-bound refresh, compromised mirror refusal, wrong-channel refusal, positive root-key rotation, offline cached state, wrong packaged-root pin refusal and packaged synthetic-root verification.
-- Embedded synthetic root authority for core acceptance is version 1, 2-of-2 root threshold, exactly 2044 bytes and SHA-256 `885bc87c3a5e9fe8b378cac85eb89fc37f99fcd8ba0bc7c494ee1e407da96670`. It is explicitly `synthetic-acceptance-only`, requires explicit synthetic opt-in, persists no private keys and carries `production_trust_claim=false`; it is not a production TUF trust anchor.
-- Same-source broad gates are all SUCCESS: R0 Repository Guard #2498 / `33991430795` Ubuntu + Windows; full Python Core #2470 / `33991430942` 5/5; KodeStudio UI Smoke #2435 / `33991430896`; R16.9 Supply Chain Provenance #156 / `33991430781` Ubuntu + Windows.
-- Technical Actions artifacts are Linux ID `9976809112`, name `r18-6-tuf-Linux-071d5a8715d0d28c73283a9313730a339d72cc44`, ZIP digest `sha256:bc5bb6a7c0882e922773b710ae28871e5482a60e9fcbb363734468f8376d9467`; Windows ID `9976769232`, name `r18-6-tuf-Windows-071d5a8715d0d28c73283a9313730a339d72cc44`, ZIP digest `sha256:e2cd87e6e949072240f8160d102bb0028a0cc1780d8e24b166df2098a896610c`.
-- The R18.6 specialized workflow is registered as the 28th immutable R16.9 authority workflow while R18.3 remains the only write-authorized workflow. No public GitHub Release, immutable-release setting mutation, production signing, production TUF private-key use or public WinGet submission was triggered.
-- Final exact-END `5bed28375d99b068eb765c40e90197fcd1312e1d` changes only `docs/roadmap/R18_PLAN.md` and this continuity file relative to immutable technical source `071d5a8715d0d28c73283a9313730a339d72cc44`. Fresh exact-END gates all passed on that exact SHA: R18.6 #50 / `33993086014` Ubuntu + Windows; R16.9 #158 / `33993085919` Ubuntu + Windows; R0 Repository Guard #2500 / `33993085982` Ubuntu + Windows; full Python Core #2472 / `33993085851` 5/5; KodeStudio UI Smoke #2437 / `33993085986`.
-- PR #393 merged only that exact END head with `expected_head_sha=5bed28375d99b068eb765c40e90197fcd1312e1d` as implementation/evidence `main` `ac966e4fc678b51857c99fdeb9cc93487ea6888f`.
-- Exactly one post-merge continuity-only R18.6 normalization is authorized from `ac966e4fc678b51857c99fdeb9cc93487ea6888f`. Its authoritative decision tree must change only this continuity file and pass fresh R0/Python/UI; only its exact-head merge may establish R18.6 **COMPLETE + NORMALIZED** and authorize R18.7 START-sync.
-"""
-          text = end_pattern.sub(end_section.rstrip(), text, count=1)
-
-          next_pattern = re.compile(
-              r"## Next authorized action\n\n.*?(?=\n## R17 — Distribution & Guided Creation UX)",
-              re.DOTALL,
-          )
-          next_matches = next_pattern.findall(text)
-          if len(next_matches) != 1:
-              raise SystemExit(f"expected one Next authorized action section, found {len(next_matches)}")
-          normalization_section = """## R18.6 post-merge normalization authority
-
-- Implementation/evidence merge base: `main` `ac966e4fc678b51857c99fdeb9cc93487ea6888f`, produced only after final exact-END `5bed28375d99b068eb765c40e90197fcd1312e1d` passed R18.6 #50 / `33993086014` Ubuntu + Windows, R16.9 #158 / `33993085919` Ubuntu + Windows, R0 Repository Guard #2500 / `33993085982` Ubuntu + Windows, full Python Core #2472 / `33993085851` 5/5 and KodeStudio UI Smoke #2437 / `33993085986`.
-- Dedicated normalization branch: `r18/06-continuity-normalization`, created exactly from that implementation/evidence merge.
-- The authoritative normalization decision tree changes only `docs/continuity/KODEPOIA_CONTINUITY.md`; `docs/roadmap/R18_PLAN.md`, all implementation/evidence bytes, workflows, runtime/test bytes and packaged synthetic-root resources remain identical to the implementation/evidence merge. Any temporary transport helper is absent from the decision head and is non-authoritative.
-- This is the single authorized post-merge normalization for R18.6. Its exact candidate head must pass fresh R0 Repository Guard Ubuntu + Windows, full Python Core 5/5 and KodeStudio UI Smoke before an exact-head merge. No second R18.6 normalization is permitted.
-- Core manual state remains **NONE**. Production signing, public GitHub Release publication, immutable-release repository setting changes, production TUF key custody/hosting and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**.
-- Only the normalized `main` produced by this exact gated normalization merge may authorize R18.7 START-sync; R18.7 implementation must still begin with its own documentation-only START-sync before any implementation bytes.
-
-## Next authorized action
-
-Pass fresh exact-head R0 Repository Guard Ubuntu + Windows, full Python Core 5/5 and KodeStudio UI Smoke on the unique R18.6 continuity-only normalization candidate, then merge only with `expected_head_sha` equal to that exact candidate. R18.7 START-sync is authorized only from the canonical normalized `main` produced by that merge. Production signing, public GitHub Release publication, repository immutable-release setting changes, production TUF key custody/hosting and public WinGet submission remain CONDITIONAL / NOT TRIGGERED.
-"""
-          text = next_pattern.sub(normalization_section.rstrip(), text, count=1)
-
-          phase_pattern = re.compile(
-              r"^- State: \*\*IN_PROGRESS\*\* — planning and R18\.1–R18\.5 are COMPLETE \+ NORMALIZED\..*?$",
-              re.MULTILINE,
-          )
-          phase_matches = phase_pattern.findall(text)
-          if len(phase_matches) != 1:
-              raise SystemExit(f"expected one R18 phase status line, found {len(phase_matches)}")
-          phase_replacement = (
-              "- State: **IN_PROGRESS** — planning and R18.1–R18.5 are COMPLETE + NORMALIZED. Canonical normalized R18.5 `main` is `2f0929c30f717ad608523cc1837ecfb1129a28f1` after unique normalization PR #392. "
-              "R18.6 is **COMPLETE + NORMALIZED effective when its unique post-merge continuity-only normalization enters `main` through fresh exact-head R0/Python/UI and exact expected-head merge**. Immutable technical source `071d5a8715d0d28c73283a9313730a339d72cc44`; final exact-END `5bed28375d99b068eb765c40e90197fcd1312e1d` passed R18.6 #50 / `33993086014`, R16.9 #158 / `33993085919`, R0 #2500 / `33993085982`, Python Core #2472 / `33993085851` 5/5 and UI #2437 / `33993085986`; PR #393 merged that exact head as implementation/evidence `main` `ac966e4fc678b51857c99fdeb9cc93487ea6888f`. "
-              "The sole remaining R18.6 action is this continuity-only normalization. R18.7–R18.11 remain PLANNED and R18.7 is unauthorized until this exact normalization merges."
-          )
-          text = phase_pattern.sub(phase_replacement, text, count=1)
-
-          with path.open("w", encoding="utf-8", newline="\n") as handle:
-              handle.write(text)
-
-      - name: Verify bounded diff and commit continuity
+      - name: Apply continuity edit
+        run: python scripts/r18_6_normalize_continuity_temp.py
+      - name: Verify and commit
         shell: bash
-        env:
-          BASE_SHA: ac966e4fc678b51857c99fdeb9cc93487ea6888f
         run: |
           set -euo pipefail
           git diff --check
-          changed="$(git diff --name-only "$BASE_SHA" -- | sort)"
-          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test "$(git diff --name-only -- docs/continuity/KODEPOIA_CONTINUITY.md)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/continuity/KODEPOIA_CONTINUITY.md

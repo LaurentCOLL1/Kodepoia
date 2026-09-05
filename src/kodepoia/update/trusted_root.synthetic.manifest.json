@@ -1,0 +1,8 @@
+{
+  "private_keys_persisted": false,
+  "production_trust_claim": false,
+  "purpose": "synthetic-acceptance-only",
+  "root_sha256": "885bc87c3a5e9fe8b378cac85eb89fc37f99fcd8ba0bc7c494ee1e407da96670",
+  "root_version": 1,
+  "schema_version": 1
+}

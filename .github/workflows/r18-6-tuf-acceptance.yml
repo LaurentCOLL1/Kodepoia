@@ -11,8 +11,10 @@ on:
       - .github/workflows/r18-6-tuf-acceptance.yml
       - pyproject.toml
       - src/kodepoia/release/tuf_security.py
+      - src/kodepoia/update/**
       - scripts/r18_6_tuf_acceptance.py
       - tests/test_r18_6_tuf_security.py
+      - tests/test_r18_6_update_trust.py
       - docs/release/R18_6_TUF_SECURITY.md
       - configs/r16_supply_chain_policy.json
       - tests/test_supply_chain_r16_9.py
@@ -71,8 +73,10 @@ jobs:
         run: >-
           python -m compileall -q
           src/kodepoia/release/tuf_security.py
+          src/kodepoia/update
           scripts/r18_6_tuf_acceptance.py
           tests/test_r18_6_tuf_security.py
+          tests/test_r18_6_update_trust.py
 
       - name: Collect Ruff R18.6 diagnostics
         shell: python
@@ -91,8 +95,10 @@ jobs:
               "--output-format",
               "json",
               "src/kodepoia/release/tuf_security.py",
+              "src/kodepoia/update",
               "scripts/r18_6_tuf_acceptance.py",
               "tests/test_r18_6_tuf_security.py",
+              "tests/test_r18_6_update_trust.py",
           ]
           result = subprocess.run(command, text=True, capture_output=True, check=False)
           (output / "ruff.json").write_text(result.stdout or "[]\n", encoding="utf-8")
@@ -107,7 +113,10 @@ jobs:
               )
 
       - name: Run focused R18.6 tests
-        run: python -m pytest -q tests/test_r18_6_tuf_security.py
+        run: >-
+          python -m pytest -q
+          tests/test_r18_6_tuf_security.py
+          tests/test_r18_6_update_trust.py
 
       - name: Emit exact-source R18.6 acceptance
         run: >-
@@ -128,10 +137,16 @@ jobs:
           expected = os.environ["EVIDENCE_SHA"].strip().lower()
           if report["source_sha"] != expected:
               raise SystemExit("R18.6 acceptance source SHA mismatch")
-          if report["cases_total"] != 7 or report["cases_passed"] != 7:
-              raise SystemExit("R18.6 focused acceptance matrix is incomplete")
+          if report["core_cases_total"] != 7 or report["core_cases_passed"] != 7:
+              raise SystemExit("R18.6 core TUF acceptance matrix is incomplete")
+          if report["product_cases_total"] != 6 or report["product_cases_passed"] != 6:
+              raise SystemExit("R18.6 product update acceptance matrix is incomplete")
           if not report["trusted_state_persistent"]:
               raise SystemExit("R18.6 trusted state persistence was not established")
+          if not report["channel_platform_bound"]:
+              raise SystemExit("R18.6 target selection is not channel/platform bound")
+          if not report["offline_cache_non_blocking"]:
+              raise SystemExit("R18.6 offline cache behavior is not non-blocking")
           if report["library_contract"]["network_required"]:
               raise SystemExit("R18.6 acceptance unexpectedly requires network access")
           if report["library_contract"]["production_keys_used"]:

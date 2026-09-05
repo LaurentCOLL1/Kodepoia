@@ -6,7 +6,7 @@ Started: **2026-09-04**
 
 Normalized source of truth: `main` `58e488d80e60d04fc675e305bc8f040a3ab2bb9c` — R17 COMPLETE + NORMALIZED.
 
-Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` `c611131268041b06f53de66eaadd45120e2b750d`. R18.2 is **COMPLETE + NORMALIZED** on canonical `main` `c376d0af789e584e1ef307f43e42a62ce024b052`. R18.3 SBOM, provenance and artifact attestations is **COMPLETE + NORMALIZED** on canonical `main` `66314ff1c86e51d84f1abe15d107a6182ef9e54a` after implementation/evidence PR #386 and unique continuity-only normalization PR #388. R18.4 Windows Authenticode signing and verification boundary is **COMPLETE + NORMALIZED** on canonical `main` `b6aa853c59921bf51e346b7860e709cca63a4a2e` after implementation/evidence PR #389 and unique continuity-only normalization PR #390. R18.5 Immutable GitHub Release staging and promotion is **COMPLETE + NORMALIZED** on canonical `main` `2f0929c30f717ad608523cc1837ecfb1129a28f1` after implementation/evidence PR #391 and unique continuity-only normalization PR #392. R18.6 TUF-secured update repository and metadata lifecycle is **COMPLETE at END-sync** on immutable technical source `071d5a8715d0d28c73283a9313730a339d72cc44`; fresh exact-END gates, PR #393 exact-head merge and the unique post-merge continuity-only normalization remain required. R18.7–R18.11 remain PLANNED and R18.7 is not authorized until R18.6 normalization completes. The frozen v1.0/R1–R16 architecture and history are not rewritten.
+Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` `c611131268041b06f53de66eaadd45120e2b750d`. R18.2 is **COMPLETE + NORMALIZED** on canonical `main` `c376d0af789e584e1ef307f43e42a62ce024b052`. R18.3 is **COMPLETE + NORMALIZED** on canonical `main` `66314ff1c86e51d84f1abe15d107a6182ef9e54a`. R18.4 is **COMPLETE + NORMALIZED** on canonical `main` `b6aa853c59921bf51e346b7860e709cca63a4a2e`. R18.5 is **COMPLETE + NORMALIZED** on canonical `main` `2f0929c30f717ad608523cc1837ecfb1129a28f1`. R18.6 TUF-secured update repository and metadata lifecycle is **COMPLETE + NORMALIZED** on canonical `main` `4ccbe4ef1fe66f88e38dfc8c9dfebba7e183efe1` after implementation/evidence PR #393 and unique continuity-only normalization PR #394. R18.7 KodeStudio update discovery and release-channel UX is **IN_PROGRESS at START-sync** on dedicated branch `r18/07-kodestudio-update-discovery-channel-ux` from that exact normalized R18.6 main; no R18.7 implementation bytes exist before this documentation-only START-sync. R18.8–R18.11 remain PLANNED. The frozen v1.0/R1–R16 architecture and history are not rewritten.
 
 ## Phase objective
 
@@ -62,8 +62,8 @@ Before R18.1 begins:
 | R18.3 | SBOM, provenance and artifact attestations | COMPLETE | NONE | R18.2 |
 | R18.4 | Windows Authenticode signing and verification boundary | COMPLETE | CONDITIONAL / NOT TRIGGERED | R18.2–R18.3 |
 | R18.5 | Immutable GitHub Release staging and promotion | COMPLETE | CONDITIONAL / NOT TRIGGERED | R18.2–R18.4 |
-| R18.6 | TUF-secured update repository and metadata lifecycle | COMPLETE at END-sync | NONE | R18.1–R18.3 |
-| R18.7 | KodeStudio update discovery and release-channel UX | PLANNED | NONE | R18.6 |
+| R18.6 | TUF-secured update repository and metadata lifecycle | COMPLETE + NORMALIZED | NONE | R18.1–R18.3 |
+| R18.7 | KodeStudio update discovery and release-channel UX | IN_PROGRESS | NONE | R18.6 |
 | R18.8 | Verified download, user-consented install and rollback | PLANNED | NONE | R18.4, R18.6–R18.7 |
 | R18.9 | WinGet manifest generation and validation | PLANNED | CONDITIONAL | R18.2, R18.4–R18.5 |
 | R18.10 | Revocation, rollback and compromised-release drills | PLANNED | NONE | R18.4–R18.9 |
@@ -416,6 +416,15 @@ Clock skew, root-key loss, unsafe custom crypto, rollback acceptance, metadata c
 ---
 
 # R18.7 — KodeStudio update discovery and release-channel UX
+
+## START-sync authority
+
+- Exact normalized R18.6 base: `main` `4ccbe4ef1fe66f88e38dfc8c9dfebba7e183efe1`; dedicated branch: `r18/07-kodestudio-update-discovery-channel-ux`.
+- State transition: R18.1–R18.6 **COMPLETE + NORMALIZED**; R18.7 **IN_PROGRESS**; R18.8–R18.11 **PLANNED**. This START-sync is documentation-only and precedes every R18.7 implementation byte.
+- Frozen scope remains discovery/channel UX only: controller/model + KodeStudio presentation/persistence/localization for trusted update status. Download/install/installer execution remain R18.8 and are not authorized here.
+- Current official research re-check: TUF keeps Root/Targets/Snapshot/Timestamp as the required top-level trust roles; Timestamp is the short-lived freshness entry point. Microsoft Windows notification guidance favors clear, valuable, non-noisy notifications and preserving user intent. These are design inputs, not mutable runtime dependencies.
+- Core manual state: **NONE**. Production signing, public GitHub Release publication, immutable-release repository setting changes, production TUF key custody/hosting and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**.
+- Before technical acceptance, implementation must preserve offline/local-first startup, treat network/release-note content as untrusted until verified, default conservatively on release channel, expose explicit prerelease warning, and never auto-launch an installer.
 
 ## Objective and rationale
 

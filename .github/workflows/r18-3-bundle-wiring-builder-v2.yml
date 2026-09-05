@@ -1,0 +1,55 @@
+name: Temporary R18.3 Bundle Wiring Builder v2
+
+on:
+  push:
+    branches:
+      - scratch/r18-3-bundle-wiring-builder-v2
+
+permissions:
+  contents: write
+
+jobs:
+  build-wiring:
+    runs-on: ubuntu-latest
+    env:
+      KODEPOIA_BASE_SHA: 8e72ef81c5b587dd5035dcdc3fbd9ab357f73d4d
+      KODEPOIA_TARGET_BRANCH: r18/03-sbom-provenance-attestations
+    steps:
+      - name: Checkout scratch transport
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Preserve builder outside target tree
+        shell: bash
+        run: |
+          cp scripts/r18_3_wiring_builder.py "$RUNNER_TEMP/r18_3_wiring_builder.py"
+          cp scripts/r18_3_workflow_template.yml.txt "$RUNNER_TEMP/r18_3_workflow_template.yml.txt"
+
+      - name: Checkout exact target base and apply wiring
+        shell: bash
+        run: |
+          git checkout --detach "$KODEPOIA_BASE_SHA"
+          test "$(git rev-parse HEAD)" = "$KODEPOIA_BASE_SHA"
+          git checkout -B "$KODEPOIA_TARGET_BRANCH"
+          python "$RUNNER_TEMP/r18_3_wiring_builder.py" \
+            --workflow-template "$RUNNER_TEMP/r18_3_workflow_template.yml.txt"
+          git diff --check
+
+      - name: Commit and push integrated wiring
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            .github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml \
+            configs/r16_supply_chain_policy.json \
+            schemas/release_bundle_manifest.schema.json \
+            scripts/build_release_bundle.py \
+            src/kodepoia/release/bundle.py \
+            tests/test_r18_release_bundle.py \
+            tests/test_supply_chain_r16_9.py
+          git commit -m "feat: bind R18.3 evidence and attest release candidates"
+          test "$(git rev-parse HEAD^)" = "$KODEPOIA_BASE_SHA"
+          git push origin "HEAD:refs/heads/$KODEPOIA_TARGET_BRANCH"

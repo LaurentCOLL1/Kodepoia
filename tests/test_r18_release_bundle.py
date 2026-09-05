@@ -17,6 +17,7 @@ from kodepoia.release.bundle import (
     verify_bundle_archive,
 )
 from kodepoia.release.identity import CURRENT_RELEASE
+from kodepoia.release.provenance import write_release_evidence
 
 SOURCE_SHA = "0123456789abcdef0123456789abcdef01234567"
 
@@ -322,3 +323,62 @@ def test_archive_has_manifest_and_no_loose_unknown_files(bundle_inputs, tmp_path
     with zipfile.ZipFile(result.archive_path) as archive:
         assert MANIFEST_NAME in archive.namelist()
         assert archive.namelist() == sorted(archive.namelist())
+
+
+def test_r18_3_evidence_is_digest_bound_into_bundle_manifest(bundle_inputs, tmp_path: Path) -> None:
+    evidence = write_release_evidence(
+        repo_root=Path(__file__).resolve().parents[1],
+        output_dir=tmp_path / "evidence",
+        source_sha=SOURCE_SHA,
+        repository="LaurentCOLL1/Kodepoia",
+        workflow_ref="test-workflow",
+        run_id="test",
+        run_attempt="1",
+        optional_groups=(),
+        created_at="2026-09-05T00:00:00Z",
+    )
+    repo_root, installer, manifest = bundle_inputs
+    result = build_release_bundle(
+        installer_path=installer,
+        installer_manifest_path=manifest,
+        source_sha=SOURCE_SHA,
+        output_dir=tmp_path / "bundle-with-evidence",
+        repo_root=repo_root,
+        repository="LaurentCOLL1/Kodepoia",
+        workflow_ref="test-workflow",
+        run_id="test",
+        run_attempt="1",
+        sbom_path=evidence.sbom_path,
+        provenance_path=evidence.provenance_path,
+    )
+    verified = verify_bundle_archive(result.archive_path, expected_source_sha=SOURCE_SHA)
+    binding = verified["manifest"]["release_evidence"]
+    assert binding["sbom_sha256"] == evidence.sbom_sha256
+    assert binding["provenance_sha256"] == evidence.provenance_sha256
+    roles = {record["role"] for record in verified["manifest"]["files"]}
+    assert {"sbom", "provenance"}.issubset(roles)
+
+
+def test_r18_3_partial_evidence_is_rejected(bundle_inputs, tmp_path: Path) -> None:
+    evidence = write_release_evidence(
+        repo_root=Path(__file__).resolve().parents[1],
+        output_dir=tmp_path / "evidence",
+        source_sha=SOURCE_SHA,
+        repository="LaurentCOLL1/Kodepoia",
+        workflow_ref="test-workflow",
+        run_id="test",
+        run_attempt="1",
+        optional_groups=(),
+        created_at="2026-09-05T00:00:00Z",
+    )
+    repo_root, installer, manifest = bundle_inputs
+    with pytest.raises(ReleaseBundleError, match="must be supplied together"):
+        build_release_bundle(
+            installer_path=installer,
+            installer_manifest_path=manifest,
+            source_sha=SOURCE_SHA,
+            output_dir=tmp_path / "partial",
+            repo_root=repo_root,
+            repository="LaurentCOLL1/Kodepoia",
+            sbom_path=evidence.sbom_path,
+        )

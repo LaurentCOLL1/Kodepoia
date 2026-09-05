@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import os
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from kodepoia.release.signing import (
@@ -62,19 +64,84 @@ def _discover_signtool(explicit: str | None) -> str:
     return str(sorted(set(candidates), key=lambda item: str(item), reverse=True)[0])
 
 
+def _powershell_capture(expression: str) -> str:
+    powershell = (
+        shutil.which("pwsh.exe")
+        or shutil.which("pwsh")
+        or shutil.which("powershell.exe")
+        or shutil.which("powershell")
+    )
+    if not powershell:
+        raise SigningPolicyError("PowerShell was not found for Authenticode metadata inspection")
+
+    handle, output_name = tempfile.mkstemp(prefix="kodepoia-r18-4-", suffix=".txt")
+    os.close(handle)
+    output_path = Path(output_name)
+    escaped_output = str(output_path).replace("'", "''")
+    script = (
+        "$ErrorActionPreference='Stop';"
+        "$ProgressPreference='SilentlyContinue';"
+        "$WarningPreference='SilentlyContinue';"
+        f"$kodepoiaValue=& {{ {expression} }};"
+        f"[System.IO.File]::WriteAllText('{escaped_output}',[string]$kodepoiaValue,"
+        "[System.Text.UTF8Encoding]::new($false));"
+    )
+    encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
+    completed = _run(
+        [
+            powershell,
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-EncodedCommand",
+            encoded,
+        ],
+        check=False,
+    )
+    try:
+        if completed.returncode != 0:
+            raise SigningPolicyError(
+                "PowerShell Authenticode metadata query failed with exit code "
+                f"{completed.returncode}: {completed.stdout[-1200:]}"
+            )
+        value = output_path.read_text(encoding="utf-8").strip()
+        if not value:
+            diagnostic = completed.stdout[-1200:].strip()
+            raise SigningPolicyError(
+                "PowerShell Authenticode metadata query produced no value"
+                + (f": {diagnostic}" if diagnostic else "")
+            )
+        return value
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
 def _powershell_signature(subject: Path) -> dict[str, object]:
     escaped = str(subject.resolve()).replace("'", "''")
-    script = (
-        f"$s=Get-AuthenticodeSignature -LiteralPath '{escaped}'; "
+    expression = (
+        f"$s=Get-AuthenticodeSignature -LiteralPath '{escaped}';"
+        "$signerSubject=$null;"
+        "$signerThumbprint=$null;"
+        "$timestampSubject=$null;"
+        "if($null -ne $s.SignerCertificate){"
+        "$signerSubject=[string]$s.SignerCertificate.Subject;"
+        "$signerThumbprint=[string]$s.SignerCertificate.Thumbprint};"
+        "if($null -ne $s.TimeStamperCertificate){"
+        "$timestampSubject=[string]$s.TimeStamperCertificate.Subject};"
         "[pscustomobject]@{"
         "status=[string]$s.Status;"
-        "signer_subject=if($s.SignerCertificate){[string]$s.SignerCertificate.Subject}else{$null};"
-        "signer_thumbprint=if($s.SignerCertificate){[string]$s.SignerCertificate.Thumbprint}else{$null};"
-        "timestamp_subject=if($s.TimeStamperCertificate){[string]$s.TimeStamperCertificate.Subject}else{$null}"
+        "signer_subject=$signerSubject;"
+        "signer_thumbprint=$signerThumbprint;"
+        "timestamp_subject=$timestampSubject"
         "}|ConvertTo-Json -Compress"
     )
-    completed = _run(["powershell", "-NoProfile", "-NonInteractive", "-Command", script])
-    payload = json.loads(completed.stdout.strip())
+    raw = _powershell_capture(expression)
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise SigningPolicyError(
+            f"PowerShell returned invalid Authenticode metadata for {subject}: {raw[-1200:]}"
+        ) from exc
     if not isinstance(payload, dict):
         raise SigningPolicyError(f"could not read Authenticode metadata for {subject}")
     return payload
@@ -82,9 +149,7 @@ def _powershell_signature(subject: Path) -> dict[str, object]:
 
 def _signtool_version(signtool: str) -> str:
     escaped = str(Path(signtool).resolve()).replace("'", "''")
-    script = f"(Get-Item -LiteralPath '{escaped}').VersionInfo.FileVersion"
-    completed = _run(["powershell", "-NoProfile", "-NonInteractive", "-Command", script])
-    return completed.stdout.strip() or "unknown"
+    return _powershell_capture(f"(Get-Item -LiteralPath '{escaped}').VersionInfo.FileVersion")
 
 
 def _subject_evidence(

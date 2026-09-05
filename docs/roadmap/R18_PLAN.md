@@ -6,7 +6,7 @@ Started: **2026-09-04**
 
 Normalized source of truth: `main` `58e488d80e60d04fc675e305bc8f040a3ab2bb9c` — R17 COMPLETE + NORMALIZED.
 
-Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE at END-sync on immutable technical source `8fda649829acfd5abae2ea31e9c744f8554b8d06`; its implementation/evidence merge and the unique post-merge continuity-only normalization remain required before R18.2 may start. The frozen v1.0/R1–R16 architecture and history are not rewritten.
+Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` `c611131268041b06f53de66eaadd45120e2b750d`. R18.2 is COMPLETE at END-sync on immutable technical source `f15967530e79bb365246afb92a8db02906acb0c4`; its exact-head implementation/evidence merge and the unique post-merge continuity-only normalization remain required before R18.3 may start. The frozen v1.0/R1–R16 architecture and history are not rewritten.
 
 ## Phase objective
 
@@ -58,7 +58,7 @@ Before R18.1 begins:
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
 | R18.1 | Canonical release identity, versions and channels | COMPLETE | NONE | R17 normalized main |
-| R18.2 | Deterministic release bundle and manifest contract | PLANNED | NONE | R18.1 |
+| R18.2 | Deterministic release bundle and manifest contract | COMPLETE | NONE | R18.1 |
 | R18.3 | SBOM, provenance and artifact attestations | PLANNED | NONE | R18.2 |
 | R18.4 | Windows Authenticode signing and verification boundary | PLANNED | CONDITIONAL | R18.2–R18.3 |
 | R18.5 | Immutable GitHub Release staging and promotion | PLANNED | CONDITIONAL | R18.2–R18.4 |
@@ -164,6 +164,8 @@ Focused manifest/bundle tests including tamper negatives; two-build semantic equ
 ## Validation and evidence
 
 Bundle manifest digest, installer digest/size, semantic bundle digest, two-build comparison, workflow/artifact IDs and exact source SHA.
+
+END-sync technical acceptance: immutable source `f15967530e79bb365246afb92a8db02906acb0c4`; R18.2 #8 / `33944044685` SUCCESS with Ubuntu + Windows focused contract acceptance and actual Windows two-build/install/smoke/uninstall evidence. The two real Windows builds expose Nuitka/Inno binary variance rather than hiding it: installer/archive/manifest/payload hashes differ, while both bundles share semantic SHA-256 `92cbf76bfadf686499ce25bde734e62943e4bbb863dbc296d6ddd8f48eb001eb` and acceptance reports `semantic_equivalent=true`, `installer_binary_reproducibility=platform-variance-observed`, status PASS. Build 1 archive SHA-256 `45233feb800e30480390dcf91947d06de167bbab0a1eec359a88ea9643e67939`; build 2 archive SHA-256 `c4637e537584c78108cdfc27e06842279c47179be13bed0346ddee972c09ecfb`; schema SHA-256 `c7e8f65b0e68cdc48f8cc01f33fab31d1b71ae93d281da53e241fc0033888ca1`; two-build artifact ID `9963221589`, artifact ZIP digest `sha256:ca50e831ace8780f309159dbecd724167614ebe1251e677924ccc316e7327ed0`. Exact technical-head R16.9 #112 / `33944044704`, R0 #2442 / `33944044651`, Python Core #2414 / `33944044622` 5/5 and KodeStudio UI Smoke #2379 / `33944044688` also SUCCESS. Manual intervention NONE; production signing, public GitHub Release and public WinGet submission remain NOT TRIGGERED. Because this END-sync changes documentation bytes, fresh R18.2 + R16.9 + R0 + full Python Core + KodeStudio UI Smoke gates on the resulting exact END-head are mandatory before exact-head merge.
 
 ## Rollback / recovery
 

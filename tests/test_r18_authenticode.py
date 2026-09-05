@@ -15,6 +15,7 @@ from kodepoia.release.signing import (
 SOURCE = "a" * 40
 THUMB = "AB" * 20
 TSA = "http://timestamp.digicert.com"
+# R18.4 exact-source CI exercises these same contracts with a non-production certificate.
 
 
 def test_unsigned_policy_is_exact_source_and_secret_free() -> None:

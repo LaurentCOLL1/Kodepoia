@@ -44,16 +44,15 @@ jobs:
               raise SystemExit(f"expected exactly one Ruff target, found {text.count(old)}")
           path.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
 
-      - name: Verify and push exact child commit
+      - name: Verify staged scope and push exact child commit
         shell: bash
         run: |
-          git restore --source=HEAD --worktree -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
-          git diff --check
-          test "$(git status --porcelain | wc -l)" -eq 1
-          git status --porcelain | grep -F "src/kodepoia/release/bundle.py"
+          git diff --check -- src/kodepoia/release/bundle.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/kodepoia/release/bundle.py
+          test "$(git diff --cached --name-only | wc -l)" -eq 1
+          test "$(git diff --cached --name-only)" = "src/kodepoia/release/bundle.py"
           git commit -m "fix: wrap R18.3 bundle verification message"
           test "$(git rev-parse HEAD^)" = "$KODEPOIA_BASE_SHA"
           git push origin "HEAD:refs/heads/$KODEPOIA_TARGET_BRANCH"

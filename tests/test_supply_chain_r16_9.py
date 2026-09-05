@@ -131,7 +131,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     assert r18_3_workflow in policy.immutable_authority_workflows
     r18_4_workflow = ".github/workflows/r18-4-windows-authenticode-acceptance.yml"
     assert r18_4_workflow in policy.immutable_authority_workflows
-    r18_5_workflow = ".github/workflows/r18-5-immutable-github-release-staging-acceptance.yml"
+    r18_5_workflow = ".github/workflows/r18-5-github-release-staging-acceptance.yml"
     assert r18_5_workflow in policy.immutable_authority_workflows
     assert policy.allow_write_workflows == (r18_3_workflow,)
     assert policy.legacy_workflows_are_non_authoritative_for_v1_promotion

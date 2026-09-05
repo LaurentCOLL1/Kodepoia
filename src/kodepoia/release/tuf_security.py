@@ -5,12 +5,12 @@ import hashlib
 import json
 import os
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from securesystemslib.signer import CryptoSigner, Signer
-from tuf.api.metadata import MetaFile, Metadata, Root, Snapshot, TargetFile, Targets, Timestamp
+from tuf.api.metadata import Metadata, MetaFile, Root, Snapshot, TargetFile, Targets, Timestamp
 
 TUF_STATE_FORMAT = "kodepoia-tuf-trusted-state"
 TUF_STATE_SCHEMA_VERSION = 1
@@ -65,8 +65,8 @@ def _sha256_bytes(data: bytes) -> str:
 
 def _as_utc(value: datetime) -> datetime:
     if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
 
 
 def _verify_role(
@@ -108,7 +108,7 @@ class SyntheticTufRepositoryBuilder:
         self._targets_signer: Signer = CryptoSigner.generate_ed25519()
         self._root_threshold = root_threshold
 
-        safe_expiry = datetime(2035, 1, 1, tzinfo=timezone.utc)
+        safe_expiry = datetime(2035, 1, 1, tzinfo=UTC)
         root = Root(expires=safe_expiry, consistent_snapshot=False)
         for signer in self._root_signers:
             root.add_key(signer.public_key, "root")
@@ -133,7 +133,7 @@ class SyntheticTufRepositoryBuilder:
         corrupt_targets_reference: bool = False,
         corrupt_snapshot_reference: bool = False,
     ) -> SyntheticTufRepository:
-        expiry = _as_utc(expires or datetime(2035, 1, 1, tzinfo=timezone.utc))
+        expiry = _as_utc(expires or datetime(2035, 1, 1, tzinfo=UTC))
         timestamp_expiry = _as_utc(timestamp_expires or expiry)
 
         root_signed = Root.from_dict(copy.deepcopy(self._root_template.to_dict()))

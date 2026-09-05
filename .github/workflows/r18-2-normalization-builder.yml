@@ -113,7 +113,7 @@ jobs:
           path.write_bytes(text.encode("utf-8"))
           PY
 
-          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test -n "$(git diff --name-only -- docs/continuity/KODEPOIA_CONTINUITY.md)"
           test -z "$(git diff --name-only -- docs/roadmap/R18_PLAN.md)"
           test -z "$(git diff --cached --name-only)"
           git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md

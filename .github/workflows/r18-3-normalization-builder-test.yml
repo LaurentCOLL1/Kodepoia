@@ -1,4 +1,4 @@
-name: Temporary R18.3 normalization builder test
+name: Temporary R18.3 normalization publisher
 
 on:
   push:
@@ -6,36 +6,46 @@ on:
       - scratch/r18-3-normalization-builder
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  test-builder:
+  publish-normalization:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout immutable R18.3 END head
+      - name: Checkout exact R18.3 implementation merge
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: 4d28a1c5a8f9763d8d620b581a9a6222c7c9cd31
+          ref: 6a6c1a523cb3b96949fd4a072d2bd33ba175749c
           fetch-depth: 0
       - name: Normalize Git comparison policy
         shell: bash
         run: |
           git config core.autocrlf false
-      - name: Load isolated normalization helper
+      - name: Load validated normalization helper
         shell: bash
         run: |
           git fetch origin scratch/r18-3-normalization-builder
           git show FETCH_HEAD:scripts/r18_3_normalization_builder.py > "$RUNNER_TEMP/r18_3_normalization_builder.py"
-      - name: Validate continuity-only transform
+      - name: Generate unique continuity-only normalization
         shell: bash
         run: |
+          test "$(git rev-parse HEAD)" = "6a6c1a523cb3b96949fd4a072d2bd33ba175749c"
           python "$RUNNER_TEMP/r18_3_normalization_builder.py" \
-            --merge-sha 1111111111111111111111111111111111111111 \
+            --merge-sha 6a6c1a523cb3b96949fd4a072d2bd33ba175749c \
             --end-head 4d28a1c5a8f9763d8d620b581a9a6222c7c9cd31 \
             --exact-end-specialized-run 33956408408 \
             --exact-end-broad-run 33956444966 \
             --pr-number 386
           test "$(git diff --ignore-cr-at-eol --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
           git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
-          grep -F 'COMPLETE + NORMALIZED effective when this unique continuity-only normalization record enters `main`' docs/continuity/KODEPOIA_CONTINUITY.md
-          grep -F 'PR #386 merged with `expected_head_sha=4d28a1c5a8f9763d8d620b581a9a6222c7c9cd31`' docs/continuity/KODEPOIA_CONTINUITY.md
+      - name: Publish exact normalization branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c r18/03-continuity-normalization
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git commit -m "docs: normalize R18.3 continuity after merge"
+          test "$(git rev-list --count 6a6c1a523cb3b96949fd4a072d2bd33ba175749c..HEAD)" = "1"
+          git push origin HEAD:r18/03-continuity-normalization

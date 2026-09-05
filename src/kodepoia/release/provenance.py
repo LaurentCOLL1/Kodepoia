@@ -7,7 +7,7 @@ import os
 import re
 import tomllib
 from collections import deque
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -86,10 +86,11 @@ def _created_at(value: str | None) -> str:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     else:
         epoch = os.getenv("SOURCE_DATE_EPOCH")
-        if epoch:
-            parsed = datetime.fromtimestamp(int(epoch), tz=UTC)
-        else:
-            parsed = datetime(1980, 1, 1, tzinfo=UTC)
+        parsed = (
+            datetime.fromtimestamp(int(epoch), tz=UTC)
+            if epoch
+            else datetime(1980, 1, 1, tzinfo=UTC)
+        )
     if parsed.tzinfo is None:
         raise ReleaseEvidenceError("SBOM creation time must include a timezone")
     return parsed.astimezone(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")

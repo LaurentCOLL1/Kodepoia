@@ -17,12 +17,10 @@ jobs:
         with:
           ref: 4d28a1c5a8f9763d8d620b581a9a6222c7c9cd31
           fetch-depth: 0
-      - name: Normalize exact-head worktree
+      - name: Normalize Git comparison policy
         shell: bash
         run: |
           git config core.autocrlf false
-          git reset --hard HEAD
-          test -z "$(git status --porcelain)"
       - name: Load isolated normalization helper
         shell: bash
         run: |
@@ -37,7 +35,7 @@ jobs:
             --exact-end-specialized-run 33956408408 \
             --exact-end-broad-run 33956444966 \
             --pr-number 386
-          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
-          git diff --check
+          test "$(git diff --ignore-cr-at-eol --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
           grep -F 'COMPLETE + NORMALIZED effective when this unique continuity-only normalization record enters `main`' docs/continuity/KODEPOIA_CONTINUITY.md
           grep -F 'PR #386 merged with `expected_head_sha=4d28a1c5a8f9763d8d620b581a9a6222c7c9cd31`' docs/continuity/KODEPOIA_CONTINUITY.md

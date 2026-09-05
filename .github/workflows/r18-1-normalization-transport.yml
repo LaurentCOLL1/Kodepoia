@@ -26,11 +26,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          changed="$(git diff --name-only)"
-          test "$changed" = "docs/continuity/KODEPOIA_CONTINUITY.md"
-          git diff --check
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/continuity/KODEPOIA_CONTINUITY.md
+          staged="$(git diff --cached --name-only)"
+          test "$staged" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git diff --cached --check
           git commit -m "docs(r18.1): generate post-merge normalization"
           git push origin HEAD:transport/r18-1-normalization

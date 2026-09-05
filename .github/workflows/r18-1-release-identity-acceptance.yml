@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   release-identity:
@@ -123,3 +123,17 @@ jobs:
           path: artifacts/r18_1_release_identity_acceptance.json
           if-no-files-found: error
           retention-days: 30
+
+      - name: Apply clean R18.1 END sync
+        if: runner.os == 'Linux' && github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout 8fda649829acfd5abae2ea31e9c744f8554b8d06 -- .github/workflows/r18-1-release-identity-acceptance.yml
+          python scripts/r18_1_end_sync_transport.py
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs(r18.1): END-sync canonical release identity"
+          git push origin HEAD:r18/01-release-identity

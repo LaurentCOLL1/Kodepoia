@@ -1,0 +1,41 @@
+name: R18.4 Post-merge Normalization Builder
+
+on:
+  push:
+    branches:
+      - 'r18/04-normalization-builder'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout isolated builder
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Build direct continuity-only normalization child
+        shell: bash
+        run: |
+          cp scripts/r18_4_normalization_builder.py /tmp/r18_4_normalization_builder.py
+          git checkout --detach 8b5e09622399d24f87c20a3820e38111d3072b6e
+          python /tmp/r18_4_normalization_builder.py
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -q '## R18.4 normalization authority' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -q 'Final exact-END head `2cad928d86af244a32313587348a4cb989b1ca71`' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -q 'implementation/evidence `main` `8b5e09622399d24f87c20a3820e38111d3072b6e`' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -q 'production_signed=false' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -q 'public_trust_claim=false' docs/continuity/KODEPOIA_CONTINUITY.md
+          git config user.name 'LaurentCOLL1'
+          git config user.email '128934707+LaurentCOLL1@users.noreply.github.com'
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          mapfile -t staged < <(git diff --cached --name-only HEAD --)
+          printf '%s\n' "${staged[@]}"
+          test "${#staged[@]}" -eq 1
+          test "${staged[0]}" = 'docs/continuity/KODEPOIA_CONTINUITY.md'
+          git diff --cached --check HEAD --
+          git commit -m 'R18.4 — Normalize post-merge continuity authority'
+          test "$(git rev-parse HEAD^)" = '8b5e09622399d24f87c20a3820e38111d3072b6e'
+          git push --force origin HEAD:refs/heads/r18/04-normalization-candidate

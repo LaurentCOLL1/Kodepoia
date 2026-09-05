@@ -72,12 +72,12 @@ jobs:
           plan_path.write_text("\n".join(plines) + "\n", encoding="utf-8", newline="\n")
           PY
 
-          mapfile -t changed < <(git diff --name-only)
-          printf 'Changed paths:\n%s\n' "${changed[*]}"
-          test "${#changed[@]}" -eq 2
-          test "${changed[0]}" = "docs/continuity/KODEPOIA_CONTINUITY.md"
-          test "${changed[1]}" = "docs/roadmap/R18_PLAN.md"
-          git diff --check
+          mapfile -t intended < <(git diff --name-only -- docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R18_PLAN.md)
+          printf 'Intended changed paths:\n%s\n' "${intended[*]}"
+          test "${#intended[@]}" -eq 2
+          test "${intended[0]}" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test "${intended[1]}" = "docs/roadmap/R18_PLAN.md"
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R18_PLAN.md
 
       - name: Commit and fast-forward R18.2 branch
         shell: bash
@@ -85,6 +85,10 @@ jobs:
           git config user.name "LaurentCOLL1"
           git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
           git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R18_PLAN.md
+          mapfile -t staged < <(git diff --cached --name-only)
+          test "${#staged[@]}" -eq 2
+          test "${staged[0]}" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test "${staged[1]}" = "docs/roadmap/R18_PLAN.md"
           git commit -m "docs(r18.2): END-sync deterministic release bundle"
           test "$(git rev-parse HEAD^)" = "f15967530e79bb365246afb92a8db02906acb0c4"
           test "$(git diff-tree --no-commit-id --name-only -r HEAD | wc -l)" -eq 2

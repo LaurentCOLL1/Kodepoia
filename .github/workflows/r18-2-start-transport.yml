@@ -1,0 +1,36 @@
+name: R18.2 START Transport
+
+on:
+  push:
+    branches:
+      - transport/r18-2-start
+    paths:
+      - scripts/r18_2_start_transport.py
+
+permissions:
+  contents: write
+
+jobs:
+  start-sync:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout transport branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Generate R18.2 START continuity
+        run: python scripts/r18_2_start_transport.py
+
+      - name: Commit generated continuity only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          staged="$(git diff --cached --name-only)"
+          test "$staged" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git diff --cached --check
+          git commit -m "docs(r18.2): generate START-sync"
+          git push origin HEAD:transport/r18-2-start

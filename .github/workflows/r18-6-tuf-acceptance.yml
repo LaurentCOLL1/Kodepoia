@@ -12,6 +12,7 @@ on:
       - pyproject.toml
       - src/kodepoia/release/tuf_security.py
       - src/kodepoia/update/**
+      - scripts/r18_6_generate_packaged_root.py
       - scripts/r18_6_tuf_acceptance.py
       - tests/test_r18_6_tuf_security.py
       - tests/test_r18_6_update_trust.py
@@ -74,6 +75,7 @@ jobs:
           python -m compileall -q
           src/kodepoia/release/tuf_security.py
           src/kodepoia/update
+          scripts/r18_6_generate_packaged_root.py
           scripts/r18_6_tuf_acceptance.py
           tests/test_r18_6_tuf_security.py
           tests/test_r18_6_update_trust.py
@@ -96,6 +98,7 @@ jobs:
               "json",
               "src/kodepoia/release/tuf_security.py",
               "src/kodepoia/update",
+              "scripts/r18_6_generate_packaged_root.py",
               "scripts/r18_6_tuf_acceptance.py",
               "tests/test_r18_6_tuf_security.py",
               "tests/test_r18_6_update_trust.py",
@@ -118,6 +121,12 @@ jobs:
           tests/test_r18_6_tuf_security.py
           tests/test_r18_6_update_trust.py
 
+      - name: Generate synthetic packaged root evidence
+        run: >-
+          python scripts/r18_6_generate_packaged_root.py
+          --output artifacts/r18_6/trusted_root.synthetic.json
+          --manifest artifacts/r18_6/trusted_root.synthetic.manifest.json
+
       - name: Emit exact-source R18.6 acceptance
         run: >-
           python scripts/r18_6_tuf_acceptance.py
@@ -133,6 +142,11 @@ jobs:
 
           report = json.loads(
               Path("artifacts/r18_6/tuf-acceptance.json").read_text(encoding="utf-8")
+          )
+          root_manifest = json.loads(
+              Path("artifacts/r18_6/trusted_root.synthetic.manifest.json").read_text(
+                  encoding="utf-8"
+              )
           )
           expected = os.environ["EVIDENCE_SHA"].strip().lower()
           if report["source_sha"] != expected:
@@ -151,6 +165,12 @@ jobs:
               raise SystemExit("R18.6 acceptance unexpectedly requires network access")
           if report["library_contract"]["production_keys_used"]:
               raise SystemExit("R18.6 acceptance unexpectedly used production keys")
+          if root_manifest["purpose"] != "synthetic-acceptance-only":
+              raise SystemExit("R18.6 packaged root evidence is not explicitly synthetic")
+          if root_manifest["production_trust_claim"]:
+              raise SystemExit("R18.6 synthetic root unexpectedly claims production trust")
+          if root_manifest["private_keys_persisted"]:
+              raise SystemExit("R18.6 synthetic root generator persisted private keys")
           if report["public_release_created"]:
               raise SystemExit("R18.6 acceptance unexpectedly created a public release")
           if report["production_signing_triggered"]:

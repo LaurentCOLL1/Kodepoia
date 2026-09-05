@@ -9,7 +9,7 @@ The implementation uses maintained Python packages:
 - `tuf>=7,<8` for TUF metadata parsing and verification primitives;
 - `securesystemslib[crypto]>=1.4,<2` for isolated Ed25519 acceptance signing.
 
-`src/kodepoia/release/tuf_security.py` owns the cryptographic metadata verification primitive. `src/kodepoia/update/trust.py` owns channel/platform target selection, transport isolation, bootstrap pinning, verified-candidate caching and non-blocking offline behavior.
+`src/kodepoia/release/tuf_security.py` owns the cryptographic metadata verification primitive. `src/kodepoia/update/trust.py` owns channel/platform target selection, transport isolation, bootstrap pinning, verified-candidate caching and non-blocking offline behavior. `src/kodepoia/update/bootstrap.py` owns fail-closed loading of the embedded synthetic trust-anchor resource.
 
 ## TUF top-level roles
 
@@ -63,16 +63,22 @@ Root updates are sequential. A rotated root must be signed by the threshold of t
 
 ## Packaged trust-anchor evidence
 
-R18.6 acceptance generates `trusted_root.synthetic.json` plus a manifest containing its root version and SHA-256. This proves that a root can be embedded/pinned and its exact bytes audited.
+The source package contains `trusted_root.synthetic.json` plus `trusted_root.synthetic.manifest.json`. The embedded root is version 1, uses a 2-of-2 root threshold, and is digest-pinned to:
 
-The generated anchor is explicitly `synthetic-acceptance-only`:
+`885bc87c3a5e9fe8b378cac85eb89fc37f99fcd8ba0bc7c494ee1e407da96670`
+
+`load_synthetic_packaged_root()` refuses to load this resource unless `allow_synthetic=True` is explicitly supplied. On opt-in it validates the manifest schema/purpose, root version, SHA-256, root metadata type and root self-signature threshold.
+
+The anchor is explicitly `synthetic-acceptance-only`:
 
 - no production trust claim is made;
 - private acceptance keys are not persisted;
 - production key custody/hosting is outside core R18.6 acceptance;
 - runtime code must not silently treat a synthetic root as a production trust anchor.
 
-A production root, if later provisioned, must be distributed out-of-band as trusted application/package data and must retain the same fail-closed version/digest semantics.
+The acceptance workflow also generates a fresh independent synthetic root as evidence that isolated repository keys can be produced without persisting private keys.
+
+A production root, if later provisioned, must be distributed out-of-band as trusted application/package data, ideally from a read-only application/system location, and must retain the same fail-closed version/digest semantics. It must not be sourced from the writable metadata cache.
 
 ## Acceptance matrix
 
@@ -98,8 +104,9 @@ A production root, if later provisioned, must be distributed out-of-band as trus
 | root-key rotation satisfying old + new thresholds | PASS |
 | offline check returns last verified candidate | PASS |
 | repository bootstrapped from a different packaged root pin | REFUSED |
+| embedded synthetic root resource loads only with explicit opt-in | PASS |
 
-The focused unit suite additionally covers offline-without-cache and a bad timestamp → snapshot hash/length reference.
+The focused unit suite additionally covers offline-without-cache, embedded-root default refusal and a bad timestamp → snapshot hash/length reference.
 
 ## Deterministic time
 
@@ -107,12 +114,13 @@ Acceptance uses the fixed UTC verification instant `2026-09-05T12:00:00+00:00`, 
 
 ## CI evidence
 
-`.github/workflows/r18-6-tuf-acceptance.yml` runs on Ubuntu and Windows and checks out the exact evidence SHA. It compiles and lints the focused cryptographic/update sources, executes both focused test modules, emits packaged-root evidence and emits `artifacts/r18_6/tuf-acceptance.json`.
+`.github/workflows/r18-6-tuf-acceptance.yml` runs on Ubuntu and Windows and checks out the exact evidence SHA. It compiles and lints the focused cryptographic/update sources, executes all focused R18.6 test modules, emits fresh synthetic-root evidence and emits `artifacts/r18_6/tuf-acceptance.json`.
 
 The workflow requires:
 
 - 7/7 core TUF cases;
-- 6/6 product update cases;
+- 7/7 product update cases;
+- embedded root version/digest/purpose validation;
 - trusted-state persistence;
 - channel/platform binding;
 - non-blocking offline cache behavior;

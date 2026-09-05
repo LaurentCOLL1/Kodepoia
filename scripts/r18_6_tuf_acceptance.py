@@ -15,6 +15,7 @@ from kodepoia.release.tuf_security import (
     TufUpdateVerifier,
     TufVerificationError,
 )
+from kodepoia.update.bootstrap import load_synthetic_packaged_root
 from kodepoia.update.trust import (
     MemoryUpdateTransport,
     PackagedRootPin,
@@ -275,6 +276,15 @@ def _wrong_root_pin(source_sha: str) -> None:
         client.verify_refresh(MemoryUpdateTransport.from_repository(attacker), target)
 
 
+def _packaged_root_embedding() -> None:
+    material = load_synthetic_packaged_root(allow_synthetic=True)
+    if material.pin.version != 1:
+        raise RuntimeError("packaged synthetic root version is not 1")
+    if material.production_trust_claim or material.private_keys_persisted:
+        raise RuntimeError("packaged synthetic root safety flags are invalid")
+    material.pin.verify(material.root_bytes)
+
+
 def build_report(source_sha: str) -> dict[str, object]:
     source = source_sha.strip().lower()
     if not _SOURCE_SHA_RE.fullmatch(source):
@@ -295,9 +305,11 @@ def build_report(source_sha: str) -> dict[str, object]:
         _run_case("root_key_rotation", "PASS", lambda: _root_rotation(source)),
         _run_case("offline_cached_state", "PASS", lambda: _offline_cached(source)),
         _run_case("wrong_packaged_root_pin", "REFUSED", lambda: _wrong_root_pin(source)),
+        _run_case("packaged_synthetic_root_embedding", "PASS", _packaged_root_embedding),
     ]
+    packaged = load_synthetic_packaged_root(allow_synthetic=True)
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "phase": "R18.6",
         "source_sha": source,
         "reference_time": REFERENCE_TIME.isoformat(),
@@ -308,6 +320,13 @@ def build_report(source_sha: str) -> dict[str, object]:
             "securesystemslib_crypto": ">=1.4,<2",
             "network_required": False,
             "production_keys_used": False,
+        },
+        "packaged_root": {
+            "purpose": packaged.purpose,
+            "version": packaged.pin.version,
+            "sha256": packaged.pin.sha256,
+            "production_trust_claim": packaged.production_trust_claim,
+            "private_keys_persisted": packaged.private_keys_persisted,
         },
         "core_cases_total": len(core_cases),
         "core_cases_passed": sum(case.passed for case in core_cases),

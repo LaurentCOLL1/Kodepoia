@@ -1,0 +1,197 @@
+name: Temporary R18.3 START Sync Builder
+
+on:
+  push:
+    branches:
+      - scratch/r18-3-start-sync-builder
+
+permissions:
+  contents: write
+
+jobs:
+  build-start-sync:
+    runs-on: ubuntu-latest
+    env:
+      KODEPOIA_BASE_SHA: c376d0af789e584e1ef307f43e42a62ce024b052
+      KODEPOIA_TARGET_BRANCH: r18/03-sbom-provenance-attestations
+    steps:
+      - name: Checkout exact normalized R18.2 main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.KODEPOIA_BASE_SHA }}
+          fetch-depth: 0
+
+      - name: Assert exact base
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$KODEPOIA_BASE_SHA"
+
+      - name: Build governed R18.3 START sync
+        shell: bash
+        run: |
+          git checkout -B "$KODEPOIA_TARGET_BRANCH"
+          python - <<'PY'
+          from pathlib import Path
+
+          BASE = "c376d0af789e584e1ef307f43e42a62ce024b052"
+          BRANCH = "r18/03-sbom-provenance-attestations"
+          ATTEST_SHA = "1e69f48acb82d1966a394da916b4c1698aa569d6"
+
+          def load(path: Path) -> tuple[list[str], str, bool]:
+              raw = path.read_bytes()
+              newline = "\r\n" if b"\r\n" in raw else "\n"
+              return raw.decode("utf-8").splitlines(), newline, raw.endswith(newline.encode("ascii"))
+
+          def save(path: Path, lines: list[str], newline: str, final_newline: bool) -> None:
+              text = newline.join(lines) + (newline if final_newline else "")
+              path.write_bytes(text.encode("utf-8"))
+
+          # ROADMAP: close R18.2 normalization debt and open only R18.3.
+          roadmap = Path("docs/roadmap/R18_PLAN.md")
+          lines, nl, final_nl = load(roadmap)
+
+          status_prefix = "Roadmap status: planning is **ACCEPTED + NORMALIZED**"
+          status_matches = [i for i, line in enumerate(lines) if line.startswith(status_prefix)]
+          if len(status_matches) != 1:
+              raise SystemExit(f"expected one R18 roadmap status paragraph, got {len(status_matches)}")
+          lines[status_matches[0]] = (
+              "Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` "
+              "`bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` "
+              "`c611131268041b06f53de66eaadd45120e2b750d`. R18.2 is **COMPLETE + NORMALIZED** on canonical `main` "
+              f"`{BASE}` after exact-head implementation/evidence PR #384 and the unique continuity-only normalization PR #385. "
+              f"R18.3 SBOM, provenance and artifact attestations is **IN_PROGRESS** from that exact normalized main on `{BRANCH}`. "
+              "R18.4 remains PLANNED and is not authorized until R18.3 implementation/evidence merge plus unique post-merge normalization complete. "
+              "The frozen v1.0/R1–R16 architecture and history are not rewritten."
+          )
+
+          row_old = "| R18.3 | SBOM, provenance and artifact attestations | PLANNED | NONE | R18.2 |"
+          row_new = "| R18.3 | SBOM, provenance and artifact attestations | IN_PROGRESS | NONE | R18.2 |"
+          if lines.count(row_old) != 1:
+              raise SystemExit("expected one PLANNED R18.3 subdivision row")
+          lines[lines.index(row_old)] = row_new
+
+          r18_2_end_prefix = "END-sync technical acceptance: immutable source `f15967530e79bb365246afb92a8db02906acb0c4`;"
+          end_matches = [i for i, line in enumerate(lines) if line.startswith(r18_2_end_prefix)]
+          if len(end_matches) != 1:
+              raise SystemExit("expected one R18.2 END-sync acceptance paragraph")
+          postmerge = (
+              "Post-merge completion: final exact-END `ea7eb038661ae4637680eb5ce5c54f4006e89fc3` passed fresh exact-END run "
+              "`33948665066`; required R0 contexts were refreshed on that exact PR head by run `33950132320`; PR #384 merged with "
+              "`expected_head_sha=ea7eb038661ae4637680eb5ce5c54f4006e89fc3` as implementation/evidence `main` "
+              "`d3e1a9dbda60a011a8910694df55feadc5ca52f1`. Unique post-merge continuity-only normalization PR #385 at "
+              "`3d2d21c13512d37aec8e1a1f95a6c82c0f9994d3` passed fresh R0 `33950779177` Ubuntu + Windows, full Python Core "
+              "`33950779277` 5/5 and KodeStudio UI Smoke `33950778960`, then merged with exact expected-head protection as canonical "
+              f"normalized `main` `{BASE}`. R18.2 is therefore COMPLETE + NORMALIZED; no second R18.2 normalization is authorized."
+          )
+          if postmerge not in lines:
+              lines.insert(end_matches[0] + 1, "")
+              lines.insert(end_matches[0] + 2, postmerge)
+
+          deps_marker = "R18.2 release bundle contract. GitHub workflow permissions must be least-privilege and explicitly documented."
+          deps_matches = [i for i, line in enumerate(lines) if line == deps_marker]
+          if len(deps_matches) != 1:
+              raise SystemExit("expected one R18.3 dependencies marker")
+          start_authority = (
+              f"START-sync authority: R18.3 begins only from normalized R18.2 `main` `{BASE}` on dedicated branch `{BRANCH}`. "
+              "Implementation research was revalidated against current GitHub artifact-attestation documentation on 2026-09-05: use the unified "
+              f"`actions/attest@v4` interface, whose verified `v4` ref currently resolves to immutable commit `{ATTEST_SHA}`; binary/SBOM attestation jobs require "
+              "least-privilege `contents: read`, `id-token: write` and `attestations: write`; verification uses `gh attestation verify`, with SPDX 2.3 predicate "
+              "verification for SPDX JSON SBOM evidence. R16.9 action-pin/workflow authority policy must be extended rather than bypassed. Attestations remain "
+              "provenance-only evidence, not malware/security or Authenticode verdicts. Production signing, public GitHub Release publication and public WinGet "
+              "submission remain NOT TRIGGERED."
+          )
+          if start_authority not in lines:
+              lines.insert(deps_matches[0] + 1, "")
+              lines.insert(deps_matches[0] + 2, start_authority)
+
+          save(roadmap, lines, nl, final_nl)
+
+          # CONTINUITY: make normalized R18.2 canonical and authorize only R18.3.
+          continuity = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          lines, nl, final_nl = load(continuity)
+
+          banner_prefix = "> Kodepoia, architecture v1.0 gelée."
+          banner_matches = [i for i, line in enumerate(lines) if line.startswith(banner_prefix)]
+          if len(banner_matches) != 1:
+              raise SystemExit(f"expected one global continuity banner, got {len(banner_matches)}")
+          lines[banner_matches[0]] = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED. R18 planning ACCEPTED + NORMALIZED. "
+              "R18.1 Canonical release identity, versions and channels is COMPLETE + NORMALIZED on canonical `main` "
+              "`c611131268041b06f53de66eaadd45120e2b750d`. R18.2 Deterministic release bundle and manifest contract is COMPLETE + NORMALIZED on canonical "
+              f"`main` `{BASE}` after exact-head implementation/evidence PR #384 and unique continuity-only normalization PR #385. "
+              f"R18.3 SBOM, provenance and artifact attestations is STARTED / IN_PROGRESS from that exact normalized main on `{BRANCH}`; "
+              "R18.4 remains PLANNED until R18.3 implementation/evidence merge and unique post-merge normalization complete.** Production signing, public GitHub "
+              "Release publication and public WinGet submission remain CONDITIONAL / NOT TRIGGERED."
+          )
+
+          r18_2_matches = [i for i, line in enumerate(lines) if line.startswith("- R18.2 :")]
+          if len(r18_2_matches) != 1:
+              raise SystemExit(f"expected one R18.2 global record, got {len(r18_2_matches)}")
+          idx = r18_2_matches[0]
+          line = lines[idx]
+          old_prefix = (
+              "- R18.2 : **COMPLETE + NORMALIZED effective when this unique continuity-only normalization record enters `main` "
+              "through fresh exact-head R0/Python/UI gates and exact expected-head merge** —"
+          )
+          if not line.startswith(old_prefix):
+              raise SystemExit("unexpected R18.2 continuity state prefix")
+          line = "- R18.2 : **COMPLETE + NORMALIZED** —" + line[len(old_prefix):]
+          old_suffix = (
+              "This continuity-only record is the single authorized post-merge R18.2 normalization authority; no second R18.2 normalization is authorized. "
+              "R18.3 START-sync is authorized only from the normalized `main` produced when this exact record passes fresh R0/Python/UI and merges with exact expected-head protection."
+          )
+          if old_suffix not in line:
+              raise SystemExit("missing R18.2 pending-normalization suffix")
+          new_suffix = (
+              "Unique post-merge continuity-only normalization PR #385 at head `3d2d21c13512d37aec8e1a1f95a6c82c0f9994d3` passed fresh "
+              "R0 `33950779177` Ubuntu + Windows, full Python Core `33950779277` 5/5 and KodeStudio UI Smoke `33950778960`, then merged with "
+              f"`expected_head_sha=3d2d21c13512d37aec8e1a1f95a6c82c0f9994d3` as canonical normalized `main` `{BASE}`. No second R18.2 "
+              "normalization is authorized. R18.3 START-sync is authorized only from that exact normalized main."
+          )
+          lines[idx] = line.replace(old_suffix, new_suffix, 1)
+
+          if any(line.startswith("- R18.3 :") for line in lines):
+              raise SystemExit("R18.3 global record already exists; refuse duplicate START authority")
+          r18_3_record = (
+              f"- R18.3 : **STARTED / IN_PROGRESS** — authorized base normalized R18.2 `main` `{BASE}`; dedicated implementation branch `{BRANCH}`. "
+              "Scope is locked to standard machine-readable release SBOM evidence (SPDX JSON baseline), exact subject/source/workflow provenance binding, GitHub artifact "
+              "attestation generation + verification, release-bundle manifest binding and the required R16.9 supply-chain policy extension. Current GitHub attestation "
+              f"contract was revalidated on 2026-09-05: unified `actions/attest@v4`, immutable verified v4 commit `{ATTEST_SHA}`, least-privilege "
+              "`contents: read` + `id-token: write` + `attestations: write`, and `gh attestation verify` for verification. Attestations are provenance-only and do not "
+              "constitute malware/security or Authenticode verdicts. Manual NONE. Production signing/public GitHub Release/public WinGet submission remain NOT TRIGGERED. "
+              "R18.4 remains PLANNED and unauthorized until R18.3 implementation/evidence merge plus exactly one post-merge continuity normalization complete."
+          )
+          lines.insert(idx + 1, r18_3_record)
+
+          next_matches = [i for i, line in enumerate(lines) if line == "## Next authorized action"]
+          r17_matches = [i for i, line in enumerate(lines) if line == "## R17 — Distribution & Guided Creation UX"]
+          if len(next_matches) != 1 or len(r17_matches) != 1 or next_matches[0] >= r17_matches[0]:
+              raise SystemExit("missing or invalid Next authorized action / R17 markers")
+          start = next_matches[0] + 1
+          end = r17_matches[0]
+          next_body = [
+              "",
+              f"R18.3 START-sync is authorized from normalized R18.2 canonical `main` `{BASE}` on `{BRANCH}`. The next authorized action is technical R18.3 only: implement and test SBOM generation/normalization, provenance and subject binding, GitHub artifact attestations + verification, release-bundle manifest integration and the corresponding R16.9 immutable action/workflow policy extension. Run fresh exact-source R18.3 + R16.9 + R0 Repository Guard + full Python Core + KodeStudio UI Smoke gates before END-sync; after END-sync, re-run the required exact-END gates before protected exact-head merge and exactly one continuity-only normalization. **R18.4 is not authorized until that normalized R18.3 `main` exists.** Production signing, public GitHub Release publication and public WinGet submission remain NOT TRIGGERED.",
+              "",
+          ]
+          lines[start:end] = next_body
+          save(continuity, lines, nl, final_nl)
+          PY
+
+          git diff --check -- docs/roadmap/R18_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          test -z "$(git diff --cached --name-only)"
+
+      - name: Commit and push exact START-sync candidate
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/roadmap/R18_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          staged="$(git diff --cached --name-only | sort)"
+          expected="$(printf '%s\n' 'docs/continuity/KODEPOIA_CONTINUITY.md' 'docs/roadmap/R18_PLAN.md')"
+          test "$staged" = "$expected"
+          git commit -m "docs: start R18.3 from normalized R18.2"
+          changed="$(git diff-tree --no-commit-id --name-only -r HEAD | sort)"
+          test "$changed" = "$expected"
+          test "$(git rev-parse HEAD^)" = "$KODEPOIA_BASE_SHA"
+          git push origin "HEAD:refs/heads/$KODEPOIA_TARGET_BRANCH"

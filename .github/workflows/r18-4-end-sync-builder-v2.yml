@@ -1,0 +1,37 @@
+name: R18.4 END-sync Builder v2
+
+on:
+  push:
+    branches:
+      - 'r18/04-end-sync-builder'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout helper branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Build direct documentation child
+        shell: bash
+        run: |
+          cp scripts/r18_4_end_sync_builder.py /tmp/r18_4_end_sync_builder.py
+          git checkout --detach 760d03efd2acdc372ed1e75f064f66d41c82573e
+          python /tmp/r18_4_end_sync_builder.py
+          mapfile -t changed < <(git diff --name-only 760d03efd2acdc372ed1e75f064f66d41c82573e --)
+          printf '%s\n' "${changed[@]}"
+          test "${#changed[@]}" -eq 2
+          test "${changed[0]}" = 'docs/continuity/KODEPOIA_CONTINUITY.md'
+          test "${changed[1]}" = 'docs/roadmap/R18_PLAN.md'
+          git diff --check 760d03efd2acdc372ed1e75f064f66d41c82573e --
+          grep -q 'R18.4 state: \*\*COMPLETE at END-sync\*\*' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -q 'END-sync technical acceptance: immutable technical source `760d03ef' docs/roadmap/R18_PLAN.md
+          git config user.name 'LaurentCOLL1'
+          git config user.email '128934707+LaurentCOLL1@users.noreply.github.com'
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R18_PLAN.md
+          git commit -m 'R18.4 — END-sync Authenticode acceptance'
+          git push --force origin HEAD:refs/heads/r18/04-end-sync-candidate

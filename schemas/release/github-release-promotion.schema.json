@@ -1,0 +1,184 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/release/github-release-promotion.schema.json",
+  "title": "Kodepoia R18.5 GitHub Release Promotion",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "schema_version",
+    "state",
+    "repository",
+    "source_sha",
+    "tag",
+    "release_name",
+    "release_identity",
+    "bundle",
+    "assets",
+    "signing",
+    "attestation",
+    "tag_state",
+    "github_release",
+    "effect_boundary",
+    "stage_digest"
+  ],
+  "properties": {
+    "format": {"const": "kodepoia-github-release-promotion"},
+    "schema_version": {"const": 1},
+    "state": {"enum": ["draft", "staged", "published"]},
+    "repository": {"type": "string", "minLength": 3},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "tag": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:-(?:a|b|rc)[1-9][0-9]*)?$"
+    },
+    "release_name": {"type": "string", "minLength": 1},
+    "release_identity": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "product",
+        "package",
+        "channel",
+        "build_type",
+        "source_binding",
+        "version",
+        "pep440_version",
+        "public_version",
+        "installer_version",
+        "source_sha"
+      ]
+    },
+    "bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_sha256",
+        "payload_sha256",
+        "semantic_sha256",
+        "release_evidence"
+      ],
+      "properties": {
+        "manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "payload_sha256": {"$ref": "#/$defs/sha256"},
+        "semantic_sha256": {"$ref": "#/$defs/sha256"},
+        "release_evidence": {"type": "object"}
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {"$ref": "#/$defs/asset"}
+    },
+    "signing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "production_signed",
+        "public_trust_claim",
+        "hash_algorithm",
+        "timestamp_protocol",
+        "subjects_total"
+      ],
+      "properties": {
+        "mode": {"enum": ["unsigned", "test", "production"]},
+        "production_signed": {"type": "boolean"},
+        "public_trust_claim": {"type": "boolean"},
+        "hash_algorithm": {"type": "string"},
+        "timestamp_protocol": {"type": "string"},
+        "subjects_total": {"type": "integer", "minimum": 1}
+      }
+    },
+    "attestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "semantics",
+        "verification_mode",
+        "verified",
+        "live_verified"
+      ],
+      "properties": {
+        "provider": {"const": "github-artifact-attestations"},
+        "semantics": {"const": "provenance_only_not_security_verdict"},
+        "verification_mode": {"enum": ["github-cli", "synthetic-offline"]},
+        "verified": {"const": true},
+        "live_verified": {"type": "boolean"}
+      }
+    },
+    "tag_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tag",
+        "tag_exists",
+        "release_exists",
+        "immutable_release_capability"
+      ],
+      "properties": {
+        "tag": {"type": "string", "minLength": 1},
+        "tag_exists": {"const": false},
+        "release_exists": {"const": false},
+        "immutable_release_capability": {"type": "string"}
+      }
+    },
+    "github_release": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "draft",
+        "prerelease",
+        "make_latest",
+        "generate_release_notes",
+        "target_commitish",
+        "publication_triggered",
+        "release_id",
+        "immutable_verified"
+      ],
+      "properties": {
+        "draft": {"const": true},
+        "prerelease": {"type": "boolean"},
+        "make_latest": {"type": "boolean"},
+        "generate_release_notes": {"const": false},
+        "target_commitish": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "publication_triggered": {"const": false},
+        "release_id": {"type": "null"},
+        "immutable_verified": {"const": false}
+      }
+    },
+    "effect_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "public_publish_requires_explicit_authorization",
+        "approved_stage_digest_required",
+        "repository_immutability_setting_not_assumed"
+      ],
+      "properties": {
+        "public_publish_requires_explicit_authorization": {"const": true},
+        "approved_stage_digest_required": {"const": true},
+        "repository_immutability_setting_not_assumed": {"const": true}
+      }
+    },
+    "stage_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "sha256", "size"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}

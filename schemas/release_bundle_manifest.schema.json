@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/release_bundle_manifest.schema.json",
+  "title": "Kodepoia ReleaseBundleManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "schema_version",
+    "source_sha",
+    "platform",
+    "release_identity",
+    "archive_profile",
+    "provenance",
+    "files",
+    "payload_sha256",
+    "semantic_sha256",
+    "manifest_digest_binding",
+    "installer_binary_reproducibility"
+  ],
+  "properties": {
+    "format": {
+      "const": "kodepoia-release-bundle"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "platform": {
+      "const": "windows"
+    },
+    "release_identity": {
+      "$ref": "release_identity.schema.json"
+    },
+    "archive_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry_order",
+        "timestamp",
+        "regular_file_mode",
+        "installer_mode",
+        "compression",
+        "deterministic_given_identical_payload"
+      ],
+      "properties": {
+        "entry_order": {
+          "const": "lexicographic"
+        },
+        "timestamp": {
+          "const": "1980-01-01T00:00:00"
+        },
+        "regular_file_mode": {
+          "const": "0644"
+        },
+        "installer_mode": {
+          "const": "0755"
+        },
+        "compression": {
+          "const": "deflate-9"
+        },
+        "deterministic_given_identical_payload": {
+          "const": true
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "workflow_ref",
+        "run_id",
+        "run_attempt"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workflow_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_attempt": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "role",
+          "sha256",
+          "size"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "enum": [
+              "installer",
+              "checksums",
+              "license",
+              "notice",
+              "release-notes"
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "payload_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "semantic_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "manifest_digest_binding": {
+      "const": "external-sha256"
+    },
+    "installer_binary_reproducibility": {
+      "const": "measured-not-assumed"
+    }
+  }
+}

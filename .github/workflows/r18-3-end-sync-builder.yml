@@ -35,6 +35,7 @@ jobs:
             --artifact-id 9966423367 \
             --artifact-name r18-3-sbom-provenance-ceeb1c790e7bc67755b986f29d7244d42dbb3c7a \
             --artifact-digest 0ff5d64de60266d5c6b2e59a25a40e041bfe2c84a5772c191026636b4e45fd5b
+          git checkout -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           test "$(git diff --name-only | sort)" = $'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R18_PLAN.md'
           git diff --check
       - name: Publish generated blobs to scratch output

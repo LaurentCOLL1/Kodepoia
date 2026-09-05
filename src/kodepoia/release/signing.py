@@ -30,7 +30,7 @@ class SigningPolicy:
     certificate_thumbprint: str | None = None
     production_enabled: bool = False
 
-    def validated(self) -> "SigningPolicy":
+    def validated(self) -> SigningPolicy:
         source_sha = self.source_sha.strip().lower()
         if not SOURCE_SHA_RE.fullmatch(source_sha):
             raise SigningPolicyError("source_sha must be an exact 40-character hexadecimal Git commit")

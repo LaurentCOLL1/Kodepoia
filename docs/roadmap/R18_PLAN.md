@@ -6,7 +6,7 @@ Started: **2026-09-04**
 
 Normalized source of truth: `main` `58e488d80e60d04fc675e305bc8f040a3ab2bb9c` — R17 COMPLETE + NORMALIZED.
 
-Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` `c611131268041b06f53de66eaadd45120e2b750d`. R18.2 is **COMPLETE + NORMALIZED** on canonical `main` `c376d0af789e584e1ef307f43e42a62ce024b052` after exact-head implementation/evidence PR #384 and the unique continuity-only normalization PR #385. R18.3 SBOM, provenance and artifact attestations is **IN_PROGRESS** from that exact normalized main on `r18/03-sbom-provenance-attestations`. R18.4 remains PLANNED and is not authorized until R18.3 implementation/evidence merge plus unique post-merge normalization complete. The frozen v1.0/R1–R16 architecture and history are not rewritten.
+Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` `c611131268041b06f53de66eaadd45120e2b750d`. R18.2 is **COMPLETE + NORMALIZED** on canonical `main` `c376d0af789e584e1ef307f43e42a62ce024b052` after exact-head implementation/evidence PR #384 and the unique continuity-only normalization PR #385. R18.3 SBOM, provenance and artifact attestations is **COMPLETE at END-sync** on immutable technical source `ceeb1c790e7bc67755b986f29d7244d42dbb3c7a`; fresh exact-END gates, implementation/evidence merge and the unique post-merge normalization remain required. R18.4 remains PLANNED and is not authorized until that normalization completes. The frozen v1.0/R1–R16 architecture and history are not rewritten.
 
 ## Phase objective
 
@@ -59,7 +59,7 @@ Before R18.1 begins:
 | --- | --- | --- | --- | --- |
 | R18.1 | Canonical release identity, versions and channels | COMPLETE | NONE | R17 normalized main |
 | R18.2 | Deterministic release bundle and manifest contract | COMPLETE | NONE | R18.1 |
-| R18.3 | SBOM, provenance and artifact attestations | IN_PROGRESS | NONE | R18.2 |
+| R18.3 | SBOM, provenance and artifact attestations | COMPLETE | NONE | R18.2 |
 | R18.4 | Windows Authenticode signing and verification boundary | PLANNED | CONDITIONAL | R18.2–R18.3 |
 | R18.5 | Immutable GitHub Release staging and promotion | PLANNED | CONDITIONAL | R18.2–R18.4 |
 | R18.6 | TUF-secured update repository and metadata lifecycle | PLANNED | NONE | R18.1–R18.3 |
@@ -222,6 +222,8 @@ SBOM schema/semantic validation; attestation generated for exact subject and suc
 ## Validation and evidence
 
 SBOM digest, attestation subject digest, verification output, run/workflow IDs and exact head.
+
+END-sync technical acceptance: Immutable technical source `ceeb1c790e7bc67755b986f29d7244d42dbb3c7a` passed R18.3 specialized run `33955017557` with Ubuntu + Windows contract acceptance and the actual Windows release-candidate path: exact-source installer build, deterministic SPDX 2.3 SBOM, release provenance, evidence-bound bundle, GitHub build-provenance attestation, GitHub SPDX SBOM attestation, successful `gh attestation verify` for both predicates, and rejection of a modified subject. Final technical bundle SHA-256 `c88589f158c537934ae44942db460bdefa99b9650b5f1b4a5d546fee01cbe943`; SBOM SHA-256 `ed10ab96282335209a85b6487ea8985f82de18db59b788cb9d155e7387b969de`; provenance SHA-256 `3df009c77ec0564a2e8361591301b61f67de8a2cf455242321523789338cdabc`; Actions artifact `9966423367` / `r18-3-sbom-provenance-ceeb1c790e7bc67755b986f29d7244d42dbb3c7a`, artifact ZIP digest `sha256:0ff5d64de60266d5c6b2e59a25a40e041bfe2c84a5772c191026636b4e45fd5b`. Broad exact-source gate run `33955049081` is SUCCESS for all 7 jobs: R0 Ubuntu/Windows, full Python Core Ubuntu/Windows, KodeStudio UI Smoke Windows and R16.9 Ubuntu/Windows. Manual intervention NONE; production signing, public GitHub Release and public WinGet submission remain NOT TRIGGERED. Because this END-sync changes documentation bytes, fresh specialized R18.3 + R16.9 + R0 + full Python Core + KodeStudio UI gates on the resulting exact END-head remain mandatory before exact-head PR merge.
 
 ## Rollback / recovery
 

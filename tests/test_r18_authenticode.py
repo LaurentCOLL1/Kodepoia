@@ -157,6 +157,32 @@ def test_signed_evidence_rejects_missing_timestamp() -> None:
         )
 
 
+def test_signed_evidence_rejects_invalid_or_expired_status() -> None:
+    policy = SigningPolicy(
+        SigningMode.TEST,
+        SOURCE,
+        timestamp_url=TSA,
+        certificate_thumbprint=THUMB,
+    )
+    with pytest.raises(SigningPolicyError, match="not Valid"):
+        build_signing_evidence(
+            policy,
+            signtool_version="10.0",
+            subjects=[
+                SubjectEvidence(
+                    filename="KodepoiaSetup.exe",
+                    sha256="1" * 64,
+                    authenticode_status="NotTimeValid",
+                    signer_subject="CN=Kodepoia Test",
+                    signer_thumbprint=THUMB,
+                    timestamp_subject="CN=RFC3161 TSA",
+                    timestamp_verified=True,
+                    signtool_verified=True,
+                )
+            ],
+        )
+
+
 def test_signed_evidence_rejects_wrong_certificate() -> None:
     policy = SigningPolicy(
         SigningMode.TEST,

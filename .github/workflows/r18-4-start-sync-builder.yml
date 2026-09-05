@@ -1,0 +1,41 @@
+name: Temporary R18.4 START-sync builder
+
+on:
+  push:
+    branches:
+      - scratch/r18-4-start-builder
+
+permissions:
+  contents: write
+
+jobs:
+  publish-start:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 66314ff1c86e51d84f1abe15d107a6182ef9e54a
+          fetch-depth: 0
+      - name: Load builder
+        shell: bash
+        run: |
+          git fetch origin scratch/r18-4-start-builder
+          git show FETCH_HEAD:scripts/r18_4_start_sync_builder.py > "$RUNNER_TEMP/r18_4_start_sync_builder.py"
+      - name: Generate exact START-sync
+        shell: bash
+        run: |
+          git config core.autocrlf false
+          python "$RUNNER_TEMP/r18_4_start_sync_builder.py"
+          test "$(git diff --ignore-cr-at-eol --name-only | sort)" = $'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R18_PLAN.md'
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R18_PLAN.md
+      - name: Publish dedicated branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c r18/04-windows-authenticode-signing
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R18_PLAN.md
+          test "$(git diff --cached --name-only | sort)" = $'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R18_PLAN.md'
+          git commit -m "docs(r18.4): START-sync Authenticode boundary"
+          test "$(git rev-list --count 66314ff1c86e51d84f1abe15d107a6182ef9e54a..HEAD)" = "1"
+          git push origin HEAD:r18/04-windows-authenticode-signing

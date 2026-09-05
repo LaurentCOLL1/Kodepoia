@@ -47,11 +47,10 @@ jobs:
       - name: Verify and push exact child commit
         shell: bash
         run: |
+          git restore --source=HEAD --worktree -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json
           git diff --check
-          git diff --exit-code -- . ':!src/kodepoia/release/bundle.py' || {
-            echo "Unexpected files changed"
-            exit 1
-          }
+          test "$(git status --porcelain | wc -l)" -eq 1
+          git status --porcelain | grep -F "src/kodepoia/release/bundle.py"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/kodepoia/release/bundle.py

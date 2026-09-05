@@ -1,0 +1,623 @@
+name: Temporary R18.3 Bundle Wiring Builder
+
+on:
+  push:
+    branches:
+      - scratch/r18-3-bundle-wiring-builder
+
+permissions:
+  contents: write
+
+jobs:
+  build-wiring:
+    runs-on: ubuntu-latest
+    env:
+      KODEPOIA_BASE_SHA: 8e72ef81c5b587dd5035dcdc3fbd9ab357f73d4d
+      KODEPOIA_TARGET_BRANCH: r18/03-sbom-provenance-attestations
+    steps:
+      - name: Checkout exact R18.3 implementation head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.KODEPOIA_BASE_SHA }}
+          fetch-depth: 0
+
+      - name: Assert exact base
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$KODEPOIA_BASE_SHA"
+
+      - name: Wire bundle, policy and R18.3 workflow
+        shell: bash
+        run: |
+          git checkout -B "$KODEPOIA_TARGET_BRANCH"
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          def replace_once(text: str, old: str, new: str, label: str) -> str:
+              if text.count(old) != 1:
+                  raise SystemExit(f"{label}: expected one match, found {text.count(old)}")
+              return text.replace(old, new, 1)
+
+          # Extend the R18.2 bundle contract additively with optional R18.3 evidence.
+          path = Path("src/kodepoia/release/bundle.py")
+          text = path.read_text(encoding="utf-8")
+          text = replace_once(
+              text,
+              "from kodepoia.release.identity import CURRENT_RELEASE\n",
+              "from kodepoia.release.identity import CURRENT_RELEASE\n"
+              "from kodepoia.release.provenance import (\n"
+              "    ATTESTATION_SEMANTICS,\n"
+              "    PROVENANCE_NAME,\n"
+              "    SBOM_NAME,\n"
+              "    SPDX_PREDICATE_TYPE,\n"
+              "    ReleaseEvidenceError,\n"
+              "    verify_release_evidence_files,\n"
+              "    verify_release_evidence_payloads,\n"
+              ")\n",
+              "bundle imports",
+          )
+          text = replace_once(
+              text,
+              '    "release-notes",\n}',
+              '    "release-notes",\n    "sbom",\n    "provenance",\n}',
+              "bundle roles",
+          )
+          text = replace_once(
+              text,
+              "    run_attempt: str | None = None,\n    repository: str | None = None,\n) -> BundleBuildResult:",
+              "    run_attempt: str | None = None,\n    repository: str | None = None,\n"
+              "    sbom_path: str | Path | None = None,\n"
+              "    provenance_path: str | Path | None = None,\n"
+              ") -> BundleBuildResult:",
+              "bundle signature",
+          )
+          text = replace_once(
+              text,
+              "    provenance = _default_provenance(workflow_ref, run_id, run_attempt, repository)\n\n"
+              "    payloads: dict[str, tuple[str, bytes]] = {",
+              "    provenance = _default_provenance(workflow_ref, run_id, run_attempt, repository)\n"
+              "    evidence_summary: dict[str, Any] | None = None\n"
+              "    if (sbom_path is None) != (provenance_path is None):\n"
+              "        raise ReleaseBundleError(\"R18.3 SBOM and provenance files must be supplied together\")\n"
+              "    if sbom_path is not None and provenance_path is not None:\n"
+              "        try:\n"
+              "            evidence_summary = verify_release_evidence_files(\n"
+              "                sbom_path,\n"
+              "                provenance_path,\n"
+              "                expected_source_sha=source_sha,\n"
+              "                expected_repository=provenance[\"repository\"],\n"
+              "            )\n"
+              "        except (OSError, ReleaseEvidenceError) as exc:\n"
+              "            raise ReleaseBundleError(f\"invalid R18.3 release evidence: {exc}\") from exc\n\n"
+              "    payloads: dict[str, tuple[str, bytes]] = {",
+              "bundle evidence validation",
+          )
+          text = replace_once(
+              text,
+              "    }\n    for path, role, payload in _policy_documents(root):\n",
+              "    }\n"
+              "    if evidence_summary is not None:\n"
+              "        payloads[SBOM_NAME] = (\"sbom\", Path(sbom_path).read_bytes())\n"
+              "        payloads[PROVENANCE_NAME] = (\"provenance\", Path(provenance_path).read_bytes())\n"
+              "    for path, role, payload in _policy_documents(root):\n",
+              "bundle evidence payloads",
+          )
+          text = replace_once(
+              text,
+              "        \"installer_binary_reproducibility\": \"measured-not-assumed\",\n    }\n    manifest_bytes = _canonical_json_bytes(manifest)\n",
+              "        \"installer_binary_reproducibility\": \"measured-not-assumed\",\n    }\n"
+              "    if evidence_summary is not None:\n"
+              "        manifest[\"release_evidence\"] = {\n"
+              "            \"sbom_path\": SBOM_NAME,\n"
+              "            \"sbom_sha256\": evidence_summary[\"sbom_sha256\"],\n"
+              "            \"provenance_path\": PROVENANCE_NAME,\n"
+              "            \"provenance_sha256\": evidence_summary[\"provenance_sha256\"],\n"
+              "            \"sbom_predicate_type\": SPDX_PREDICATE_TYPE,\n"
+              "            \"attestation_semantics\": ATTESTATION_SEMANTICS,\n"
+              "        }\n"
+              "    manifest_bytes = _canonical_json_bytes(manifest)\n",
+              "bundle manifest evidence",
+          )
+          text = replace_once(
+              text,
+              "    if records != sorted(records, key=lambda record: record[\"path\"]):\n"
+              "        raise BundleVerificationError(\"bundle manifest file records must be lexicographically ordered\")\n\n"
+              "    if not _SHA256_RE.fullmatch(str(manifest.get(\"payload_sha256\", \"\"))):",
+              "    if records != sorted(records, key=lambda record: record[\"path\"]):\n"
+              "        raise BundleVerificationError(\"bundle manifest file records must be lexicographically ordered\")\n\n"
+              "    release_evidence = manifest.get(\"release_evidence\")\n"
+              "    evidence_records = [record for record in records if record[\"role\"] in {\"sbom\", \"provenance\"}]\n"
+              "    if release_evidence is None:\n"
+              "        if evidence_records:\n"
+              "            raise BundleVerificationError(\"release evidence files require release_evidence manifest binding\")\n"
+              "    else:\n"
+              "        required_evidence = {\n"
+              "            \"sbom_path\", \"sbom_sha256\", \"provenance_path\", \"provenance_sha256\",\n"
+              "            \"sbom_predicate_type\", \"attestation_semantics\",\n"
+              "        }\n"
+              "        if not isinstance(release_evidence, dict) or set(release_evidence) != required_evidence:\n"
+              "            raise BundleVerificationError(\"release_evidence fields are incomplete or unexpected\")\n"
+              "        if release_evidence[\"sbom_path\"] != SBOM_NAME or release_evidence[\"provenance_path\"] != PROVENANCE_NAME:\n"
+              "            raise BundleVerificationError(\"release evidence paths are not canonical\")\n"
+              "        if release_evidence[\"sbom_predicate_type\"] != SPDX_PREDICATE_TYPE:\n"
+              "            raise BundleVerificationError(\"release SBOM predicate type mismatch\")\n"
+              "        if release_evidence[\"attestation_semantics\"] != ATTESTATION_SEMANTICS:\n"
+              "            raise BundleVerificationError(\"release attestation semantics mismatch\")\n"
+              "        evidence_by_role = {record[\"role\"]: record for record in evidence_records}\n"
+              "        if set(evidence_by_role) != {\"sbom\", \"provenance\"}:\n"
+              "            raise BundleVerificationError(\"release bundle must contain exactly one SBOM and provenance record\")\n"
+              "        if evidence_by_role[\"sbom\"][\"path\"] != SBOM_NAME or evidence_by_role[\"provenance\"][\"path\"] != PROVENANCE_NAME:\n"
+              "            raise BundleVerificationError(\"release evidence record paths mismatch\")\n"
+              "        if evidence_by_role[\"sbom\"][\"sha256\"] != release_evidence[\"sbom_sha256\"]:\n"
+              "            raise BundleVerificationError(\"release SBOM manifest digest binding mismatch\")\n"
+              "        if evidence_by_role[\"provenance\"][\"sha256\"] != release_evidence[\"provenance_sha256\"]:\n"
+              "            raise BundleVerificationError(\"release provenance manifest digest binding mismatch\")\n\n"
+              "    if not _SHA256_RE.fullmatch(str(manifest.get(\"payload_sha256\", \"\"))):",
+              "bundle manifest evidence verification",
+          )
+          text = replace_once(
+              text,
+              "        if checksums != checksummed_records:\n"
+              "            raise BundleVerificationError(\"SHA256SUMS.txt does not exactly bind non-checksum payloads\")\n\n"
+              "        try:\n            release_notes = json.loads(payload_bytes[RELEASE_NOTES_NAME].decode(\"utf-8\"))",
+              "        if checksums != checksummed_records:\n"
+              "            raise BundleVerificationError(\"SHA256SUMS.txt does not exactly bind non-checksum payloads\")\n\n"
+              "        release_evidence = manifest.get(\"release_evidence\")\n"
+              "        if release_evidence is not None:\n"
+              "            try:\n"
+              "                verified_evidence = verify_release_evidence_payloads(\n"
+              "                    payload_bytes[SBOM_NAME],\n"
+              "                    payload_bytes[PROVENANCE_NAME],\n"
+              "                    expected_source_sha=source_sha,\n"
+              "                    expected_repository=manifest[\"provenance\"][\"repository\"],\n"
+              "                )\n"
+              "            except (KeyError, ReleaseEvidenceError) as exc:\n"
+              "                raise BundleVerificationError(f\"release evidence payload verification failed: {exc}\") from exc\n"
+              "            if verified_evidence[\"sbom_sha256\"] != release_evidence[\"sbom_sha256\"]:\n"
+              "                raise BundleVerificationError(\"release SBOM payload digest mismatch\")\n"
+              "            if verified_evidence[\"provenance_sha256\"] != release_evidence[\"provenance_sha256\"]:\n"
+              "                raise BundleVerificationError(\"release provenance payload digest mismatch\")\n\n"
+              "        try:\n            release_notes = json.loads(payload_bytes[RELEASE_NOTES_NAME].decode(\"utf-8\"))",
+              "bundle payload evidence verification",
+          )
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+          # CLI wiring for optional R18.3 evidence.
+          path = Path("scripts/build_release_bundle.py")
+          text = path.read_text(encoding="utf-8")
+          text = replace_once(
+              text,
+              'description="Build the deterministic Kodepoia R18.2 release bundle."',
+              'description="Build the deterministic Kodepoia R18.2/R18.3 release bundle."',
+              "bundle cli description",
+          )
+          text = replace_once(
+              text,
+              '    parser.add_argument("--run-attempt")\n    args = parser.parse_args()\n',
+              '    parser.add_argument("--run-attempt")\n    parser.add_argument("--sbom")\n    parser.add_argument("--provenance")\n    args = parser.parse_args()\n'
+              '    if (args.sbom is None) != (args.provenance is None):\n'
+              '        parser.error("--sbom and --provenance must be supplied together")\n',
+              "bundle cli args",
+          )
+          text = replace_once(
+              text,
+              "        run_attempt=args.run_attempt,\n    )",
+              "        run_attempt=args.run_attempt,\n"
+              "        sbom_path=Path(args.sbom) if args.sbom else None,\n"
+              "        provenance_path=Path(args.provenance) if args.provenance else None,\n"
+              "    )",
+              "bundle cli call",
+          )
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+          # Add optional R18.3 evidence object and roles to JSON Schema without breaking R18.2 bundles.
+          path = Path("schemas/release_bundle_manifest.schema.json")
+          schema = json.loads(path.read_text(encoding="utf-8"))
+          roles = schema["properties"]["files"]["items"]["properties"]["role"]["enum"]
+          for role in ("sbom", "provenance"):
+              if role not in roles:
+                  roles.append(role)
+          schema["properties"]["release_evidence"] = {
+              "type": "object",
+              "additionalProperties": False,
+              "required": [
+                  "sbom_path", "sbom_sha256", "provenance_path", "provenance_sha256",
+                  "sbom_predicate_type", "attestation_semantics",
+              ],
+              "properties": {
+                  "sbom_path": {"const": "release-sbom.spdx.json"},
+                  "sbom_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                  "provenance_path": {"const": "release-provenance.json"},
+                  "provenance_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                  "sbom_predicate_type": {"const": "https://spdx.dev/Document/v2.3"},
+                  "attestation_semantics": {"const": "provenance_only_not_security_verdict"},
+              },
+          }
+          path.write_text(json.dumps(schema, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+
+          # Extend immutable supply-chain policy for the one write-capable R18.3 authority workflow.
+          path = Path("configs/r16_supply_chain_policy.json")
+          policy = json.loads(path.read_text(encoding="utf-8"))
+          policy["pin_resolution_date"] = "2026-09-05"
+          policy["external_action_pins"]["actions/attest"] = {
+              "source_ref": "v4",
+              "commit_sha": "1e69f48acb82d1966a394da916b4c1698aa569d6",
+          }
+          workflow_path = ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"
+          policy["workflow_policy"]["allow_write_workflows"] = [workflow_path]
+          if workflow_path not in policy["workflow_policy"]["immutable_authority_workflows"]:
+              policy["workflow_policy"]["immutable_authority_workflows"].append(workflow_path)
+          path.write_text(json.dumps(policy, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+
+          # Keep R16.9 tests explicit about the expanded policy rather than weakening counts.
+          path = Path("tests/test_supply_chain_r16_9.py")
+          text = path.read_text(encoding="utf-8")
+          text = replace_once(text, "    assert len(policy.pins) == 8\n", "    assert len(policy.pins) == 9\n", "pin count")
+          text = replace_once(
+              text,
+              '    assert policy.pins["actions/download-artifact"].commit_sha == (\n'
+              '        "634f93cb2916e3fdff6788551b99b062d0335ce0"\n'
+              '    )\n',
+              '    assert policy.pins["actions/download-artifact"].commit_sha == (\n'
+              '        "634f93cb2916e3fdff6788551b99b062d0335ce0"\n'
+              '    )\n'
+              '    assert policy.pins["actions/attest"].commit_sha == (\n'
+              '        "1e69f48acb82d1966a394da916b4c1698aa569d6"\n'
+              '    )\n',
+              "attest pin assertion",
+          )
+          text = replace_once(text, "    assert len(policy.immutable_authority_workflows) == 24\n", "    assert len(policy.immutable_authority_workflows) == 25\n", "authority count")
+          text = replace_once(
+              text,
+              '    assert (\n        ".github/workflows/r18-2-deterministic-release-bundle-acceptance.yml"\n        in policy.immutable_authority_workflows\n    )\n',
+              '    assert (\n        ".github/workflows/r18-2-deterministic-release-bundle-acceptance.yml"\n        in policy.immutable_authority_workflows\n    )\n'
+              '    r18_3_workflow = ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"\n'
+              '    assert r18_3_workflow in policy.immutable_authority_workflows\n'
+              '    assert policy.allow_write_workflows == (r18_3_workflow,)\n',
+              "R18.3 authority assertion",
+          )
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+          # Add evidence integration tests to the existing R18 release-bundle suite.
+          path = Path("tests/test_r18_release_bundle.py")
+          text = path.read_text(encoding="utf-8")
+          text = replace_once(
+              text,
+              "from kodepoia.release.identity import CURRENT_RELEASE\n",
+              "from kodepoia.release.identity import CURRENT_RELEASE\n"
+              "from kodepoia.release.provenance import write_release_evidence\n",
+              "bundle test imports",
+          )
+          integration_test = r'''
+
+def test_r18_3_evidence_is_digest_bound_into_bundle_manifest(bundle_inputs, tmp_path: Path) -> None:
+    evidence = write_release_evidence(
+        repo_root=Path(__file__).resolve().parents[1],
+        output_dir=tmp_path / "evidence",
+        source_sha=SOURCE_SHA,
+        repository="LaurentCOLL1/Kodepoia",
+        workflow_ref="test-workflow",
+        run_id="test",
+        run_attempt="1",
+        optional_groups=(),
+        created_at="2026-09-05T00:00:00Z",
+    )
+    repo_root, installer, manifest = bundle_inputs
+    result = build_release_bundle(
+        installer_path=installer,
+        installer_manifest_path=manifest,
+        source_sha=SOURCE_SHA,
+        output_dir=tmp_path / "bundle-with-evidence",
+        repo_root=repo_root,
+        repository="LaurentCOLL1/Kodepoia",
+        workflow_ref="test-workflow",
+        run_id="test",
+        run_attempt="1",
+        sbom_path=evidence.sbom_path,
+        provenance_path=evidence.provenance_path,
+    )
+    verified = verify_bundle_archive(result.archive_path, expected_source_sha=SOURCE_SHA)
+    binding = verified["manifest"]["release_evidence"]
+    assert binding["sbom_sha256"] == evidence.sbom_sha256
+    assert binding["provenance_sha256"] == evidence.provenance_sha256
+    roles = {record["role"] for record in verified["manifest"]["files"]}
+    assert {"sbom", "provenance"}.issubset(roles)
+
+
+def test_r18_3_partial_evidence_is_rejected(bundle_inputs, tmp_path: Path) -> None:
+    evidence = write_release_evidence(
+        repo_root=Path(__file__).resolve().parents[1],
+        output_dir=tmp_path / "evidence",
+        source_sha=SOURCE_SHA,
+        repository="LaurentCOLL1/Kodepoia",
+        workflow_ref="test-workflow",
+        run_id="test",
+        run_attempt="1",
+        optional_groups=(),
+        created_at="2026-09-05T00:00:00Z",
+    )
+    repo_root, installer, manifest = bundle_inputs
+    with pytest.raises(ReleaseBundleError, match="must be supplied together"):
+        build_release_bundle(
+            installer_path=installer,
+            installer_manifest_path=manifest,
+            source_sha=SOURCE_SHA,
+            output_dir=tmp_path / "partial",
+            repo_root=repo_root,
+            repository="LaurentCOLL1/Kodepoia",
+            sbom_path=evidence.sbom_path,
+        )
+'''
+          if "test_r18_3_evidence_is_digest_bound_into_bundle_manifest" not in text:
+              text += integration_test
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+          # Authoritative R18.3 workflow: contract on PR/push, real attestations only in trusted branch runs.
+          workflow = r'''name: R18.3 SBOM Provenance Artifact Attestation Acceptance
+
+on:
+  push:
+    branches:
+      - r18/03-sbom-provenance-attestations
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml
+      - configs/r16_supply_chain_policy.json
+      - scripts/build_release_bundle.py
+      - scripts/build_windows_installer.ps1
+      - scripts/generate_release_evidence.py
+      - scripts/r18_3_sbom_provenance_acceptance.py
+      - src/kodepoia/release/**
+      - src/kodepoia/quality/license_bom.py
+      - src/kodepoia/quality/supply_chain.py
+      - schemas/release_bundle_manifest.schema.json
+      - tests/test_r18_release_bundle.py
+      - tests/test_r18_sbom_provenance.py
+      - tests/test_supply_chain_r16_9.py
+      - pyproject.toml
+      - docs/roadmap/R18_PLAN.md
+      - docs/continuity/KODEPOIA_CONTINUITY.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: r18-3-sbom-provenance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: python
+        run: |
+          import os
+          import subprocess
+          expected = os.environ["EVIDENCE_SHA"].strip().lower()
+          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip().lower()
+          if actual != expected:
+              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
+
+      - name: Install focused dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile R18.3 sources
+        run: >-
+          python -m compileall -q
+          src/kodepoia/release
+          scripts/generate_release_evidence.py
+          scripts/r18_3_sbom_provenance_acceptance.py
+          tests/test_r18_sbom_provenance.py
+
+      - name: Ruff R18.3 sources
+        run: >-
+          python -m ruff check
+          src/kodepoia/release/provenance.py
+          src/kodepoia/release/bundle.py
+          scripts/build_release_bundle.py
+          scripts/generate_release_evidence.py
+          scripts/r18_3_sbom_provenance_acceptance.py
+          tests/test_r18_sbom_provenance.py
+          tests/test_r18_release_bundle.py
+          tests/test_supply_chain_r16_9.py
+
+      - name: Run focused R18.3 and supply-chain tests
+        run: >-
+          python -m pytest -q
+          tests/test_r18_sbom_provenance.py
+          tests/test_r18_release_bundle.py
+          tests/test_supply_chain_r16_9.py
+
+      - name: Emit synthetic exact-source R18.3 acceptance
+        run: >-
+          python scripts/r18_3_sbom_provenance_acceptance.py
+          --source-sha "${{ env.EVIDENCE_SHA }}"
+          --output artifacts/r18_3_synthetic_acceptance.json
+
+      - name: Upload contract evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r18-3-contract-${{ runner.os }}-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r18_3_synthetic_acceptance.json
+          if-no-files-found: error
+          retention-days: 30
+
+  attest-release-candidate:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    runs-on: windows-latest
+    env:
+      EVIDENCE_SHA: ${{ github.sha }}
+      KODEPOIA_LOCALE: fr
+      QT_QPA_PLATFORM: offscreen
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: pwsh
+        run: |
+          $expected = ([string]$env:EVIDENCE_SHA).Trim().ToLowerInvariant()
+          $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
+          if ($actual -ne $expected) { throw "Expected $expected, got $actual" }
+
+      - name: Install build and test dependencies
+        run: python -m pip install -e ".[dev,ui,code,packaging]"
+
+      - name: Install Inno Setup 6
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build exact-source Windows installer
+        shell: pwsh
+        run: ./scripts/build_windows_installer.ps1 -SourceSha "$env:EVIDENCE_SHA"
+
+      - name: Generate exact-source SPDX SBOM and provenance
+        shell: pwsh
+        run: |
+          $created = (git show -s --format=%cI "$env:EVIDENCE_SHA").Trim()
+          python scripts/generate_release_evidence.py `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --output-dir "artifacts/r18_3/evidence" `
+            --repository "$env:GITHUB_REPOSITORY" `
+            --workflow-ref "$env:GITHUB_WORKFLOW_REF" `
+            --run-id "$env:GITHUB_RUN_ID" `
+            --run-attempt "$env:GITHUB_RUN_ATTEMPT" `
+            --created-at "$created" `
+            --optional-group ui `
+            --optional-group code
+
+      - name: Build evidence-bound release candidate bundle
+        shell: pwsh
+        run: |
+          python scripts/build_release_bundle.py `
+            --installer "dist/windows/KodepoiaSetup.exe" `
+            --installer-manifest "dist/windows/installer-manifest.json" `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --output-dir "artifacts/r18_3/bundle" `
+            --repository "$env:GITHUB_REPOSITORY" `
+            --workflow-ref "$env:GITHUB_WORKFLOW_REF" `
+            --run-id "$env:GITHUB_RUN_ID" `
+            --run-attempt "$env:GITHUB_RUN_ATTEMPT" `
+            --sbom "artifacts/r18_3/evidence/release-sbom.spdx.json" `
+            --provenance "artifacts/r18_3/evidence/release-provenance.json"
+          $bundle = (Get-ChildItem "artifacts/r18_3/bundle" -Filter "*.zip" | Select-Object -First 1).FullName
+          if (-not $bundle) { throw "R18.3 release bundle missing" }
+          "KODEPOIA_R18_3_BUNDLE=$bundle" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Generate GitHub build provenance attestation
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: ${{ env.KODEPOIA_R18_3_BUNDLE }}
+
+      - name: Generate GitHub SPDX SBOM attestation
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: ${{ env.KODEPOIA_R18_3_BUNDLE }}
+          sbom-path: artifacts/r18_3/evidence/release-sbom.spdx.json
+
+      - name: Verify build and SPDX attestations plus modified-subject negative
+        shell: pwsh
+        run: |
+          gh attestation verify "$env:KODEPOIA_R18_3_BUNDLE" -R "$env:GITHUB_REPOSITORY"
+          if ($LASTEXITCODE -ne 0) { throw "build provenance attestation verification failed" }
+          gh attestation verify "$env:KODEPOIA_R18_3_BUNDLE" `
+            -R "$env:GITHUB_REPOSITORY" `
+            --predicate-type "https://spdx.dev/Document/v2.3"
+          if ($LASTEXITCODE -ne 0) { throw "SPDX SBOM attestation verification failed" }
+          $tampered = "artifacts/r18_3/tampered-release-candidate.zip"
+          Copy-Item "$env:KODEPOIA_R18_3_BUNDLE" $tampered
+          python -c "from pathlib import Path; p=Path(r'$tampered'); p.write_bytes(p.read_bytes()+b'TAMPER')"
+          gh attestation verify $tampered -R "$env:GITHUB_REPOSITORY" *> "artifacts/r18_3/tamper-negative.txt"
+          if ($LASTEXITCODE -eq 0) { throw "modified subject unexpectedly verified" }
+
+      - name: Emit actual exact-source R18.3 acceptance
+        shell: pwsh
+        run: |
+          python scripts/r18_3_sbom_provenance_acceptance.py `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --repository "$env:GITHUB_REPOSITORY" `
+            --bundle "$env:KODEPOIA_R18_3_BUNDLE" `
+            --sbom "artifacts/r18_3/evidence/release-sbom.spdx.json" `
+            --provenance "artifacts/r18_3/evidence/release-provenance.json" `
+            --build-attestation-verified `
+            --sbom-attestation-verified `
+            --tamper-negative-verified `
+            --output "artifacts/r18_3/R18_3_WINDOWS_ATTESTATION_ACCEPTANCE.json"
+
+      - name: Upload R18.3 release evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r18-3-sbom-provenance-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r18_3
+          if-no-files-found: error
+          retention-days: 30
+'''
+          workflow = workflow.replace("${{", "$" + "{{")
+          Path(".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml").write_text(
+              workflow,
+              encoding="utf-8",
+              newline="\n",
+          )
+          PY
+
+          git diff --check
+          test -z "$(git diff --cached --name-only)"
+
+      - name: Commit and push integrated R18.3 wiring
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            src/kodepoia/release/bundle.py \
+            scripts/build_release_bundle.py \
+            schemas/release_bundle_manifest.schema.json \
+            configs/r16_supply_chain_policy.json \
+            tests/test_supply_chain_r16_9.py \
+            tests/test_r18_release_bundle.py \
+            .github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml
+          git commit -m "feat: bind R18.3 evidence and attest release candidates"
+          test "$(git rev-parse HEAD^)" = "$KODEPOIA_BASE_SHA"
+          git push origin "HEAD:refs/heads/$KODEPOIA_TARGET_BRANCH"

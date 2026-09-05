@@ -1,0 +1,38 @@
+name: Temporary R18.3 normalization builder test
+
+on:
+  push:
+    branches:
+      - scratch/r18-3-normalization-builder
+
+permissions:
+  contents: read
+
+jobs:
+  test-builder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout immutable R18.3 END head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 4d28a1c5a8f9763d8d620b581a9a6222c7c9cd31
+          fetch-depth: 0
+      - name: Load isolated normalization helper
+        shell: bash
+        run: |
+          git fetch origin scratch/r18-3-normalization-builder
+          git show FETCH_HEAD:scripts/r18_3_normalization_builder.py > "$RUNNER_TEMP/r18_3_normalization_builder.py"
+      - name: Validate continuity-only transform
+        shell: bash
+        run: |
+          python "$RUNNER_TEMP/r18_3_normalization_builder.py" \
+            --merge-sha 1111111111111111111111111111111111111111 \
+            --end-head 4d28a1c5a8f9763d8d620b581a9a6222c7c9cd31 \
+            --exact-end-specialized-run 33956408408 \
+            --exact-end-broad-run 33956444966 \
+            --pr-number 386
+          git checkout -- docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json || true
+          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git diff --check
+          grep -F 'COMPLETE + NORMALIZED effective when this unique continuity-only normalization record enters `main`' docs/continuity/KODEPOIA_CONTINUITY.md
+          grep -F 'PR #386 merged with `expected_head_sha=4d28a1c5a8f9763d8d620b581a9a6222c7c9cd31`' docs/continuity/KODEPOIA_CONTINUITY.md

@@ -551,7 +551,9 @@ def _validate_manifest_structure(
             raise BundleVerificationError("release attestation semantics mismatch")
         evidence_by_role = {record["role"]: record for record in evidence_records}
         if set(evidence_by_role) != {"sbom", "provenance"}:
-            raise BundleVerificationError("release bundle must contain exactly one SBOM and provenance record")
+            raise BundleVerificationError(
+                "release bundle must contain exactly one SBOM and provenance record"
+            )
         if (
             evidence_by_role["sbom"]["path"] != SBOM_NAME
             or evidence_by_role["provenance"]["path"] != PROVENANCE_NAME

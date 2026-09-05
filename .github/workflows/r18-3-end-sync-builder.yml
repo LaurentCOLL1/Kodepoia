@@ -1,0 +1,49 @@
+name: Temporary R18.3 END-sync builder
+
+on:
+  push:
+    branches:
+      - scratch/r18-3-end-sync-builder
+
+permissions:
+  contents: write
+
+jobs:
+  build-end-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout immutable technical source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ceeb1c790e7bc67755b986f29d7244d42dbb3c7a
+          fetch-depth: 0
+      - name: Load isolated END-sync helper
+        shell: bash
+        run: |
+          git fetch origin scratch/r18-3-end-sync-builder
+          git show FETCH_HEAD:scripts/r18_3_end_sync_builder.py > "$RUNNER_TEMP/r18_3_end_sync_builder.py"
+      - name: Generate documentation-only END-sync
+        shell: bash
+        run: |
+          python "$RUNNER_TEMP/r18_3_end_sync_builder.py" \
+            --technical-sha ceeb1c790e7bc67755b986f29d7244d42dbb3c7a \
+            --specialized-run 33955017557 \
+            --broad-run 33955049081 \
+            --bundle-sha256 c88589f158c537934ae44942db460bdefa99b9650b5f1b4a5d546fee01cbe943 \
+            --sbom-sha256 ed10ab96282335209a85b6487ea8985f82de18db59b788cb9d155e7387b969de \
+            --provenance-sha256 3df009c77ec0564a2e8361591301b61f67de8a2cf455242321523789338cdabc \
+            --artifact-id 9966423367 \
+            --artifact-name r18-3-sbom-provenance-ceeb1c790e7bc67755b986f29d7244d42dbb3c7a \
+            --artifact-digest 0ff5d64de60266d5c6b2e59a25a40e041bfe2c84a5772c191026636b4e45fd5b
+          test "$(git diff --name-only | sort)" = $'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R18_PLAN.md'
+          git diff --check
+      - name: Publish generated blobs to scratch output
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C scratch/r18-3-end-sync-output
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R18_PLAN.md
+          test "$(git diff --cached --name-only | sort)" = $'docs/continuity/KODEPOIA_CONTINUITY.md\ndocs/roadmap/R18_PLAN.md'
+          git commit -m "docs: stage R18.3 END-sync output"
+          git push --force-with-lease origin HEAD:scratch/r18-3-end-sync-output

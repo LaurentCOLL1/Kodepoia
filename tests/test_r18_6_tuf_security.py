@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -10,7 +10,7 @@ from kodepoia.release.tuf_security import (
     TufVerificationError,
 )
 
-REFERENCE_TIME = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
+REFERENCE_TIME = datetime(2026, 9, 5, 12, 0, tzinfo=UTC)
 
 
 def _versions(state) -> tuple[int, int, int, int]:
@@ -70,7 +70,7 @@ def test_expired_timestamp_freeze_is_refused_with_fixed_clock(tmp_path) -> None:
         timestamp_version=2,
         snapshot_version=2,
         targets_version=2,
-        timestamp_expires=datetime(2026, 9, 4, tzinfo=timezone.utc),
+        timestamp_expires=datetime(2026, 9, 4, tzinfo=UTC),
     )
     with pytest.raises(TufVerificationError, match="timestamp metadata is expired"):
         verifier.verify(expired)

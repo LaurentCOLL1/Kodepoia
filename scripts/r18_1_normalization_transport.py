@@ -32,3 +32,5 @@ assert "R18.1 is COMPLETE at END-sync" not in out
 assert "R18.1 : **COMPLETE + NORMALIZED effective" in out
 assert "R18.2 START-sync is authorized only from the normalized `main`" in out
 PATH.write_text(out, encoding="utf-8", newline="\n")
+
+# Transport retry marker: workflow stages continuity explicitly.

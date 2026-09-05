@@ -4,10 +4,10 @@ import argparse
 import json
 import re
 import tempfile
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Callable
 
 from kodepoia.release.tuf_security import (
     SyntheticTufRepositoryBuilder,
@@ -15,7 +15,7 @@ from kodepoia.release.tuf_security import (
     TufVerificationError,
 )
 
-REFERENCE_TIME = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
+REFERENCE_TIME = datetime(2026, 9, 5, 12, 0, tzinfo=UTC)
 _SOURCE_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
@@ -91,7 +91,7 @@ def _freeze_expired() -> None:
                 timestamp_version=2,
                 snapshot_version=2,
                 targets_version=2,
-                timestamp_expires=datetime(2026, 9, 4, tzinfo=timezone.utc),
+                timestamp_expires=datetime(2026, 9, 4, tzinfo=UTC),
             )
         )
 

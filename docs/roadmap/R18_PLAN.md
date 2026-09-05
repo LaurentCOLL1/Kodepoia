@@ -6,7 +6,7 @@ Started: **2026-09-04**
 
 Normalized source of truth: `main` `58e488d80e60d04fc675e305bc8f040a3ab2bb9c` — R17 COMPLETE + NORMALIZED.
 
-Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` `c611131268041b06f53de66eaadd45120e2b750d`. R18.2 is COMPLETE at END-sync on immutable technical source `f15967530e79bb365246afb92a8db02906acb0c4`; its exact-head implementation/evidence merge and the unique post-merge continuity-only normalization remain required before R18.3 may start. The frozen v1.0/R1–R16 architecture and history are not rewritten.
+Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` `c611131268041b06f53de66eaadd45120e2b750d`. R18.2 is **COMPLETE + NORMALIZED** on canonical `main` `c376d0af789e584e1ef307f43e42a62ce024b052` after exact-head implementation/evidence PR #384 and the unique continuity-only normalization PR #385. R18.3 SBOM, provenance and artifact attestations is **COMPLETE at END-sync** on immutable technical source `ceeb1c790e7bc67755b986f29d7244d42dbb3c7a`; fresh exact-END gates, implementation/evidence merge and the unique post-merge normalization remain required. R18.4 remains PLANNED and is not authorized until that normalization completes. The frozen v1.0/R1–R16 architecture and history are not rewritten.
 
 ## Phase objective
 
@@ -59,7 +59,7 @@ Before R18.1 begins:
 | --- | --- | --- | --- | --- |
 | R18.1 | Canonical release identity, versions and channels | COMPLETE | NONE | R17 normalized main |
 | R18.2 | Deterministic release bundle and manifest contract | COMPLETE | NONE | R18.1 |
-| R18.3 | SBOM, provenance and artifact attestations | PLANNED | NONE | R18.2 |
+| R18.3 | SBOM, provenance and artifact attestations | COMPLETE | NONE | R18.2 |
 | R18.4 | Windows Authenticode signing and verification boundary | PLANNED | CONDITIONAL | R18.2–R18.3 |
 | R18.5 | Immutable GitHub Release staging and promotion | PLANNED | CONDITIONAL | R18.2–R18.4 |
 | R18.6 | TUF-secured update repository and metadata lifecycle | PLANNED | NONE | R18.1–R18.3 |
@@ -167,6 +167,8 @@ Bundle manifest digest, installer digest/size, semantic bundle digest, two-build
 
 END-sync technical acceptance: immutable source `f15967530e79bb365246afb92a8db02906acb0c4`; R18.2 #8 / `33944044685` SUCCESS with Ubuntu + Windows focused contract acceptance and actual Windows two-build/install/smoke/uninstall evidence. The two real Windows builds expose Nuitka/Inno binary variance rather than hiding it: installer/archive/manifest/payload hashes differ, while both bundles share semantic SHA-256 `92cbf76bfadf686499ce25bde734e62943e4bbb863dbc296d6ddd8f48eb001eb` and acceptance reports `semantic_equivalent=true`, `installer_binary_reproducibility=platform-variance-observed`, status PASS. Build 1 archive SHA-256 `45233feb800e30480390dcf91947d06de167bbab0a1eec359a88ea9643e67939`; build 2 archive SHA-256 `c4637e537584c78108cdfc27e06842279c47179be13bed0346ddee972c09ecfb`; schema SHA-256 `c7e8f65b0e68cdc48f8cc01f33fab31d1b71ae93d281da53e241fc0033888ca1`; two-build artifact ID `9963221589`, artifact ZIP digest `sha256:ca50e831ace8780f309159dbecd724167614ebe1251e677924ccc316e7327ed0`. Exact technical-head R16.9 #112 / `33944044704`, R0 #2442 / `33944044651`, Python Core #2414 / `33944044622` 5/5 and KodeStudio UI Smoke #2379 / `33944044688` also SUCCESS. Manual intervention NONE; production signing, public GitHub Release and public WinGet submission remain NOT TRIGGERED. Because this END-sync changes documentation bytes, fresh R18.2 + R16.9 + R0 + full Python Core + KodeStudio UI Smoke gates on the resulting exact END-head are mandatory before exact-head merge.
 
+Post-merge completion: final exact-END `ea7eb038661ae4637680eb5ce5c54f4006e89fc3` passed fresh exact-END run `33948665066`; required R0 contexts were refreshed on that exact PR head by run `33950132320`; PR #384 merged with `expected_head_sha=ea7eb038661ae4637680eb5ce5c54f4006e89fc3` as implementation/evidence `main` `d3e1a9dbda60a011a8910694df55feadc5ca52f1`. Unique post-merge continuity-only normalization PR #385 at `3d2d21c13512d37aec8e1a1f95a6c82c0f9994d3` passed fresh R0 `33950779177` Ubuntu + Windows, full Python Core `33950779277` 5/5 and KodeStudio UI Smoke `33950778960`, then merged with exact expected-head protection as canonical normalized `main` `c376d0af789e584e1ef307f43e42a62ce024b052`. R18.2 is therefore COMPLETE + NORMALIZED; no second R18.2 normalization is authorized.
+
 ## Rollback / recovery
 
 Keep R17 installer builder callable until new bundle path is accepted; no deletion of last accepted artifact path during implementation.
@@ -203,6 +205,8 @@ Treating attestations as malware/security guarantees; signing Windows binaries; 
 
 R18.2 release bundle contract. GitHub workflow permissions must be least-privilege and explicitly documented.
 
+START-sync authority: R18.3 begins only from normalized R18.2 `main` `c376d0af789e584e1ef307f43e42a62ce024b052` on dedicated branch `r18/03-sbom-provenance-attestations`. Implementation research was revalidated against current GitHub artifact-attestation documentation on 2026-09-05: use the unified `actions/attest@v4` interface, whose verified `v4` ref currently resolves to immutable commit `1e69f48acb82d1966a394da916b4c1698aa569d6`; binary/SBOM attestation jobs require least-privilege `contents: read`, `id-token: write` and `attestations: write`; verification uses `gh attestation verify`, with SPDX 2.3 predicate verification for SPDX JSON SBOM evidence. R16.9 action-pin/workflow authority policy must be extended rather than bypassed. Attestations remain provenance-only evidence, not malware/security or Authenticode verdicts. Production signing, public GitHub Release publication and public WinGet submission remain NOT TRIGGERED.
+
 ## Detailed implementation plan
 
 Add an SBOM generator/normalizer and verification tests. Extend release workflow with GitHub-supported artifact attestation action pinned to immutable revision where feasible, with only required `id-token`/attestation permissions. Record source repository, source digest, workflow identity and subject digests. Tests must distinguish build provenance from production Authenticode trust.
@@ -218,6 +222,8 @@ SBOM schema/semantic validation; attestation generated for exact subject and suc
 ## Validation and evidence
 
 SBOM digest, attestation subject digest, verification output, run/workflow IDs and exact head.
+
+END-sync technical acceptance: Immutable technical source `ceeb1c790e7bc67755b986f29d7244d42dbb3c7a` passed R18.3 specialized run `33955017557` with Ubuntu + Windows contract acceptance and the actual Windows release-candidate path: exact-source installer build, deterministic SPDX 2.3 SBOM, release provenance, evidence-bound bundle, GitHub build-provenance attestation, GitHub SPDX SBOM attestation, successful `gh attestation verify` for both predicates, and rejection of a modified subject. Final technical bundle SHA-256 `c88589f158c537934ae44942db460bdefa99b9650b5f1b4a5d546fee01cbe943`; SBOM SHA-256 `ed10ab96282335209a85b6487ea8985f82de18db59b788cb9d155e7387b969de`; provenance SHA-256 `3df009c77ec0564a2e8361591301b61f67de8a2cf455242321523789338cdabc`; Actions artifact `9966423367` / `r18-3-sbom-provenance-ceeb1c790e7bc67755b986f29d7244d42dbb3c7a`, artifact ZIP digest `sha256:0ff5d64de60266d5c6b2e59a25a40e041bfe2c84a5772c191026636b4e45fd5b`. Broad exact-source gate run `33955049081` is SUCCESS for all 7 jobs: R0 Ubuntu/Windows, full Python Core Ubuntu/Windows, KodeStudio UI Smoke Windows and R16.9 Ubuntu/Windows. Manual intervention NONE; production signing, public GitHub Release and public WinGet submission remain NOT TRIGGERED. Because this END-sync changes documentation bytes, fresh specialized R18.3 + R16.9 + R0 + full Python Core + KodeStudio UI gates on the resulting exact END-head remain mandatory before exact-head PR merge.
 
 ## Rollback / recovery
 

@@ -173,6 +173,7 @@ def build_report(*, source_sha: str, platform: str) -> dict[str, Any]:
             len(policy.digest_sha256) == 64
             and {name: pin.commit_sha for name, pin in policy.pins.items()}
             == {
+                "actions/attest": "1e69f48acb82d1966a394da916b4c1698aa569d6",
                 "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
                 "actions/download-artifact": "634f93cb2916e3fdff6788551b99b062d0335ce0",
                 "actions/setup-dotnet": "67a3573c9a986a3f9c594539f4ab511d57bb3ce9",

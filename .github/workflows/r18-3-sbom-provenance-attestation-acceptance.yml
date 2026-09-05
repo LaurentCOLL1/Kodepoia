@@ -1,0 +1,243 @@
+name: R18.3 SBOM Provenance Artifact Attestation Acceptance
+
+on:
+  push:
+    branches:
+      - r18/03-sbom-provenance-attestations
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml
+      - configs/r16_supply_chain_policy.json
+      - scripts/build_release_bundle.py
+      - scripts/build_windows_installer.ps1
+      - scripts/generate_release_evidence.py
+      - scripts/r18_3_sbom_provenance_acceptance.py
+      - src/kodepoia/release/**
+      - src/kodepoia/quality/license_bom.py
+      - src/kodepoia/quality/supply_chain.py
+      - schemas/release_bundle_manifest.schema.json
+      - tests/test_r18_release_bundle.py
+      - tests/test_r18_sbom_provenance.py
+      - tests/test_supply_chain_r16_9.py
+      - pyproject.toml
+      - docs/roadmap/R18_PLAN.md
+      - docs/continuity/KODEPOIA_CONTINUITY.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: r18-3-sbom-provenance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: python
+        run: |
+          import os
+          import subprocess
+          expected = os.environ["EVIDENCE_SHA"].strip().lower()
+          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip().lower()
+          if actual != expected:
+              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
+
+      - name: Install focused dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile R18.3 sources
+        run: >-
+          python -m compileall -q
+          src/kodepoia/release
+          scripts/generate_release_evidence.py
+          scripts/r18_3_sbom_provenance_acceptance.py
+          tests/test_r18_sbom_provenance.py
+
+      - name: Ruff R18.3 sources
+        run: >-
+          python -m ruff check
+          src/kodepoia/release/provenance.py
+          src/kodepoia/release/bundle.py
+          scripts/build_release_bundle.py
+          scripts/generate_release_evidence.py
+          scripts/r18_3_sbom_provenance_acceptance.py
+          tests/test_r18_sbom_provenance.py
+          tests/test_r18_release_bundle.py
+          tests/test_supply_chain_r16_9.py
+
+      - name: Run focused R18.3 and supply-chain tests
+        run: >-
+          python -m pytest -q
+          tests/test_r18_sbom_provenance.py
+          tests/test_r18_release_bundle.py
+          tests/test_supply_chain_r16_9.py
+
+      - name: Emit synthetic exact-source R18.3 acceptance
+        run: >-
+          python scripts/r18_3_sbom_provenance_acceptance.py
+          --source-sha "${{ env.EVIDENCE_SHA }}"
+          --output artifacts/r18_3_synthetic_acceptance.json
+
+      - name: Upload contract evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r18-3-contract-${{ runner.os }}-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r18_3_synthetic_acceptance.json
+          if-no-files-found: error
+          retention-days: 30
+
+  attest-release-candidate:
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    runs-on: windows-latest
+    env:
+      EVIDENCE_SHA: ${{ github.sha }}
+      KODEPOIA_LOCALE: fr
+      QT_QPA_PLATFORM: offscreen
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: pwsh
+        run: |
+          $expected = ([string]$env:EVIDENCE_SHA).Trim().ToLowerInvariant()
+          $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
+          if ($actual -ne $expected) { throw "Expected $expected, got $actual" }
+
+      - name: Install build and test dependencies
+        run: python -m pip install -e ".[dev,ui,code,packaging]"
+
+      - name: Install Inno Setup 6
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build exact-source Windows installer
+        shell: pwsh
+        run: ./scripts/build_windows_installer.ps1 -SourceSha "$env:EVIDENCE_SHA"
+
+      - name: Generate exact-source SPDX SBOM and provenance
+        shell: pwsh
+        run: |
+          $created = (git show -s --format=%cI "$env:EVIDENCE_SHA").Trim()
+          python scripts/generate_release_evidence.py `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --output-dir "artifacts/r18_3/evidence" `
+            --repository "$env:GITHUB_REPOSITORY" `
+            --workflow-ref "$env:GITHUB_WORKFLOW_REF" `
+            --run-id "$env:GITHUB_RUN_ID" `
+            --run-attempt "$env:GITHUB_RUN_ATTEMPT" `
+            --created-at "$created" `
+            --optional-group ui `
+            --optional-group code
+
+      - name: Build evidence-bound release candidate bundle
+        shell: pwsh
+        run: |
+          python scripts/build_release_bundle.py `
+            --installer "dist/windows/KodepoiaSetup.exe" `
+            --installer-manifest "dist/windows/installer-manifest.json" `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --output-dir "artifacts/r18_3/bundle" `
+            --repository "$env:GITHUB_REPOSITORY" `
+            --workflow-ref "$env:GITHUB_WORKFLOW_REF" `
+            --run-id "$env:GITHUB_RUN_ID" `
+            --run-attempt "$env:GITHUB_RUN_ATTEMPT" `
+            --sbom "artifacts/r18_3/evidence/release-sbom.spdx.json" `
+            --provenance "artifacts/r18_3/evidence/release-provenance.json"
+          $bundle = (Get-ChildItem "artifacts/r18_3/bundle" -Filter "*.zip" | Select-Object -First 1).FullName
+          if (-not $bundle) { throw "R18.3 release bundle missing" }
+          "KODEPOIA_R18_3_BUNDLE=$bundle" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Generate GitHub build provenance attestation
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: ${{ env.KODEPOIA_R18_3_BUNDLE }}
+
+      - name: Generate GitHub SPDX SBOM attestation
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+        with:
+          subject-path: ${{ env.KODEPOIA_R18_3_BUNDLE }}
+          sbom-path: artifacts/r18_3/evidence/release-sbom.spdx.json
+
+      - name: Verify build and SPDX attestations plus modified-subject negative
+        shell: pwsh
+        run: |
+          gh attestation verify "$env:KODEPOIA_R18_3_BUNDLE" -R "$env:GITHUB_REPOSITORY"
+          if ($LASTEXITCODE -ne 0) { throw "build provenance attestation verification failed" }
+          gh attestation verify "$env:KODEPOIA_R18_3_BUNDLE" `
+            -R "$env:GITHUB_REPOSITORY" `
+            --predicate-type "https://spdx.dev/Document/v2.3"
+          if ($LASTEXITCODE -ne 0) { throw "SPDX SBOM attestation verification failed" }
+          $tampered = "artifacts/r18_3/tampered-release-candidate.zip"
+          Copy-Item "$env:KODEPOIA_R18_3_BUNDLE" $tampered
+          python -c "from pathlib import Path; p=Path(r'$tampered'); p.write_bytes(p.read_bytes()+b'TAMPER')"
+          gh attestation verify $tampered -R "$env:GITHUB_REPOSITORY" *> "artifacts/r18_3/tamper-negative.txt"
+          $tamperExit = $LASTEXITCODE
+          if ($tamperExit -eq 0) { throw "modified subject unexpectedly verified" }
+          Write-Host "Modified subject correctly rejected with exit code $tamperExit"
+          $global:LASTEXITCODE = 0
+
+      - name: Emit actual exact-source R18.3 acceptance
+        shell: pwsh
+        run: |
+          python scripts/r18_3_sbom_provenance_acceptance.py `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --repository "$env:GITHUB_REPOSITORY" `
+            --bundle "$env:KODEPOIA_R18_3_BUNDLE" `
+            --sbom "artifacts/r18_3/evidence/release-sbom.spdx.json" `
+            --provenance "artifacts/r18_3/evidence/release-provenance.json" `
+            --build-attestation-verified `
+            --sbom-attestation-verified `
+            --tamper-negative-verified `
+            --output "artifacts/r18_3/R18_3_WINDOWS_ATTESTATION_ACCEPTANCE.json"
+
+      - name: Upload R18.3 release evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r18-3-sbom-provenance-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r18_3
+          if-no-files-found: error
+          retention-days: 30

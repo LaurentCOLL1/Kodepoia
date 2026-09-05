@@ -12,6 +12,15 @@ from pathlib import Path
 from typing import Any
 
 from kodepoia.release.identity import CURRENT_RELEASE
+from kodepoia.release.provenance import (
+    ATTESTATION_SEMANTICS,
+    PROVENANCE_NAME,
+    SBOM_NAME,
+    SPDX_PREDICATE_TYPE,
+    ReleaseEvidenceError,
+    verify_release_evidence_files,
+    verify_release_evidence_payloads,
+)
 
 BUNDLE_FORMAT = "kodepoia-release-bundle"
 BUNDLE_SCHEMA_VERSION = 1
@@ -37,6 +46,8 @@ _ALLOWED_ROLES = {
     "license",
     "notice",
     "release-notes",
+    "sbom",
+    "provenance",
 }
 _POLICY_NOTICE_NAMES = (
     "NOTICE",
@@ -325,6 +336,8 @@ def build_release_bundle(
     run_id: str | None = None,
     run_attempt: str | None = None,
     repository: str | None = None,
+    sbom_path: str | Path | None = None,
+    provenance_path: str | Path | None = None,
 ) -> BundleBuildResult:
     source_sha = _validate_source_sha(source_sha)
     installer = Path(installer_path)
@@ -340,6 +353,19 @@ def build_release_bundle(
     installer_manifest = _read_json(installer_manifest_file)
     identity = _validate_installer_manifest(installer, installer_manifest, source_sha)
     provenance = _default_provenance(workflow_ref, run_id, run_attempt, repository)
+    evidence_summary: dict[str, Any] | None = None
+    if (sbom_path is None) != (provenance_path is None):
+        raise ReleaseBundleError("R18.3 SBOM and provenance files must be supplied together")
+    if sbom_path is not None and provenance_path is not None:
+        try:
+            evidence_summary = verify_release_evidence_files(
+                sbom_path,
+                provenance_path,
+                expected_source_sha=source_sha,
+                expected_repository=provenance["repository"],
+            )
+        except (OSError, ReleaseEvidenceError) as exc:
+            raise ReleaseBundleError(f"invalid R18.3 release evidence: {exc}") from exc
 
     payloads: dict[str, tuple[str, bytes]] = {
         "KodepoiaSetup.exe": ("installer", installer.read_bytes()),
@@ -348,6 +374,9 @@ def build_release_bundle(
             _canonical_json_bytes(_release_notes_payload(identity, provenance)),
         ),
     }
+    if evidence_summary is not None:
+        payloads[SBOM_NAME] = ("sbom", Path(sbom_path).read_bytes())
+        payloads[PROVENANCE_NAME] = ("provenance", Path(provenance_path).read_bytes())
     for path, role, payload in _policy_documents(root):
         payloads[path] = (role, payload)
 
@@ -378,6 +407,15 @@ def build_release_bundle(
         "manifest_digest_binding": "external-sha256",
         "installer_binary_reproducibility": "measured-not-assumed",
     }
+    if evidence_summary is not None:
+        manifest["release_evidence"] = {
+            "sbom_path": SBOM_NAME,
+            "sbom_sha256": evidence_summary["sbom_sha256"],
+            "provenance_path": PROVENANCE_NAME,
+            "provenance_sha256": evidence_summary["provenance_sha256"],
+            "sbom_predicate_type": SPDX_PREDICATE_TYPE,
+            "attestation_semantics": ATTESTATION_SEMANTICS,
+        }
     manifest_bytes = _canonical_json_bytes(manifest)
 
     output = Path(output_dir)
@@ -483,6 +521,51 @@ def _validate_manifest_structure(
         )
     if records != sorted(records, key=lambda record: record["path"]):
         raise BundleVerificationError("bundle manifest file records must be lexicographically ordered")
+
+    release_evidence = manifest.get("release_evidence")
+    evidence_records = [
+        record for record in records if record["role"] in {"sbom", "provenance"}
+    ]
+    if release_evidence is None:
+        if evidence_records:
+            raise BundleVerificationError("release evidence files require release_evidence manifest binding")
+    else:
+        required_evidence = {
+            "sbom_path",
+            "sbom_sha256",
+            "provenance_path",
+            "provenance_sha256",
+            "sbom_predicate_type",
+            "attestation_semantics",
+        }
+        if not isinstance(release_evidence, dict) or set(release_evidence) != required_evidence:
+            raise BundleVerificationError("release_evidence fields are incomplete or unexpected")
+        if (
+            release_evidence["sbom_path"] != SBOM_NAME
+            or release_evidence["provenance_path"] != PROVENANCE_NAME
+        ):
+            raise BundleVerificationError("release evidence paths are not canonical")
+        if release_evidence["sbom_predicate_type"] != SPDX_PREDICATE_TYPE:
+            raise BundleVerificationError("release SBOM predicate type mismatch")
+        if release_evidence["attestation_semantics"] != ATTESTATION_SEMANTICS:
+            raise BundleVerificationError("release attestation semantics mismatch")
+        evidence_by_role = {record["role"]: record for record in evidence_records}
+        if set(evidence_by_role) != {"sbom", "provenance"}:
+            raise BundleVerificationError(
+                "release bundle must contain exactly one SBOM and provenance record"
+            )
+        if (
+            evidence_by_role["sbom"]["path"] != SBOM_NAME
+            or evidence_by_role["provenance"]["path"] != PROVENANCE_NAME
+        ):
+            raise BundleVerificationError("release evidence record paths mismatch")
+        if evidence_by_role["sbom"]["sha256"] != release_evidence["sbom_sha256"]:
+            raise BundleVerificationError("release SBOM manifest digest binding mismatch")
+        if (
+            evidence_by_role["provenance"]["sha256"]
+            != release_evidence["provenance_sha256"]
+        ):
+            raise BundleVerificationError("release provenance manifest digest binding mismatch")
 
     if not _SHA256_RE.fullmatch(str(manifest.get("payload_sha256", ""))):
         raise BundleVerificationError("bundle payload SHA-256 is invalid")
@@ -629,6 +712,27 @@ def verify_bundle_archive(
         }
         if checksums != checksummed_records:
             raise BundleVerificationError("SHA256SUMS.txt does not exactly bind non-checksum payloads")
+
+        release_evidence = manifest.get("release_evidence")
+        if release_evidence is not None:
+            try:
+                verified_evidence = verify_release_evidence_payloads(
+                    payload_bytes[SBOM_NAME],
+                    payload_bytes[PROVENANCE_NAME],
+                    expected_source_sha=source_sha,
+                    expected_repository=manifest["provenance"]["repository"],
+                )
+            except (KeyError, ReleaseEvidenceError) as exc:
+                raise BundleVerificationError(
+                    f"release evidence payload verification failed: {exc}"
+                ) from exc
+            if verified_evidence["sbom_sha256"] != release_evidence["sbom_sha256"]:
+                raise BundleVerificationError("release SBOM payload digest mismatch")
+            if (
+                verified_evidence["provenance_sha256"]
+                != release_evidence["provenance_sha256"]
+            ):
+                raise BundleVerificationError("release provenance payload digest mismatch")
 
         try:
             release_notes = json.loads(payload_bytes[RELEASE_NOTES_NAME].decode("utf-8"))

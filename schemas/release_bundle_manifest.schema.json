@@ -118,7 +118,9 @@
               "checksums",
               "license",
               "notice",
-              "release-notes"
+              "release-notes",
+              "sbom",
+              "provenance"
             ]
           },
           "sha256": {
@@ -145,6 +147,40 @@
     },
     "installer_binary_reproducibility": {
       "const": "measured-not-assumed"
+    },
+    "release_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sbom_path",
+        "sbom_sha256",
+        "provenance_path",
+        "provenance_sha256",
+        "sbom_predicate_type",
+        "attestation_semantics"
+      ],
+      "properties": {
+        "sbom_path": {
+          "const": "release-sbom.spdx.json"
+        },
+        "sbom_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "provenance_path": {
+          "const": "release-provenance.json"
+        },
+        "provenance_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sbom_predicate_type": {
+          "const": "https://spdx.dev/Document/v2.3"
+        },
+        "attestation_semantics": {
+          "const": "provenance_only_not_security_verdict"
+        }
+      }
     }
   }
 }

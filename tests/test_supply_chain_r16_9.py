@@ -92,13 +92,16 @@ def _synthetic_build_manifest(source_sha: str) -> BuildManifest:
 
 def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     policy = SupplyChainPolicy.load(ROOT / "configs/r16_supply_chain_policy.json")
-    assert len(policy.pins) == 8
+    assert len(policy.pins) == 9
     assert policy.pins["actions/download-artifact"].commit_sha == (
         "634f93cb2916e3fdff6788551b99b062d0335ce0"
     )
+    assert policy.pins["actions/attest"].commit_sha == (
+        "1e69f48acb82d1966a394da916b4c1698aa569d6"
+    )
     assert len(policy.digest_sha256) == 64
     assert policy.required_contents_permission == "read"
-    assert len(policy.immutable_authority_workflows) == 24
+    assert len(policy.immutable_authority_workflows) == 25
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
         in policy.immutable_authority_workflows
@@ -124,6 +127,9 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
         ".github/workflows/r18-2-deterministic-release-bundle-acceptance.yml"
         in policy.immutable_authority_workflows
     )
+    r18_3_workflow = ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"
+    assert r18_3_workflow in policy.immutable_authority_workflows
+    assert policy.allow_write_workflows == (r18_3_workflow,)
     assert policy.legacy_workflows_are_non_authoritative_for_v1_promotion
     assert policy.forbid_pull_request_target
     assert policy.forbid_untrusted_pr_shell_interpolation

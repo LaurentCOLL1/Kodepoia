@@ -9,7 +9,7 @@ from kodepoia.release.bundle import build_release_bundle
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Build the deterministic Kodepoia R18.2 release bundle."
+        description="Build the deterministic Kodepoia R18.2/R18.3 release bundle."
     )
     parser.add_argument("--installer", required=True)
     parser.add_argument("--installer-manifest", required=True)
@@ -20,7 +20,11 @@ def main() -> int:
     parser.add_argument("--workflow-ref")
     parser.add_argument("--run-id")
     parser.add_argument("--run-attempt")
+    parser.add_argument("--sbom")
+    parser.add_argument("--provenance")
     args = parser.parse_args()
+    if (args.sbom is None) != (args.provenance is None):
+        parser.error("--sbom and --provenance must be supplied together")
 
     result = build_release_bundle(
         installer_path=Path(args.installer),
@@ -32,6 +36,8 @@ def main() -> int:
         workflow_ref=args.workflow_ref,
         run_id=args.run_id,
         run_attempt=args.run_attempt,
+        sbom_path=Path(args.sbom) if args.sbom else None,
+        provenance_path=Path(args.provenance) if args.provenance else None,
     )
     print(
         json.dumps(

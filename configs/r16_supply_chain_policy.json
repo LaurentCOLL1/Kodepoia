@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_id": "r16.9-supply-chain-v1",
-  "pin_resolution_date": "2026-09-03",
+  "pin_resolution_date": "2026-09-05",
   "pin_resolution_authority": "verified GitHub git refs/tags; annotated tags dereferenced to commit",
   "external_action_pins": {
     "actions/checkout": {
@@ -35,12 +35,18 @@
     "actions/download-artifact": {
       "source_ref": "v5",
       "commit_sha": "634f93cb2916e3fdff6788551b99b062d0335ce0"
+    },
+    "actions/attest": {
+      "source_ref": "v4",
+      "commit_sha": "1e69f48acb82d1966a394da916b4c1698aa569d6"
     }
   },
   "workflow_policy": {
     "require_explicit_permissions": true,
     "required_contents_permission": "read",
-    "allow_write_workflows": [],
+    "allow_write_workflows": [
+      ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"
+    ],
     "immutable_authority_workflows": [
       ".github/workflows/python-core.yml",
       ".github/workflows/r0-bootstrap.yml",
@@ -65,7 +71,8 @@
       ".github/workflows/ui-smoke.yml",
       ".github/workflows/windows-installer.yml",
       ".github/workflows/r18-1-release-identity-acceptance.yml",
-      ".github/workflows/r18-2-deterministic-release-bundle-acceptance.yml"
+      ".github/workflows/r18-2-deterministic-release-bundle-acceptance.yml",
+      ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

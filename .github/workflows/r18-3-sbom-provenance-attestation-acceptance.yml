@@ -217,6 +217,7 @@ jobs:
           gh attestation verify $tampered -R "$env:GITHUB_REPOSITORY" *> "artifacts/r18_3/tamper-negative.txt"
           $tamperExit = $LASTEXITCODE
           if ($tamperExit -eq 0) { throw "modified subject unexpectedly verified" }
+          Write-Host "Modified subject correctly rejected with exit code $tamperExit"
           $global:LASTEXITCODE = 0
 
       - name: Emit actual exact-source R18.3 acceptance

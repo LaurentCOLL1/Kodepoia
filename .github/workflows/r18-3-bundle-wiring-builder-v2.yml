@@ -43,13 +43,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
-            .github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml \
             configs/r16_supply_chain_policy.json \
             schemas/release_bundle_manifest.schema.json \
             scripts/build_release_bundle.py \
             src/kodepoia/release/bundle.py \
             tests/test_r18_release_bundle.py \
             tests/test_supply_chain_r16_9.py
-          git commit -m "feat: bind R18.3 evidence and attest release candidates"
+          git commit -m "feat: bind R18.3 evidence into release bundle"
           test "$(git rev-parse HEAD^)" = "$KODEPOIA_BASE_SHA"
           git push origin "HEAD:refs/heads/$KODEPOIA_TARGET_BRANCH"

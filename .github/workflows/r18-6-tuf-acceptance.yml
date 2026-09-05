@@ -16,6 +16,7 @@ on:
       - scripts/r18_6_tuf_acceptance.py
       - tests/test_r18_6_tuf_security.py
       - tests/test_r18_6_update_trust.py
+      - tests/test_r18_6_packaged_root.py
       - docs/release/R18_6_TUF_SECURITY.md
       - configs/r16_supply_chain_policy.json
       - tests/test_supply_chain_r16_9.py
@@ -79,6 +80,7 @@ jobs:
           scripts/r18_6_tuf_acceptance.py
           tests/test_r18_6_tuf_security.py
           tests/test_r18_6_update_trust.py
+          tests/test_r18_6_packaged_root.py
 
       - name: Collect Ruff R18.6 diagnostics
         shell: python
@@ -102,6 +104,7 @@ jobs:
               "scripts/r18_6_tuf_acceptance.py",
               "tests/test_r18_6_tuf_security.py",
               "tests/test_r18_6_update_trust.py",
+              "tests/test_r18_6_packaged_root.py",
           ]
           result = subprocess.run(command, text=True, capture_output=True, check=False)
           (output / "ruff.json").write_text(result.stdout or "[]\n", encoding="utf-8")
@@ -120,12 +123,13 @@ jobs:
           python -m pytest -q
           tests/test_r18_6_tuf_security.py
           tests/test_r18_6_update_trust.py
+          tests/test_r18_6_packaged_root.py
 
       - name: Generate synthetic packaged root evidence
         run: >-
           python scripts/r18_6_generate_packaged_root.py
-          --output artifacts/r18_6/trusted_root.synthetic.json
-          --manifest artifacts/r18_6/trusted_root.synthetic.manifest.json
+          --output artifacts/r18_6/trusted_root.synthetic.generated.json
+          --manifest artifacts/r18_6/trusted_root.synthetic.generated.manifest.json
 
       - name: Emit exact-source R18.6 acceptance
         run: >-
@@ -143,8 +147,8 @@ jobs:
           report = json.loads(
               Path("artifacts/r18_6/tuf-acceptance.json").read_text(encoding="utf-8")
           )
-          root_manifest = json.loads(
-              Path("artifacts/r18_6/trusted_root.synthetic.manifest.json").read_text(
+          generated_root_manifest = json.loads(
+              Path("artifacts/r18_6/trusted_root.synthetic.generated.manifest.json").read_text(
                   encoding="utf-8"
               )
           )
@@ -153,7 +157,7 @@ jobs:
               raise SystemExit("R18.6 acceptance source SHA mismatch")
           if report["core_cases_total"] != 7 or report["core_cases_passed"] != 7:
               raise SystemExit("R18.6 core TUF acceptance matrix is incomplete")
-          if report["product_cases_total"] != 6 or report["product_cases_passed"] != 6:
+          if report["product_cases_total"] != 7 or report["product_cases_passed"] != 7:
               raise SystemExit("R18.6 product update acceptance matrix is incomplete")
           if not report["trusted_state_persistent"]:
               raise SystemExit("R18.6 trusted state persistence was not established")
@@ -165,11 +169,22 @@ jobs:
               raise SystemExit("R18.6 acceptance unexpectedly requires network access")
           if report["library_contract"]["production_keys_used"]:
               raise SystemExit("R18.6 acceptance unexpectedly used production keys")
-          if root_manifest["purpose"] != "synthetic-acceptance-only":
-              raise SystemExit("R18.6 packaged root evidence is not explicitly synthetic")
-          if root_manifest["production_trust_claim"]:
-              raise SystemExit("R18.6 synthetic root unexpectedly claims production trust")
-          if root_manifest["private_keys_persisted"]:
+          packaged = report["packaged_root"]
+          if packaged["purpose"] != "synthetic-acceptance-only":
+              raise SystemExit("R18.6 embedded root is not explicitly synthetic")
+          if packaged["version"] != 1:
+              raise SystemExit("R18.6 embedded root version is not 1")
+          if packaged["sha256"] != (
+              "885bc87c3a5e9fe8b378cac85eb89fc37f99fcd8ba0bc7c494ee1e407da96670"
+          ):
+              raise SystemExit("R18.6 embedded root digest drifted")
+          if packaged["production_trust_claim"] or packaged["private_keys_persisted"]:
+              raise SystemExit("R18.6 embedded synthetic root safety flags are invalid")
+          if generated_root_manifest["purpose"] != "synthetic-acceptance-only":
+              raise SystemExit("R18.6 generated root evidence is not explicitly synthetic")
+          if generated_root_manifest["production_trust_claim"]:
+              raise SystemExit("R18.6 generated root unexpectedly claims production trust")
+          if generated_root_manifest["private_keys_persisted"]:
               raise SystemExit("R18.6 synthetic root generator persisted private keys")
           if report["public_release_created"]:
               raise SystemExit("R18.6 acceptance unexpectedly created a public release")

@@ -1,0 +1,60 @@
+name: R18.2 Supply Chain Test Transport
+
+on:
+  push:
+    branches:
+      - transport/r18-2-supply-chain-test
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout transport branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: transport/r18-2-supply-chain-test
+          fetch-depth: 0
+
+      - name: Patch R18.2 supply-chain authority regression
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("tests/test_supply_chain_r16_9.py")
+          text = path.read_text(encoding="utf-8")
+          old_count = '    assert len(policy.immutable_authority_workflows) == 23\n'
+          new_count = '    assert len(policy.immutable_authority_workflows) == 24\n'
+          assert text.count(old_count) == 1, "expected immutable authority count assertion not found exactly once"
+          text = text.replace(old_count, new_count, 1)
+
+          anchor = (
+              '    assert (\n'
+              '        ".github/workflows/r18-1-release-identity-acceptance.yml"\n'
+              '        in policy.immutable_authority_workflows\n'
+              '    )\n'
+          )
+          addition = (
+              anchor
+              + '    assert (\n'
+              + '        ".github/workflows/r18-2-deterministic-release-bundle-acceptance.yml"\n'
+              + '        in policy.immutable_authority_workflows\n'
+              + '    )\n'
+          )
+          assert text.count(anchor) == 1, "R18.1 authority assertion anchor not found exactly once"
+          text = text.replace(anchor, addition, 1)
+          path.write_text(text, encoding="utf-8", newline="\n")
+
+      - name: Commit patched test only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/test_supply_chain_r16_9.py
+          test "$(git diff --cached --name-only)" = "tests/test_supply_chain_r16_9.py"
+          git commit -m "test(r18.2): register release bundle workflow authority"
+          git push origin HEAD:transport/r18-2-supply-chain-test

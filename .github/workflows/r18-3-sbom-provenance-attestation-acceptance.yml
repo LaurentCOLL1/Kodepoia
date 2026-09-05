@@ -215,7 +215,9 @@ jobs:
           Copy-Item "$env:KODEPOIA_R18_3_BUNDLE" $tampered
           python -c "from pathlib import Path; p=Path(r'$tampered'); p.write_bytes(p.read_bytes()+b'TAMPER')"
           gh attestation verify $tampered -R "$env:GITHUB_REPOSITORY" *> "artifacts/r18_3/tamper-negative.txt"
-          if ($LASTEXITCODE -eq 0) { throw "modified subject unexpectedly verified" }
+          $tamperExit = $LASTEXITCODE
+          if ($tamperExit -eq 0) { throw "modified subject unexpectedly verified" }
+          $global:LASTEXITCODE = 0
 
       - name: Emit actual exact-source R18.3 acceptance
         shell: pwsh

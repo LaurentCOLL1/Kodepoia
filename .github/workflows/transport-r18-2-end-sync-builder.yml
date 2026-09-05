@@ -1,0 +1,91 @@
+name: R18.2 END-sync transport builder
+
+on:
+  push:
+    branches:
+      - transport/r18-2-end-sync-builder
+
+permissions:
+  contents: write
+
+jobs:
+  build-end-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact R18.2 technical source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: r18/02-deterministic-release-bundle
+          fetch-depth: 0
+
+      - name: Assert exact technical parent
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "f15967530e79bb365246afb92a8db02906acb0c4"
+
+      - name: Build docs-only R18.2 END-sync
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          tech = "f15967530e79bb365246afb92a8db02906acb0c4"
+          base = "c611131268041b06f53de66eaadd45120e2b750d"
+          run_r182 = "33944044685"
+
+          continuity_path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          lines = continuity_path.read_text(encoding="utf-8").splitlines()
+          assert lines[0].startswith("> Kodepoia, architecture v1.0 gelée.")
+          lines[0] = f"> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED. R18 planning ACCEPTED + NORMALIZED. R18.1 Canonical release identity, versions and channels is COMPLETE + NORMALIZED on canonical `main` `{base}`. R18.2 Deterministic release bundle and manifest contract is COMPLETE at END-sync on immutable technical source `{tech}`; fresh exact-END R18.2/R16.9/R0/Python/UI gates, exact-head PR #384 merge and the unique post-merge continuity normalization remain required before R18.3.** Production signing, public GitHub Release publication and public WinGet submission remain CONDITIONAL / NOT TRIGGERED."
+
+          r182_i = next(i for i, line in enumerate(lines) if line.startswith("- R18.2 :"))
+          assert "IN PROGRESS / START-SYNC" in lines[r182_i]
+          lines[r182_i] = f"- R18.2 : **COMPLETE at END-sync; merge + normalization pending** — normalized R18.1 `main` `{base}`; dedicated branch `r18/02-deterministic-release-bundle`; immutable technical source `{tech}`. Exact-source R18.2 run #8 / `{run_r182}` SUCCESS: contract jobs Ubuntu + Windows, two real Windows builds, bundle verification, clean silent install, packaged KodeStudio smoke with developer Python/pip hidden, silent uninstall and evidence upload all succeeded. Actual Windows build artifacts intentionally expose platform-controlled Nuitka/Inno variance: build 1 installer `d56bc8e43b04406a1bbb395e10447090441f135cdb59a1a734a90bf824d5540d`, archive `45233feb800e30480390dcf91947d06de167bbab0a1eec359a88ea9643e67939`, manifest `383a3929d09fa8bf20eddd48d3523765255d52ce0abb49aad13d9583491bbae0`, payload `e96ce9b65fb2487bc10176a07954c2985152248004cbe8ed90c4cea6d498cf47`; build 2 installer `92bc0ef13ee4a63cd62ec98afa4429666b2933514a51ef7e9906720b765b76c6`, archive `c4637e537584c78108cdfc27e06842279c47179be13bed0346ddee972c09ecfb`, manifest `cf5bf7ca87970a7bab7700baeb7dfa43e9fa40225f2f715c5190ccc20f7d3cba`, payload `320306c28376663db4127f73deac5f2c5a19da4546d774bd0531ba2c0a4970f7`; both resolve to semantic SHA-256 `92cbf76bfadf686499ce25bde734e62943e4bbb863dbc296d6ddd8f48eb001eb`, so `semantic_equivalent=true` while installer/archive/manifest/payload binary equality remains false and `installer_binary_reproducibility=platform-variance-observed`. Schema SHA-256 `c7e8f65b0e68cdc48f8cc01f33fab31d1b71ae93d281da53e241fc0033888ca1`; two-build Actions artifact ID `9963221589`, 133,987,336 bytes, artifact ZIP digest `sha256:ca50e831ace8780f309159dbecd724167614ebe1251e677924ccc316e7327ed0`. Exact technical-head R0 #2442 / `33944044651`, Python Core #2414 / `33944044622` 5/5, KodeStudio UI Smoke #2379 / `33944044688` and R16.9 #112 / `33944044704` also SUCCESS. Manual NONE. Production signing/public GitHub Release/public WinGet submission remain NOT TRIGGERED. END-sync changes exactly `docs/roadmap/R18_PLAN.md` + this continuity file, so fresh exact-END R18.2 + R16.9 + R0 + full Python Core + UI gates are required before PR #384 may merge with exact expected-head protection. After that merge, exactly one continuity-only R18.2 normalization is required; R18.3 remains PLANNED until that normalized main exists."
+
+          next_i = lines.index("## Next authorized action")
+          paragraph_i = next(i for i in range(next_i + 1, len(lines)) if lines[i].strip())
+          assert "R18.1 implementation/evidence is merged" in lines[paragraph_i]
+          lines[paragraph_i] = f"R18.2 is COMPLETE at END-sync on immutable technical source `{tech}`. The next authorized action is to run fresh exact-END R18.2, R16.9 Supply Chain Provenance, R0 Repository Guard, full Python Core and KodeStudio UI Smoke gates on the documentation-synchronized head, then merge PR #384 only with that exact expected head. After the implementation/evidence merge, create exactly one continuity-only R18.2 normalization from the resulting `main`, gate it with fresh R0/Python/UI and merge it with exact expected-head protection. **R18.3 is not authorized until that normalized `main` exists.**"
+
+          r18_heading = lines.index("## R18 — Trusted Release, Updates & Distribution Channels")
+          state_i = next(i for i in range(r18_heading + 1, len(lines)) if lines[i].startswith("- State:"))
+          lines[state_i] = f"- State: **PLANNING ACCEPTED + NORMALIZED** — unique planning-normalization PR #380 merged as canonical `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`; R18.1 is COMPLETE + NORMALIZED on canonical `main` `{base}`; R18.2 is COMPLETE at END-sync on immutable technical source `{tech}` with exact-head implementation/evidence merge + unique subdivision normalization pending. R18.3 is not authorized until that normalization merges."
+          continuity_path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+
+          plan_path = Path("docs/roadmap/R18_PLAN.md")
+          plines = plan_path.read_text(encoding="utf-8").splitlines()
+          roadmap_i = next(i for i, line in enumerate(plines) if line.startswith("Roadmap status:"))
+          assert "R18.1 is COMPLETE at END-sync" in plines[roadmap_i]
+          plines[roadmap_i] = f"Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` `{base}`. R18.2 is COMPLETE at END-sync on immutable technical source `{tech}`; its exact-head implementation/evidence merge and the unique post-merge continuity-only normalization remain required before R18.3 may start. The frozen v1.0/R1–R16 architecture and history are not rewritten."
+          table_i = next(i for i, line in enumerate(plines) if line.startswith("| R18.2 |"))
+          assert "| PLANNED |" in plines[table_i]
+          plines[table_i] = "| R18.2 | Deterministic release bundle and manifest contract | COMPLETE | NONE | R18.1 |"
+
+          section_i = plines.index("# R18.2 — Deterministic release bundle and manifest contract")
+          validation_i = next(i for i in range(section_i, len(plines)) if plines[i] == "## Validation and evidence")
+          evidence_i = next(i for i in range(validation_i + 1, len(plines)) if plines[i].strip())
+          assert plines[evidence_i].startswith("Bundle manifest digest")
+          end_evidence = f"END-sync technical acceptance: immutable source `{tech}`; R18.2 #8 / `{run_r182}` SUCCESS with Ubuntu + Windows focused contract acceptance and actual Windows two-build/install/smoke/uninstall evidence. The two real Windows builds expose Nuitka/Inno binary variance rather than hiding it: installer/archive/manifest/payload hashes differ, while both bundles share semantic SHA-256 `92cbf76bfadf686499ce25bde734e62943e4bbb863dbc296d6ddd8f48eb001eb` and acceptance reports `semantic_equivalent=true`, `installer_binary_reproducibility=platform-variance-observed`, status PASS. Build 1 archive SHA-256 `45233feb800e30480390dcf91947d06de167bbab0a1eec359a88ea9643e67939`; build 2 archive SHA-256 `c4637e537584c78108cdfc27e06842279c47179be13bed0346ddee972c09ecfb`; schema SHA-256 `c7e8f65b0e68cdc48f8cc01f33fab31d1b71ae93d281da53e241fc0033888ca1`; two-build artifact ID `9963221589`, artifact ZIP digest `sha256:ca50e831ace8780f309159dbecd724167614ebe1251e677924ccc316e7327ed0`. Exact technical-head R16.9 #112 / `33944044704`, R0 #2442 / `33944044651`, Python Core #2414 / `33944044622` 5/5 and KodeStudio UI Smoke #2379 / `33944044688` also SUCCESS. Manual intervention NONE; production signing, public GitHub Release and public WinGet submission remain NOT TRIGGERED. Because this END-sync changes documentation bytes, fresh R18.2 + R16.9 + R0 + full Python Core + KodeStudio UI Smoke gates on the resulting exact END-head are mandatory before exact-head merge."
+          assert not any("END-sync technical acceptance: immutable source `f1596753" in line for line in plines)
+          plines.insert(evidence_i + 1, "")
+          plines.insert(evidence_i + 2, end_evidence)
+          plan_path.write_text("\n".join(plines) + "\n", encoding="utf-8", newline="\n")
+          PY
+
+          mapfile -t changed < <(git diff --name-only)
+          printf 'Changed paths:\n%s\n' "${changed[*]}"
+          test "${#changed[@]}" -eq 2
+          test "${changed[0]}" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test "${changed[1]}" = "docs/roadmap/R18_PLAN.md"
+          git diff --check
+
+      - name: Commit and fast-forward R18.2 branch
+        shell: bash
+        run: |
+          git config user.name "LaurentCOLL1"
+          git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R18_PLAN.md
+          git commit -m "docs(r18.2): END-sync deterministic release bundle"
+          test "$(git rev-parse HEAD^)" = "f15967530e79bb365246afb92a8db02906acb0c4"
+          test "$(git diff-tree --no-commit-id --name-only -r HEAD | wc -l)" -eq 2
+          git push origin HEAD:r18/02-deterministic-release-bundle

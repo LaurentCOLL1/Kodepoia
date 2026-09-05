@@ -156,10 +156,10 @@ jobs:
             [System.Security.Cryptography.X509Certificates.StoreName]::TrustedPublisher
           )
           foreach ($storeName in $storeNames) {
-            Write-Host "Adding ephemeral certificate to CurrentUser/$storeName using X509Store"
+            Write-Host "Adding ephemeral certificate to LocalMachine/$storeName using X509Store"
             $store = [System.Security.Cryptography.X509Certificates.X509Store]::new(
               $storeName,
-              [System.Security.Cryptography.X509Certificates.StoreLocation]::CurrentUser
+              [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine
             )
             try {
               $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
@@ -285,15 +285,24 @@ jobs:
         run: |
           $thumb = ([string]$env:KODEPOIA_R18_4_TEST_THUMBPRINT).Replace(" ", "").ToUpperInvariant()
           if ($thumb) {
-            $storeNames = @(
-              [System.Security.Cryptography.X509Certificates.StoreName]::My,
-              [System.Security.Cryptography.X509Certificates.StoreName]::Root,
-              [System.Security.Cryptography.X509Certificates.StoreName]::TrustedPublisher
+            $storeTargets = @(
+              @{
+                Name = [System.Security.Cryptography.X509Certificates.StoreName]::My
+                Location = [System.Security.Cryptography.X509Certificates.StoreLocation]::CurrentUser
+              },
+              @{
+                Name = [System.Security.Cryptography.X509Certificates.StoreName]::Root
+                Location = [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine
+              },
+              @{
+                Name = [System.Security.Cryptography.X509Certificates.StoreName]::TrustedPublisher
+                Location = [System.Security.Cryptography.X509Certificates.StoreLocation]::LocalMachine
+              }
             )
-            foreach ($storeName in $storeNames) {
+            foreach ($target in $storeTargets) {
               $store = [System.Security.Cryptography.X509Certificates.X509Store]::new(
-                $storeName,
-                [System.Security.Cryptography.X509Certificates.StoreLocation]::CurrentUser
+                $target.Name,
+                $target.Location
               )
               try {
                 $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)

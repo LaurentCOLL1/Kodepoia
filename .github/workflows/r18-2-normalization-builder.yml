@@ -1,0 +1,130 @@
+name: Temporary R18.2 Continuity Normalization Builder
+
+on:
+  push:
+    branches:
+      - scratch/r18-2-normalization-builder
+
+permissions:
+  contents: write
+
+jobs:
+  build-normalization:
+    runs-on: ubuntu-latest
+    env:
+      KODEPOIA_BASE_SHA: d3e1a9dbda60a011a8910694df55feadc5ca52f1
+      KODEPOIA_TARGET_BRANCH: r18/02-continuity-normalization
+    steps:
+      - name: Checkout exact R18.2 implementation merge
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.KODEPOIA_BASE_SHA }}
+          fetch-depth: 0
+
+      - name: Assert exact base
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$KODEPOIA_BASE_SHA"
+
+      - name: Build unique continuity-only R18.2 normalization
+        shell: bash
+        run: |
+          git checkout -B "$KODEPOIA_TARGET_BRANCH"
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          raw = path.read_bytes()
+          newline = "\r\n" if b"\r\n" in raw else "\n"
+          had_final_newline = raw.endswith(newline.encode("ascii"))
+          lines = raw.decode("utf-8").splitlines()
+
+          banner_prefix = "> Kodepoia, architecture v1.0 gelée."
+          r18_2_prefix = "- R18.2 :"
+          banner_matches = [i for i, line in enumerate(lines) if line.startswith(banner_prefix)]
+          r18_2_matches = [i for i, line in enumerate(lines) if line.startswith(r18_2_prefix)]
+          if len(banner_matches) != 1:
+              raise SystemExit(f"expected one global banner, found {len(banner_matches)}")
+          if len(r18_2_matches) != 1:
+              raise SystemExit(f"expected one R18.2 global record, found {len(r18_2_matches)}")
+
+          lines[banner_matches[0]] = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED. R18 planning ACCEPTED + NORMALIZED. "
+              "R18.1 Canonical release identity, versions and channels is COMPLETE + NORMALIZED on canonical `main` "
+              "`c611131268041b06f53de66eaadd45120e2b750d`. R18.2 Deterministic release bundle and manifest contract is "
+              "COMPLETE + NORMALIZED effective when this unique continuity-only normalization record enters `main` through "
+              "fresh exact-head R0/Python/UI gates and exact expected-head merge; implementation/evidence PR #384 merged "
+              "exact END head `ea7eb038661ae4637680eb5ce5c54f4006e89fc3` as `main` "
+              "`d3e1a9dbda60a011a8910694df55feadc5ca52f1`. R18.3 remains PLANNED and is authorized only from the normalized "
+              "`main` produced by this record.** Production signing, public GitHub Release publication and public WinGet "
+              "submission remain CONDITIONAL / NOT TRIGGERED."
+          )
+
+          lines[r18_2_matches[0]] = (
+              "- R18.2 : **COMPLETE + NORMALIZED effective when this unique continuity-only normalization record enters `main` "
+              "through fresh exact-head R0/Python/UI gates and exact expected-head merge** — normalized R18.1 `main` "
+              "`c611131268041b06f53de66eaadd45120e2b750d`; dedicated implementation branch "
+              "`r18/02-deterministic-release-bundle`; immutable technical source "
+              "`f15967530e79bb365246afb92a8db02906acb0c4`; final exact-END head "
+              "`ea7eb038661ae4637680eb5ce5c54f4006e89fc3`. Fresh exact-END run `33948665066` asserted that exact source and "
+              "completed all 10 jobs SUCCESS: R0 Ubuntu/Windows, full Python Core Ubuntu/Windows, KodeStudio UI Smoke Windows, "
+              "R16.9 Ubuntu/Windows, R18.2 contract Ubuntu/Windows and actual Windows two-build. Exact-END build 1 installer "
+              "`4312eca9485bfa1916bfa23cde980f57f3c577bd3c3fd4043fd5a801b9dc2b8f`, archive "
+              "`a0ac486b8803dc8029dfd537b8f0c87a3022b203c0b67aad6dccce844295b7e4`, manifest "
+              "`e00ba5be06e8f614d8850caf041e8b9a7f5d66a9d88cff86ace2a2d114f0582a`, payload "
+              "`474ebefe6efed22e91fc175253ce854ad455351502ada38a080247fd1b2f2434`; build 2 installer "
+              "`b55e23eecdf3d47a6fb998ad71228715733bffef613da681e54867de484cff16`, archive "
+              "`94be246acf18c6424058830d0676239c829cff7fffa6ca23730ac5768e531cd8`, manifest "
+              "`87f45e66b36edc7f870e7cc243062d28bddfbba8149bd708d9e6fdbc1348da0f`, payload "
+              "`53c055f568fade97313e93f3c526f0a1e1ccf9de42daf4bed384177636f7313d`; both resolve to semantic SHA-256 "
+              "`431adc19e5eb8871a298912f87d55d28856e326e98799886417a5d5f9f78ee3d`, so `semantic_equivalent=true` while "
+              "installer/archive/manifest/payload binary equality is false and "
+              "`installer_binary_reproducibility=platform-variance-observed`. Schema SHA-256 "
+              "`c7e8f65b0e68cdc48f8cc01f33fab31d1b71ae93d281da53e241fc0033888ca1`; exact-END Windows artifact "
+              "`9964512183` / `r18-2-end-windows-two-build-ea7eb038661ae4637680eb5ce5c54f4006e89fc3`, 133,991,895 bytes, "
+              "artifact ZIP digest `sha256:e10dc3406319505466d3f33077119b7b26f1eedb15e3059ae03995a816589e53`. Required branch-protection "
+              "R0 contexts were refreshed directly on PR head by run `33950132320`; both "
+              "`repository-bootstrap-ubuntu-latest` and `repository-bootstrap-windows-latest` succeeded with exact provenance. "
+              "PR #384 then merged with `expected_head_sha=ea7eb038661ae4637680eb5ce5c54f4006e89fc3` as implementation/evidence "
+              "`main` `d3e1a9dbda60a011a8910694df55feadc5ca52f1`. Clean silent install, packaged KodeStudio smoke without developer "
+              "Python/pip and silent uninstall all succeeded. Manual NONE. Production signing/public GitHub Release/public "
+              "WinGet submission remain NOT TRIGGERED. This continuity-only record is the single authorized post-merge R18.2 "
+              "normalization authority; no second R18.2 normalization is authorized. R18.3 START-sync is authorized only from "
+              "the normalized `main` produced when this exact record passes fresh R0/Python/UI and merges with exact expected-head protection."
+          )
+
+          text = newline.join(lines) + (newline if had_final_newline else "")
+          next_heading = "## Next authorized action" + newline
+          next_end = newline + "## R17 — Distribution & Guided Creation UX"
+          if text.count(next_heading) != 1 or text.count(next_end) != 1:
+              raise SystemExit("missing or duplicate Next authorized action markers")
+          start = text.index(next_heading) + len(next_heading)
+          end = text.index(next_end, start)
+          next_body = (
+              newline
+              + "R18.2 is merged as implementation/evidence `main` `d3e1a9dbda60a011a8910694df55feadc5ca52f1`. "
+              + "This is the single authorized continuity-only R18.2 normalization. Its exact head must pass fresh R0 Repository Guard, "
+              + "full Python Core and KodeStudio UI Smoke, then merge with exact expected-head protection. **Only after that normalization "
+              + "merge is R18.3 START-sync authorized, from the resulting normalized `main`.** Production signing, public GitHub Release "
+              + "publication and public WinGet submission remain NOT TRIGGERED."
+              + newline
+          )
+          text = text[:start] + next_body + text[end:]
+          path.write_bytes(text.encode("utf-8"))
+          PY
+
+          test "$(git diff --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          test -z "$(git diff --name-only -- docs/roadmap/R18_PLAN.md)"
+          test -z "$(git diff --cached --name-only)"
+          git diff --check -- docs/continuity/KODEPOIA_CONTINUITY.md
+
+      - name: Commit and push normalization candidate
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md
+          test "$(git diff --cached --name-only)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git commit -m "docs: normalize R18.2 continuity after merge"
+          test "$(git diff-tree --no-commit-id --name-only -r HEAD)" = "docs/continuity/KODEPOIA_CONTINUITY.md"
+          git push origin "HEAD:refs/heads/$KODEPOIA_TARGET_BRANCH"

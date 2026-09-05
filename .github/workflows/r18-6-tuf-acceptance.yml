@@ -14,6 +14,7 @@ on:
       - src/kodepoia/update/**
       - scripts/r18_6_generate_packaged_root.py
       - scripts/r18_6_tuf_acceptance.py
+      - scripts/r18_6_verify_wheel_root.py
       - tests/test_r18_6_tuf_security.py
       - tests/test_r18_6_update_trust.py
       - tests/test_r18_6_packaged_root.py
@@ -78,6 +79,7 @@ jobs:
           src/kodepoia/update
           scripts/r18_6_generate_packaged_root.py
           scripts/r18_6_tuf_acceptance.py
+          scripts/r18_6_verify_wheel_root.py
           tests/test_r18_6_tuf_security.py
           tests/test_r18_6_update_trust.py
           tests/test_r18_6_packaged_root.py
@@ -102,6 +104,7 @@ jobs:
               "src/kodepoia/update",
               "scripts/r18_6_generate_packaged_root.py",
               "scripts/r18_6_tuf_acceptance.py",
+              "scripts/r18_6_verify_wheel_root.py",
               "tests/test_r18_6_tuf_security.py",
               "tests/test_r18_6_update_trust.py",
               "tests/test_r18_6_packaged_root.py",
@@ -125,7 +128,24 @@ jobs:
           tests/test_r18_6_update_trust.py
           tests/test_r18_6_packaged_root.py
 
-      - name: Generate synthetic packaged root evidence
+      - name: Build wheel for packaged-root evidence
+        run: python -m build --wheel --outdir artifacts/r18_6/wheel
+
+      - name: Verify wheel embeds exact synthetic root resources
+        shell: python
+        run: |
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          wheels = sorted(Path("artifacts/r18_6/wheel").glob("*.whl"))
+          if len(wheels) != 1:
+              raise SystemExit(f"expected exactly one R18.6 wheel, found {len(wheels)}")
+          subprocess.check_call(
+              [sys.executable, "scripts/r18_6_verify_wheel_root.py", str(wheels[0])]
+          )
+
+      - name: Generate fresh synthetic root evidence
         run: >-
           python scripts/r18_6_generate_packaged_root.py
           --output artifacts/r18_6/trusted_root.synthetic.generated.json

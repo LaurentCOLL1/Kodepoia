@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import locale as system_locale
 import os
-from dataclasses import dataclass
 
 
 MESSAGES: dict[str, dict[str, str]] = {

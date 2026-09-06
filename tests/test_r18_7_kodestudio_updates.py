@@ -1,0 +1,140 @@
+from __future__ import annotations
+
+import os
+
+import pytest
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+PySide6 = pytest.importorskip("PySide6")
+
+from PySide6.QtCore import QSettings
+from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox, QLabel, QPushButton, QSpinBox
+
+from kodepoia.kodestudio.update_settings import (
+    DEFAULT_PERIODIC_CHECK_HOURS,
+    create_update_settings_group,
+)
+from kodepoia.update.discovery import UpdateDiscoveryCandidate, UpdateDiscoveryResult
+from kodepoia.update.trust import UpdateTargetSpec
+
+
+@pytest.fixture(scope="module")
+def app():
+    instance = QApplication.instance() or QApplication([])
+    yield instance
+
+
+class FakeDiscoveryService:
+    def __init__(self) -> None:
+        self.channels: list[str] = []
+        self.result = UpdateDiscoveryResult(
+            status="update-available",
+            candidate=UpdateDiscoveryCandidate(
+                target=UpdateTargetSpec(
+                    channel="beta",
+                    platform="windows-x86_64",
+                    public_version="1.1.0-rc2",
+                    source_sha="c" * 40,
+                ),
+                size_bytes=42 * 1024 * 1024,
+                sha256="d" * 64,
+                release_notes_summary="Synthetic R18.7 acceptance release.",
+                signing_status="staged-evidence-available",
+                provenance_status="attestation-available",
+            ),
+            detail="trusted metadata authorizes a newer update",
+        )
+
+    def check(self, channel: str) -> UpdateDiscoveryResult:
+        self.channels.append(channel)
+        return self.result
+
+
+class FailingDiscoveryService:
+    def check(self, channel: str) -> UpdateDiscoveryResult:
+        raise RuntimeError(f"synthetic failure on {channel}")
+
+
+def _settings(tmp_path) -> QSettings:
+    return QSettings(str(tmp_path / "updates.ini"), QSettings.Format.IniFormat)
+
+
+def test_defaults_are_stable_periodic_and_do_not_check_on_startup(app, tmp_path) -> None:
+    service = FakeDiscoveryService()
+    settings = _settings(tmp_path)
+
+    group = create_update_settings_group(service=service, settings=settings)
+
+    channel = group.findChild(QComboBox, "updateChannelSelector")
+    periodic = group.findChild(QCheckBox, "updatePeriodicEnabled")
+    hours = group.findChild(QSpinBox, "updatePeriodicHours")
+    timer = group._kodepoia_update_timer
+    assert channel.currentData() == "stable"
+    assert periodic.isChecked() is True
+    assert hours.value() == DEFAULT_PERIODIC_CHECK_HOURS
+    assert timer.isActive() is True
+    assert timer.interval() == DEFAULT_PERIODIC_CHECK_HOURS * 60 * 60 * 1000
+    assert service.channels == []
+
+
+def test_beta_selection_warns_and_persists(app, tmp_path) -> None:
+    settings = _settings(tmp_path)
+    group = create_update_settings_group(service=FakeDiscoveryService(), settings=settings)
+    channel = group.findChild(QComboBox, "updateChannelSelector")
+    warning = group.findChild(QLabel, "updatePrereleaseWarning")
+
+    channel.setCurrentIndex(channel.findData("beta"))
+    app.processEvents()
+
+    assert warning.isVisibleTo(group) is True
+    assert settings.value("updates/channel") == "beta"
+
+    restored = create_update_settings_group(service=FakeDiscoveryService(), settings=_settings(tmp_path))
+    restored_channel = restored.findChild(QComboBox, "updateChannelSelector")
+    assert restored_channel.currentData() == "beta"
+
+
+def test_manual_check_renders_trusted_candidate_without_install_action(app, tmp_path) -> None:
+    service = FakeDiscoveryService()
+    group = create_update_settings_group(service=service, settings=_settings(tmp_path))
+    channel = group.findChild(QComboBox, "updateChannelSelector")
+    channel.setCurrentIndex(channel.findData("beta"))
+    button = group.findChild(QPushButton, "checkForUpdatesButton")
+
+    button.click()
+    app.processEvents()
+
+    state = group.findChild(QLabel, "updateDiscoveryState")
+    details = group.findChild(QLabel, "updateDiscoveryDetails")
+    assert service.channels == ["beta"]
+    assert "Update available" in state.text()
+    assert "1.1.0-rc2" in details.text()
+    assert "tuf-verified-metadata" in details.text()
+    assert group.findChild(QPushButton, "installUpdateButton") is None
+
+
+def test_periodic_opt_out_stops_timer_and_persists(app, tmp_path) -> None:
+    settings = _settings(tmp_path)
+    group = create_update_settings_group(service=FakeDiscoveryService(), settings=settings)
+    periodic = group.findChild(QCheckBox, "updatePeriodicEnabled")
+
+    periodic.setChecked(False)
+    app.processEvents()
+
+    assert group._kodepoia_update_timer.isActive() is False
+    assert str(settings.value("updates/periodic_enabled")).lower() in {"false", "0"}
+
+
+def test_ui_boundary_turns_service_exception_into_verification_failure(app, tmp_path) -> None:
+    group = create_update_settings_group(
+        service=FailingDiscoveryService(),
+        settings=_settings(tmp_path),
+    )
+    button = group.findChild(QPushButton, "checkForUpdatesButton")
+
+    button.click()
+    app.processEvents()
+
+    state = group.findChild(QLabel, "updateDiscoveryState")
+    assert "Verification failed" in state.text()
+    assert "synthetic failure" in state.text()

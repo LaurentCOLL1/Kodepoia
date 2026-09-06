@@ -714,3 +714,13 @@ Update `R18_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY.md` in the same wo
 ## R18 planning merge rule
 
 This planning document and its matching planning-continuity record must be the only intentional planning-scope changes relative to normalized R17 `main`. The exact planning head must pass fresh R0 Repository Guard, full Python Core and KodeStudio UI Smoke before the planning PR merges with exact expected-head protection. After that merge, exactly one planning continuity-only normalization must be performed and re-gated. Only the resulting normalized `main` authorizes R18.1 START-sync.
+
+## R18.9 START-sync authority
+
+- Exact normalized branch point: `main` `d3ddc3f0d5f41db7e30b75d57d1c68087a2fbc8f`, produced by the single R18.8 post-merge normalization PR #398 after exact candidate `bfaae05e029090cd4b26731af0182f2fcad33504` passed fresh R0 #2539 / `34035298277`, full Python Core #2511 / `34035298246` 5/5 and KodeStudio UI Smoke #2476 / `34035298307`.
+- Dedicated branch: `r18/09-winget-manifest-generation-validation`, created directly from that exact normalized `main` before any R18.9 implementation bytes.
+- State transition: R18.1–R18.8 **COMPLETE + NORMALIZED**; R18.9 **IN_PROGRESS**; R18.10–R18.11 **PLANNED**.
+- Frozen scope remains WinGet readiness only: deterministic multi-file manifest generation from canonical release identity and trusted installer metadata; a real immutable public `InstallerUrl` only when a public release actually exists; otherwise explicitly non-publishable preview manifests; exact installer SHA-256; x64/Inno/user-scope mapping; locale metadata; local `winget validate` when available; no automatic public repository submission.
+- Official Microsoft guidance rechecked on 2026-09-06: current manifest documentation shows ManifestVersion `1.12.0`, recognizes `inno`, requires installer URL and SHA-256 fields for installer manifests, and documents `winget validate` as the local pre-submission validator. Public submission remains a separate PR to `microsoft/winget-pkgs` with repository validation/review.
+- Core/readiness manual state: **CONDITIONAL / NOT TRIGGERED**. The condition is explicit authorization to submit to the public WinGet Community Repository or an account-side interaction automation cannot perform. No such effect is authorized by this START.
+- This START-sync is documentation-only. No `packaging/winget/`, release generator, validation workflow, policy, test or implementation byte may precede the clean START decision head.

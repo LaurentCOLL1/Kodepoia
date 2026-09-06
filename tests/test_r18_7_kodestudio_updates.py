@@ -4,18 +4,23 @@ import os
 
 import pytest
 
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-PySide6 = pytest.importorskip("PySide6")
-
-from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox, QLabel, QPushButton, QSpinBox
-
 from kodepoia.kodestudio.update_settings import (
     DEFAULT_PERIODIC_CHECK_HOURS,
     create_update_settings_group,
 )
 from kodepoia.update.discovery import UpdateDiscoveryCandidate, UpdateDiscoveryResult
 from kodepoia.update.trust import UpdateTargetSpec
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+QtCore = pytest.importorskip("PySide6.QtCore")
+QtWidgets = pytest.importorskip("PySide6.QtWidgets")
+QSettings = QtCore.QSettings
+QApplication = QtWidgets.QApplication
+QCheckBox = QtWidgets.QCheckBox
+QComboBox = QtWidgets.QComboBox
+QLabel = QtWidgets.QLabel
+QPushButton = QtWidgets.QPushButton
+QSpinBox = QtWidgets.QSpinBox
 
 
 @pytest.fixture(scope="module")

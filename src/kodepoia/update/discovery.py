@@ -20,14 +20,14 @@ from kodepoia.update.trust import (
     UpdateTransportOffline,
 )
 
-DISCOVERY_CHANNELS = ("stable", "beta")
+DISCOVERY_CHANNELS = ("stable", "beta", "nightly")
 DISCOVERY_STATE_FORMAT = "kodepoia-update-discovery-state"
 DISCOVERY_STATE_SCHEMA_VERSION = 1
 _VERSION_RE = re.compile(
     r"^(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)"
-    r"(?:-(?P<stage>a|b|rc)(?P<serial>\d+))?$"
+    r"(?:-(?P<stage>dev|a|b|rc)(?P<serial>\d+))?$"
 )
-_STAGE_RANK = {"a": 0, "b": 1, "rc": 2, "final": 3}
+_STAGE_RANK = {"dev": 0, "a": 1, "b": 2, "rc": 3, "final": 4}
 
 
 class UpdateMetadataExpired(TufVerificationError):

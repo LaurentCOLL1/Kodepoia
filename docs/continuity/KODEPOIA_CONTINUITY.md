@@ -1026,3 +1026,13 @@ Create and verify the documentation-only R18.8 END head as a direct child of imm
 - This is the single authorized post-merge normalization for R18.10. Its exact candidate head must pass fresh R0 Repository Guard Ubuntu + Windows, Python Core 5/5 and KodeStudio UI Smoke before exact-head merge; no second R18.10 normalization is permitted.
 - Core manual state remains **NONE**. Production certificate revocation, production TUF key/root rotation, public GitHub Release/tag/asset or attestation mutation and public WinGet effects remain **CONDITIONAL / NOT TRIGGERED**.
 - Once this exact gated normalization merges, R18.10 is **COMPLETE + NORMALIZED** and R18.11 START-sync is authorized only from the resulting normalized `main`.
+
+
+## R18.11 START authority
+
+- R18.10 is **COMPLETE + NORMALIZED** on canonical `main` `c7f0e6a7801fb37ca044b4d3d8360694c911e824`. Its unique continuity-only normalization PR #402 used exact candidate `50d549f8717882502195eb562617178d1fdab613`, with fresh R0 #2550 / `34052009856` Ubuntu + Windows, Python Core #2522 / `34052009992` 5/5 and KodeStudio UI Smoke #2487 / `34052009974` all SUCCESS before exact-head merge.
+- R18.11 dedicated branch `r18/11-integrated-adversarial-release-update-acceptance` is created directly from that normalized main. R18.1–R18.10 are **COMPLETE + NORMALIZED**; R18.11 is **IN_PROGRESS**.
+- Frozen R18.11 authority is integrated and non-circular: machine-readable R18.1–R18.10 evidence, final Windows RC build/install/update/uninstall health, exact-source provenance/freshness checks and adversarial tamper/rollback/freeze/channel/signature/digest rejection feed one deterministic report. `blockers=[]` and `critical_veto=false` are required for acceptance.
+- The real Windows acceptance must remain local to CI and use repository packaging boundaries; public release, production signing, production TUF custody/rotation and public WinGet effects are not authorized by this START.
+- Manual state: **NONE** for core R18.11. External production effects remain **CONDITIONAL / NOT TRIGGERED**.
+- This START decision is documentation-only and precedes every R18.11 implementation byte. R18 phase completion remains unauthorized until R18.11 exact-END is freshly gated and merged and exactly one continuity-only phase normalization is freshly gated and merged.

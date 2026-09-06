@@ -1,0 +1,20 @@
+name: Transport R18.11 START sync
+
+on:
+  push:
+    branches:
+      - transport/r18-11-start-sync-20260906
+
+permissions:
+  contents: write
+
+jobs:
+  transport:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout transport branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Apply clean R18.11 START-sync
+        run: python .github/transport/r18_11_start_sync.py

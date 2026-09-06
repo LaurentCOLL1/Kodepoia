@@ -5,9 +5,11 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Callable, Iterable
+from contextlib import suppress
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Callable, Iterable, Protocol
+from typing import Protocol
 from urllib.parse import quote, urljoin, urlsplit
 from urllib.request import Request, urlopen
 
@@ -257,10 +259,8 @@ class VerifiedUpdateDownloader:
 
     @staticmethod
     def _unlink(path: Path) -> None:
-        try:
+        with suppress(FileNotFoundError):
             path.unlink()
-        except FileNotFoundError:
-            pass
 
     def stage(
         self,

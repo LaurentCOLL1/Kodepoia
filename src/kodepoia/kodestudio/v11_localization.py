@@ -175,7 +175,8 @@ MESSAGES: dict[str, dict[str, str]] = {
         "updates.download_failed": "Échec du téléchargement vérifié",
         "updates.install_confirm_title": "Installer la mise à jour Kodepoia vérifiée",
         "updates.install_confirm": (
-            "Lancer l’installateur vérifié pour {version} ? Windows peut demander un consentement administrateur."
+            "Lancer l’installateur vérifié pour {version} ? Windows peut demander "
+            "un consentement administrateur."
         ),
         "updates.install_launching": "Lancement de l’installateur vérifié après confirmation explicite…",
         "updates.install_failed": "Échec du passage de relais à l’installateur",

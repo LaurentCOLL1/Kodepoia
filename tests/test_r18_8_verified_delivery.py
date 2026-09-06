@@ -74,7 +74,9 @@ def _candidate(data: bytes = b"verified-installer") -> UpdateDiscoveryCandidate:
     )
 
 
-def _downloader(tmp_path: Path, *, auth: bool = True, identity: bool = True, max_bytes: int = 1024) -> VerifiedUpdateDownloader:
+def _downloader(
+    tmp_path: Path, *, auth: bool = True, identity: bool = True, max_bytes: int = 1024
+) -> VerifiedUpdateDownloader:
     return VerifiedUpdateDownloader(
         tmp_path / "cache",
         authenticode=_Auth(auth),

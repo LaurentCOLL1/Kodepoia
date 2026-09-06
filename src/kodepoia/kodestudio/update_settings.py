@@ -48,8 +48,8 @@ def _texts(locale: str) -> dict[str, str]:
             "verified": "Vérification source",
             "size": "Taille annoncée",
             "notes": "Notes",
-            "signing": "Signature",
-            "provenance": "Provenance",
+            "signing": "Signature (rapport TUF, non vérifiée ici)",
+            "provenance": "Provenance (rapport TUF, non vérifiée ici)",
         }
     return {
         "title": "Updates",
@@ -81,8 +81,8 @@ def _texts(locale: str) -> dict[str, str]:
         "verified": "Source verification",
         "size": "Declared size",
         "notes": "Notes",
-        "signing": "Signing",
-        "provenance": "Provenance",
+        "signing": "Signing (TUF metadata report; not verified here)",
+        "provenance": "Provenance (TUF metadata report; not verified here)",
     }
 
 

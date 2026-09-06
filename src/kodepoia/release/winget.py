@@ -290,8 +290,20 @@ def validate_winget_bundle(
         raise WinGetManifestError("publication blockers cannot be bypassed")
 
 
-def validate_with_winget(manifest_dir: Path) -> dict[str, Any]:
+def validate_with_winget(manifest_dir: Path, *, publishable: bool = True) -> dict[str, Any]:
     executable = shutil.which("winget")
+    if not publishable:
+        return {
+            "status": "SKIPPED_NON_PUBLISHABLE_PREVIEW",
+            "executable": executable,
+            "returncode": None,
+            "stdout": "",
+            "stderr": "",
+            "reason": (
+                "winget validate is deferred until a verified publishable manifest has a real "
+                "version-specific HTTPS InstallerUrl; preview manifests intentionally use .invalid"
+            ),
+        }
     if executable is None:
         return {
             "status": "UNAVAILABLE",
@@ -349,7 +361,10 @@ def main() -> int:
     bundle = build_winget_bundle(evidence)
     bundle.write(args.output_dir)
     readiness = dict(bundle.readiness)
-    readiness["winget_validation"] = validate_with_winget(args.output_dir)
+    readiness["winget_validation"] = validate_with_winget(
+        args.output_dir,
+        publishable=bool(readiness["publishable"]),
+    )
     if readiness["winget_validation"]["status"] == "FAIL":
         print(json.dumps(readiness, ensure_ascii=False, indent=2, sort_keys=True))
         return 2

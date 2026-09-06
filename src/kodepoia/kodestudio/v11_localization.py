@@ -77,6 +77,16 @@ MESSAGES: dict[str, dict[str, str]] = {
         "updates.notes": "Notes",
         "updates.signing": "Signing (TUF metadata report; not verified here)",
         "updates.provenance": "Provenance (TUF metadata report; not verified here)",
+        "updates.download_verify": "Download and verify installer",
+        "updates.install_verified": "Install verified update…",
+        "updates.download_ready": "Installer verified and staged; explicit confirmation is still required.",
+        "updates.download_failed": "Verified download failed",
+        "updates.install_confirm_title": "Install verified Kodepoia update",
+        "updates.install_confirm": (
+            "Launch the verified installer for {version}? Windows may request administrator consent."
+        ),
+        "updates.install_launching": "Launching verified installer after explicit confirmation…",
+        "updates.install_failed": "Installer handoff failed",
     },
     "fr": {
         "app.title": "Kodepoia — KodeStudio",
@@ -157,6 +167,18 @@ MESSAGES: dict[str, dict[str, str]] = {
         "updates.notes": "Notes",
         "updates.signing": "Signature (rapport TUF, non vérifiée ici)",
         "updates.provenance": "Provenance (rapport TUF, non vérifiée ici)",
+        "updates.download_verify": "Télécharger et vérifier l’installateur",
+        "updates.install_verified": "Installer la mise à jour vérifiée…",
+        "updates.download_ready": (
+            "Installateur vérifié et préparé ; une confirmation explicite reste obligatoire."
+        ),
+        "updates.download_failed": "Échec du téléchargement vérifié",
+        "updates.install_confirm_title": "Installer la mise à jour Kodepoia vérifiée",
+        "updates.install_confirm": (
+            "Lancer l’installateur vérifié pour {version} ? Windows peut demander un consentement administrateur."
+        ),
+        "updates.install_launching": "Lancement de l’installateur vérifié après confirmation explicite…",
+        "updates.install_failed": "Échec du passage de relais à l’installateur",
     },
 }
 

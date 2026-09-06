@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from kodepoia.kodestudio.v11_localization import V11Translator
 from kodepoia.release.identity import CURRENT_RELEASE
 from kodepoia.update.discovery import UpdateDiscoveryResult
 
@@ -13,77 +14,6 @@ DEFAULT_UPDATE_CHANNEL = "stable"
 
 class UpdateDiscoveryProvider(Protocol):
     def check(self, channel: str) -> UpdateDiscoveryResult: ...
-
-
-def _texts(locale: str) -> dict[str, str]:
-    if locale == "fr":
-        return {
-            "title": "Mises à jour",
-            "installed": "Version installée",
-            "channel": "Canal de mise à jour",
-            "stable": "Stable",
-            "beta": "Bêta",
-            "nightly": "Nightly / développement",
-            "beta_warning": "Le canal bêta peut proposer des versions de prépublication moins stables.",
-            "nightly_warning": (
-                "Le canal nightly/développement peut proposer des versions très récentes, "
-                "expérimentales et moins stables."
-            ),
-            "periodic": "Vérifier périodiquement les mises à jour",
-            "interval": "Intervalle (heures)",
-            "check": "Rechercher des mises à jour",
-            "never_startup": (
-                "La vérification n'est jamais une dépendance du démarrage et aucun "
-                "installateur n'est lancé automatiquement."
-            ),
-            "checking": "Vérification des métadonnées de mise à jour…",
-            "up-to-date": "À jour",
-            "update-available": "Mise à jour disponible",
-            "offline": "Hors ligne",
-            "metadata-expired": "Métadonnées expirées",
-            "verification-failed": "Échec de vérification",
-            "channel-unavailable": "Canal indisponible",
-            "update-withdrawn": "Mise à jour retirée",
-            "candidate": "Candidate",
-            "verified": "Vérification source",
-            "size": "Taille annoncée",
-            "notes": "Notes",
-            "signing": "Signature (rapport TUF, non vérifiée ici)",
-            "provenance": "Provenance (rapport TUF, non vérifiée ici)",
-        }
-    return {
-        "title": "Updates",
-        "installed": "Installed version",
-        "channel": "Update channel",
-        "stable": "Stable",
-        "beta": "Beta",
-        "nightly": "Nightly / development",
-        "beta_warning": "The beta channel can offer less stable prerelease builds.",
-        "nightly_warning": (
-            "The nightly/development channel can offer very recent, experimental, "
-            "less stable builds."
-        ),
-        "periodic": "Check periodically for updates",
-        "interval": "Interval (hours)",
-        "check": "Check for updates",
-        "never_startup": (
-            "Update checks never gate startup and no installer is launched automatically."
-        ),
-        "checking": "Checking trusted update metadata…",
-        "up-to-date": "Up to date",
-        "update-available": "Update available",
-        "offline": "Offline",
-        "metadata-expired": "Metadata expired",
-        "verification-failed": "Verification failed",
-        "channel-unavailable": "Channel unavailable",
-        "update-withdrawn": "Update withdrawn",
-        "candidate": "Candidate",
-        "verified": "Source verification",
-        "size": "Declared size",
-        "notes": "Notes",
-        "signing": "Signing (TUF metadata report; not verified here)",
-        "provenance": "Provenance (TUF metadata report; not verified here)",
-    }
 
 
 def create_update_settings_group(
@@ -104,33 +34,34 @@ def create_update_settings_group(
         QVBoxLayout,
     )
 
-    tr = _texts(locale)
+    translator = V11Translator(locale)
+    tr = translator.text
     store = settings or QSettings("Kodepoia", "KodeStudio")
-    group = QGroupBox(tr["title"])
+    group = QGroupBox(tr("updates.title"))
     group.setObjectName("updateSettingsGroup")
     layout = QVBoxLayout(group)
     form = QFormLayout()
 
     installed = QLabel(f"{CURRENT_RELEASE.public_version} ({CURRENT_RELEASE.channel})")
     installed.setObjectName("updateInstalledVersion")
-    form.addRow(tr["installed"], installed)
+    form.addRow(tr("updates.installed"), installed)
 
     channel = QComboBox()
     channel.setObjectName("updateChannelSelector")
-    channel.addItem(tr["stable"], "stable")
-    channel.addItem(tr["beta"], "beta")
-    channel.addItem(tr["nightly"], "nightly")
+    channel.addItem(tr("updates.stable"), "stable")
+    channel.addItem(tr("updates.beta"), "beta")
+    channel.addItem(tr("updates.nightly"), "nightly")
     saved_channel = str(store.value("updates/channel", DEFAULT_UPDATE_CHANNEL)).lower()
     channel_index = channel.findData(saved_channel)
     channel.setCurrentIndex(channel_index if channel_index >= 0 else 0)
-    form.addRow(tr["channel"], channel)
+    form.addRow(tr("updates.channel"), channel)
 
     prerelease_warning = QLabel("")
     prerelease_warning.setObjectName("updatePrereleaseWarning")
     prerelease_warning.setWordWrap(True)
     form.addRow(prerelease_warning)
 
-    periodic = QCheckBox(tr["periodic"])
+    periodic = QCheckBox(tr("updates.periodic"))
     periodic.setObjectName("updatePeriodicEnabled")
     enabled_value = store.value("updates/periodic_enabled", True)
     if isinstance(enabled_value, str):
@@ -148,19 +79,20 @@ def create_update_settings_group(
         saved_hours = DEFAULT_PERIODIC_CHECK_HOURS
     interval.setValue(max(MIN_PERIODIC_CHECK_HOURS, min(MAX_PERIODIC_CHECK_HOURS, saved_hours)))
     interval.setEnabled(periodic.isChecked())
-    form.addRow(tr["interval"], interval)
+    form.addRow(tr("updates.interval"), interval)
     layout.addLayout(form)
 
-    note = QLabel(tr["never_startup"])
+    note = QLabel(tr("updates.never_startup"))
     note.setObjectName("updateStartupPolicy")
     note.setWordWrap(True)
     layout.addWidget(note)
 
-    check_button = QPushButton(tr["check"])
+    check_button = QPushButton(tr("updates.check"))
     check_button.setObjectName("checkForUpdatesButton")
     layout.addWidget(check_button)
 
-    state = QLabel(tr["channel-unavailable"] if service is None else "")
+    initial_state = tr("updates.channel-unavailable") if service is None else ""
+    state = QLabel(initial_state)
     state.setObjectName("updateDiscoveryState")
     state.setWordWrap(True)
     layout.addWidget(state)
@@ -190,8 +122,8 @@ def create_update_settings_group(
             timer.start()
 
     def render(result: UpdateDiscoveryResult) -> None:
-        state_text = tr.get(result.status, result.status)
-        state.setText(f"{state_text}: {result.detail}")
+        state_key = f"updates.{result.status}"
+        state.setText(f"{tr(state_key)}: {result.detail}")
         candidate = result.candidate
         if candidate is None:
             details.setText("")
@@ -200,12 +132,13 @@ def create_update_settings_group(
         details.setText(
             "\n".join(
                 (
-                    f"{tr['candidate']}: {candidate.target.public_version} ({candidate.target.channel})",
-                    f"{tr['verified']}: {candidate.source_verification_state}",
-                    f"{tr['size']}: {candidate.size_bytes} bytes ({mib:.2f} MiB)",
-                    f"{tr['notes']}: {candidate.release_notes_summary}",
-                    f"{tr['signing']}: {candidate.signing_status}",
-                    f"{tr['provenance']}: {candidate.provenance_status}",
+                    f"{tr('updates.candidate')}: "
+                    f"{candidate.target.public_version} ({candidate.target.channel})",
+                    f"{tr('updates.verified')}: {candidate.source_verification_state}",
+                    f"{tr('updates.size')}: {candidate.size_bytes} bytes ({mib:.2f} MiB)",
+                    f"{tr('updates.notes')}: {candidate.release_notes_summary}",
+                    f"{tr('updates.signing')}: {candidate.signing_status}",
+                    f"{tr('updates.provenance')}: {candidate.provenance_status}",
                 )
             )
         )
@@ -224,7 +157,7 @@ def create_update_settings_group(
             return
         busy["value"] = True
         check_button.setEnabled(False)
-        state.setText(tr["checking"])
+        state.setText(tr("updates.checking"))
         try:
             result = service.check(str(channel.currentData()))
         except Exception as exc:  # UI boundary: never let update discovery crash KodeStudio.
@@ -239,10 +172,10 @@ def create_update_settings_group(
     def channel_changed() -> None:
         selected = str(channel.currentData())
         if selected == "beta":
-            prerelease_warning.setText(tr["beta_warning"])
+            prerelease_warning.setText(tr("updates.beta_warning"))
             prerelease_warning.setVisible(True)
         elif selected == "nightly":
-            prerelease_warning.setText(tr["nightly_warning"])
+            prerelease_warning.setText(tr("updates.nightly_warning"))
             prerelease_warning.setVisible(True)
         else:
             prerelease_warning.clear()

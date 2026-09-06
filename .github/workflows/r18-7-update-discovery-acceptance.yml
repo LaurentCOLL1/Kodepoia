@@ -129,7 +129,7 @@ jobs:
               "subdivision": "R18.7",
               "source_sha": os.environ["EVIDENCE_SHA"].strip().lower(),
               "discovery_scope": "tuf-metadata-only",
-              "channels": ["stable", "beta"],
+              "channels": ["stable", "beta", "nightly"],
               "conservative_default": "stable",
               "periodic_default_hours": 24,
               "periodic_bounds_hours": [6, 168],

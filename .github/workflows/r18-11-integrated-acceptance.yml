@@ -194,27 +194,41 @@ jobs:
             --focused-regressions-passed `
             --output "artifacts/r18_11/core.json"
 
-      - name: Build immutable R17 accepted fixture
+      - name: Build immutable R17 accepted fixture in isolated venv
         shell: pwsh
         run: |
           $fixtureRoot = Join-Path $env:RUNNER_TEMP "kodepoia-r17-fixture-src"
+          $fixtureVenv = Join-Path $env:RUNNER_TEMP "kodepoia-r17-fixture-venv"
           Remove-Item $fixtureRoot -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $fixtureVenv -Recurse -Force -ErrorAction SilentlyContinue
           git worktree add --detach "$fixtureRoot" "$env:R17_FIXTURE_SHA"
           try {
-            Push-Location $fixtureRoot
-            $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
-            if ($actual -ne $env:R17_FIXTURE_SHA) {
-              throw "R17 fixture checkout mismatch: $actual"
+            python -m venv "$fixtureVenv"
+            $fixturePython = Join-Path $fixtureVenv "Scripts\python.exe"
+            if (-not (Test-Path $fixturePython)) {
+              throw "Failed to create isolated R17 fixture Python"
             }
-            ./scripts/build_windows_installer.ps1 -Version "1.1.0-rc1"
-            $fixtureDir = Join-Path $env:GITHUB_WORKSPACE "artifacts/r18_11/fixture"
-            New-Item -ItemType Directory -Force -Path $fixtureDir | Out-Null
-            Copy-Item "dist/windows/KodepoiaSetup.exe" (Join-Path $fixtureDir "KodepoiaSetup.exe")
-            Copy-Item "dist/windows/installer-manifest.json" (Join-Path $fixtureDir "installer-manifest.json")
+            Push-Location $fixtureRoot
+            try {
+              $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
+              if ($actual -ne $env:R17_FIXTURE_SHA) {
+                throw "R17 fixture checkout mismatch: $actual"
+              }
+              ./scripts/build_windows_installer.ps1 `
+                -Version "1.1.0-rc1" `
+                -Python "$fixturePython"
+              $fixtureDir = Join-Path $env:GITHUB_WORKSPACE "artifacts/r18_11/fixture"
+              New-Item -ItemType Directory -Force -Path $fixtureDir | Out-Null
+              Copy-Item "dist/windows/KodepoiaSetup.exe" (Join-Path $fixtureDir "KodepoiaSetup.exe")
+              Copy-Item "dist/windows/installer-manifest.json" (Join-Path $fixtureDir "installer-manifest.json")
+            }
+            finally {
+              Pop-Location
+            }
           }
           finally {
-            Pop-Location
-            git worktree remove --force "$fixtureRoot"
+            git worktree remove --force "$fixtureRoot" 2>$null
+            Remove-Item $fixtureVenv -Recurse -Force -ErrorAction SilentlyContinue
           }
 
       - name: Exercise clean install, update, packaged smoke and uninstall

@@ -777,3 +777,16 @@ This planning document and its matching planning-continuity record must be the o
 - Critical negative controls are fail-closed. Any unexpected acceptance of tampered bytes, rollback/freeze metadata, wrong channel/signature/digest or compromised release state sets `critical_veto=true`, adds a blocker and prevents R18 completion.
 - Core manual intervention is **NONE**. Production signing, public GitHub Release publication/mutation, production TUF key custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED** and must be reported truthfully as such.
 - This START-sync is documentation-only. No R18.11 integrated module, script, schema, workflow, test, fixture or implementation byte may precede this clean START decision head; temporary transport helpers are non-authoritative and absent from the R18.11 branch lineage.
+
+## R18.11 END-sync authority
+
+- Immutable accepted technical source: `7f53831abe194a90e23a4a5e22135533ed08a876` on `r18/11-integrated-adversarial-release-update-acceptance`.
+- Dedicated R18.11 Integrated Adversarial Release Update Acceptance #6 / `34054253463` is **SUCCESS** on that exact SHA. Exact checkout provenance, final Windows RC construction, isolated immutable R17 fixture reconstruction, clean installation, accepted R17→R18 upgrade, packaged smoke, uninstall and integrated verdict all succeeded.
+- Canonical integrated report is **PASS** with `blockers=[]`, `critical_veto=false`, `manual_intervention=NONE`, `project_data_mutation=false` and `provider_effect_count=0`; report SHA-256 is `a4d5e79c142c4e5b0135665bc468c6a264f1c30aaaf422d9ea1c9809bea32372`.
+- Exact final Windows candidate is `KodepoiaSetup.exe` version `1.1.0-rc1`, SHA-256 `6ae0d670786710c9bad85bf0da16ea29e1d7ad2260a58c52b9c8c3e86e3ee31e`, with `production_signed=false`.
+- All seven critical adversarial controls fail closed as expected: tampered bytes, rollback metadata, freeze/stale metadata, wrong channel, wrong signature, wrong digest and compromised/withdrawn release state.
+- Integrated Actions artifact ID `9996197536` is 36,669,222 bytes with ZIP digest `sha256:703b9f096a75d3937e7a9e27ef16c20eb202717ca444e95eac38a3cf80370b9d` and is source-bound by GitHub to the immutable technical SHA.
+- R18.1–R18.10 evidence freshness/source equality passed in the integrated authority. Same-source R0 Repository Guard, R16.9 Supply Chain Provenance, full Python Core, KodeStudio UI Smoke and R17 Windows Installer regression are all SUCCESS on the immutable technical source.
+- Core manual state is **NONE**. Production Authenticode signing, public GitHub Release publication/mutation, production TUF key custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**.
+- Because this END-sync changes documentation bytes, its resulting exact END head must pass fresh R18.11 + R16.9 + R0 Repository Guard Ubuntu/Windows + full Python Core + KodeStudio UI Smoke before PR #403 may merge with `expected_head_sha` equal to that exact head.
+- After that implementation/evidence merge, exactly one post-merge continuity-only **R18 phase normalization** is authorized. Its exact candidate must pass fresh R0/Python/UI and merge with exact expected-head protection. Only that normalized `main` establishes **R18 COMPLETE + NORMALIZED**; no second R18 phase normalization is authorized.

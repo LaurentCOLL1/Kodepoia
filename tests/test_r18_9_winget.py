@@ -207,9 +207,27 @@ def test_write_uses_only_governed_manifest_names(tmp_path: Path) -> None:
     assert all(path.read_bytes().endswith(b"\n") for path in tmp_path.iterdir())
 
 
+def test_preview_validation_is_deferred_without_subprocess(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setattr("kodepoia.release.winget.shutil.which", lambda _: "winget")
+
+    def _unexpected_run(*args: object, **kwargs: object) -> None:
+        raise AssertionError("winget must not run for non-publishable preview manifests")
+
+    monkeypatch.setattr("kodepoia.release.winget.subprocess.run", _unexpected_run)
+    result = validate_with_winget(tmp_path, publishable=False)
+
+    assert result["status"] == "SKIPPED_NON_PUBLISHABLE_PREVIEW"
+    assert result["executable"] == "winget"
+    assert result["returncode"] is None
+    assert ".invalid" in result["reason"]
+
+
 def test_winget_unavailable_is_truthful(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setattr("kodepoia.release.winget.shutil.which", lambda _: None)
-    result = validate_with_winget(tmp_path)
+    result = validate_with_winget(tmp_path, publishable=True)
 
     assert result["status"] == "UNAVAILABLE"
     assert result["returncode"] is None

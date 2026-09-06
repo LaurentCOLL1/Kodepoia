@@ -1026,3 +1026,26 @@ Create and verify the documentation-only R18.8 END head as a direct child of imm
 - This is the single authorized post-merge normalization for R18.10. Its exact candidate head must pass fresh R0 Repository Guard Ubuntu + Windows, Python Core 5/5 and KodeStudio UI Smoke before exact-head merge; no second R18.10 normalization is permitted.
 - Core manual state remains **NONE**. Production certificate revocation, production TUF key/root rotation, public GitHub Release/tag/asset or attestation mutation and public WinGet effects remain **CONDITIONAL / NOT TRIGGERED**.
 - Once this exact gated normalization merges, R18.10 is **COMPLETE + NORMALIZED** and R18.11 START-sync is authorized only from the resulting normalized `main`.
+
+
+## R18.11 START authority
+
+- R18.10 is **COMPLETE + NORMALIZED** on canonical `main` `c7f0e6a7801fb37ca044b4d3d8360694c911e824`. Its unique continuity-only normalization PR #402 used exact candidate `50d549f8717882502195eb562617178d1fdab613`, with fresh R0 #2550 / `34052009856` Ubuntu + Windows, Python Core #2522 / `34052009992` 5/5 and KodeStudio UI Smoke #2487 / `34052009974` all SUCCESS before exact-head merge.
+- R18.11 dedicated branch `r18/11-integrated-adversarial-release-update-acceptance` is created directly from that normalized main. R18.1–R18.10 are **COMPLETE + NORMALIZED**; R18.11 is **IN_PROGRESS**.
+- Frozen R18.11 authority is integrated and non-circular: machine-readable R18.1–R18.10 evidence, final Windows RC build/install/update/uninstall health, exact-source provenance/freshness checks and adversarial tamper/rollback/freeze/channel/signature/digest rejection feed one deterministic report. `blockers=[]` and `critical_veto=false` are required for acceptance.
+- The real Windows acceptance must remain local to CI and use repository packaging boundaries; public release, production signing, production TUF custody/rotation and public WinGet effects are not authorized by this START.
+- Manual state: **NONE** for core R18.11. External production effects remain **CONDITIONAL / NOT TRIGGERED**.
+- This START decision is documentation-only and precedes every R18.11 implementation byte. R18 phase completion remains unauthorized until R18.11 exact-END is freshly gated and merged and exactly one continuity-only phase normalization is freshly gated and merged.
+
+## R18.11 END authority
+
+- **Latest-state authority:** this section supersedes only stale current-state / next-action wording above. Historical R18 START/END/normalization evidence remains immutable and authoritative for what it records.
+- R18.11 technical acceptance is complete on immutable exact source `7f53831abe194a90e23a4a5e22135533ed08a876`. Dedicated R18.11 Integrated Adversarial Release Update Acceptance #6 / `34054253463` is **SUCCESS** on that exact SHA, including final Windows RC construction, isolated immutable R17 fixture reconstruction, clean install, accepted R17→R18 upgrade, packaged smoke, uninstall and integrated verdict.
+- Canonical integrated report is **PASS** with `blockers=[]`, `critical_veto=false`, `manual_intervention=NONE`, `project_data_mutation=false`, `provider_effect_count=0`; report SHA-256 `a4d5e79c142c4e5b0135665bc468c6a264f1c30aaaf422d9ea1c9809bea32372`.
+- Exact final candidate `KodepoiaSetup.exe` is version `1.1.0-rc1`, SHA-256 `6ae0d670786710c9bad85bf0da16ea29e1d7ad2260a58c52b9c8c3e86e3ee31e`, `production_signed=false`. Integrated Actions artifact ID `9996197536` is 36,669,222 bytes with ZIP digest `sha256:703b9f096a75d3937e7a9e27ef16c20eb202717ca444e95eac38a3cf80370b9d`.
+- R18.1–R18.10 evidence freshness/source binding passed. Seven critical controls fail closed as expected: tamper, rollback, freeze/stale metadata, wrong channel, wrong signature, wrong digest and compromised/withdrawn release state. Same-source R0, R16.9, full Python Core, KodeStudio UI Smoke and R17 Windows Installer regression are SUCCESS.
+- Core manual state remains **NONE**. Production signing, public GitHub Release publication/mutation, production TUF custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**.
+- The authoritative R18.11 END decision head must be exactly one direct child of `7f53831abe194a90e23a4a5e22135533ed08a876` and its net diff must contain exactly `docs/roadmap/R18_PLAN.md` plus `docs/continuity/KODEPOIA_CONTINUITY.md`; no transport/helper file or helper workflow may exist in that decision tree or lineage.
+- That exact END head must pass fresh R18.11, R16.9, R0 Repository Guard Ubuntu + Windows, full Python Core 5/5 and KodeStudio UI Smoke before PR #403 may merge only with `expected_head_sha` equal to that exact head.
+- After the implementation/evidence merge, exactly one branch `r18/phase-continuity-normalization` is authorized from the exact merge. Its decision tree may change only this continuity file and must pass fresh R0 Repository Guard Ubuntu + Windows, full Python Core 5/5 and KodeStudio UI Smoke before exact-head merge.
+- **R18 is not COMPLETE + NORMALIZED until that single phase-normalization merge is present on `main`.** Once it is present, R18.1–R18.11 are COMPLETE + NORMALIZED and no second R18 phase normalization or additional R18 subdivision is authorized. Phase completion does not imply production signing, public GitHub Release publication, production TUF effects or public WinGet submission.

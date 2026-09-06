@@ -1,0 +1,114 @@
+name: R18.9 WinGet Manifest Generation Validation Acceptance
+
+on:
+  push:
+    branches:
+      - r18/09-winget-manifest-generation-validation
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/r18-9-winget-acceptance.yml
+      - src/kodepoia/release/winget.py
+      - tests/test_r18_9_winget.py
+      - scripts/r18_9_winget_acceptance.py
+      - packaging/winget/**
+      - packaging/windows/Kodepoia.iss
+      - configs/r16_supply_chain_policy.json
+      - tests/test_supply_chain_r16_9.py
+      - docs/roadmap/R18_PLAN.md
+      - docs/continuity/KODEPOIA_CONTINUITY.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r18-9-winget-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  winget-readiness:
+    runs-on: windows-latest
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: pwsh
+        run: |
+          $actual = (git rev-parse HEAD).Trim()
+          if ($actual -ne $env:EVIDENCE_SHA) {
+            throw "Expected $env:EVIDENCE_SHA, got $actual"
+          }
+
+      - name: Install test and packaging dependencies
+        run: python -m pip install -e ".[dev,ui,code,packaging]"
+
+      - name: Compile and Ruff focused R18.9 surface
+        shell: pwsh
+        run: |
+          python -m compileall -q src/kodepoia/release/winget.py scripts/r18_9_winget_acceptance.py tests/test_r18_9_winget.py
+          ruff check src/kodepoia/release/winget.py scripts/r18_9_winget_acceptance.py tests/test_r18_9_winget.py
+
+      - name: Run focused WinGet and supply-chain tests
+        run: pytest tests/test_r18_9_winget.py tests/test_supply_chain_r16_9.py
+
+      - name: Install Inno Setup 6
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build exact-source KodepoiaSetup.exe
+        shell: pwsh
+        run: ./scripts/build_windows_installer.ps1 -Version "1.1.0-rc1"
+
+      - name: Generate and validate WinGet readiness evidence
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:RUNNER_TEMP "r18-9-winget"
+          $manifests = Join-Path $root "manifests"
+          $report = Join-Path $root "R18_9_WINGET_ACCEPTANCE.json"
+          Remove-Item $root -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $manifests | Out-Null
+          python scripts/r18_9_winget_acceptance.py `
+            --source-sha $env:EVIDENCE_SHA `
+            --installer "dist/windows/KodepoiaSetup.exe" `
+            --manifest-dir $manifests `
+            --output $report
+
+          $evidence = Get-Content $report -Raw | ConvertFrom-Json
+          if ($evidence.source_sha -ne $env:EVIDENCE_SHA) { throw "Evidence SHA mismatch" }
+          if ($evidence.manifest.manifest_version -ne "1.12.0") { throw "Manifest version mismatch" }
+          if (-not $evidence.manifest.preview) { throw "Ordinary CI must remain preview-only" }
+          if ($evidence.manifest.publishable) { throw "Ordinary CI preview must not be publishable" }
+          if ($evidence.public_submission_authorized) { throw "Public submission must remain unauthorized" }
+          if ($evidence.public_submission_performed) { throw "Public submission must not occur" }
+          if ($evidence.network_publication_calls -ne 0) { throw "Publication network calls must remain zero" }
+          if ($evidence.manual_state -ne "CONDITIONAL_NOT_TRIGGERED") { throw "Manual state mismatch" }
+          if ($evidence.winget_validation.status -notin @("PASS", "UNAVAILABLE")) {
+            throw "Unexpected winget validation state: $($evidence.winget_validation.status)"
+          }
+          Write-Host "WinGet validation state: $($evidence.winget_validation.status)"
+          Get-FileHash "dist/windows/KodepoiaSetup.exe" -Algorithm SHA256
+          Get-Content $report
+
+      - name: Upload R18.9 readiness evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r18-9-winget-${{ env.EVIDENCE_SHA }}
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/r18-9-winget/manifests/*.yaml
+            ${{ runner.temp }}/r18-9-winget/R18_9_WINGET_ACCEPTANCE.json
+            dist/windows/installer-manifest.json

@@ -23,11 +23,19 @@ def _texts(locale: str) -> dict[str, str]:
             "channel": "Canal de mise à jour",
             "stable": "Stable",
             "beta": "Bêta",
+            "nightly": "Nightly / développement",
             "beta_warning": "Le canal bêta peut proposer des versions de prépublication moins stables.",
+            "nightly_warning": (
+                "Le canal nightly/développement peut proposer des versions très récentes, "
+                "expérimentales et moins stables."
+            ),
             "periodic": "Vérifier périodiquement les mises à jour",
             "interval": "Intervalle (heures)",
             "check": "Rechercher des mises à jour",
-            "never_startup": "La vérification n'est jamais une dépendance du démarrage et aucun installateur n'est lancé automatiquement.",
+            "never_startup": (
+                "La vérification n'est jamais une dépendance du démarrage et aucun "
+                "installateur n'est lancé automatiquement."
+            ),
             "checking": "Vérification des métadonnées de mise à jour…",
             "up-to-date": "À jour",
             "update-available": "Mise à jour disponible",
@@ -49,11 +57,18 @@ def _texts(locale: str) -> dict[str, str]:
         "channel": "Update channel",
         "stable": "Stable",
         "beta": "Beta",
+        "nightly": "Nightly / development",
         "beta_warning": "The beta channel can offer less stable prerelease builds.",
+        "nightly_warning": (
+            "The nightly/development channel can offer very recent, experimental, "
+            "less stable builds."
+        ),
         "periodic": "Check periodically for updates",
         "interval": "Interval (hours)",
         "check": "Check for updates",
-        "never_startup": "Update checks never gate startup and no installer is launched automatically.",
+        "never_startup": (
+            "Update checks never gate startup and no installer is launched automatically."
+        ),
         "checking": "Checking trusted update metadata…",
         "up-to-date": "Up to date",
         "update-available": "Update available",
@@ -104,16 +119,16 @@ def create_update_settings_group(
     channel.setObjectName("updateChannelSelector")
     channel.addItem(tr["stable"], "stable")
     channel.addItem(tr["beta"], "beta")
+    channel.addItem(tr["nightly"], "nightly")
     saved_channel = str(store.value("updates/channel", DEFAULT_UPDATE_CHANNEL)).lower()
     channel_index = channel.findData(saved_channel)
     channel.setCurrentIndex(channel_index if channel_index >= 0 else 0)
     form.addRow(tr["channel"], channel)
 
-    beta_warning = QLabel(tr["beta_warning"])
-    beta_warning.setObjectName("updatePrereleaseWarning")
-    beta_warning.setWordWrap(True)
-    beta_warning.setVisible(channel.currentData() == "beta")
-    form.addRow(beta_warning)
+    prerelease_warning = QLabel("")
+    prerelease_warning.setObjectName("updatePrereleaseWarning")
+    prerelease_warning.setWordWrap(True)
+    form.addRow(prerelease_warning)
 
     periodic = QCheckBox(tr["periodic"])
     periodic.setObjectName("updatePeriodicEnabled")
@@ -222,7 +237,16 @@ def create_update_settings_group(
         render(result)
 
     def channel_changed() -> None:
-        beta_warning.setVisible(channel.currentData() == "beta")
+        selected = str(channel.currentData())
+        if selected == "beta":
+            prerelease_warning.setText(tr["beta_warning"])
+            prerelease_warning.setVisible(True)
+        elif selected == "nightly":
+            prerelease_warning.setText(tr["nightly_warning"])
+            prerelease_warning.setVisible(True)
+        else:
+            prerelease_warning.clear()
+            prerelease_warning.setVisible(False)
         persist()
 
     channel.currentIndexChanged.connect(lambda *_: channel_changed())
@@ -230,6 +254,7 @@ def create_update_settings_group(
     interval.valueChanged.connect(lambda *_: (persist(), configure_timer()))
     check_button.clicked.connect(run_check)
     timer.timeout.connect(run_check)
+    channel_changed()
     configure_timer()
 
     group._kodepoia_update_settings = store

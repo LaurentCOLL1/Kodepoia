@@ -41,7 +41,9 @@ def _replace_stack_page(stack, index: int, widget) -> None:
     old.deleteLater()
 
 
-def _settings_page(locale: str, *, update_service=None, update_settings=None):
+def _settings_page(
+    locale: str, *, update_service=None, install_service=None, update_settings=None
+):
     from PySide6.QtWidgets import QComboBox, QFormLayout, QLabel, QVBoxLayout, QWidget
 
     from kodepoia.kodestudio.update_settings import create_update_settings_group
@@ -68,6 +70,7 @@ def _settings_page(locale: str, *, update_service=None, update_settings=None):
     update_group = create_update_settings_group(
         locale=locale,
         service=update_service,
+        install_service=install_service,
         settings=update_settings,
     )
     layout.addWidget(update_group)
@@ -95,6 +98,7 @@ def build_window(
     locale: str | None = None,
     project_root: Path | None = None,
     update_service=None,
+    install_service=None,
     update_settings=None,
 ):
     from PySide6.QtWidgets import QLabel, QListWidget, QPushButton, QStackedWidget
@@ -158,6 +162,7 @@ def build_window(
             _settings_page(
                 chosen_locale,
                 update_service=update_service,
+                install_service=install_service,
                 update_settings=update_settings,
             ),
         )
@@ -197,6 +202,7 @@ def build_window(
     window._kodepoia_project_root = root
     window._kodepoia_open_project_with_draft = open_project_with_draft
     window._kodepoia_update_service = update_service
+    window._kodepoia_install_service = install_service
     return window
 
 

@@ -12,6 +12,7 @@ on:
       - src/kodepoia/update/**
       - src/kodepoia/kodestudio/app_v11.py
       - src/kodepoia/kodestudio/update_settings.py
+      - src/kodepoia/kodestudio/v11_localization.py
       - tests/test_r18_7_update_discovery.py
       - tests/test_r18_7_kodestudio_updates.py
       - docs/roadmap/R18_PLAN.md
@@ -71,6 +72,7 @@ jobs:
           python -m compileall -q
           src/kodepoia/update/discovery.py
           src/kodepoia/kodestudio/update_settings.py
+          src/kodepoia/kodestudio/v11_localization.py
           src/kodepoia/kodestudio/app_v11.py
           tests/test_r18_7_update_discovery.py
           tests/test_r18_7_kodestudio_updates.py
@@ -93,6 +95,7 @@ jobs:
               "json",
               "src/kodepoia/update/discovery.py",
               "src/kodepoia/kodestudio/update_settings.py",
+              "src/kodepoia/kodestudio/v11_localization.py",
               "src/kodepoia/kodestudio/app_v11.py",
               "tests/test_r18_7_update_discovery.py",
               "tests/test_r18_7_kodestudio_updates.py",
@@ -136,6 +139,7 @@ jobs:
               "startup_network_dependency": False,
               "target_download_allowed": False,
               "automatic_installer_launch": False,
+              "signing_provenance_claims": "tuf-metadata-reported-not-authoritatively-verified",
               "manual_intervention": "NONE",
           }
           (output / "acceptance.json").write_text(

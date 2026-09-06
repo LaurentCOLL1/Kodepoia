@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "subdivision": "R18.8",
+  "transport": {
+    "required_scheme": "https",
+    "same_origin_redirects_only": true,
+    "chunk_size_bytes": 1048576,
+    "max_installer_bytes": 1073741824
+  },
+  "staging": {
+    "partial_suffix": ".partial",
+    "atomic_finalize": true,
+    "exact_tuf_length_required": true,
+    "exact_tuf_sha256_required": true,
+    "authenticode_required_before_finalize": true,
+    "release_identity_required_before_finalize": true
+  },
+  "execution": {
+    "automatic_launch": false,
+    "explicit_user_consent_required": true,
+    "recheck_size_and_sha256_before_launch": true,
+    "windows_elevation_verb": "runas"
+  },
+  "recovery": {
+    "preserve_previous_version_metadata": true,
+    "preserve_previous_installer_reference": true,
+    "project_data_mutation": false
+  },
+  "manual_state": "NONE"
+}

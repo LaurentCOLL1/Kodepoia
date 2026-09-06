@@ -52,13 +52,13 @@ continuity = REPO / "docs/continuity/KODEPOIA_CONTINUITY.md"
 roadmap.write_text(roadmap.read_text(encoding="utf-8") + ROADMAP_APPEND, encoding="utf-8", newline="\n")
 continuity.write_text(continuity.read_text(encoding="utf-8") + CONTINUITY_APPEND, encoding="utf-8", newline="\n")
 
-changed = run("git", "diff", "--name-only").splitlines()
 expected = ["docs/continuity/KODEPOIA_CONTINUITY.md", "docs/roadmap/R18_PLAN.md"]
-if changed != expected:
-    raise SystemExit(f"unexpected END-sync diff: {changed}")
+run("git", "add", *expected)
+staged = run("git", "diff", "--cached", "--name-only").splitlines()
+if staged != expected:
+    raise SystemExit(f"unexpected staged END-sync diff: {staged}")
 
 run("git", "config", "user.name", "github-actions[bot]")
 run("git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com")
-run("git", "add", *expected)
 subprocess.check_call(["git", "commit", "-m", "R18.10 — END-sync accepted incident drill evidence"], cwd=REPO)
 subprocess.check_call(["git", "push", "origin", f"HEAD:refs/heads/{TARGET_BRANCH}"], cwd=REPO)

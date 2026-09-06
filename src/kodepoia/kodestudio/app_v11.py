@@ -10,7 +10,6 @@ from kodepoia.kodestudio.v11_localization import V11Translator, resolve_locale
 from kodepoia.kodestudio.vision_assistant import VisionDraft
 from kodepoia.release_identity import CURRENT_RELEASE
 
-
 SETTINGS_PATH = Path.home() / ".kodepoia" / "settings.json"
 
 

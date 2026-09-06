@@ -1,0 +1,76 @@
+name: R18.11 END Sync Transport
+
+on:
+  push:
+    branches:
+      - r18/11-end-sync-transport
+
+permissions:
+  contents: write
+
+jobs:
+  append-end-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout transport branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Verify transport parent
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="7f53831abe194a90e23a4a5e22135533ed08a876"
+          actual="$(git rev-parse HEAD^)"
+          test "$actual" = "$expected"
+
+      - name: Append R18.11 END authority
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat >> docs/roadmap/R18_PLAN.md <<'EOF'
+
+## R18.11 END-sync authority
+
+- Immutable accepted technical source: `7f53831abe194a90e23a4a5e22135533ed08a876` on `r18/11-integrated-adversarial-release-update-acceptance`.
+- Dedicated R18.11 Integrated Adversarial Release Update Acceptance #6 / `34054253463` is **SUCCESS** on that exact SHA. Exact checkout provenance, final Windows RC construction, isolated immutable R17 fixture reconstruction, clean installation, accepted R17→R18 upgrade, packaged smoke, uninstall and integrated verdict all succeeded.
+- Canonical integrated report is **PASS** with `blockers=[]`, `critical_veto=false`, `manual_intervention=NONE`, `project_data_mutation=false` and `provider_effect_count=0`; report SHA-256 is `a4d5e79c142c4e5b0135665bc468c6a264f1c30aaaf422d9ea1c9809bea32372`.
+- Exact final Windows candidate is `KodepoiaSetup.exe` version `1.1.0-rc1`, SHA-256 `6ae0d670786710c9bad85bf0da16ea29e1d7ad2260a58c52b9c8c3e86e3ee31e`, with `production_signed=false`.
+- All seven critical adversarial controls fail closed as expected: tampered bytes, rollback metadata, freeze/stale metadata, wrong channel, wrong signature, wrong digest and compromised/withdrawn release state.
+- Integrated Actions artifact ID `9996197536` is 36,669,222 bytes with ZIP digest `sha256:703b9f096a75d3937e7a9e27ef16c20eb202717ca444e95eac38a3cf80370b9d` and is source-bound by GitHub to the immutable technical SHA.
+- R18.1–R18.10 evidence freshness/source equality passed in the integrated authority. Same-source R0 Repository Guard, R16.9 Supply Chain Provenance, full Python Core, KodeStudio UI Smoke and R17 Windows Installer regression are all SUCCESS on the immutable technical source.
+- Core manual state is **NONE**. Production Authenticode signing, public GitHub Release publication/mutation, production TUF key custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**.
+- Because this END-sync changes documentation bytes, its resulting exact END head must pass fresh R18.11 + R16.9 + R0 Repository Guard Ubuntu/Windows + full Python Core + KodeStudio UI Smoke before PR #403 may merge with `expected_head_sha` equal to that exact head.
+- After that implementation/evidence merge, exactly one post-merge continuity-only **R18 phase normalization** is authorized. Its exact candidate must pass fresh R0/Python/UI and merge with exact expected-head protection. Only that normalized `main` establishes **R18 COMPLETE + NORMALIZED**; no second R18 phase normalization is authorized.
+EOF
+
+          cat >> docs/continuity/KODEPOIA_CONTINUITY.md <<'EOF'
+
+## R18.11 END authority
+
+- **Latest-state authority:** this section supersedes only stale current-state / next-action wording above. Historical R18 START/END/normalization evidence remains immutable and authoritative for what it records.
+- R18.11 technical acceptance is complete on immutable exact source `7f53831abe194a90e23a4a5e22135533ed08a876`. Dedicated R18.11 Integrated Adversarial Release Update Acceptance #6 / `34054253463` is **SUCCESS** on that exact SHA, including final Windows RC construction, isolated immutable R17 fixture reconstruction, clean install, accepted R17→R18 upgrade, packaged smoke, uninstall and integrated verdict.
+- Canonical integrated report is **PASS** with `blockers=[]`, `critical_veto=false`, `manual_intervention=NONE`, `project_data_mutation=false`, `provider_effect_count=0`; report SHA-256 `a4d5e79c142c4e5b0135665bc468c6a264f1c30aaaf422d9ea1c9809bea32372`.
+- Exact final candidate `KodepoiaSetup.exe` is version `1.1.0-rc1`, SHA-256 `6ae0d670786710c9bad85bf0da16ea29e1d7ad2260a58c52b9c8c3e86e3ee31e`, `production_signed=false`. Integrated Actions artifact ID `9996197536` is 36,669,222 bytes with ZIP digest `sha256:703b9f096a75d3937e7a9e27ef16c20eb202717ca444e95eac38a3cf80370b9d`.
+- R18.1–R18.10 evidence freshness/source binding passed. Seven critical controls fail closed as expected: tamper, rollback, freeze/stale metadata, wrong channel, wrong signature, wrong digest and compromised/withdrawn release state. Same-source R0, R16.9, full Python Core, KodeStudio UI Smoke and R17 Windows Installer regression are SUCCESS.
+- Core manual state remains **NONE**. Production signing, public GitHub Release publication/mutation, production TUF custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**.
+- The authoritative R18.11 END decision head must be exactly one direct child of `7f53831abe194a90e23a4a5e22135533ed08a876` and its net diff must contain exactly `docs/roadmap/R18_PLAN.md` plus `docs/continuity/KODEPOIA_CONTINUITY.md`; no transport/helper file or helper workflow may exist in that decision tree or lineage.
+- That exact END head must pass fresh R18.11, R16.9, R0 Repository Guard Ubuntu + Windows, full Python Core 5/5 and KodeStudio UI Smoke before PR #403 may merge only with `expected_head_sha` equal to that exact head.
+- After the implementation/evidence merge, exactly one branch `r18/phase-continuity-normalization` is authorized from the exact merge. Its decision tree may change only this continuity file and must pass fresh R0 Repository Guard Ubuntu + Windows, full Python Core 5/5 and KodeStudio UI Smoke before exact-head merge.
+- **R18 is not COMPLETE + NORMALIZED until that single phase-normalization merge is present on `main`.** Once it is present, R18.1–R18.11 are COMPLETE + NORMALIZED and no second R18 phase normalization or additional R18 subdivision is authorized. Phase completion does not imply production signing, public GitHub Release publication, production TUF effects or public WinGet submission.
+EOF
+
+      - name: Commit transport tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/r18-11-end-sync-transport.yml
+          git add docs/roadmap/R18_PLAN.md docs/continuity/KODEPOIA_CONTINUITY.md
+          git diff --cached --name-only | sort
+          git config user.name "LaurentCOLL1"
+          git config user.email "128934707+LaurentCOLL1@users.noreply.github.com"
+          git commit -m "R18.11 — prepare append-only END-sync tree"
+          git push origin HEAD:r18/11-end-sync-transport

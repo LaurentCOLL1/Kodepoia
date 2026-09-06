@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import sys
@@ -8,7 +9,6 @@ from pathlib import Path
 from kodepoia.kodestudio.v11_localization import V11Translator, resolve_locale
 from kodepoia.kodestudio.vision_assistant import VisionDraft
 from kodepoia.release_identity import CURRENT_RELEASE
-
 
 SETTINGS_PATH = Path.home() / ".kodepoia" / "settings.json"
 
@@ -41,8 +41,10 @@ def _replace_stack_page(stack, index: int, widget) -> None:
     old.deleteLater()
 
 
-def _settings_page(locale: str):
-    from PySide6.QtWidgets import QComboBox, QLabel, QFormLayout, QVBoxLayout, QWidget
+def _settings_page(locale: str, *, update_service=None, update_settings=None):
+    from PySide6.QtWidgets import QComboBox, QFormLayout, QLabel, QVBoxLayout, QWidget
+
+    from kodepoia.kodestudio.update_settings import create_update_settings_group
 
     tr = V11Translator(locale)
     page = QWidget()
@@ -63,9 +65,16 @@ def _settings_page(locale: str):
     note.setWordWrap(True)
     form.addRow(note)
     layout.addLayout(form)
+    update_group = create_update_settings_group(
+        locale=locale,
+        service=update_service,
+        settings=update_settings,
+    )
+    layout.addWidget(update_group)
     layout.addStretch(1)
     language.currentIndexChanged.connect(lambda *_: _save_locale(str(language.currentData())))
     page._kodepoia_language_selector = language
+    page._kodepoia_update_group = update_group
     return page
 
 
@@ -81,7 +90,13 @@ def _draft_has_content(draft: VisionDraft) -> bool:
     )
 
 
-def build_window(*, locale: str | None = None, project_root: Path | None = None):
+def build_window(
+    *,
+    locale: str | None = None,
+    project_root: Path | None = None,
+    update_service=None,
+    update_settings=None,
+):
     from PySide6.QtWidgets import QLabel, QListWidget, QPushButton, QStackedWidget
 
     from kodepoia.kodestudio.app import build_window as build_v10_window
@@ -121,10 +136,8 @@ def build_window(*, locale: str | None = None, project_root: Path | None = None)
 
     new_project = window.findChild(QPushButton, "newProjectButton")
     if new_project is not None:
-        try:
+        with contextlib.suppress(RuntimeError, TypeError):
             new_project.clicked.disconnect()
-        except (RuntimeError, TypeError):
-            pass
         new_project.setText(tr.text("projects.new"))
 
         def open_project() -> None:
@@ -134,10 +147,20 @@ def build_window(*, locale: str | None = None, project_root: Path | None = None)
 
         new_project.clicked.connect(open_project)
 
-    # Replace the former placeholder Settings page with a real language setting.
+    # R18.7 extends the accepted Settings page without making network access a
+    # startup dependency. The update service is injected only when a structured
+    # trusted repository adapter is configured.
     settings_index = nav.count() - 1
     if settings_index >= 0:
-        _replace_stack_page(pages, settings_index, _settings_page(chosen_locale))
+        _replace_stack_page(
+            pages,
+            settings_index,
+            _settings_page(
+                chosen_locale,
+                update_service=update_service,
+                update_settings=update_settings,
+            ),
+        )
 
     direct_nav = {
         0: tr.text("nav.chat"),
@@ -173,6 +196,7 @@ def build_window(*, locale: str | None = None, project_root: Path | None = None)
     window._kodepoia_chat_page = chat_page
     window._kodepoia_project_root = root
     window._kodepoia_open_project_with_draft = open_project_with_draft
+    window._kodepoia_update_service = update_service
     return window
 
 
@@ -184,7 +208,8 @@ def main() -> int:
         from PySide6.QtWidgets import QApplication
     except ImportError:
         print(
-            "KodeStudio requires its bundled UI runtime or the optional UI extra when developing from source.",
+            "KodeStudio requires its bundled UI runtime or the optional UI extra "
+            "when developing from source.",
             file=sys.stderr,
         )
         return 2

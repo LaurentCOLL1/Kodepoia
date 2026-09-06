@@ -101,7 +101,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     assert len(policy.digest_sha256) == 64
     assert policy.required_contents_permission == "read"
-    assert len(policy.immutable_authority_workflows) == 28
+    assert len(policy.immutable_authority_workflows) == 29
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
         in policy.immutable_authority_workflows
@@ -135,6 +135,8 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     assert r18_5_workflow in policy.immutable_authority_workflows
     r18_6_workflow = ".github/workflows/r18-6-tuf-acceptance.yml"
     assert r18_6_workflow in policy.immutable_authority_workflows
+    r18_7_workflow = ".github/workflows/r18-7-update-discovery-acceptance.yml"
+    assert r18_7_workflow in policy.immutable_authority_workflows
     assert policy.allow_write_workflows == (r18_3_workflow,)
     assert policy.legacy_workflows_are_non_authoritative_for_v1_promotion
     assert policy.forbid_pull_request_target

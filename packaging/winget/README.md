@@ -30,12 +30,10 @@ The generator has no public-submission implementation and always reports `public
 
 ## Local validation
 
-When `winget` is available, validate the generated multi-file directory without interaction:
+Microsoft's `winget validate --manifest <manifest-directory> --disable-interactivity` command validates manifests intended for submission. A publishable manifest therefore runs the official validator only after it has a real, verified, version-specific HTTPS `InstallerUrl`.
 
-```powershell
-winget validate --manifest <manifest-directory> --disable-interactivity
-```
+Ordinary R18.9 CI deliberately uses `preview.invalid`, so invoking the public-submission validator on that preview would create a false failure caused by the intentionally unreachable URL. The acceptance report records `SKIPPED_NON_PUBLISHABLE_PREVIEW` and a null return code, proving that `winget` was not executed for the preview. Internal multi-file mapping, schema/version, SHA-256 binding, publication blockers, URL policy and negative controls remain mandatory.
 
-The R18.9 acceptance workflow attempts this command on the Windows runner. If the runner does not expose `winget`, the report records `UNAVAILABLE`; it does not fabricate a PASS. Internal mapping/schema consistency tests remain mandatory either way.
+If a later explicitly authorized release satisfies every publication prerequisite, the same generator produces a non-preview manifest and `winget validate` becomes an actual gate. If `winget` is unavailable in that publishable context, the report truthfully records `UNAVAILABLE`; a real validation failure remains blocking.
 
 Public submission to `microsoft/winget-pkgs` is a separate effect boundary and is **CONDITIONAL / NOT TRIGGERED** in ordinary R18.9 acceptance. No WinGetCreate/YAMLCreate auto-submit path is used.

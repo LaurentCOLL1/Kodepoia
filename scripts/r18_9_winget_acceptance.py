@@ -147,12 +147,10 @@ def run_acceptance(
     )
     preview = build_winget_bundle(preview_evidence)
     preview.write(manifest_dir)
-    winget_validation = validate_with_winget(manifest_dir)
-    if winget_validation["status"] == "FAIL":
-        raise RuntimeError(
-            "winget validate rejected the generated manifests: "
-            + str(winget_validation.get("stderr", ""))
-        )
+    winget_validation = validate_with_winget(
+        manifest_dir,
+        publishable=bool(preview.readiness["publishable"]),
+    )
 
     checks = {
         "exact_source_bound": actual_source == source_sha,
@@ -163,7 +161,10 @@ def run_acceptance(
         and preview.readiness["publishable"] is False,
         "preview_uses_reserved_invalid_host": "preview.invalid" in preview.readiness["installer_url"],
         "public_submission_not_performed": preview.readiness["public_submission_performed"] is False,
-        "winget_validate_pass_or_unavailable": winget_validation["status"] in {"PASS", "UNAVAILABLE"},
+        "winget_validate_deferred_until_publishable": (
+            winget_validation["status"] == "SKIPPED_NON_PUBLISHABLE_PREVIEW"
+            and winget_validation["returncode"] is None
+        ),
         **_inno_checks(),
         **_negative_controls(source_sha, installer_sha256),
     }

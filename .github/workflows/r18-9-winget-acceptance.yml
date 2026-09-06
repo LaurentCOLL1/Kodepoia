@@ -96,10 +96,13 @@ jobs:
           if ($evidence.public_submission_performed) { throw "Public submission must not occur" }
           if ($evidence.network_publication_calls -ne 0) { throw "Publication network calls must remain zero" }
           if ($evidence.manual_state -ne "CONDITIONAL_NOT_TRIGGERED") { throw "Manual state mismatch" }
-          if ($evidence.winget_validation.status -notin @("PASS", "UNAVAILABLE")) {
-            throw "Unexpected winget validation state: $($evidence.winget_validation.status)"
+          if ($evidence.winget_validation.status -ne "SKIPPED_NON_PUBLISHABLE_PREVIEW") {
+            throw "Unexpected WinGet preview validation state: $($evidence.winget_validation.status)"
           }
-          Write-Host "WinGet validation state: $($evidence.winget_validation.status)"
+          if ($null -ne $evidence.winget_validation.returncode) {
+            throw "WinGet must not be executed for a non-publishable preview"
+          }
+          Write-Host "WinGet preview validation state: $($evidence.winget_validation.status)"
           Get-FileHash "dist/windows/KodepoiaSetup.exe" -Algorithm SHA256
           Get-Content $report
 

@@ -123,6 +123,15 @@ def _release_version_key(release: ReleaseIdentity) -> tuple[int, int, int, int, 
     return _version_key(release.public_version)
 
 
+def _metadata_reported_status(value: object) -> str:
+    if value is None:
+        return "not-evaluated-during-discovery"
+    text = str(value).strip()
+    if not text:
+        return "not-evaluated-during-discovery"
+    return f"reported-by-tuf-metadata:{text}"
+
+
 class TufMetadataDiscoveryVerifier:
     """Verify TUF metadata for discovery without fetching an installer target."""
 
@@ -315,8 +324,6 @@ class UpdateDiscoveryService:
                 raise TufVerificationError(f"authorized target lacks SHA-256: {path!r}")
             custom = target_info.custom if isinstance(target_info.custom, dict) else {}
             notes = custom.get("release_notes_summary")
-            signing = custom.get("signing_status")
-            provenance = custom.get("provenance_status")
             candidate = UpdateDiscoveryCandidate(
                 target=target,
                 size_bytes=target_info.length,
@@ -324,10 +331,8 @@ class UpdateDiscoveryService:
                 release_notes_summary=(
                     str(notes).strip() if notes else "Not published in trusted update metadata."
                 ),
-                signing_status=str(signing).strip() if signing else "not-evaluated-during-discovery",
-                provenance_status=(
-                    str(provenance).strip() if provenance else "not-evaluated-during-discovery"
-                ),
+                signing_status=_metadata_reported_status(custom.get("signing_status")),
+                provenance_status=_metadata_reported_status(custom.get("provenance_status")),
                 withdrawn=custom.get("withdrawn") is True,
             )
             matches.append((_version_key(public_version), candidate))

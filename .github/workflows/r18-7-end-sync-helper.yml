@@ -1,0 +1,124 @@
+name: R18.7 END-sync helper (ephemeral)
+
+on:
+  push:
+    branches:
+      - r18/07-kodestudio-update-discovery-channel-ux
+    paths:
+      - .github/workflows/r18-7-end-sync-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  synchronize-end-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact helper source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+
+      - name: Synchronize R18.7 END continuity and remove helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          technical_sha = "9e177643f245eb32dd302a5c5eedd6d76d4b9386"
+          continuity_path = Path("docs/continuity/KODEPOIA_CONTINUITY.md")
+          plan_path = Path("docs/roadmap/R18_PLAN.md")
+          helper_path = Path(".github/workflows/r18-7-end-sync-helper.yml")
+
+          continuity = continuity_path.read_text(encoding="utf-8")
+          plan = plan_path.read_text(encoding="utf-8")
+
+          plan_marker = (
+              "END-sync technical acceptance: normalized R18.6 base `main` "
+              "`4ccbe4ef1fe66f88e38dfc8c9dfebba7e183efe1`; dedicated branch "
+              "`r18/07-kodestudio-update-discovery-channel-ux`; immutable accepted "
+              f"technical source `{technical_sha}`."
+          )
+          if plan_marker not in plan:
+              raise SystemExit("R18.7 END-sync plan marker is missing")
+
+          old_banner = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED. "
+              "R18 planning ACCEPTED + NORMALIZED. R18.1–R18.5 are COMPLETE + NORMALIZED "
+              "on their recorded canonical mains. R18.6 TUF-secured update repository and "
+              "metadata lifecycle is COMPLETE + NORMALIZED on canonical `main` "
+              "`4ccbe4ef1fe66f88e38dfc8c9dfebba7e183efe1` after exact-END PR #393 and unique "
+              "normalization PR #394. R18.7 KodeStudio update discovery and release-channel UX "
+              "is IN_PROGRESS at documentation-only START-sync on branch "
+              "`r18/07-kodestudio-update-discovery-channel-ux` from that exact main; "
+              "implementation bytes are not authorized before this START-sync. R18.8–R18.11 "
+              "remain PLANNED.** Production signing, public GitHub Release publication, "
+              "immutable-release repository setting changes, production TUF key custody/hosting "
+              "and public WinGet submission remain CONDITIONAL / NOT TRIGGERED."
+          )
+          new_banner = (
+              "> Kodepoia, architecture v1.0 gelée. **R1–R17 COMPLETE + NORMALIZED. "
+              "R18 planning ACCEPTED + NORMALIZED. R18.1–R18.6 are COMPLETE + NORMALIZED on "
+              "their recorded canonical mains. R18.7 KodeStudio update discovery and "
+              "release-channel UX is IN_PROGRESS at END-sync after technical acceptance on "
+              f"immutable source `{technical_sha}`; pre-END R18.7/R16.9/R0/Python/UI gates are "
+              "SUCCESS, while fresh exact-END gates, protected PR #395 merge and the unique "
+              "post-merge continuity normalization remain mandatory. R18.8–R18.11 remain "
+              "PLANNED.** Production signing, public GitHub Release publication, immutable-release "
+              "repository setting changes, production TUF key custody/hosting and public WinGet "
+              "submission remain CONDITIONAL / NOT TRIGGERED."
+          )
+
+          old_state = (
+              "- State: **IN_PROGRESS** — planning and R18.1–R18.6 are COMPLETE + NORMALIZED. "
+              "Canonical normalized R18.6 `main` is `4ccbe4ef1fe66f88e38dfc8c9dfebba7e183efe1` "
+              "after implementation/evidence PR #393 and unique normalization PR #394. R18.7 is "
+              "**IN_PROGRESS at START-sync** on dedicated branch "
+              "`r18/07-kodestudio-update-discovery-channel-ux`, created exactly from that normalized "
+              "main; this documentation-only START-sync precedes all R18.7 implementation bytes. "
+              "R18.8–R18.11 remain PLANNED. Manual state for core R18.7 is NONE; public/production "
+              "distribution effects remain CONDITIONAL / NOT TRIGGERED."
+          )
+          new_state = (
+              "- State: **IN_PROGRESS at END-sync** — planning and R18.1–R18.6 are COMPLETE + "
+              "NORMALIZED. Canonical normalized R18.6 `main` is "
+              "`4ccbe4ef1fe66f88e38dfc8c9dfebba7e183efe1` after implementation/evidence PR #393 "
+              "and unique normalization PR #394. R18.7 technical acceptance is SUCCESS on "
+              f"immutable source `{technical_sha}`; fresh exact-END gates, protected PR #395 merge "
+              "and the unique post-merge continuity-only normalization are still mandatory before "
+              "R18.8 START. R18.8–R18.11 remain PLANNED. Manual state for core R18.7 is NONE; "
+              "public/production distribution effects remain CONDITIONAL / NOT TRIGGERED."
+          )
+          end_details = "\n".join(
+              [
+                  f"- R18.7 immutable accepted technical source: **`{technical_sha}`** on dedicated branch `r18/07-kodestudio-update-discovery-channel-ux` from normalized R18.6 `main` `4ccbe4ef1fe66f88e38dfc8c9dfebba7e183efe1`.",
+                  "- Historical candidate `1675bf9e4e0a4c1638e1cfe6e51dbfeab398a0cc` is REJECTED/non-authoritative: Windows exposed ten Ruff diagnostics after focused functional tests; the accepted source corrected only those quality diagnostics without changing update-discovery behavior.",
+                  "- Dedicated R18.7 #40 / `34017615328` is SUCCESS Ubuntu + Windows with exact checkout provenance, compilation, Ruff-clean verdict, focused discovery tests, Windows Qt state/persistence coverage and exact-source evidence emission.",
+                  "- Accepted discovery contract: TUF metadata-only; channels `stable`, `beta`, `nightly`; conservative default `stable`; periodic default 24 h bounded 6–168 h; no startup network dependency; no target download; no automatic installer launch; signing/provenance values are metadata-reported and explicitly not authoritatively verified by R18.7.",
+                  "- Technical artifacts: Linux `9984545880` / `r18-7-update-discovery-Linux-9e177643f245eb32dd302a5c5eedd6d76d4b9386`, ZIP digest `sha256:869acd8bc240c6774da1f2c33cba80a6f06bf9ec404102b65bf796809e6a66c3`; Windows `9984569529` / `r18-7-update-discovery-Windows-9e177643f245eb32dd302a5c5eedd6d76d4b9386`, ZIP digest `sha256:455a3e84c3da427d7a64b78a444922e682f5e819bc93b355d996995a3ef14460`.",
+                  "- Same-source mandatory pre-END gates are SUCCESS: R16.9 Supply Chain Provenance #180 / `34017615246` Ubuntu + Windows; R0 Repository Guard #2524 / `34017615164` Ubuntu + Windows; full Python Core #2496 / `34017615251` 5/5; KodeStudio UI Smoke #2461 / `34017615349` Windows.",
+                  "- Manual intervention: **NONE**. Production signing, public GitHub Release publication, immutable-release repository setting changes, production TUF key custody/hosting and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**.",
+                  "- END rule: this END-sync changes documentation bytes, so fresh R18.7 + R16.9 + R0 + full Python Core + KodeStudio UI Smoke must all succeed on the resulting exact END-head before PR #395 merges with `expected_head_sha`; exactly one post-merge continuity-only R18.7 normalization must then pass fresh R0/Python/UI before R18.8 START is authorized.",
+              ]
+          )
+
+          if continuity.count(old_banner) != 1:
+              raise SystemExit("continuity banner replacement is not uniquely anchored")
+          if continuity.count(old_state) != 1:
+              raise SystemExit("R18 state replacement is not uniquely anchored")
+          if "R18.7 immutable accepted technical source" in continuity:
+              raise SystemExit("R18.7 END continuity already present")
+
+          continuity = continuity.replace(old_banner, new_banner, 1)
+          continuity = continuity.replace(old_state, new_state + "\n" + end_details, 1)
+          continuity_path.write_text(continuity, encoding="utf-8", newline="\n")
+          helper_path.unlink()
+          PY
+
+          git config user.name "kodepoia-r18-end-sync"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/continuity/KODEPOIA_CONTINUITY.md docs/roadmap/R18_PLAN.md .github/workflows/r18-7-end-sync-helper.yml
+          git diff --cached --check
+          git commit -m "docs(r18.7): synchronize END continuity"
+          git push origin HEAD:r18/07-kodestudio-update-discovery-channel-ux

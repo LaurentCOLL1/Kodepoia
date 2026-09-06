@@ -1,0 +1,135 @@
+name: R18.8 UI fixup helper (ephemeral)
+
+on:
+  push:
+    branches:
+      - r18/08-verified-download-install-rollback
+    paths:
+      - .github/workflows/r18-8-ui-fixup-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fixup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          update_path = Path("src/kodepoia/kodestudio/update_settings.py")
+          text = update_path.read_text(encoding="utf-8")
+
+          def replace_once(old: str, new: str, label: str) -> None:
+              global text
+              if text.count(old) != 1:
+                  raise SystemExit(f"{label} anchor count={text.count(old)}")
+              text = text.replace(old, new, 1)
+
+          replace_once(
+              "from kodepoia.release.identity import CURRENT_RELEASE\nfrom kodepoia.update.discovery import UpdateDiscoveryResult\n",
+              "from kodepoia.release.identity import CURRENT_RELEASE\nfrom kodepoia.update.delivery import VerifiedUpdateArtifact\nfrom kodepoia.update.discovery import UpdateDiscoveryCandidate, UpdateDiscoveryResult\n",
+              "imports",
+          )
+          replace_once(
+              "class UpdateDiscoveryProvider(Protocol):\n    def check(self, channel: str) -> UpdateDiscoveryResult: ...\n\n\ndef create_update_settings_group(\n",
+              "class UpdateDiscoveryProvider(Protocol):\n    def check(self, channel: str) -> UpdateDiscoveryResult: ...\n\n\nclass UpdateInstallProvider(Protocol):\n    def stage(self, candidate: UpdateDiscoveryCandidate) -> VerifiedUpdateArtifact: ...\n\n    def launch_staged(self, artifact: VerifiedUpdateArtifact, *, confirmed: bool) -> None: ...\n\n\ndef create_update_settings_group(\n",
+              "protocol",
+          )
+          replace_once(
+              "    service: UpdateDiscoveryProvider | None = None,\n    settings=None,\n",
+              "    service: UpdateDiscoveryProvider | None = None,\n    install_service: UpdateInstallProvider | None = None,\n    settings=None,\n",
+              "signature",
+          )
+          replace_once(
+              "        QLabel,\n        QPushButton,\n",
+              "        QLabel,\n        QMessageBox,\n        QPushButton,\n",
+              "widgets",
+          )
+          replace_once(
+              "    check_button = QPushButton(tr(\"updates.check\"))\n    check_button.setObjectName(\"checkForUpdatesButton\")\n    layout.addWidget(check_button)\n\n",
+              "    check_button = QPushButton(tr(\"updates.check\"))\n    check_button.setObjectName(\"checkForUpdatesButton\")\n    layout.addWidget(check_button)\n\n    download_button = QPushButton(tr(\"updates.download_verify\"))\n    download_button.setObjectName(\"downloadVerifiedUpdateButton\")\n    download_button.setEnabled(False)\n    layout.addWidget(download_button)\n\n    install_button = QPushButton(tr(\"updates.install_verified\"))\n    install_button.setObjectName(\"installVerifiedUpdateButton\")\n    install_button.setEnabled(False)\n    layout.addWidget(install_button)\n\n",
+              "buttons",
+          )
+          replace_once(
+              "    busy = {\"value\": False}\n\n    def persist() -> None:\n",
+              "    busy = {\"value\": False}\n    current = {\"candidate\": None}\n    staged = {\"artifact\": None}\n\n    def persist() -> None:\n",
+              "state",
+          )
+          replace_once(
+              "    def render(result: UpdateDiscoveryResult) -> None:\n        state_key = f\"updates.{result.status}\"\n        state.setText(f\"{tr(state_key)}: {result.detail}\")\n        candidate = result.candidate\n        if candidate is None:\n",
+              "    def clear_staged() -> None:\n        staged[\"artifact\"] = None\n        install_button.setEnabled(False)\n\n    def render(result: UpdateDiscoveryResult) -> None:\n        state_key = f\"updates.{result.status}\"\n        state.setText(f\"{tr(state_key)}: {result.detail}\")\n        candidate = result.candidate\n        current[\"candidate\"] = candidate\n        clear_staged()\n        download_button.setEnabled(\n            result.status == \"update-available\"\n            and candidate is not None\n            and install_service is not None\n        )\n        if candidate is None:\n",
+              "render",
+          )
+          replace_once(
+              "    def channel_changed() -> None:\n",
+              "    def download_verified() -> None:\n        candidate = current[\"candidate\"]\n        if candidate is None or install_service is None or busy[\"value\"]:\n            return\n        busy[\"value\"] = True\n        download_button.setEnabled(False)\n        clear_staged()\n        try:\n            artifact = install_service.stage(candidate)\n        except Exception as exc:\n            state.setText(f\"{tr('updates.download_failed')}: {exc}\")\n        else:\n            staged[\"artifact\"] = artifact\n            install_button.setEnabled(True)\n            state.setText(tr(\"updates.download_ready\"))\n        finally:\n            busy[\"value\"] = False\n            download_button.setEnabled(\n                current[\"candidate\"] is not None and install_service is not None\n            )\n\n    def install_verified() -> None:\n        artifact = staged[\"artifact\"]\n        if artifact is None or install_service is None or busy[\"value\"]:\n            return\n        answer = QMessageBox.question(\n            group,\n            tr(\"updates.install_confirm_title\"),\n            tr(\"updates.install_confirm\", version=artifact.public_version),\n            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,\n            QMessageBox.StandardButton.No,\n        )\n        if answer != QMessageBox.StandardButton.Yes:\n            return\n        busy[\"value\"] = True\n        install_button.setEnabled(False)\n        state.setText(tr(\"updates.install_launching\"))\n        try:\n            install_service.launch_staged(artifact, confirmed=True)\n        except Exception as exc:\n            state.setText(f\"{tr('updates.install_failed')}: {exc}\")\n            install_button.setEnabled(True)\n        finally:\n            busy[\"value\"] = False\n\n    def channel_changed() -> None:\n",
+              "actions",
+          )
+          replace_once(
+              "        else:\n            prerelease_warning.clear()\n            prerelease_warning.setVisible(False)\n        persist()\n",
+              "        else:\n            prerelease_warning.clear()\n            prerelease_warning.setVisible(False)\n        clear_staged()\n        persist()\n",
+              "channel clear",
+          )
+          replace_once(
+              "    check_button.clicked.connect(run_check)\n    timer.timeout.connect(run_check)\n",
+              "    check_button.clicked.connect(run_check)\n    download_button.clicked.connect(download_verified)\n    install_button.clicked.connect(install_verified)\n    timer.timeout.connect(run_check)\n",
+              "signals",
+          )
+          replace_once(
+              "    group._kodepoia_update_service = service\n    group._kodepoia_update_timer = timer\n    group._kodepoia_run_update_check = run_check\n    return group\n",
+              "    group._kodepoia_update_service = service\n    group._kodepoia_install_service = install_service\n    group._kodepoia_update_timer = timer\n    group._kodepoia_run_update_check = run_check\n    group._kodepoia_download_verified = download_verified\n    group._kodepoia_install_verified = install_verified\n    return group\n",
+              "attributes",
+          )
+          update_path.write_text(text, encoding="utf-8", newline="\n")
+
+          app_path = Path("src/kodepoia/kodestudio/app_v11.py")
+          app = app_path.read_text(encoding="utf-8")
+
+          def app_replace(old: str, new: str, label: str) -> None:
+              global app
+              if app.count(old) != 1:
+                  raise SystemExit(f"app {label} anchor count={app.count(old)}")
+              app = app.replace(old, new, 1)
+
+          app_replace(
+              "def _settings_page(locale: str, *, update_service=None, update_settings=None):",
+              "def _settings_page(\n    locale: str, *, update_service=None, install_service=None, update_settings=None\n):",
+              "settings signature",
+          )
+          app_replace(
+              "        service=update_service,\n        settings=update_settings,\n",
+              "        service=update_service,\n        install_service=install_service,\n        settings=update_settings,\n",
+              "settings call",
+          )
+          app_replace(
+              "    update_service=None,\n    update_settings=None,\n):",
+              "    update_service=None,\n    install_service=None,\n    update_settings=None,\n):",
+              "build signature",
+          )
+          app_replace(
+              "                update_service=update_service,\n                update_settings=update_settings,\n",
+              "                update_service=update_service,\n                install_service=install_service,\n                update_settings=update_settings,\n",
+              "page invocation",
+          )
+          app_replace(
+              "    window._kodepoia_update_service = update_service\n    return window\n",
+              "    window._kodepoia_update_service = update_service\n    window._kodepoia_install_service = install_service\n    return window\n",
+              "window state",
+          )
+          app_path.write_text(app, encoding="utf-8", newline="\n")
+
+          Path(".github/workflows/r18-8-ui-fixup-helper.yml").unlink()
+          PY
+          git config user.name "kodepoia-r18-8-ui"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/kodepoia/kodestudio/update_settings.py src/kodepoia/kodestudio/app_v11.py .github/workflows/r18-8-ui-fixup-helper.yml
+          git diff --cached --check
+          git commit -m "feat(r18.8): integrate verified install consent UX"
+          git push origin HEAD:r18/08-verified-download-install-rollback

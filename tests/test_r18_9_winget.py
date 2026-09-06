@@ -14,6 +14,7 @@ from kodepoia.release.winget import (
     PACKAGE_IDENTIFIER,
     PREVIEW_HOST,
     WinGetInstallerEvidence,
+    WinGetManifestBundle,
     WinGetManifestError,
     build_winget_bundle,
     validate_winget_bundle,
@@ -43,9 +44,8 @@ def _published_evidence(*, signed: bool = True) -> WinGetInstallerEvidence:
     )
 
 
-def _parsed(bundle: object) -> dict[str, dict[str, object]]:
-    files = getattr(bundle, "files")
-    return {name: yaml.safe_load(text) for name, text in files.items()}
+def _parsed(bundle: WinGetManifestBundle) -> dict[str, dict[str, object]]:
+    return {name: yaml.safe_load(text) for name, text in bundle.files.items()}
 
 
 def test_preview_bundle_is_deterministic_and_non_publishable() -> None:

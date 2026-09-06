@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import hashlib
 
-from PySide6.QtCore import QSettings
-from PySide6.QtWidgets import QApplication, QLabel, QPushButton
+import pytest
 
-from kodepoia.kodestudio.update_settings import create_update_settings_group
 from kodepoia.release.incident import ReleaseIncidentDirective
 from kodepoia.update.discovery import UpdateDiscoveryCandidate, UpdateDiscoveryResult
 from kodepoia.update.trust import UpdateTargetSpec
@@ -39,8 +37,23 @@ class _SupersededService:
 
 
 def test_r18_10_kodestudio_renders_superseded_state_fail_closed(tmp_path) -> None:
-    app = QApplication.instance() or QApplication([])
-    settings = QSettings(str(tmp_path / "settings.ini"), QSettings.Format.IniFormat)
+    qt_core = pytest.importorskip(
+        "PySide6.QtCore",
+        reason="KodeStudio UI coverage requires the optional ui dependency",
+    )
+    qt_widgets = pytest.importorskip(
+        "PySide6.QtWidgets",
+        reason="KodeStudio UI coverage requires the optional ui dependency",
+    )
+    from kodepoia.kodestudio.update_settings import create_update_settings_group
+
+    q_settings = qt_core.QSettings
+    q_application = qt_widgets.QApplication
+    q_label = qt_widgets.QLabel
+    q_push_button = qt_widgets.QPushButton
+
+    app = q_application.instance() or q_application([])
+    settings = q_settings(str(tmp_path / "settings.ini"), q_settings.Format.IniFormat)
     settings.setValue("updates/channel", "beta")
     group = create_update_settings_group(
         locale="en",
@@ -49,8 +62,8 @@ def test_r18_10_kodestudio_renders_superseded_state_fail_closed(tmp_path) -> Non
     )
     group._kodepoia_run_update_check()
 
-    state = group.findChild(QLabel, "updateDiscoveryState")
-    download = group.findChild(QPushButton, "downloadVerifiedUpdateButton")
+    state = group.findChild(q_label, "updateDiscoveryState")
+    download = group.findChild(q_push_button, "downloadVerifiedUpdateButton")
     assert state is not None
     assert download is not None
     assert state.text().startswith("Update superseded:")

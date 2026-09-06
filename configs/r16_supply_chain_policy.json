@@ -78,7 +78,8 @@
       ".github/workflows/r18-6-tuf-acceptance.yml",
       ".github/workflows/r18-7-update-discovery-acceptance.yml",
       ".github/workflows/r18-8-verified-install-acceptance.yml",
-      ".github/workflows/r18-9-winget-acceptance.yml"
+      ".github/workflows/r18-9-winget-acceptance.yml",
+      ".github/workflows/r18-10-incident-drills-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

@@ -26,5 +26,12 @@
     "preserve_previous_installer_reference": true,
     "project_data_mutation": false
   },
+  "acceptance": {
+    "ruff_clean_required": true,
+    "focused_delivery_tests_required": true,
+    "supply_chain_regression_required": true,
+    "kodestudio_consent_ui_required": true,
+    "exact_source_provenance_required": true
+  },
   "manual_state": "NONE"
 }

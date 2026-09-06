@@ -4,7 +4,7 @@ import hashlib
 from datetime import UTC, datetime
 
 from kodepoia.release.identity import CURRENT_RELEASE
-from kodepoia.update.discovery import UpdateDiscoveryService
+from kodepoia.update.discovery import DISCOVERY_CHANNELS, UpdateDiscoveryService
 from kodepoia.update.trust import (
     MemoryUpdateTransport,
     PackagedRootPin,
@@ -54,6 +54,10 @@ def _service(tmp_path, repository, *, transport=None) -> tuple[UpdateDiscoverySe
     )
 
 
+def test_canonical_discovery_channels_are_exposed() -> None:
+    assert DISCOVERY_CHANNELS == ("stable", "beta", "nightly")
+
+
 def test_beta_discovery_uses_only_verified_metadata_and_never_fetches_installer(tmp_path) -> None:
     target = _target()
     repository = SyntheticUpdateRepositoryBuilder().build(target, INSTALLER)
@@ -96,6 +100,31 @@ def test_stable_release_after_installed_rc_is_update_available(tmp_path) -> None
     assert result.status == "update-available"
     assert result.candidate is not None
     assert result.candidate.target.channel == "stable"
+
+
+def test_newer_base_nightly_development_release_is_update_available(tmp_path) -> None:
+    target = _target(channel="nightly", version="1.2.0-dev1")
+    repository = SyntheticUpdateRepositoryBuilder().build(target, INSTALLER)
+    service, transport = _service(tmp_path, repository)
+
+    result = service.check("nightly")
+
+    assert result.status == "update-available"
+    assert result.candidate is not None
+    assert result.candidate.target.channel == "nightly"
+    assert result.candidate.target.public_version == "1.2.0-dev1"
+    assert transport.target_fetches == 0
+
+
+def test_same_base_nightly_does_not_downgrade_installed_beta(tmp_path) -> None:
+    target = _target(channel="nightly", version="1.1.0-dev2")
+    repository = SyntheticUpdateRepositoryBuilder().build(target, INSTALLER)
+    service, _ = _service(tmp_path, repository)
+
+    result = service.check("nightly")
+
+    assert result.status == "up-to-date"
+    assert result.candidate is not None
 
 
 def test_unpublished_selected_channel_is_distinct_from_verification_failure(tmp_path) -> None:

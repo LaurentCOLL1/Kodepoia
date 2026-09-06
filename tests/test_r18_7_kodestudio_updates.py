@@ -70,6 +70,9 @@ def test_defaults_are_stable_periodic_and_do_not_check_on_startup(app, tmp_path)
     hours = group.findChild(QSpinBox, "updatePeriodicHours")
     timer = group._kodepoia_update_timer
     assert channel.currentData() == "stable"
+    assert channel.count() == 3
+    assert channel.findData("beta") >= 0
+    assert channel.findData("nightly") >= 0
     assert periodic.isChecked() is True
     assert hours.value() == DEFAULT_PERIODIC_CHECK_HOURS
     assert timer.isActive() is True
@@ -86,12 +89,28 @@ def test_beta_selection_warns_and_persists(app, tmp_path) -> None:
     channel.setCurrentIndex(channel.findData("beta"))
     app.processEvents()
 
-    assert warning.isVisibleTo(group) is True
+    assert warning.isHidden() is False
+    assert "beta" in warning.text().lower()
     assert settings.value("updates/channel") == "beta"
 
     restored = create_update_settings_group(service=FakeDiscoveryService(), settings=_settings(tmp_path))
     restored_channel = restored.findChild(QComboBox, "updateChannelSelector")
     assert restored_channel.currentData() == "beta"
+
+
+def test_nightly_selection_has_stronger_warning_and_persists(app, tmp_path) -> None:
+    settings = _settings(tmp_path)
+    group = create_update_settings_group(service=FakeDiscoveryService(), settings=settings)
+    channel = group.findChild(QComboBox, "updateChannelSelector")
+    warning = group.findChild(QLabel, "updatePrereleaseWarning")
+
+    channel.setCurrentIndex(channel.findData("nightly"))
+    app.processEvents()
+
+    assert warning.isHidden() is False
+    assert "nightly" in warning.text().lower()
+    assert "experimental" in warning.text().lower()
+    assert settings.value("updates/channel") == "nightly"
 
 
 def test_manual_check_renders_trusted_candidate_without_install_action(app, tmp_path) -> None:

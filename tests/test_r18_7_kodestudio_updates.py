@@ -39,8 +39,8 @@ class FakeDiscoveryService:
                 size_bytes=42 * 1024 * 1024,
                 sha256="d" * 64,
                 release_notes_summary="Synthetic R18.7 acceptance release.",
-                signing_status="staged-evidence-available",
-                provenance_status="attestation-available",
+                signing_status="reported-by-tuf-metadata:staged-evidence-available",
+                provenance_status="reported-by-tuf-metadata:attestation-available",
             ),
             detail="trusted metadata authorizes a newer update",
         )
@@ -129,6 +129,9 @@ def test_manual_check_renders_trusted_candidate_without_install_action(app, tmp_
     assert "Update available" in state.text()
     assert "1.1.0-rc2" in details.text()
     assert "tuf-verified-metadata" in details.text()
+    assert "not verified here" in details.text()
+    assert "reported-by-tuf-metadata:staged-evidence-available" in details.text()
+    assert "reported-by-tuf-metadata:attestation-available" in details.text()
     assert group.findChild(QPushButton, "installUpdateButton") is None
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import sys
@@ -42,7 +43,7 @@ def _replace_stack_page(stack, index: int, widget) -> None:
 
 
 def _settings_page(locale: str, *, update_service=None, update_settings=None):
-    from PySide6.QtWidgets import QComboBox, QLabel, QFormLayout, QVBoxLayout, QWidget
+    from PySide6.QtWidgets import QComboBox, QFormLayout, QLabel, QVBoxLayout, QWidget
 
     from kodepoia.kodestudio.update_settings import create_update_settings_group
 
@@ -136,10 +137,8 @@ def build_window(
 
     new_project = window.findChild(QPushButton, "newProjectButton")
     if new_project is not None:
-        try:
+        with contextlib.suppress(RuntimeError, TypeError):
             new_project.clicked.disconnect()
-        except (RuntimeError, TypeError):
-            pass
         new_project.setText(tr.text("projects.new"))
 
         def open_project() -> None:
@@ -210,7 +209,8 @@ def main() -> int:
         from PySide6.QtWidgets import QApplication
     except ImportError:
         print(
-            "KodeStudio requires its bundled UI runtime or the optional UI extra when developing from source.",
+            "KodeStudio requires its bundled UI runtime or the optional UI extra "
+            "when developing from source.",
             file=sys.stderr,
         )
         return 2

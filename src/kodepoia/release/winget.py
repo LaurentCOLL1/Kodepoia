@@ -53,7 +53,9 @@ class WinGetInstallerEvidence:
         if self.immutable_release_verified and not self.public_release_verified:
             raise WinGetManifestError("immutable release verification requires a verified public release")
         if self.installer_url and not self.public_release_verified:
-            raise WinGetManifestError("an installer URL cannot enter manifests before public release verification")
+            raise WinGetManifestError(
+                "an installer URL cannot enter manifests before public release verification"
+            )
 
     @property
     def publication_blockers(self) -> tuple[str, ...]:
@@ -107,7 +109,9 @@ def _validate_public_url(url: str, identity: ReleaseIdentity) -> str:
     if parsed.scheme != "https" or parsed.username or parsed.password or parsed.query or parsed.fragment:
         raise WinGetManifestError("public installer URL must be a clean HTTPS URL")
     if url != _expected_public_url(identity):
-        raise WinGetManifestError("public installer URL must match the immutable version-specific release asset")
+        raise WinGetManifestError(
+            "public installer URL must match the immutable version-specific release asset"
+        )
     return url
 
 

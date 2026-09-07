@@ -7,17 +7,19 @@ Kodepoia accompagne un projet depuis l'idée initiale jusqu'à sa maintenance. K
 ## État du projet
 
 - Architecture **v1.0 : COMPLETE + NORMALIZED et gelée**.
-- Roadmap R1–R16 : **COMPLETE + NORMALIZED**.
+- Roadmap R1–R18 : **COMPLETE + NORMALIZED**.
 - `main` v1.0 canonique au démarrage de R17 : `11194ec5bbb6a986d0fa206517ad3759378a80cf`.
-- Évolution en cours : **v1.1 / R17 — Distribution & Guided Creation UX**.
-- R17 ajoute l'installation Windows autonome, le français, la création guidée et le Chat/Vision local.
+- `main` canonique après clôture et normalisation de R18 : `4632e988e5b04b717c86356eda638827c0252e02`.
+- État v1.1 : **R17 — Distribution & Guided Creation UX** et **R18 — Trusted Release, Updates & Distribution Channels** sont **COMPLETE + NORMALIZED**.
+- R17 a livré l'installation Windows autonome, le français, la création guidée et le Chat/Vision local.
+- R18 a livré l'identité de release canonique, bundles/manifests vérifiables, SBOM/provenance, frontière Authenticode, staging/promotion gouvernés, métadonnées TUF anti-rollback/freeze, découverte et installation consentie des mises à jour, préparation WinGet, drills de révocation/rollback et acceptance adversariale intégrée.
 - Ancien nom de travail : `FORGEGAMEDEV`.
 
 La fin de la phase v1.0 ne signifie pas qu'une release publique signée a été publiée. La signature de production et la publication restent des actions séparées et explicitement gouvernées.
 
 ## Installer Kodepoia sur Windows — utilisateur final
 
-L'objectif de R17 est qu'un utilisateur **n'ait pas besoin d'installer Python ni d'utiliser `pip`**.
+Depuis R17, un utilisateur **n'a pas besoin d'installer Python ni d'utiliser `pip`** pour utiliser l'installateur Windows accepté.
 
 1. Ouvrir le workflow GitHub Actions **R17 Windows Installer**.
 2. Télécharger l'artefact **`KodepoiaSetup-Windows`** du run accepté.
@@ -180,6 +182,7 @@ Documents principaux :
 - `docs/architecture/KODEPOIA_ARCHITECTURE_DECISIONS.md`
 - `docs/roadmap/KODEPOIA_ROADMAP_V1_0.md`
 - `docs/roadmap/R17_PLAN.md`
+- `docs/roadmap/R18_PLAN.md`
 - `docs/continuity/KODEPOIA_CONTINUITY.md`
 
 ## Sécurité

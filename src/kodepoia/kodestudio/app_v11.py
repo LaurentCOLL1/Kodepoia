@@ -1,37 +1,90 @@
 from __future__ import annotations
 
 import contextlib
-import json
 import os
 import sys
 from pathlib import Path
+from typing import Callable
 
+from kodepoia.kodestudio.preferences import ApplicationPreferences, DEFAULT_SETTINGS_PATH
 from kodepoia.kodestudio.v11_localization import V11Translator, resolve_locale
 from kodepoia.kodestudio.vision_assistant import VisionDraft
 from kodepoia.release_identity import CURRENT_RELEASE
 
-SETTINGS_PATH = Path.home() / ".kodepoia" / "settings.json"
+SETTINGS_PATH = DEFAULT_SETTINGS_PATH
+
+
+def _preferences() -> ApplicationPreferences:
+    # Keep SETTINGS_PATH as the compatibility/test seam while centralizing all
+    # persistence behavior in the merge-safe preference store.
+    return ApplicationPreferences(SETTINGS_PATH)
 
 
 def _load_saved_locale() -> str | None:
-    try:
-        payload = json.loads(SETTINGS_PATH.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
-    value = payload.get("locale") if isinstance(payload, dict) else None
-    return str(value) if value else None
+    return _preferences().locale()
 
 
 def _save_locale(locale: str) -> None:
-    SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    SETTINGS_PATH.write_text(
-        json.dumps({"locale": locale}, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    _preferences().set_locale(resolve_locale(locale))
 
 
 def selected_locale(requested: str | None = None) -> str:
-    return resolve_locale(requested or os.environ.get("KODEPOIA_LOCALE") or _load_saved_locale())
+    """Resolve the product locale without letting packaging env defeat user choice.
+
+    Precedence is explicit runtime/test request, persisted user preference,
+    developer/diagnostic environment override, then OS locale detection.
+    """
+
+    if requested and requested.strip():
+        return resolve_locale(requested)
+    saved = _load_saved_locale()
+    if saved:
+        return resolve_locale(saved)
+    diagnostic_override = os.environ.get("KODEPOIA_LOCALE")
+    if diagnostic_override and diagnostic_override.strip():
+        return resolve_locale(diagnostic_override)
+    return resolve_locale(None)
+
+
+def _restart_application() -> bool:
+    """Start a replacement process using the same executable/arguments."""
+
+    from PySide6.QtCore import QProcess
+
+    executable = sys.executable
+    arguments = list(sys.argv[1:] if getattr(sys, "frozen", False) else sys.argv)
+    result = QProcess.startDetached(executable, arguments)
+    if isinstance(result, tuple):
+        return bool(result[0])
+    return bool(result)
+
+
+def _offer_locale_restart(parent, locale: str) -> bool:
+    """Offer an explicit, user-consented restart to apply a saved locale."""
+
+    from PySide6.QtWidgets import QApplication, QMessageBox
+
+    tr = V11Translator(locale)
+    answer = QMessageBox.question(
+        parent,
+        tr.text("settings.apply_title"),
+        tr.text("settings.apply_prompt"),
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        QMessageBox.StandardButton.Yes,
+    )
+    if answer != QMessageBox.StandardButton.Yes:
+        return False
+    if not _restart_application():
+        QMessageBox.warning(
+            parent,
+            tr.text("settings.apply_title"),
+            tr.text("settings.restart_failed"),
+        )
+        return False
+    app = QApplication.instance()
+    if app is not None:
+        app.quit()
+    return True
 
 
 def _replace_stack_page(stack, index: int, widget) -> None:
@@ -42,7 +95,12 @@ def _replace_stack_page(stack, index: int, widget) -> None:
 
 
 def _settings_page(
-    locale: str, *, update_service=None, install_service=None, update_settings=None
+    locale: str,
+    *,
+    update_service=None,
+    install_service=None,
+    update_settings=None,
+    apply_locale: Callable[[str], object] | None = None,
 ):
     from PySide6.QtWidgets import QComboBox, QFormLayout, QLabel, QVBoxLayout, QWidget
 
@@ -64,6 +122,7 @@ def _settings_page(
         language.setCurrentIndex(index)
     form.addRow(tr.text("settings.language"), language)
     note = QLabel(tr.text("settings.restart"))
+    note.setObjectName("applicationLanguageApplyNote")
     note.setWordWrap(True)
     form.addRow(note)
     layout.addLayout(form)
@@ -75,8 +134,16 @@ def _settings_page(
     )
     layout.addWidget(update_group)
     layout.addStretch(1)
-    language.currentIndexChanged.connect(lambda *_: _save_locale(str(language.currentData())))
+
+    def language_changed() -> None:
+        chosen = resolve_locale(str(language.currentData()))
+        _save_locale(chosen)
+        if chosen != resolve_locale(locale) and apply_locale is not None:
+            apply_locale(chosen)
+
+    language.currentIndexChanged.connect(lambda *_: language_changed())
     page._kodepoia_language_selector = language
+    page._kodepoia_language_changed = language_changed
     page._kodepoia_update_group = update_group
     return page
 
@@ -164,6 +231,7 @@ def build_window(
                 update_service=update_service,
                 install_service=install_service,
                 update_settings=update_settings,
+                apply_locale=lambda new_locale: _offer_locale_restart(window, new_locale),
             ),
         )
 

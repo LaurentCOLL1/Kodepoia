@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-from typing import Callable
 
 
 _TEXT_FR: dict[str, str] = {
@@ -32,7 +31,7 @@ _TEXT_FR: dict[str, str] = {
     "Min FPS": "FPS minimum",
     "VRAM MB": "VRAM (Mo)",
     "RAM MB": "RAM (Mo)",
-    "Build MB": "Taille de build (Mo)",
+    "Build MB": "Taille du build (Mo)",
     "Platforms & budgets": "Plateformes et budgets",
     "Local AI / creation tools": "IA locale / outils de création",
     "Local AI and creation tools": "IA locale et outils de création",
@@ -106,6 +105,26 @@ _TEXT_FR: dict[str, str] = {
     "Matchmaking requires authoritative state/session.": "La mise en relation nécessite un état / une session faisant autorité.",
     "Billing requires catalog and entitlement intents.": "La facturation nécessite des intentions de catalogue et de droits d’accès.",
     "Select only services required by the product.": "Sélectionne uniquement les services nécessaires au produit.",
+    "keyboard": "clavier",
+    "mouse": "souris",
+    "gamepad": "manette",
+    "touch": "tactile",
+    "gyro": "gyroscope",
+    "accelerometer": "accéléromètre",
+    "motion_controllers": "contrôleurs de mouvement",
+    "windows": "Windows",
+    "linux": "Linux",
+    "macos": "macOS",
+    "android": "Android",
+    "ios": "iOS",
+    "web": "Web",
+    "steam_deck": "Steam Deck",
+    "xr": "XR",
+    "research": "recherche",
+    "procedural_generation": "Génération procédurale",
+    "modding": "Modding",
+    "voice": "Voix",
+    "accessibility_first": "Accessibilité prioritaire",
     "phone": "téléphone",
     "tablet": "tablette",
 }
@@ -114,9 +133,30 @@ _ACCESSIBLE_FR: dict[str, str] = {
     "Create Project DNA and product requirements for a new Kodepoia project.": "Créer l’ADN du projet et les exigences produit d’un nouveau projet Kodepoia.",
     "Switch between general, platform, feature and product sections.": "Basculer entre les sections générales, plateformes, fonctionnalités et produit.",
     "Validate the project definition and create the project.": "Valider la définition du projet et créer le projet.",
+    "Project name": "Nom du projet",
+    "Project directory": "Dossier du projet",
+    "Browse project directory": "Parcourir le dossier du projet",
+    "Project type": "Type de projet",
+    "Game engine": "Moteur de jeu",
+    "Game engine version": "Version du moteur de jeu",
+    "Game dimension": "Dimension du jeu",
+    "Game genres": "Genres du jeu",
+    "Graphics style": "Style graphique",
+    "Online support": "Prise en charge en ligne",
+    "Multiplayer support": "Prise en charge multijoueur",
     "Filesystem directory where the new project will be initialized.": "Dossier du système de fichiers dans lequel le nouveau projet sera initialisé.",
     "Enter semicolon-separated genres.": "Saisir les genres séparés par des points-virgules.",
-    "Per-platform target FPS, minimum FPS, VRAM, RAM and build size budgets.": "Budgets par plateforme pour les FPS cibles, FPS minimum, VRAM, RAM et taille de build.",
+    "Per-platform target FPS, minimum FPS, VRAM, RAM and build size budgets.": "Budgets par plateforme pour les FPS cibles, FPS minimum, VRAM, RAM et taille du build.",
+    "Download approval policy": "Politique d’approbation des téléchargements",
+    "Install approval policy": "Politique d’approbation des installations",
+    "Product document type": "Type de document produit",
+    "Product vision": "Vision du produit",
+    "Product summary": "Résumé du produit",
+    "Product goals": "Objectifs du produit",
+    "Success metrics": "Mesures de réussite",
+    "Product constraints": "Contraintes du produit",
+    "Minimum viable product capabilities": "Capacités du produit minimum viable",
+    "Out of scope items": "Éléments hors périmètre",
     "Select the governed desktop application framework intent.": "Sélectionner l’intention gouvernée de framework d’application de bureau.",
     "Select unpackaged, MSIX, MSI or archive intent without building it yet.": "Sélectionner une intention non empaquetée, MSIX, MSI ou archive sans encore la construire.",
     "Governed source intent; no generator or build is executed here.": "Intention de source gouvernée ; aucun générateur ni build n’est exécuté ici.",
@@ -188,7 +228,38 @@ _MESSAGE_FR: dict[str, str] = {
 
 
 def _translate_exact(value: str) -> str:
-    return _TEXT_FR.get(value, _ACCESSIBLE_FR.get(value, value))
+    direct = _TEXT_FR.get(value, _ACCESSIBLE_FR.get(value))
+    if direct is not None:
+        return direct
+    if value.startswith("Input method "):
+        raw = value.removeprefix("Input method ")
+        return "Méthode d’entrée " + _TEXT_FR.get(raw, raw)
+    if value.startswith("Target platform "):
+        raw = value.removeprefix("Target platform ")
+        return "Plateforme cible " + _TEXT_FR.get(raw, raw)
+    if value.startswith("Enable tool "):
+        raw = value.removeprefix("Enable tool ")
+        return "Activer l’outil " + _TEXT_FR.get(raw, raw)
+    if value.startswith("Feature "):
+        raw = value.removeprefix("Feature ")
+        return "Fonctionnalité " + _TEXT_FR.get(raw, raw)
+    if value.startswith("Requirement ") and value.endswith(" priority"):
+        middle = value.removeprefix("Requirement ").removesuffix(" priority")
+        return f"Priorité de l’exigence {middle}"
+    if value.startswith("Declare provider-neutral ") and value.endswith(" product intent."):
+        service = value.removeprefix("Declare provider-neutral ").removesuffix(" product intent.")
+        return f"Déclarer l’intention produit {service} indépendante du fournisseur."
+    suffixes = {
+        " Target FPS": " FPS cibles",
+        " Minimum FPS": " FPS minimum",
+        " Maximum VRAM MB": " VRAM maximale (Mo)",
+        " Maximum RAM MB": " RAM maximale (Mo)",
+        " Maximum build size MB": " taille maximale du build (Mo)",
+    }
+    for suffix, translated_suffix in suffixes.items():
+        if value.endswith(suffix):
+            return value[: -len(suffix)] + translated_suffix
+    return value
 
 
 def _apply_french_texts(dialog) -> None:
@@ -201,6 +272,7 @@ def _apply_french_texts(dialog) -> None:
         QPlainTextEdit,
         QTabWidget,
         QTableWidget,
+        QWidget,
     )
 
     if dialog.windowTitle() in _TEXT_FR:
@@ -241,7 +313,7 @@ def _apply_french_texts(dialog) -> None:
             if item is not None and item.text() in _TEXT_FR:
                 item.setText(_TEXT_FR[item.text()])
 
-    for widget in dialog.findChildren((QLabel, QAbstractButton, QGroupBox, QLineEdit, QPlainTextEdit, QComboBox, QTableWidget, QTabWidget)):
+    for widget in dialog.findChildren(QWidget):
         name = widget.accessibleName()
         description = widget.accessibleDescription()
         if name:

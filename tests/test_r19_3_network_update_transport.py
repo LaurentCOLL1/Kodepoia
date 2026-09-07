@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -11,7 +11,6 @@ from kodepoia.update.startup import (
     build_packaged_update_services,
 )
 from kodepoia.update.trust import UpdateTransportError, UpdateTransportOffline
-
 
 SOURCE_SHA = "a" * 40
 TARGET_PATH = f"channels/beta/windows-x86_64/1.1.0-rc2/{SOURCE_SHA}/KodepoiaSetup.exe"

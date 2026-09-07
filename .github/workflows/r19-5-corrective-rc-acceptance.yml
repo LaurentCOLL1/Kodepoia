@@ -1,0 +1,192 @@
+name: R19.5 Corrective RC Release Integrated Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "src/kodepoia/release/**"
+      - "src/kodepoia/update/**"
+      - "scripts/build_windows_installer.ps1"
+      - "scripts/r19_5_release_handoff.py"
+      - "scripts/r19_5_corrective_rc_acceptance.py"
+      - "tests/test_r19_5_corrective_rc_release.py"
+      - "packaging/windows/**"
+      - ".github/workflows/windows-installer.yml"
+      - ".github/workflows/r19-5-corrective-rc-acceptance.yml"
+      - "configs/r16_supply_chain_policy.json"
+      - "tests/test_supply_chain_r16_9.py"
+      - "pyproject.toml"
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact source SHA to validate
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  KODEPOIA_SOURCE_SHA: ${{ inputs.source_sha || github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  corrective-rc-contract:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Assert exact checkout provenance
+        shell: python
+        run: |
+          import os, subprocess
+          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          assert actual == os.environ["KODEPOIA_SOURCE_SHA"], (actual, os.environ["KODEPOIA_SOURCE_SHA"])
+      - name: Install focused dependencies
+        run: python -m pip install -e ".[dev,code]"
+      - name: Compile R19.5 sources
+        run: python -m compileall -q src/kodepoia/release src/kodepoia/update scripts/r19_5_release_handoff.py scripts/r19_5_corrective_rc_acceptance.py tests/test_r19_5_corrective_rc_release.py
+      - name: Ruff R19.5
+        run: python -m ruff check src/kodepoia/release/corrective_rc.py scripts/r19_5_release_handoff.py scripts/r19_5_corrective_rc_acceptance.py tests/test_r19_5_corrective_rc_release.py
+      - name: Focused R19.5 tests
+        run: python -m pytest tests/test_r19_5_corrective_rc_release.py tests/test_r19_4_seamless_windows_update.py tests/test_r19_3_network_update_transport.py
+      - name: Emit exact-source R19.5 pre-effect acceptance
+        run: python scripts/r19_5_corrective_rc_acceptance.py --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}" --output docs/roadmap/R19_5_CORRECTIVE_RC_ACCEPTANCE.json
+      - name: Upload exact-source R19.5 evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r19-5-contract-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: docs/roadmap/R19_5_CORRECTIVE_RC_ACCEPTANCE.json
+          if-no-files-found: error
+
+  rc1-to-rc2-windows-upgrade:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Assert exact checkout provenance
+        shell: pwsh
+        run: |
+          $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
+          if ($actual -ne $env:KODEPOIA_SOURCE_SHA) { throw "Exact source mismatch" }
+      - name: Install packaging dependencies
+        run: python -m pip install -e ".[dev,ui,code,packaging]"
+      - name: Install Inno Setup 6
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+      - name: Resolve and assert corrective identity
+        shell: pwsh
+        run: |
+          $identity = (python -m kodepoia.release.identity --json) | ConvertFrom-Json
+          if ($identity.public_version -ne "1.1.0-rc2") {
+            throw "R19.5 requires canonical 1.1.0-rc2, got $($identity.public_version)"
+          }
+          "KODEPOIA_PUBLIC_VERSION=$($identity.public_version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Build exact-head rc2 installer
+        shell: pwsh
+        run: ./scripts/build_windows_installer.ps1 -Version $env:KODEPOIA_PUBLIC_VERSION -SourceSha $env:KODEPOIA_SOURCE_SHA
+      - name: Emit repository-safe release/TUF handoff
+        shell: pwsh
+        run: |
+          python scripts/r19_5_release_handoff.py `
+            --installer dist/windows/KodepoiaSetup.exe `
+            --source-sha $env:KODEPOIA_SOURCE_SHA `
+            --output docs/roadmap/R19_5_RELEASE_HANDOFF.json
+      - name: Download immutable rc1 installer and verify historical digest
+        shell: pwsh
+        run: |
+          $old = Join-Path $env:RUNNER_TEMP "KodepoiaSetup-1.1.0-rc1.exe"
+          Invoke-WebRequest `
+            -Uri "https://github.com/LaurentCOLL1/Kodepoia/releases/download/v1.1.0-rc1/KodepoiaSetup.exe" `
+            -OutFile $old
+          $actual = (Get-FileHash $old -Algorithm SHA256).Hash.ToLowerInvariant()
+          $expected = "3d11af229392a6756a2bbc161af0150aca92168d843a42a3944ab5c01660b8e0"
+          if ($actual -ne $expected) { throw "Historical rc1 installer digest mismatch: $actual" }
+          "KODEPOIA_RC1_INSTALLER=$old" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Prove installed rc1 to rc2 upgrade preserves user state
+        shell: pwsh
+        run: |
+          $installDir = Join-Path $env:RUNNER_TEMP "Kodepoia-r19.5-upgrade"
+          Remove-Item $installDir -Recurse -Force -ErrorAction SilentlyContinue
+          $oldInstall = Start-Process -FilePath $env:KODEPOIA_RC1_INSTALLER -ArgumentList @(
+            "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/MERGETASKS=!desktopicon", "/DIR=$installDir"
+          ) -Wait -PassThru
+          if ($oldInstall.ExitCode -ne 0) { throw "rc1 install failed with $($oldInstall.ExitCode)" }
+
+          $settingsDir = Join-Path $HOME ".kodepoia"
+          New-Item -ItemType Directory -Force -Path $settingsDir | Out-Null
+          $settingsPath = Join-Path $settingsDir "settings.json"
+          $settingsBytes = [System.Text.Encoding]::UTF8.GetBytes('{"locale":"en","r19_5_sentinel":"preserve-me"}')
+          [System.IO.File]::WriteAllBytes($settingsPath, $settingsBytes)
+          $settingsHashBefore = (Get-FileHash $settingsPath -Algorithm SHA256).Hash
+
+          $projectDir = Join-Path $env:RUNNER_TEMP "Kodepoia-r19.5-project"
+          New-Item -ItemType Directory -Force -Path $projectDir | Out-Null
+          $projectPath = Join-Path $projectDir "sentinel.txt"
+          Set-Content -Encoding UTF8 $projectPath "project-must-survive-r19.5"
+          $projectHashBefore = (Get-FileHash $projectPath -Algorithm SHA256).Hash
+
+          $newInstall = Start-Process -FilePath "dist/windows/KodepoiaSetup.exe" -ArgumentList @(
+            "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CLOSEAPPLICATIONS", "/NORESTARTAPPLICATIONS", "/MERGETASKS=!desktopicon", "/DIR=$installDir"
+          ) -Wait -PassThru
+          if ($newInstall.ExitCode -ne 0) { throw "rc2 update failed with $($newInstall.ExitCode)" }
+
+          if ((Get-FileHash $settingsPath -Algorithm SHA256).Hash -ne $settingsHashBefore) {
+            throw "User settings changed during rc1 to rc2 update"
+          }
+          if ((Get-FileHash $projectPath -Algorithm SHA256).Hash -ne $projectHashBefore) {
+            throw "Project data changed during rc1 to rc2 update"
+          }
+          $settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
+          if ($settings.locale -ne "en" -or $settings.r19_5_sentinel -ne "preserve-me") {
+            throw "English preference or settings sentinel was not preserved"
+          }
+
+          $exe = Join-Path $installDir "KodepoiaStudio.exe"
+          if (-not (Test-Path $exe)) { throw "Updated executable is missing" }
+          $smokeReport = Join-Path $env:RUNNER_TEMP "r19.5-updated-smoke.txt"
+          $smoke = Start-Process -FilePath $exe -ArgumentList @(
+            "--smoke-test", "--smoke-report=$smokeReport"
+          ) -WorkingDirectory $projectDir -Wait -PassThru
+          if ($smoke.ExitCode -ne 0) {
+            if (Test-Path $smokeReport) { Get-Content $smokeReport }
+            throw "Updated packaged application smoke failed with $($smoke.ExitCode)"
+          }
+
+          $uninstaller = Join-Path $installDir "unins000.exe"
+          if (-not (Test-Path $uninstaller)) { throw "Updated uninstaller is missing" }
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList @(
+            "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"
+          ) -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "Updated uninstall failed with $($uninstall.ExitCode)" }
+          for ($attempt = 0; $attempt -lt 40 -and (Test-Path $exe); $attempt++) {
+            Start-Sleep -Milliseconds 250
+          }
+          if (Test-Path $exe) { throw "Updated executable remains after uninstall" }
+          if (-not (Test-Path $settingsPath)) { throw "Uninstall removed user settings unexpectedly" }
+          if (-not (Test-Path $projectPath)) { throw "Uninstall removed project data unexpectedly" }
+      - name: Upload exact rc2 pre-publication bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r19-5-rc2-prepublication-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: |
+            dist/windows/KodepoiaSetup.exe
+            dist/windows/installer-manifest.json
+            docs/roadmap/R19_5_RELEASE_HANDOFF.json
+          if-no-files-found: error

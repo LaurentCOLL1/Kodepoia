@@ -46,10 +46,19 @@ MESSAGES: dict[str, dict[str, str]] = {
         "wizard.vision.apply": "Apply this Vision",
         "wizard.vision.close": "Close",
         "settings.language": "Language",
-        "settings.restart": "The language choice is saved immediately. Restart KodeStudio to apply it to the whole interface.",
+        "settings.restart": (
+            "The language choice is saved immediately. Restart KodeStudio to apply it to "
+            "the whole interface."
+        ),
         "settings.apply_title": "Apply language change",
-        "settings.apply_prompt": "The language preference is saved. Restart KodeStudio now to apply it to the whole interface?",
-        "settings.restart_failed": "KodeStudio could not restart automatically. Close and reopen it to apply the saved language.",
+        "settings.apply_prompt": (
+            "The language preference is saved. Restart KodeStudio now to apply it to the "
+            "whole interface?"
+        ),
+        "settings.restart_failed": (
+            "KodeStudio could not restart automatically. Close and reopen it to apply the "
+            "saved language."
+        ),
         "updates.title": "Updates",
         "updates.installed": "Installed version",
         "updates.channel": "Update channel",
@@ -85,7 +94,9 @@ MESSAGES: dict[str, dict[str, str]] = {
         "updates.provenance": "Provenance (TUF metadata report; not verified here)",
         "updates.download_verify": "Download and verify installer",
         "updates.install_verified": "Install verified update…",
-        "updates.download_ready": "Installer verified and staged; explicit confirmation is still required.",
+        "updates.download_ready": (
+            "Installer verified and staged; explicit confirmation is still required."
+        ),
         "updates.download_failed": "Verified download failed",
         "updates.install_confirm_title": "Install verified Kodepoia update",
         "updates.install_confirm": (
@@ -138,10 +149,19 @@ MESSAGES: dict[str, dict[str, str]] = {
         "wizard.vision.apply": "Appliquer cette Vision",
         "wizard.vision.close": "Fermer",
         "settings.language": "Langue",
-        "settings.restart": "Le choix de langue est enregistré immédiatement. Redémarre KodeStudio pour l’appliquer à toute l’interface.",
+        "settings.restart": (
+            "Le choix de langue est enregistré immédiatement. Redémarre KodeStudio pour "
+            "l’appliquer à toute l’interface."
+        ),
         "settings.apply_title": "Appliquer le changement de langue",
-        "settings.apply_prompt": "La préférence de langue est enregistrée. Redémarrer KodeStudio maintenant pour l’appliquer à toute l’interface ?",
-        "settings.restart_failed": "KodeStudio n’a pas pu redémarrer automatiquement. Ferme-le puis rouvre-le pour appliquer la langue enregistrée.",
+        "settings.apply_prompt": (
+            "La préférence de langue est enregistrée. Redémarrer KodeStudio maintenant pour "
+            "l’appliquer à toute l’interface ?"
+        ),
+        "settings.restart_failed": (
+            "KodeStudio n’a pas pu redémarrer automatiquement. Ferme-le puis rouvre-le pour "
+            "appliquer la langue enregistrée."
+        ),
         "updates.title": "Mises à jour",
         "updates.installed": "Version installée",
         "updates.channel": "Canal de mise à jour",
@@ -171,14 +191,18 @@ MESSAGES: dict[str, dict[str, str]] = {
         "updates.channel-unavailable": "Canal indisponible",
         "updates.update-withdrawn": "Mise à jour retirée",
         "updates.update-superseded": "Mise à jour remplacée",
-        "updates.repository_unconfigured": "Aucun dépôt structuré de mise à jour n’est configuré.",
+        "updates.repository_unconfigured": (
+            "Aucun dépôt structuré de mise à jour n’est configuré."
+        ),
         "updates.candidate": "Version candidate",
         "updates.verified": "Vérification de la source",
         "updates.size": "Taille déclarée",
         "updates.bytes": "octets",
         "updates.notes": "Notes",
         "updates.signing": "Signature (rapport des métadonnées TUF ; non vérifiée ici)",
-        "updates.provenance": "Provenance (rapport des métadonnées TUF ; non vérifiée ici)",
+        "updates.provenance": (
+            "Provenance (rapport des métadonnées TUF ; non vérifiée ici)"
+        ),
         "updates.download_verify": "Télécharger et vérifier l’installateur",
         "updates.install_verified": "Installer la mise à jour vérifiée…",
         "updates.download_ready": (
@@ -190,7 +214,9 @@ MESSAGES: dict[str, dict[str, str]] = {
             "Lancer l’installateur vérifié pour {version} ? Windows peut demander "
             "un consentement administrateur."
         ),
-        "updates.install_launching": "Lancement de l’installateur vérifié après confirmation explicite…",
+        "updates.install_launching": (
+            "Lancement de l’installateur vérifié après confirmation explicite…"
+        ),
         "updates.install_failed": "Échec du passage de relais à l’installateur",
     },
 }

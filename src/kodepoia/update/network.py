@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
-from urllib.parse import quote, urlsplit, urlunsplit
+from urllib.parse import quote, urljoin, urlsplit, urlunsplit
 
 import urllib3
 from urllib3.exceptions import ConnectTimeoutError, HTTPError, NewConnectionError, ReadTimeoutError, SSLError
@@ -122,6 +122,7 @@ class NetworkUpdateTransport:
         self._metadata_origin = _origin(self.policy.metadata_base_url)
         self._metadata_path = urlsplit(self.policy.metadata_base_url).path
         self._release_origin = _origin(self.policy.release_asset_base_url)
+        self._release_path = urlsplit(self.policy.release_asset_base_url).path
 
     def _metadata_url(self, name: str) -> str:
         safe = _safe_metadata_name(name)
@@ -139,10 +140,14 @@ class NetworkUpdateTransport:
             return False
         if metadata:
             return _origin(target) == self._metadata_origin and parsed.path.startswith(self._metadata_path)
+
         host = parsed.hostname.lower()
-        return _origin(current) == self._release_origin and host in self.policy.target_redirect_hosts or (
-            urlsplit(current).hostname or ""
-        ).lower() in self.policy.target_redirect_hosts and host in self.policy.target_redirect_hosts
+        current_host = (urlsplit(current).hostname or "").lower()
+        if host not in self.policy.target_redirect_hosts:
+            return False
+        if host == self._release_origin[1]:
+            return _origin(target) == self._release_origin and parsed.path.startswith(self._release_path)
+        return current_host == self._release_origin[1] or current_host in self.policy.target_redirect_hosts
 
     def _request(self, url: str, *, metadata: bool):
         current = url
@@ -172,10 +177,7 @@ class NetworkUpdateTransport:
                     raise UpdateTransportError("update repository redirect limit exceeded")
                 if not location:
                     raise UpdateTransportError("update repository redirect is missing Location")
-                next_url = urllib3.util.url.parse_url(current).url
-                from urllib.parse import urljoin
-
-                next_url = urljoin(next_url, location)
+                next_url = urljoin(current, location)
                 if not self._redirect_allowed(current, next_url, metadata=metadata):
                     raise UpdateTransportError("update repository redirect escaped an authorized HTTPS origin")
                 current = next_url

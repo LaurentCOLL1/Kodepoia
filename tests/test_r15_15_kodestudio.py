@@ -52,7 +52,7 @@ def test_r15_page_is_wired_accessible_and_localized(tmp_path) -> None:
 
     nav = window.findChild(QListWidget, "mainNavigation")
     labels = [nav.item(index).text() for index in range(nav.count())]
-    assert "Expérience et Tune" in labels
+    assert "Expérience et réglage" in labels
     window.close()
 
 

@@ -39,7 +39,8 @@ _FR = {
     "action": "Action",
     "identifier": "ID stable",
     "identifier_hint": (
-        "ID immuable de candidat, d’exécution, de jeu de données ou de preuve lorsque l’action sélectionnée l’exige."
+        "ID immuable de candidat, d’exécution, de jeu de données ou de preuve lorsque "
+        "l’action sélectionnée l’exige."
     ),
     "confirm": "Je confirme cette mutation demandée",
     "dry_run": "Simuler",

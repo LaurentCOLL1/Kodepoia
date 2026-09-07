@@ -1,12 +1,12 @@
 # R18 — Trusted Release, Updates & Distribution Channels
 
-Status: **IN_PROGRESS**
+Status: **COMPLETE + NORMALIZED**
 
 Started: **2026-09-04**
 
 Normalized source of truth: `main` `58e488d80e60d04fc675e305bc8f040a3ab2bb9c` — R17 COMPLETE + NORMALIZED.
 
-Roadmap status: planning is **ACCEPTED + NORMALIZED** on `main` `bbffc382d4fb8a7d947345da11b56459d0fec825`. R18.1 is COMPLETE + NORMALIZED on canonical `main` `c611131268041b06f53de66eaadd45120e2b750d`. R18.2 is **COMPLETE + NORMALIZED** on canonical `main` `c376d0af789e584e1ef307f43e42a62ce024b052`. R18.3 is **COMPLETE + NORMALIZED** on canonical `main` `66314ff1c86e51d84f1abe15d107a6182ef9e54a`. R18.4 is **COMPLETE + NORMALIZED** on canonical `main` `b6aa853c59921bf51e346b7860e709cca63a4a2e`. R18.5 is **COMPLETE + NORMALIZED** on canonical `main` `2f0929c30f717ad608523cc1837ecfb1129a28f1`. R18.6 is **COMPLETE + NORMALIZED** on canonical `main` `4ccbe4ef1fe66f88e38dfc8c9dfebba7e183efe1`. R18.7 KodeStudio update discovery and release-channel UX is **COMPLETE + NORMALIZED** on canonical `main` `03ad2cbede77fbf29d996ad21ad65e74ae09273a` after implementation/evidence PR #395 and unique continuity-only normalization PR #396. R18.8 Verified download, user-consented install and rollback is **COMPLETE at END-sync** on immutable technical source `9b007c4acd113fcf6b5863e8cc7188de45751243`; fresh exact-END re-gates, exact-head PR #397 merge and unique continuity-only normalization remain required. R18.9–R18.11 remain PLANNED. The frozen v1.0/R1–R16 architecture and history are not rewritten.
+Roadmap status: R18 planning is **ACCEPTED + NORMALIZED**. R18.1–R18.11 are all **COMPLETE + NORMALIZED**. Final R18.11 exact-END `c64bac012ef3afa332526a539901b11428fd966f` passed fresh exact-head R18.11 / R16.9 / R0 / Python Core / KodeStudio UI gates before PR #403 merged as implementation/evidence `main` `0ea7b14f03a4e3d0539ce3e7d4fc932427fdb104`. The single authorized phase-level continuity-only normalization candidate `996cb8adc7a203350473057d3dbe2dcbc8482b8e` then passed fresh R0 Repository Guard Ubuntu + Windows, Python Core 5/5 and KodeStudio UI Smoke before PR #404 merged as canonical normalized `main` `4632e988e5b04b717c86356eda638827c0252e02`. The frozen R18 scope ends at R18.11; no R18.12 or additional R18 subdivision is authorized. Production signing, public GitHub Release publication/mutation, production TUF key custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**.
 
 ## Phase objective
 
@@ -57,17 +57,17 @@ Before R18.1 begins:
 
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
-| R18.1 | Canonical release identity, versions and channels | COMPLETE | NONE | R17 normalized main |
-| R18.2 | Deterministic release bundle and manifest contract | COMPLETE | NONE | R18.1 |
-| R18.3 | SBOM, provenance and artifact attestations | COMPLETE | NONE | R18.2 |
-| R18.4 | Windows Authenticode signing and verification boundary | COMPLETE | CONDITIONAL / NOT TRIGGERED | R18.2–R18.3 |
-| R18.5 | Immutable GitHub Release staging and promotion | COMPLETE | CONDITIONAL / NOT TRIGGERED | R18.2–R18.4 |
+| R18.1 | Canonical release identity, versions and channels | COMPLETE + NORMALIZED | NONE | R17 normalized main |
+| R18.2 | Deterministic release bundle and manifest contract | COMPLETE + NORMALIZED | NONE | R18.1 |
+| R18.3 | SBOM, provenance and artifact attestations | COMPLETE + NORMALIZED | NONE | R18.2 |
+| R18.4 | Windows Authenticode signing and verification boundary | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R18.2–R18.3 |
+| R18.5 | Immutable GitHub Release staging and promotion | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R18.2–R18.4 |
 | R18.6 | TUF-secured update repository and metadata lifecycle | COMPLETE + NORMALIZED | NONE | R18.1–R18.3 |
 | R18.7 | KodeStudio update discovery and release-channel UX | COMPLETE + NORMALIZED | NONE | R18.6 |
-| R18.8 | Verified download, user-consented install and rollback | COMPLETE at END-sync | NONE | R18.4, R18.6–R18.7 |
-| R18.9 | WinGet manifest generation and validation | PLANNED | CONDITIONAL | R18.2, R18.4–R18.5 |
-| R18.10 | Revocation, rollback and compromised-release drills | PLANNED | NONE | R18.4–R18.9 |
-| R18.11 | Integrated adversarial release/update acceptance | PLANNED | NONE | R18.1–R18.10 |
+| R18.8 | Verified download, user-consented install and rollback | COMPLETE + NORMALIZED | NONE | R18.4, R18.6–R18.7 |
+| R18.9 | WinGet manifest generation and validation | COMPLETE + NORMALIZED | CONDITIONAL / NOT TRIGGERED | R18.2, R18.4–R18.5 |
+| R18.10 | Revocation, rollback and compromised-release drills | COMPLETE + NORMALIZED | NONE | R18.4–R18.9 |
+| R18.11 | Integrated adversarial release/update acceptance | COMPLETE + NORMALIZED | NONE | R18.1–R18.10 |
 
 No subdivision may be silently added, removed, merged, split or renumbered. Any change requires a plan + continuity update in the same governed work cycle.
 
@@ -790,3 +790,10 @@ This planning document and its matching planning-continuity record must be the o
 - Core manual state is **NONE**. Production Authenticode signing, public GitHub Release publication/mutation, production TUF key custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**.
 - Because this END-sync changes documentation bytes, its resulting exact END head must pass fresh R18.11 + R16.9 + R0 Repository Guard Ubuntu/Windows + full Python Core + KodeStudio UI Smoke before PR #403 may merge with `expected_head_sha` equal to that exact head.
 - After that implementation/evidence merge, exactly one post-merge continuity-only **R18 phase normalization** is authorized. Its exact candidate must pass fresh R0/Python/UI and merge with exact expected-head protection. Only that normalized `main` establishes **R18 COMPLETE + NORMALIZED**; no second R18 phase normalization is authorized.
+
+## R18 final closure authority
+
+- R18.11 final exact-END head `c64bac012ef3afa332526a539901b11428fd966f` passed fresh R18.11 Integrated Adversarial Release Update Acceptance #8 / `34058165771`, R16.9 Supply Chain Provenance #204 / `34058165647`, R0 Repository Guard #2556 / `34058165607` Ubuntu + Windows, Python Core #2528 / `34058165818` 5/5 and KodeStudio UI Smoke #2493 / `34058165759`; PR #403 then merged with exact expected-head protection as implementation/evidence `main` `0ea7b14f03a4e3d0539ce3e7d4fc932427fdb104`.
+- The single authorized phase-level continuity-only normalization candidate `996cb8adc7a203350473057d3dbe2dcbc8482b8e` changed only `docs/continuity/KODEPOIA_CONTINUITY.md` (+12/-0), passed fresh R0 Repository Guard #2558 / `34073457900` Ubuntu + Windows, Python Core #2530 / `34073457973` 5/5 and KodeStudio UI Smoke #2495 / `34073457927`, and PR #404 merged with exact expected-head protection as canonical normalized `main` `4632e988e5b04b717c86356eda638827c0252e02`.
+- **R18 is COMPLETE + NORMALIZED. R18.1–R18.11 are all COMPLETE + NORMALIZED.** No second R18 phase normalization, R18.12, or additional R18 subdivision is authorized.
+- Core manual state is **NONE**. Production signing, public GitHub Release publication/mutation, production TUF key custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**. Phase completion does not imply any public/production distribution action.

@@ -23,9 +23,9 @@ _EN = {
 }
 
 _FR = {
-    "nav": "Backend et LiveOps",
-    "title": "Backend et LiveOps",
-    "subtitle": "Inspection, prévisualisation et opérations autorisées structurées. Les commandes brutes, endpoints et secrets ne sont jamais acceptés.",
+    "nav": "Backend et opérations en ligne",
+    "title": "Backend et opérations en ligne",
+    "subtitle": "Inspection structurée, prévisualisation et opérations autorisées. Les commandes brutes, points de terminaison et secrets ne sont jamais acceptés.",
     "environment": "Environnement",
     "operation": "Opération",
     "action": "Action",
@@ -35,10 +35,10 @@ _FR = {
     "execute": "Exécuter l’opération gouvernée",
     "catalog": "Afficher le catalogue des capacités",
     "result": "Résultat structuré",
-    "status_ready": "Contrôles Backend et LiveOps prêts",
+    "status_ready": "Contrôles du backend et des opérations en ligne prêts",
     "status_blocked": "Opération bloquée par la politique R14.16",
-    "status_complete": "Opération Backend et LiveOps terminée",
-    "resource_hint": "Identifiant stable uniquement ; les URL/endpoints bruts sont interdits.",
+    "status_complete": "Opération du backend et des opérations en ligne terminée",
+    "resource_hint": "Identifiant stable de ressource uniquement ; les URL et points de terminaison bruts sont interdits.",
 }
 
 

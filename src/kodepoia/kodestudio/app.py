@@ -5,7 +5,7 @@ from pathlib import Path
 
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 from kodepoia.kodestudio.accessibility import mark_accessible
-from kodepoia.kodestudio.localization import KodeStudioTranslator
+from kodepoia.kodestudio.runtime_localization import KodeStudioTranslator
 
 
 def build_window(
@@ -37,11 +37,21 @@ def build_window(
 
     switch = kill_switch or GLOBAL_KILL_SWITCH
     tr = KodeStudioTranslator(locale)
+    french = locale.lower().startswith("fr")
+
+    def ui(fr: str, en: str) -> str:
+        return fr if french else en
+
     root = (project_root or Path.cwd()).resolve(strict=False)
     window = QMainWindow()
     window.setObjectName("kodepoiaMainWindow")
     window.setAccessibleName("Kodepoia KodeStudio")
-    window.setAccessibleDescription("Kodepoia local-first development workspace")
+    window.setAccessibleDescription(
+        ui(
+            "Espace de développement Kodepoia local en priorité.",
+            "Kodepoia local-first development workspace",
+        )
+    )
     window.setWindowTitle(tr.text("app.window.title"))
     window.resize(1100, 700)
     window._kodepoia_kill_switch = switch
@@ -52,16 +62,19 @@ def build_window(
     mark_accessible(
         nav,
         object_name="mainNavigation",
-        name="Main navigation",
-        description="Choose the active KodeStudio section with the keyboard or mouse.",
+        name=ui("Navigation principale", "Main navigation"),
+        description=ui(
+            "Choisir la section KodeStudio active au clavier ou à la souris.",
+            "Choose the active KodeStudio section with the keyboard or mouse.",
+        ),
         description_required=True,
     )
     pages = QStackedWidget()
     pages.setObjectName("mainPages")
-    pages.setAccessibleName("KodeStudio section content")
+    pages.setAccessibleName(ui("Contenu de la section KodeStudio", "KodeStudio section content"))
     status = QStatusBar()
     status.setObjectName("mainStatus")
-    status.setAccessibleName("Application status")
+    status.setAccessibleName(ui("Statut de l’application", "Application status"))
 
     def security_page() -> QWidget:
         page = QWidget()
@@ -75,7 +88,10 @@ def build_window(
             stop,
             object_name="killSwitchButton",
             name=tr.text("app.security.stop"),
-            description="Emergency stop that terminates protected processes and blocks protected execution.",
+            description=ui(
+                "Arrêt d’urgence qui termine les processus protégés et bloque l’exécution protégée.",
+                "Emergency stop that terminates protected processes and blocks protected execution.",
+            ),
             description_required=True,
         )
         reset = QPushButton(tr.text("app.security.reset"))
@@ -83,7 +99,10 @@ def build_window(
             reset,
             object_name="killSwitchResetButton",
             name=tr.text("app.security.reset"),
-            description="Reset the emergency stop after protected processes have terminated.",
+            description=ui(
+                "Réinitialiser l’arrêt d’urgence après la fin des processus protégés.",
+                "Reset the emergency stop after protected processes have terminated.",
+            ),
             description_required=True,
         )
 
@@ -98,8 +117,12 @@ def build_window(
             try:
                 switch.reset()
             except RuntimeError as exc:
-                state.setText(str(exc))
-                state.setAccessibleName(str(exc))
+                text = ui(
+                    f"Impossible de réinitialiser l’arrêt d’urgence : {exc}",
+                    f"Unable to reset emergency stop: {exc}",
+                )
+                state.setText(text)
+                state.setAccessibleName(text)
                 return
             ready = tr.text("app.security.ready")
             state.setText(ready)
@@ -123,7 +146,10 @@ def build_window(
             create,
             object_name="newProjectButton",
             name=tr.text("app.projects.new").rstrip("…"),
-            description="Open the new Kodepoia project wizard.",
+            description=ui(
+                "Ouvrir l’assistant de création d’un nouveau projet Kodepoia.",
+                "Open the new Kodepoia project wizard.",
+            ),
             description_required=True,
         )
 
@@ -267,7 +293,9 @@ def build_window(
     nav.setCurrentRow(0)
     splitter = QSplitter()
     splitter.setObjectName("mainSplitter")
-    splitter.setAccessibleName("KodeStudio navigation and content")
+    splitter.setAccessibleName(
+        ui("Navigation et contenu KodeStudio", "KodeStudio navigation and content")
+    )
     splitter.addWidget(nav)
     splitter.addWidget(pages)
     splitter.setStretchFactor(1, 1)

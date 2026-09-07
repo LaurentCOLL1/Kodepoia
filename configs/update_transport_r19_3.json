@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "phase": "R19.3",
+  "metadata_base_url": "https://raw.githubusercontent.com/LaurentCOLL1/Kodepoia/main/update-repository/metadata/",
+  "release_asset_base_url": "https://github.com/LaurentCOLL1/Kodepoia/releases/download/",
+  "connect_timeout_seconds": 5.0,
+  "read_timeout_seconds": 20.0,
+  "max_metadata_bytes": 1048576,
+  "max_target_bytes": 1073741824,
+  "max_redirects": 3,
+  "metadata_names": [
+    "root.json",
+    "snapshot.json",
+    "targets.json",
+    "timestamp.json"
+  ],
+  "target_redirect_hosts": [
+    "github.com",
+    "objects.githubusercontent.com",
+    "release-assets.githubusercontent.com"
+  ],
+  "startup_network_required": false,
+  "windows_install_requires_tuf_hash_length_authenticode_identity_and_user_consent": true,
+  "silent_install_authorized": false,
+  "r19_4_behavior_included": false
+}

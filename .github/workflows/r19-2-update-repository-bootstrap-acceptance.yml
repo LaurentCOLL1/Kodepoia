@@ -12,10 +12,7 @@ on:
       - configs/update_repository_r19_2.json
       - docs/release/R19_2_UPDATE_REPOSITORY_BOOTSTRAP.md
       - scripts/r19_2_update_repository_acceptance.py
-      - src/kodepoia/update/__init__.py
-      - src/kodepoia/update/bootstrap.py
-      - src/kodepoia/update/repository_bootstrap.py
-      - src/kodepoia/update/trusted_root.production.manifest.json
+      - src/kodepoia/update/**
       - tests/test_r19_2_update_repository_bootstrap.py
       - update-repository/**
   workflow_dispatch:
@@ -32,9 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
+        os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     env:
       EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -58,9 +53,7 @@ jobs:
           import subprocess
 
           expected = os.environ["EVIDENCE_SHA"].strip().lower()
-          actual = subprocess.check_output(
-              ["git", "rev-parse", "HEAD"], text=True
-          ).strip().lower()
+          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip().lower()
           if actual != expected:
               raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
 
@@ -75,41 +68,16 @@ jobs:
           scripts/r19_2_update_repository_acceptance.py
           tests/test_r19_2_update_repository_bootstrap.py
 
-      - name: Collect Ruff R19.2 diagnostics
-        shell: python
-        run: |
-          import subprocess
-          import sys
-          from pathlib import Path
+      - name: Run Ruff R19.2
+        run: >-
+          python -m ruff check
+          src/kodepoia/update/__init__.py
+          src/kodepoia/update/bootstrap.py
+          src/kodepoia/update/repository_bootstrap.py
+          scripts/r19_2_update_repository_acceptance.py
+          tests/test_r19_2_update_repository_bootstrap.py
 
-          output = Path("artifacts/r19_2")
-          output.mkdir(parents=True, exist_ok=True)
-          command = [
-              sys.executable,
-              "-m",
-              "ruff",
-              "check",
-              "--output-format",
-              "json",
-              "src/kodepoia/update/__init__.py",
-              "src/kodepoia/update/bootstrap.py",
-              "src/kodepoia/update/repository_bootstrap.py",
-              "scripts/r19_2_update_repository_acceptance.py",
-              "tests/test_r19_2_update_repository_bootstrap.py",
-          ]
-          result = subprocess.run(command, text=True, capture_output=True, check=False)
-          (output / "ruff.json").write_text(result.stdout or "[]\n", encoding="utf-8")
-          (output / "ruff-exit-code.txt").write_text(
-              f"{result.returncode}\n", encoding="utf-8"
-          )
-          if result.stderr:
-              (output / "ruff-stderr.txt").write_text(result.stderr, encoding="utf-8")
-          if result.returncode not in {0, 1}:
-              raise SystemExit(
-                  f"Ruff execution failed unexpectedly with exit code {result.returncode}"
-              )
-
-      - name: Run focused R19.2 and trust-separation tests
+      - name: Run focused trust tests
         run: >-
           python -m pytest -q
           tests/test_r19_2_update_repository_bootstrap.py
@@ -122,7 +90,7 @@ jobs:
           --source-sha "${{ env.EVIDENCE_SHA }}"
           --output artifacts/r19_2/update-repository-acceptance.json
 
-      - name: Assert repository-safe R19.2 boundary
+      - name: Assert active public trust bootstrap
         shell: python
         run: |
           import json
@@ -130,29 +98,38 @@ jobs:
           from pathlib import Path
 
           report = json.loads(
-              Path("artifacts/r19_2/update-repository-acceptance.json").read_text(
-                  encoding="utf-8"
-              )
+              Path("artifacts/r19_2/update-repository-acceptance.json").read_text(encoding="utf-8")
           )
           expected = os.environ["EVIDENCE_SHA"].strip().lower()
           if report["source_sha"] != expected:
               raise SystemExit("R19.2 acceptance source SHA mismatch")
-          if report["cases_total"] != 10 or report["cases_passed"] != 10:
+          if report["cases_total"] != 12 or report["cases_passed"] != 12:
               raise SystemExit("R19.2 focused acceptance matrix is incomplete")
-          if report["production_root_state"] != "pending-real-key-bootstrap":
-              raise SystemExit("R19.2 production Root is not at the expected manual boundary")
+          if report["production_root_state"] != "active":
+              raise SystemExit("R19.2 production Root is not active")
+          if report["production_root_version"] != 1:
+              raise SystemExit("R19.2 production Root version drifted")
+          if report["production_root_sha256"] != (
+              "a036c2aac78092f8d46893cc18954bb64f2b998375ff230f996dc4b85157e9ed"
+          ):
+              raise SystemExit("R19.2 production Root digest drifted")
           if report["synthetic_root_production_trust"]:
-              raise SystemExit("R19.2 synthetic Root unexpectedly claims production trust")
-          if report["private_keys_persisted"] or report["production_keys_used"]:
-              raise SystemExit("R19.2 repository-safe phase crossed the private-key boundary")
+              raise SystemExit("synthetic Root unexpectedly claims production trust")
+          if report["private_keys_persisted"] or report["private_keys_used_by_acceptance"]:
+              raise SystemExit("private-key boundary was crossed by repository acceptance")
           if report["r19_3_started"]:
               raise SystemExit("R19.3 was unexpectedly started")
 
-      - name: Scan R19.2 repository-safe files for private key PEM markers
+      - name: Verify public metadata contains public keys only
         shell: python
         run: |
+          import json
           from pathlib import Path
 
+          paths = [
+              Path("src/kodepoia/update/trusted_root.production.json"),
+              *sorted(Path("update-repository/metadata").glob("*.json")),
+          ]
           markers = (
               "-----BEGIN " + "PRIVATE KEY-----",
               "-----BEGIN " + "ENCRYPTED PRIVATE KEY-----",
@@ -160,32 +137,22 @@ jobs:
               "-----BEGIN " + "RSA PRIVATE KEY-----",
               "-----BEGIN " + "EC PRIVATE KEY-----",
           )
-          paths = [
-              Path("configs/update_repository_r19_2.json"),
-              Path("docs/release/R19_2_UPDATE_REPOSITORY_BOOTSTRAP.md"),
-              Path("scripts/r19_2_update_repository_acceptance.py"),
-              Path("src/kodepoia/update/bootstrap.py"),
-              Path("src/kodepoia/update/repository_bootstrap.py"),
-              Path("src/kodepoia/update/trusted_root.production.manifest.json"),
-              Path("tests/test_r19_2_update_repository_bootstrap.py"),
-          ]
-          paths.extend(
-              path for path in Path("update-repository").rglob("*") if path.is_file()
-          )
-          findings = []
           for path in paths:
               text = path.read_text(encoding="utf-8")
               if any(marker in text for marker in markers):
-                  findings.append(path.as_posix())
-          if findings:
-              raise SystemExit(f"private key PEM marker found in repository-safe files: {findings}")
+                  raise SystemExit(f"private key PEM marker found in {path}")
+          root = json.loads(Path("update-repository/metadata/root.json").read_text(encoding="utf-8"))
+          for key_id, key in root["signed"]["keys"].items():
+              if set(key["keyval"]) != {"public"}:
+                  raise SystemExit(f"non-public key material found for {key_id}")
 
-      - name: Build wheel for production-root boundary evidence
+      - name: Build wheel with real public Root
         run: python -m build --wheel --outdir artifacts/r19_2/wheel
 
-      - name: Verify wheel contains pending manifest but no fake production Root
+      - name: Verify wheel embeds exact production Root
         shell: python
         run: |
+          import hashlib
           from pathlib import Path
           from zipfile import ZipFile
 
@@ -193,15 +160,13 @@ jobs:
           if len(wheels) != 1:
               raise SystemExit(f"expected exactly one wheel, found {len(wheels)}")
           with ZipFile(wheels[0]) as archive:
-              names = set(archive.namelist())
-          manifest = "kodepoia/update/trusted_root.production.manifest.json"
-          root = "kodepoia/update/trusted_root.production.json"
-          if manifest not in names:
-              raise SystemExit("pending production Root manifest is missing from the wheel")
-          if root in names:
-              raise SystemExit("repository-safe phase unexpectedly packages a production Root")
+              root = archive.read("kodepoia/update/trusted_root.production.json")
+              archive.read("kodepoia/update/trusted_root.production.manifest.json")
+          digest = hashlib.sha256(root).hexdigest()
+          if digest != "a036c2aac78092f8d46893cc18954bb64f2b998375ff230f996dc4b85157e9ed":
+              raise SystemExit("wheel production Root digest mismatch")
 
-      - name: Upload R19.2 contract evidence
+      - name: Upload R19.2 exact-head evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -209,16 +174,3 @@ jobs:
           path: artifacts/r19_2/
           if-no-files-found: error
           retention-days: 30
-
-      - name: Enforce Ruff clean verdict
-        if: always()
-        shell: python
-        run: |
-          from pathlib import Path
-
-          status = Path("artifacts/r19_2/ruff-exit-code.txt")
-          if not status.is_file():
-              raise SystemExit("Ruff diagnostic status is missing")
-          code = int(status.read_text(encoding="utf-8").strip())
-          if code != 0:
-              raise SystemExit(f"Ruff reported diagnostics (exit code {code})")

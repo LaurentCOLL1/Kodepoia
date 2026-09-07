@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+from kodepoia.kodestudio.fr_catalogs import BLENDER_FR, translated
 from kodepoia.quality.localization import KodeLocalization, LocaleCatalog, LocalizedMessage, pseudo_catalog
 
 SOURCE_LOCALE = "en"
@@ -19,18 +20,9 @@ BLENDER_SOURCE_CATALOG = LocaleCatalog(
         ),
         LocalizedMessage.text("blender.status.group", "Runtime and capabilities"),
         LocalizedMessage.text("blender.status.runtime.unknown", "Runtime evidence: UNKNOWN"),
-        LocalizedMessage.text(
-            "blender.status.runtime",
-            "Runtime: Blender {blender} — Godot {godot}",
-        ),
-        LocalizedMessage.text(
-            "blender.status.capabilities.unknown",
-            "Accepted capabilities: UNKNOWN",
-        ),
-        LocalizedMessage.text(
-            "blender.status.capabilities",
-            "Accepted capabilities: {accepted} / {total}",
-        ),
+        LocalizedMessage.text("blender.status.runtime", "Runtime: Blender {blender} — Godot {godot}"),
+        LocalizedMessage.text("blender.status.capabilities.unknown", "Accepted capabilities: UNKNOWN"),
+        LocalizedMessage.text("blender.status.capabilities", "Accepted capabilities: {accepted} / {total}"),
         LocalizedMessage.text("blender.query.group", "Managed R10 record"),
         LocalizedMessage.text("blender.kind", "Record kind"),
         LocalizedMessage.text(
@@ -62,18 +54,9 @@ BLENDER_SOURCE_CATALOG = LocaleCatalog(
         LocalizedMessage.text("blender.cancel", "Cancel"),
         LocalizedMessage.text("blender.operation.idle", "Blender / 3D operation: IDLE"),
         LocalizedMessage.text("blender.operation.running", "Blender / 3D operation: RUNNING"),
-        LocalizedMessage.text(
-            "blender.operation.cancelling",
-            "Blender / 3D operation: CANCELLING",
-        ),
-        LocalizedMessage.text(
-            "blender.operation.state",
-            "Blender / 3D {operation}: {state}",
-        ),
-        LocalizedMessage.text(
-            "blender.operation.error",
-            "Blender / 3D error: {reason}",
-        ),
+        LocalizedMessage.text("blender.operation.cancelling", "Blender / 3D operation: CANCELLING"),
+        LocalizedMessage.text("blender.operation.state", "Blender / 3D {operation}: {state}"),
+        LocalizedMessage.text("blender.operation.error", "Blender / 3D error: {reason}"),
         LocalizedMessage.text("blender.details.name", "Blender / 3D structured result"),
         LocalizedMessage.text(
             "blender.details.description",
@@ -85,24 +68,22 @@ BLENDER_SOURCE_CATALOG = LocaleCatalog(
 
 class BlenderTranslator:
     def __init__(self, locale: str = SOURCE_LOCALE) -> None:
-        self.locale = locale
-        if locale == SOURCE_LOCALE:
+        normalized = locale.strip().lower()
+        self.locale = "fr" if normalized.startswith("fr") else normalized or SOURCE_LOCALE
+        if self.locale == SOURCE_LOCALE:
             self.catalog = BLENDER_SOURCE_CATALOG
-        elif locale == PSEUDO_LOCALE:
+        elif self.locale == PSEUDO_LOCALE:
             self.catalog = pseudo_catalog(BLENDER_SOURCE_CATALOG, locale=PSEUDO_LOCALE)
         else:
-            self.catalog = LocaleCatalog(
-                locale=locale,
-                messages=(),
-                fallback_locale=SOURCE_LOCALE,
-            )
+            self.catalog = LocaleCatalog(locale=self.locale, messages=(), fallback_locale=SOURCE_LOCALE)
 
     def text(self, message_id: str, **values: Any) -> str:
-        return KodeLocalization(BLENDER_SOURCE_CATALOG).translate(
-            self.catalog,
-            message_id,
-            values=values,
-        )
+        if self.locale == "fr":
+            try:
+                return translated(BLENDER_FR, message_id, **values)
+            except KeyError as exc:
+                raise KeyError(f"missing French Blender translation: {message_id}") from exc
+        return KodeLocalization(BLENDER_SOURCE_CATALOG).translate(self.catalog, message_id, values=values)
 
 
 def blender_nav_text(locale: str = SOURCE_LOCALE) -> str:
@@ -110,10 +91,7 @@ def blender_nav_text(locale: str = SOURCE_LOCALE) -> str:
 
 
 def registered_blender_messages() -> Mapping[str, str]:
-    return {
-        message.id: message.forms["other"]
-        for message in BLENDER_SOURCE_CATALOG.messages
-    }
+    return {message.id: message.forms["other"] for message in BLENDER_SOURCE_CATALOG.messages}
 
 
 __all__ = [

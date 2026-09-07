@@ -29,17 +29,17 @@ _EN = {
 }
 
 _FR = {
-    "nav": "Expérience et Tune",
-    "title": "Expérience, Bench et Tune",
+    "nav": "Expérience et réglage",
+    "title": "Expérience, benchmark et réglage",
     "subtitle": (
-        "Statut, simulation, preuves et workflows R15 structurés avec permissions explicites. "
+        "Statut R15, simulations, preuves et workflows structurés soumis à des permissions explicites. "
         "Les commandes shell brutes, secrets et contenus en quarantaine ne sont jamais exposés."
     ),
     "domain": "Domaine",
     "action": "Action",
     "identifier": "ID stable",
     "identifier_hint": (
-        "ID immuable de candidat, exécution, dataset ou preuve lorsque l’action sélectionnée l’exige."
+        "ID immuable de candidat, d’exécution, de jeu de données ou de preuve lorsque l’action sélectionnée l’exige."
     ),
     "confirm": "Je confirme cette mutation demandée",
     "dry_run": "Simuler",
@@ -48,7 +48,7 @@ _FR = {
     "catalog": "Afficher le catalogue des capacités",
     "evidence": "Exporter les preuves expurgées",
     "result": "Résultat structuré expurgé",
-    "status_ready": "Contrôles R15 Expérience et Tune prêts",
+    "status_ready": "Contrôles R15 Expérience et réglage prêts",
     "status_running": "Opération R15 gouvernée en cours",
     "status_complete": "Opération R15 gouvernée terminée",
     "status_blocked": "Opération R15 bloquée par la politique",

@@ -80,14 +80,13 @@ class SeamlessUpdateInstallCoordinator(UpdateInstallCoordinator):
                 detail=f"reconciled after relaunch on installed version {installed_public_version}",
             )
             return "succeeded"
-        self.record_outcome(
-            success=False,
-            detail=(
-                "installer handoff did not produce the authorized version before Kodepoia restarted: "
-                f"expected {payload.get('candidate_public_version')!r}, got {installed_public_version!r}"
-            ),
+        payload["status"] = "recovery-needed"
+        payload["outcome_detail"] = (
+            "installer handoff has not produced the authorized version on this startup: "
+            f"expected {payload.get('candidate_public_version')!r}, got {installed_public_version!r}"
         )
-        return "failed"
+        self._write_state(payload)
+        return "recovery-needed"
 
 
 __all__ = [

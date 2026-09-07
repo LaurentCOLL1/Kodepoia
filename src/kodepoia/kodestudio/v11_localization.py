@@ -46,7 +46,10 @@ MESSAGES: dict[str, dict[str, str]] = {
         "wizard.vision.apply": "Apply this Vision",
         "wizard.vision.close": "Close",
         "settings.language": "Language",
-        "settings.restart": "The selected language is used the next time KodeStudio starts.",
+        "settings.restart": "The language choice is saved immediately. Restart KodeStudio to apply it to the whole interface.",
+        "settings.apply_title": "Apply language change",
+        "settings.apply_prompt": "The language preference is saved. Restart KodeStudio now to apply it to the whole interface?",
+        "settings.restart_failed": "KodeStudio could not restart automatically. Close and reopen it to apply the saved language.",
         "updates.title": "Updates",
         "updates.installed": "Installed version",
         "updates.channel": "Update channel",
@@ -72,9 +75,11 @@ MESSAGES: dict[str, dict[str, str]] = {
         "updates.channel-unavailable": "Channel unavailable",
         "updates.update-withdrawn": "Update withdrawn",
         "updates.update-superseded": "Update superseded",
+        "updates.repository_unconfigured": "No structured update repository is configured.",
         "updates.candidate": "Candidate",
         "updates.verified": "Source verification",
         "updates.size": "Declared size",
+        "updates.bytes": "bytes",
         "updates.notes": "Notes",
         "updates.signing": "Signing (TUF metadata report; not verified here)",
         "updates.provenance": "Provenance (TUF metadata report; not verified here)",
@@ -91,7 +96,7 @@ MESSAGES: dict[str, dict[str, str]] = {
     },
     "fr": {
         "app.title": "Kodepoia — KodeStudio",
-        "nav.chat": "Chat",
+        "nav.chat": "Discussion",
         "nav.projects": "Projets",
         "nav.research": "Recherche",
         "nav.vault": "Bibliothèque",
@@ -100,7 +105,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "nav.audit": "Audit",
         "nav.settings": "Paramètres",
         "projects.new": "Nouveau projet…",
-        "chat.title": "Chat & Vision du projet",
+        "chat.title": "Discussion et Vision du projet",
         "chat.intro": (
             "Décris ton idée avec tes mots. Kodepoia la structure, demande les précisions "
             "manquantes et aide à garder la Vision cohérente lorsqu'elle évolue."
@@ -120,7 +125,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "chat.error": "Erreur de l'assistant Vision : {reason}",
         "wizard.help.title": "Création guidée",
         "wizard.help.genre": "Ajouter un genre",
-        "wizard.help.graphics": "Style graphique",
+        "wizard.help.graphics": "Style visuel",
         "wizard.help.scope": "Portée du projet",
         "wizard.help.audience": "Public principal",
         "wizard.help.add": "Ajouter",
@@ -133,42 +138,47 @@ MESSAGES: dict[str, dict[str, str]] = {
         "wizard.vision.apply": "Appliquer cette Vision",
         "wizard.vision.close": "Fermer",
         "settings.language": "Langue",
-        "settings.restart": "La langue sélectionnée sera utilisée au prochain démarrage de KodeStudio.",
+        "settings.restart": "Le choix de langue est enregistré immédiatement. Redémarre KodeStudio pour l’appliquer à toute l’interface.",
+        "settings.apply_title": "Appliquer le changement de langue",
+        "settings.apply_prompt": "La préférence de langue est enregistrée. Redémarrer KodeStudio maintenant pour l’appliquer à toute l’interface ?",
+        "settings.restart_failed": "KodeStudio n’a pas pu redémarrer automatiquement. Ferme-le puis rouvre-le pour appliquer la langue enregistrée.",
         "updates.title": "Mises à jour",
         "updates.installed": "Version installée",
         "updates.channel": "Canal de mise à jour",
         "updates.stable": "Stable",
         "updates.beta": "Bêta",
-        "updates.nightly": "Nightly / développement",
+        "updates.nightly": "Développement continu",
         "updates.beta_warning": (
             "Le canal bêta peut proposer des versions de prépublication moins stables."
         ),
         "updates.nightly_warning": (
-            "Le canal nightly/développement peut proposer des versions très récentes, "
+            "Le canal de développement continu peut proposer des versions très récentes, "
             "expérimentales et moins stables."
         ),
         "updates.periodic": "Vérifier périodiquement les mises à jour",
         "updates.interval": "Intervalle (heures)",
         "updates.check": "Rechercher des mises à jour",
         "updates.never_startup": (
-            "La vérification n'est jamais une dépendance du démarrage et aucun installateur "
-            "n'est lancé automatiquement."
+            "La vérification des mises à jour ne bloque jamais le démarrage et aucun installateur "
+            "n’est lancé automatiquement."
         ),
-        "updates.checking": "Vérification des métadonnées de mise à jour…",
+        "updates.checking": "Vérification des métadonnées de mise à jour de confiance…",
         "updates.up-to-date": "À jour",
         "updates.update-available": "Mise à jour disponible",
         "updates.offline": "Hors ligne",
         "updates.metadata-expired": "Métadonnées expirées",
-        "updates.verification-failed": "Échec de vérification",
+        "updates.verification-failed": "Échec de la vérification",
         "updates.channel-unavailable": "Canal indisponible",
         "updates.update-withdrawn": "Mise à jour retirée",
         "updates.update-superseded": "Mise à jour remplacée",
-        "updates.candidate": "Candidate",
-        "updates.verified": "Vérification source",
-        "updates.size": "Taille annoncée",
+        "updates.repository_unconfigured": "Aucun dépôt structuré de mise à jour n’est configuré.",
+        "updates.candidate": "Version candidate",
+        "updates.verified": "Vérification de la source",
+        "updates.size": "Taille déclarée",
+        "updates.bytes": "octets",
         "updates.notes": "Notes",
-        "updates.signing": "Signature (rapport TUF, non vérifiée ici)",
-        "updates.provenance": "Provenance (rapport TUF, non vérifiée ici)",
+        "updates.signing": "Signature (rapport des métadonnées TUF ; non vérifiée ici)",
+        "updates.provenance": "Provenance (rapport des métadonnées TUF ; non vérifiée ici)",
         "updates.download_verify": "Télécharger et vérifier l’installateur",
         "updates.install_verified": "Installer la mise à jour vérifiée…",
         "updates.download_ready": (
@@ -202,8 +212,10 @@ class V11Translator:
 
     def text(self, key: str, **values: object) -> str:
         chosen = "fr" if self.locale.lower().startswith("fr") else "en"
-        template = MESSAGES.get(chosen, MESSAGES["en"]).get(key, MESSAGES["en"].get(key, key))
-        return template.format(**values)
+        table = MESSAGES.get(chosen, MESSAGES["en"])
+        if key not in table:
+            raise KeyError(f"missing {chosen} v1.1 translation: {key}")
+        return table[key].format(**values)
 
 
 __all__ = ["MESSAGES", "V11Translator", "resolve_locale"]

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Protocol
 
 from kodepoia.kodestudio.v11_localization import V11Translator
@@ -29,9 +30,11 @@ def create_update_settings_group(
     service: UpdateDiscoveryProvider | None = None,
     install_service: UpdateInstallProvider | None = None,
     settings=None,
+    shutdown_after_launch: Callable[[], None] | None = None,
 ):
     from PySide6.QtCore import QSettings, QTimer
     from PySide6.QtWidgets import (
+        QApplication,
         QCheckBox,
         QComboBox,
         QFormLayout,
@@ -243,6 +246,13 @@ def create_update_settings_group(
         except Exception as exc:
             state.setText(f"{tr('updates.install_failed')}: {exc}")
             install_button.setEnabled(True)
+        else:
+            if shutdown_after_launch is not None:
+                shutdown_after_launch()
+            else:
+                app = QApplication.instance()
+                if app is not None:
+                    app.quit()
         finally:
             busy["value"] = False
 

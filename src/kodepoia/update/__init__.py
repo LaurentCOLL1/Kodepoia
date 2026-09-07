@@ -1,4 +1,8 @@
-from kodepoia.update.bootstrap import PackagedRootMaterial, load_synthetic_packaged_root
+from kodepoia.update.bootstrap import (
+    PackagedRootMaterial,
+    load_production_packaged_root,
+    load_synthetic_packaged_root,
+)
 from kodepoia.update.delivery import (
     AuthenticodeEvidence,
     HttpsStreamingTargetTransport,
@@ -23,6 +27,18 @@ from kodepoia.update.discovery import (
     UpdateDiscoveryService,
     UpdateMetadataExpired,
 )
+from kodepoia.update.repository_bootstrap import (
+    CANONICAL_METADATA_BASE_URL,
+    GITHUB_RELEASE_BASE_URL,
+    TOP_LEVEL_TUF_ROLES,
+    TufRolePolicy,
+    UpdateRepositoryBootstrapError,
+    UpdateRepositoryContract,
+    UpdateTargetBinding,
+    assert_repository_safe_payload,
+    build_target_binding,
+    default_production_repository_contract,
+)
 from kodepoia.update.trust import (
     MemoryUpdateTransport,
     PackagedRootPin,
@@ -36,7 +52,9 @@ from kodepoia.update.trust import (
 
 __all__ = [
     "AuthenticodeEvidence",
+    "CANONICAL_METADATA_BASE_URL",
     "DISCOVERY_CHANNELS",
+    "GITHUB_RELEASE_BASE_URL",
     "HttpsStreamingTargetTransport",
     "InstallerIdentityEvidence",
     "MemoryStreamingTargetTransport",
@@ -46,7 +64,9 @@ __all__ = [
     "PowerShellInstallerIdentityVerifier",
     "SigntoolAuthenticodeVerifier",
     "SyntheticUpdateRepositoryBuilder",
+    "TOP_LEVEL_TUF_ROLES",
     "TufMetadataDiscoveryVerifier",
+    "TufRolePolicy",
     "UpdateCandidate",
     "UpdateCheckResult",
     "UpdateClient",
@@ -58,11 +78,18 @@ __all__ = [
     "UpdateDownloadCancelled",
     "UpdateInstallCoordinator",
     "UpdateMetadataExpired",
+    "UpdateRepositoryBootstrapError",
+    "UpdateRepositoryContract",
+    "UpdateTargetBinding",
     "UpdateTargetSpec",
     "UpdateTransportOffline",
     "UpdateVerificationFailed",
     "VerifiedUpdateArtifact",
     "VerifiedUpdateDownloader",
     "WindowsInstallerLauncher",
+    "assert_repository_safe_payload",
+    "build_target_binding",
+    "default_production_repository_contract",
+    "load_production_packaged_root",
     "load_synthetic_packaged_root",
 ]

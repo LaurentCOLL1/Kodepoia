@@ -181,7 +181,7 @@ def test_v11_shell_has_real_chat_and_french_navigation(monkeypatch, tmp_path: Pa
     window = build_window(locale="fr", project_root=tmp_path)
     nav = window.findChild(QListWidget, "mainNavigation")
     assert nav is not None
-    assert nav.item(0).text() == "Chat"
+    assert nav.item(0).text() == "Discussion"
     assert nav.item(1).text() == "Projets"
     assert window.findChild(QWidget, "visionChatPage") is not None
     assert window.findChild(QPushButton, "visionChatSendButton") is not None

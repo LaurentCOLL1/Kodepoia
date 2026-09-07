@@ -171,8 +171,8 @@ def build_window(
     from PySide6.QtWidgets import QLabel, QListWidget, QPushButton, QStackedWidget
 
     from kodepoia.kodestudio.app import build_window as build_v10_window
-    from kodepoia.kodestudio.guided_project_wizard import create_project_dialog
     from kodepoia.kodestudio.vision_chat import create_vision_chat_page
+    from kodepoia.kodestudio.wizard_runtime_localization import create_project_dialog
 
     chosen_locale = selected_locale(locale)
     tr = V11Translator(chosen_locale)

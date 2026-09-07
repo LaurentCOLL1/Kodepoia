@@ -1061,3 +1061,12 @@ Create and verify the documentation-only R18.8 END head as a direct child of imm
 - Before this record may enter `main`, its exact candidate head must pass fresh R0 Repository Guard Ubuntu + Windows, full Python Core 5/5 and KodeStudio UI Smoke, then merge only with `expected_head_sha` equal to that exact candidate. No second R18 phase normalization is permitted.
 - Core manual state remains **NONE**. Production signing, public GitHub Release publication/mutation, production TUF key custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**; phase normalization performs no external production effect.
 - Once this exact gated continuity-only normalization merge is present on `main`, **R18 is COMPLETE + NORMALIZED** and R18.1–R18.11 are all COMPLETE + NORMALIZED. The frozen R18 subdivision set ends at R18.11: **no R18.12 and no additional R18 subdivision are authorized**. Phase completion does not imply any public/production distribution action.
+
+## Post-R18 public prerelease distribution record
+
+- Explicit user authorization on 2026-09-07 triggered the previously conditional GitHub publication effect for the Windows prerelease only.
+- Public GitHub prerelease `v1.1.0-rc1` targets accepted exact source `c64bac012ef3afa332526a539901b11428fd966f` and publishes `KodepoiaSetup.exe` plus `installer-manifest.json`.
+- The accepted Windows installer is 37192342 bytes with SHA-256 `3d11af229392a6756a2bbc161af0150aca92168d843a42a3944ab5c01660b8e0` and remains `production_signed=false`; this is a beta/RC publication, not a production-signed stable claim.
+- The identical installer payload is mirrored at repository root as Git LFS path `KodepoiaSetup.exe`, with root checksum file `KodepoiaSetup.exe.sha256`, so installation is discoverable without navigating CI artifact folders.
+- Public release URL: https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.0-rc1. Public WinGet submission, production Authenticode signing and production TUF key custody/rotation remain **NOT TRIGGERED**.
+- This is a post-completion distribution operation; it does not create R18.12, reopen R18, or constitute a second R18 phase normalization.

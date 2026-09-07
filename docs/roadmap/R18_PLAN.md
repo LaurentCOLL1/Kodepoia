@@ -797,3 +797,12 @@ This planning document and its matching planning-continuity record must be the o
 - The single authorized phase-level continuity-only normalization candidate `996cb8adc7a203350473057d3dbe2dcbc8482b8e` changed only `docs/continuity/KODEPOIA_CONTINUITY.md` (+12/-0), passed fresh R0 Repository Guard #2558 / `34073457900` Ubuntu + Windows, Python Core #2530 / `34073457973` 5/5 and KodeStudio UI Smoke #2495 / `34073457927`, and PR #404 merged with exact expected-head protection as canonical normalized `main` `4632e988e5b04b717c86356eda638827c0252e02`.
 - **R18 is COMPLETE + NORMALIZED. R18.1–R18.11 are all COMPLETE + NORMALIZED.** No second R18 phase normalization, R18.12, or additional R18 subdivision is authorized.
 - Core manual state is **NONE**. Production signing, public GitHub Release publication/mutation, production TUF key custody/rotation and public WinGet submission remain **CONDITIONAL / NOT TRIGGERED**. Phase completion does not imply any public/production distribution action.
+
+## Post-R18 public prerelease distribution record
+
+- Explicit user authorization on 2026-09-07 triggered the previously conditional GitHub publication effect for the Windows prerelease only.
+- Public GitHub prerelease `v1.1.0-rc1` targets accepted exact source `c64bac012ef3afa332526a539901b11428fd966f` and publishes `KodepoiaSetup.exe` plus `installer-manifest.json`.
+- The accepted Windows installer is 37192342 bytes with SHA-256 `3d11af229392a6756a2bbc161af0150aca92168d843a42a3944ab5c01660b8e0` and remains `production_signed=false`; this is a beta/RC publication, not a production-signed stable claim.
+- The identical installer payload is mirrored at repository root as Git LFS path `KodepoiaSetup.exe`, with root checksum file `KodepoiaSetup.exe.sha256`, so installation is discoverable without navigating CI artifact folders.
+- Public release URL: https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.0-rc1. Public WinGet submission, production Authenticode signing and production TUF key custody/rotation remain **NOT TRIGGERED**.
+- This is a post-completion distribution operation; it does not create R18.12, reopen R18, or constitute a second R18 phase normalization.

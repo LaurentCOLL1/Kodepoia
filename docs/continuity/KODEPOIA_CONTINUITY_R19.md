@@ -1,8 +1,8 @@
 # KODEPOIA CONTINUITY — R19
 
-**Status:** R19.2 MERGED; UNIQUE R19.2 CONTINUITY NORMALIZATION IN PROGRESS
+**Status:** R19.3 MERGED; UNIQUE R19.3 CONTINUITY NORMALIZATION IN PROGRESS
 
-This file remains the active continuation authority for R19. R19.2 implementation is accepted and merged. The branch `r19/02-continuity-normalization` is the single authorized post-R19.2 continuity-only normalization. R19.3 is authorized only after this normalization passes fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke and merges into `main` with exact expected-head protection.
+This file remains the active continuation authority for R19. R19.3 implementation is accepted and merged. The branch `r19/03-continuity-normalization` is the single authorized post-R19.3 continuity-only normalization. R19.4 is authorized only after this normalization passes fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke and merges into `main` with exact expected-head protection.
 
 ## Frozen inherited authority
 
@@ -107,9 +107,50 @@ Operational expiry note: initial Snapshot v1 and Timestamp v1 expire at `2026-09
 
 ## R19.2 post-merge continuity normalization
 
-Base `main`: `59bb064127b16c1374493ad8f3e0e7b48d23aab5`.
+R19.2 normalization branch: `r19/02-continuity-normalization`.
 
-Normalization branch: `r19/02-continuity-normalization`.
+Accepted exact normalization HEAD: `07a867afe06604f1795cde7cafc7a08206321ef9`.
+
+PR #413 merged with exact-head protection as normalized `main` `5790004ed4fd5ec9679adbf8a3c8e4d599744683`. That single normalization authorized R19.3. No second R19.2 continuity normalization is authorized.
+
+## R19.3 accepted authority
+
+R19.3 implementation branch: `r19/03-network-update-transport`.
+
+Accepted exact implementation HEAD: `d3c1364b5d7f4015a7205f16f0158e301c5c2e81`.
+
+R19.3 PR #414 merged with `expected_head_sha=d3c1364b5d7f4015a7205f16f0158e301c5c2e81` as `main` `e74426844d661c7a6c1debc8823a137a03a0ce69`.
+
+Exact accepted-head evidence:
+
+- R19.3 Network UpdateTransport Acceptance #7: **SUCCESS** on Ubuntu and Windows, including exact checkout provenance, compile, Ruff, focused transport/startup tests and exact-source acceptance evidence.
+- R0 Repository Guard #2597: **SUCCESS** on Ubuntu and Windows.
+- Python Core #2569: **SUCCESS** on Ubuntu and Windows; both platform package-build jobs and the integrated KodeStudio Windows evidence job also passed.
+- KodeStudio UI Smoke #2534: **SUCCESS**.
+- R16.9 Supply Chain Provenance Acceptance #215: **SUCCESS** on Ubuntu and Windows after registering the R19.3 acceptance workflow as the 35th immutable pinned authority workflow and synchronizing the integrity regression test.
+
+Accepted R19.3 behavior includes:
+
+- one bounded HTTPS-only transport for TUF metadata and authorized installer targets;
+- explicit connect/read timeout policy and independent metadata/target byte ceilings;
+- exact top-level metadata allowlisting and canonical Kodepoia TUF target-path validation;
+- redirect handling that prevents metadata from escaping its approved HTTPS origin/path and permits GitHub Release payload redirects only to explicitly authorized delivery hosts/paths;
+- deterministic offline/timeout/transport error mapping rather than startup failure;
+- canonical GitHub Release asset URLs derived from the TUF-authorized target path instead of arbitrary model/user URLs;
+- packaged startup loads the active R19.2 production Root locally and constructs `UpdateDiscoveryService` without performing any startup network request;
+- discovery and verified installation services are injected into normal KodeStudio update settings at packaged startup, closing the `no structured update repository is configured` wiring defect when the real beta repository is configured;
+- local trust/bootstrap failure remains a non-destructive update UI state and does not gate normal offline/local-first startup;
+- Windows packaged startup constructs the existing verified downloader/install coordinator with PowerShell Authenticode and ProductVersion verification available without requiring SignTool SDK presence;
+- explicit user confirmation before installer launch remains mandatory; seamless shutdown/relaunch replacement remains reserved for R19.4;
+- R19.3 did not generate, import, store or use private TUF/AuthentiCode credentials.
+
+Manual intervention for R19.3: **NONE**.
+
+## R19.3 post-merge continuity normalization
+
+Base `main`: `e74426844d661c7a6c1debc8823a137a03a0ce69`.
+
+Normalization branch: `r19/03-continuity-normalization`.
 
 This branch changes continuity only. It must pass fresh exact-head:
 
@@ -117,15 +158,15 @@ This branch changes continuity only. It must pass fresh exact-head:
 - full Python Core;
 - KodeStudio UI Smoke.
 
-It must then merge with exact expected-head protection. No second R19.2 continuity normalization is authorized.
+It must then merge with exact expected-head protection. No second R19.3 continuity normalization is authorized.
 
-R19.3 START-sync is authorized **only after** that exact normalization merge enters `main`.
+R19.4 START-sync is authorized **only after** that exact normalization merge enters `main`.
 
-## Defects carried forward after R19.2
+## Defects carried forward after R19.3
 
-The language-selection defect remains closed by R19.1. R19.2 closes the missing production/beta trust-anchor and repository-bootstrap defect.
+The language-selection defect remains closed by R19.1. R19.2 closes the production/beta trust-anchor and repository-bootstrap defect. R19.3 closes the installed network UpdateTransport/startup-wiring defect and preserves offline/non-destructive startup behavior.
 
-The remaining carried defect is the installed network update path: packaged KodeStudio still needs R19.3 network `UpdateTransport` and startup wiring so it can fetch and verify the structured repository without blocking normal startup. Seamless Windows in-app installation remains R19.4, and corrective RC release automation/integrated acceptance remains R19.5.
+The remaining carried product work is R19.4 seamless Windows in-app update handoff/shutdown/relaunch coordination after verified download and explicit user confirmation, followed by R19.5 corrective RC release automation and integrated installed-upgrade acceptance.
 
 ## Security invariants
 

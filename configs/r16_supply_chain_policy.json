@@ -81,7 +81,8 @@
       ".github/workflows/r18-9-winget-acceptance.yml",
       ".github/workflows/r18-10-incident-drills-acceptance.yml",
       ".github/workflows/r18-11-integrated-acceptance.yml",
-      ".github/workflows/r19-2-update-repository-bootstrap-acceptance.yml"
+      ".github/workflows/r19-2-update-repository-bootstrap-acceptance.yml",
+      ".github/workflows/r19-3-network-update-transport-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

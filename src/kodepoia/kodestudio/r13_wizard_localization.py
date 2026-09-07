@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+from kodepoia.kodestudio.fr_catalogs import R13_WIZARD_FR, translated
 from kodepoia.quality.localization import KodeLocalization, LocaleCatalog, LocalizedMessage, pseudo_catalog
 
 SOURCE_LOCALE = "en"
@@ -37,25 +38,28 @@ R13_WIZARD_SOURCE_CATALOG = LocaleCatalog(
 
 class R13WizardTranslator:
     def __init__(self, locale: str = SOURCE_LOCALE) -> None:
-        self.locale = locale
-        if locale == SOURCE_LOCALE:
+        normalized = locale.strip().lower()
+        self.locale = "fr" if normalized.startswith("fr") else normalized or SOURCE_LOCALE
+        if self.locale == SOURCE_LOCALE:
             self.catalog = R13_WIZARD_SOURCE_CATALOG
-        elif locale == PSEUDO_LOCALE:
+        elif self.locale == PSEUDO_LOCALE:
             self.catalog = pseudo_catalog(R13_WIZARD_SOURCE_CATALOG, locale=PSEUDO_LOCALE)
         else:
-            self.catalog = LocaleCatalog(locale=locale, messages=(), fallback_locale=SOURCE_LOCALE)
+            self.catalog = LocaleCatalog(locale=self.locale, messages=(), fallback_locale=SOURCE_LOCALE)
 
     def text(self, message_id: str, **values: Any) -> str:
+        if self.locale == "fr":
+            try:
+                return translated(R13_WIZARD_FR, message_id, **values)
+            except KeyError as exc:
+                raise KeyError(f"missing French R13 wizard translation: {message_id}") from exc
         return KodeLocalization(R13_WIZARD_SOURCE_CATALOG).translate(
             self.catalog, message_id, values=values
         )
 
 
 def registered_r13_wizard_messages() -> Mapping[str, str]:
-    return {
-        message.id: message.forms["other"]
-        for message in R13_WIZARD_SOURCE_CATALOG.messages
-    }
+    return {message.id: message.forms["other"] for message in R13_WIZARD_SOURCE_CATALOG.messages}
 
 
 __all__ = [

@@ -27,6 +27,14 @@ from kodepoia.update.discovery import (
     UpdateDiscoveryService,
     UpdateMetadataExpired,
 )
+from kodepoia.update.network import (
+    DEFAULT_METADATA_BASE_URL,
+    DEFAULT_RELEASE_ASSET_BASE_URL,
+    DEFAULT_TARGET_REDIRECT_HOSTS,
+    TOP_LEVEL_METADATA,
+    NetworkTransportPolicy,
+    NetworkUpdateTransport,
+)
 from kodepoia.update.repository_bootstrap import (
     CANONICAL_METADATA_BASE_URL,
     GITHUB_RELEASE_BASE_URL,
@@ -38,6 +46,14 @@ from kodepoia.update.repository_bootstrap import (
     assert_repository_safe_payload,
     build_target_binding,
     default_production_repository_contract,
+)
+from kodepoia.update.startup import (
+    PackagedUpdateServices,
+    PowerShellAuthenticodeVerifier,
+    UnavailableUpdateDiscoveryService,
+    build_packaged_update_services,
+    build_packaged_update_services_resilient,
+    default_update_state_dir,
 )
 from kodepoia.update.trust import (
     MemoryUpdateTransport,
@@ -53,20 +69,29 @@ from kodepoia.update.trust import (
 __all__ = [
     "AuthenticodeEvidence",
     "CANONICAL_METADATA_BASE_URL",
+    "DEFAULT_METADATA_BASE_URL",
+    "DEFAULT_RELEASE_ASSET_BASE_URL",
+    "DEFAULT_TARGET_REDIRECT_HOSTS",
     "DISCOVERY_CHANNELS",
     "GITHUB_RELEASE_BASE_URL",
     "HttpsStreamingTargetTransport",
     "InstallerIdentityEvidence",
     "MemoryStreamingTargetTransport",
     "MemoryUpdateTransport",
+    "NetworkTransportPolicy",
+    "NetworkUpdateTransport",
     "PackagedRootMaterial",
     "PackagedRootPin",
+    "PackagedUpdateServices",
+    "PowerShellAuthenticodeVerifier",
     "PowerShellInstallerIdentityVerifier",
     "SigntoolAuthenticodeVerifier",
     "SyntheticUpdateRepositoryBuilder",
+    "TOP_LEVEL_METADATA",
     "TOP_LEVEL_TUF_ROLES",
     "TufMetadataDiscoveryVerifier",
     "TufRolePolicy",
+    "UnavailableUpdateDiscoveryService",
     "UpdateCandidate",
     "UpdateCheckResult",
     "UpdateClient",
@@ -88,8 +113,11 @@ __all__ = [
     "VerifiedUpdateDownloader",
     "WindowsInstallerLauncher",
     "assert_repository_safe_payload",
+    "build_packaged_update_services",
+    "build_packaged_update_services_resilient",
     "build_target_binding",
     "default_production_repository_contract",
+    "default_update_state_dir",
     "load_production_packaged_root",
     "load_synthetic_packaged_root",
 ]

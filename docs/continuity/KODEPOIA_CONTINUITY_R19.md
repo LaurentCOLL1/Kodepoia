@@ -1,8 +1,8 @@
 # KODEPOIA CONTINUITY — R19
 
-**Status:** R19.1 MERGED; UNIQUE R19.1 CONTINUITY NORMALIZATION IN PROGRESS
+**Status:** R19.2 MERGED; UNIQUE R19.2 CONTINUITY NORMALIZATION IN PROGRESS
 
-This file remains the active continuation authority for R19. The branch `r19/01-continuity-normalization` is the single authorized post-R19.1 continuity-only normalization. R19.2 is authorized only after this normalization passes fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke and merges into `main` with exact expected-head protection.
+This file remains the active continuation authority for R19. R19.2 implementation is accepted and merged. The branch `r19/02-continuity-normalization` is the single authorized post-R19.2 continuity-only normalization. R19.3 is authorized only after this normalization passes fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke and merges into `main` with exact expected-head protection.
 
 ## Frozen inherited authority
 
@@ -62,9 +62,54 @@ Manual intervention for R19.1: **NONE**.
 
 ## R19.1 post-merge continuity normalization
 
-Base `main`: `717b2cc0efd4c59100c5145dd8916c21787137c7`.
+R19.1 normalization branch: `r19/01-continuity-normalization`.
 
-Normalization branch: `r19/01-continuity-normalization`.
+Accepted exact normalization HEAD: `eb2cb73e468819850289a3174afcb99bb5c0438d`.
+
+PR #411 merged with exact-head protection as normalized `main` `fd7736adc565c3c3cb169d8223c5841e86bbbe9d`. That single normalization authorized R19.2. No second R19.1 continuity normalization is authorized.
+
+## R19.2 accepted authority
+
+R19.2 implementation branch: `r19/02-update-repository-bootstrap`.
+
+Accepted exact implementation HEAD: `356d0b29521155ef06c03e3342336532ac1dd0f1`.
+
+R19.2 PR #412 merged with `expected_head_sha=356d0b29521155ef06c03e3342336532ac1dd0f1` as `main` `59bb064127b16c1374493ad8f3e0e7b48d23aab5`.
+
+Exact accepted-head evidence:
+
+- R19.2 Production/Beta Update Repository Bootstrap Acceptance #29: **SUCCESS** on Ubuntu and Windows, including compile, Ruff, focused trust tests, 12/12 exact-source acceptance, public-key-only checks, wheel build and exact embedded production Root verification.
+- R0 Repository Guard #2587: **SUCCESS** on Ubuntu and Windows.
+- Python Core #2559: **SUCCESS** on Ubuntu and Windows; Ubuntu full suite reported 2296 passed / 24 skipped, and both platform package-build jobs plus the KodeStudio Windows evidence job passed.
+- KodeStudio UI Smoke #2524: **SUCCESS**.
+- R16.9 Supply Chain Provenance Acceptance #208: **SUCCESS** on Ubuntu and Windows after registering the R19.2 acceptance workflow as an immutable pinned authority workflow and synchronizing the integrity test.
+
+Accepted R19.2 behavior includes:
+
+- active production/beta TUF Root v1 packaged at `src/kodepoia/update/trusted_root.production.json`;
+- production Root SHA-256 `a036c2aac78092f8d46893cc18954bb64f2b998375ff230f996dc4b85157e9ed`;
+- Root threshold 2-of-3 with three independent Ed25519 Root keys;
+- distinct Targets, Snapshot and Timestamp role keys;
+- public signed `root.json`, `targets.json`, `snapshot.json` and `timestamp.json` published under `update-repository/metadata/`;
+- packaged production Root bytes are exactly equal to published `root.json` bytes;
+- initial Targets v1 intentionally authorizes no installer target before an exact corrective release artifact exists;
+- canonical HTTPS metadata base `https://raw.githubusercontent.com/LaurentCOLL1/Kodepoia/main/update-repository/metadata/`;
+- GitHub Release assets remain payload storage while TUF metadata is the authorization authority;
+- R18 `trusted_root.synthetic.json` remains acceptance-only, explicit-opt-in and cryptographically distinct from production trust;
+- no private TUF key material is persisted, packaged, logged, uploaded as CI evidence or used by repository acceptance automation;
+- supply-chain authority remains least-privilege and external Actions remain pinned to full commit SHAs.
+
+The supplied bootstrap satisfied the R19.2 manual boundary using **public signed material only**. Repository work never generated, imported, persisted or used production private keys.
+
+Manual intervention for R19.2: **NONE required to finalize the repository subdivision**.
+
+Operational expiry note: initial Snapshot v1 and Timestamp v1 expire at `2026-09-08T19:02:56Z`; they must be renewed before that instant with valid monotonically versioned signed metadata. Root and Targets expire at `2027-09-07T19:02:56Z`. This short Snapshot/Timestamp policy is deliberate freeze/staleness protection, not authorization to embed online private keys in the repository.
+
+## R19.2 post-merge continuity normalization
+
+Base `main`: `59bb064127b16c1374493ad8f3e0e7b48d23aab5`.
+
+Normalization branch: `r19/02-continuity-normalization`.
 
 This branch changes continuity only. It must pass fresh exact-head:
 
@@ -72,21 +117,15 @@ This branch changes continuity only. It must pass fresh exact-head:
 - full Python Core;
 - KodeStudio UI Smoke.
 
-It must then merge with exact expected-head protection. No second R19.1 continuity normalization is authorized.
+It must then merge with exact expected-head protection. No second R19.2 continuity normalization is authorized.
 
-R19.2 START-sync is authorized **only after** that exact normalization merge enters `main`.
+R19.3 START-sync is authorized **only after** that exact normalization merge enters `main`.
 
-## Defects carried forward after R19.1
+## Defects carried forward after R19.2
 
-The language-selection defect is closed by R19.1. The remaining carried defect is the installed update path: the packaged application still needs a production/beta trusted update repository and later packaged startup wiring so update discovery no longer reports that no structured update repository is configured.
+The language-selection defect remains closed by R19.1. R19.2 closes the missing production/beta trust-anchor and repository-bootstrap defect.
 
-## R19.2 authority and manual boundary
-
-R19.2 — **Production/Beta Update Repository Bootstrap** — may begin only from normalized post-R19.1 `main`.
-
-R19.2 may implement repository layout, schemas, expiry/rotation policy and clearly synthetic local fixtures without manual action. The moment real beta/production TUF private keys must be generated, stored, imported into a secret store or used outside repository-safe synthetic fixtures, stop and provide the user exact manual actions before any later subdivision.
-
-No R19.3 work is authorized before R19.2 is either fully accepted and normalized or explicitly stopped at that genuine manual boundary.
+The remaining carried defect is the installed network update path: packaged KodeStudio still needs R19.3 network `UpdateTransport` and startup wiring so it can fetch and verify the structured repository without blocking normal startup. Seamless Windows in-app installation remains R19.4, and corrective RC release automation/integrated acceptance remains R19.5.
 
 ## Security invariants
 
@@ -96,6 +135,7 @@ No R19.3 work is authorized before R19.2 is either fully accepted and normalized
 - No update installation occurs without explicit user confirmation after verification.
 - GitHub Release assets may carry payloads, but TUF metadata remains the update authorization source.
 - RC/beta discovery must not rely only on GitHub `/releases/latest`, which excludes prereleases.
+- Root rotation remains sequential and threshold-protected; rollback/freeze protections remain mandatory.
 
 ## Resume rule
 

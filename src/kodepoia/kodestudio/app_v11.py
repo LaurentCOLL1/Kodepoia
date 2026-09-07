@@ -218,9 +218,8 @@ def build_window(
 
         new_project.clicked.connect(open_project)
 
-    # R18.7 extends the accepted Settings page without making network access a
-    # startup dependency. The update service is injected only when a structured
-    # trusted repository adapter is configured.
+    # R19.3 injects a packaged trusted service. Construction is deliberately
+    # network-free, so update discovery can never become a startup dependency.
     settings_index = nav.count() - 1
     if settings_index >= 0:
         _replace_stack_page(
@@ -274,6 +273,18 @@ def build_window(
     return window
 
 
+def _build_packaged_window():
+    from kodepoia.update.startup import build_packaged_update_services_resilient
+
+    services = build_packaged_update_services_resilient()
+    window = build_window(
+        update_service=services.discovery,
+        install_service=services.installer,
+    )
+    window._kodepoia_packaged_update_services = services
+    return window
+
+
 def main() -> int:
     smoke_test = "--smoke-test" in sys.argv
     if smoke_test:
@@ -289,7 +300,7 @@ def main() -> int:
         return 2
 
     app = QApplication.instance() or QApplication(sys.argv)
-    window = build_window()
+    window = _build_packaged_window()
     if smoke_test:
         window.show()
         app.processEvents()

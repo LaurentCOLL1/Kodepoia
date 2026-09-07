@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+from kodepoia.kodestudio.fr_catalogs import R12_FR, translated
 from kodepoia.quality.localization import KodeLocalization, LocaleCatalog, LocalizedMessage, pseudo_catalog
 
 SOURCE_LOCALE = "en"
@@ -39,15 +40,21 @@ R12_SOURCE_CATALOG = LocaleCatalog(
 
 class R12Translator:
     def __init__(self, locale: str = SOURCE_LOCALE) -> None:
-        self.locale = locale
-        if locale == SOURCE_LOCALE:
+        normalized = locale.strip().lower()
+        self.locale = "fr" if normalized.startswith("fr") else normalized or SOURCE_LOCALE
+        if self.locale == SOURCE_LOCALE:
             self.catalog = R12_SOURCE_CATALOG
-        elif locale == PSEUDO_LOCALE:
+        elif self.locale == PSEUDO_LOCALE:
             self.catalog = pseudo_catalog(R12_SOURCE_CATALOG, locale=PSEUDO_LOCALE)
         else:
-            self.catalog = LocaleCatalog(locale=locale, messages=(), fallback_locale=SOURCE_LOCALE)
+            self.catalog = LocaleCatalog(locale=self.locale, messages=(), fallback_locale=SOURCE_LOCALE)
 
     def text(self, message_id: str, **values: Any) -> str:
+        if self.locale == "fr":
+            try:
+                return translated(R12_FR, message_id, **values)
+            except KeyError as exc:
+                raise KeyError(f"missing French R12 translation: {message_id}") from exc
         return KodeLocalization(R12_SOURCE_CATALOG).translate(self.catalog, message_id, values=values)
 
 

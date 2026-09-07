@@ -3,10 +3,10 @@ from __future__ import annotations
 import contextlib
 import os
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable
 
-from kodepoia.kodestudio.preferences import ApplicationPreferences, DEFAULT_SETTINGS_PATH
+from kodepoia.kodestudio.preferences import DEFAULT_SETTINGS_PATH, ApplicationPreferences
 from kodepoia.kodestudio.v11_localization import V11Translator, resolve_locale
 from kodepoia.kodestudio.vision_assistant import VisionDraft
 from kodepoia.release_identity import CURRENT_RELEASE

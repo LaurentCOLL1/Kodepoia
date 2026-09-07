@@ -1,8 +1,8 @@
 # KODEPOIA CONTINUITY — R19
 
-**Status:** R19 PLANNING ACCEPTED; UNIQUE PLANNING NORMALIZATION IN PROGRESS
+**Status:** R19.1 MERGED; UNIQUE R19.1 CONTINUITY NORMALIZATION IN PROGRESS
 
-This file supersedes `KODEPOIA_CONTINUITY_V2_POST_R18.md` as the active continuation authority once the unique planning-normalization PR from `r19/plan-continuity-normalization` passes fresh exact-head gates and merges.
+This file remains the active continuation authority for R19. The branch `r19/01-continuity-normalization` is the single authorized post-R19.1 continuity-only normalization. R19.2 is authorized only after this normalization passes fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke and merges into `main` with exact expected-head protection.
 
 ## Frozen inherited authority
 
@@ -17,21 +17,9 @@ Formal phase: **R19 — Installed Experience & Trusted Self-Update Hardening**.
 
 Roadmap authority: `docs/roadmap/R19_PLAN.md`.
 
-Planning base: `main` `d0ba02f9d8101890602c5e1a412292cb27aa08c3`.
+Planning PR #408 merged as `main` `c1e8dd2848c0a57a6a4f6c59082cdc111f155df1` after exact-head R0, Python Core and KodeStudio UI acceptance.
 
-Planning candidate head: `7feabbcd1d718458d248e03b1bb82e4b88d5f25a` on `r19/plan-installed-experience-self-update`.
-
-Exact planning-head acceptance:
-
-- R0 Repository Guard #2566 / run `34139219887`: **SUCCESS**.
-- Python Core #2538 / run `34139219864`: **SUCCESS**; exact-source Ubuntu and Windows core jobs passed, alongside package/UI evidence jobs.
-- KodeStudio UI Smoke #2503 / run `34139219905`: **SUCCESS**.
-
-Planning PR #408 merged with `expected_head_sha=7feabbcd1d718458d248e03b1bb82e4b88d5f25a` as planning `main` `c1e8dd2848c0a57a6a4f6c59082cdc111f155df1`.
-
-This branch `r19/plan-continuity-normalization` is the **single authorized planning-normalization branch**. It changes continuity only. It must pass fresh R0 Repository Guard Ubuntu+Windows, full Python Core and KodeStudio UI Smoke on its exact HEAD, then merge with exact expected-head protection. No second R19 planning normalization is authorized.
-
-R19.1 START-sync is authorized **only after** that exact normalization merge enters `main`.
+Unique planning-normalization PR #409 merged as normalized planning `main` `c586e7f6cfd175c5c6fd81574b3a1b3dd43cee6d` after fresh exact-head R0 Repository Guard, Python Core and KodeStudio UI Smoke. That normalization authorized R19.1.
 
 ## Authorized subdivision sequence
 
@@ -43,20 +31,62 @@ R19.1 START-sync is authorized **only after** that exact normalization merge ent
 
 No subdivision may be silently inserted, removed, merged, split or renumbered.
 
-## Defects carried into R19
+## R19.1 accepted authority
 
-1. Installed French Windows application does not visibly switch the current UI when English is selected. Existing code only persists the selection for a later start, rewrites the settings file with a locale-only object, and currently places `KODEPOIA_LOCALE` ahead of the saved preference.
-2. Installed update check reports `no structured update repository is configured` because packaged startup does not construct/inject the production discovery and install services.
+R19.1 implementation branch: `r19/01-language-switching-hardening`.
 
-## R19.1 authority
+Accepted exact implementation HEAD: `f8bb810f459d0af35673e3bb80789e1109dfbb80`.
 
-R19.1 must introduce merge-safe application preferences, make the user's persisted locale defeat normal OS detection and accidental packaging environment forcing, and provide an immediate retranslation or explicit controlled apply/restart behavior. French → English → French persistence, unrelated-setting preservation, corrupt-settings fallback and packaged Windows restart behavior are mandatory acceptance cases.
+R19.1 PR #410 merged with `expected_head_sha=f8bb810f459d0af35673e3bb80789e1109dfbb80` as `main` `717b2cc0efd4c59100c5145dd8916c21787137c7`.
+
+Exact accepted-head evidence:
+
+- R0 Repository Guard #2576: **SUCCESS** on Ubuntu and Windows.
+- Python Core #2548: **SUCCESS** on Ubuntu and Windows; package-build and KodeStudio smoke evidence jobs also passed.
+- KodeStudio UI Smoke #2513: **SUCCESS**.
+- R18.7 Update Discovery Channel UX #77: **SUCCESS** on Ubuntu and Windows, including compile, Ruff, focused tests and exact-source evidence.
+- R15.15 CLI KodeStudio UX #250: **SUCCESS**.
+- Additional R17 Windows Installer validation confirmed the corrected French navigation acceptance (`Discussion` rather than the stale mixed-language `Chat`) before installer packaging continued.
+
+Accepted R19.1 behavior includes:
+
+- merge-safe atomic application preferences rather than locale-only settings replacement;
+- persisted user locale precedence over normal OS detection and accidental packaging environment forcing;
+- explicit controlled apply/restart behavior for language changes;
+- strict English/French v1.1 catalogs with no silent French fallback to English;
+- completed French runtime coverage across the KodeStudio shell and assembled Project Wizard surfaces touched by the v1.1 product;
+- regression coverage for French/English key parity and placeholders, preference preservation, corrupt-settings fallback, locale precedence, main-window French UI, full French Project Wizard and selector persistence;
+- historical R13/R15/R17 assertions aligned with the now-complete French labels instead of preserving mixed-language expectations.
 
 Manual intervention for R19.1: **NONE**.
 
-## R19.2 manual boundary
+## R19.1 post-merge continuity normalization
+
+Base `main`: `717b2cc0efd4c59100c5145dd8916c21787137c7`.
+
+Normalization branch: `r19/01-continuity-normalization`.
+
+This branch changes continuity only. It must pass fresh exact-head:
+
+- R0 Repository Guard Ubuntu + Windows;
+- full Python Core;
+- KodeStudio UI Smoke.
+
+It must then merge with exact expected-head protection. No second R19.1 continuity normalization is authorized.
+
+R19.2 START-sync is authorized **only after** that exact normalization merge enters `main`.
+
+## Defects carried forward after R19.1
+
+The language-selection defect is closed by R19.1. The remaining carried defect is the installed update path: the packaged application still needs a production/beta trusted update repository and later packaged startup wiring so update discovery no longer reports that no structured update repository is configured.
+
+## R19.2 authority and manual boundary
+
+R19.2 — **Production/Beta Update Repository Bootstrap** — may begin only from normalized post-R19.1 `main`.
 
 R19.2 may implement repository layout, schemas, expiry/rotation policy and clearly synthetic local fixtures without manual action. The moment real beta/production TUF private keys must be generated, stored, imported into a secret store or used outside repository-safe synthetic fixtures, stop and provide the user exact manual actions before any later subdivision.
+
+No R19.3 work is authorized before R19.2 is either fully accepted and normalized or explicitly stopped at that genuine manual boundary.
 
 ## Security invariants
 

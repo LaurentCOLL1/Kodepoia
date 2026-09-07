@@ -167,7 +167,7 @@ def create_update_settings_group(
                     f"{tr('updates.candidate')}: "
                     f"{candidate.target.public_version} ({candidate.target.channel})",
                     f"{tr('updates.verified')}: {candidate.source_verification_state}",
-                    f"{tr('updates.size')}: {candidate.size_bytes} bytes ({mib:.2f} MiB)",
+                    f"{tr('updates.size')}: {candidate.size_bytes} {tr('updates.bytes')} ({mib:.2f} MiB)",
                     f"{tr('updates.notes')}: {candidate.release_notes_summary}",
                     f"{tr('updates.signing')}: {candidate.signing_status}",
                     f"{tr('updates.provenance')}: {candidate.provenance_status}",
@@ -183,7 +183,7 @@ def create_update_settings_group(
                 UpdateDiscoveryResult(
                     status="channel-unavailable",
                     candidate=None,
-                    detail="no structured update repository is configured",
+                    detail=tr("updates.repository_unconfigured"),
                 )
             )
             return

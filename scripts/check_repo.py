@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED = [
     "README.md", "CHANGELOG.md", "LICENSE", "SECURITY.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md",
+    "KodepoiaSetup.exe", "KodepoiaSetup.exe.sha256",
     ".gitignore", ".gitattributes", ".github/workflows/r0-bootstrap.yml", ".github/CODEOWNERS",
     "docs/architecture/KODEPOIA_ARCHITECTURE_V1_0.md",
     "docs/architecture/KODEPOIA_ARCHITECTURE_DECISIONS.md",
@@ -35,7 +36,7 @@ REQUIRED = [
 
 FORBIDDEN_NAMES = {".env", "id_rsa", "id_ed25519", "credentials.json", "secrets.json"}
 FORBIDDEN_SUFFIXES = {".pem", ".key", ".p12", ".pfx", ".keystore", ".gguf", ".safetensors", ".ckpt", ".pth", ".onnx"}
-LFS_SUFFIXES = {".blend", ".fbx", ".glb", ".psd", ".kra", ".exr", ".hdr", ".tif", ".tiff", ".wav", ".flac", ".mp4", ".mov", ".mkv", ".zip", ".7z"}
+LFS_SUFFIXES = {".blend", ".fbx", ".glb", ".psd", ".kra", ".exr", ".hdr", ".tif", ".tiff", ".wav", ".flac", ".mp4", ".mov", ".mkv", ".zip", ".7z", ".exe"}
 TEXT_SUFFIXES = {".md", ".txt", ".py", ".ps1", ".json", ".yml", ".yaml", ".toml", ".ini", ".cfg", ".gd", ".cs", ".cpp", ".h", ".hpp", ".ts", ".tsx", ".js"}
 SECRET_PATTERNS = [
     re.compile(r"gh[pousr]_[A-Za-z0-9]{36,255}"),

@@ -19,17 +19,25 @@ La fin de la phase v1.0 ne signifie pas qu'une release publique signée a été 
 
 ## Installer Kodepoia sur Windows — utilisateur final
 
-Depuis R17, un utilisateur **n'a pas besoin d'installer Python ni d'utiliser `pip`** pour utiliser l'installateur Windows accepté.
+### Méthode principale — fichier à la racine
 
-1. Ouvrir le workflow GitHub Actions **R17 Windows Installer**.
-2. Télécharger l'artefact **`KodepoiaSetup-Windows`** du run accepté.
-3. Extraire l'artefact et lancer **`KodepoiaSetup.exe`**.
+Le fichier d'installation principal est **`KodepoiaSetup.exe`**, placé directement à la **racine du dépôt**. Il s'agit du miroir Git LFS de l'installateur publié avec la GitHub Release `v1.1.0-rc1`.
+
+1. Dans la liste des fichiers à la racine du dépôt, ouvrir **`KodepoiaSetup.exe`** puis le télécharger.
+2. Facultatif mais recommandé : comparer son SHA-256 avec **`KodepoiaSetup.exe.sha256`**.
+3. Exécuter **`KodepoiaSetup.exe`**.
 4. Suivre l'assistant d'installation en français ou en anglais.
 5. Lancer **Kodepoia** depuis le menu Démarrer ou le raccourci Bureau.
 
-`KodepoiaSetup.exe` installe KodeStudio dans le profil utilisateur, crée une entrée de désinstallation et les raccourcis. L'exécutable embarque le runtime nécessaire : Python n'est pas requis sur la machine cible.
+SHA-256 du miroir actuellement accepté : `3d11af229392a6756a2bbc161af0150aca92168d843a42a3944ab5c01660b8e0`.
 
-> Tant qu'aucune release GitHub publique n'a été explicitement publiée, l'artefact CI accepté est la source de l'installateur. Ne pas confondre un artefact de CI avec une release publique signée.
+### GitHub Release
+
+La même version est disponible dans **[Releases](https://github.com/LaurentCOLL1/Kodepoia/releases)** → **Kodepoia 1.1.0-rc1** → `KodepoiaSetup.exe`.
+
+Cette version est une **prérelease / beta** et son manifeste indique toujours `production_signed=false`. Elle ne doit donc pas être présentée comme une release stable signée de production ; Windows/SmartScreen peut afficher un avertissement de réputation ou de signature.
+
+`KodepoiaSetup.exe` installe KodeStudio dans le profil utilisateur, crée une entrée de désinstallation et les raccourcis. L'exécutable embarque le runtime nécessaire : Python et `pip` ne sont pas requis sur la machine cible.
 
 ### Désinstallation
 

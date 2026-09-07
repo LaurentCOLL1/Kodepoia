@@ -55,12 +55,7 @@ def _require_https_base_url(value: str, *, label: str) -> str:
 
 
 def _canonical_json_bytes(payload: dict[str, object]) -> bytes:
-    rendered = json.dumps(
-        payload,
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    )
+    rendered = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return (rendered + "\n").encode("utf-8")
 
 
@@ -139,7 +134,7 @@ class UpdateRepositoryContract:
             "release_tag_template": "v{public_version}",
             "authorization_source": "tuf-targets-metadata",
             "production_root_resource": PRODUCTION_ROOT_RESOURCE,
-            "production_root_state": "pending-real-key-bootstrap",
+            "production_root_state": "active",
             "synthetic_root_resource": SYNTHETIC_ROOT_RESOURCE,
             "synthetic_root_permitted_for_production": False,
             "private_keys_permitted_in_repository": False,
@@ -191,10 +186,7 @@ class UpdateTargetBinding:
         }
 
     def to_dict(self) -> dict[str, object]:
-        return {
-            "target_path": self.target_path,
-            **self.to_tuf_target_dict(),
-        }
+        return {"target_path": self.target_path, **self.to_tuf_target_dict()}
 
 
 def _target_from_path(path: str) -> UpdateTargetSpec:
@@ -231,9 +223,7 @@ def validate_target_binding(binding: UpdateTargetBinding) -> None:
     if not isinstance(binding.custom.get("withdrawn"), bool):
         raise UpdateRepositoryBootstrapError("target custom metadata 'withdrawn' must be boolean")
     payload_url = str(binding.custom["payload_url"]).strip()
-    expected_payload_url = (
-        f"{GITHUB_RELEASE_BASE_URL}v{target.public_version}/{target.filename}"
-    )
+    expected_payload_url = f"{GITHUB_RELEASE_BASE_URL}v{target.public_version}/{target.filename}"
     if payload_url != expected_payload_url:
         raise UpdateRepositoryBootstrapError(
             "target payload URL does not match the canonical GitHub Release asset URL"
@@ -255,9 +245,6 @@ def build_target_binding(
     if not notes or not signing or not provenance:
         raise UpdateRepositoryBootstrapError("release notes and status metadata must not be empty")
     contract = default_production_repository_contract()
-    payload_url = (
-        f"{contract.release_asset_base_url}v{target.public_version}/{target.filename}"
-    )
     custom: dict[str, object] = {
         "source_sha": target.source_sha,
         "channel": target.channel,
@@ -266,7 +253,7 @@ def build_target_binding(
         "signing_status": signing,
         "provenance_status": provenance,
         "withdrawn": withdrawn,
-        "payload_url": payload_url,
+        "payload_url": f"{contract.release_asset_base_url}v{target.public_version}/{target.filename}",
     }
     return UpdateTargetBinding(
         target_path=target.path,

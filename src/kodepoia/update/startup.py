@@ -11,12 +11,11 @@ from kodepoia.update.bootstrap import load_production_packaged_root
 from kodepoia.update.delivery import (
     AuthenticodeEvidence,
     PowerShellInstallerIdentityVerifier,
-    UpdateInstallCoordinator,
     VerifiedUpdateDownloader,
-    WindowsInstallerLauncher,
 )
 from kodepoia.update.discovery import UpdateDiscoveryResult, UpdateDiscoveryService
 from kodepoia.update.network import NetworkTransportPolicy, NetworkUpdateTransport
+from kodepoia.update.seamless import SeamlessUpdateInstallCoordinator, WindowsInnoUpdateLauncher
 
 
 class PowerShellAuthenticodeVerifier:
@@ -83,7 +82,7 @@ class UnavailableUpdateDiscoveryService:
 @dataclass(frozen=True, slots=True)
 class PackagedUpdateServices:
     discovery: object
-    installer: UpdateInstallCoordinator | None
+    installer: SeamlessUpdateInstallCoordinator | None
     transport: NetworkUpdateTransport | None
     startup_error: str | None = None
 
@@ -113,20 +112,21 @@ def build_packaged_update_services(
     )
 
     runtime_platform = platform_name or sys.platform
-    installer: UpdateInstallCoordinator | None = None
+    installer: SeamlessUpdateInstallCoordinator | None = None
     if runtime_platform == "win32":
         downloader = VerifiedUpdateDownloader(
             base_state / "downloads",
             authenticode=PowerShellAuthenticodeVerifier(),
             identity=PowerShellInstallerIdentityVerifier(),
         )
-        installer = UpdateInstallCoordinator(
+        installer = SeamlessUpdateInstallCoordinator(
             base_state / "install",
             downloader=downloader,
             transport=transport,
-            launcher=WindowsInstallerLauncher(),
+            launcher=WindowsInnoUpdateLauncher(platform_name=runtime_platform),
             current_public_version=CURRENT_RELEASE.public_version,
         )
+        installer.reconcile_startup(CURRENT_RELEASE.public_version)
 
     return PackagedUpdateServices(
         discovery=discovery,

@@ -48,8 +48,14 @@ Name: "{group}\Désinstaller Kodepoia"; Filename: "{uninstallexe}"
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "Lancer Kodepoia"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#AppExeName}"; Flags: nowait runasoriginaluser; Check: IsKodepoiaUpdate
 
 [Code]
+function IsKodepoiaUpdate(): Boolean;
+begin
+  Result := CompareText(ExpandConstant('{param:KODEPOIAUPDATE|0}'), '1') = 0;
+end;
+
 function InitializeSetup(): Boolean;
 begin
   Result := True;

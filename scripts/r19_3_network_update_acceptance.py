@@ -67,9 +67,13 @@ def run_acceptance(source_sha: str) -> dict[str, object]:
 
     root = load_production_packaged_root()
     checks["production_root_active"] = root.production_trust_claim and not root.private_keys_persisted
-    checks["production_root_exact_sha256"] = hashlib.sha256(root.root_bytes).hexdigest() == PRODUCTION_ROOT_SHA256
-    checks["metadata_base_exact"] = DEFAULT_METADATA_BASE_URL == contract["metadata_base_url"]
-    checks["release_asset_base_exact"] = DEFAULT_RELEASE_ASSET_BASE_URL == contract["release_asset_base_url"]
+    checks["production_root_exact_sha256"] = (
+        hashlib.sha256(root.root_bytes).hexdigest() == PRODUCTION_ROOT_SHA256
+    )
+    checks["metadata_base_exact"] = contract["metadata_base_url"] == DEFAULT_METADATA_BASE_URL
+    checks["release_asset_base_exact"] = (
+        contract["release_asset_base_url"] == DEFAULT_RELEASE_ASSET_BASE_URL
+    )
     checks["metadata_allowlist_exact"] = sorted(TOP_LEVEL_METADATA) == sorted(contract["metadata_names"])
     checks["redirect_hosts_exact"] = sorted(DEFAULT_TARGET_REDIRECT_HOSTS) == sorted(
         contract["target_redirect_hosts"]

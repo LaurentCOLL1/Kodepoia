@@ -17,17 +17,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_r16_17_release_baseline_remains_frozen_while_current_identity_advances() -> None:
-    # R16.17 is historical evidence for the v1.0 RC baseline. R18.1 must not
-    # rewrite that history, but the repository's current release identity is
-    # now independently governed by the canonical release resolver.
+    # R16.17 is historical evidence for the v1.0 RC baseline. Later release
+    # phases must not rewrite that history, while the repository's current
+    # release identity may advance independently under its newer authority.
     assert RELEASE_VERSION == "1.0.0rc1"
     assert PRIOR_VERSION == "0.1.0a4"
 
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["project"]["version"] == CURRENT_RELEASE.pep440_version
     assert kodepoia.__version__ == CURRENT_RELEASE.pep440_version
-    assert CURRENT_RELEASE.pep440_version == "1.1.0rc1"
-    assert CURRENT_RELEASE.public_version == "1.1.0-rc1"
+    assert CURRENT_RELEASE.pep440_version == "1.1.0rc2"
+    assert CURRENT_RELEASE.public_version == "1.1.0-rc2"
 
 
 def test_r16_17_migration_and_failed_migration_rollback_are_exact() -> None:

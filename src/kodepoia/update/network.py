@@ -179,7 +179,9 @@ class NetworkUpdateTransport:
                     raise UpdateTransportError("update repository redirect is missing Location")
                 next_url = urljoin(current, location)
                 if not self._redirect_allowed(current, next_url, metadata=metadata):
-                    raise UpdateTransportError("update repository redirect escaped an authorized HTTPS origin")
+                    raise UpdateTransportError(
+                        "update repository redirect escaped an authorized HTTPS origin"
+                    )
                 current = next_url
                 continue
             if status in {408, 429, 502, 503, 504}:

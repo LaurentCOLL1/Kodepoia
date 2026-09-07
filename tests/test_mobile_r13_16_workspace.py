@@ -207,4 +207,4 @@ def test_r13_pseudo_localization_expands_workspace_labels() -> None:
     pseudo = R13Translator(PSEUDO_LOCALE).text("r13.title")
     assert pseudo != source
     assert len(pseudo) > len(source)
-    assert R13Translator("fr").text("r13.refresh") == "Refresh status"
+    assert R13Translator("fr").text("r13.refresh") == "Actualiser le statut"

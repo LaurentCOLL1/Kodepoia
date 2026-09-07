@@ -47,6 +47,15 @@ jobs:
       - name: Install test and packaging dependencies
         run: python -m pip install -e ".[dev,ui,code,packaging]"
 
+      - name: Resolve canonical release version
+        shell: pwsh
+        run: |
+          $identity = (python -m kodepoia.release.identity --json) | ConvertFrom-Json
+          if ([string]::IsNullOrWhiteSpace($identity.public_version)) {
+            throw "Canonical public release version is missing"
+          }
+          "KODEPOIA_PUBLIC_VERSION=$($identity.public_version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Run focused R17 tests
         run: pytest tests/test_r17_guided_ux.py tests/test_r17_packaged_entrypoint.py
 
@@ -56,7 +65,7 @@ jobs:
 
       - name: Build KodepoiaSetup.exe
         shell: pwsh
-        run: ./scripts/build_windows_installer.ps1 -Version "1.1.0-rc1"
+        run: ./scripts/build_windows_installer.ps1 -Version $env:KODEPOIA_PUBLIC_VERSION
 
       - name: Assert installer output
         shell: pwsh

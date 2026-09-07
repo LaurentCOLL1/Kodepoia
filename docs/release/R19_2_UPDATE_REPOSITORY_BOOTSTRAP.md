@@ -2,21 +2,20 @@
 
 ## Status
 
-Repository-safe bootstrap: **implemented**.
+**COMPLETE candidate — real public trust bootstrap active.**
 
-Real beta/release trust anchor: **pending manual real-key bootstrap**.
-
-R19.3 is not started by this subdivision.
+R19.2 establishes the public TUF trust and repository contract required by R19.3. R19.3 is not
+started by this subdivision.
 
 ## Canonical public endpoints
 
-Kodepoia uses a repository-backed HTTPS metadata endpoint:
+Metadata is published from the repository over HTTPS:
 
 ```text
 https://raw.githubusercontent.com/LaurentCOLL1/Kodepoia/main/update-repository/metadata/
 ```
 
-The four top-level TUF metadata files are published at fixed names:
+The fixed top-level metadata names are:
 
 ```text
 root.json
@@ -31,167 +30,160 @@ Installer payloads remain GitHub Release assets:
 https://github.com/LaurentCOLL1/Kodepoia/releases/download/v<public_version>/KodepoiaSetup.exe
 ```
 
-TUF metadata is the authorization source. GitHub Release hosting alone does not authorize an
-installer.
+TUF metadata is the authorization source. Hosting a release asset on GitHub never authorizes it by
+itself.
 
-The logical TUF target path is:
+The logical target path remains:
 
 ```text
 channels/<channel>/windows-x86_64/<public_version>/<source_sha>/KodepoiaSetup.exe
 ```
 
-Each target binding carries:
+Future authorized target entries must carry length, SHA-256, exact source SHA, channel, public
+version, release-note summary, signing status, provenance status, withdrawal state, and canonical
+HTTPS payload URL.
 
-- target length;
-- SHA-256;
-- exact source SHA;
-- channel;
-- public version;
-- release-note summary;
-- signing status;
-- provenance status;
-- withdrawal state;
-- canonical HTTPS payload URL.
+## Active Root v1
 
-## Top-level roles and key policy
+The real public Root is packaged at:
 
-| Role | Threshold | Storage policy | Metadata expiry | Planned rotation |
+```text
+src/kodepoia/update/trusted_root.production.json
+```
+
+and published identically at:
+
+```text
+update-repository/metadata/root.json
+```
+
+Pinned identity:
+
+```text
+version: 1
+sha256: a036c2aac78092f8d46893cc18954bb64f2b998375ff230f996dc4b85157e9ed
+root threshold: 2 of 3
+consistent_snapshot: false
+```
+
+Root key IDs:
+
+```text
+a9d16a369682d8b98b1f4a0ad3d3eef5687ef12d8b52ae5e7317a706febe8fc7
+ed932929711cebd1f0c2cda9083882c8318b01d8b5d56c7f168182780234406f
+0dba49064092a4d21ca06d849467de7411df25fd5d3092a1ee718b5aee619df4
+```
+
+Role keys are distinct:
+
+```text
+targets:   0a7da4beb6c0173915126a7b5329822fd56554210240296c395dd6e5605ebe35
+snapshot:  a5ecff64981b447026163cd232a01b33f5699490067dbe9b49cd30a0f5177a8f
+timestamp: 1c08b09dc0cb5216bf3c0f81f34154a2de583eaae97bbe88d9071741c9b45fc5
+```
+
+All repository and package material contains public keys only. No private TUF key is permitted in
+Git, packages, logs, Actions artifacts, release assets, roadmap files, or continuity files.
+
+## Trust-anchor separation
+
+The R18 acceptance resource remains:
+
+```text
+src/kodepoia/update/trusted_root.synthetic.json
+```
+
+It is still acceptance-only and still requires explicit synthetic opt-in. Production/beta loading
+uses `load_production_packaged_root()` and rejects a Root whose bytes or SHA-256 match the
+synthetic Root.
+
+The active production manifest records Root v1 and its exact SHA-256 and explicitly states that no
+private key material is persisted.
+
+## Initial signed repository state
+
+The supplied public bootstrap was independently checked before publication:
+
+- Root: 3 valid Ed25519 signatures; threshold 2;
+- Targets: valid Targets-role signature;
+- Snapshot: valid Snapshot-role signature;
+- Timestamp: valid Timestamp-role signature;
+- Snapshot reference to Targets: exact version, length, and SHA-256 match;
+- Timestamp reference to Snapshot: exact version, length, and SHA-256 match;
+- packaged Root bytes equal published `root.json` bytes;
+- no private-key PEM, seed, secret, or private-key field was present in the supplied public bundle.
+
+Initial `targets.json` intentionally contains no installer target. R19.5 will publish the corrective
+RC target only after its exact release artifact exists and has passed release acceptance.
+
+## Role and expiry policy
+
+| Role | Threshold | Storage policy | Metadata expiry policy | Planned rotation |
 | --- | ---: | --- | ---: | ---: |
 | Root | 2 | offline | 365 days | 180 days |
 | Targets | 1 | offline | 365 days | 180 days |
 | Snapshot | 1 | online, separate key | 1 day | 90 days |
 | Timestamp | 1 | online, separate key | 1 day | 30 days |
 
-Every role uses a distinct key scope. Root and Targets keys must remain outside the online
-repository workflow. Snapshot and Timestamp may be automated, but their private keys must still
-be held in an approved secret store and must never be committed, uploaded as release assets, or
-included in CI artifacts.
+The initial signed Root and Targets expire on `2027-09-07T19:02:56Z`. The initial Snapshot and
+Timestamp expire on `2026-09-08T19:02:56Z`. Snapshot/Timestamp therefore require renewal before
+that instant. A short Timestamp lifetime is deliberate: clients can detect stale/frozen metadata
+quickly. Renewal must increment metadata versions as required and preserve anti-rollback state.
 
-The initial production Root should use at least three independent Root keys with a 2-of-3
-threshold. That gives operational room to lose one Root key without reducing the required
-threshold.
+Root and Targets private keys remain offline. Snapshot and Timestamp may be automated later, but
+only through approved secret storage; their private material is never repository content.
 
-## Compatibility policy
+## Publication sequence for future releases
 
-R19.2 sets `consistent_snapshot` to `false`.
-
-The R18 update/discovery clients already fetch the fixed metadata names `root.json`,
-`timestamp.json`, `snapshot.json`, and `targets.json`. R19.2 preserves that established client
-contract. A later change to consistent-snapshot naming would require an explicit client migration
-and Root metadata update; it is not silently introduced here.
-
-## Trust-anchor separation
-
-The R18 resource:
-
-```text
-src/kodepoia/update/trusted_root.synthetic.json
-```
-
-remains **synthetic acceptance only**.
-
-Production uses a different resource name:
-
-```text
-src/kodepoia/update/trusted_root.production.json
-```
-
-That file intentionally does not exist during the repository-safe phase. The packaged production
-manifest is in state `pending-real-key-bootstrap`, and `load_production_packaged_root()` fails
-closed until an active, self-consistent, real-key Root is supplied.
-
-The production loader also refuses a Root whose bytes or SHA-256 equal the synthetic R18 Root.
-
-## Repository layout
-
-Before real signing, only repository-safe policy and documentation are versioned:
-
-```text
-update-repository/
-  README.md
-  metadata/
-    README.md
-```
-
-After the manual trust bootstrap, the public metadata directory will contain:
-
-```text
-update-repository/
-  metadata/
-    root.json
-    targets.json
-    snapshot.json
-    timestamp.json
-```
-
-No private key file belongs anywhere under `update-repository/`.
-
-## Publication sequence
-
-For each beta/release update:
-
-1. build and verify the exact-head release artifact;
+1. build and accept the exact-head release artifact;
 2. publish or stage the immutable GitHub Release asset under `v<public_version>`;
-3. compute the exact installer SHA-256 and length;
-4. create the canonical TUF target path with source/channel/version/status bindings;
-5. sign and publish Targets metadata;
-6. sign and publish Snapshot metadata that references the exact Targets metadata;
-7. sign and publish Timestamp metadata that references the exact Snapshot metadata;
-8. retain the current and required historical Root metadata needed for safe sequential rotation.
+3. compute exact installer SHA-256 and length;
+4. create the canonical TUF target path and required custom bindings;
+5. sign and publish a newer Targets version;
+6. sign and publish Snapshot referencing that exact Targets metadata;
+7. sign and publish Timestamp referencing that exact Snapshot metadata;
+8. retain Root history required for safe sequential Root rotation.
 
-Clients continue to verify TUF metadata and target bytes before installer execution.
+GitHub's `releases/latest` endpoint is not an authority for Kodepoia beta/RC discovery because it
+selects the latest non-prerelease, non-draft release. TUF Targets metadata remains the channel
+authority.
 
-## Expiry and rotation
+## Rotation and compromise recovery
 
-Metadata must be renewed before expiration. The configured intervals are upper bounds, not a
-reason to postpone an urgent rotation.
-
-Planned key rotation:
-
-- Root: prepare a sequential Root version signed to satisfy both the old and new Root thresholds;
-- Targets: replace the Targets public key in a newly signed Root, then reissue Targets metadata;
-- Snapshot: replace its public key in a newly signed Root, then reissue Snapshot and Timestamp;
-- Timestamp: replace its public key in a newly signed Root, then immediately reissue Timestamp.
-
-Every rotation increments the relevant metadata versions and preserves anti-rollback semantics.
-
-## Compromise and recovery
+Root rotation must be sequential and satisfy both the old and new Root trust requirements. Role
+key replacement is authorized through a newly signed Root, followed by reissue of affected
+metadata.
 
 If a Timestamp, Snapshot, or Targets key is suspected compromised:
 
-1. stop metadata publication using that key;
-2. preserve incident evidence without copying private-key material into Git or CI artifacts;
-3. rotate the compromised role key through a new Root;
+1. stop publication with that key;
+2. preserve incident evidence without copying private material into Git or CI;
+3. rotate the role through a new Root;
 4. increment and re-sign affected metadata;
-5. publish the replacement metadata only after threshold verification;
-6. run the update security acceptance matrix before resuming normal publication.
+5. publish only after threshold and linkage verification;
+6. rerun update security acceptance before resuming normal publication.
 
-If fewer than the Root threshold keys remain trustworthy, the repository is no longer sufficient
-to repair trust. A new Root must be distributed out of band through a trusted Kodepoia client
-release or another independently authenticated recovery channel.
+If fewer than the Root threshold keys remain trustworthy, recovery requires an independently
+trusted out-of-band Root distribution through a trusted Kodepoia client release or equivalent
+channel.
 
-Encrypted backup copies of offline keys must live outside GitHub repository contents, GitHub
-Release assets, Actions artifacts/logs, roadmap/continuity files, and ordinary developer
-workspaces.
+## R19.2 acceptance boundary
 
-## Manual boundary
+The manual key-generation boundary has been satisfied by receiving **public signed material only**.
+R19.2 does not generate, import, persist, or use private production keys in repository automation.
 
-The remaining R19.2 step requires real private keys. It must not be automated from repository-safe
-fixtures.
+R19.2 is accepted only when exact-head CI proves:
 
-Before R19.2 can be marked complete, the operator must:
+- the production Root loads and is digest-pinned;
+- Root self-signature threshold is satisfied;
+- Targets/Snapshot/Timestamp signatures verify under that Root;
+- Snapshot→Targets and Timestamp→Snapshot hash/length/version bindings verify;
+- production and synthetic Roots differ;
+- role key scopes are separate and Root is 2-of-3;
+- the deterministic repository contract is active and HTTPS-only;
+- the wheel embeds the exact production Root and active manifest;
+- no private key material enters repository-safe files;
+- R19.3 has not been started in the same subdivision.
 
-1. create three independent Ed25519 Root keys for a 2-of-3 Root threshold;
-2. create distinct Ed25519 Targets, Snapshot, and Timestamp keys;
-3. store Root and Targets private material offline and encrypted;
-4. place Snapshot and Timestamp private material only in an approved secret store used by the
-   release signing environment;
-5. export **public keys only** for repository bootstrap;
-6. construct Root v1 with the configured role thresholds and expirations;
-7. sign Root v1 with at least two independent Root keys;
-8. return only the signed public `root.json` plus public key identifiers/fingerprints for
-   verification;
-9. never paste, upload, or commit any private key or recovery secret.
-
-Once that material exists, the production manifest can be activated with the exact Root version
-and SHA-256, the signed metadata set can be created, and R19.2 can be finalized.
+After R19.2 merge, perform the single continuity-only normalization required by R19 governance
+before beginning R19.3.

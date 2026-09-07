@@ -4,7 +4,6 @@ import subprocess
 from pathlib import Path
 
 import pytest
-from urllib3.exceptions import ConnectTimeoutError
 
 from kodepoia.update.network import NetworkTransportPolicy, NetworkUpdateTransport
 from kodepoia.update.startup import (
@@ -126,6 +125,8 @@ def test_size_ceilings_apply_to_declared_and_streamed_bytes() -> None:
 
 
 def test_connect_timeout_maps_to_offline_state() -> None:
+    from urllib3.exceptions import ConnectTimeoutError
+
     pool = FakePool([ConnectTimeoutError(None, "connect timed out")])
     transport = NetworkUpdateTransport(policy(), pool=pool)
     with pytest.raises(UpdateTransportOffline, match="offline or timed out"):

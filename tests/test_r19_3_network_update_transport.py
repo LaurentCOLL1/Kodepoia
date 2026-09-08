@@ -14,6 +14,7 @@ from kodepoia.update.trust import UpdateTransportError, UpdateTransportOffline
 
 SOURCE_SHA = "a" * 40
 TARGET_PATH = f"channels/beta/windows-x86_64/1.1.0-rc2/{SOURCE_SHA}/KodepoiaSetup.exe"
+PRODUCTION_ROOT_SHA256 = "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
 
 
 class FakeResponse:
@@ -146,9 +147,7 @@ def test_packaged_service_construction_performs_zero_network_requests(tmp_path: 
     assert services.transport is not None
     assert services.discovery is not None
     assert services.installer is None
-    assert services.discovery.verifier.root_pin.sha256 == (
-        "a036c2aac78092f8d46893cc18954bb64f2b998375ff230f996dc4b85157e9ed"
-    )
+    assert services.discovery.verifier.root_pin.sha256 == PRODUCTION_ROOT_SHA256
 
 
 def test_windows_packaged_startup_constructs_verified_install_service(tmp_path: Path) -> None:

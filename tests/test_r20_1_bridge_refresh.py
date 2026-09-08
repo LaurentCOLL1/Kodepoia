@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 import pytest
 from securesystemslib.signer import CryptoSigner
-from tuf.api.metadata import Metadata, Root, Snapshot, Targets, Timestamp
+from tuf.api.metadata import Metadata, Root, Snapshot, Timestamp
 
 from kodepoia.update.bridge_refresh import BridgeRefreshError, build_bridge_metadata
 
@@ -122,8 +122,8 @@ def test_bridge_advances_only_snapshot_and_timestamp() -> None:
     assert isinstance(timestamp.signed, Timestamp)
     assert snapshot.signed.version == 3
     assert timestamp.signed.version == 3
-    assert snapshot.signed.expires == datetime(2026, 10, 8, 20, 0)
-    assert timestamp.signed.expires == datetime(2026, 10, 8, 20, 0)
+    assert snapshot.signed.expires == datetime(2026, 10, 8, 20, 0, tzinfo=UTC)
+    assert timestamp.signed.expires == datetime(2026, 10, 8, 20, 0, tzinfo=UTC)
     assert result.manifest["root"]["modified"] is False
     assert result.manifest["targets"]["modified"] is False
 

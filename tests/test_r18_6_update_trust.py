@@ -78,3 +78,106 @@ def test_compromised_mirror_target_is_refused_and_last_verified_candidate_surviv
     result = client.check(transport, target)
     assert result.status == "verification-failed"
     assert result.candidate is not None
+    assert result.candidate.sha256 != __import__("hashlib").sha256(transport.targets[target.path]).hexdigest()
+
+
+def test_wrong_channel_target_is_refused(tmp_path) -> None:
+    beta_target = _target()
+    stable_target = _target(channel="stable")
+    builder = SyntheticUpdateRepositoryBuilder()
+    repository = builder.build(beta_target, INSTALLER)
+    client = UpdateClient(
+        tmp_path,
+        root_pin=PackagedRootPin.from_root(repository.root),
+        reference_time=REFERENCE_TIME,
+    )
+
+    result = client.check(MemoryUpdateTransport.from_repository(repository), stable_target)
+    assert result.status == "verification-failed"
+    assert result.candidate is None
+    assert "does not expose target" in result.detail
+
+
+def test_offline_without_cache_is_non_blocking(tmp_path) -> None:
+    target = _target()
+    builder = SyntheticUpdateRepositoryBuilder()
+    repository = builder.build(target, INSTALLER)
+    transport = MemoryUpdateTransport.from_repository(repository)
+    transport.online = False
+    client = UpdateClient(
+        tmp_path,
+        root_pin=PackagedRootPin.from_root(repository.root),
+        reference_time=REFERENCE_TIME,
+    )
+
+    result = client.check(transport, target)
+    assert result.status == "offline-no-cache"
+    assert result.candidate is None
+
+
+def test_offline_after_success_returns_last_verified_candidate(tmp_path) -> None:
+    target = _target()
+    builder = SyntheticUpdateRepositoryBuilder()
+    repository = builder.build(target, INSTALLER)
+    transport = MemoryUpdateTransport.from_repository(repository)
+    client = UpdateClient(
+        tmp_path,
+        root_pin=PackagedRootPin.from_root(repository.root),
+        reference_time=REFERENCE_TIME,
+    )
+    verified = client.check(transport, target)
+    assert verified.status == "verified"
+
+    transport.online = False
+    offline = client.check(transport, target)
+    assert offline.status == "offline-cached"
+    assert offline.candidate == verified.candidate
+
+
+def test_root_key_rotation_is_accepted_only_with_old_and_new_thresholds(tmp_path) -> None:
+    target = _target()
+    builder = SyntheticUpdateRepositoryBuilder(root_threshold=2)
+    first = builder.build(
+        target,
+        INSTALLER,
+        root_version=1,
+        timestamp_version=1,
+        snapshot_version=1,
+        targets_version=1,
+    )
+    client = UpdateClient(
+        tmp_path,
+        root_pin=PackagedRootPin.from_root(first.root),
+        reference_time=REFERENCE_TIME,
+    )
+    assert client.check(MemoryUpdateTransport.from_repository(first), target).status == "verified"
+
+    builder.rotate_root_keys()
+    second = builder.build(
+        target,
+        b"synthetic-kodepoia-installer-v2\n",
+        root_version=2,
+        timestamp_version=2,
+        snapshot_version=2,
+        targets_version=2,
+    )
+    result = client.check(MemoryUpdateTransport.from_repository(second), target)
+    assert result.status == "verified"
+    assert result.candidate is not None
+    assert result.candidate.tuf_state.root_version == 2
+
+
+def test_packaged_root_pin_rejects_different_bootstrap_root(tmp_path) -> None:
+    target = _target()
+    trusted_builder = SyntheticUpdateRepositoryBuilder()
+    trusted = trusted_builder.build(target, INSTALLER)
+    attacker_builder = SyntheticUpdateRepositoryBuilder()
+    attacker = attacker_builder.build(target, INSTALLER)
+    client = UpdateClient(
+        tmp_path,
+        root_pin=PackagedRootPin.from_root(trusted.root),
+        reference_time=REFERENCE_TIME,
+    )
+
+    with pytest.raises(TufVerificationError, match="packaged trusted-root pin"):
+        client.verify_refresh(MemoryUpdateTransport.from_repository(attacker), target)

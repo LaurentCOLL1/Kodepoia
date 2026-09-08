@@ -3,9 +3,9 @@ from __future__ import annotations
 import argparse
 import getpass
 import json
-import shutil
 import sys
 import zipfile
+from datetime import UTC, datetime
 from pathlib import Path
 
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
@@ -88,7 +88,7 @@ def main() -> int:
             current_timestamp_bytes=(metadata_dir / "timestamp.json").read_bytes(),
             snapshot_signer=snapshot_signer,
             timestamp_signer=timestamp_signer,
-            reference_time=__import__("datetime").datetime.now(__import__("datetime").UTC),
+            reference_time=datetime.now(UTC),
             bridge_days=args.bridge_days,
         )
         payloads = {
@@ -117,10 +117,6 @@ def main() -> int:
         return 1
     finally:
         passphrase = b""
-        try:
-            shutil.rmtree(output_dir / "__pycache__")
-        except OSError:
-            pass
 
 
 if __name__ == "__main__":

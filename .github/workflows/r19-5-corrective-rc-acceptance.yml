@@ -5,6 +5,7 @@ on:
     paths:
       - "src/kodepoia/release/**"
       - "src/kodepoia/update/**"
+      - "update-repository/**"
       - "scripts/build_windows_installer.ps1"
       - "scripts/r19_5_release_handoff.py"
       - "scripts/r19_5_corrective_rc_acceptance.py"

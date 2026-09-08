@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "public_version": "1.1.0-rc2",
+  "release_source_sha": "18ee16173d12f34a3508ccc0ad1a9ce38e9ecd3e",
+  "installer": {
+    "filename": "KodepoiaSetup.exe",
+    "length": 37613254,
+    "sha256": "a753ecef07757c3a8d6f97db4db7c77bece9d8129bdd0887eb7dea71d805ff8c"
+  },
+  "github_actions": {
+    "workflow_run_id": 34249968626,
+    "artifact_id": 10066516267,
+    "artifact_name": "r19-5-rc2-prepublication-18ee16173d12f34a3508ccc0ad1a9ce38e9ecd3e",
+    "artifact_zip_sha256": "ec326d6549b7d63cbe874d9d8c656162fec8ce49c914c320fa08b295567f1172"
+  },
+  "tuf": {
+    "root_version": 1,
+    "root_sha256": "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5",
+    "targets_version": 2,
+    "targets_sha256": "0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f",
+    "snapshot_version": 2,
+    "snapshot_sha256": "176d8b75f0f7b1b53a706640581a2b34cea4dac2fda36cf729c0616066906b4b",
+    "timestamp_version": 2,
+    "timestamp_sha256": "2586981d4a50af8140457edcc5e0fb70a089ccf200b0acecc8113c3e40283093"
+  },
+  "production_signed": false,
+  "public_release_created": false
+}

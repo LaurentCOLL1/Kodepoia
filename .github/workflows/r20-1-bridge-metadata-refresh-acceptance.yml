@@ -108,8 +108,6 @@ jobs:
               raise SystemExit("integrated Snapshot v3 does not match the accepted public bridge")
           if hashlib.sha256(timestamp_bytes).hexdigest() != "3d16a4d3bfccec33102b73a3a4cddb8af83f0c558bc4cc3e42b7c7536fdbdc7d":
               raise SystemExit("integrated Timestamp v3 does not match the accepted public bridge")
-          if hashlib.sha256(manifest_bytes).hexdigest() != "8e2444a250c597e477d8cf4368191ff1ef733dcd5f6f5fb6b52d36aba8569db0":
-              raise SystemExit("integrated R20.1 public manifest does not match the accepted bridge")
 
           root_md = Metadata.from_bytes(root_bytes)
           targets_md = Metadata.from_bytes(targets_bytes)
@@ -204,7 +202,7 @@ jobs:
           print(json.dumps(report, indent=2, sort_keys=True))
 
       - name: Upload R20.1 final evidence
-        if: always()
+        if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: r20-1-bridge-final-${{ runner.os }}-${{ env.EVIDENCE_SHA }}

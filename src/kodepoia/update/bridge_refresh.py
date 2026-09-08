@@ -113,7 +113,8 @@ def build_bridge_metadata(
         raise BridgeRefreshError("root.json is already expired and cannot authorize a bridge")
     if targets.is_expired(now):
         raise BridgeRefreshError("targets.json is already expired and requires offline Targets renewal")
-    if bridge_expiry >= min(root.expires, targets.expires):
+    authority_expiry = min(_as_utc(root.expires), _as_utc(targets.expires))
+    if bridge_expiry >= authority_expiry:
         raise BridgeRefreshError("bridge expiry must remain earlier than Root and Targets expiry")
 
     current_targets_ref = snapshot.meta.get("targets.json")

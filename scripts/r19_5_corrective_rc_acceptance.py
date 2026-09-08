@@ -3,7 +3,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
+import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -22,6 +24,7 @@ CUSTODY_ROOT_SHA256 = (
 )
 EVIDENCE_PATH = ROOT_DIR / "configs" / "r19_5_release_evidence.json"
 METADATA_DIR = ROOT_DIR / "update-repository" / "metadata"
+GITHUB_API = "https://api.github.com/repos/LaurentCOLL1/Kodepoia"
 
 
 def _git_head() -> str:
@@ -41,6 +44,79 @@ def _is_ancestor(ancestor: str, descendant: str) -> bool:
 
 def _load_metadata(name: str) -> Metadata[object]:
     return Metadata.from_bytes((METADATA_DIR / name).read_bytes())
+
+
+def _github_json(url: str) -> dict[str, object]:
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "Kodepoia-R19.5-acceptance",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(request, timeout=30) as response:  # noqa: S310
+        payload = json.loads(response.read().decode("utf-8"))
+    if not isinstance(payload, dict):
+        raise SystemExit(f"GitHub API returned non-object payload for {url}")
+    return payload
+
+
+def _verify_public_release(
+    evidence: dict[str, object], release_source_sha: str
+) -> dict[str, bool]:
+    expected = dict(evidence["public_release"])
+    tag = str(expected["tag"])
+    release = _github_json(f"{GITHUB_API}/releases/tags/{tag}")
+    tag_ref = _github_json(f"{GITHUB_API}/git/ref/tags/{tag}")
+    tag_object = dict(tag_ref["object"])
+    annotated_tag = _github_json(f"{GITHUB_API}/git/tags/{tag_object['sha']}")
+    annotated_target = dict(annotated_tag["object"])
+
+    expected_assets = dict(expected["assets"])
+    actual_assets = {
+        str(asset["name"]): asset
+        for asset in release.get("assets", [])
+        if isinstance(asset, dict) and "name" in asset
+    }
+    asset_checks = []
+    for name, raw_expected_asset in expected_assets.items():
+        expected_asset = dict(raw_expected_asset)
+        actual_asset = actual_assets.get(name)
+        if not isinstance(actual_asset, dict):
+            asset_checks.append(False)
+            continue
+        asset_checks.append(
+            actual_asset.get("id") == expected_asset["asset_id"]
+            and actual_asset.get("size") == expected_asset["length"]
+            and actual_asset.get("digest")
+            == f"sha256:{expected_asset['sha256']}"
+            and actual_asset.get("state") == "uploaded"
+        )
+
+    return {
+        "public_release_recorded": evidence["public_release_created"] is True,
+        "public_release_identity_verified": (
+            release.get("id") == expected["release_id"]
+            and release.get("tag_name") == tag
+            and release.get("name") == expected["name"]
+            and release.get("draft") is False
+            and release.get("prerelease") is True
+            and release.get("published_at") == expected["published_at"]
+        ),
+        "public_release_tag_verified": (
+            tag_object.get("type") == "tag"
+            and tag_object.get("sha") == expected["tag_object_sha"]
+            and annotated_tag.get("tag") == tag
+            and annotated_target.get("type") == "commit"
+            and annotated_target.get("sha") == release_source_sha
+            and annotated_target.get("sha") == expected["target_commit_sha"]
+        ),
+        "public_release_assets_verified": (
+            set(actual_assets) == set(expected_assets) and all(asset_checks)
+        ),
+    }
 
 
 def build_report(source_sha: str) -> dict[str, object]:
@@ -170,18 +246,18 @@ def build_report(source_sha: str) -> dict[str, object]:
             and snapshot_md.signed.expires > now
             and timestamp_md.signed.expires > now
         ),
-        "public_release_not_yet_claimed": evidence["public_release_created"] is False,
     }
+    checks.update(_verify_public_release(evidence, release_source_sha))
     failed = [name for name, passed in checks.items() if not passed]
     if failed:
         raise SystemExit("R19.5 acceptance failed: " + ", ".join(failed))
 
     return {
-        "schema_version": 3,
+        "schema_version": 4,
         "subdivision": "R19.5",
         "source_sha": source_sha,
         "release_source_sha": release_source_sha,
-        "status": "PASS_TO_PUBLIC_RELEASE_EFFECT",
+        "status": "PASS_PUBLIC_RELEASE_VERIFIED",
         "checks": checks,
         "corrective_public_version": CORRECTIVE_PUBLIC_VERSION,
         "previous_public_version": PREVIOUS_PUBLIC_VERSION,
@@ -190,7 +266,8 @@ def build_report(source_sha: str) -> dict[str, object]:
         "installer_size": installer_evidence["length"],
         "metadata_versions": dict(REQUIRED_TUF_ROLE_VERSIONS),
         "manual_intervention_required": False,
-        "publication_triggered": False,
+        "publication_triggered": True,
+        "public_release_id": dict(evidence["public_release"])["release_id"],
     }
 
 

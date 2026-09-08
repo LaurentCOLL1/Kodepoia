@@ -110,7 +110,7 @@ jobs:
           if report["production_root_version"] != 1:
               raise SystemExit("R19.2 production Root version drifted")
           if report["production_root_sha256"] != (
-              "a036c2aac78092f8d46893cc18954bb64f2b998375ff230f996dc4b85157e9ed"
+              "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
           ):
               raise SystemExit("R19.2 production Root digest drifted")
           if report["synthetic_root_production_trust"]:
@@ -163,7 +163,7 @@ jobs:
               root = archive.read("kodepoia/update/trusted_root.production.json")
               archive.read("kodepoia/update/trusted_root.production.manifest.json")
           digest = hashlib.sha256(root).hexdigest()
-          if digest != "a036c2aac78092f8d46893cc18954bb64f2b998375ff230f996dc4b85157e9ed":
+          if digest != "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5":
               raise SystemExit("wheel production Root digest mismatch")
 
       - name: Upload R19.2 exact-head evidence

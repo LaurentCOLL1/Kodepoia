@@ -1,0 +1,181 @@
+name: R19.5 Corrective RC Release Integrated Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "src/kodepoia/release/**"
+      - "src/kodepoia/update/**"
+      - "update-repository/**"
+      - "configs/r19_5_release_evidence.json"
+      - "scripts/r19_5_release_handoff.py"
+      - "scripts/r19_5_corrective_rc_acceptance.py"
+      - "tests/test_r19_5_corrective_rc_release.py"
+      - ".github/workflows/windows-installer.yml"
+      - ".github/workflows/r19-5-corrective-rc-acceptance.yml"
+      - "configs/r16_supply_chain_policy.json"
+      - "tests/test_supply_chain_r16_9.py"
+      - "pyproject.toml"
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact metadata/finalization SHA to validate
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  KODEPOIA_SOURCE_SHA: ${{ inputs.source_sha || github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  corrective-rc-contract:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Assert exact checkout provenance
+        shell: python
+        run: |
+          import os, subprocess
+          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          assert actual == os.environ["KODEPOIA_SOURCE_SHA"], (actual, os.environ["KODEPOIA_SOURCE_SHA"])
+      - name: Install focused dependencies
+        run: python -m pip install -e ".[dev,code]"
+      - name: Compile R19.5 sources
+        run: python -m compileall -q src/kodepoia/release src/kodepoia/update scripts/r19_5_release_handoff.py scripts/r19_5_corrective_rc_acceptance.py tests/test_r19_5_corrective_rc_release.py
+      - name: Ruff R19.5
+        run: python -m ruff check src/kodepoia/release/corrective_rc.py scripts/r19_5_release_handoff.py scripts/r19_5_corrective_rc_acceptance.py tests/test_r19_5_corrective_rc_release.py
+      - name: Focused R19.5 tests
+        run: python -m pytest tests/test_r19_5_corrective_rc_release.py tests/test_r19_4_seamless_windows_update.py tests/test_r19_3_network_update_transport.py
+      - name: Emit exact-source R19.5 final-metadata acceptance
+        run: python scripts/r19_5_corrective_rc_acceptance.py --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}" --output docs/roadmap/R19_5_CORRECTIVE_RC_ACCEPTANCE.json
+      - name: Upload exact-source R19.5 evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r19-5-final-contract-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: docs/roadmap/R19_5_CORRECTIVE_RC_ACCEPTANCE.json
+          if-no-files-found: error
+
+  final-release-artifact-replay:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout exact metadata/finalization source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.KODEPOIA_SOURCE_SHA }}
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Assert exact checkout provenance
+        shell: pwsh
+        run: |
+          $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
+          if ($actual -ne $env:KODEPOIA_SOURCE_SHA) { throw "Exact source mismatch" }
+      - name: Download and verify pinned final rc2 artifact
+        shell: pwsh
+        run: |
+          $evidence = Get-Content configs/r19_5_release_evidence.json -Raw | ConvertFrom-Json
+          $headers = @{
+            Authorization = "Bearer $env:GH_TOKEN"
+            Accept = "application/vnd.github+json"
+            "X-GitHub-Api-Version" = "2022-11-28"
+          }
+          $artifactId = [string]$evidence.github_actions.artifact_id
+          $metaUri = "https://api.github.com/repos/LaurentCOLL1/Kodepoia/actions/artifacts/$artifactId"
+          $artifact = Invoke-RestMethod -Headers $headers -Uri $metaUri
+          if ($artifact.expired) { throw "Pinned rc2 artifact has expired" }
+          if ($artifact.name -ne $evidence.github_actions.artifact_name) { throw "Artifact name mismatch" }
+          if ($artifact.digest -ne "sha256:$($evidence.github_actions.artifact_zip_sha256)") {
+            throw "Artifact service digest mismatch: $($artifact.digest)"
+          }
+
+          $zip = Join-Path $env:RUNNER_TEMP "r19-5-final-release.zip"
+          Invoke-WebRequest -Headers $headers -Uri "$metaUri/zip" -OutFile $zip
+          $zipHash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($zipHash -ne $evidence.github_actions.artifact_zip_sha256) {
+            throw "Downloaded artifact ZIP digest mismatch: $zipHash"
+          }
+
+          $expanded = Join-Path $env:RUNNER_TEMP "r19-5-final-release"
+          Expand-Archive -Path $zip -DestinationPath $expanded -Force
+          $installer = Join-Path $expanded "dist/windows/KodepoiaSetup.exe"
+          if (-not (Test-Path $installer)) { throw "Final rc2 installer missing from pinned artifact" }
+          $installerHash = (Get-FileHash $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+          $installerLength = (Get-Item $installer).Length
+          if ($installerHash -ne $evidence.installer.sha256) { throw "Final installer digest mismatch" }
+          if ($installerLength -ne $evidence.installer.length) { throw "Final installer length mismatch" }
+
+          $manifest = Get-Content (Join-Path $expanded "dist/windows/installer-manifest.json") -Raw | ConvertFrom-Json
+          $handoff = Get-Content (Join-Path $expanded "docs/roadmap/R19_5_RELEASE_HANDOFF.json") -Raw | ConvertFrom-Json
+          if ($manifest.source_sha -ne $evidence.release_source_sha) { throw "Installer manifest source mismatch" }
+          if ($handoff.source_sha -ne $evidence.release_source_sha) { throw "Release handoff source mismatch" }
+          if ($handoff.installer_sha256 -ne $evidence.installer.sha256) { throw "Release handoff digest mismatch" }
+          if ($handoff.installer_size -ne $evidence.installer.length) { throw "Release handoff length mismatch" }
+          "KODEPOIA_FINAL_INSTALLER=$installer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Download immutable rc1 installer and verify historical digest
+        shell: pwsh
+        run: |
+          $old = Join-Path $env:RUNNER_TEMP "KodepoiaSetup-1.1.0-rc1.exe"
+          Invoke-WebRequest -Uri "https://github.com/LaurentCOLL1/Kodepoia/releases/download/v1.1.0-rc1/KodepoiaSetup.exe" -OutFile $old
+          $actual = (Get-FileHash $old -Algorithm SHA256).Hash.ToLowerInvariant()
+          $expected = "3d11af229392a6756a2bbc161af0150aca92168d843a42a3944ab5c01660b8e0"
+          if ($actual -ne $expected) { throw "Historical rc1 installer digest mismatch: $actual" }
+          "KODEPOIA_RC1_INSTALLER=$old" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Replay exact rc1 to pinned rc2 upgrade and preserve user state
+        shell: pwsh
+        run: |
+          $installDir = Join-Path $env:RUNNER_TEMP "Kodepoia-r19.5-final-replay"
+          Remove-Item $installDir -Recurse -Force -ErrorAction SilentlyContinue
+          $oldInstall = Start-Process -FilePath $env:KODEPOIA_RC1_INSTALLER -ArgumentList @(
+            "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/MERGETASKS=!desktopicon", "/DIR=$installDir"
+          ) -Wait -PassThru
+          if ($oldInstall.ExitCode -ne 0) { throw "rc1 install failed with $($oldInstall.ExitCode)" }
+
+          $settingsDir = Join-Path $HOME ".kodepoia"
+          New-Item -ItemType Directory -Force -Path $settingsDir | Out-Null
+          $settingsPath = Join-Path $settingsDir "settings.json"
+          [System.IO.File]::WriteAllText($settingsPath, '{"locale":"en","r19_5_final":"preserve-me"}')
+          $settingsHashBefore = (Get-FileHash $settingsPath -Algorithm SHA256).Hash
+
+          $projectDir = Join-Path $env:RUNNER_TEMP "Kodepoia-r19.5-final-project"
+          New-Item -ItemType Directory -Force -Path $projectDir | Out-Null
+          $projectPath = Join-Path $projectDir "sentinel.txt"
+          Set-Content -Encoding UTF8 $projectPath "project-must-survive-r19.5-final"
+          $projectHashBefore = (Get-FileHash $projectPath -Algorithm SHA256).Hash
+
+          $newInstall = Start-Process -FilePath $env:KODEPOIA_FINAL_INSTALLER -ArgumentList @(
+            "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CLOSEAPPLICATIONS", "/NORESTARTAPPLICATIONS", "/MERGETASKS=!desktopicon", "/DIR=$installDir"
+          ) -Wait -PassThru
+          if ($newInstall.ExitCode -ne 0) { throw "Pinned rc2 update failed with $($newInstall.ExitCode)" }
+          if ((Get-FileHash $settingsPath -Algorithm SHA256).Hash -ne $settingsHashBefore) { throw "User settings changed" }
+          if ((Get-FileHash $projectPath -Algorithm SHA256).Hash -ne $projectHashBefore) { throw "Project data changed" }
+
+          $exe = Join-Path $installDir "KodepoiaStudio.exe"
+          if (-not (Test-Path $exe)) { throw "Updated executable is missing" }
+          $smokeReport = Join-Path $env:RUNNER_TEMP "r19.5-final-smoke.txt"
+          $smoke = Start-Process -FilePath $exe -ArgumentList @("--smoke-test", "--smoke-report=$smokeReport") -WorkingDirectory $projectDir -Wait -PassThru
+          if ($smoke.ExitCode -ne 0) { throw "Pinned rc2 packaged smoke failed with $($smoke.ExitCode)" }
+
+          $uninstaller = Join-Path $installDir "unins000.exe"
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART") -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "Pinned rc2 uninstall failed with $($uninstall.ExitCode)" }
+          if (-not (Test-Path $settingsPath)) { throw "Uninstall removed user settings unexpectedly" }
+          if (-not (Test-Path $projectPath)) { throw "Uninstall removed project data unexpectedly" }

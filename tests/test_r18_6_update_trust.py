@@ -39,7 +39,7 @@ def test_target_path_binds_channel_platform_release_identity_and_source() -> Non
     target = _target()
     assert CURRENT_RELEASE.channel == "beta"
     assert target.path == (
-        "channels/beta/windows-x86_64/1.1.0-rc1/"
+        f"channels/beta/windows-x86_64/{CURRENT_RELEASE.public_version}/"
         f"{SOURCE_SHA}/KodepoiaSetup.exe"
     )
 

@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "public_version": "1.1.0-rc2",
+  "release_source_sha": "18ee16173d12f34a3508ccc0ad1a9ce38e9ecd3e",
+  "installer": {
+    "filename": "KodepoiaSetup.exe",
+    "length": 37613254,
+    "sha256": "a753ecef07757c3a8d6f97db4db7c77bece9d8129bdd0887eb7dea71d805ff8c"
+  },
+  "github_actions": {
+    "workflow_run_id": 34249968626,
+    "artifact_id": 10066516267,
+    "artifact_name": "r19-5-rc2-prepublication-18ee16173d12f34a3508ccc0ad1a9ce38e9ecd3e",
+    "artifact_zip_sha256": "ec326d6549b7d63cbe874d9d8c656162fec8ce49c914c320fa08b295567f1172"
+  },
+  "tuf": {
+    "root_version": 1,
+    "root_sha256": "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5",
+    "targets_version": 2,
+    "targets_sha256": "0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f",
+    "snapshot_version": 2,
+    "snapshot_sha256": "176d8b75f0f7b1b53a706640581a2b34cea4dac2fda36cf729c0616066906b4b",
+    "timestamp_version": 2,
+    "timestamp_sha256": "2586981d4a50af8140457edcc5e0fb70a089ccf200b0acecc8113c3e40283093"
+  },
+  "production_signed": false,
+  "public_release_created": true,
+  "public_release": {
+    "release_id": 384982066,
+    "tag": "v1.1.0-rc2",
+    "tag_object_sha": "4e61faa78e16c89d3f87ce4c7860560017841394",
+    "target_commit_sha": "18ee16173d12f34a3508ccc0ad1a9ce38e9ecd3e",
+    "name": "Kodepoia 1.1.0-rc2",
+    "draft": false,
+    "prerelease": true,
+    "published_at": "2026-09-08T18:49:01Z",
+    "assets": {
+      "KodepoiaSetup.exe": {
+        "asset_id": 551092693,
+        "length": 37613254,
+        "sha256": "a753ecef07757c3a8d6f97db4db7c77bece9d8129bdd0887eb7dea71d805ff8c"
+      },
+      "installer-manifest.json": {
+        "asset_id": 551092694,
+        "length": 508,
+        "sha256": "83d5c1bebdacba8cb9cf2f59e3cabd3af6cb72ddb842e16313e6cbc51f7ee8d8"
+      },
+      "R19_5_RELEASE_HANDOFF.json": {
+        "asset_id": 551092695,
+        "length": 1589,
+        "sha256": "3d8b32af73233f19e9ed3c8f7ad1389e882aefc062038348e566eb1b4e5d01a5"
+      }
+    }
+  }
+}

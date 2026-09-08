@@ -9,6 +9,12 @@
 tests/fixtures/comfyui/*.json text eol=lf
 docs/roadmap/*_LOCAL_ACCEPTANCE.json text eol=lf
 
+# TUF metadata and packaged production trust material are cryptographic byte strings.
+# Never allow Windows checkout normalization to change their signed/hash-bound bytes.
+src/kodepoia/update/trusted_root.production.json text eol=lf
+src/kodepoia/update/trusted_root.production.manifest.json text eol=lf
+update-repository/metadata/*.json text eol=lf
+
 # R16.10/R16.11 representative Godot fixtures are byte-bound across CI platforms.
 tests/fixtures/r16_10_godot_2d_beta/** text eol=lf
 tests/fixtures/r16_11_godot_3d_beta/** text eol=lf

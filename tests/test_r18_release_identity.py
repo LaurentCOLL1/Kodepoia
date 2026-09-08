@@ -44,14 +44,14 @@ def _release(
     )
 
 
-def test_current_release_identity_is_canonical_beta_rc1() -> None:
+def test_current_release_identity_is_canonical_beta_rc2() -> None:
     assert CURRENT_RELEASE.package == "kodepoia"
     assert CURRENT_RELEASE.channel == "beta"
     assert CURRENT_RELEASE.build_type == "prerelease"
     assert CURRENT_RELEASE.source_binding == "exact-head"
-    assert CURRENT_RELEASE.pep440_version == "1.1.0rc1"
-    assert CURRENT_RELEASE.public_version == "1.1.0-rc1"
-    assert CURRENT_RELEASE.installer_version == "1.1.0-rc1"
+    assert CURRENT_RELEASE.pep440_version == "1.1.0rc2"
+    assert CURRENT_RELEASE.public_version == "1.1.0-rc2"
+    assert CURRENT_RELEASE.installer_version == "1.1.0-rc2"
     assert kodepoia.__version__ == CURRENT_RELEASE.pep440_version
 
     identity_path = ROOT / "src/kodepoia/release/release_identity.json"
@@ -63,7 +63,7 @@ def test_current_release_identity_is_canonical_beta_rc1() -> None:
         "channel": "beta",
         "build_type": "prerelease",
         "source_binding": "exact-head",
-        "version": {"major": 1, "minor": 1, "patch": 0, "stage": "rc", "serial": 1},
+        "version": {"major": 1, "minor": 1, "patch": 0, "stage": "rc", "serial": 2},
     }
     assert not (ROOT / "src/kodepoia/release_identity.json").exists()
 
@@ -100,6 +100,7 @@ def test_pep440_monotonicity_across_channels() -> None:
         _release(channel="beta", stage="a", serial=1),
         _release(channel="beta", stage="b", serial=1),
         _release(channel="beta", stage="rc", serial=1),
+        _release(channel="beta", stage="rc", serial=2),
         _release(channel="stable", stage="final", serial=0),
     ]
     assert [item.pep440_version for item in ordered] == [
@@ -108,6 +109,7 @@ def test_pep440_monotonicity_across_channels() -> None:
         "1.1.0a1",
         "1.1.0b1",
         "1.1.0rc1",
+        "1.1.0rc2",
         "1.1.0",
     ]
     assert all(new.is_newer_than(old) for old, new in zip(ordered[:-1], ordered[1:], strict=True))
@@ -133,6 +135,7 @@ def test_repository_surfaces_match_canonical_identity() -> None:
 
     iss = (ROOT / "packaging/windows/Kodepoia.iss").read_text(encoding="utf-8")
     assert '#define AppVersion "1.1.0-rc1"' not in iss
+    assert '#define AppVersion "1.1.0-rc2"' not in iss
     assert "#error AppVersion must be supplied from the canonical Kodepoia release identity" in iss
     assert "AppVersion={#AppVersion}" in iss
 
@@ -166,4 +169,4 @@ def test_cli_and_compatibility_surface_match_canonical_identity() -> None:
         capture_output=True,
         text=True,
     )
-    assert result.stdout.strip() == "kodepoia 1.1.0-rc1 (beta)"
+    assert result.stdout.strip() == "kodepoia 1.1.0-rc2 (beta)"

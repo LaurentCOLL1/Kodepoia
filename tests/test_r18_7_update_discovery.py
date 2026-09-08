@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 from datetime import UTC, datetime
 
-from kodepoia.release.identity import CURRENT_RELEASE
+from kodepoia.release.identity import CURRENT_RELEASE, ReleaseIdentity
 from kodepoia.update.discovery import DISCOVERY_CHANNELS, UpdateDiscoveryService
 from kodepoia.update.trust import (
     MemoryUpdateTransport,
@@ -16,6 +16,19 @@ REFERENCE_TIME = datetime(2026, 9, 6, 12, 0, tzinfo=UTC)
 PLATFORM = "windows-x86_64"
 SOURCE_SHA = "b" * 40
 INSTALLER = b"r18.7-metadata-only-installer-fixture\n"
+INSTALLED_RC1 = ReleaseIdentity(
+    schema_version=1,
+    product="Kodepoia",
+    package="kodepoia",
+    channel="beta",
+    build_type="prerelease",
+    source_binding="exact-head",
+    major=1,
+    minor=1,
+    patch=0,
+    stage="rc",
+    serial=1,
+)
 
 
 class MetadataOnlyTransport:
@@ -40,7 +53,13 @@ def _target(*, channel: str = "beta", version: str = "1.1.0-rc2") -> UpdateTarge
     )
 
 
-def _service(tmp_path, repository, *, transport=None) -> tuple[UpdateDiscoveryService, object]:
+def _service(
+    tmp_path,
+    repository,
+    *,
+    transport=None,
+    installed_release: ReleaseIdentity = INSTALLED_RC1,
+) -> tuple[UpdateDiscoveryService, object]:
     wrapped = transport or MetadataOnlyTransport(MemoryUpdateTransport.from_repository(repository))
     return (
         UpdateDiscoveryService(
@@ -48,6 +67,7 @@ def _service(tmp_path, repository, *, transport=None) -> tuple[UpdateDiscoverySe
             root_pin=PackagedRootPin.from_root(repository.root),
             transport=wrapped,
             platform=PLATFORM,
+            installed_release=installed_release,
             reference_time=REFERENCE_TIME,
         ),
         wrapped,
@@ -81,7 +101,7 @@ def test_same_version_is_up_to_date(tmp_path) -> None:
         platform=PLATFORM,
     )
     repository = SyntheticUpdateRepositoryBuilder().build(target, INSTALLER)
-    service, _ = _service(tmp_path, repository)
+    service, _ = _service(tmp_path, repository, installed_release=CURRENT_RELEASE)
 
     result = service.check("beta")
 

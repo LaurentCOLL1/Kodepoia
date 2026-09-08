@@ -24,7 +24,7 @@ from kodepoia.update.trust import UpdateTargetSpec
 _SOURCE_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 _SYNTHETIC_INSTALLER = b"synthetic-r19-2-kodepoia-installer\n"
 _METADATA_DIR = Path("update-repository/metadata")
-_EXPECTED_ROOT_SHA256 = "a036c2aac78092f8d46893cc18954bb64f2b998375ff230f996dc4b85157e9ed"
+_EXPECTED_ROOT_SHA256 = "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
 
 
 def _require_source_sha(value: str) -> str:

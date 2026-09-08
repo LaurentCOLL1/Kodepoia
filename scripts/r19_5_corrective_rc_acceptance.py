@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import tempfile
@@ -15,6 +16,7 @@ from kodepoia.release.corrective_rc import (
 from kodepoia.release.identity import CURRENT_RELEASE
 
 ROOT = Path(__file__).resolve().parents[1]
+CUSTODY_ROOT_SHA256 = "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
 
 
 def _git_head() -> str:
@@ -32,26 +34,22 @@ def build_report(source_sha: str) -> dict[str, object]:
     installer_workflow = (
         ROOT / ".github" / "workflows" / "windows-installer.yml"
     ).read_text(encoding="utf-8")
-    targets = json.loads(
-        (ROOT / "update-repository" / "metadata" / "targets.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    snapshot = json.loads(
-        (ROOT / "update-repository" / "metadata" / "snapshot.json").read_text(
-            encoding="utf-8"
-        )
-    )
-    timestamp = json.loads(
-        (ROOT / "update-repository" / "metadata" / "timestamp.json").read_text(
-            encoding="utf-8"
-        )
-    )
+    metadata_dir = ROOT / "update-repository" / "metadata"
+    root_bytes = (metadata_dir / "root.json").read_bytes()
+    targets = json.loads((metadata_dir / "targets.json").read_text(encoding="utf-8"))
+    snapshot = json.loads((metadata_dir / "snapshot.json").read_text(encoding="utf-8"))
+    timestamp = json.loads((metadata_dir / "timestamp.json").read_text(encoding="utf-8"))
 
     with tempfile.TemporaryDirectory() as directory:
         fixture = Path(directory) / "KodepoiaSetup.exe"
         fixture.write_bytes(b"r19.5-exact-head-handoff-fixture")
         handoff = build_corrective_rc_handoff(fixture, source_sha=source_sha)
+
+    target_entries = dict(targets["signed"]["targets"])
+    staged_target_path = next(iter(target_entries), "")
+    staged_target = target_entries.get(staged_target_path, {})
+    staged_custom = dict(staged_target.get("custom", {})) if isinstance(staged_target, dict) else {}
+    staged_source_sha = str(staged_custom.get("source_sha", ""))
 
     checks = {
         "canonical_public_version": CURRENT_RELEASE.public_version == CORRECTIVE_PUBLIC_VERSION,
@@ -69,25 +67,39 @@ def build_report(source_sha: str) -> dict[str, object]:
         and "unsigned" in str(handoff.target_custom["signing_status"]).lower(),
         "manual_tuf_boundary_explicit": handoff.manual_boundary["required"] is True
         and handoff.tuf_role_versions == REQUIRED_TUF_ROLE_VERSIONS,
-        "production_targets_not_prematurely_mutated": targets["signed"]["version"] == 1
-        and targets["signed"]["targets"] == {},
-        "production_snapshot_not_prematurely_mutated": snapshot["signed"]["version"] == 1,
-        "production_timestamp_not_prematurely_mutated": timestamp["signed"]["version"] == 1,
+        "user_custodied_root_adopted": hashlib.sha256(root_bytes).hexdigest()
+        == CUSTODY_ROOT_SHA256,
+        "custody_targets_staged_v2": targets["signed"]["version"] == 2
+        and len(target_entries) == 1,
+        "custody_snapshot_staged_v2": snapshot["signed"]["version"] == 2,
+        "custody_timestamp_staged_v2": timestamp["signed"]["version"] == 2,
+        "staged_metadata_requires_exact_head_resign": bool(staged_source_sha)
+        and staged_source_sha != source_sha,
     }
     failed = [name for name, passed in checks.items() if not passed]
     if failed:
         raise SystemExit("R19.5 acceptance failed: " + ", ".join(failed))
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "subdivision": "R19.5",
         "source_sha": source_sha,
-        "status": "PASS_TO_MANUAL_BOUNDARY",
+        "status": "PASS_TO_FINAL_TUF_RESIGN_BOUNDARY",
         "checks": checks,
         "corrective_public_version": CORRECTIVE_PUBLIC_VERSION,
         "previous_public_version": PREVIOUS_PUBLIC_VERSION,
+        "custody_root_sha256": CUSTODY_ROOT_SHA256,
+        "staged_metadata_source_sha": staged_source_sha,
         "manual_intervention_required": True,
-        "manual_boundary": handoff.manual_boundary,
+        "manual_boundary": {
+            **handoff.manual_boundary,
+            "reason": (
+                "The user-custodied Root is now embedded in source. Rebuild exact-head rc2, then "
+                "re-sign Targets/Snapshot/Timestamp with the existing private role keys so the "
+                "metadata binds the final installer bytes and final source SHA."
+            ),
+            "generate_new_root_keys": False,
+        },
         "publication_triggered": False,
     }
 

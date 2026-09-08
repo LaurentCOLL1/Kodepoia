@@ -1,13 +1,15 @@
 # KODEPOIA CONTINUITY — R20
 
-**Status:** R20 PLANNING IN PROGRESS
+**Status:** R20 PLANNING MERGED; UNIQUE PLANNING NORMALIZATION IN PROGRESS
 
-This file is the active continuation authority for **R20 — Continuous Trusted Update Operations** while planning is being accepted. R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
+This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. Planning implementation is accepted and merged. The branch `r20/planning-continuity-normalization` is the single authorized post-planning continuity-only normalization. R20.1 is authorized only after this normalization passes fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke and merges with expected-head protection.
+
+R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
 ## Frozen inherited authority
 
 - Repository: `LaurentCOLL1/Kodepoia`.
-- Planning base: normalized `main` `a5cb56fdf5993be3222b486fa80748f5aa339b71`.
+- Normalized R19 base: `main` `a5cb56fdf5993be3222b486fa80748f5aa339b71`.
 - R19 terminal continuity: `docs/continuity/KODEPOIA_CONTINUITY_R19.md`.
 - Public prerelease authority: `v1.1.0-rc2`.
 - Accepted release source: `18ee16173d12f34a3508ccc0ad1a9ce38e9ecd3e`.
@@ -53,7 +55,49 @@ Steady-state trust model:
 5. R20.5 — Expiry Monitoring, Alerting & Client UX Hardening
 6. R20.6 — Long-Offline Client & Continuous-Operations Integrated Acceptance
 
-No subdivision may be silently inserted, removed, merged, split or renumbered. No `R20.7` is authorized by the planning candidate.
+No subdivision may be silently inserted, removed, merged, split or renumbered. No `R20.7` is authorized by the accepted planning authority.
+
+## R20 planning accepted authority
+
+Planning branch: `r20/planning`.
+
+Accepted exact planning HEAD: `45c442533211c6efba1ea5fddcf49f7814a12c9f`.
+
+Planning PR #420 merged with `expected_head_sha=45c442533211c6efba1ea5fddcf49f7814a12c9f` as `main` `274831790f7ebbcce8d470569a651cb6b9a10211`.
+
+Accepted exact-head evidence:
+
+- R0 Repository Guard #2638: **SUCCESS** on Ubuntu and Windows.
+- Python Core #2610: **SUCCESS** on Ubuntu and Windows; package-build Ubuntu/Windows and integrated KodeStudio UI evidence also passed.
+- KodeStudio UI Smoke #2575: **SUCCESS**.
+
+Planning accepted behavior/authority includes:
+
+- preserve TUF expiry checks rather than bypassing them;
+- keep Root and Targets offline;
+- move Snapshot/Timestamp to distinct online non-exportable keys only through a future sequential Root rotation;
+- use short-lived OIDC/federated credentials for cloud signing rather than long-lived cloud credentials in GitHub Secrets;
+- introduce an immediate bridge refresh before online-signer migration;
+- keep update-network/KMS failure non-destructive to Kodepoia startup/local work;
+- require exact-head merge governance and one continuity normalization per subdivision.
+
+Manual intervention for planning: **NONE**.
+
+## R20 planning post-merge continuity normalization
+
+Base `main`: `274831790f7ebbcce8d470569a651cb6b9a10211`.
+
+Normalization branch: `r20/planning-continuity-normalization`.
+
+This branch changes continuity only. It must pass fresh exact-head:
+
+- R0 Repository Guard Ubuntu + Windows;
+- full Python Core Ubuntu + Windows plus package/UI evidence;
+- KodeStudio UI Smoke.
+
+It must then merge with exact expected-head protection. No second R20 planning normalization is authorized.
+
+R20.1 START-sync is authorized **only after** that exact normalization merge enters `main`.
 
 ## Immediate operational priority
 
@@ -85,27 +129,6 @@ The 30-day bridge is a migration exception, not the steady-state freshness polic
 - Network/KMS failure never gates Kodepoia startup or local work.
 - All R20 merges require exact-head evidence and expected-head protection.
 - Each completed subdivision gets exactly one continuity-only normalization before the next subdivision starts.
-
-## Planning branch authority
-
-Planning branch: `r20/planning`.
-
-Planning starts from exact normalized R19 `main` `a5cb56fdf5993be3222b486fa80748f5aa339b71`.
-
-Planning artifacts:
-
-- `docs/roadmap/R20_PLAN.md`
-- `docs/continuity/KODEPOIA_CONTINUITY_R20.md`
-
-Planning merge barriers:
-
-- R0 Repository Guard Ubuntu + Windows;
-- full Python Core Ubuntu + Windows plus package/UI evidence;
-- KodeStudio UI Smoke;
-- exact planning HEAD merge protection;
-- one post-merge planning continuity-only normalization with fresh R0/Python/UI evidence.
-
-Only after that normalization merges may R20.1 START-sync begin.
 
 ## Manual boundaries
 

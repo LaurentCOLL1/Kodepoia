@@ -19,7 +19,7 @@ from kodepoia.update.startup import PowerShellAuthenticodeVerifier, build_packag
 from kodepoia.update.trust import UpdateTransportError
 
 ROOT = Path(__file__).resolve().parents[1]
-PRODUCTION_ROOT_SHA256 = "a036c2aac78092f8d46893cc18954bb64f2b998375ff230f996dc4b85157e9ed"
+PRODUCTION_ROOT_SHA256 = "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
 
 
 class _Response:

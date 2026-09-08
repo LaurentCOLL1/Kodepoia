@@ -1,0 +1,17 @@
+{
+  "bridge_expires": "2026-10-08T21:44:18Z",
+  "format": "kodepoia-r20-1-local-public-bundle-validation",
+  "manifest_sha256": "8e2444a250c597e477d8cf4368191ff1ef733dcd5f6f5fb6b52d36aba8569db0",
+  "private_material_detected": false,
+  "schema_version": 1,
+  "snapshot_sha256": "dbbb5966f9146b00e5697fda302107bab850c6dcb254e70e0a6e10d25b5c7796",
+  "snapshot_signature_authorized_by_root_v1": true,
+  "snapshot_version": 3,
+  "status": "pass",
+  "targets_sha256": "0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f",
+  "targets_version": 2,
+  "timestamp_sha256": "3d16a4d3bfccec33102b73a3a4cddb8af83f0c558bc4cc3e42b7c7536fdbdc7d",
+  "timestamp_signature_authorized_by_root_v1": true,
+  "timestamp_version": 3,
+  "uploaded_zip_sha256": "bc60924c250bb602fb9add13657a7f18c1ea27a20bef075811879254121aa31d"
+}

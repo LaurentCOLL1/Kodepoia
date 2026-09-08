@@ -84,7 +84,8 @@
       ".github/workflows/r19-2-update-repository-bootstrap-acceptance.yml",
       ".github/workflows/r19-3-network-update-transport-acceptance.yml",
       ".github/workflows/r19-4-seamless-windows-update-acceptance.yml",
-      ".github/workflows/r19-5-corrective-rc-acceptance.yml"
+      ".github/workflows/r19-5-corrective-rc-acceptance.yml",
+      ".github/workflows/r20-1-bridge-metadata-refresh-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

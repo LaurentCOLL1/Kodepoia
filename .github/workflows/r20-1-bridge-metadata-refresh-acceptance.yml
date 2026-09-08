@@ -1,0 +1,211 @@
+name: R20.1 Bridge Metadata Refresh Acceptance
+
+on:
+  push:
+    branches:
+      - r20/01-bridge-metadata-refresh
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/r20-1-bridge-metadata-refresh-acceptance.yml
+      - configs/r16_supply_chain_policy.json
+      - docs/continuity/KODEPOIA_CONTINUITY_R20.md
+      - docs/roadmap/R20_1_BRIDGE_PUBLIC_MANIFEST.json
+      - docs/roadmap/R20_1_BRIDGE_FINAL_ACCEPTANCE.json
+      - scripts/r20_1_bridge_refresh.py
+      - src/kodepoia/update/bridge_refresh.py
+      - tests/test_r20_1_bridge_refresh.py
+      - update-repository/metadata/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r20-1-bridge-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bridge-contract:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: python
+        run: |
+          import os
+          import subprocess
+
+          expected = os.environ["EVIDENCE_SHA"].strip().lower()
+          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip().lower()
+          if actual != expected:
+              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
+
+      - name: Install focused dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile R20.1 sources
+        run: >-
+          python -m compileall -q
+          src/kodepoia/update/bridge_refresh.py
+          scripts/r20_1_bridge_refresh.py
+          tests/test_r20_1_bridge_refresh.py
+
+      - name: Run Ruff R20.1
+        run: >-
+          python -m ruff check
+          src/kodepoia/update/bridge_refresh.py
+          scripts/r20_1_bridge_refresh.py
+          tests/test_r20_1_bridge_refresh.py
+
+      - name: Run focused bridge and discovery regression tests
+        run: >-
+          python -m pytest -q
+          tests/test_r20_1_bridge_refresh.py
+          tests/test_r18_6_update_trust.py
+          tests/test_r18_7_update_discovery.py
+
+      - name: Verify integrated production bridge
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime, timedelta
+          from pathlib import Path
+
+          from tuf.api.metadata import Metadata, Root, Snapshot, Targets, Timestamp
+
+          root_bytes = Path("update-repository/metadata/root.json").read_bytes()
+          targets_bytes = Path("update-repository/metadata/targets.json").read_bytes()
+          snapshot_bytes = Path("update-repository/metadata/snapshot.json").read_bytes()
+          timestamp_bytes = Path("update-repository/metadata/timestamp.json").read_bytes()
+          manifest_bytes = Path("docs/roadmap/R20_1_BRIDGE_PUBLIC_MANIFEST.json").read_bytes()
+
+          if hashlib.sha256(root_bytes).hexdigest() != "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5":
+              raise SystemExit("production Root changed during R20.1")
+          if hashlib.sha256(targets_bytes).hexdigest() != "0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f":
+              raise SystemExit("production Targets changed during R20.1")
+          if hashlib.sha256(snapshot_bytes).hexdigest() != "dbbb5966f9146b00e5697fda302107bab850c6dcb254e70e0a6e10d25b5c7796":
+              raise SystemExit("integrated Snapshot v3 does not match the accepted public bridge")
+          if hashlib.sha256(timestamp_bytes).hexdigest() != "3d16a4d3bfccec33102b73a3a4cddb8af83f0c558bc4cc3e42b7c7536fdbdc7d":
+              raise SystemExit("integrated Timestamp v3 does not match the accepted public bridge")
+
+          root_md = Metadata.from_bytes(root_bytes)
+          targets_md = Metadata.from_bytes(targets_bytes)
+          snapshot_md = Metadata.from_bytes(snapshot_bytes)
+          timestamp_md = Metadata.from_bytes(timestamp_bytes)
+          if not isinstance(root_md.signed, Root):
+              raise SystemExit("root.json has the wrong TUF type")
+          if not isinstance(targets_md.signed, Targets):
+              raise SystemExit("targets.json has the wrong TUF type")
+          if not isinstance(snapshot_md.signed, Snapshot):
+              raise SystemExit("snapshot.json has the wrong TUF type")
+          if not isinstance(timestamp_md.signed, Timestamp):
+              raise SystemExit("timestamp.json has the wrong TUF type")
+
+          root_md.signed.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
+          root_md.signed.verify_delegate("targets", targets_md.signed_bytes, targets_md.signatures)
+          root_md.signed.verify_delegate("snapshot", snapshot_md.signed_bytes, snapshot_md.signatures)
+          root_md.signed.verify_delegate("timestamp", timestamp_md.signed_bytes, timestamp_md.signatures)
+
+          if (root_md.signed.version, targets_md.signed.version, snapshot_md.signed.version, timestamp_md.signed.version) != (1, 2, 3, 3):
+              raise SystemExit("R20.1 production metadata versions are not 1/2/3/3")
+
+          targets_ref = snapshot_md.signed.meta.get("targets.json")
+          if targets_ref is None or targets_ref.version != 2:
+              raise SystemExit("Snapshot v3 does not reference Targets v2")
+          targets_ref.verify_length_and_hashes(targets_bytes)
+
+          snapshot_ref = timestamp_md.signed.snapshot_meta
+          if snapshot_ref.version != 3:
+              raise SystemExit("Timestamp v3 does not reference Snapshot v3")
+          snapshot_ref.verify_length_and_hashes(snapshot_bytes)
+
+          manifest = json.loads(manifest_bytes)
+          signed_at = datetime.fromisoformat(manifest["signed_at"].replace("Z", "+00:00"))
+          expires = datetime.fromisoformat(manifest["expires"].replace("Z", "+00:00"))
+          if expires - signed_at != timedelta(days=30):
+              raise SystemExit("R20.1 bridge lifetime is not exactly 30 days")
+          if snapshot_md.signed.expires != expires or timestamp_md.signed.expires != expires:
+              raise SystemExit("R20.1 metadata expiry does not match the public manifest")
+          now = datetime.now(UTC)
+          if snapshot_md.signed.is_expired(now) or timestamp_md.signed.is_expired(now):
+              raise SystemExit("R20.1 bridge metadata is expired")
+
+          if manifest["root"] != {
+              "length": len(root_bytes),
+              "modified": False,
+              "sha256": hashlib.sha256(root_bytes).hexdigest(),
+              "version": 1,
+          }:
+              raise SystemExit("R20.1 public manifest Root binding is invalid")
+          if manifest["targets"] != {
+              "length": len(targets_bytes),
+              "modified": False,
+              "sha256": hashlib.sha256(targets_bytes).hexdigest(),
+              "version": 2,
+          }:
+              raise SystemExit("R20.1 public manifest Targets binding is invalid")
+          if manifest["snapshot"]["sha256"] != hashlib.sha256(snapshot_bytes).hexdigest() or manifest["snapshot"]["version"] != 3:
+              raise SystemExit("R20.1 public manifest Snapshot binding is invalid")
+          if manifest["timestamp"]["sha256"] != hashlib.sha256(timestamp_bytes).hexdigest() or manifest["timestamp"]["version"] != 3:
+              raise SystemExit("R20.1 public manifest Timestamp binding is invalid")
+          if manifest["private_keys_in_output"] is not False or manifest["root_or_targets_private_key_required"] is not False:
+              raise SystemExit("R20.1 public manifest violates private-key custody invariants")
+
+          for name, data in {
+              "snapshot.json": snapshot_bytes,
+              "timestamp.json": timestamp_bytes,
+              "R20_1_BRIDGE_PUBLIC_MANIFEST.json": manifest_bytes,
+          }.items():
+              upper = data.upper()
+              for marker in (b"PRIVATE KEY", b"OPENSSH PRIVATE KEY", b"ENCRYPTED PRIVATE KEY", b"PASSPHRASE", b"PASSWORD"):
+                  if marker in upper:
+                      raise SystemExit(f"forbidden private-material marker in {name}")
+
+          report = {
+              "format": "kodepoia-r20-1-bridge-final-acceptance",
+              "schema_version": 1,
+              "source_sha": os.environ["EVIDENCE_SHA"].strip().lower(),
+              "root_version": 1,
+              "targets_version": 2,
+              "snapshot_version": 3,
+              "timestamp_version": 3,
+              "snapshot_sha256": hashlib.sha256(snapshot_bytes).hexdigest(),
+              "timestamp_sha256": hashlib.sha256(timestamp_bytes).hexdigest(),
+              "bridge_expires": manifest["expires"],
+              "private_keys_used_in_ci": False,
+              "status": "pass",
+          }
+          output = Path("artifacts/r20_1/bridge-final-acceptance.json")
+          output.parent.mkdir(parents=True, exist_ok=True)
+          output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print(json.dumps(report, indent=2, sort_keys=True))
+
+      - name: Upload R20.1 final evidence
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r20-1-bridge-final-${{ runner.os }}-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r20_1/
+          if-no-files-found: error
+          retention-days: 30

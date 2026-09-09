@@ -15,13 +15,16 @@ src/kodepoia/update/trusted_root.production.json text eol=lf
 src/kodepoia/update/trusted_root.production.manifest.json text eol=lf
 update-repository/metadata/*.json text eol=lf
 
-# R20.3 returned public rotation evidence preserves the exact accepted package bytes.
-# The public-key manifest is intentionally CRLF while the Root/manifest payloads are LF,
-# so disable text conversion instead of normalizing all files to one EOL convention.
+# R20.3 returned public rotation evidence preserves exact accepted bytes.
+# Some returned files intentionally use CRLF while signed/canonical payloads use LF,
+# so disable text conversion for every byte-bound roadmap artifact.
 docs/roadmap/R20_3_PUBLIC_KEYS.json -text
+docs/roadmap/R20_3_ROOT_V1_BASE.json -text
 docs/roadmap/R20_3_ROOT_V2_UNSIGNED.json -text
 docs/roadmap/R20_3_ROOT_ROTATION_MANIFEST.json -text
 docs/roadmap/R20_3_PUBLIC_PACKAGE_ACCEPTANCE.json -text
+docs/roadmap/R20_3_FULL_TRANSITION_MANIFEST.json -text
+docs/roadmap/R20_3_FULL_TRANSITION_ACCEPTANCE.json -text
 
 # R16.10/R16.11 representative Godot fixtures are byte-bound across CI platforms.
 tests/fixtures/r16_10_godot_2d_beta/** text eol=lf

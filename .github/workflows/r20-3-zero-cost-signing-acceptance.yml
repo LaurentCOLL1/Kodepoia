@@ -12,7 +12,12 @@ on:
       - configs/r16_supply_chain_policy.json
       - docs/continuity/KODEPOIA_CONTINUITY_R20.md
       - docs/roadmap/R20_PLAN.md
+      - docs/roadmap/R20_3_PUBLIC_KEYS.json
+      - docs/roadmap/R20_3_ROOT_V2_UNSIGNED.json
+      - docs/roadmap/R20_3_ROOT_ROTATION_MANIFEST.json
+      - docs/roadmap/R20_3_PUBLIC_PACKAGE_ACCEPTANCE.json
       - scripts/r20_3_prepare_zero_cost_keys.py
+      - scripts/r20_3_verify_public_package.py
       - src/kodepoia/update/zero_cost_signing.py
       - tests/test_r20_3_zero_cost_signing.py
       - tests/test_supply_chain_r16_9.py
@@ -67,6 +72,7 @@ jobs:
           python -m compileall -q
           src/kodepoia/update/zero_cost_signing.py
           scripts/r20_3_prepare_zero_cost_keys.py
+          scripts/r20_3_verify_public_package.py
           tests/test_r20_3_zero_cost_signing.py
 
       - name: Run Ruff R20.3
@@ -74,6 +80,7 @@ jobs:
           python -m ruff check
           src/kodepoia/update/zero_cost_signing.py
           scripts/r20_3_prepare_zero_cost_keys.py
+          scripts/r20_3_verify_public_package.py
           tests/test_r20_3_zero_cost_signing.py
 
       - name: Run R20.3 and inherited signer regressions
@@ -82,6 +89,9 @@ jobs:
           tests/test_r20_3_zero_cost_signing.py
           tests/test_r20_2_online_signing.py
           tests/test_r20_1_bridge_refresh.py
+
+      - name: Verify returned public package committed exactly
+        run: python scripts/r20_3_verify_public_package.py
 
       - name: Assert production Root remains unchanged before offline ceremony
         shell: python
@@ -102,6 +112,7 @@ jobs:
 
           paths = [
               Path("docs/roadmap/R20_PLAN.md"),
+              Path("docs/roadmap/R20_3_PUBLIC_KEYS.json"),
               Path("src/kodepoia/update/zero_cost_signing.py"),
               Path("scripts/r20_3_prepare_zero_cost_keys.py"),
           ]
@@ -153,6 +164,10 @@ jobs:
               "source_sha": os.environ["EVIDENCE_SHA"].strip().lower(),
               "zero_cost_reference_path": True,
               "github_hosted_public_repo_runner": True,
+              "real_public_package_integrated": True,
+              "uploaded_zip_sha256": "4b26dbf702f93e1c2e6f813eae7c22771a06e97fd9d77bd6d57bff1b6c22b1db",
+              "snapshot_keyid": "fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8",
+              "timestamp_keyid": "8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad",
               "live_signing_secrets_consumed": False,
               "production_root_modified": False,
               "offline_root_signing_performed": False,

@@ -86,7 +86,8 @@
       ".github/workflows/r19-4-seamless-windows-update-acceptance.yml",
       ".github/workflows/r19-5-corrective-rc-acceptance.yml",
       ".github/workflows/r20-1-bridge-metadata-refresh-acceptance.yml",
-      ".github/workflows/r20-2-online-signer-rotation-acceptance.yml"
+      ".github/workflows/r20-2-online-signer-rotation-acceptance.yml",
+      ".github/workflows/r20-3-zero-cost-signing-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

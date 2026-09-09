@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import stat
 import zipfile
 from pathlib import Path

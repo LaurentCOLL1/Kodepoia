@@ -21,6 +21,7 @@ from kodepoia.update.zero_cost_signing import (
 
 ROOT = Path(__file__).resolve().parents[1]
 PRODUCTION_ROOT = ROOT / "update-repository" / "metadata" / "root.json"
+BASE_ROOT = ROOT / "docs" / "roadmap" / "R20_3_ROOT_V1_BASE.json"
 PUBLIC_KEYS = ROOT / "docs" / "roadmap" / "R20_3_PUBLIC_KEYS.json"
 UNSIGNED_ROOT = ROOT / "docs" / "roadmap" / "R20_3_ROOT_V2_UNSIGNED.json"
 ROTATION_MANIFEST = ROOT / "docs" / "roadmap" / "R20_3_ROOT_ROTATION_MANIFEST.json"
@@ -93,7 +94,7 @@ def test_github_environment_resolver_fails_closed_for_missing_invalid_or_wrong_s
 
 
 def test_public_rotation_material_contains_no_private_seed_and_preserves_offline_roles() -> None:
-    current_root_bytes = PRODUCTION_ROOT.read_bytes()
+    current_root_bytes = BASE_ROOT.read_bytes()
     material = prepare_zero_cost_rotation(current_root_bytes=current_root_bytes)
     public_manifest_bytes = json.dumps(
         material.public_manifest(), sort_keys=True
@@ -123,7 +124,7 @@ def test_public_rotation_material_contains_no_private_seed_and_preserves_offline
 
 
 def test_public_manifest_uses_only_expected_github_environment_resources() -> None:
-    material = prepare_zero_cost_rotation(current_root_bytes=PRODUCTION_ROOT.read_bytes())
+    material = prepare_zero_cost_rotation(current_root_bytes=BASE_ROOT.read_bytes())
     manifest = material.public_manifest()
     assert manifest["provider"] == "github-environment-secret"
     assert manifest["environment"] == "tuf-production-signing"
@@ -136,11 +137,14 @@ def test_committed_public_package_matches_returned_zero_cost_material() -> None:
     public_manifest = json.loads(PUBLIC_KEYS.read_text(encoding="utf-8"))
     rotation_manifest = json.loads(ROTATION_MANIFEST.read_text(encoding="utf-8"))
     acceptance = json.loads(PUBLIC_ACCEPTANCE.read_text(encoding="utf-8"))
-    current = Metadata.from_bytes(PRODUCTION_ROOT.read_bytes())
+    current = Metadata.from_bytes(BASE_ROOT.read_bytes())
     proposed = Metadata.from_bytes(UNSIGNED_ROOT.read_bytes())
 
-    assert _sha256(PRODUCTION_ROOT) == (
+    assert _sha256(BASE_ROOT) == (
         "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
+    )
+    assert _sha256(PRODUCTION_ROOT) == (
+        "c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7"
     )
     assert _sha256(PUBLIC_KEYS) == (
         "4da09ab071e3efea2e831871c752a4469fb126caf05172d911983ad115308030"

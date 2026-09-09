@@ -150,7 +150,10 @@ def verify_full_transition() -> dict[str, object]:
     )
     if manifest.get("format") != "kodepoia-r20-3-root-online-role-transition":
         raise ValueError("unexpected R20.3 transition manifest format")
-    if manifest.get("expires") != EXPECTED_EXPIRES or manifest.get("expiry_extended") is not False:
+    if (
+        manifest.get("expires") != EXPECTED_EXPIRES
+        or manifest.get("expiry_extended") is not False
+    ):
         raise ValueError("R20.3 transition expiry policy mismatch")
     if manifest.get("private_material_in_output") is not False:
         raise ValueError("R20.3 transition manifest reports private material")
@@ -161,19 +164,32 @@ def verify_full_transition() -> dict[str, object]:
     snapshot_entry = manifest.get("snapshot")
     targets_entry = manifest.get("targets")
     timestamp_entry = manifest.get("timestamp")
-    if not all(isinstance(item, dict) for item in (root_entry, snapshot_entry, targets_entry, timestamp_entry)):
+    role_entries = (root_entry, snapshot_entry, targets_entry, timestamp_entry)
+    if not all(isinstance(item, dict) for item in role_entries):
         raise ValueError("R20.3 transition manifest role entries are malformed")
     assert isinstance(root_entry, dict)
     assert isinstance(snapshot_entry, dict)
     assert isinstance(targets_entry, dict)
     assert isinstance(timestamp_entry, dict)
-    if root_entry.get("sha256") != EXPECTED_ROOT_V2_SHA256 or root_entry.get("version") != 2:
+    if (
+        root_entry.get("sha256") != EXPECTED_ROOT_V2_SHA256
+        or root_entry.get("version") != 2
+    ):
         raise ValueError("transition manifest Root binding mismatch")
-    if snapshot_entry.get("sha256") != EXPECTED_SNAPSHOT_SHA256 or snapshot_entry.get("version") != 4:
+    if (
+        snapshot_entry.get("sha256") != EXPECTED_SNAPSHOT_SHA256
+        or snapshot_entry.get("version") != 4
+    ):
         raise ValueError("transition manifest Snapshot binding mismatch")
-    if timestamp_entry.get("sha256") != EXPECTED_TIMESTAMP_SHA256 or timestamp_entry.get("version") != 4:
+    if (
+        timestamp_entry.get("sha256") != EXPECTED_TIMESTAMP_SHA256
+        or timestamp_entry.get("version") != 4
+    ):
         raise ValueError("transition manifest Timestamp binding mismatch")
-    if targets_entry.get("sha256") != EXPECTED_TARGETS_SHA256 or targets_entry.get("modified") is not False:
+    if (
+        targets_entry.get("sha256") != EXPECTED_TARGETS_SHA256
+        or targets_entry.get("modified") is not False
+    ):
         raise ValueError("transition manifest Targets binding mismatch")
 
     expected_acceptance = {

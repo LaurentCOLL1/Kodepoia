@@ -9,6 +9,7 @@ on:
       - main
     paths:
       - .github/workflows/r20-3-zero-cost-signing-acceptance.yml
+      - .github/workflows/r20-3-live-signing-challenge.yml
       - configs/r16_supply_chain_policy.json
       - docs/continuity/KODEPOIA_CONTINUITY_R20.md
       - docs/roadmap/R20_PLAN.md
@@ -18,10 +19,17 @@ on:
       - docs/roadmap/R20_3_PUBLIC_PACKAGE_ACCEPTANCE.json
       - scripts/r20_3_prepare_zero_cost_keys.py
       - scripts/r20_3_verify_public_package.py
+      - scripts/r20_3_sign_root_v2.py
+      - scripts/r20_3_finalize_transition.py
+      - scripts/r20_3_live_signing_challenge.py
       - src/kodepoia/update/zero_cost_signing.py
+      - src/kodepoia/update/root_transition.py
       - tests/test_r20_3_zero_cost_signing.py
+      - tests/test_r20_3_root_transition.py
       - tests/test_supply_chain_r16_9.py
       - update-repository/metadata/root.json
+      - update-repository/metadata/snapshot.json
+      - update-repository/metadata/timestamp.json
   workflow_dispatch:
 
 permissions:
@@ -71,22 +79,33 @@ jobs:
         run: >-
           python -m compileall -q
           src/kodepoia/update/zero_cost_signing.py
+          src/kodepoia/update/root_transition.py
           scripts/r20_3_prepare_zero_cost_keys.py
           scripts/r20_3_verify_public_package.py
+          scripts/r20_3_sign_root_v2.py
+          scripts/r20_3_finalize_transition.py
+          scripts/r20_3_live_signing_challenge.py
           tests/test_r20_3_zero_cost_signing.py
+          tests/test_r20_3_root_transition.py
 
       - name: Run Ruff R20.3
         run: >-
           python -m ruff check
           src/kodepoia/update/zero_cost_signing.py
+          src/kodepoia/update/root_transition.py
           scripts/r20_3_prepare_zero_cost_keys.py
           scripts/r20_3_verify_public_package.py
+          scripts/r20_3_sign_root_v2.py
+          scripts/r20_3_finalize_transition.py
+          scripts/r20_3_live_signing_challenge.py
           tests/test_r20_3_zero_cost_signing.py
+          tests/test_r20_3_root_transition.py
 
       - name: Run R20.3 and inherited signer regressions
         run: >-
           python -m pytest -q
           tests/test_r20_3_zero_cost_signing.py
+          tests/test_r20_3_root_transition.py
           tests/test_r20_2_online_signing.py
           tests/test_r20_1_bridge_refresh.py
 
@@ -140,6 +159,44 @@ jobs:
               if marker in workflow:
                   raise SystemExit(f"paid/OIDC provider dependency leaked into reference acceptance: {marker}")
 
+      - name: Assert manual boundary tooling is fail-closed
+        shell: python
+        run: |
+          from pathlib import Path
+
+          live = Path(".github/workflows/r20-3-live-signing-challenge.yml").read_text(
+              encoding="utf-8"
+          ).lower()
+          required = (
+              "workflow_dispatch",
+              "contents: read",
+              "refs/heads/main",
+              "environment: tuf-production-signing",
+              "tuf_snapshot_ed25519_seed_b64",
+              "tuf_timestamp_ed25519_seed_b64",
+          )
+          for marker in required:
+              if marker not in live:
+                  raise SystemExit(f"live challenge missing invariant: {marker}")
+          forbidden = (
+              "contents: write",
+              "upload-artifact",
+              "pull_request_target",
+              "schedule:",
+          )
+          for marker in forbidden:
+              if marker in live:
+                  raise SystemExit(f"live challenge contains forbidden capability: {marker}")
+
+          root_tool = Path("scripts/r20_3_sign_root_v2.py").read_text(encoding="utf-8")
+          transition_tool = Path("scripts/r20_3_finalize_transition.py").read_text(
+              encoding="utf-8"
+          )
+          if "7ae909722149fe7f05380f93b7317c99347f8b3c1d102b7b6ddca64bbe1bbe1d" not in root_tool:
+              raise SystemExit("Root ceremony is not pinned to accepted unsigned Root v2")
+          if "R20_3_FULL_TRANSITION_PUBLIC_PACKAGE.zip" not in transition_tool:
+              raise SystemExit("full transition public package contract is missing")
+
       - name: Assert no live signing secrets are referenced by PR acceptance
         shell: python
         run: |
@@ -171,6 +228,7 @@ jobs:
               "live_signing_secrets_consumed": False,
               "production_root_modified": False,
               "offline_root_signing_performed": False,
+              "full_transition_tooling_ready": True,
               "paid_provider_required": False,
               "actions_artifact_storage_used": False,
               "status": "pass",

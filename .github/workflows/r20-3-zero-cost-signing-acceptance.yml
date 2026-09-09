@@ -14,11 +14,15 @@ on:
       - docs/continuity/KODEPOIA_CONTINUITY_R20.md
       - docs/roadmap/R20_PLAN.md
       - docs/roadmap/R20_3_PUBLIC_KEYS.json
+      - docs/roadmap/R20_3_ROOT_V1_BASE.json
       - docs/roadmap/R20_3_ROOT_V2_UNSIGNED.json
       - docs/roadmap/R20_3_ROOT_ROTATION_MANIFEST.json
       - docs/roadmap/R20_3_PUBLIC_PACKAGE_ACCEPTANCE.json
+      - docs/roadmap/R20_3_FULL_TRANSITION_MANIFEST.json
+      - docs/roadmap/R20_3_FULL_TRANSITION_ACCEPTANCE.json
       - scripts/r20_3_prepare_zero_cost_keys.py
       - scripts/r20_3_verify_public_package.py
+      - scripts/r20_3_verify_full_transition.py
       - scripts/r20_3_sign_root_v2.py
       - scripts/r20_3_finalize_transition.py
       - scripts/r20_3_live_signing_challenge.py
@@ -82,6 +86,7 @@ jobs:
           src/kodepoia/update/root_transition.py
           scripts/r20_3_prepare_zero_cost_keys.py
           scripts/r20_3_verify_public_package.py
+          scripts/r20_3_verify_full_transition.py
           scripts/r20_3_sign_root_v2.py
           scripts/r20_3_finalize_transition.py
           scripts/r20_3_live_signing_challenge.py
@@ -95,6 +100,7 @@ jobs:
           src/kodepoia/update/root_transition.py
           scripts/r20_3_prepare_zero_cost_keys.py
           scripts/r20_3_verify_public_package.py
+          scripts/r20_3_verify_full_transition.py
           scripts/r20_3_sign_root_v2.py
           scripts/r20_3_finalize_transition.py
           scripts/r20_3_live_signing_challenge.py
@@ -109,20 +115,13 @@ jobs:
           tests/test_r20_2_online_signing.py
           tests/test_r20_1_bridge_refresh.py
 
-      - name: Verify returned public package committed exactly
-        run: python scripts/r20_3_verify_public_package.py
+      - name: Verify original returned public-key package remains exact
+        run: >-
+          python scripts/r20_3_verify_public_package.py
+          --current-root docs/roadmap/R20_3_ROOT_V1_BASE.json
 
-      - name: Assert production Root remains unchanged before offline ceremony
-        shell: python
-        run: |
-          import hashlib
-          from pathlib import Path
-
-          root = Path("update-repository/metadata/root.json").read_bytes()
-          expected = "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
-          actual = hashlib.sha256(root).hexdigest()
-          if actual != expected:
-              raise SystemExit(f"R20.3 pre-ceremony must preserve Root v1: {actual}")
+      - name: Verify integrated signed Root and v4-v4 transition
+        run: python scripts/r20_3_verify_full_transition.py
 
       - name: Assert zero-cost architecture boundary
         shell: python
@@ -157,9 +156,11 @@ jobs:
           ).read_text(encoding="utf-8").lower()
           for marker in forbidden:
               if marker in workflow:
-                  raise SystemExit(f"paid/OIDC provider dependency leaked into reference acceptance: {marker}")
+                  raise SystemExit(
+                      f"paid/OIDC provider dependency leaked into reference acceptance: {marker}"
+                  )
 
-      - name: Assert manual boundary tooling is fail-closed
+      - name: Assert live signing challenge remains fail-closed
         shell: python
         run: |
           from pathlib import Path
@@ -188,15 +189,6 @@ jobs:
               if marker in live:
                   raise SystemExit(f"live challenge contains forbidden capability: {marker}")
 
-          root_tool = Path("scripts/r20_3_sign_root_v2.py").read_text(encoding="utf-8")
-          transition_tool = Path("scripts/r20_3_finalize_transition.py").read_text(
-              encoding="utf-8"
-          )
-          if "7ae909722149fe7f05380f93b7317c99347f8b3c1d102b7b6ddca64bbe1bbe1d" not in root_tool:
-              raise SystemExit("Root ceremony is not pinned to accepted unsigned Root v2")
-          if "R20_3_FULL_TRANSITION_PUBLIC_PACKAGE.zip" not in transition_tool:
-              raise SystemExit("full transition public package contract is missing")
-
       - name: Assert no live signing secrets are referenced by PR acceptance
         shell: python
         run: |
@@ -209,7 +201,7 @@ jobs:
           if secret_context_prefix in workflow:
               raise SystemExit("R20.3 PR acceptance must not consume live GitHub secrets")
 
-      - name: Emit public R20.3 pre-boundary evidence
+      - name: Emit public R20.3 final-transition evidence
         shell: python
         run: |
           import json
@@ -217,18 +209,20 @@ jobs:
 
           report = {
               "format": "kodepoia-r20-3-zero-cost-signing-acceptance",
-              "schema_version": 1,
+              "schema_version": 2,
               "source_sha": os.environ["EVIDENCE_SHA"].strip().lower(),
               "zero_cost_reference_path": True,
               "github_hosted_public_repo_runner": True,
-              "real_public_package_integrated": True,
-              "uploaded_zip_sha256": "4b26dbf702f93e1c2e6f813eae7c22771a06e97fd9d77bd6d57bff1b6c22b1db",
-              "snapshot_keyid": "fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8",
-              "timestamp_keyid": "8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad",
+              "initial_public_key_package_sha256": "4b26dbf702f93e1c2e6f813eae7c22771a06e97fd9d77bd6d57bff1b6c22b1db",
+              "full_transition_package_sha256": "7ee54d08d0dc11ce275705c877a0615b69bedd15a18747393ef7e1dbee58651e",
+              "root_version": 2,
+              "snapshot_version": 4,
+              "timestamp_version": 4,
+              "offline_root_signing_performed": True,
+              "full_transition_integrated": True,
               "live_signing_secrets_consumed": False,
-              "production_root_modified": False,
-              "offline_root_signing_performed": False,
-              "full_transition_tooling_ready": True,
+              "github_secret_challenge_pending": True,
+              "production_main_effect": False,
               "paid_provider_required": False,
               "actions_artifact_storage_used": False,
               "status": "pass",

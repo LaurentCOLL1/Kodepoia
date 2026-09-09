@@ -149,8 +149,8 @@ def test_root_rotation_package_is_public_deterministic_and_scope_limited() -> No
     assert proposed.signed.roles["targets"] == current.signed.roles["targets"]
     assert proposed.signed.roles["snapshot"].threshold == 1
     assert proposed.signed.roles["timestamp"].threshold == 1
-    assert proposed.signed.roles["snapshot"].keyids == {snapshot.keyid}
-    assert proposed.signed.roles["timestamp"].keyids == {timestamp.keyid}
+    assert proposed.signed.roles["snapshot"].keyids == [snapshot.keyid]
+    assert proposed.signed.roles["timestamp"].keyids == [timestamp.keyid]
     assert snapshot.keyid != timestamp.keyid
 
     combined = first.unsigned_root_bytes + first.manifest_bytes

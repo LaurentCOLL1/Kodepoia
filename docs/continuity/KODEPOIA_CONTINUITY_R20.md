@@ -1,8 +1,8 @@
 # KODEPOIA CONTINUITY — R20
 
-**Status:** R20.1 COMPLETE + NORMALIZED; R20.2 IMPLEMENTATION COMPLETE; FINAL EXACT-HEAD ACCEPTANCE IN PROGRESS
+**Status:** R20.2 COMPLETE + NORMALIZED; R20.3 MANUAL BOUNDARY NEXT
 
-This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning and R20.1 are complete and normalized. Normalized `main` `53f431f50361d7fa0e3b31ac0c2a2596326c9f85` authorized **R20.2 — Online Signer Abstraction & Rotation Package**. R20.2 implementation is now complete on PR #424, but R20.3 remains blocked until the final documentation-synchronized R20.2 HEAD passes exact-head acceptance, merges with expected-head protection, and receives its unique continuity-only post-merge normalization.
+This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning, R20.1 and R20.2 are complete. R20.2 implementation PR #424 merged from exact accepted HEAD `9ab039519e434b24fff1c45dfeed2aa2fef4920f` as `main` `2d94afc22be01871caad9d99fdca090e3743a786`. This branch, `r20/02-continuity-normalization`, is the unique continuity-only post-merge normalization for R20.2; once this branch merges, that merge is the sole normalized R20.2 base and R20.3 becomes the next authorized subdivision.
 
 R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
@@ -18,7 +18,7 @@ R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 - Production Root v1 SHA-256: `892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5`.
 - Root threshold: 2-of-3.
 - Targets/Snapshot/Timestamp roles each have separate Ed25519 keys under Root v1.
-- Private-key custody remains outside Git/repository/CI. No R20.1 private key or passphrase entered Git, CI, public evidence or continuity.
+- Private-key custody remains outside Git/repository/CI. No R20 private key or passphrase has entered Git, CI, public evidence or continuity.
 - Targets v2 remains byte-identical at SHA-256 `0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f`, authorizes only the accepted beta rc2 installer and expires `2027-09-08T17:32:00Z`.
 - Production Snapshot v3 SHA-256: `dbbb5966f9146b00e5697fda302107bab850c6dcb254e70e0a6e10d25b5c7796`.
 - Production Timestamp v3 SHA-256: `3d16a4d3bfccec33102b73a3a4cddb8af83f0c558bc4cc3e42b7c7536fdbdc7d`.
@@ -46,7 +46,7 @@ Steady-state trust model:
 - Timestamp is intentionally short-lived/frequently re-signed to detect freeze attacks.
 - Snapshot and Timestamp should not share a key.
 - GitHub Actions OIDC can exchange an Actions identity token for short-lived cloud credentials; the cloud trust policy must restrict repository/ref/environment claims.
-- AWS KMS and Google Cloud KMS currently document Ed25519 asymmetric signing support and are viable R20.3 candidates; no provider is selected during planning.
+- AWS KMS and Google Cloud KMS are R20.3 candidate providers; provider choice remains a privileged manual decision.
 
 ## Authorized subdivision sequence
 
@@ -135,48 +135,63 @@ The 30-day bridge remains a migration exception, not the steady-state freshness 
 
 ### R20.1 post-merge continuity normalization — COMPLETE
 
-R20.1 normalization merged to produce normalized `main` `53f431f50361d7fa0e3b31ac0c2a2596326c9f85`. That exact normalized head is the sole authorized base for R20.2.
+R20.1 normalization merged to produce normalized `main` `53f431f50361d7fa0e3b31ac0c2a2596326c9f85`. That exact normalized head was the sole authorized base for R20.2.
 
-## R20.2 — Online Signer Abstraction & Rotation Package — IMPLEMENTATION COMPLETE / FINAL ACCEPTANCE IN PROGRESS
+## R20.2 — Online Signer Abstraction & Rotation Package — COMPLETE + NORMALIZED
 
 Implementation branch: `r20/02-online-signer-rotation`.
 
 Authorized base: normalized R20.1 `main` `53f431f50361d7fa0e3b31ac0c2a2596326c9f85`.
 
-Implementation PR: #424.
+Accepted exact R20.2 HEAD: `9ab039519e434b24fff1c45dfeed2aa2fef4920f`.
 
-Validated technical implementation HEAD before END-sync: `f22b404630a427bd6ca6fc8e58e1e575f0a8bdab`.
+R20.2 PR #424 merged with `expected_head_sha=9ab039519e434b24fff1c45dfeed2aa2fef4920f` as `main` `2d94afc22be01871caad9d99fdca090e3743a786`.
 
-R20.2 focused acceptance #17 on that exact technical HEAD: **SUCCESS** on Ubuntu and Windows. Both jobs compiled the R20.2 sources, passed Ruff, passed the focused R20.2 plus inherited TUF regression suite, confirmed production Root v1 remained byte-identical, confirmed the R20.3 provider/OIDC boundary was not crossed, and emitted public-only evidence.
+Accepted exact-head evidence on `9ab039519e434b24fff1c45dfeed2aa2fef4920f`:
 
-R20.2 implemented behavior:
+- R20.2 Online Signer Rotation Acceptance #21: **SUCCESS** on Ubuntu and Windows.
+- R0 Repository Guard #2665: **SUCCESS** on Ubuntu and Windows.
+- Python Core #2637: **SUCCESS** on Ubuntu and Windows; package-build Ubuntu/Windows and integrated KodeStudio UI evidence all passed.
+- KodeStudio UI Smoke #2602: **SUCCESS**.
+- R16.9 Supply Chain Provenance Acceptance #261: **SUCCESS**.
 
-- expose online signer configuration containing only role, provider/resource identifiers and public key material;
-- resolve runtime signers behind the generic `securesystemslib.signer.Signer` boundary and verify resolved public identity before signing;
-- import SubjectPublicKeyInfo PEM public keys and derive the same TUF/securesystemslib keyid;
-- provide deterministic/synthetic in-memory CI resolution without provider credentials;
-- prepare an immutable public-only unsigned Root N+1 package that replaces only Snapshot/Timestamp public keys;
-- preserve Root and Targets role policies, Root threshold and TUF policy fields;
-- verify the mandatory sequential Root transition: candidate Root N+1 must be signed by the current Root threshold and by its own Root threshold;
-- keep Snapshot and Timestamp separate at threshold 1;
-- leave production Root v1 byte-identical and perform no live KMS/OIDC provisioning or offline Root signing;
-- register the R20.2 acceptance workflow as an immutable R16.9 authority while preserving pinned external action SHAs and least-privilege `contents: read`.
+A prior technical R20.2 HEAD `f22b404630a427bd6ca6fc8e58e1e575f0a8bdab` had also passed focused acceptance #17 on Ubuntu and Windows before final END-sync. The final documentation-synchronized HEAD above is the accepted authority.
+
+R20.2 accepted behavior/evidence:
+
+- online signer configuration contains only role, provider/resource identifiers and public key material;
+- runtime signer resolution is behind the generic `securesystemslib.signer.Signer` boundary and validates resolved public identity before signing;
+- SubjectPublicKeyInfo PEM public keys can be imported with matching TUF/securesystemslib keyid derivation;
+- deterministic synthetic in-memory CI signers require no provider credential;
+- Root N+1 rotation packages are immutable/public-only and replace only Snapshot/Timestamp public keys;
+- Root and Targets role policies, Root threshold and TUF policy fields remain preserved;
+- sequential Root transition verification requires candidate Root N+1 to satisfy both the currently trusted Root threshold and its own Root threshold;
+- Snapshot and Timestamp remain separate threshold-1 roles with distinct keys;
+- production Root v1 remains byte-identical and R20.2 performs no live KMS/OIDC provisioning or offline Root signing;
+- the R20.2 acceptance workflow is registered as an immutable R16.9 authority while external action SHA pins and least-privilege `contents: read` remain intact;
+- CI contains no `id-token: write` provider credential flow in R20.2 and emits public-only acceptance evidence.
 
 Manual intervention for R20.2: **NONE**.
 
-The final documentation-synchronized branch HEAD must still pass fresh exact-head:
+### R20.2 post-merge continuity normalization — COMPLETE
 
-- R20.2 Online Signer Rotation Acceptance on Ubuntu + Windows;
-- R0 Repository Guard on Ubuntu + Windows;
-- full Python Core on Ubuntu + Windows, including package-build and integrated KodeStudio UI evidence;
-- KodeStudio UI Smoke;
-- supply-chain/provenance regressions affected by the newly registered authority.
+Implementation merge base: `main` `2d94afc22be01871caad9d99fdca090e3743a786`.
 
-Only after those gates pass may PR #424 merge with exact `expected_head_sha`. Exactly one continuity-only R20.2 normalization is then required. R20.3 is not authorized before that normalization merges.
+Unique normalization branch: `r20/02-continuity-normalization`.
+
+This branch modifies only `docs/continuity/KODEPOIA_CONTINUITY_R20.md`. Its protected merge is the sole R20.2 post-merge normalization. The resulting normalized `main` SHA is intentionally established by that merge itself and becomes the only authorized R20.3 base; no second normalization is permitted merely to embed the resulting merge SHA recursively.
+
+R20.3 is therefore the next authorized subdivision after this normalization merge, but it immediately reaches the explicit external provisioning/custody boundary described below.
+
+## R20.3 — OIDC/KMS Online-Key Provisioning & Root Rotation — MANUAL BOUNDARY
+
+No live provider resource has been created by repository automation yet. Before any R20.3 implementation may proceed past this boundary, the user must select and provision an approved cloud/KMS path, configure narrowly scoped GitHub Actions OIDC trust, retrieve only the public keys/resource identifiers, and later perform the offline Root v2 threshold-signing ceremony. Private Root files/passphrases must never be sent to ChatGPT, GitHub, CI or repository artifacts.
+
+R20.4 and all later subdivisions remain blocked until R20.3 is completed, exact-head accepted, merged and normalized.
 
 ## Immediate operational priority
 
-Production Snapshot/Timestamp are v3 and expire at `2026-10-08T21:44:18Z`. R20.2 prepares only the provider-neutral signer abstraction and public Root-rotation package. Live cloud/KMS key creation, GitHub OIDC trust configuration and offline Root v2 signing remain the explicit R20.3 manual boundary.
+Production Snapshot/Timestamp are v3 and expire at `2026-10-08T21:44:18Z`. R20.3 must therefore establish dedicated online Snapshot/Timestamp signers and rotate Root before the bridge expires, while retaining enough operational margin for R20.4 scheduled refresh implementation.
 
 ## R20 security invariants
 
@@ -198,9 +213,9 @@ Production Snapshot/Timestamp are v3 and expire at `2026-10-08T21:44:18Z`. R20.2
 
 R20.1: **COMPLETE** — one local Snapshot/Timestamp bridge signing ceremony was performed; public metadata only was returned.
 
-R20.2: **NONE** — provider-neutral implementation and synthetic acceptance only.
+R20.2: **NONE / COMPLETE + NORMALIZED** — provider-neutral implementation and synthetic acceptance only.
 
-R20.3: live cloud/KMS key creation, OIDC trust setup and offline Root v2 signing are privileged manual boundaries. Stop there and provide exact user actions; never request private Root key files/passphrases.
+R20.3: **REQUIRED NOW** — choose/provision the live cloud/KMS keys, configure GitHub OIDC trust and later perform offline Root v2 threshold signing. Stop before later subdivisions and provide exact user actions; never request private Root key files/passphrases.
 
 R20.4: repository environment/protection settings may require a manual boundary if unavailable through connected tooling.
 
@@ -210,4 +225,4 @@ R20.6: live incident/key-rotation drill may require explicit provider-side appro
 
 ## Resume rule
 
-On a new conversation, verify current `main`, R20 roadmap, open PRs, current production metadata expiry and public release state. If PR #424 is still open, resume only its final R20.2 exact-head acceptance and merge path. If R20.2 has merged but its unique continuity normalization has not, perform only that normalization. R20.3 becomes the next authorized subdivision only after R20.2 is **COMPLETE + NORMALIZED**. Continue subdivision-by-subdivision with dedicated branches, exact-head acceptance, protected merge and exactly one continuity normalization. Stop at the R20.3 external provisioning/custody boundary and give exact user actions.
+On a new conversation, verify current normalized `main`, R20 roadmap, open PRs, current production metadata expiry and public release state. If the R20.2 normalization PR has not merged, resume only that normalization. Once it has merged, do not create another R20.2 normalization: R20.3 is the next authorized subdivision and begins at its external KMS/OIDC/offline-custody manual boundary. Continue only after the user returns the non-secret provider choice, KMS public key/resource identifiers and other explicitly requested public evidence. Never request or accept Root private-key files, TUF passphrases, cloud long-lived secrets or exported KMS private material. R20.4 remains blocked until R20.3 is **COMPLETE + NORMALIZED**.

@@ -175,9 +175,12 @@ def verify_public_package(
         if role_entry.get("threshold") != 1:
             raise ValueError(f"rotation manifest {role} threshold changed")
 
+    begin = b"-----BEGIN "
+    private_key = b"PRIVATE" + b" KEY-----"
+    encrypted_private_key = b"ENCRYPTED " + private_key
     forbidden_markers = (
-        b"-----BEGIN PRIVATE KEY-----",
-        b"-----BEGIN ENCRYPTED PRIVATE KEY-----",
+        begin + private_key,
+        begin + encrypted_private_key,
         b"PASSPHRASE=",
         b"PASSWORD=",
     )

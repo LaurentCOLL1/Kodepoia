@@ -40,6 +40,10 @@ The intended steady state is:
 - Production bridge Snapshot v3 and Timestamp v3 both expire `2026-10-08T21:44:18Z`.
 - Kodepoia correctly rejects expired metadata with `status="metadata-expired"`; application startup remains independent of update-network success.
 - R20.2 is **COMPLETE + NORMALIZED** on `main` `02ae599f951f353d9647e5cb6ca39f28eb655cbf` and provides the provider-neutral signer + Root rotation package contract.
+- R20.3 local online-key generation is complete: accepted public ZIP SHA-256 `4b26dbf702f93e1c2e6f813eae7c22771a06e97fd9d77bd6d57bff1b6c22b1db`.
+- Accepted Snapshot replacement keyid: `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`.
+- Accepted Timestamp replacement keyid: `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
+- Accepted unsigned Root v2 SHA-256: `7ae909722149fe7f05380f93b7317c99347f8b3c1d102b7b6ddca64bbe1bbe1d`; it has no production effect until the governed offline ceremony and complete online-role transition are accepted.
 
 ## External architecture constraints re-verified for R20.3
 
@@ -75,7 +79,7 @@ The intended steady state is:
 | --- | --- | --- | --- | --- |
 | R20.1 | Bridge Metadata Refresh & Custody-Safe Tooling | **COMPLETE + NORMALIZED** | COMPLETE — local Snapshot/Timestamp bridge signing performed | normalized R20 planning |
 | R20.2 | Online Signer Abstraction & Rotation Package | **COMPLETE + NORMALIZED** | NONE — provider-neutral implementation only | R20.1 |
-| R20.3 | Zero-Cost Online-Key Provisioning & Root Rotation | **IN PROGRESS** | REQUIRED — local online-key generation, GitHub environment secrets, offline Root 2-of-3 signatures | R20.2 |
+| R20.3 | Zero-Cost Online-Key Provisioning & Root Rotation | **IN PROGRESS** | PARTIAL — online-key generation COMPLETE; GitHub environment secrets + offline Root 2-of-3 + initial v4/v4 transition REQUIRED | R20.2 |
 | R20.4 | Scheduled Metadata Refresh & Atomic Publication | PLANNED | CONDITIONAL for repository environment/rules configuration | R20.3 |
 | R20.5 | Expiry Monitoring, Alerting & Client UX Hardening | PLANNED | NONE after R20.4 | R20.4 |
 | R20.6 | Long-Offline Client & Continuous-Operations Integrated Acceptance | PLANNED | CONDITIONAL for live incident/rotation drill | R20.1–R20.5 |
@@ -174,21 +178,41 @@ The mandatory/reference backend is GitHub-only:
 - Root and Targets private keys/passphrases are never GitHub secrets and never enter a runner;
 - optional KMS/HSM implementations remain supported by the R20.2 interface but are out of the mandatory/free path.
 
+## Accepted public online-key material
+
+The local generation boundary is **COMPLETE** and only public evidence was returned:
+
+- public package SHA-256: `4b26dbf702f93e1c2e6f813eae7c22771a06e97fd9d77bd6d57bff1b6c22b1db`;
+- Snapshot replacement keyid: `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`;
+- Timestamp replacement keyid: `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`;
+- unsigned Root v2 SHA-256: `7ae909722149fe7f05380f93b7317c99347f8b3c1d102b7b6ddca64bbe1bbe1d`;
+- Root v1 and Targets role policy are preserved;
+- unsigned Root v2 has no production effect.
+
 ## Required live rotation flow
 
-1. Generate two new and distinct Ed25519 online seeds locally with repository-provided tooling.
-2. Produce a public-only key package containing Snapshot/Timestamp public keys, keyids and fingerprints.
+1. **COMPLETE** — generate two new and distinct Ed25519 online seeds locally with repository-provided tooling.
+2. **COMPLETE** — produce and validate a public-only key package containing Snapshot/Timestamp public keys, keyids and fingerprints.
 3. Store the two base64 private seeds as separate secrets in GitHub environment `tuf-production-signing`; restrict the environment to the `main` branch where GitHub settings permit it.
-4. Build Root v2 replacing only Snapshot/Timestamp role keyids while preserving Root/Targets policy.
-5. Sign Root v2 with at least the current Root v1 threshold (2-of-3) using offline user custody.
-6. Ensure Root v2 also satisfies its own Root threshold.
-7. Publish Root v2 only after exact verification.
-8. Sign the initial post-rotation Snapshot/Timestamp using the new online keys and verify client transition from Root v1.
-9. Verify the GitHub-secret backend on `main` with a no-publication signing challenge before R20.4 scheduling is authorized.
+4. Use the exact accepted unsigned Root v2, replacing only Snapshot/Timestamp role keyids while preserving Root/Targets policy.
+5. Sign Root v2 with at least the current Root v1 threshold (2-of-3) using offline user custody and verify that Root v2 also satisfies its own Root threshold.
+6. In the same controlled local ceremony, sign Snapshot v4 and Timestamp v4 with the new online keys. Snapshot v4 must bind exact Targets v2 bytes; Timestamp v4 must bind exact signed Snapshot v4 bytes.
+7. Preserve the existing bridge expiry `2026-10-08T21:44:18Z` for the initial v4/v4 transition; the key rotation must not silently extend the temporary bridge lifetime.
+8. Treat Root v2 + Snapshot v4 + Timestamp v4 as one governed transition package. **Never publish Root v2 alone while Snapshot/Timestamp are still signed by the old keys.**
+9. Integrate and exact-head verify the complete transition package before merging R20.3.
+10. After the accepted R20.3 merge reaches `main`, run the manual no-publication GitHub environment-secret signing challenge. It must verify both live secret identities against the committed public keys without modifying repository metadata.
+11. Only after the live challenge and the unique R20.3 continuity normalization may R20.4 begin scheduled refresh implementation.
 
 ## Manual intervention boundary
 
-**REQUIRED.** The user must generate the two low-authority online keys locally, create/update the two GitHub environment secrets, and later perform the offline Root 2-of-3 signing ceremony. These actions are security-sensitive external effects and cannot be substituted by repository automation. Never request the user's secret values, Root private files or passphrases.
+**PARTIAL / REQUIRED.** Online key generation is complete. The remaining privileged actions are:
+
+- create/update GitHub environment `tuf-production-signing` and its two online-role secrets without exposing their values;
+- perform the exact offline Root v2 2-of-3 ceremony locally;
+- immediately use the locally retained new Snapshot/Timestamp seeds to build the public Root v2 + Snapshot v4 + Timestamp v4 transition package;
+- return only that public transition package for repository integration.
+
+The repository tooling must discover Root custody keys by Root-authorized public keyid rather than relying on a private filename convention, and must never record private paths or passphrases in public output.
 
 No paid provider account, billing setup, cloud region or OIDC trust is required by the reference path.
 
@@ -306,6 +330,7 @@ Before R20.1 starts:
 - Planning changes are documentation-only and may be reverted without touching R19 runtime/release state.
 - R20.1 bridge metadata must always remain recoverable by republishing a newer correctly signed version; never roll metadata version numbers backward.
 - R20.3 Root rotation must be sequential and dual-authorized according to TUF Root update rules; if its acceptance fails, Root v1 remains authoritative and no new online key is trusted.
+- R20.3 must not expose a transient repository state where Root v2 is trusted but Snapshot/Timestamp still require the revoked v1 online-role keys; the first v4/v4 generation is part of the same governed transition.
 - R20.4 automation must be disable-able without invalidating installed Kodepoia; emergency local signing remains a documented recovery path.
 - If the GitHub-secret backend is unavailable or later deemed insufficient, the provider-neutral R20.2 interface allows migration to an optional external signer without making that provider mandatory for Kodepoia.
 

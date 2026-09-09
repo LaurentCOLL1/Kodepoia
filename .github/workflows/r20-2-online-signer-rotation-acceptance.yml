@@ -98,10 +98,10 @@ jobs:
 
           workflow = Path(".github/workflows/r20-2-online-signer-rotation-acceptance.yml").read_text(encoding="utf-8").lower()
           forbidden = (
-              "id-token: write",
-              "aws-actions/configure-aws-credentials",
-              "google-github-actions/auth",
-              "azure/login",
+              "id-token" + ": write",
+              "aws-actions/" + "configure-aws-credentials",
+              "google-github-actions/" + "auth",
+              "azure/" + "login",
           )
           for marker in forbidden:
               if marker in workflow:

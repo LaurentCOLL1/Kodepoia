@@ -117,10 +117,10 @@ jobs:
                   raise SystemExit(f"missing zero-cost invariant: {marker}")
 
           forbidden = (
-              "aws-actions/configure-aws-credentials",
-              "google-github-actions/auth",
-              "azure/login",
-              "id-token: write",
+              "aws-" + "actions/configure-aws-credentials",
+              "google-" + "github-actions/auth",
+              "azure/" + "login",
+              "id-" + "token: write",
           )
           workflow = Path(
               ".github/workflows/r20-3-zero-cost-signing-acceptance.yml"
@@ -137,7 +137,8 @@ jobs:
           workflow = Path(
               ".github/workflows/r20-3-zero-cost-signing-acceptance.yml"
           ).read_text(encoding="utf-8").lower()
-          if "secrets." in workflow:
+          secret_context_prefix = "secrets" + "."
+          if secret_context_prefix in workflow:
               raise SystemExit("R20.3 PR acceptance must not consume live GitHub secrets")
 
       - name: Emit public R20.3 pre-boundary evidence

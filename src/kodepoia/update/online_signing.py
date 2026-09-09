@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -77,7 +77,7 @@ class RootRotationPackage:
 
 
 class SyntheticSignerResolver:
-    """Deterministic in-memory resolver for tests/CI only, never production custody."""
+    """In-memory resolver for deterministic tests/CI only, never production custody."""
 
     def __init__(self, signers: Mapping[str, Signer]) -> None:
         self._signers = dict(signers)
@@ -114,10 +114,9 @@ def import_public_key_pem(pem_bytes: bytes) -> SSlibKey:
 
     try:
         crypto_key = load_pem_public_key(pem_bytes)
-        key = SSlibKey.from_crypto(crypto_key)
+        return SSlibKey.from_crypto(crypto_key)
     except Exception as exc:
         raise OnlineSigningError(f"invalid public key PEM: {exc}") from exc
-    return key
 
 
 def resolve_online_signers(
@@ -137,11 +136,13 @@ def resolve_online_signers(
         raise OnlineSigningError(
             "missing online signer config for " + ", ".join(sorted(missing))
         )
-    if mapped["snapshot"].keyid == mapped["timestamp"].keyid:
+    snapshot_config = mapped["snapshot"]
+    timestamp_config = mapped["timestamp"]
+    if snapshot_config.keyid == timestamp_config.keyid:
         raise OnlineSigningError("Snapshot and Timestamp must use different public keys")
     if (
-        mapped["snapshot"].provider == mapped["timestamp"].provider
-        and mapped["snapshot"].resource == mapped["timestamp"].resource
+        snapshot_config.provider == timestamp_config.provider
+        and snapshot_config.resource == timestamp_config.resource
     ):
         raise OnlineSigningError("Snapshot and Timestamp must use different signer resources")
 
@@ -154,20 +155,24 @@ def resolve_online_signers(
             raise
         except Exception as exc:
             raise OnlineSigningError(f"failed to resolve {role} signer") from exc
-        if signer.public_key.keyid != config.keyid:
-            raise OnlineSigningError(
-                f"resolved {role} signer public identity does not match configured keyid"
-            )
-        if signer.public_key.to_dict() != config.public_key.to_dict():
-            raise OnlineSigningError(
-                f"resolved {role} signer public key does not match configured key"
-            )
+        _verify_resolved_identity(config, signer)
         resolved[role] = signer
 
     return ResolvedOnlineSigners(
         snapshot=resolved["snapshot"],
         timestamp=resolved["timestamp"],
     )
+
+
+def _verify_resolved_identity(config: OnlineSignerConfig, signer: Signer) -> None:
+    if signer.public_key.keyid != config.keyid:
+        raise OnlineSigningError(
+            f"resolved {config.role} signer public identity does not match configured keyid"
+        )
+    if signer.public_key.to_dict() != config.public_key.to_dict():
+        raise OnlineSigningError(
+            f"resolved {config.role} signer public key does not match configured key"
+        )
 
 
 def sign_online_payload(
@@ -178,10 +183,7 @@ def sign_online_payload(
     """Sign already-canonical payload bytes through the provider-neutral boundary."""
 
     signer = resolver(config)
-    if signer.public_key.keyid != config.keyid:
-        raise OnlineSigningError(
-            f"resolved {config.role} signer public identity does not match configured keyid"
-        )
+    _verify_resolved_identity(config, signer)
     return signer.sign(payload)
 
 
@@ -222,9 +224,9 @@ def _root_payload_dict(root_bytes: bytes) -> dict[str, object]:
         envelope = json.loads(root_bytes)
         payload = envelope["signed"]
     except (json.JSONDecodeError, KeyError, TypeError) as exc:
-        raise OnlineSigningError("current Root JSON envelope is malformed") from exc
+        raise OnlineSigningError("Root JSON envelope is malformed") from exc
     if not isinstance(payload, dict):
-        raise OnlineSigningError("current Root signed payload is not an object")
+        raise OnlineSigningError("Root signed payload is not an object")
     return json.loads(json.dumps(payload))
 
 
@@ -256,10 +258,11 @@ def _drop_unreferenced_key(payload: dict[str, object], keyid: str) -> None:
     if not isinstance(roles, dict) or not isinstance(keys, dict):
         raise OnlineSigningError("Root keys/roles are malformed")
     for role_value in roles.values():
-        if isinstance(role_value, dict):
-            role_keyids = role_value.get("keyids")
-            if isinstance(role_keyids, list) and keyid in role_keyids:
-                return
+        if not isinstance(role_value, dict):
+            continue
+        role_keyids = role_value.get("keyids")
+        if isinstance(role_keyids, list) and keyid in role_keyids:
+            return
     keys.pop(keyid, None)
 
 
@@ -291,36 +294,33 @@ def build_root_rotation_package(
 
     root_role_before = json.loads(json.dumps(_role_dict(payload, "root")))
     targets_role_before = json.loads(json.dumps(_role_dict(payload, "targets")))
-    root_keyids_before = tuple(root_role_before.get("keyids", []))
-    targets_keyids_before = tuple(targets_role_before.get("keyids", []))
 
     keys = payload.get("keys")
     if not isinstance(keys, dict):
         raise OnlineSigningError("Root key store is malformed")
     keys[snapshot.keyid] = snapshot.public_key.to_dict()
     keys[timestamp.keyid] = timestamp.public_key.to_dict()
-    _role_dict(payload, "snapshot")["keyids"] = [snapshot.keyid]
-    _role_dict(payload, "timestamp")["keyids"] = [timestamp.keyid]
-    _role_dict(payload, "snapshot")["threshold"] = 1
-    _role_dict(payload, "timestamp")["threshold"] = 1
+    _role_dict(payload, "snapshot").update(
+        {"keyids": [snapshot.keyid], "threshold": 1}
+    )
+    _role_dict(payload, "timestamp").update(
+        {"keyids": [timestamp.keyid], "threshold": 1}
+    )
     _drop_unreferenced_key(payload, old_snapshot_keyid)
     _drop_unreferenced_key(payload, old_timestamp_keyid)
 
     current_version = current.signed.version
     payload["version"] = current_version + 1
-    unsigned_envelope = {"signatures": [], "signed": payload}
-    unsigned_root_bytes = _canonical_json(unsigned_envelope) + b"\n"
+    unsigned_root_bytes = _canonical_json(
+        {"signatures": [], "signed": payload}
+    ) + b"\n"
     proposed = _parse_root(unsigned_root_bytes, label="unsigned proposed root.json")
-
     proposed_payload = _root_payload_dict(unsigned_root_bytes)
+
     if _role_dict(proposed_payload, "root") != root_role_before:
         raise OnlineSigningError("Root role policy changed during online-role rotation")
     if _role_dict(proposed_payload, "targets") != targets_role_before:
         raise OnlineSigningError("Targets role policy changed during online-role rotation")
-    if tuple(_role_dict(proposed_payload, "root").get("keyids", [])) != root_keyids_before:
-        raise OnlineSigningError("Root key identities changed during online-role rotation")
-    if tuple(_role_dict(proposed_payload, "targets").get("keyids", [])) != targets_keyids_before:
-        raise OnlineSigningError("Targets key identities changed during online-role rotation")
     if proposed.signed.consistent_snapshot != current.signed.consistent_snapshot:
         raise OnlineSigningError("consistent_snapshot policy changed during rotation")
     if proposed.signed.spec_version != current.signed.spec_version:
@@ -341,14 +341,14 @@ def build_root_rotation_package(
             "version": current_version,
             "sha256": _sha256(current_root_bytes),
             "root_threshold": current.signed.roles["root"].threshold,
-            "root_keyids": list(current.signed.roles["root"].keyids),
+            "root_keyids": sorted(current.signed.roles["root"].keyids),
         },
         "proposed_root": {
             "version": proposed.signed.version,
             "sha256": _sha256(unsigned_root_bytes),
             "signed": False,
             "root_threshold": proposed.signed.roles["root"].threshold,
-            "root_keyids": list(proposed.signed.roles["root"].keyids),
+            "root_keyids": sorted(proposed.signed.roles["root"].keyids),
         },
         "online_roles": {
             "snapshot": {

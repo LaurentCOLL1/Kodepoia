@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import stat
 import zipfile
@@ -11,10 +12,8 @@ from kodepoia.update.zero_cost_signing import prepare_zero_cost_rotation
 
 def _write_private_secret(path: Path, value: str) -> None:
     path.write_text(value + "\n", encoding="ascii")
-    try:
+    with contextlib.suppress(OSError):
         path.chmod(stat.S_IRUSR | stat.S_IWUSR)
-    except OSError:
-        pass
 
 
 def _is_within(child: Path, parent: Path) -> bool:

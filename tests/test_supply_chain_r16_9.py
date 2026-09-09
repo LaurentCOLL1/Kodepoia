@@ -129,7 +129,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     r18_3_workflow = ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"
     assert r18_3_workflow in policy.immutable_authority_workflows
-    r18_4_workflow = ".github/workflows/r18-4-windows-authenticode-signing-acceptance.yml"
+    r18_4_workflow = ".github/workflows/r18-4-windows-authenticode-acceptance.yml"
     assert r18_4_workflow in policy.immutable_authority_workflows
     r18_5_workflow = ".github/workflows/r18-5-github-release-staging-acceptance.yml"
     assert r18_5_workflow in policy.immutable_authority_workflows

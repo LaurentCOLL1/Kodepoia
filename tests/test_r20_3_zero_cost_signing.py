@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-from securesystemslib.signer import SSlibKey, Signature
+from securesystemslib.signer import Signature, SSlibKey
 from tuf.api.metadata import Metadata, Root
 
 from kodepoia.update.online_signing import OnlineSigningError, resolve_online_signers

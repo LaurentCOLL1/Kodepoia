@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import os
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -13,12 +13,14 @@ from cryptography.hazmat.primitives.serialization import (
     PrivateFormat,
 )
 from securesystemslib.signer import CryptoSigner, Signer
+from tuf.api.metadata import Metadata, Root
 
 from kodepoia.update.online_signing import (
     OnlineSignerConfig,
     OnlineSigningError,
     RootRotationPackage,
     build_root_rotation_package,
+    verify_signed_root_rotation,
 )
 
 ZERO_COST_PROVIDER = "github-environment-secret"
@@ -70,6 +72,32 @@ class ZeroCostRotationMaterial:
             "root_rotation_package_id": self.rotation.package_id,
             "private_material_in_manifest": False,
             "paid_provider_required": False,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class RootSigningResult:
+    signed_root_bytes: bytes
+    signer_keyids: tuple[str, ...]
+    verification: dict[str, object]
+
+    def public_manifest(self, *, unsigned_root_bytes: bytes) -> dict[str, object]:
+        return {
+            "format": "kodepoia-r20-3-root-v2-signing-acceptance",
+            "schema_version": 1,
+            "unsigned_root_sha256": hashlib.sha256(unsigned_root_bytes).hexdigest(),
+            "signed_root_sha256": hashlib.sha256(self.signed_root_bytes).hexdigest(),
+            "signer_keyids": list(self.signer_keyids),
+            "signature_count": len(self.signer_keyids),
+            "old_root_threshold_verified": self.verification[
+                "old_root_threshold_verified"
+            ],
+            "new_root_threshold_verified": self.verification[
+                "new_root_threshold_verified"
+            ],
+            "offline_roles_preserved": self.verification["offline_roles_preserved"],
+            "private_material_in_output": False,
+            "production_effect": False,
         }
 
 
@@ -154,4 +182,58 @@ def prepare_zero_cost_rotation(*, current_root_bytes: bytes) -> ZeroCostRotation
         snapshot=snapshot,
         timestamp=timestamp,
         rotation=rotation,
+    )
+
+
+def sign_root_rotation(
+    *,
+    current_root_bytes: bytes,
+    unsigned_root_bytes: bytes,
+    root_signers: Iterable[Signer],
+) -> RootSigningResult:
+    """Sign the exact Root N+1 payload with distinct current Root-authorized signers."""
+
+    try:
+        current = Metadata.from_bytes(current_root_bytes)
+        candidate = Metadata.from_bytes(unsigned_root_bytes)
+    except Exception as exc:
+        raise OnlineSigningError(f"invalid Root metadata supplied for signing: {exc}") from exc
+    if not isinstance(current.signed, Root) or not isinstance(candidate.signed, Root):
+        raise OnlineSigningError("Root signing requires Root metadata")
+    if candidate.signatures:
+        raise OnlineSigningError("candidate Root must be unsigned before the ceremony")
+    if candidate.signed.version != current.signed.version + 1:
+        raise OnlineSigningError("candidate Root version must be exactly current version + 1")
+    if candidate.signed.roles["root"] != current.signed.roles["root"]:
+        raise OnlineSigningError("candidate Root changes the offline Root role policy")
+    if candidate.signed.roles["targets"] != current.signed.roles["targets"]:
+        raise OnlineSigningError("candidate Root changes the offline Targets role policy")
+
+    authorized = set(current.signed.roles["root"].keyids)
+    unique: dict[str, Signer] = {}
+    for signer in root_signers:
+        keyid = signer.public_key.keyid
+        if keyid not in authorized:
+            raise OnlineSigningError(
+                f"signer {keyid} is not authorized by the current Root role"
+            )
+        unique.setdefault(keyid, signer)
+
+    threshold = current.signed.roles["root"].threshold
+    if len(unique) < threshold:
+        raise OnlineSigningError(
+            f"Root ceremony requires at least {threshold} distinct authorized signers"
+        )
+
+    for index, signer in enumerate(unique.values()):
+        candidate.sign(signer, append=index > 0)
+    signed_root_bytes = candidate.to_bytes() + b"\n"
+    verification = verify_signed_root_rotation(
+        current_root_bytes=current_root_bytes,
+        candidate_root_bytes=signed_root_bytes,
+    )
+    return RootSigningResult(
+        signed_root_bytes=signed_root_bytes,
+        signer_keyids=tuple(unique),
+        verification=verification,
     )

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
-from securesystemslib.signer import SSlibKey, Signature, Signer
+from securesystemslib.signer import Signature, Signer, SSlibKey
 from tuf.api.metadata import Metadata, Root
 
 ONLINE_TUF_ROLES = frozenset({"snapshot", "timestamp"})

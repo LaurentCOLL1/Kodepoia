@@ -65,7 +65,7 @@ The intended steady state is:
 | ID | Title | Status | Manual intervention | Depends on |
 | --- | --- | --- | --- | --- |
 | R20.1 | Bridge Metadata Refresh & Custody-Safe Tooling | **COMPLETE + NORMALIZED** | COMPLETE — local Snapshot/Timestamp bridge signing performed | normalized R20 planning |
-| R20.2 | Online Signer Abstraction & Rotation Package | **IN PROGRESS** | NONE for provider-neutral implementation | R20.1 |
+| R20.2 | Online Signer Abstraction & Rotation Package | **COMPLETE** | NONE — provider-neutral implementation only; post-merge normalization is tracked in continuity | R20.1 |
 | R20.3 | OIDC/KMS Online-Key Provisioning & Root Rotation | PLANNED | REQUIRED for cloud/KMS provisioning and offline Root signatures | R20.2 |
 | R20.4 | Scheduled Metadata Refresh & Atomic Publication | PLANNED | CONDITIONAL for repository environment/rules configuration | R20.3 |
 | R20.5 | Expiry Monitoring, Alerting & Client UX Hardening | PLANNED | NONE after R20.4 | R20.4 |

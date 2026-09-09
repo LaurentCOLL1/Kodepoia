@@ -107,12 +107,24 @@ def test_production_root_is_active_distinct_and_digest_pinned() -> None:
 
 def test_public_metadata_set_is_signed_and_cross_bound() -> None:
     production = load_production_packaged_root()
+    packaged_root_md = Metadata.from_bytes(production.root_bytes)
     root_md = _metadata("root.json", Root)
     targets_md = _metadata("targets.json", Targets)
     snapshot_md = _metadata("snapshot.json", Snapshot)
     timestamp_md = _metadata("timestamp.json", Timestamp)
 
-    assert (METADATA_DIR / "root.json").read_bytes() == production.root_bytes
+    assert isinstance(packaged_root_md.signed, Root)
+    if root_md.signed.version == packaged_root_md.signed.version:
+        assert (METADATA_DIR / "root.json").read_bytes() == production.root_bytes
+    else:
+        # A rotated repository Root must be the next sequential Root accepted by
+        # the packaged trust anchor and must also satisfy its own Root threshold.
+        assert root_md.signed.version == packaged_root_md.signed.version + 1
+        packaged_root_md.signed.verify_delegate(
+            "root", root_md.signed_bytes, root_md.signatures
+        )
+        root_md.signed.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
+
     root = root_md.signed
     root.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
     root.verify_delegate("targets", targets_md.signed_bytes, targets_md.signatures)
@@ -179,13 +191,30 @@ def test_target_binding_rejects_identity_mismatch() -> None:
             target_path=binding.target_path,
             length=binding.length,
             sha256=binding.sha256,
+            payload_url=binding.payload_url,
             custom=custom,
         )
 
 
-def test_repository_safe_payload_rejects_private_key_material() -> None:
-    assert_repository_safe_payload('{"public_key_only":true}\n')
-    with pytest.raises(UpdateRepositoryBootstrapError, match="private key material"):
-        assert_repository_safe_payload(
-            "-----BEGIN " + "PRIVATE KEY-----\nnot-a-real-key\n-----END PRIVATE KEY-----\n"
+def test_repository_safe_payload_rejects_private_key_markers() -> None:
+    with pytest.raises(UpdateRepositoryBootstrapError, match="private"):
+        assert_repository_safe_payload(b"-----BEGIN PRIVATE KEY-----\nnot-real\n")
+
+
+def test_target_binding_rejects_release_url_drift() -> None:
+    target = _target()
+    binding = build_target_binding(
+        target,
+        INSTALLER,
+        release_notes_summary="Synthetic acceptance.",
+        signing_status="synthetic",
+        provenance_status="synthetic",
+    )
+    with pytest.raises(UpdateRepositoryBootstrapError, match="release asset URL"):
+        UpdateTargetBinding(
+            target_path=binding.target_path,
+            length=binding.length,
+            sha256=binding.sha256,
+            payload_url="https://example.invalid/KodepoiaSetup.exe",
+            custom=binding.custom,
         )

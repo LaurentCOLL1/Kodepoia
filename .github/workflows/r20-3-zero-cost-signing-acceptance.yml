@@ -146,7 +146,6 @@ jobs:
         run: |
           import json
           import os
-          from pathlib import Path
 
           report = {
               "format": "kodepoia-r20-3-zero-cost-signing-acceptance",
@@ -158,18 +157,7 @@ jobs:
               "production_root_modified": False,
               "offline_root_signing_performed": False,
               "paid_provider_required": False,
+              "actions_artifact_storage_used": False,
               "status": "pass",
           }
-          output = Path("artifacts/r20_3/zero-cost-signing-acceptance.json")
-          output.parent.mkdir(parents=True, exist_ok=True)
-          output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           print(json.dumps(report, indent=2, sort_keys=True))
-
-      - name: Upload R20.3 evidence
-        if: success()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: r20-3-zero-cost-${{ runner.os }}-${{ env.EVIDENCE_SHA }}
-          path: artifacts/r20_3/
-          if-no-files-found: error
-          retention-days: 30

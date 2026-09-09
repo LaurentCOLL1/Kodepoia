@@ -1,8 +1,8 @@
 # KODEPOIA CONTINUITY — R20
 
-**Status:** R20.2 COMPLETE + NORMALIZED; R20.3 MANUAL BOUNDARY NEXT
+**Status:** R20.2 COMPLETE + NORMALIZED; R20.3 ZERO-COST IMPLEMENTATION IN PROGRESS / MANUAL KEY BOUNDARY NEXT
 
-This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning, R20.1 and R20.2 are complete. R20.2 implementation PR #424 merged from exact accepted HEAD `9ab039519e434b24fff1c45dfeed2aa2fef4920f` as `main` `2d94afc22be01871caad9d99fdca090e3743a786`. This branch, `r20/02-continuity-normalization`, is the unique continuity-only post-merge normalization for R20.2; once this branch merges, that merge is the sole normalized R20.2 base and R20.3 becomes the next authorized subdivision.
+This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning, R20.1 and R20.2 are complete and normalized. R20.2 normalization PR #425 merged as normalized `main` `02ae599f951f353d9647e5cb6ca39f28eb655cbf`, which is the sole authorized R20.3 base. R20.3 is active on `r20/03-zero-cost-architecture` and has been explicitly revised to preserve the product invariant that Kodepoia must remain free to create and free to use.
 
 R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
@@ -18,7 +18,7 @@ R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 - Production Root v1 SHA-256: `892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5`.
 - Root threshold: 2-of-3.
 - Targets/Snapshot/Timestamp roles each have separate Ed25519 keys under Root v1.
-- Private-key custody remains outside Git/repository/CI. No R20 private key or passphrase has entered Git, CI, public evidence or continuity.
+- Private-key custody remains outside Git/repository/CI. No R20 Root/Targets private key or passphrase has entered Git, CI, public evidence or continuity.
 - Targets v2 remains byte-identical at SHA-256 `0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f`, authorizes only the accepted beta rc2 installer and expires `2027-09-08T17:32:00Z`.
 - Production Snapshot v3 SHA-256: `dbbb5966f9146b00e5697fda302107bab850c6dcb254e70e0a6e10d25b5c7796`.
 - Production Timestamp v3 SHA-256: `3d16a4d3bfccec33102b73a3a4cddb8af83f0c558bc4cc3e42b7c7536fdbdc7d`.
@@ -29,35 +29,41 @@ R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
 Users must be able to return to Kodepoia after a long period and update directly inside the application without being exposed to metadata-expiry maintenance. TUF freshness protections remain enforced; operational automation, not client-side bypass, keeps metadata fresh.
 
+A new explicit product invariant governs the rest of R20: **the mandatory Kodepoia creation, maintenance, distribution and user path must cost 0 €.** Paid cloud/KMS/HSM services may be optional hardening backends only and may never become a prerequisite.
+
 Steady-state trust model:
 
 - Root: offline, threshold-protected;
 - Targets: offline, release authorization only;
-- Snapshot: dedicated online non-exportable signer;
-- Timestamp: separate dedicated online non-exportable signer;
-- GitHub Actions: short-lived OIDC/federated cloud credentials only;
+- Snapshot: dedicated low-authority online Ed25519 key;
+- Timestamp: separate dedicated low-authority online Ed25519 key;
+- zero-cost reference backend: two separate GitHub Actions environment secrets consumed only by ephemeral GitHub-hosted runners;
 - scheduled metadata renewal before expiry;
-- no long-lived cloud signing credential stored in GitHub Secrets;
+- no Root/Targets private material in GitHub Actions;
+- no paid infrastructure dependency in the mandatory path;
+- optional provider-neutral KMS/HSM backends remain possible through the R20.2 signer abstraction;
 - no user-visible update deadline created by metadata maintenance.
 
-## External authority re-verified for planning
+## External authority re-verified for R20.3
 
 - TUF permits Snapshot and Timestamp online keys for continuous delivery and recommends keeping other top-level role keys offline.
 - Timestamp is intentionally short-lived/frequently re-signed to detect freeze attacks.
-- Snapshot and Timestamp should not share a key.
-- GitHub Actions OIDC can exchange an Actions identity token for short-lived cloud credentials; the cloud trust policy must restrict repository/ref/environment claims.
-- AWS KMS and Google Cloud KMS are R20.3 candidate providers; provider choice remains a privileged manual decision.
+- Snapshot and Timestamp must not share a key.
+- GitHub documents that standard GitHub-hosted runners are free and unlimited for public repositories.
+- GitHub Actions secrets are encrypted before reaching GitHub and are available only to workflows that explicitly reference them.
+- GitHub Free exposes environment secrets for public repositories and environments can restrict deployment branches.
+- Consequently, GitHub environment secrets plus ephemeral hosted runners are accepted as the **zero-cost reference backend for the two low-authority online roles only**. This intentionally trades non-exportable-HSM hardening for zero mandatory cost while retaining TUF role separation and offline Root/Targets custody.
 
 ## Authorized subdivision sequence
 
 1. R20.1 — Bridge Metadata Refresh & Custody-Safe Tooling
 2. R20.2 — Online Signer Abstraction & Rotation Package
-3. R20.3 — OIDC/KMS Online-Key Provisioning & Root Rotation
+3. R20.3 — Zero-Cost Online-Key Provisioning & Root Rotation
 4. R20.4 — Scheduled Metadata Refresh & Atomic Publication
 5. R20.5 — Expiry Monitoring, Alerting & Client UX Hardening
 6. R20.6 — Long-Offline Client & Continuous-Operations Integrated Acceptance
 
-No subdivision may be silently inserted, removed, merged, split or renumbered. No `R20.7` is authorized by the accepted planning authority.
+No subdivision may be silently inserted, removed, merged, split or renumbered. The R20.3 title/scope adjustment is an explicit governed roadmap change preserving subdivision number/dependencies while enforcing the zero-cost product constraint. No `R20.7` is authorized.
 
 ## R20 planning accepted authority
 
@@ -73,15 +79,7 @@ Accepted exact-head evidence:
 - Python Core #2610: **SUCCESS** on Ubuntu and Windows; package-build Ubuntu/Windows and integrated KodeStudio UI evidence also passed.
 - KodeStudio UI Smoke #2575: **SUCCESS**.
 
-Planning accepted behavior/authority includes:
-
-- preserve TUF expiry checks rather than bypassing them;
-- keep Root and Targets offline;
-- move Snapshot/Timestamp to distinct online non-exportable keys only through a future sequential Root rotation;
-- use short-lived OIDC/federated credentials for cloud signing rather than long-lived cloud credentials in GitHub Secrets;
-- introduce an immediate bridge refresh before online-signer migration;
-- keep update-network/KMS failure non-destructive to Kodepoia startup/local work;
-- require exact-head merge governance and one continuity normalization per subdivision.
+Planning accepted behavior/authority originally included an OIDC/remote-KMS steady-state candidate. That historical planning decision is preserved as provenance, but R20.3 explicitly supersedes **mandatory** paid-provider use with the governed zero-cost reference backend. The provider-neutral R20.2 interface remains available for optional hardening.
 
 Manual intervention for planning: **NONE**.
 
@@ -129,7 +127,7 @@ R20.1 accepted behavior/evidence:
 - CI verifies signatures, exact signed metadata hashes, versions 1/2/3/3, bindings, freshness and custody invariants with `contents: read` only.
 - No private key or passphrase entered Git, CI or public evidence.
 
-Manual intervention for R20.1: **COMPLETE**. The user performed the one authorized local Snapshot/Timestamp signing ceremony using existing custody keys and returned public signed metadata only.
+Manual intervention for R20.1: **COMPLETE**. The user performed the one authorized local Snapshot/Timestamp bridge signing ceremony using existing custody keys and returned public signed metadata only.
 
 The 30-day bridge remains a migration exception, not the steady-state freshness policy. R20.4 must restore short-lived automatically renewed metadata.
 
@@ -167,9 +165,8 @@ R20.2 accepted behavior/evidence:
 - Root and Targets role policies, Root threshold and TUF policy fields remain preserved;
 - sequential Root transition verification requires candidate Root N+1 to satisfy both the currently trusted Root threshold and its own Root threshold;
 - Snapshot and Timestamp remain separate threshold-1 roles with distinct keys;
-- production Root v1 remains byte-identical and R20.2 performs no live KMS/OIDC provisioning or offline Root signing;
-- the R20.2 acceptance workflow is registered as an immutable R16.9 authority while external action SHA pins and least-privilege `contents: read` remain intact;
-- CI contains no `id-token: write` provider credential flow in R20.2 and emits public-only acceptance evidence.
+- production Root v1 remains byte-identical and R20.2 performs no live provider provisioning or offline Root signing;
+- the R20.2 acceptance workflow is registered as an immutable R16.9 authority while external action SHA pins and least-privilege `contents: read` remain intact.
 
 Manual intervention for R20.2: **NONE**.
 
@@ -179,33 +176,66 @@ Implementation merge base: `main` `2d94afc22be01871caad9d99fdca090e3743a786`.
 
 Unique normalization branch: `r20/02-continuity-normalization`.
 
-This branch modifies only `docs/continuity/KODEPOIA_CONTINUITY_R20.md`. Its protected merge is the sole R20.2 post-merge normalization. The resulting normalized `main` SHA is intentionally established by that merge itself and becomes the only authorized R20.3 base; no second normalization is permitted merely to embed the resulting merge SHA recursively.
+Normalization PR #425 merged with exact head `8ba7fbcf49836094dab9e7a78fdb9cba8db16332` as normalized `main` `02ae599f951f353d9647e5cb6ca39f28eb655cbf` after fresh R0, R20.2, Python Core, package-build and UI evidence passed. No second R20.2 normalization is permitted.
 
-R20.3 is therefore the next authorized subdivision after this normalization merge, but it immediately reaches the explicit external provisioning/custody boundary described below.
+## R20.3 — Zero-Cost Online-Key Provisioning & Root Rotation — IN PROGRESS
 
-## R20.3 — OIDC/KMS Online-Key Provisioning & Root Rotation — MANUAL BOUNDARY
+Implementation branch: `r20/03-zero-cost-architecture`.
 
-No live provider resource has been created by repository automation yet. Before any R20.3 implementation may proceed past this boundary, the user must select and provision an approved cloud/KMS path, configure narrowly scoped GitHub Actions OIDC trust, retrieve only the public keys/resource identifiers, and later perform the offline Root v2 threshold-signing ceremony. Private Root files/passphrases must never be sent to ChatGPT, GitHub, CI or repository artifacts.
+Authorized base: normalized R20.2 `main` `02ae599f951f353d9647e5cb6ca39f28eb655cbf`.
+
+R20.3 zero-cost scope:
+
+- use two distinct Ed25519 keys for Snapshot and Timestamp;
+- generate the two 32-byte online private seeds locally, never in CI and never in Git;
+- store the seeds as separate GitHub environment secrets named `TUF_SNAPSHOT_ED25519_SEED_B64` and `TUF_TIMESTAMP_ED25519_SEED_B64` in environment `tuf-production-signing`;
+- use GitHub-hosted standard runners on this public repository so the mandatory automation path remains free;
+- decode the two low-authority secrets directly in process memory and never persist them into repository files or artifacts;
+- preserve Root/Targets private custody entirely offline;
+- generate a public-only R20.3 package with the new public keys/keyids and unsigned Root v2 rotation package;
+- later require the offline Root 2-of-3 ceremony before Root v2 may enter production;
+- optional external KMS/HSM signers remain compatible through R20.2 but are never mandatory.
+
+Repository-side pre-boundary implementation includes:
+
+- `src/kodepoia/update/zero_cost_signing.py` — zero-cost GitHub environment-secret signer resolver and local Ed25519 material generator;
+- `scripts/r20_3_prepare_zero_cost_keys.py` — local-only key-generation/public-package tool that refuses to place private output inside the repository;
+- `tests/test_r20_3_zero_cost_signing.py` — separation, in-memory resolution, fail-closed and no-private-public-package acceptance;
+- `.github/workflows/r20-3-zero-cost-signing-acceptance.yml` — synthetic exact-head acceptance consuming no live secrets;
+- R16.9 authority updated to include the new focused acceptance while retaining immutable external action pins and `contents: read`.
+
+### R20.3 manual boundary — REQUIRED NEXT
+
+After the repository-side pre-boundary head passes focused acceptance, the user must perform the following locally/external to CI:
+
+1. generate the real Snapshot/Timestamp online key pair with the repository-provided local tool;
+2. return only the public `R20_3_ZERO_COST_PUBLIC_PACKAGE.zip`;
+3. create GitHub environment `tuf-production-signing` and configure the two secret values from the local private output without exposing them in chat/issues/logs;
+4. later sign the exact Root v2 with at least 2-of-3 existing Root private keys locally and return only the public signed Root metadata.
+
+No AWS/GCP/Azure/paid account, billing setup, cloud region or OIDC trust is required by the reference path.
 
 R20.4 and all later subdivisions remain blocked until R20.3 is completed, exact-head accepted, merged and normalized.
 
 ## Immediate operational priority
 
-Production Snapshot/Timestamp are v3 and expire at `2026-10-08T21:44:18Z`. R20.3 must therefore establish dedicated online Snapshot/Timestamp signers and rotate Root before the bridge expires, while retaining enough operational margin for R20.4 scheduled refresh implementation.
+Production Snapshot/Timestamp are v3 and expire at `2026-10-08T21:44:18Z`. R20.3 must establish the two zero-cost online role keys and rotate Root before the bridge expires, while retaining enough margin for R20.4 scheduled refresh implementation.
 
 ## R20 security invariants
 
 - Never disable metadata expiry checks.
 - Never accept expired metadata as a fallback for availability.
+- Never require a paid service in the mandatory Kodepoia path.
 - Never store Root/Targets private keys in CI or a routine online signer.
 - Never reuse one online private key for both Snapshot and Timestamp.
-- Never expose TUF passphrases or the local DPAPI vault in repository content, Actions logs/artifacts or continuity.
+- Never expose TUF passphrases, local vault material or online secret values in repository content, Actions logs/artifacts, issues or continuity.
+- GitHub environment secrets are permitted only for the low-authority Snapshot/Timestamp online keys.
 - Online signer compromise must not authorize new Targets or Root metadata.
 - All metadata versions are monotonically increasing.
 - Snapshot references exact Targets bytes/version/hash/length.
 - Timestamp references exact signed Snapshot bytes/version/hash/length.
 - Publication must not expose a mixed metadata generation.
-- Network/KMS failure never gates Kodepoia startup or local work.
+- GitHub Actions/signing-backend failure never gates Kodepoia startup or local work.
 - All R20 merges require exact-head evidence and expected-head protection.
 - Each completed subdivision gets exactly one continuity-only normalization before the next subdivision starts.
 
@@ -215,14 +245,14 @@ R20.1: **COMPLETE** — one local Snapshot/Timestamp bridge signing ceremony was
 
 R20.2: **NONE / COMPLETE + NORMALIZED** — provider-neutral implementation and synthetic acceptance only.
 
-R20.3: **REQUIRED NOW** — choose/provision the live cloud/KMS keys, configure GitHub OIDC trust and later perform offline Root v2 threshold signing. Stop before later subdivisions and provide exact user actions; never request private Root key files/passphrases.
+R20.3: **REQUIRED NEXT** — generate the two online seeds locally, configure the two GitHub environment secrets, and later perform offline Root v2 threshold signing. Stop before later subdivisions and give exact actions; never request or accept the private seed values, Root private-key files or passphrases.
 
-R20.4: repository environment/protection settings may require a manual boundary if unavailable through connected tooling.
+R20.4: GitHub environment/protection settings may require a manual boundary if unavailable through connected tooling.
 
 R20.5: none after automation exists.
 
-R20.6: live incident/key-rotation drill may require explicit provider-side approval.
+R20.6: live incident/key-rotation drill may require explicit privileged approval.
 
 ## Resume rule
 
-On a new conversation, verify current normalized `main`, R20 roadmap, open PRs, current production metadata expiry and public release state. If the R20.2 normalization PR has not merged, resume only that normalization. Once it has merged, do not create another R20.2 normalization: R20.3 is the next authorized subdivision and begins at its external KMS/OIDC/offline-custody manual boundary. Continue only after the user returns the non-secret provider choice, KMS public key/resource identifiers and other explicitly requested public evidence. Never request or accept Root private-key files, TUF passphrases, cloud long-lived secrets or exported KMS private material. R20.4 remains blocked until R20.3 is **COMPLETE + NORMALIZED**.
+On a new conversation, verify current normalized `main`, R20 roadmap, open R20.3 PR/branch, current production metadata expiry and public release state. If `r20/03-zero-cost-architecture` exists, resume R20.3 only. Confirm the zero-cost architecture remains authoritative. Complete repository-side focused acceptance first; then stop at the local online-key generation / GitHub environment-secret boundary and provide exact user actions. Accept back only public key/Root metadata evidence, never private seed values or Root private-key files/passphrases. R20.4 remains blocked until R20.3 is **COMPLETE + NORMALIZED**.

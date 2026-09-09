@@ -1,8 +1,8 @@
 # KODEPOIA CONTINUITY — R20
 
-**Status:** R20.1 MERGED; UNIQUE R20.1 CONTINUITY NORMALIZATION IN PROGRESS
+**Status:** R20.1 COMPLETE + NORMALIZED; R20.2 IMPLEMENTATION IN PROGRESS
 
-This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning is complete and normalized. R20.1 implementation is accepted and merged as `main` `324ad91f47eff8a69166b78e16c11b49251ceb0d`. The branch `r20/01-continuity-normalization` is the single authorized post-R20.1 continuity-only normalization. R20.2 is authorized only after this normalization passes fresh exact-head R0 Repository Guard, full Python Core and KodeStudio UI Smoke and merges with expected-head protection.
+This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning and R20.1 are complete and normalized. Normalized `main` `53f431f50361d7fa0e3b31ac0c2a2596326c9f85` authorizes only **R20.2 — Online Signer Abstraction & Rotation Package**. R20.3 remains blocked until R20.2 implementation, exact-head acceptance, merge and unique continuity normalization are complete.
 
 R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
@@ -95,7 +95,7 @@ Normalization branch head merged as the second parent `e2d2250c8cd57084d32be4a2a
 
 R20 planning is therefore **COMPLETE + NORMALIZED**, and `725a44756ab27ed29f84e7fcf238477fd2997d8a` was the authorized R20.1 base.
 
-## R20.1 — Bridge Metadata Refresh & Custody-Safe Tooling — MERGED
+## R20.1 — Bridge Metadata Refresh & Custody-Safe Tooling — COMPLETE + NORMALIZED
 
 Implementation branch: `r20/01-bridge-metadata-refresh`.
 
@@ -133,25 +133,37 @@ Manual intervention for R20.1: **COMPLETE**. The user performed the one authoriz
 
 The 30-day bridge remains a migration exception, not the steady-state freshness policy. R20.4 must restore short-lived automatically renewed metadata.
 
-## R20.1 post-merge continuity normalization — IN PROGRESS
+### R20.1 post-merge continuity normalization — COMPLETE
 
-Base `main`: `324ad91f47eff8a69166b78e16c11b49251ceb0d`.
+R20.1 normalization merged to produce normalized `main` `53f431f50361d7fa0e3b31ac0c2a2596326c9f85`. That exact normalized head is the sole authorized base for R20.2.
 
-Normalization branch: `r20/01-continuity-normalization`.
+## R20.2 — Online Signer Abstraction & Rotation Package — IN PROGRESS
 
-This branch changes **only** `docs/continuity/KODEPOIA_CONTINUITY_R20.md`. It must pass fresh exact-head:
+Implementation branch: `r20/02-online-signer-rotation`.
 
-- R0 Repository Guard Ubuntu + Windows;
-- full Python Core Ubuntu + Windows plus package/UI evidence;
-- KodeStudio UI Smoke.
+Authorized base: normalized R20.1 `main` `53f431f50361d7fa0e3b31ac0c2a2596326c9f85`.
 
-It must then merge with exact `expected_head_sha` protection. No second R20.1 normalization is authorized.
+R20.2 provider-neutral scope:
 
-R20.2 START-sync is authorized **only after** that exact normalization merge enters `main`.
+- expose online signer configuration containing only role, provider/resource identifiers and public key material;
+- resolve runtime signers behind the generic `securesystemslib.signer.Signer` boundary and verify resolved public identity before signing;
+- import SubjectPublicKeyInfo PEM public keys and derive the same TUF/securesystemslib keyid;
+- provide deterministic/synthetic in-memory CI resolution without provider credentials;
+- prepare an immutable public-only unsigned Root N+1 package that replaces only Snapshot/Timestamp public keys;
+- preserve Root and Targets role policies, Root threshold and TUF policy fields;
+- verify the mandatory sequential Root transition: candidate Root N+1 must be signed by the current Root threshold and by its own Root threshold;
+- keep Snapshot and Timestamp separate at threshold 1;
+- leave production Root v1 byte-identical and perform no live KMS/OIDC provisioning or offline Root signing.
+
+Implementation PR: #424.
+
+Manual intervention for R20.2: **NONE**.
+
+R20.3 is not authorized while this section is IN PROGRESS. After R20.2 exact-head acceptance and protected merge, exactly one continuity-only normalization is required before R20.3 may start.
 
 ## Immediate operational priority
 
-Production Snapshot/Timestamp are now v3 and expire at `2026-10-08T21:44:18Z`. R20.2 must therefore proceed after R20.1 normalization and prepare the signer abstraction/rotation package needed for the later online-signer migration without weakening TUF freshness checks.
+Production Snapshot/Timestamp are v3 and expire at `2026-10-08T21:44:18Z`. R20.2 therefore prepares only the provider-neutral signer abstraction and public Root-rotation package. Live cloud/KMS key creation, GitHub OIDC trust configuration and offline Root v2 signing remain the explicit R20.3 manual boundary.
 
 ## R20 security invariants
 
@@ -173,7 +185,7 @@ Production Snapshot/Timestamp are now v3 and expire at `2026-10-08T21:44:18Z`. R
 
 R20.1: **COMPLETE** — one local Snapshot/Timestamp bridge signing ceremony was performed; public metadata only was returned.
 
-R20.2: no private/external provisioning required.
+R20.2: **NONE** — provider-neutral implementation and synthetic acceptance only.
 
 R20.3: live cloud/KMS key creation, OIDC trust setup and offline Root v2 signing are privileged manual boundaries. Stop there and provide exact user actions; never request private Root key files/passphrases.
 
@@ -185,4 +197,4 @@ R20.6: live incident/key-rotation drill may require explicit provider-side appro
 
 ## Resume rule
 
-On a new conversation, verify current `main`, R20 roadmap, open PRs, current production metadata expiry, public release state and whether this R20.1 normalization has merged. If it has merged, R20.1 is **COMPLETE + NORMALIZED** and R20.2 is the next authorized subdivision. Continue subdivision-by-subdivision with dedicated branches, exact-head acceptance, protected merge and exactly one continuity normalization. Stop later subdivisions at a genuine external provisioning/custody boundary and give exact user actions.
+On a new conversation, verify current `main`, R20 roadmap, open PRs, current production metadata expiry and public release state. If PR #424 is still open, resume R20.2 only. If R20.2 has merged but its unique continuity normalization has not, perform only that normalization. R20.3 becomes the next authorized subdivision only after R20.2 is **COMPLETE + NORMALIZED**. Continue subdivision-by-subdivision with dedicated branches, exact-head acceptance, protected merge and exactly one continuity normalization. Stop at the R20.3 external provisioning/custody boundary and give exact user actions.

@@ -1,6 +1,6 @@
 # KODEPOIA CONTINUITY — R20
 
-**Status:** R20.2 COMPLETE + NORMALIZED; R20.3 ZERO-COST IMPLEMENTATION IN PROGRESS / MANUAL KEY BOUNDARY NEXT
+**Status:** R20.2 COMPLETE + NORMALIZED; R20.3 ZERO-COST IMPLEMENTATION IN PROGRESS / PUBLIC ONLINE KEYS ACCEPTED / ATOMIC TRUST-TRANSITION MANUAL BOUNDARY NEXT
 
 This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning, R20.1 and R20.2 are complete and normalized. R20.2 normalization PR #425 merged as normalized `main` `02ae599f951f353d9647e5cb6ca39f28eb655cbf`, which is the sole authorized R20.3 base. R20.3 is active on `r20/03-zero-cost-architecture` and has been explicitly revised to preserve the product invariant that Kodepoia must remain free to create and free to use.
 
@@ -49,6 +49,7 @@ Steady-state trust model:
 - TUF permits Snapshot and Timestamp online keys for continuous delivery and recommends keeping other top-level role keys offline.
 - Timestamp is intentionally short-lived/frequently re-signed to detect freeze attacks.
 - Snapshot and Timestamp must not share a key.
+- Root metadata defines the trusted keys and thresholds for Snapshot/Timestamp, so the first metadata generation after the Root rotation must already use the newly authorized online keys.
 - GitHub documents that standard GitHub-hosted runners are free and unlimited for public repositories.
 - GitHub Actions secrets are encrypted before reaching GitHub and are available only to workflows that explicitly reference them.
 - GitHub Free exposes environment secrets for public repositories and environments can restrict deployment branches.
@@ -192,34 +193,78 @@ R20.3 zero-cost scope:
 - use GitHub-hosted standard runners on this public repository so the mandatory automation path remains free;
 - decode the two low-authority secrets directly in process memory and never persist them into repository files or artifacts;
 - preserve Root/Targets private custody entirely offline;
-- generate a public-only R20.3 package with the new public keys/keyids and unsigned Root v2 rotation package;
-- later require the offline Root 2-of-3 ceremony before Root v2 may enter production;
+- rotate Root v1 -> Root v2 sequentially with old + new Root threshold verification;
+- transition Snapshot/Timestamp v3 -> v4 under the new Root v2-authorized online keys without extending the temporary bridge expiry;
 - optional external KMS/HSM signers remain compatible through R20.2 but are never mandatory.
 
-Repository-side pre-boundary implementation includes:
+### R20.3 public online-key boundary — COMPLETE
 
-- `src/kodepoia/update/zero_cost_signing.py` — zero-cost GitHub environment-secret signer resolver and local Ed25519 material generator;
-- `scripts/r20_3_prepare_zero_cost_keys.py` — local-only key-generation/public-package tool that refuses to place private output inside the repository;
-- `tests/test_r20_3_zero_cost_signing.py` — separation, in-memory resolution, fail-closed and no-private-public-package acceptance;
-- `.github/workflows/r20-3-zero-cost-signing-acceptance.yml` — synthetic exact-head acceptance consuming no live secrets;
-- R16.9 authority updated to include the new focused acceptance while retaining immutable external action pins and `contents: read`.
+The user completed local generation and returned **only** the public `R20_3_ZERO_COST_PUBLIC_PACKAGE.zip`.
+
+Accepted public authority:
+
+- ZIP SHA-256: `4b26dbf702f93e1c2e6f813eae7c22771a06e97fd9d77bd6d57bff1b6c22b1db`;
+- Snapshot replacement keyid: `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`;
+- Timestamp replacement keyid: `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`;
+- unsigned Root v2 SHA-256: `7ae909722149fe7f05380f93b7317c99347f8b3c1d102b7b6ddca64bbe1bbe1d`;
+- Root role threshold remains 2-of-3;
+- Root and Targets role policies are preserved;
+- no private material was detected;
+- unsigned Root v2 has no production effect.
+
+Public evidence committed on the R20.3 branch:
+
+- `docs/roadmap/R20_3_PUBLIC_KEYS.json`;
+- `docs/roadmap/R20_3_ROOT_V2_UNSIGNED.json`;
+- `docs/roadmap/R20_3_ROOT_ROTATION_MANIFEST.json`;
+- `docs/roadmap/R20_3_PUBLIC_PACKAGE_ACCEPTANCE.json`.
+
+### R20.3 repository-side transition tooling
+
+Repository tooling now includes:
+
+- `src/kodepoia/update/zero_cost_signing.py` — zero-cost GitHub environment-secret signer resolver, online Ed25519 generator and threshold Root-signing helper;
+- `src/kodepoia/update/root_transition.py` — validates Root v1/current v3 authority, verifies signed Root v2 sequential transition, then creates Snapshot v4/Timestamp v4 using only Root v2-authorized online keys;
+- `scripts/r20_3_prepare_zero_cost_keys.py` — completed first-boundary local key generator;
+- `scripts/r20_3_verify_public_package.py` — reproducible public-package validator;
+- `scripts/r20_3_sign_root_v2.py` — offline Root v2 ceremony; scans local PEM custody and selects only current Root-authorized keys by public keyid, requiring threshold 2 and never recording private paths;
+- `scripts/r20_3_finalize_transition.py` — consumes the public signed Root v2 plus the locally retained new online seeds and emits the final public Root v2 + Snapshot v4 + Timestamp v4 transition package;
+- `scripts/r20_3_live_signing_challenge.py` plus `.github/workflows/r20-3-live-signing-challenge.yml` — post-merge, main-only, no-publication proof that the two GitHub environment secrets match the committed public identities;
+- `.github/workflows/r20-3-zero-cost-signing-acceptance.yml` — exact-head synthetic/public acceptance that consumes no live secrets;
+- R16.9 registers both R20.3 workflows as immutable authority while retaining pinned external actions and least-privilege `contents: read`.
+
+### Atomic-transition invariant
+
+Root v2 must **never** be published alone while production Snapshot/Timestamp still carry signatures from the Root v1 online-role keys that Root v2 revokes.
+
+The accepted R20.3 production transition must therefore be treated as one governed state:
+
+- Root v2 signed by at least two current Root keys and satisfying its own Root threshold;
+- Targets remains exact v2 and byte-identical;
+- Snapshot advances v3 -> v4, binds exact Targets v2 bytes/version/hash/length, and is signed by replacement Snapshot keyid `fac1c790...06d8`;
+- Timestamp advances v3 -> v4, binds exact signed Snapshot v4 bytes/version/hash/length, and is signed by replacement Timestamp keyid `8d81006f...a2ad`;
+- initial v4/v4 expiry remains exactly `2026-10-08T21:44:18Z`, so the rotation does not extend the temporary bridge lifetime;
+- repository integration occurs only after the complete public transition ZIP is returned and independently verified.
 
 ### R20.3 manual boundary — REQUIRED NEXT
 
-After the repository-side pre-boundary head passes focused acceptance, the user must perform the following locally/external to CI:
+After fresh exact-head acceptance of this complete boundary tooling, the user must perform locally/external to CI:
 
-1. generate the real Snapshot/Timestamp online key pair with the repository-provided local tool;
-2. return only the public `R20_3_ZERO_COST_PUBLIC_PACKAGE.zip`;
-3. create GitHub environment `tuf-production-signing` and configure the two secret values from the local private output without exposing them in chat/issues/logs;
-4. later sign the exact Root v2 with at least 2-of-3 existing Root private keys locally and return only the public signed Root metadata.
+1. create or update GitHub environment `tuf-production-signing` and add `TUF_SNAPSHOT_ED25519_SEED_B64` / `TUF_TIMESTAMP_ED25519_SEED_B64` from the already generated local seed files without exposing their values;
+2. run `scripts/r20_3_sign_root_v2.py` against existing offline Root custody and enter the custody passphrase only in the local terminal;
+3. immediately feed the resulting public `root.v2.signed.json` into `scripts/r20_3_finalize_transition.py` together with the already retained online-seed directory;
+4. return **only** `R20_3_FULL_TRANSITION_PUBLIC_PACKAGE.zip` containing public Root v2, Snapshot v4, Timestamp v4 and transition manifest;
+5. do not return either private seed file, any Root private PEM, passphrase, vault material or sensitive custody-path output.
+
+The main-only live GitHub signer challenge is intentionally executed **after** the accepted R20.3 merge because its workflow and environment-bound secrets are production-side effects. It performs no metadata publication and uses no Actions artifact storage.
 
 No AWS/GCP/Azure/paid account, billing setup, cloud region or OIDC trust is required by the reference path.
 
-R20.4 and all later subdivisions remain blocked until R20.3 is completed, exact-head accepted, merged and normalized.
+R20.4 and all later subdivisions remain blocked until R20.3 is completed, exact-head accepted, merged, live-challenge verified and normalized.
 
 ## Immediate operational priority
 
-Production Snapshot/Timestamp are v3 and expire at `2026-10-08T21:44:18Z`. R20.3 must establish the two zero-cost online role keys and rotate Root before the bridge expires, while retaining enough margin for R20.4 scheduled refresh implementation.
+Production Snapshot/Timestamp are v3 and expire at `2026-10-08T21:44:18Z`. R20.3 must establish the two zero-cost online role keys and atomically rotate Root + online metadata before the bridge expires, while retaining enough margin for R20.4 scheduled refresh implementation.
 
 ## R20 security invariants
 
@@ -235,6 +280,7 @@ Production Snapshot/Timestamp are v3 and expire at `2026-10-08T21:44:18Z`. R20.3
 - Snapshot references exact Targets bytes/version/hash/length.
 - Timestamp references exact signed Snapshot bytes/version/hash/length.
 - Publication must not expose a mixed metadata generation.
+- Root v2 must not become trusted without the first new-key Snapshot/Timestamp generation being ready in the same governed transition.
 - GitHub Actions/signing-backend failure never gates Kodepoia startup or local work.
 - All R20 merges require exact-head evidence and expected-head protection.
 - Each completed subdivision gets exactly one continuity-only normalization before the next subdivision starts.
@@ -245,7 +291,7 @@ R20.1: **COMPLETE** — one local Snapshot/Timestamp bridge signing ceremony was
 
 R20.2: **NONE / COMPLETE + NORMALIZED** — provider-neutral implementation and synthetic acceptance only.
 
-R20.3: **REQUIRED NEXT** — generate the two online seeds locally, configure the two GitHub environment secrets, and later perform offline Root v2 threshold signing. Stop before later subdivisions and give exact actions; never request or accept the private seed values, Root private-key files or passphrases.
+R20.3: **PARTIAL / REQUIRED NEXT** — public online-key generation is complete. Configure the two GitHub environment secrets, then perform the offline Root v2 threshold + immediate v4/v4 transition ceremony and return only the final public transition ZIP. Never request or accept private seed values, Root private-key files or passphrases.
 
 R20.4: GitHub environment/protection settings may require a manual boundary if unavailable through connected tooling.
 
@@ -255,4 +301,4 @@ R20.6: live incident/key-rotation drill may require explicit privileged approval
 
 ## Resume rule
 
-On a new conversation, verify current normalized `main`, R20 roadmap, open R20.3 PR/branch, current production metadata expiry and public release state. If `r20/03-zero-cost-architecture` exists, resume R20.3 only. Confirm the zero-cost architecture remains authoritative. Complete repository-side focused acceptance first; then stop at the local online-key generation / GitHub environment-secret boundary and provide exact user actions. Accept back only public key/Root metadata evidence, never private seed values or Root private-key files/passphrases. R20.4 remains blocked until R20.3 is **COMPLETE + NORMALIZED**.
+On a new conversation, verify current normalized `main`, R20 roadmap, PR #426 / branch `r20/03-zero-cost-architecture`, current production Root/Snapshot/Timestamp versions and expiry, and public release state. R20.3 public key generation is already complete: do not regenerate keys unless the accepted public material is explicitly revoked. Resume only the exact-head validation of the Root/online-role transition tooling or, once green, the manual environment-secret + offline Root/v4-v4 ceremony. Accept back only `R20_3_FULL_TRANSITION_PUBLIC_PACKAGE.zip` and other explicitly public evidence, never online seed values, Root private-key files, passphrases or vault data. R20.4 remains blocked until R20.3 is **COMPLETE + NORMALIZED**.

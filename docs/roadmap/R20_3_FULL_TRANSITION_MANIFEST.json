@@ -1,0 +1,39 @@
+{
+  "created_at": "2026-09-09T18:40:49Z",
+  "expires": "2026-10-08T21:44:18Z",
+  "expiry_extended": false,
+  "format": "kodepoia-r20-3-root-online-role-transition",
+  "private_material_in_output": false,
+  "production_effect": false,
+  "purpose": "atomic R20.3 Root v2 and new online-role signer transition",
+  "root": {
+    "length": 2521,
+    "new_root_threshold_verified": true,
+    "old_root_threshold_verified": true,
+    "previous_version": 1,
+    "sha256": "c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7",
+    "version": 2
+  },
+  "root_or_targets_private_key_in_online_step": false,
+  "schema_version": 1,
+  "snapshot": {
+    "keyid": "fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8",
+    "length": 469,
+    "previous_version": 3,
+    "sha256": "1fccbcc5721acf59188761a79b70d829fa1ae23e77e505d1c1e9867c110eced9",
+    "version": 4
+  },
+  "targets": {
+    "length": 1001,
+    "modified": false,
+    "sha256": "0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f",
+    "version": 2
+  },
+  "timestamp": {
+    "keyid": "8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad",
+    "length": 470,
+    "previous_version": 3,
+    "sha256": "74c815dc414ae946aba1f7c427ae044dbaa3a5e1fb15bbdb436e33881fc6e501",
+    "version": 4
+  }
+}

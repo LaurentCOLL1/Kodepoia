@@ -94,7 +94,7 @@ jobs:
 
       - name: Remove one-shot helper from resulting tree
         shell: bash
-        run: git rm .github/workflows/r20-4-pin-migration-helper.yml
+        run: git rm -f .github/workflows/r20-4-pin-migration-helper.yml
 
       - name: Commit and push migration
         shell: bash

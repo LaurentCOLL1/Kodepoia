@@ -8,6 +8,9 @@
 # Deterministic protocol fixtures/evidence hashed byte-for-byte in cross-platform CI
 tests/fixtures/comfyui/*.json text eol=lf
 docs/roadmap/*_LOCAL_ACCEPTANCE.json text eol=lf
+# R10.7 local Blender acceptance was captured byte-for-byte on Windows (CRLF).
+# Preserve the committed evidence bytes; do not apply EOL conversion to this artifact.
+docs/roadmap/R10_7_LOCAL_ACCEPTANCE.json -text
 
 # TUF metadata and packaged production trust material are cryptographic byte strings.
 # Never allow Windows checkout normalization to change their signed/hash-bound bytes.

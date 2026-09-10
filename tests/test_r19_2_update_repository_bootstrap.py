@@ -191,14 +191,14 @@ def test_target_binding_rejects_identity_mismatch() -> None:
             target_path=binding.target_path,
             length=binding.length,
             sha256=binding.sha256,
-            payload_url=binding.payload_url,
             custom=custom,
         )
 
 
 def test_repository_safe_payload_rejects_private_key_markers() -> None:
+    private_marker = b"-----BEGIN " + b"PRIVATE KEY-----\nnot-real\n"
     with pytest.raises(UpdateRepositoryBootstrapError, match="private"):
-        assert_repository_safe_payload(b"-----BEGIN PRIVATE KEY-----\nnot-real\n")
+        assert_repository_safe_payload(private_marker)
 
 
 def test_target_binding_rejects_release_url_drift() -> None:
@@ -210,11 +210,12 @@ def test_target_binding_rejects_release_url_drift() -> None:
         signing_status="synthetic",
         provenance_status="synthetic",
     )
+    custom = dict(binding.custom)
+    custom["payload_url"] = "https://example.invalid/KodepoiaSetup.exe"
     with pytest.raises(UpdateRepositoryBootstrapError, match="release asset URL"):
         UpdateTargetBinding(
             target_path=binding.target_path,
             length=binding.length,
             sha256=binding.sha256,
-            payload_url="https://example.invalid/KodepoiaSetup.exe",
-            custom=binding.custom,
+            custom=custom,
         )

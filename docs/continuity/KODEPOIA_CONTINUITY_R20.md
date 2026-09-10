@@ -1,10 +1,12 @@
 # KODEPOIA CONTINUITY — R20
 
-**Status:** R20.3 COMPLETE + NORMALIZED; LIVE ZERO-COST SIGNER CHALLENGE VERIFIED; R20.4 NEXT
+**Status:** R20.4 COMPLETE; SCHEDULED ZERO-COST METADATA REFRESH & ATOMIC PUBLICATION VERIFIED; R20.4 CONTINUITY NORMALIZATION IN PROGRESS; R20.5 NEXT
 
-This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning, R20.1, R20.2 and R20.3 are complete. R20.3 implementation PR #426 merged from accepted exact HEAD `747405e133fb2934e377a0312b59a9d468e4af19`, and two narrowly scoped post-merge corrections (#427 and #428) repaired only the live-challenge clean-worktree path. Final pre-normalization `main` is `35f3cad975877f0a7e2416afb180a0160511add2`. On that exact commit, **R20.3 Live Zero-Cost Signer Challenge #4** completed successfully and verified the two live GitHub environment-secret signing identities without publishing metadata, exposing secret values, using artifact storage or modifying repository state.
+This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning, R20.1, R20.2, R20.3 and R20.4 are complete at implementation level. R20.4 implementation PR #430 merged from accepted exact HEAD `391ffc27c7a360a8ebb2f4f4483128ca67b52f99` as `main` `3099561a38a7df6abf7e90fc8cd29ac035147cc2`. The implementation established the governed scheduled/manual zero-cost freshness loop, short-lived Snapshot/Timestamp renewal policy, exact Targets -> Snapshot -> Timestamp byte binding, monotonic/concurrency-safe publication through a protected PR path, and a repository-wide migration of governed `actions/checkout` / `actions/setup-python` pins to Node-24-compatible immutable revisions under R16.9 supply-chain policy.
 
-This branch, `r20/03-continuity-normalization`, is the unique continuity-only post-merge normalization for R20.3. Once it merges, the resulting `main` is the sole authorized R20.4 base. No second R20.3 normalization is permitted merely to embed the resulting merge SHA recursively.
+Production Snapshot/Timestamp remained v4/v4 during R20.4 acceptance because both were still above the 24-hour refresh threshold. The production check was therefore an intentional, verified idempotent no-op: no metadata version, Root/Targets bytes or release asset was modified or published by the implementation acceptance.
+
+This branch, `r20/04-continuity-normalization`, is the unique continuity-only post-merge normalization for R20.4. Once it merges, the resulting `main` is the sole authorized R20.5 base. No second R20.4 normalization is permitted merely to embed the resulting merge SHA recursively.
 
 R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
@@ -22,7 +24,7 @@ R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 - Targets remains exact **v2**, SHA-256 `0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f`, length `1001`, and expires `2027-09-08T17:32:00Z`.
 - Current production Snapshot is **v4**, SHA-256 `1fccbcc5721acf59188761a79b70d829fa1ae23e77e505d1c1e9867c110eced9`, signed by replacement Snapshot keyid `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`.
 - Current production Timestamp is **v4**, SHA-256 `74c815dc414ae946aba1f7c427ae044dbaa3a5e1fb15bbdb436e33881fc6e501`, signed by distinct replacement Timestamp keyid `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
-- Snapshot v4 and Timestamp v4 both retain the transition expiry `2026-10-08T21:44:18Z`; R20.3 deliberately did not extend the temporary bridge lifetime.
+- Snapshot v4 and Timestamp v4 both retain the transition expiry `2026-10-08T21:44:18Z`; R20.3 deliberately did not extend the temporary bridge lifetime, and R20.4 acceptance did not force an unnecessary refresh while sufficient lifetime remained.
 - Snapshot v4 binds exact Targets v2 hash/version/length; Timestamp v4 binds exact signed Snapshot v4 hash/version/length.
 - Private Root/Targets custody remains outside Git/repository/CI. No Root/Targets private key or passphrase entered Git, CI, public evidence or continuity.
 - The two low-authority online Ed25519 seeds exist only as separate GitHub environment secrets in `tuf-production-signing` and in the user's retained local custody; their values are not repository authority and must never be requested or recorded.
@@ -167,19 +169,13 @@ The user completed the offline Root threshold ceremony and returned only the pub
 - paid provider required: **FALSE**;
 - expiry extended: **FALSE**.
 
-The integrated repository metadata is now Root v2 / Targets v2 / Snapshot v4 / Timestamp v4. Root v2 authorizes only the dedicated replacement Snapshot/Timestamp online public keys for those roles; Root and Targets authority remain offline.
+The integrated repository metadata is Root v2 / Targets v2 / Snapshot v4 / Timestamp v4. Root v2 authorizes only the dedicated replacement Snapshot/Timestamp online public keys for those roles; Root and Targets authority remain offline.
 
 ### R20.3 live GitHub signer challenge — COMPLETE
 
 **R20.3 Live Zero-Cost Signer Challenge #4**, workflow run `34507387616`, was manually dispatched on exact `main` `35f3cad975877f0a7e2416afb180a0160511add2` and completed **SUCCESS**.
 
-The job passed every governed step:
-
-- exact-main checkout provenance;
-- focused dependency installation;
-- exact tracked-source restoration;
-- live Snapshot/Timestamp secret-identity verification without publication;
-- final repository-state cleanliness assertion.
+The job passed exact-main checkout provenance, focused dependency installation, exact tracked-source restoration, live Snapshot/Timestamp secret-identity verification without publication, and final repository-state cleanliness assertion.
 
 Public challenge result:
 
@@ -195,40 +191,83 @@ Public challenge result:
 - verified Snapshot keyid: `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`;
 - verified Timestamp keyid: `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
 
-The live challenge therefore proves that the two configured GitHub environment secrets correspond to the exact public online-role identities committed in Root v2, while preserving no-publication and no-secret-output boundaries.
-
-### R20.3 post-merge continuity normalization
-
-Pre-normalization base: `main` `35f3cad975877f0a7e2416afb180a0160511add2`.
-
-Unique normalization branch: `r20/03-continuity-normalization`.
-
-This branch modifies only `docs/continuity/KODEPOIA_CONTINUITY_R20.md`. Its protected exact-head merge is the sole R20.3 post-merge normalization. The resulting normalized `main` SHA is established by the merge itself and becomes the only authorized R20.4 base; do not create a second R20.3 normalization merely to embed that merge SHA.
+R20.3 normalization merged as `main` `18593924711c135740bcdf6ca2ca757e18f1194c`, the sole authorized R20.4 base.
 
 Manual intervention for R20.3: **COMPLETE**. The public online-key package, GitHub environment-secret setup, offline Root v2 threshold ceremony, v4/v4 transition package, repository integration and live no-publication signer challenge are all complete.
 
-## R20.4 — Scheduled Metadata Refresh & Atomic Publication — NEXT AUTHORIZED SUBDIVISION
+## R20.4 — Scheduled Metadata Refresh & Atomic Publication — COMPLETE
 
-R20.4 may begin only from the normalized `main` produced by the unique R20.3 continuity merge.
+Implementation branch: `r20/04-scheduled-metadata-refresh`.
+
+Authorized base: normalized R20.3 `main` `18593924711c135740bcdf6ca2ca757e18f1194c`.
+
+Accepted exact R20.4 HEAD: `391ffc27c7a360a8ebb2f4f4483128ca67b52f99`.
+
+Implementation PR #430 merged with expected-head protection as `main` `3099561a38a7df6abf7e90fc8cd29ac035147cc2`.
+
+### R20.4 accepted exact-head evidence
+
+On exact HEAD `391ffc27c7a360a8ebb2f4f4483128ca67b52f99`:
+
+- R20.4 Scheduled Metadata Refresh Acceptance #6: **SUCCESS** on Ubuntu and Windows;
+- R0 Repository Guard #2720: **SUCCESS** on Ubuntu and Windows;
+- Python Core #2691: **SUCCESS** for package-build Ubuntu, package-build Windows, Python Core Ubuntu, Python Core Windows and integrated KodeStudio UI Windows;
+- KodeStudio UI Smoke #2655: **SUCCESS**;
+- R16.9 Supply Chain Provenance Acceptance #296: **SUCCESS** on Ubuntu and Windows.
+
+Before the PR, Python Core #2690 had one isolated Ubuntu resource-soak failure while the same exact HEAD passed Windows, package-build and UI. The single failed Ubuntu job was re-run on the unchanged exact SHA and passed completely; no source correction was made for that variance. PR-level Python Core #2691 then passed Ubuntu and Windows normally.
+
+### R20.4 accepted behavior
+
+- Scheduled freshness check every **6 hours**, plus manual dispatch.
+- Refresh only when remaining online-metadata lifetime falls below **24 hours**.
+- Steady-state Timestamp target lifetime: **48 hours**.
+- Steady-state Snapshot target lifetime: **72 hours**.
+- No new metadata version when sufficient lifetime remains.
+- Snapshot is generated from the exact current Targets bytes/version/hash/length.
+- Timestamp is generated only from the exact final signed Snapshot bytes/version/hash/length.
+- Snapshot and Timestamp versions increase monotonically; concurrency/superseded runs cannot publish a regression.
+- The two low-authority online secret values are referenced only by the authorized signing/publication job through environment `tuf-production-signing`.
+- Publication uses a temporary protected PR path with exact-main revalidation, explicit Repository Guard dispatch, exact required-check verification and expected-head merge; mixed metadata generations are not published.
+- Root and Targets are immutable during freshness refresh.
+- Release assets are not rebuilt or mutated during freshness refresh.
+- The mandatory path uses no paid provider and requires no OIDC `id-token: write` permission.
+- Governed `actions/checkout` and `actions/setup-python` exact SHA pins were migrated repository-wide to Node-24-compatible releases without relaxing immutable pinning or the R16.9 approved-action policy.
+
+### Production no-op evidence
+
+At R20.4 acceptance time, production Snapshot v4 and Timestamp v4 remained above the 24-hour refresh threshold. Both Ubuntu and Windows acceptance jobs proved the production check was an idempotent no-op and asserted that the check did not modify metadata. R20.4 therefore did **not** manufacture a new production generation merely to prove scheduling.
+
+Several older phase workflows were also triggered because their workflow files received the governed Node-24 pin migration. Where an older generation-bound acceptance emitter rejected the newer production trust state (for example R19.5 expecting its historical Root/version/hash authority), its focused source tests still passed. Such historical-state vetoes are not evidence of an action-runtime migration failure and are not part of the R20.4 exact-head merge gate. The current R20.4, R0, Python Core, KodeStudio UI and R16.9 gates listed above all passed on the exact accepted HEAD.
+
+### R20.4 post-merge continuity normalization
+
+Pre-normalization base: `main` `3099561a38a7df6abf7e90fc8cd29ac035147cc2`.
+
+Unique normalization branch: `r20/04-continuity-normalization`.
+
+This branch modifies only `docs/continuity/KODEPOIA_CONTINUITY_R20.md`. Its protected exact-head merge is the sole R20.4 post-merge normalization. The resulting normalized `main` SHA is established by the merge itself and becomes the only authorized R20.5 base; do not create a second R20.4 normalization merely to embed that merge SHA.
+
+Manual intervention for R20.4: **NONE**. Existing R20.3 online signer environment secrets were reused; no Root/Targets private material was needed, and no production metadata refresh was forced while the current generation remained sufficiently fresh.
+
+## R20.5 — Expiry Monitoring, Alerting & Client UX Hardening — NEXT AUTHORIZED SUBDIVISION
+
+R20.5 may begin only from the normalized `main` produced by the unique R20.4 continuity merge.
+
+Objective: make operational failures visible to maintainers but non-destructive and understandable to users.
 
 Required scope remains the R20 plan authority:
 
-- scheduled and manual-dispatch refresh using the R20.3 zero-cost online signer backend;
-- secret access only in the authorized signing job/environment;
-- refresh only below the remaining-lifetime threshold;
-- monotonic versioning under concurrency/superseded runs;
-- Snapshot generated from exact current Targets bytes;
-- Timestamp generated only from exact final signed Snapshot bytes;
-- atomic publication ordering preventing mixed metadata generations;
-- no release-asset rebuild/mutation during freshness refresh;
-- short-lived steady-state metadata with operational margin;
-- least-privilege Actions permissions and no mandatory paid/OIDC provider dependency.
+- CI monitor for remaining Root/Targets/Snapshot/Timestamp lifetime;
+- warning and critical thresholds;
+- fail/alert before user-facing expiry;
+- explicit evidence when scheduled refresh did not run or signing failed;
+- update UI maps metadata expiry/refresh outage to a localized temporary-service message;
+- application startup and offline/local work remain unaffected;
+- no fallback that accepts expired or unverifiable metadata;
+- operator runbook for emergency manual refresh and GitHub Actions/signing-backend outage.
 
-Production Snapshot/Timestamp v4 still expire `2026-10-08T21:44:18Z`, so R20.4 is now the operational priority.
-
-### GitHub Actions Node 20 maintenance constraint
-
-The successful live challenge emitted a non-blocking warning because the currently exact-SHA-pinned `actions/checkout` and `actions/setup-python` revisions target Node.js 20 and GitHub is forcing them to run on Node.js 24. This warning did **not** invalidate R20.3. However, GitHub's published deprecation timeline removes Node.js 20 from hosted runners on **2026-09-23**. R20.4 must therefore update the relevant exact action SHA pins to Node-24-compatible releases under the existing R16.9 supply-chain governance before that removal date, while preserving immutable pinning and least privilege.
+Manual intervention for R20.5: **NONE after R20.4**, per the R20 plan.
 
 ## R20 security invariants
 
@@ -256,12 +295,6 @@ R20.2: **NONE / COMPLETE + NORMALIZED** — provider-neutral implementation and 
 
 R20.3: **COMPLETE** — public online-key generation, GitHub environment-secret provisioning, offline Root v2 2-of-3 signing, atomic v4/v4 transition and live no-publication secret-identity challenge all passed.
 
-R20.4: **CONDITIONAL** — repository/environment/rules configuration or protected atomic publication permissions may require a manual boundary if unavailable through connected tooling. Do not silently weaken environment or branch restrictions.
+R20.4: **NONE / COMPLETE** — scheduled/manual freshness automation, protected atomic publication path, short-lifetime policy, exact byte binding and Node-24 action-pin migration are accepted; unique continuity normalization is the only remaining R20.4 step.
 
-R20.5: **NONE** after R20.4 automation exists.
-
-R20.6: **CONDITIONAL** — live incident/key-rotation drill may require explicit privileged approval.
-
-## Resume rule
-
-On a new conversation, first verify the current `main`, this continuity authority, R20 roadmap, production Root/Snapshot/Timestamp versions and expiry, and the latest R20.3 normalization PR state. R20.3 is complete: **do not regenerate or replace the accepted online keys and do not repeat the offline Root ceremony unless an explicit governed revocation/rotation is authorized.** If `r20/03-continuity-normalization` has not merged, finish only that normalization. Once it has merged, the resulting `main` is the sole authorized R20.4 base. Begin R20.4 subdivision-by-subdivision from that exact base, preserving the zero-cost reference path, exact-head acceptance, immutable action pinning, least privilege and the Node-24 migration deadline. R20.5 remains blocked until R20.4 is complete and uniquely normalized.
+R20.5: **NONE after R20.4** — monitoring, alerting, UX hardening and emergency runbook require no new private-key provisioning boundary.

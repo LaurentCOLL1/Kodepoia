@@ -1,0 +1,37 @@
+{
+  "environment": "tuf-production-signing",
+  "format": "kodepoia-r20-3-zero-cost-public-keys",
+  "paid_provider_required": false,
+  "private_material_in_manifest": false,
+  "provider": "github-environment-secret",
+  "root_rotation_package_id": "b06f7b8fcd44b9723e6afe90f7dde03153fec62ddcd202c6a74f861af095ee8b",
+  "schema_version": 1,
+  "snapshot": {
+    "keyid": "fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8",
+    "provider": "github-environment-secret",
+    "public_key": {
+      "keytype": "ed25519",
+      "keyval": {
+        "public": "d7d0132ae36b20c7207881844e5998312e3f503980dced6c53bb76e6bc06f36a"
+      },
+      "scheme": "ed25519"
+    },
+    "public_sha256": "1c025f120441c27cd1f705fbf0a174022bb83c359309047701b28d98f164c6a7",
+    "role": "snapshot",
+    "secret_name": "TUF_SNAPSHOT_ED25519_SEED_B64"
+  },
+  "timestamp": {
+    "keyid": "8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad",
+    "provider": "github-environment-secret",
+    "public_key": {
+      "keytype": "ed25519",
+      "keyval": {
+        "public": "c2a303c5fe8924e97bddd98c005c84aca410f6943ef0e1e7de334e854883cdb3"
+      },
+      "scheme": "ed25519"
+    },
+    "public_sha256": "f946487509bad7bf19e7150c4e1cecdfbf3e5886a15ea91afc2d7d5a5b91714e",
+    "role": "timestamp",
+    "secret_name": "TUF_TIMESTAMP_ED25519_SEED_B64"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "expiry_extended": false,
+  "format": "kodepoia-r20-3-full-transition-acceptance",
+  "new_root_threshold_verified": true,
+  "old_root_threshold_verified": true,
+  "paid_provider_required": false,
+  "private_material_detected": false,
+  "production_main_effect": false,
+  "root_sha256": "c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7",
+  "root_version": 2,
+  "schema_version": 1,
+  "snapshot_sha256": "1fccbcc5721acf59188761a79b70d829fa1ae23e77e505d1c1e9867c110eced9",
+  "snapshot_signature_verified": true,
+  "snapshot_version": 4,
+  "status": "pass",
+  "targets_bytes_unchanged": true,
+  "targets_version": 2,
+  "timestamp_sha256": "74c815dc414ae946aba1f7c427ae044dbaa3a5e1fb15bbdb436e33881fc6e501",
+  "timestamp_signature_verified": true,
+  "timestamp_version": 4,
+  "transition_manifest_sha256": "bfd8ca6c1386911f6504410e42a4ef0b9e8243b13d5670a84738f572237e7d50",
+  "uploaded_zip_sha256": "7ee54d08d0dc11ce275705c877a0615b69bedd15a18747393ef7e1dbee58651e"
+}

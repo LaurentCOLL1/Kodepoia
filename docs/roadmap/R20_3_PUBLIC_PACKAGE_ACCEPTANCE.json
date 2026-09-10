@@ -1,0 +1,31 @@
+{
+  "current_root_sha256": "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5",
+  "current_root_version": 1,
+  "format": "kodepoia-r20-3-local-public-package-validation",
+  "paid_provider_required": false,
+  "private_material_detected": false,
+  "production_effect": false,
+  "proposed_root_signed": false,
+  "proposed_root_version": 2,
+  "public_keys_sha256": "4da09ab071e3efea2e831871c752a4469fb126caf05172d911983ad115308030",
+  "public_zip_entries": [
+    "R20_3_PUBLIC_KEYS.json",
+    "root.v2.unsigned.json",
+    "ROOT_ROTATION_MANIFEST.json"
+  ],
+  "replacement_keyids_derived_from_public_keys": true,
+  "replacement_keyids_distinct": true,
+  "root_policy_preserved": true,
+  "root_rotation_package_id": "b06f7b8fcd44b9723e6afe90f7dde03153fec62ddcd202c6a74f861af095ee8b",
+  "root_threshold": 2,
+  "rotation_manifest_sha256": "f691dfa880d85fdf92f1b4ad2cc3167b81b1920ea4267494865d0b6460334188",
+  "schema_version": 1,
+  "snapshot_previous_keyid": "8d0cab783d2baeee02c1c7eacdd5a1e5ee91e1634413ee16b2448fc651250726",
+  "snapshot_replacement_keyid": "fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8",
+  "status": "pass",
+  "targets_policy_preserved": true,
+  "timestamp_previous_keyid": "51cc1edd18846e4e06e3109e8178aa632e0c2afbd5e7872f85820fef300cd9cb",
+  "timestamp_replacement_keyid": "8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad",
+  "unsigned_root_sha256": "7ae909722149fe7f05380f93b7317c99347f8b3c1d102b7b6ddca64bbe1bbe1d",
+  "uploaded_zip_sha256": "4b26dbf702f93e1c2e6f813eae7c22771a06e97fd9d77bd6d57bff1b6c22b1db"
+}

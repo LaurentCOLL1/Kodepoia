@@ -101,7 +101,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     assert len(policy.digest_sha256) == 64
     assert policy.required_contents_permission == "read"
-    assert len(policy.immutable_authority_workflows) == 41
+    assert len(policy.immutable_authority_workflows) == 43
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
         in policy.immutable_authority_workflows
@@ -161,7 +161,13 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     assert r20_3_workflow in policy.immutable_authority_workflows
     r20_3_live_workflow = ".github/workflows/r20-3-live-signing-challenge.yml"
     assert r20_3_live_workflow in policy.immutable_authority_workflows
-    assert policy.allow_write_workflows == (r18_3_workflow,)
+    r20_4_workflow = ".github/workflows/r20-4-scheduled-metadata-refresh.yml"
+    assert r20_4_workflow in policy.immutable_authority_workflows
+    r20_4_acceptance_workflow = (
+        ".github/workflows/r20-4-scheduled-metadata-refresh-acceptance.yml"
+    )
+    assert r20_4_acceptance_workflow in policy.immutable_authority_workflows
+    assert policy.allow_write_workflows == (r18_3_workflow, r20_4_workflow)
     assert policy.legacy_workflows_are_non_authoritative_for_v1_promotion
     assert policy.forbid_pull_request_target
     assert policy.forbid_untrusted_pr_shell_interpolation

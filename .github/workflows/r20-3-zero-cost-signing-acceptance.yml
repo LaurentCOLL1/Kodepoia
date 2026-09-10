@@ -235,6 +235,13 @@ jobs:
               "root_version": 2,
               "snapshot_version": 4,
               "timestamp_version": 4,
-              "live_signing_challenge_required": True,
+              "offline_root_signing_performed": True,
+              "full_transition_integrated": True,
+              "live_signing_secrets_consumed": False,
+              "github_secret_challenge_pending": True,
+              "production_main_effect": False,
+              "paid_provider_required": False,
+              "actions_artifact_storage_used": False,
+              "status": "pass",
           }
-          print(json.dumps(report, sort_keys=True, separators=(",", ":")))
+          print(json.dumps(report, indent=2, sort_keys=True))

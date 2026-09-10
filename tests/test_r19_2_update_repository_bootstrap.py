@@ -212,7 +212,7 @@ def test_target_binding_rejects_release_url_drift() -> None:
     )
     custom = dict(binding.custom)
     custom["payload_url"] = "https://example.invalid/KodepoiaSetup.exe"
-    with pytest.raises(UpdateRepositoryBootstrapError, match="release asset URL"):
+    with pytest.raises(UpdateRepositoryBootstrapError, match="Release asset URL"):
         UpdateTargetBinding(
             target_path=binding.target_path,
             length=binding.length,

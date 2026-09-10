@@ -30,7 +30,7 @@ def _policy(*, authority: tuple[str, ...] = (".github/workflows/ci.yml",)) -> Su
             "actions/checkout": ActionPin(
                 "actions/checkout",
                 "v4",
-                "11d5960a326750d5838078e36cf38b85af677262",
+                "3d3c42e5aac5ba805825da76410c181273ba90b1",
             ),
             "actions/upload-artifact": ActionPin(
                 "actions/upload-artifact",
@@ -101,7 +101,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     assert len(policy.digest_sha256) == 64
     assert policy.required_contents_permission == "read"
-    assert len(policy.immutable_authority_workflows) == 41
+    assert len(policy.immutable_authority_workflows) == 43
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
         in policy.immutable_authority_workflows
@@ -161,7 +161,13 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     assert r20_3_workflow in policy.immutable_authority_workflows
     r20_3_live_workflow = ".github/workflows/r20-3-live-signing-challenge.yml"
     assert r20_3_live_workflow in policy.immutable_authority_workflows
-    assert policy.allow_write_workflows == (r18_3_workflow,)
+    r20_4_workflow = ".github/workflows/r20-4-scheduled-metadata-refresh.yml"
+    assert r20_4_workflow in policy.immutable_authority_workflows
+    r20_4_acceptance_workflow = (
+        ".github/workflows/r20-4-scheduled-metadata-refresh-acceptance.yml"
+    )
+    assert r20_4_acceptance_workflow in policy.immutable_authority_workflows
+    assert policy.allow_write_workflows == (r18_3_workflow, r20_4_workflow)
     assert policy.legacy_workflows_are_non_authoritative_for_v1_promotion
     assert policy.forbid_pull_request_target
     assert policy.forbid_untrusted_pr_shell_interpolation
@@ -211,7 +217,7 @@ def test_r16_9_legacy_mutable_reference_passes_when_authority_exists(tmp_path: P
     _workflow_root(
         tmp_path,
         "permissions:\n  contents: read\njobs:\n  t:\n    steps:\n"
-        "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n",
+        "      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n",
         name="authority.yml",
     )
     _workflow_root(
@@ -229,7 +235,7 @@ def test_r16_9_unapproved_action_fails_closed_even_in_legacy(tmp_path: Path) -> 
     _workflow_root(
         tmp_path,
         "permissions:\n  contents: read\njobs:\n  t:\n    steps:\n"
-        "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n",
+        "      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n",
         name="authority.yml",
     )
     _workflow_root(
@@ -256,7 +262,7 @@ def test_r16_9_write_permission_fails_closed(tmp_path: Path) -> None:
     root = _workflow_root(
         tmp_path,
         "permissions:\n  contents: write\njobs:\n  t:\n    steps:\n"
-        "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n",
+        "      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n",
     )
     audit = audit_workflows(root, _policy())
     assert any("workflow_write_permission" in blocker for blocker in audit.blockers)
@@ -266,7 +272,7 @@ def test_r16_9_missing_explicit_permissions_fails_closed(tmp_path: Path) -> None
     root = _workflow_root(
         tmp_path,
         "jobs:\n  t:\n    steps:\n"
-        "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n",
+        "      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n",
     )
     audit = audit_workflows(root, _policy())
     assert any("workflow_permissions_missing" in blocker for blocker in audit.blockers)
@@ -276,7 +282,7 @@ def test_r16_9_pull_request_target_is_forbidden(tmp_path: Path) -> None:
     root = _workflow_root(
         tmp_path,
         "on:\n  pull_request_target:\npermissions:\n  contents: read\njobs:\n  t:\n    steps:\n"
-        "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n",
+        "      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n",
     )
     audit = audit_workflows(root, _policy())
     assert any("workflow_pull_request_target_forbidden" in blocker for blocker in audit.blockers)
@@ -286,7 +292,7 @@ def test_r16_9_untrusted_pr_shell_interpolation_is_forbidden(tmp_path: Path) -> 
     root = _workflow_root(
         tmp_path,
         "permissions:\n  contents: read\njobs:\n  t:\n    steps:\n"
-        "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n"
+        "      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n"
         '      - run: echo "${{ github.event.pull_request.title }}"\n',
     )
     audit = audit_workflows(root, _policy())
@@ -299,7 +305,7 @@ def test_r16_9_safe_exact_pr_sha_context_is_not_treated_as_shell_injection(tmp_p
         "permissions:\n  contents: read\nenv:\n"
         "  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}\n"
         "jobs:\n  t:\n    steps:\n"
-        "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n"
+        "      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n"
         '      - run: echo "${{ env.SOURCE_SHA }}"\n',
     )
     audit = audit_workflows(root, _policy())
@@ -310,7 +316,7 @@ def test_r16_9_parent_artifact_path_is_forbidden(tmp_path: Path) -> None:
     root = _workflow_root(
         tmp_path,
         "permissions:\n  contents: read\njobs:\n  t:\n    steps:\n"
-        "      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262\n"
+        "      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1\n"
         "      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02\n"
         "        with:\n          path: ../outside.txt\n",
     )

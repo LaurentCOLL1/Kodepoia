@@ -45,7 +45,8 @@
     "require_explicit_permissions": true,
     "required_contents_permission": "read",
     "allow_write_workflows": [
-      ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml"
+      ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml",
+      ".github/workflows/r20-4-scheduled-metadata-refresh.yml"
     ],
     "immutable_authority_workflows": [
       ".github/workflows/python-core.yml",
@@ -88,7 +89,9 @@
       ".github/workflows/r20-1-bridge-metadata-refresh-acceptance.yml",
       ".github/workflows/r20-2-online-signer-rotation-acceptance.yml",
       ".github/workflows/r20-3-zero-cost-signing-acceptance.yml",
-      ".github/workflows/r20-3-live-signing-challenge.yml"
+      ".github/workflows/r20-3-live-signing-challenge.yml",
+      ".github/workflows/r20-4-scheduled-metadata-refresh.yml",
+      ".github/workflows/r20-4-scheduled-metadata-refresh-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

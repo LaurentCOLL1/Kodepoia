@@ -43,7 +43,7 @@ def _synthetic_policy() -> SupplyChainPolicy:
             "actions/checkout": ActionPin(
                 "actions/checkout",
                 "v4",
-                "11d5960a326750d5838078e36cf38b85af677262",
+                "3d3c42e5aac5ba805825da76410c181273ba90b1",
             ),
             "actions/upload-artifact": ActionPin(
                 "actions/upload-artifact",
@@ -77,7 +77,7 @@ def _synthetic_audit(workflow_text: str):
 
 
 def _tamper_cases() -> list[dict[str, Any]]:
-    pinned = "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
+    pinned = "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
     cases: list[dict[str, Any]] = []
 
     mutable = _synthetic_audit(
@@ -174,11 +174,11 @@ def build_report(*, source_sha: str, platform: str) -> dict[str, Any]:
             and {name: pin.commit_sha for name, pin in policy.pins.items()}
             == {
                 "actions/attest": "1e69f48acb82d1966a394da916b4c1698aa569d6",
-                "actions/checkout": "11d5960a326750d5838078e36cf38b85af677262",
+                "actions/checkout": "3d3c42e5aac5ba805825da76410c181273ba90b1",
                 "actions/download-artifact": "634f93cb2916e3fdff6788551b99b062d0335ce0",
                 "actions/setup-dotnet": "67a3573c9a986a3f9c594539f4ab511d57bb3ce9",
                 "actions/setup-java": "cf277c60eb25467037889841efdb72551f06f6c3",
-                "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+                "actions/setup-python": "5fda3b95a4ea91299a34e894583c3862153e4b97",
                 "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
                 "android-actions/setup-android": "9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407",
                 "gradle/actions": "ed408507eac070d1f99cc633dbcf757c94c7933a",

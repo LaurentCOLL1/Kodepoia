@@ -47,6 +47,20 @@ jobs:
       - name: Install focused dependencies
         run: python -m pip install -e ".[dev]"
 
+      - name: Restore exact tracked source after dependency installation
+        shell: bash
+        run: |
+          # Editable build/install hooks can normalize tracked deterministic evidence
+          # before the signer challenge itself runs. Restore tracked bytes to the exact
+          # checked-out commit so the final cleanliness assertion measures only the
+          # challenge, not dependency-install side effects.
+          git reset --hard "$SOURCE_SHA"
+          if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+            echo "Unable to restore exact tracked source before live challenge" >&2
+            git status --porcelain --untracked-files=no >&2
+            exit 1
+          fi
+
       - name: Verify live Snapshot/Timestamp secret identities without publication
         run: python scripts/r20_3_live_signing_challenge.py --source-sha "$SOURCE_SHA"
 

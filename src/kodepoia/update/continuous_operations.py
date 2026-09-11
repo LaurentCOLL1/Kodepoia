@@ -9,9 +9,9 @@ from pathlib import Path
 from typing import Any
 
 from securesystemslib.signer import CryptoSigner, Signer
-from tuf.api.metadata import MetaFile, Metadata, Root, Snapshot, Timestamp
+from tuf.api.metadata import Metadata, Root
 
-from kodepoia.release.tuf_security import SyntheticTufRepository, TufVerificationError
+from kodepoia.release.tuf_security import SyntheticTufRepository
 from kodepoia.update.delivery import VerifiedUpdateArtifact
 from kodepoia.update.operations_health import temporary_update_service_message
 from kodepoia.update.seamless import SeamlessUpdateInstallCoordinator

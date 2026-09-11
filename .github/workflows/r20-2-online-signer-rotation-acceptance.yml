@@ -88,7 +88,7 @@ jobs:
 
           from tuf.api.metadata import Metadata, Root
 
-          R20_2_END_SHA = "58585bbd680166d54147e11b0f4b50fd62c817af"
+          R20_2_END_SHA = "9ab039519e434b24fff1c45dfeed2aa2fef4920f"
           EXPECTED_ROOT_V1_SHA256 = "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
 
           historical_root_bytes = subprocess.check_output(
@@ -165,7 +165,7 @@ jobs:
 
           from tuf.api.metadata import Metadata, Root
 
-          r20_2_end_sha = "58585bbd680166d54147e11b0f4b50fd62c817af"
+          r20_2_end_sha = "9ab039519e434b24fff1c45dfeed2aa2fef4920f"
           historical_root = subprocess.check_output(
               ["git", "show", f"{r20_2_end_sha}:update-repository/metadata/root.json"]
           )

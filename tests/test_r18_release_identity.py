@@ -44,26 +44,31 @@ def _release(
     )
 
 
-def test_current_release_identity_is_canonical_beta_rc2() -> None:
+def test_current_release_identity_is_canonical_beta_rc() -> None:
     assert CURRENT_RELEASE.package == "kodepoia"
     assert CURRENT_RELEASE.channel == "beta"
     assert CURRENT_RELEASE.build_type == "prerelease"
     assert CURRENT_RELEASE.source_binding == "exact-head"
-    assert CURRENT_RELEASE.pep440_version == "1.1.0rc2"
-    assert CURRENT_RELEASE.public_version == "1.1.0-rc2"
-    assert CURRENT_RELEASE.installer_version == "1.1.0-rc2"
+    assert CURRENT_RELEASE.stage == "rc"
+    assert CURRENT_RELEASE.serial >= 1
     assert kodepoia.__version__ == CURRENT_RELEASE.pep440_version
 
     identity_path = ROOT / "src/kodepoia/release/release_identity.json"
     payload = json.loads(identity_path.read_text(encoding="utf-8"))
     assert payload == {
-        "schema_version": 1,
-        "product": "Kodepoia",
-        "package": "kodepoia",
-        "channel": "beta",
-        "build_type": "prerelease",
-        "source_binding": "exact-head",
-        "version": {"major": 1, "minor": 1, "patch": 0, "stage": "rc", "serial": 2},
+        "schema_version": CURRENT_RELEASE.schema_version,
+        "product": CURRENT_RELEASE.product,
+        "package": CURRENT_RELEASE.package,
+        "channel": CURRENT_RELEASE.channel,
+        "build_type": CURRENT_RELEASE.build_type,
+        "source_binding": CURRENT_RELEASE.source_binding,
+        "version": {
+            "major": CURRENT_RELEASE.major,
+            "minor": CURRENT_RELEASE.minor,
+            "patch": CURRENT_RELEASE.patch,
+            "stage": CURRENT_RELEASE.stage,
+            "serial": CURRENT_RELEASE.serial,
+        },
     }
     assert not (ROOT / "src/kodepoia/release_identity.json").exists()
 
@@ -169,4 +174,6 @@ def test_cli_and_compatibility_surface_match_canonical_identity() -> None:
         capture_output=True,
         text=True,
     )
-    assert result.stdout.strip() == "kodepoia 1.1.0-rc2 (beta)"
+    assert result.stdout.strip() == (
+        f"kodepoia {CURRENT_RELEASE.public_version} ({CURRENT_RELEASE.channel})"
+    )

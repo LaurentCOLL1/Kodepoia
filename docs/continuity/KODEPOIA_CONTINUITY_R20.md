@@ -128,6 +128,7 @@ No subdivision may be silently inserted, removed, merged, split or renumbered. *
 - R20.5 monitor is read-only, secret-free and scheduled every six hours at minute 47; Root/Targets warnings/critical are 90/30 days and Snapshot/Timestamp 36/24 hours; R20.4 run health warns after 9h and is critical after 18h or two completed failures.
 - Expired/inconsistent/unverifiable metadata remains fail-closed; localized EN/FR service-unavailable UX never blocks startup or local work.
 - R20.5 workflows are registered under immutable R16.9 authority.
+- Operations runbook: `docs/release/R20_5_UPDATE_OPERATIONS_RUNBOOK.md`.
 - Manual intervention: **NONE / COMPLETE + NORMALIZED**.
 
 ## R20.6 — Long-Offline Client & Continuous-Operations Integrated Acceptance — COMPLETE + NORMALIZED

@@ -107,12 +107,20 @@ jobs:
               raise SystemExit("R19.2 focused acceptance matrix is incomplete")
           if report["production_root_state"] != "active":
               raise SystemExit("R19.2 production Root is not active")
-          if report["production_root_version"] != 1:
-              raise SystemExit("R19.2 production Root version drifted")
-          if report["production_root_sha256"] != (
+          if report["packaged_root_version"] != 1:
+              raise SystemExit("R19.2 packaged trust-anchor version drifted")
+          if report["packaged_root_sha256"] != (
               "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
           ):
-              raise SystemExit("R19.2 production Root digest drifted")
+              raise SystemExit("R19.2 packaged trust-anchor digest drifted")
+          if report["public_root_version"] != 2:
+              raise SystemExit("R19.2 current public Root is not accepted Root v2")
+          if report["public_root_sha256"] != (
+              "c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7"
+          ):
+              raise SystemExit("R19.2 current public Root v2 digest drifted")
+          if not report["checks"]["public_root_trust_path_verified"]:
+              raise SystemExit("R19.2 packaged Root v1 -> public Root v2 trust path failed")
           if report["synthetic_root_production_trust"]:
               raise SystemExit("synthetic Root unexpectedly claims production trust")
           if report["private_keys_persisted"] or report["private_keys_used_by_acceptance"]:

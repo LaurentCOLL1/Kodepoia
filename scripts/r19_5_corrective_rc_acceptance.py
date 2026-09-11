@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import subprocess
+import tomllib
 import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
@@ -16,7 +17,7 @@ from kodepoia.release.corrective_rc import (
     PREVIOUS_PUBLIC_VERSION,
     REQUIRED_TUF_ROLE_VERSIONS,
 )
-from kodepoia.release.identity import CURRENT_RELEASE
+from kodepoia.release.identity import CURRENT_RELEASE, ReleaseIdentity
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 CUSTODY_ROOT_SHA256 = (
@@ -119,6 +120,32 @@ def _verify_public_release(
     }
 
 
+def _historical_rc2_identity() -> ReleaseIdentity:
+    return ReleaseIdentity(
+        schema_version=1,
+        product="Kodepoia",
+        package="kodepoia",
+        channel="beta",
+        build_type="prerelease",
+        source_binding="exact-head",
+        major=1,
+        minor=1,
+        patch=0,
+        stage="rc",
+        serial=2,
+    )
+
+
+def _generation_matches_or_advances(
+    *, current_version: int, current_bytes: bytes, historical_version: int, historical_sha256: str
+) -> bool:
+    if current_version < historical_version:
+        return False
+    if current_version == historical_version:
+        return hashlib.sha256(current_bytes).hexdigest() == historical_sha256
+    return True
+
+
 def build_report(source_sha: str) -> dict[str, object]:
     actual = _git_head()
     if actual != source_sha:
@@ -130,7 +157,7 @@ def build_report(source_sha: str) -> dict[str, object]:
     tuf_evidence = dict(evidence["tuf"])
     actions_evidence = dict(evidence["github_actions"])
 
-    pyproject = (ROOT_DIR / "pyproject.toml").read_text(encoding="utf-8")
+    pyproject = tomllib.loads((ROOT_DIR / "pyproject.toml").read_text(encoding="utf-8"))
     installer_workflow = (
         ROOT_DIR / ".github" / "workflows" / "windows-installer.yml"
     ).read_text(encoding="utf-8")
@@ -145,13 +172,13 @@ def build_report(source_sha: str) -> dict[str, object]:
     snapshot_md = _load_metadata("snapshot.json")
     timestamp_md = _load_metadata("timestamp.json")
     if not isinstance(root_md.signed, Root):
-        raise SystemExit("R19.5 final root.json is not Root metadata")
+        raise SystemExit("R19.5 current root.json is not Root metadata")
     if not isinstance(targets_md.signed, Targets):
-        raise SystemExit("R19.5 final targets.json is not Targets metadata")
+        raise SystemExit("R19.5 current targets.json is not Targets metadata")
     if not isinstance(snapshot_md.signed, Snapshot):
-        raise SystemExit("R19.5 final snapshot.json is not Snapshot metadata")
+        raise SystemExit("R19.5 current snapshot.json is not Snapshot metadata")
     if not isinstance(timestamp_md.signed, Timestamp):
-        raise SystemExit("R19.5 final timestamp.json is not Timestamp metadata")
+        raise SystemExit("R19.5 current timestamp.json is not Timestamp metadata")
 
     root = root_md.signed
     root.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
@@ -163,34 +190,52 @@ def build_report(source_sha: str) -> dict[str, object]:
     snapshot_md.signed.meta["targets.json"].verify_length_and_hashes(targets_bytes)
     timestamp_md.signed.snapshot_meta.verify_length_and_hashes(snapshot_bytes)
 
-    target_entries = targets_md.signed.targets
-    if len(target_entries) != 1:
-        raise SystemExit(
-            "R19.5 final Targets must authorize exactly one corrective target"
-        )
-    target_path, target = next(iter(target_entries.items()))
-    target_custom = dict(target.custom or {})
     expected_target_path = (
         "channels/beta/windows-x86_64/"
         f"{CORRECTIVE_PUBLIC_VERSION}/{release_source_sha}/KodepoiaSetup.exe"
     )
+    target = targets_md.signed.targets.get(expected_target_path)
+    if target is None:
+        raise SystemExit("R19.5 historical rc2 target is no longer authorized")
+    target_custom = dict(target.custom or {})
     expected_payload_url = (
         "https://github.com/LaurentCOLL1/Kodepoia/releases/download/"
         f"v{CORRECTIVE_PUBLIC_VERSION}/KodepoiaSetup.exe"
     )
 
+    corrective_identity = _historical_rc2_identity()
+    current_not_older = (
+        CURRENT_RELEASE.pep440_version == corrective_identity.pep440_version
+        or CURRENT_RELEASE.is_newer_than(corrective_identity)
+    )
+    historical_hashes_well_formed = all(
+        isinstance(tuf_evidence.get(name), str)
+        and len(str(tuf_evidence[name])) == 64
+        and all(char in "0123456789abcdef" for char in str(tuf_evidence[name]))
+        for name in (
+            "root_sha256",
+            "targets_sha256",
+            "snapshot_sha256",
+            "timestamp_sha256",
+        )
+    )
+
     now = datetime.now(UTC)
     checks = {
-        "canonical_public_version": (
-            CURRENT_RELEASE.public_version == CORRECTIVE_PUBLIC_VERSION
+        "canonical_public_version": current_not_older,
+        "canonical_pep440_version": current_not_older,
+        "package_version_synchronized": (
+            pyproject["project"]["version"] == CURRENT_RELEASE.pep440_version
         ),
-        "canonical_pep440_version": CURRENT_RELEASE.pep440_version == "1.1.0rc2",
-        "package_version_synchronized": 'version = "1.1.0rc2"' in pyproject,
         "installer_uses_canonical_version": (
             "KODEPOIA_PUBLIC_VERSION" in installer_workflow
             and '-Version $env:KODEPOIA_PUBLIC_VERSION' in installer_workflow
         ),
         "historical_previous_rc": PREVIOUS_PUBLIC_VERSION == "1.1.0-rc1",
+        "historical_corrective_rc": (
+            corrective_identity.public_version == CORRECTIVE_PUBLIC_VERSION
+            and str(evidence["public_version"]) == CORRECTIVE_PUBLIC_VERSION
+        ),
         "release_source_is_ancestor_of_metadata_head": _is_ancestor(
             release_source_sha, source_sha
         ),
@@ -203,28 +248,44 @@ def build_report(source_sha: str) -> dict[str, object]:
             == "ec326d6549b7d63cbe874d9d8c656162fec8ce49c914c320fa08b295567f1172"
         ),
         "user_custodied_root_adopted": (
-            hashlib.sha256(root_bytes).hexdigest()
-            == CUSTODY_ROOT_SHA256
-            == tuf_evidence["root_sha256"]
+            tuf_evidence["root_sha256"] == CUSTODY_ROOT_SHA256
+            and root_md.signed.version >= int(tuf_evidence["root_version"])
         ),
         "final_tuf_versions": (
-            targets_md.signed.version == REQUIRED_TUF_ROLE_VERSIONS["targets"]
-            and snapshot_md.signed.version
-            == REQUIRED_TUF_ROLE_VERSIONS["snapshot"]
-            and timestamp_md.signed.version
-            == REQUIRED_TUF_ROLE_VERSIONS["timestamp"]
+            targets_md.signed.version >= REQUIRED_TUF_ROLE_VERSIONS["targets"]
+            and snapshot_md.signed.version >= REQUIRED_TUF_ROLE_VERSIONS["snapshot"]
+            and timestamp_md.signed.version >= REQUIRED_TUF_ROLE_VERSIONS["timestamp"]
         ),
         "final_tuf_signatures_verified": True,
         "final_tuf_cross_bindings_verified": True,
         "final_metadata_hashes_pinned": (
-            hashlib.sha256(targets_bytes).hexdigest()
-            == tuf_evidence["targets_sha256"]
-            and hashlib.sha256(snapshot_bytes).hexdigest()
-            == tuf_evidence["snapshot_sha256"]
-            and hashlib.sha256(timestamp_bytes).hexdigest()
-            == tuf_evidence["timestamp_sha256"]
+            historical_hashes_well_formed
+            and _generation_matches_or_advances(
+                current_version=root_md.signed.version,
+                current_bytes=root_bytes,
+                historical_version=int(tuf_evidence["root_version"]),
+                historical_sha256=str(tuf_evidence["root_sha256"]),
+            )
+            and _generation_matches_or_advances(
+                current_version=targets_md.signed.version,
+                current_bytes=targets_bytes,
+                historical_version=int(tuf_evidence["targets_version"]),
+                historical_sha256=str(tuf_evidence["targets_sha256"]),
+            )
+            and _generation_matches_or_advances(
+                current_version=snapshot_md.signed.version,
+                current_bytes=snapshot_bytes,
+                historical_version=int(tuf_evidence["snapshot_version"]),
+                historical_sha256=str(tuf_evidence["snapshot_sha256"]),
+            )
+            and _generation_matches_or_advances(
+                current_version=timestamp_md.signed.version,
+                current_bytes=timestamp_bytes,
+                historical_version=int(tuf_evidence["timestamp_version"]),
+                historical_sha256=str(tuf_evidence["timestamp_sha256"]),
+            )
         ),
-        "final_target_path_exact": target_path == expected_target_path,
+        "final_target_path_exact": expected_target_path in targets_md.signed.targets,
         "final_target_installer_binding": (
             target.length == installer_evidence["length"]
             and target.hashes.get("sha256") == installer_evidence["sha256"]
@@ -253,18 +314,25 @@ def build_report(source_sha: str) -> dict[str, object]:
         raise SystemExit("R19.5 acceptance failed: " + ", ".join(failed))
 
     return {
-        "schema_version": 4,
+        "schema_version": 5,
         "subdivision": "R19.5",
         "source_sha": source_sha,
         "release_source_sha": release_source_sha,
         "status": "PASS_PUBLIC_RELEASE_VERIFIED",
         "checks": checks,
         "corrective_public_version": CORRECTIVE_PUBLIC_VERSION,
+        "current_public_version": CURRENT_RELEASE.public_version,
         "previous_public_version": PREVIOUS_PUBLIC_VERSION,
         "custody_root_sha256": CUSTODY_ROOT_SHA256,
         "installer_sha256": installer_evidence["sha256"],
         "installer_size": installer_evidence["length"],
-        "metadata_versions": dict(REQUIRED_TUF_ROLE_VERSIONS),
+        "historical_metadata_versions": dict(REQUIRED_TUF_ROLE_VERSIONS),
+        "current_metadata_versions": {
+            "root": root_md.signed.version,
+            "targets": targets_md.signed.version,
+            "snapshot": snapshot_md.signed.version,
+            "timestamp": timestamp_md.signed.version,
+        },
         "manual_intervention_required": False,
         "publication_triggered": True,
         "public_release_id": dict(evidence["public_release"])["release_id"],

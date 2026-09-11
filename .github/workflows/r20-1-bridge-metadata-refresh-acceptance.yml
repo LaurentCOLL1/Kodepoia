@@ -83,99 +83,199 @@ jobs:
           tests/test_r18_6_update_trust.py
           tests/test_r18_7_update_discovery.py
 
-      - name: Verify integrated production bridge
+      - name: Verify frozen R20.1 bridge and monotonic TUF successor
         shell: python
         run: |
           import hashlib
           import json
           import os
-          from datetime import UTC, datetime, timedelta
+          import subprocess
+          from datetime import datetime, timedelta
           from pathlib import Path
 
           from tuf.api.metadata import Metadata, Root, Snapshot, Targets, Timestamp
 
-          root_bytes = Path("update-repository/metadata/root.json").read_bytes()
-          targets_bytes = Path("update-repository/metadata/targets.json").read_bytes()
-          snapshot_bytes = Path("update-repository/metadata/snapshot.json").read_bytes()
-          timestamp_bytes = Path("update-repository/metadata/timestamp.json").read_bytes()
+          HISTORICAL_SHA = "76f897cc50b5c047c3a636609bd1d0d791cc76ad"
+          EXPECTED = {
+              "root.json": "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5",
+              "targets.json": "0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f",
+              "snapshot.json": "dbbb5966f9146b00e5697fda302107bab850c6dcb254e70e0a6e10d25b5c7796",
+              "timestamp.json": "3d16a4d3bfccec33102b73a3a4cddb8af83f0c558bc4cc3e42b7c7536fdbdc7d",
+          }
+
+          def git_blob(path: str) -> bytes:
+              return subprocess.check_output(["git", "show", f"{HISTORICAL_SHA}:{path}"])
+
+          historical = {
+              name: git_blob(f"update-repository/metadata/{name}")
+              for name in ("root.json", "targets.json", "snapshot.json", "timestamp.json")
+          }
+          for name, expected_sha in EXPECTED.items():
+              actual_sha = hashlib.sha256(historical[name]).hexdigest()
+              if actual_sha != expected_sha:
+                  raise SystemExit(
+                      f"frozen R20.1 {name} drifted: expected {expected_sha}, got {actual_sha}"
+                  )
+
+          historical_manifest = git_blob("docs/roadmap/R20_1_BRIDGE_PUBLIC_MANIFEST.json")
           manifest_bytes = Path("docs/roadmap/R20_1_BRIDGE_PUBLIC_MANIFEST.json").read_bytes()
+          if manifest_bytes != historical_manifest:
+              raise SystemExit("R20.1 public bridge manifest changed after phase acceptance")
 
-          if hashlib.sha256(root_bytes).hexdigest() != "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5":
-              raise SystemExit("production Root changed during R20.1")
-          if hashlib.sha256(targets_bytes).hexdigest() != "0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f":
-              raise SystemExit("production Targets changed during R20.1")
-          if hashlib.sha256(snapshot_bytes).hexdigest() != "dbbb5966f9146b00e5697fda302107bab850c6dcb254e70e0a6e10d25b5c7796":
-              raise SystemExit("integrated Snapshot v3 does not match the accepted public bridge")
-          if hashlib.sha256(timestamp_bytes).hexdigest() != "3d16a4d3bfccec33102b73a3a4cddb8af83f0c558bc4cc3e42b7c7536fdbdc7d":
-              raise SystemExit("integrated Timestamp v3 does not match the accepted public bridge")
+          historical_root = Metadata.from_bytes(historical["root.json"])
+          historical_targets = Metadata.from_bytes(historical["targets.json"])
+          historical_snapshot = Metadata.from_bytes(historical["snapshot.json"])
+          historical_timestamp = Metadata.from_bytes(historical["timestamp.json"])
+          if not isinstance(historical_root.signed, Root):
+              raise SystemExit("historical root.json has the wrong TUF type")
+          if not isinstance(historical_targets.signed, Targets):
+              raise SystemExit("historical targets.json has the wrong TUF type")
+          if not isinstance(historical_snapshot.signed, Snapshot):
+              raise SystemExit("historical snapshot.json has the wrong TUF type")
+          if not isinstance(historical_timestamp.signed, Timestamp):
+              raise SystemExit("historical timestamp.json has the wrong TUF type")
 
-          root_md = Metadata.from_bytes(root_bytes)
-          targets_md = Metadata.from_bytes(targets_bytes)
-          snapshot_md = Metadata.from_bytes(snapshot_bytes)
-          timestamp_md = Metadata.from_bytes(timestamp_bytes)
-          if not isinstance(root_md.signed, Root):
-              raise SystemExit("root.json has the wrong TUF type")
-          if not isinstance(targets_md.signed, Targets):
-              raise SystemExit("targets.json has the wrong TUF type")
-          if not isinstance(snapshot_md.signed, Snapshot):
-              raise SystemExit("snapshot.json has the wrong TUF type")
-          if not isinstance(timestamp_md.signed, Timestamp):
-              raise SystemExit("timestamp.json has the wrong TUF type")
+          historical_root.signed.verify_delegate(
+              "root", historical_root.signed_bytes, historical_root.signatures
+          )
+          historical_root.signed.verify_delegate(
+              "targets", historical_targets.signed_bytes, historical_targets.signatures
+          )
+          historical_root.signed.verify_delegate(
+              "snapshot", historical_snapshot.signed_bytes, historical_snapshot.signatures
+          )
+          historical_root.signed.verify_delegate(
+              "timestamp", historical_timestamp.signed_bytes, historical_timestamp.signatures
+          )
 
-          root_md.signed.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
-          root_md.signed.verify_delegate("targets", targets_md.signed_bytes, targets_md.signatures)
-          root_md.signed.verify_delegate("snapshot", snapshot_md.signed_bytes, snapshot_md.signatures)
-          root_md.signed.verify_delegate("timestamp", timestamp_md.signed_bytes, timestamp_md.signatures)
+          historical_versions = (
+              historical_root.signed.version,
+              historical_targets.signed.version,
+              historical_snapshot.signed.version,
+              historical_timestamp.signed.version,
+          )
+          if historical_versions != (1, 2, 3, 3):
+              raise SystemExit(f"R20.1 frozen metadata versions drifted: {historical_versions}")
 
-          if (root_md.signed.version, targets_md.signed.version, snapshot_md.signed.version, timestamp_md.signed.version) != (1, 2, 3, 3):
-              raise SystemExit("R20.1 production metadata versions are not 1/2/3/3")
+          historical_targets_ref = historical_snapshot.signed.meta.get("targets.json")
+          if historical_targets_ref is None or historical_targets_ref.version != 2:
+              raise SystemExit("historical Snapshot v3 does not reference Targets v2")
+          historical_targets_ref.verify_length_and_hashes(historical["targets.json"])
 
-          targets_ref = snapshot_md.signed.meta.get("targets.json")
-          if targets_ref is None or targets_ref.version != 2:
-              raise SystemExit("Snapshot v3 does not reference Targets v2")
-          targets_ref.verify_length_and_hashes(targets_bytes)
-
-          snapshot_ref = timestamp_md.signed.snapshot_meta
-          if snapshot_ref.version != 3:
-              raise SystemExit("Timestamp v3 does not reference Snapshot v3")
-          snapshot_ref.verify_length_and_hashes(snapshot_bytes)
+          historical_snapshot_ref = historical_timestamp.signed.snapshot_meta
+          if historical_snapshot_ref.version != 3:
+              raise SystemExit("historical Timestamp v3 does not reference Snapshot v3")
+          historical_snapshot_ref.verify_length_and_hashes(historical["snapshot.json"])
 
           manifest = json.loads(manifest_bytes)
           signed_at = datetime.fromisoformat(manifest["signed_at"].replace("Z", "+00:00"))
           expires = datetime.fromisoformat(manifest["expires"].replace("Z", "+00:00"))
           if expires - signed_at != timedelta(days=30):
               raise SystemExit("R20.1 bridge lifetime is not exactly 30 days")
-          if snapshot_md.signed.expires != expires or timestamp_md.signed.expires != expires:
-              raise SystemExit("R20.1 metadata expiry does not match the public manifest")
-          now = datetime.now(UTC)
-          if snapshot_md.signed.is_expired(now) or timestamp_md.signed.is_expired(now):
-              raise SystemExit("R20.1 bridge metadata is expired")
+          if historical_snapshot.signed.expires != expires or historical_timestamp.signed.expires != expires:
+              raise SystemExit("R20.1 frozen metadata expiry does not match the public manifest")
 
           if manifest["root"] != {
-              "length": len(root_bytes),
+              "length": len(historical["root.json"]),
               "modified": False,
-              "sha256": hashlib.sha256(root_bytes).hexdigest(),
+              "sha256": hashlib.sha256(historical["root.json"]).hexdigest(),
               "version": 1,
           }:
               raise SystemExit("R20.1 public manifest Root binding is invalid")
           if manifest["targets"] != {
-              "length": len(targets_bytes),
+              "length": len(historical["targets.json"]),
               "modified": False,
-              "sha256": hashlib.sha256(targets_bytes).hexdigest(),
+              "sha256": hashlib.sha256(historical["targets.json"]).hexdigest(),
               "version": 2,
           }:
               raise SystemExit("R20.1 public manifest Targets binding is invalid")
-          if manifest["snapshot"]["sha256"] != hashlib.sha256(snapshot_bytes).hexdigest() or manifest["snapshot"]["version"] != 3:
+          if (
+              manifest["snapshot"]["sha256"] != hashlib.sha256(historical["snapshot.json"]).hexdigest()
+              or manifest["snapshot"]["version"] != 3
+          ):
               raise SystemExit("R20.1 public manifest Snapshot binding is invalid")
-          if manifest["timestamp"]["sha256"] != hashlib.sha256(timestamp_bytes).hexdigest() or manifest["timestamp"]["version"] != 3:
+          if (
+              manifest["timestamp"]["sha256"] != hashlib.sha256(historical["timestamp.json"]).hexdigest()
+              or manifest["timestamp"]["version"] != 3
+          ):
               raise SystemExit("R20.1 public manifest Timestamp binding is invalid")
           if manifest["private_keys_in_output"] is not False or manifest["root_or_targets_private_key_required"] is not False:
               raise SystemExit("R20.1 public manifest violates private-key custody invariants")
 
+          current = {
+              name: Path(f"update-repository/metadata/{name}").read_bytes()
+              for name in ("root.json", "targets.json", "snapshot.json", "timestamp.json")
+          }
+          current_root = Metadata.from_bytes(current["root.json"])
+          current_targets = Metadata.from_bytes(current["targets.json"])
+          current_snapshot = Metadata.from_bytes(current["snapshot.json"])
+          current_timestamp = Metadata.from_bytes(current["timestamp.json"])
+          if not isinstance(current_root.signed, Root):
+              raise SystemExit("current root.json has the wrong TUF type")
+          if not isinstance(current_targets.signed, Targets):
+              raise SystemExit("current targets.json has the wrong TUF type")
+          if not isinstance(current_snapshot.signed, Snapshot):
+              raise SystemExit("current snapshot.json has the wrong TUF type")
+          if not isinstance(current_timestamp.signed, Timestamp):
+              raise SystemExit("current timestamp.json has the wrong TUF type")
+
+          current_versions = (
+              current_root.signed.version,
+              current_targets.signed.version,
+              current_snapshot.signed.version,
+              current_timestamp.signed.version,
+          )
+          if any(current < frozen for current, frozen in zip(current_versions, historical_versions, strict=True)):
+              raise SystemExit(
+                  f"current TUF metadata rolled back below R20.1: frozen={historical_versions}, current={current_versions}"
+              )
+
+          if current_root.signed.version == historical_root.signed.version:
+              if current["root.json"] != historical["root.json"]:
+                  raise SystemExit("Root v1 bytes changed without a version increment")
+          elif current_root.signed.version == historical_root.signed.version + 1:
+              historical_root.signed.verify_delegate(
+                  "root", current_root.signed_bytes, current_root.signatures
+              )
+              current_root.signed.verify_delegate(
+                  "root", current_root.signed_bytes, current_root.signatures
+              )
+          else:
+              raise SystemExit(
+                  "R20.1 acceptance needs explicit intermediate Root-chain evidence for a jump larger than one version"
+              )
+
+          if current_targets.signed.version == historical_targets.signed.version:
+              if current["targets.json"] != historical["targets.json"]:
+                  raise SystemExit("Targets v2 bytes changed without a version increment")
+
+          current_root.signed.verify_delegate(
+              "targets", current_targets.signed_bytes, current_targets.signatures
+          )
+          current_root.signed.verify_delegate(
+              "snapshot", current_snapshot.signed_bytes, current_snapshot.signatures
+          )
+          current_root.signed.verify_delegate(
+              "timestamp", current_timestamp.signed_bytes, current_timestamp.signatures
+          )
+
+          current_targets_ref = current_snapshot.signed.meta.get("targets.json")
+          if current_targets_ref is None or current_targets_ref.version != current_targets.signed.version:
+              raise SystemExit("current Snapshot does not reference the current Targets version")
+          current_targets_ref.verify_length_and_hashes(current["targets.json"])
+
+          current_snapshot_ref = current_timestamp.signed.snapshot_meta
+          if current_snapshot_ref.version != current_snapshot.signed.version:
+              raise SystemExit("current Timestamp does not reference the current Snapshot version")
+          current_snapshot_ref.verify_length_and_hashes(current["snapshot.json"])
+
           for name, data in {
-              "snapshot.json": snapshot_bytes,
-              "timestamp.json": timestamp_bytes,
+              "historical-snapshot.json": historical["snapshot.json"],
+              "historical-timestamp.json": historical["timestamp.json"],
               "R20_1_BRIDGE_PUBLIC_MANIFEST.json": manifest_bytes,
+              "current-root.json": current["root.json"],
+              "current-snapshot.json": current["snapshot.json"],
+              "current-timestamp.json": current["timestamp.json"],
           }.items():
               upper = data.upper()
               for marker in (b"PRIVATE KEY", b"OPENSSH PRIVATE KEY", b"ENCRYPTED PRIVATE KEY", b"PASSPHRASE", b"PASSWORD"):
@@ -184,15 +284,23 @@ jobs:
 
           report = {
               "format": "kodepoia-r20-1-bridge-final-acceptance",
-              "schema_version": 1,
+              "schema_version": 2,
               "source_sha": os.environ["EVIDENCE_SHA"].strip().lower(),
-              "root_version": 1,
-              "targets_version": 2,
-              "snapshot_version": 3,
-              "timestamp_version": 3,
-              "snapshot_sha256": hashlib.sha256(snapshot_bytes).hexdigest(),
-              "timestamp_sha256": hashlib.sha256(timestamp_bytes).hexdigest(),
+              "historical_source_sha": HISTORICAL_SHA,
+              "historical_root_version": historical_root.signed.version,
+              "historical_targets_version": historical_targets.signed.version,
+              "historical_snapshot_version": historical_snapshot.signed.version,
+              "historical_timestamp_version": historical_timestamp.signed.version,
+              "current_root_version": current_root.signed.version,
+              "current_targets_version": current_targets.signed.version,
+              "current_snapshot_version": current_snapshot.signed.version,
+              "current_timestamp_version": current_timestamp.signed.version,
+              "current_root_sha256": hashlib.sha256(current["root.json"]).hexdigest(),
+              "current_snapshot_sha256": hashlib.sha256(current["snapshot.json"]).hexdigest(),
+              "current_timestamp_sha256": hashlib.sha256(current["timestamp.json"]).hexdigest(),
               "bridge_expires": manifest["expires"],
+              "historical_bridge_verified": True,
+              "current_monotonic_successor_verified": True,
               "private_keys_used_in_ci": False,
               "status": "pass",
           }

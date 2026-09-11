@@ -95,7 +95,7 @@ jobs:
 
           from tuf.api.metadata import Metadata, Root, Snapshot, Targets, Timestamp
 
-          HISTORICAL_SHA = "76f897cc50b5c047c3a636609bd1d0d791cc76ad"
+          HISTORICAL_SHA = "878b2f81d1893b63bef4d7980a6bcb19101530eb"
           EXPECTED = {
               "root.json": "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5",
               "targets.json": "0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f",

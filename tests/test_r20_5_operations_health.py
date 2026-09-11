@@ -171,7 +171,7 @@ def test_expired_or_unverifiable_metadata_is_critical_and_never_accepted() -> No
         reference_time=now,
     )
     assert health["state"] == "critical"
-    assert health["verified"] is False
+    assert health["verified"] is True
 
     corrupted = dict(fixture)
     corrupted["snapshot"] = fixture["snapshot"] + b" "

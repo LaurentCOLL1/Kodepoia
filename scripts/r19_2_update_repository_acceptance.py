@@ -56,10 +56,13 @@ def build_report(source_sha: str) -> dict[str, object]:
 
     production = load_production_packaged_root()
     synthetic = load_synthetic_packaged_root(allow_synthetic=True)
+    packaged_root_md = Metadata.from_bytes(production.root_bytes)
     root_md = _load_metadata("root.json")
     targets_md = _load_metadata("targets.json")
     snapshot_md = _load_metadata("snapshot.json")
     timestamp_md = _load_metadata("timestamp.json")
+    if not isinstance(packaged_root_md.signed, Root):
+        raise RuntimeError("packaged production trust anchor is not Root metadata")
     if not isinstance(root_md.signed, Root):
         raise RuntimeError("public root.json is not Root metadata")
     if not isinstance(targets_md.signed, Targets):
@@ -69,7 +72,21 @@ def build_report(source_sha: str) -> dict[str, object]:
     if not isinstance(timestamp_md.signed, Timestamp):
         raise RuntimeError("public timestamp.json is not Timestamp metadata")
 
+    packaged_root = packaged_root_md.signed
     root = root_md.signed
+    if root.version == packaged_root.version:
+        public_root_trust_path_verified = (
+            (_METADATA_DIR / "root.json").read_bytes() == production.root_bytes
+        )
+    else:
+        if root.version != packaged_root.version + 1:
+            raise RuntimeError(
+                "public Root must equal the packaged trust anchor or be its next sequential Root"
+            )
+        packaged_root.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
+        root.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
+        public_root_trust_path_verified = True
+
     root.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
     root.verify_delegate("targets", targets_md.signed_bytes, targets_md.signatures)
     root.verify_delegate("snapshot", snapshot_md.signed_bytes, snapshot_md.signatures)
@@ -100,8 +117,7 @@ def build_report(source_sha: str) -> dict[str, object]:
         ),
         "production_root_active": production.production_trust_claim,
         "production_root_digest_pinned": production.pin.sha256 == _EXPECTED_ROOT_SHA256,
-        "public_root_matches_package": (_METADATA_DIR / "root.json").read_bytes()
-        == production.root_bytes,
+        "public_root_trust_path_verified": public_root_trust_path_verified,
         "production_root_distinct_from_synthetic": production.pin.sha256 != synthetic.pin.sha256,
         "root_threshold_two_of_three": root.roles["root"].threshold == 2
         and len(root.roles["root"].keyids) == 3,
@@ -116,7 +132,7 @@ def build_report(source_sha: str) -> dict[str, object]:
 
     return {
         "format": "kodepoia-r19-2-update-repository-acceptance",
-        "schema_version": 2,
+        "schema_version": 3,
         "source_sha": source_sha,
         "cases_total": len(checks),
         "cases_passed": len(checks),
@@ -124,8 +140,10 @@ def build_report(source_sha: str) -> dict[str, object]:
         "metadata_base_url": contract.metadata_base_url,
         "release_asset_base_url": contract.release_asset_base_url,
         "production_root_state": "active",
-        "production_root_version": production.pin.version,
-        "production_root_sha256": hashlib.sha256(production.root_bytes).hexdigest(),
+        "packaged_root_version": production.pin.version,
+        "packaged_root_sha256": hashlib.sha256(production.root_bytes).hexdigest(),
+        "public_root_version": root.version,
+        "public_root_sha256": hashlib.sha256((_METADATA_DIR / "root.json").read_bytes()).hexdigest(),
         "synthetic_root_production_trust": False,
         "private_keys_persisted": False,
         "private_keys_used_by_acceptance": False,

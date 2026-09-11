@@ -1,0 +1,14 @@
+{
+  "state": "staged-not-published",
+  "branch": "release/r20-rc3-tuf-transition",
+  "base_main": "02a04d1b0d91d6e4b9459afd8c16b349aadfa5e0",
+  "release_tag": "v1.1.0-rc3",
+  "release_draft": true,
+  "tuf_generation": {
+    "root": 2,
+    "targets": 3,
+    "snapshot": 5,
+    "timestamp": 5
+  },
+  "private_material_in_repository": false
+}

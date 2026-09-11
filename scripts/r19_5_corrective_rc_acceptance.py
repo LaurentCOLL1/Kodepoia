@@ -20,6 +20,7 @@ from kodepoia.release.corrective_rc import (
 from kodepoia.release.identity import CURRENT_RELEASE, ReleaseIdentity
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
+R19_5_ACCEPTED_HEAD = "4ed914d5454bc7434fd61e0eeefe8f27ec8745c6"
 CUSTODY_ROOT_SHA256 = (
     "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
 )
@@ -43,8 +44,27 @@ def _is_ancestor(ancestor: str, descendant: str) -> bool:
     return result.returncode == 0
 
 
+def _git_blob(commit: str, path: str) -> bytes:
+    result = subprocess.run(
+        ["git", "show", f"{commit}:{path}"],
+        cwd=ROOT_DIR,
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.decode("utf-8", errors="replace").strip()
+        raise SystemExit(f"unable to read historical R19.5 blob {commit}:{path}: {detail}")
+    return result.stdout
+
+
 def _load_metadata(name: str) -> Metadata[object]:
     return Metadata.from_bytes((METADATA_DIR / name).read_bytes())
+
+
+def _historical_metadata(name: str) -> tuple[bytes, Metadata[object]]:
+    path = f"update-repository/metadata/{name}"
+    data = _git_blob(R19_5_ACCEPTED_HEAD, path)
+    return data, Metadata.from_bytes(data)
 
 
 def _github_json(url: str) -> dict[str, object]:
@@ -184,19 +204,66 @@ def build_report(source_sha: str) -> dict[str, object]:
     root.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
     root.verify_delegate("targets", targets_md.signed_bytes, targets_md.signatures)
     root.verify_delegate("snapshot", snapshot_md.signed_bytes, snapshot_md.signatures)
-    root.verify_delegate(
-        "timestamp", timestamp_md.signed_bytes, timestamp_md.signatures
-    )
+    root.verify_delegate("timestamp", timestamp_md.signed_bytes, timestamp_md.signatures)
     snapshot_md.signed.meta["targets.json"].verify_length_and_hashes(targets_bytes)
     timestamp_md.signed.snapshot_meta.verify_length_and_hashes(snapshot_bytes)
+
+    historical_root_bytes, historical_root_md = _historical_metadata("root.json")
+    historical_targets_bytes, historical_targets_md = _historical_metadata("targets.json")
+    historical_snapshot_bytes, historical_snapshot_md = _historical_metadata("snapshot.json")
+    historical_timestamp_bytes, historical_timestamp_md = _historical_metadata("timestamp.json")
+    if not isinstance(historical_root_md.signed, Root):
+        raise SystemExit("R19.5 historical root.json is not Root metadata")
+    if not isinstance(historical_targets_md.signed, Targets):
+        raise SystemExit("R19.5 historical targets.json is not Targets metadata")
+    if not isinstance(historical_snapshot_md.signed, Snapshot):
+        raise SystemExit("R19.5 historical snapshot.json is not Snapshot metadata")
+    if not isinstance(historical_timestamp_md.signed, Timestamp):
+        raise SystemExit("R19.5 historical timestamp.json is not Timestamp metadata")
+
+    historical_root = historical_root_md.signed
+    historical_root.verify_delegate(
+        "root", historical_root_md.signed_bytes, historical_root_md.signatures
+    )
+    historical_root.verify_delegate(
+        "targets", historical_targets_md.signed_bytes, historical_targets_md.signatures
+    )
+    historical_root.verify_delegate(
+        "snapshot", historical_snapshot_md.signed_bytes, historical_snapshot_md.signatures
+    )
+    historical_root.verify_delegate(
+        "timestamp", historical_timestamp_md.signed_bytes, historical_timestamp_md.signatures
+    )
+    historical_snapshot_md.signed.meta["targets.json"].verify_length_and_hashes(
+        historical_targets_bytes
+    )
+    historical_timestamp_md.signed.snapshot_meta.verify_length_and_hashes(
+        historical_snapshot_bytes
+    )
+
+    historical_hashes_exact = (
+        hashlib.sha256(historical_root_bytes).hexdigest() == tuf_evidence["root_sha256"]
+        and hashlib.sha256(historical_targets_bytes).hexdigest()
+        == tuf_evidence["targets_sha256"]
+        and hashlib.sha256(historical_snapshot_bytes).hexdigest()
+        == tuf_evidence["snapshot_sha256"]
+        and hashlib.sha256(historical_timestamp_bytes).hexdigest()
+        == tuf_evidence["timestamp_sha256"]
+    )
+    historical_versions_exact = (
+        historical_root_md.signed.version == int(tuf_evidence["root_version"])
+        and historical_targets_md.signed.version == int(tuf_evidence["targets_version"])
+        and historical_snapshot_md.signed.version == int(tuf_evidence["snapshot_version"])
+        and historical_timestamp_md.signed.version == int(tuf_evidence["timestamp_version"])
+    )
 
     expected_target_path = (
         "channels/beta/windows-x86_64/"
         f"{CORRECTIVE_PUBLIC_VERSION}/{release_source_sha}/KodepoiaSetup.exe"
     )
-    target = targets_md.signed.targets.get(expected_target_path)
+    target = historical_targets_md.signed.targets.get(expected_target_path)
     if target is None:
-        raise SystemExit("R19.5 historical rc2 target is no longer authorized")
+        raise SystemExit("R19.5 accepted historical Targets v2 lacks the rc2 target")
     target_custom = dict(target.custom or {})
     expected_payload_url = (
         "https://github.com/LaurentCOLL1/Kodepoia/releases/download/"
@@ -236,6 +303,7 @@ def build_report(source_sha: str) -> dict[str, object]:
             corrective_identity.public_version == CORRECTIVE_PUBLIC_VERSION
             and str(evidence["public_version"]) == CORRECTIVE_PUBLIC_VERSION
         ),
+        "historical_r19_5_head_frozen": _is_ancestor(R19_5_ACCEPTED_HEAD, source_sha),
         "release_source_is_ancestor_of_metadata_head": _is_ancestor(
             release_source_sha, source_sha
         ),
@@ -247,6 +315,7 @@ def build_report(source_sha: str) -> dict[str, object]:
             actions_evidence["artifact_zip_sha256"]
             == "ec326d6549b7d63cbe874d9d8c656162fec8ce49c914c320fa08b295567f1172"
         ),
+        "historical_tuf_generation_exact": historical_hashes_exact and historical_versions_exact,
         "user_custodied_root_adopted": (
             tuf_evidence["root_sha256"] == CUSTODY_ROOT_SHA256
             and root_md.signed.version >= int(tuf_evidence["root_version"])
@@ -285,23 +354,23 @@ def build_report(source_sha: str) -> dict[str, object]:
                 historical_sha256=str(tuf_evidence["timestamp_sha256"]),
             )
         ),
-        "final_target_path_exact": expected_target_path in targets_md.signed.targets,
-        "final_target_installer_binding": (
+        "historical_target_path_exact": target is not None,
+        "historical_target_installer_binding": (
             target.length == installer_evidence["length"]
             and target.hashes.get("sha256") == installer_evidence["sha256"]
         ),
-        "final_target_identity_binding": (
+        "historical_target_identity_binding": (
             target_custom.get("source_sha") == release_source_sha
             and target_custom.get("channel") == "beta"
             and target_custom.get("public_version") == CORRECTIVE_PUBLIC_VERSION
             and target_custom.get("payload_url") == expected_payload_url
             and target_custom.get("withdrawn") is False
         ),
-        "unsigned_status_truthful": (
+        "historical_unsigned_status_truthful": (
             evidence["production_signed"] is False
             and "unsigned" in str(target_custom.get("signing_status", "")).lower()
         ),
-        "metadata_not_expired": (
+        "current_metadata_not_expired": (
             root_md.signed.expires > now
             and targets_md.signed.expires > now
             and snapshot_md.signed.expires > now
@@ -314,11 +383,12 @@ def build_report(source_sha: str) -> dict[str, object]:
         raise SystemExit("R19.5 acceptance failed: " + ", ".join(failed))
 
     return {
-        "schema_version": 5,
+        "schema_version": 6,
         "subdivision": "R19.5",
         "source_sha": source_sha,
+        "historical_acceptance_head": R19_5_ACCEPTED_HEAD,
         "release_source_sha": release_source_sha,
-        "status": "PASS_PUBLIC_RELEASE_VERIFIED",
+        "status": "PASS_HISTORICAL_RELEASE_AND_CURRENT_TUF_VERIFIED",
         "checks": checks,
         "corrective_public_version": CORRECTIVE_PUBLIC_VERSION,
         "current_public_version": CURRENT_RELEASE.public_version,

@@ -40,7 +40,10 @@ def _fixture(*, online_expires: str) -> dict[str, bytes]:
         "snapshot": snapshot_signer,
         "timestamp": timestamp_signer,
     }
-    keys = {signer.public_key.keyid: signer.public_key.to_dict() for signer in signers.values()}
+    keys = {
+        signer.public_key.keyid: signer.public_key.to_dict()
+        for signer in signers.values()
+    }
     roles = {
         role: {"keyids": [signer.public_key.keyid], "threshold": 1}
         for role, signer in signers.items()
@@ -125,7 +128,9 @@ def _run(
         "conclusion": conclusion,
         "run_started_at": started,
         "updated_at": started,
-        "html_url": f"https://github.com/LaurentCOLL1/Kodepoia/actions/runs/{run_id}",
+        "html_url": (
+            f"https://github.com/LaurentCOLL1/Kodepoia/actions/runs/{run_id}"
+        ),
     }
 
 
@@ -206,8 +211,16 @@ def test_refresh_workflow_detects_missed_schedule_and_repeated_failures() -> Non
     failures = assess_refresh_workflow_health(
         {
             "workflow_runs": [
-                _run(started="2026-09-10T19:00:00Z", conclusion="failure", run_id=3),
-                _run(started="2026-09-10T13:00:00Z", conclusion="failure", run_id=2),
+                _run(
+                    started="2026-09-10T19:00:00Z",
+                    conclusion="failure",
+                    run_id=3,
+                ),
+                _run(
+                    started="2026-09-10T13:00:00Z",
+                    conclusion="failure",
+                    run_id=2,
+                ),
                 _run(started="2026-09-10T07:00:00Z", run_id=1),
             ]
         },
@@ -245,9 +258,10 @@ def test_combined_report_is_secret_free_and_non_blocking_for_application() -> No
         source_sha="b" * 40,
     )
     assert report["state"] == "healthy"
-    assert report["blocks_application_startup"] is False
-    assert report["blocks_local_work"] is False
-    assert report["accepts_expired_or_unverifiable_metadata"] is False
+    assert report["startup_blocked"] is False
+    assert report["local_work_blocked"] is False
+    assert report["expired_metadata_accepted"] is False
+    assert report["unverifiable_metadata_accepted"] is False
     assert report["private_material_in_output"] is False
     assert "TUF_SNAPSHOT_ED25519_SEED_B64" not in str(report)
     assert "TUF_TIMESTAMP_ED25519_SEED_B64" not in str(report)
@@ -255,15 +269,15 @@ def test_combined_report_is_secret_free_and_non_blocking_for_application() -> No
 
 def test_localized_temporary_service_messages_are_retryable_and_safe() -> None:
     english = temporary_update_service_message("metadata-expired", "en-US")
-    french = temporary_update_service_message("refresh-outage", "fr-FR")
+    french = temporary_update_service_message("channel-unavailable", "fr-FR")
     fallback = temporary_update_service_message("verification-failed", "de-DE")
 
-    assert "temporarily" in str(english["message"]).lower()
-    assert "temporairement" in str(french["message"]).lower()
+    assert "local work remains available" in str(english["body"]).lower()
+    assert "travail local reste disponible" in str(french["body"]).lower()
     assert fallback["locale"] == "en"
     for payload in (english, french, fallback):
         assert payload["retryable"] is True
-        assert payload["blocks_application_startup"] is False
+        assert payload["blocks_startup"] is False
         assert payload["local_work_available"] is True
         assert payload["accepts_expired_metadata"] is False
         assert payload["accepts_unverifiable_metadata"] is False

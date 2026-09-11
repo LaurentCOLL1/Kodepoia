@@ -93,7 +93,8 @@
       ".github/workflows/r20-4-scheduled-metadata-refresh.yml",
       ".github/workflows/r20-4-scheduled-metadata-refresh-acceptance.yml",
       ".github/workflows/r20-5-expiry-monitoring.yml",
-      ".github/workflows/r20-5-expiry-monitoring-acceptance.yml"
+      ".github/workflows/r20-5-expiry-monitoring-acceptance.yml",
+      ".github/workflows/r20-6-continuous-operations-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

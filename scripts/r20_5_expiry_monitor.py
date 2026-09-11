@@ -75,7 +75,7 @@ def _summary(report: dict[str, object]) -> str:
                         "| {role} | {state} | {expires} | {remaining} |".format(
                             role=role,
                             state=item.get("state", "unknown"),
-                            expires=item.get("expires_at", "n/a"),
+                            expires=item.get("expires", "n/a"),
                             remaining=_remaining(item.get("remaining_seconds")),
                         )
                     )
@@ -86,15 +86,19 @@ def _summary(report: dict[str, object]) -> str:
     if isinstance(workflow, dict):
         lines.extend(
             [
-                f"R20.4 refresh workflow state: **{str(workflow.get('state', 'unknown')).upper()}**",
-                f"Last successful refresh: `{workflow.get('last_success_at') or 'none visible'}`",
-                f"Consecutive completed failures: `{workflow.get('consecutive_failures', 0)}`",
+                "R20.4 refresh workflow state: "
+                f"**{str(workflow.get('state', 'unknown')).upper()}**",
+                "Last successful refresh: "
+                f"`{workflow.get('last_success_at') or 'none visible'}`",
+                "Consecutive completed failures: "
+                f"`{workflow.get('consecutive_failures', 0)}`",
                 f"Reason: {workflow.get('reason', 'n/a')}",
                 "",
             ]
         )
     lines.append(
-        "Safety invariant: Kodepoia startup/local work remain available; expired or unverifiable update metadata are never accepted."
+        "Safety invariant: Kodepoia startup/local work remain available; expired or "
+        "unverifiable update metadata are never accepted."
     )
     return "\n".join(lines) + "\n"
 

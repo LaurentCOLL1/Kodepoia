@@ -398,7 +398,6 @@ def build_continuous_operations_report(
             timestamp_version=4,
             snapshot_version=4,
             targets_version=2,
-            expires=return_time + timedelta(days=10),
             timestamp_expires=return_time + timedelta(hours=1),
         )
         outage_failed_closed = False

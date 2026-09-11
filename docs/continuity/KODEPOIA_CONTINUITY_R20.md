@@ -1,10 +1,12 @@
 # KODEPOIA CONTINUITY — R20
 
-**Status:** R20.5 COMPLETE + NORMALIZED; R20.6 LONG-OFFLINE / CONTINUOUS-OPERATIONS INTEGRATED ACCEPTANCE IMPLEMENTED; EXACT-HEAD ACCEPTANCE PENDING; R20.7 NOT AUTHORIZED
+**Status:** R20 COMPLETE + NORMALIZED; R20.1 THROUGH R20.6 COMPLETE + NORMALIZED; R20.7 NOT AUTHORIZED
 
-This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning and R20.1 through R20.5 are complete and normalized. R20.6 is the terminal authorized subdivision and is implemented on dedicated branch `r20/06-long-offline-continuous-operations` from exact normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51`.
+This file is the terminal continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning and R20.1 through R20.6 are complete and normalized. R20.6 was the terminal authorized subdivision, implemented on dedicated branch `r20/06-long-offline-continuous-operations` from exact normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51`, accepted at exact HEAD `861e5d9aae67df96bff2f382c84f94ebffa172c1`, and merged through PR #434 as `main` `be4f9227331ba7a21dd591ec528ec8d9b3369029`.
 
-The detailed pre-R20.6 narrative remains frozen in Git history at that normalized parent. This compacted active authority preserves every execution-critical head, PR, trust identifier, security invariant and manual boundary needed to complete R20.6 without recursively rewriting prior normalized history.
+The detailed pre-R20.6 narrative remains frozen in Git history at the normalized R20.5 parent. This compacted terminal authority preserves every execution-critical head, PR, trust identifier, security invariant and manual boundary needed to understand the completed R20 phase without recursively rewriting prior normalized history.
+
+The unique documentation-only branch `r20/06-continuity-normalization` jointly finalizes this file and `docs/roadmap/R20_PLAN.md`. Its merge closes R20 terminally. No second normalization may be created merely to record that normalization's own resulting head or merge SHA recursively.
 
 R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
@@ -100,7 +102,7 @@ No subdivision may be silently inserted, removed, merged, split or renumbered. *
 - Targets bytes unchanged: **TRUE**; private material detected: **FALSE**; paid provider required: **FALSE**.
 - R20.3 Live Zero-Cost Signer Challenge run `34507387616` on `main` `35f3cad975877f0a7e2416afb180a0160511add2`: **SUCCESS**, no publication and no secret emission.
 - Unique R20.3 normalization produced `main` `18593924711c135740bcdf6ca2ca757e18f1194c`, sole authorized R20.4 base.
-- Manual intervention: **COMPLETE** — online secret provisioning, offline Root threshold ceremony and no-publication live signer challenge completed.
+- Manual intervention: **COMPLETE** — online secret provisioning, offline Root v2 threshold ceremony and no-publication live signer challenge completed.
 
 ## R20.4 — Scheduled Metadata Refresh & Atomic Publication — COMPLETE + NORMALIZED
 
@@ -128,15 +130,19 @@ No subdivision may be silently inserted, removed, merged, split or renumbered. *
 - R20.5 workflows are registered under immutable R16.9 authority.
 - Manual intervention: **NONE / COMPLETE + NORMALIZED**.
 
-## R20.6 — Long-Offline Client & Continuous-Operations Integrated Acceptance — IMPLEMENTED / EXACT-HEAD ACCEPTANCE PENDING
+## R20.6 — Long-Offline Client & Continuous-Operations Integrated Acceptance — COMPLETE + NORMALIZED
 
 Implementation branch: `r20/06-long-offline-continuous-operations`.
 
 Authorized base: normalized R20.5 `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51`.
 
+Accepted exact implementation HEAD: `861e5d9aae67df96bff2f382c84f94ebffa172c1`.
+
+Implementation PR #434 merged that exact head with expected-head protection as `main` `be4f9227331ba7a21dd591ec528ec8d9b3369029`.
+
 Objective: prove that a client returning after a long offline period can safely obtain current authorized metadata and update without weakening freshness, while exercising continuous-operations recovery and preserving user data/local work.
 
-### Implemented 17-case terminal matrix
+### Accepted 17-case terminal matrix
 
 The deterministic exact-source acceptance verifies:
 
@@ -169,13 +175,28 @@ The deterministic exact-source acceptance verifies:
 
 The R20.6 acceptance is synthetic and repository-safe: `production_effect=false`, no production private key consumption, no production metadata publication, no public release creation and no live role rotation. The roadmap's live incident/key-rotation drill was conditional only; the deterministic 17-case matrix covers the required boundaries without privileged production mutation.
 
-### Current R20.6 gate
+### Accepted exact-head evidence
 
-R20.6 is **not yet complete** in this pre-acceptance state. The unchanged final branch HEAD must pass R20.6 Ubuntu/Windows exact-head acceptance together with inherited trust/update regressions, R0 Repository Guard, Python Core, UI Smoke and R16.9 supply-chain verification as applicable. Only that exact accepted HEAD may merge through expected-head protection.
+Push evidence on accepted HEAD `861e5d9aae67df96bff2f382c84f94ebffa172c1`:
 
-After implementation merge, exactly one documentation-only branch `r20/06-continuity-normalization` may jointly finalize `docs/roadmap/R20_PLAN.md` and this continuity file. That normalization, and only that normalization, may mark **R20 COMPLETE + NORMALIZED**. No second normalization may be created merely to embed its own merge SHA recursively.
+- R20.6 Long-Offline Continuous Operations Acceptance #9: **SUCCESS** on Ubuntu and Windows, including the full 17/17 matrix;
+- R0 Repository Guard #2760: **SUCCESS** on Ubuntu and Windows;
+- Python Core #2731: **SUCCESS** for Python Core Ubuntu/Windows, package-build Ubuntu/Windows and integrated KodeStudio UI Windows;
+- KodeStudio UI Smoke #2695: **SUCCESS**.
 
-Manual intervention for R20.6: **NONE**. No new secret provisioning, Root/Targets ceremony or live production mutation is required by the accepted design.
+PR #434 evidence on the same unchanged HEAD:
+
+- R20.6 Long-Offline Continuous Operations Acceptance #10: **SUCCESS** on Ubuntu and Windows;
+- R0 Repository Guard #2761: **SUCCESS** on Ubuntu and Windows;
+- R16.9 Supply Chain Provenance Acceptance #298: **SUCCESS** on Ubuntu and Windows, validating authority count 46;
+- Python Core #2732: **SUCCESS** across Python Core Ubuntu/Windows, package-build Ubuntu/Windows and integrated KodeStudio UI Windows;
+- KodeStudio UI Smoke #2696: **SUCCESS**.
+
+The exact accepted implementation was therefore merged with expected-head protection as `main` `be4f9227331ba7a21dd591ec528ec8d9b3369029`.
+
+The unique documentation-only branch `r20/06-continuity-normalization` jointly finalizes `docs/roadmap/R20_PLAN.md` and this continuity authority. Its merge is the terminal R20 normalization. No second normalization may be created merely to embed its own final head or merge SHA recursively.
+
+Manual intervention for R20.6: **NONE / COMPLETE + NORMALIZED**. No new secret provisioning, Root/Targets ceremony or live production mutation is required by the accepted design.
 
 ## R20 security invariants
 
@@ -208,8 +229,8 @@ R20.4: **NONE / COMPLETE + NORMALIZED** — steady-state automation and protecte
 
 R20.5: **NONE / COMPLETE + NORMALIZED** — monitoring, alerting, localized UX hardening and emergency runbook accepted.
 
-R20.6: **NONE / IMPLEMENTED, EXACT-HEAD ACCEPTANCE PENDING** — deterministic terminal acceptance uses only synthetic signing/trust state and inherited public evidence; no privileged live drill is required.
+R20.6: **NONE / COMPLETE + NORMALIZED** — deterministic terminal acceptance uses synthetic signing/trust state plus inherited public evidence; no privileged live drill is required.
 
 ## Terminal rule
 
-R20 becomes **COMPLETE + NORMALIZED** only after the accepted R20.6 implementation merge and its unique joint documentation normalization. **No `R20.7` is authorized.**
+R20 is **COMPLETE + NORMALIZED** after the unique joint R20.6 documentation normalization merges. **No `R20.7` is authorized.** Do not create a second R20 normalization merely to record the terminal normalization's own resulting head or merge SHA.

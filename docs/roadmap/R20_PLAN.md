@@ -1,8 +1,10 @@
 # R20 — Continuous Trusted Update Operations
 
-Status: **ACTIVE**
+Status: **COMPLETE + NORMALIZED**
 
 Started: **2026-09-08**
+
+Completed: **2026-09-11**
 
 Planning base: `main` `a5cb56fdf5993be3222b486fa80748f5aa339b71` — R19 is **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
@@ -47,6 +49,7 @@ The intended steady state is:
 - R20.4 is **COMPLETE + NORMALIZED** on `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956`; this exact normalized head is the authorized R20.5 base.
 - R20.5 implementation PR #432 merged accepted exact HEAD `bbf30a86eb9a2f332c3805ed19f36327b355e32a` as `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`.
 - R20.5 unique normalization PR #433 merged exact head `9ec92ac1a667e2e06da757e5cb45f0d79a571a08` as normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51`; this exact SHA is the sole authorized R20.6 base.
+- R20.6 accepted exact implementation HEAD is `861e5d9aae67df96bff2f382c84f94ebffa172c1`; implementation PR #434 merged it with expected-head protection as `main` `be4f9227331ba7a21dd591ec528ec8d9b3369029`.
 
 ## External architecture constraints re-verified for R20.3
 
@@ -85,9 +88,9 @@ The intended steady state is:
 | R20.3 | Zero-Cost Online-Key Provisioning & Root Rotation | **COMPLETE + NORMALIZED** | COMPLETE — zero-cost signer challenge and governed transition accepted | R20.2 |
 | R20.4 | Scheduled Metadata Refresh & Atomic Publication | **COMPLETE + NORMALIZED** | NONE in steady state | R20.3 |
 | R20.5 | Expiry Monitoring, Alerting & Client UX Hardening | **COMPLETE + NORMALIZED** | NONE | R20.4 |
-| R20.6 | Long-Offline Client & Continuous-Operations Integrated Acceptance | **ACTIVE — IMPLEMENTED / EXACT-HEAD ACCEPTANCE PENDING** | NONE — deterministic drill is sufficient | R20.1–R20.5 |
+| R20.6 | Long-Offline Client & Continuous-Operations Integrated Acceptance | **COMPLETE + NORMALIZED** | NONE — deterministic drill is sufficient | R20.1–R20.5 |
 
-No subdivision may be silently inserted, removed, merged, split or renumbered. R20.6 is the only active subdivision and is built from normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51`. No `R20.7` is authorized.
+No subdivision may be silently inserted, removed, merged, split or renumbered. All six authorized R20 subdivisions are terminally complete and normalized. **No `R20.7` is authorized.**
 
 ---
 
@@ -348,7 +351,7 @@ Prove the operational promise that a user can return long after installation and
 
 ## Implemented integrated acceptance
 
-R20.6 implementation is built from normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51` on branch `r20/06-long-offline-continuous-operations`.
+R20.6 implementation was built from normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51` on branch `r20/06-long-offline-continuous-operations`.
 
 The required matrix is represented as one deterministic **17-case** exact-source report. It reuses the accepted TUF verifier, R20.4 steady-state refresh, R20.5 non-blocking UX mapping and R19 seamless update handoff rather than adding a new production trust path.
 
@@ -364,15 +367,32 @@ The acceptance has no production effect: it uses synthetic signers/repositories 
 
 R20.6 also replays preservation of user settings and project data through the verified update handoff and retains the already accepted R19.5 real-Windows rc1→rc2 installer replay as inherited live evidence.
 
-## Current gate
+## Accepted exact-head and merge evidence
 
-R20.6 remains **ACTIVE** until the unchanged final branch HEAD passes its dedicated Ubuntu/Windows acceptance plus inherited regressions and repository gates, merges with expected-head protection, and then receives exactly one joint post-merge normalization of this roadmap and `docs/continuity/KODEPOIA_CONTINUITY_R20.md`.
+Accepted exact implementation HEAD: `861e5d9aae67df96bff2f382c84f94ebffa172c1`.
 
-Only that normalization may mark R20 terminally **COMPLETE + NORMALIZED**. No `R20.7` is authorized.
+Push exact-head evidence on that unchanged SHA:
+
+- R20.6 Long-Offline Continuous Operations Acceptance #9: **SUCCESS** on Ubuntu and Windows, including the complete 17/17 terminal matrix;
+- R0 Repository Guard #2760: **SUCCESS** on Ubuntu and Windows;
+- Python Core #2731: **SUCCESS** for Python Core Ubuntu/Windows, package-build Ubuntu/Windows and integrated KodeStudio UI Windows;
+- KodeStudio UI Smoke #2695: **SUCCESS**.
+
+PR #434 exact-head evidence on the same SHA:
+
+- R20.6 Long-Offline Continuous Operations Acceptance #10: **SUCCESS** on Ubuntu and Windows;
+- R0 Repository Guard #2761: **SUCCESS** on Ubuntu and Windows;
+- R16.9 Supply Chain Provenance Acceptance #298: **SUCCESS** on Ubuntu and Windows with the R20.6 workflow registered as immutable authority count 46;
+- Python Core #2732: **SUCCESS** across Python Core Ubuntu/Windows, package-build Ubuntu/Windows and integrated KodeStudio UI Windows;
+- KodeStudio UI Smoke #2696: **SUCCESS**.
+
+Implementation PR #434 merged with expected-head protection as `main` `be4f9227331ba7a21dd591ec528ec8d9b3369029`.
+
+This unique documentation-only branch `r20/06-continuity-normalization` jointly finalizes this roadmap and `docs/continuity/KODEPOIA_CONTINUITY_R20.md`. Its merge makes R20.6 and R20 terminally **COMPLETE + NORMALIZED**. No second R20.6 normalization may be created merely to embed this normalization's own final head or merge SHA recursively.
 
 ## Manual intervention
 
-**NONE for the implemented acceptance.** A live incident/key-rotation drill was conditional, not mandatory; deterministic synthetic evidence covers the required boundaries with `production_effect=false`.
+**NONE / COMPLETE + NORMALIZED.** The accepted terminal evidence is deterministic and non-production; no new secret provisioning, Root/Targets ceremony or live production mutation is required.
 
 ---
 
@@ -402,4 +422,4 @@ Before R20.1 starts:
 
 ## Terminal rule
 
-R20 is not complete until R20.6 and its unique continuity normalization merge. No `R20.7` is authorized by this plan.
+R20 is terminally **COMPLETE + NORMALIZED** after the unique joint R20.6 continuity normalization merges. **No `R20.7` is authorized.** The normalization must not be repeated merely to record its own resulting merge SHA.

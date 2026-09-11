@@ -1,0 +1,162 @@
+name: R20.6 Long-Offline Continuous Operations Acceptance
+
+on:
+  push:
+    branches:
+      - r20/06-long-offline-continuous-operations
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r20-6-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  continuous-operations-contract:
+    name: r20-6-contract-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: python
+        run: |
+          import os
+          import subprocess
+
+          expected = os.environ["EVIDENCE_SHA"].strip().lower()
+          actual = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip().lower()
+          if actual != expected:
+              raise SystemExit(f"checkout mismatch: expected {expected}, got {actual}")
+
+      - name: Install focused dependencies
+        run: python -m pip install -e ".[dev,code]"
+
+      - name: Compile R20.6 sources
+        run: >-
+          python -m compileall -q
+          src/kodepoia/update/continuous_operations.py
+          scripts/r20_6_continuous_operations_acceptance.py
+          tests/test_r20_6_continuous_operations.py
+
+      - name: Run Ruff R20.6
+        run: >-
+          python -m ruff check
+          src/kodepoia/update/continuous_operations.py
+          scripts/r20_6_continuous_operations_acceptance.py
+          tests/test_r20_6_continuous_operations.py
+
+      - name: Run R20.6 and inherited trust/update regressions
+        run: >-
+          python -m pytest -q
+          tests/test_r20_6_continuous_operations.py
+          tests/test_r20_5_operations_health.py
+          tests/test_r20_4_steady_state_refresh.py
+          tests/test_r18_6_update_trust.py
+          tests/test_r19_4_seamless_windows_update.py
+          tests/test_supply_chain_r16_9.py
+
+      - name: Emit exact-source R20.6 integrated evidence
+        run: >-
+          python scripts/r20_6_continuous_operations_acceptance.py
+          --source-sha "$EVIDENCE_SHA"
+          --output artifacts/r20_6/continuous-operations.json
+
+      - name: Assert complete terminal acceptance matrix
+        shell: python
+        run: |
+          import json
+          import os
+          from pathlib import Path
+
+          report = json.loads(
+              Path("artifacts/r20_6/continuous-operations.json").read_text(encoding="utf-8")
+          )
+          if report["source_sha"] != os.environ["EVIDENCE_SHA"].strip().lower():
+              raise SystemExit("R20.6 evidence source SHA mismatch")
+          if report["status"] != "PASS":
+              raise SystemExit(f"R20.6 integrated matrix failed: {report['failed_cases']}")
+          if report["cases_total"] != 17 or report["cases_passed"] != 17:
+              raise SystemExit("R20.6 integrated matrix is incomplete")
+          if report["manual_intervention_required"]:
+              raise SystemExit("R20.6 unexpectedly requires manual intervention")
+          if report["privileged_live_drill_required"]:
+              raise SystemExit("R20.6 unexpectedly requires a privileged live drill")
+          if report["production_effect"]:
+              raise SystemExit("R20.6 acceptance unexpectedly has production effect")
+          details = report["details"]
+          for marker in (
+              "production_keys_used",
+              "production_metadata_modified",
+              "public_release_created",
+              "live_rotation_performed",
+              "paid_provider_required",
+          ):
+              if details[marker]:
+                  raise SystemExit(f"R20.6 unsafe acceptance detail: {marker}")
+
+      - name: Assert R20.6 documentation authority is synchronized
+        shell: python
+        run: |
+          from pathlib import Path
+
+          plan = Path("docs/roadmap/R20_PLAN.md").read_text(encoding="utf-8")
+          continuity = Path("docs/continuity/KODEPOIA_CONTINUITY_R20.md").read_text(encoding="utf-8")
+          acceptance = Path("docs/release/R20_6_CONTINUOUS_OPERATIONS_ACCEPTANCE.md").read_text(
+              encoding="utf-8"
+          )
+          required_plan = (
+              "R20.6 — Long-Offline Client & Continuous-Operations Integrated Acceptance",
+              "r20/06-long-offline-continuous-operations",
+              "17-case",
+              "ca1f1415dbad47f46f1a4714b2da225cfd4e9e51",
+          )
+          for marker in required_plan:
+              if marker not in plan:
+                  raise SystemExit(f"R20 plan missing R20.6 synchronization: {marker}")
+          required_continuity = (
+              "r20/06-long-offline-continuous-operations",
+              "R20_6_CONTINUOUS_OPERATIONS_ACCEPTANCE.md",
+              "R20.7",
+          )
+          for marker in required_continuity:
+              if marker not in continuity:
+                  raise SystemExit(f"R20 continuity missing R20.6 synchronization: {marker}")
+          for marker in (
+              "17-case",
+              "no privileged live drill",
+              "zero-cost",
+              "user settings and project data",
+          ):
+              if marker not in acceptance:
+                  raise SystemExit(f"R20.6 acceptance doc missing invariant: {marker}")
+
+      - name: Upload exact-source R20.6 evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: r20-6-continuous-operations-${{ matrix.os }}-${{ env.EVIDENCE_SHA }}
+          path: artifacts/r20_6/continuous-operations.json
+          if-no-files-found: error
+          retention-days: 30

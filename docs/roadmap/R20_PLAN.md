@@ -45,6 +45,7 @@ The intended steady state is:
 - Accepted Timestamp replacement keyid: `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
 - Accepted unsigned Root v2 SHA-256: `7ae909722149fe7f05380f93b7317c99347f8b3c1d102b7b6ddca64bbe1bbe1d`; it has no production effect until the governed offline ceremony and complete online-role transition are accepted.
 - R20.4 is **COMPLETE + NORMALIZED** on `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956`; this exact normalized head is the authorized R20.5 base.
+- R20.5 implementation PR #432 merged accepted exact HEAD `bbf30a86eb9a2f332c3805ed19f36327b355e32a` with expected-head protection as `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`; the unique R20.5 post-merge normalization is the only remaining step before R20.6.
 
 ## External architecture constraints re-verified for R20.3
 
@@ -82,10 +83,10 @@ The intended steady state is:
 | R20.2 | Online Signer Abstraction & Rotation Package | **COMPLETE + NORMALIZED** | NONE — provider-neutral implementation only | R20.1 |
 | R20.3 | Zero-Cost Online-Key Provisioning & Root Rotation | **COMPLETE + NORMALIZED** | COMPLETE — zero-cost signer challenge and governed transition accepted | R20.2 |
 | R20.4 | Scheduled Metadata Refresh & Atomic Publication | **COMPLETE + NORMALIZED** | NONE in steady state | R20.3 |
-| R20.5 | Expiry Monitoring, Alerting & Client UX Hardening | **ACTIVE — EXACT-HEAD ACCEPTANCE PENDING** | NONE | R20.4 |
-| R20.6 | Long-Offline Client & Continuous-Operations Integrated Acceptance | PLANNED | CONDITIONAL for live incident/rotation drill | R20.1–R20.5 |
+| R20.5 | Expiry Monitoring, Alerting & Client UX Hardening | **COMPLETE + NORMALIZED** | NONE | R20.4 |
+| R20.6 | Long-Offline Client & Continuous-Operations Integrated Acceptance | **NEXT AUTHORIZED SUBDIVISION** | CONDITIONAL for live incident/rotation drill | R20.1–R20.5 |
 
-No subdivision may be silently inserted, removed, merged, split or renumbered. R20.5 remains the only active subdivision until its exact-head acceptance, merge, and unique continuity normalization are complete.
+No subdivision may be silently inserted, removed, merged, split or renumbered. R20.6 may begin only from the `main` produced by the unique R20.5 post-merge normalization. No second R20.5 normalization is authorized merely to embed that resulting merge SHA recursively.
 
 ---
 
@@ -270,7 +271,7 @@ Make operational failures visible to maintainers but non-destructive and underst
 
 ## Accepted R20.5 monitoring policy
 
-R20.5 implementation is built from normalized `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956` on branch `r20/05-expiry-monitoring-ux-hardening`.
+R20.5 implementation was built from normalized `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956` on branch `r20/05-expiry-monitoring-ux-hardening`.
 
 - Root warning at **90 days** remaining and critical at **30 days**;
 - Targets warning at **90 days** remaining and critical at **30 days**;
@@ -293,13 +294,28 @@ Repository artifacts:
 
 The production monitor runs every six hours at minute 47, separated from the R20.4 minute-17 refresh schedule. It has only `actions: read` and `contents: read`; no online signing secret or publication permission is in its scope.
 
-## Current gate
+## Accepted exact-head and merge evidence
 
-Implementation is present; R20.5 remains **ACTIVE** until the exact final branch HEAD passes its dedicated acceptance and inherited regressions, merges with expected-head protection, and receives one continuity-only post-merge normalization. R20.6 is not authorized before that sequence completes.
+Accepted exact implementation HEAD: `bbf30a86eb9a2f332c3805ed19f36327b355e32a`.
+
+Push exact-head evidence on that SHA:
+
+- R20.5 Expiry Monitoring UX Acceptance #10: **SUCCESS** on Ubuntu and Windows;
+- R0 Repository Guard #2740: **SUCCESS** on Ubuntu and Windows;
+- Python Core #2711: **SUCCESS** across Python Core Ubuntu/Windows, package builds and integrated KodeStudio UI;
+- KodeStudio UI Smoke #2675: **SUCCESS**.
+
+PR #432 exact-head evidence on the same SHA included R20.5 Acceptance #11 **SUCCESS** on Ubuntu and Windows, R0 Repository Guard #2741 **SUCCESS** on Ubuntu and Windows, KodeStudio UI Smoke #2676 **SUCCESS**, R16.9 Supply Chain Provenance Acceptance #297 **SUCCESS** on Ubuntu and Windows, and R16.12 Representative Windows Desktop Acceptance #268 **SUCCESS** with the accepted .NET 10 SDK.
+
+PR-level Python Core #2712 had one isolated generic Windows-runner `dotnet_probe_failed` in the inherited live R16.12 WPF test while 2359 tests passed. This was classified as toolchain/environment variance because the unchanged exact HEAD had already passed Python Core Windows in push #2711 and the dedicated R16.12 PR acceptance #268 passed on Windows with explicit accepted .NET SDK setup. No source correction was made for that variance.
+
+Implementation PR #432 merged with expected-head protection as `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`.
+
+The unique post-merge normalization branch is `r20/05-continuity-normalization`, based exactly on that implementation merge. This documentation-only normalization jointly finalizes this roadmap and `docs/continuity/KODEPOIA_CONTINUITY_R20.md`. Once merged, the resulting `main` is the sole authorized R20.6 base; no second R20.5 normalization is permitted merely to embed that merge SHA recursively.
 
 ## Manual intervention
 
-**NONE** after online signer exists. Emergency actions in the runbook are conditional incident recovery, not an R20.5 implementation prerequisite.
+**NONE / COMPLETE.** Emergency actions in the runbook are conditional incident recovery, not an R20.5 implementation prerequisite.
 
 ---
 

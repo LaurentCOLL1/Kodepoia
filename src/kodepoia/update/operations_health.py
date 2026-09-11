@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
 from tuf.api.metadata import Metadata
 
@@ -199,7 +200,9 @@ def assess_metadata_health(
     }
 
 
-def _normalized_runs(payload: Mapping[str, Any] | Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+def _normalized_runs(
+    payload: Mapping[str, Any] | Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
     raw: Iterable[Mapping[str, Any]]
     if isinstance(payload, Mapping):
         candidate = payload.get("workflow_runs", [])
@@ -383,51 +386,66 @@ _MESSAGES: dict[str, dict[str, tuple[str, str]]] = {
     "en": {
         "offline": (
             "Updates temporarily unavailable",
-            "Kodepoia cannot reach the update service right now. Local work remains available; retry the update check later.",
+            "Kodepoia cannot reach the update service right now. "
+            "Local work remains available; retry the update check later.",
         ),
         "metadata-expired": (
             "Update service maintenance required",
-            "Trusted update metadata is no longer fresh, so Kodepoia will not install updates until the service is renewed. Local work remains available.",
+            "Trusted update metadata is no longer fresh, so Kodepoia will not install "
+            "updates until the service is renewed. Local work remains available.",
         ),
         "verification-failed": (
             "Update verification unavailable",
-            "Kodepoia could not verify the update metadata and will not install an unverified update. Local work remains available; retry later.",
+            "Kodepoia could not verify the update metadata and will not install an "
+            "unverified update. Local work remains available; retry later.",
         ),
         "channel-unavailable": (
             "Update channel temporarily unavailable",
-            "The selected update channel is temporarily unavailable. Local work remains available; retry the update check later.",
+            "The selected update channel is temporarily unavailable. Local work remains "
+            "available; retry the update check later.",
         ),
         "refresh-outage": (
             "Update service is being restored",
-            "Automated update-metadata maintenance needs attention. Kodepoia will not weaken verification; local work remains available.",
+            "Automated update-metadata maintenance needs attention. Kodepoia will not "
+            "weaken verification; local work remains available.",
         ),
     },
     "fr": {
         "offline": (
             "Mises à jour temporairement indisponibles",
-            "Kodepoia ne peut pas joindre le service de mise à jour pour le moment. Le travail local reste disponible ; réessayez plus tard.",
+            "Kodepoia ne peut pas joindre le service de mise à jour pour le moment. "
+            "Le travail local reste disponible ; réessayez plus tard.",
         ),
         "metadata-expired": (
             "Maintenance du service de mise à jour requise",
-            "Les métadonnées de mise à jour fiables ne sont plus assez récentes. Kodepoia n’installera aucune mise à jour avant leur renouvellement. Le travail local reste disponible.",
+            "Les métadonnées de mise à jour fiables ne sont plus assez récentes. "
+            "Kodepoia n’installera aucune mise à jour avant leur renouvellement. "
+            "Le travail local reste disponible.",
         ),
         "verification-failed": (
             "Vérification des mises à jour indisponible",
-            "Kodepoia n’a pas pu vérifier les métadonnées et n’installera aucune mise à jour non vérifiée. Le travail local reste disponible ; réessayez plus tard.",
+            "Kodepoia n’a pas pu vérifier les métadonnées et n’installera aucune mise à "
+            "jour non vérifiée. Le travail local reste disponible ; réessayez plus tard.",
         ),
         "channel-unavailable": (
             "Canal de mise à jour temporairement indisponible",
-            "Le canal de mise à jour sélectionné est temporairement indisponible. Le travail local reste disponible ; réessayez plus tard.",
+            "Le canal de mise à jour sélectionné est temporairement indisponible. "
+            "Le travail local reste disponible ; réessayez plus tard.",
         ),
         "refresh-outage": (
             "Rétablissement du service de mise à jour",
-            "La maintenance automatisée des métadonnées de mise à jour nécessite une intervention. Kodepoia ne réduira pas les contrôles de sécurité ; le travail local reste disponible.",
+            "La maintenance automatisée des métadonnées de mise à jour nécessite une "
+            "intervention. Kodepoia ne réduira pas les contrôles de sécurité ; "
+            "le travail local reste disponible.",
         ),
     },
 }
 
 
-def temporary_update_service_message(status: str, locale: str = "en") -> dict[str, object]:
+def temporary_update_service_message(
+    status: str,
+    locale: str = "en",
+) -> dict[str, object]:
     """Map update-service failures to safe localized, non-blocking user messaging."""
 
     language = locale.lower().split("-", 1)[0].split("_", 1)[0]

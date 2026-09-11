@@ -103,11 +103,11 @@ jobs:
               "timestamp.json": "3d16a4d3bfccec33102b73a3a4cddb8af83f0c558bc4cc3e42b7c7536fdbdc7d",
           }
 
-          def git_blob(path: str) -> bytes:
-              return subprocess.check_output(["git", "show", f"{HISTORICAL_SHA}:{path}"])
+          def git_blob(source_sha: str, path: str) -> bytes:
+              return subprocess.check_output(["git", "show", f"{source_sha}:{path}"])
 
           historical = {
-              name: git_blob(f"update-repository/metadata/{name}")
+              name: git_blob(HISTORICAL_SHA, f"update-repository/metadata/{name}")
               for name in ("root.json", "targets.json", "snapshot.json", "timestamp.json")
           }
           for name, expected_sha in EXPECTED.items():
@@ -117,8 +117,13 @@ jobs:
                       f"frozen R20.1 {name} drifted: expected {expected_sha}, got {actual_sha}"
                   )
 
-          historical_manifest = git_blob("docs/roadmap/R20_1_BRIDGE_PUBLIC_MANIFEST.json")
-          manifest_bytes = Path("docs/roadmap/R20_1_BRIDGE_PUBLIC_MANIFEST.json").read_bytes()
+          historical_manifest = git_blob(
+              HISTORICAL_SHA, "docs/roadmap/R20_1_BRIDGE_PUBLIC_MANIFEST.json"
+          )
+          current_source_sha = os.environ["EVIDENCE_SHA"].strip().lower()
+          manifest_bytes = git_blob(
+              current_source_sha, "docs/roadmap/R20_1_BRIDGE_PUBLIC_MANIFEST.json"
+          )
           if manifest_bytes != historical_manifest:
               raise SystemExit("R20.1 public bridge manifest changed after phase acceptance")
 

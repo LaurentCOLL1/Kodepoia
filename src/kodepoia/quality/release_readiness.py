@@ -13,6 +13,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+import kodepoia
 from kodepoia.core.backup import BackupManager
 from kodepoia.quality.build import BuildManifest, BuildStatus, KodeBuild
 from kodepoia.quality.license_bom import (
@@ -28,15 +29,17 @@ from kodepoia.quality.supply_chain import (
     SupplyChainManifest,
     SupplyChainStatus,
 )
+from kodepoia.release import CURRENT_RELEASE
 
 RELEASE_VERSION = "1.0.0rc1"
 PRIOR_VERSION = "0.1.0a4"
 RELEASE_ID = "kodepoia-v1.0.0rc1"
+CURRENT_RELEASE_VERSION = CURRENT_RELEASE.pep440_version
+CURRENT_RELEASE_ID = f"kodepoia-v{CURRENT_RELEASE.public_version}"
 PRIOR_FIXTURE = Path("tests/fixtures/r16_17_release_readiness/prior_release_state.json")
 RELEASE_NOTES = Path("docs/release/V1_0_RC1_RELEASE_NOTES.md")
 SECURITY_OPERATIONS = Path("docs/release/V1_0_RC1_SECURITY_OPERATIONS.md")
 _SHA40_RE = re.compile(r"^[0-9a-f]{40}$")
-_VERSION_RE = re.compile(r'^__version__\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
 PROJECT_LICENSE_TEXT = "All rights reserved - private development"
 
 
@@ -79,16 +82,18 @@ def read_declared_versions(repo_root: str | Path) -> dict[str, str]:
     root = Path(repo_root).resolve(strict=True)
     pyproject = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
     project_version = str((pyproject.get("project") or {}).get("version", "")).strip()
-    init_text = (root / "src/kodepoia/__init__.py").read_text(encoding="utf-8")
-    match = _VERSION_RE.search(init_text)
-    runtime_version = match.group(1).strip() if match else ""
-    return {"pyproject": project_version, "runtime": runtime_version}
+    return {"pyproject": project_version, "runtime": kodepoia.__version__}
 
 
 def validate_release_identity(repo_root: str | Path) -> dict[str, str]:
     versions = read_declared_versions(repo_root)
-    if versions != {"pyproject": RELEASE_VERSION, "runtime": RELEASE_VERSION}:
-        raise ReleaseReadinessError(f"release identity mismatch: expected {RELEASE_VERSION}, got {versions}")
+    expected = {"pyproject": CURRENT_RELEASE_VERSION, "runtime": CURRENT_RELEASE_VERSION}
+    if versions != expected:
+        raise ReleaseReadinessError(
+            f"current release identity mismatch: expected {CURRENT_RELEASE_VERSION}, got {versions}"
+        )
+    if CURRENT_RELEASE.source_binding != "exact-head":
+        raise ReleaseReadinessError("current release identity must remain exact-head bound")
     return versions
 
 
@@ -155,8 +160,10 @@ def build_release_manifest(
         platform=platform,
         python_version=f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
         metadata={
-            "release_id": RELEASE_ID,
-            "release_version": RELEASE_VERSION,
+            "release_id": CURRENT_RELEASE_ID,
+            "release_version": CURRENT_RELEASE_VERSION,
+            "historical_r16_17_release_id": RELEASE_ID,
+            "historical_r16_17_release_version": RELEASE_VERSION,
             "signing_state": "UNSIGNED",
             "publication_state": "NOT_REQUESTED",
             "attestation_state": "NOT_EXERCISED",
@@ -171,7 +178,10 @@ def build_release_manifest(
         raise ReleaseReadinessError("release manifest requires one wheel and one sdist")
     wheel_path = root / "dist" / wheels[0].name
     wheel_version = _wheel_metadata_version(wheel_path)
-    if wheel_version != RELEASE_VERSION or RELEASE_VERSION.replace("-", "_") not in wheel_path.name:
+    if (
+        wheel_version != CURRENT_RELEASE_VERSION
+        or CURRENT_RELEASE_VERSION.replace("-", "_") not in wheel_path.name
+    ):
         raise ReleaseReadinessError(
             f"wheel identity mismatch: metadata={wheel_version}, file={wheel_path.name}"
         )
@@ -262,7 +272,7 @@ def run_install_consume_probe(repo_root: str | Path) -> dict[str, Any]:
             check=False,
         )
         version = consumed.stdout.strip()
-        if consumed.returncode != 0 or version != RELEASE_VERSION:
+        if consumed.returncode != 0 or version != CURRENT_RELEASE_VERSION:
             raise ReleaseReadinessError(
                 f"installed wheel consumption failed: rc={consumed.returncode}, version={version!r}"
             )
@@ -438,7 +448,16 @@ def build_release_readiness_report(
     migration = run_migration_and_rollback_probe(root)
     docs = release_documentation_evidence(root)
     cases = [
-        _case("release_identity_consistent", identity["pyproject"] == RELEASE_VERSION, RELEASE_VERSION),
+        _case(
+            "current_release_identity_consistent",
+            identity["pyproject"] == CURRENT_RELEASE_VERSION,
+            CURRENT_RELEASE_VERSION,
+        ),
+        _case(
+            "historical_r16_17_release_baseline_frozen",
+            RELEASE_VERSION == "1.0.0rc1" and RELEASE_ID == "kodepoia-v1.0.0rc1",
+            RELEASE_VERSION,
+        ),
         _case(
             "source_bound_build_manifest",
             build_manifest.status is BuildStatus.PASS and build_manifest.source_sha == source_sha.lower(),
@@ -452,7 +471,7 @@ def build_release_readiness_report(
         _case("unsigned_core_rc_is_explicit", True, "UNSIGNED / publication NOT_REQUESTED"),
         _case(
             "offline_wheel_install_consume",
-            install["imported_version"] == RELEASE_VERSION,
+            install["imported_version"] == CURRENT_RELEASE_VERSION,
             install["wheel"],
         ),
         _case("declared_prior_migration", migration["success"]["status"] == "migrated", PRIOR_VERSION),
@@ -489,6 +508,8 @@ def build_release_readiness_report(
         "release_id": RELEASE_ID,
         "release_version": RELEASE_VERSION,
         "prior_version": PRIOR_VERSION,
+        "current_release_id": CURRENT_RELEASE_ID,
+        "current_release_version": CURRENT_RELEASE_VERSION,
         "source_sha": source_sha.lower(),
         "build_artifact_sha256": reproducibility["current_artifacts"],
         "build_manifest_evidence_sha256": build_manifest.evidence_sha256,
@@ -514,6 +535,8 @@ def build_release_readiness_report(
         "release_id": RELEASE_ID,
         "release_version": RELEASE_VERSION,
         "prior_version": PRIOR_VERSION,
+        "current_release_id": CURRENT_RELEASE_ID,
+        "current_release_version": CURRENT_RELEASE_VERSION,
         "release_claim": not failed_critical,
         "critical_veto": bool(failed_critical),
         "core_manual_required": False,

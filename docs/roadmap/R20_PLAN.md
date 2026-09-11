@@ -44,6 +44,7 @@ The intended steady state is:
 - Accepted Snapshot replacement keyid: `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`.
 - Accepted Timestamp replacement keyid: `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
 - Accepted unsigned Root v2 SHA-256: `7ae909722149fe7f05380f93b7317c99347f8b3c1d102b7b6ddca64bbe1bbe1d`; it has no production effect until the governed offline ceremony and complete online-role transition are accepted.
+- R20.4 is **COMPLETE + NORMALIZED** on `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956`; this exact normalized head is the authorized R20.5 base.
 
 ## External architecture constraints re-verified for R20.3
 
@@ -79,12 +80,12 @@ The intended steady state is:
 | --- | --- | --- | --- | --- |
 | R20.1 | Bridge Metadata Refresh & Custody-Safe Tooling | **COMPLETE + NORMALIZED** | COMPLETE — local Snapshot/Timestamp bridge signing performed | normalized R20 planning |
 | R20.2 | Online Signer Abstraction & Rotation Package | **COMPLETE + NORMALIZED** | NONE — provider-neutral implementation only | R20.1 |
-| R20.3 | Zero-Cost Online-Key Provisioning & Root Rotation | **IN PROGRESS** | PARTIAL — online-key generation COMPLETE; GitHub environment secrets + offline Root 2-of-3 + initial v4/v4 transition REQUIRED | R20.2 |
-| R20.4 | Scheduled Metadata Refresh & Atomic Publication | PLANNED | CONDITIONAL for repository environment/rules configuration | R20.3 |
-| R20.5 | Expiry Monitoring, Alerting & Client UX Hardening | PLANNED | NONE after R20.4 | R20.4 |
+| R20.3 | Zero-Cost Online-Key Provisioning & Root Rotation | **COMPLETE + NORMALIZED** | COMPLETE — zero-cost signer challenge and governed transition accepted | R20.2 |
+| R20.4 | Scheduled Metadata Refresh & Atomic Publication | **COMPLETE + NORMALIZED** | NONE in steady state | R20.3 |
+| R20.5 | Expiry Monitoring, Alerting & Client UX Hardening | **ACTIVE — EXACT-HEAD ACCEPTANCE PENDING** | NONE | R20.4 |
 | R20.6 | Long-Offline Client & Continuous-Operations Integrated Acceptance | PLANNED | CONDITIONAL for live incident/rotation drill | R20.1–R20.5 |
 
-No subdivision may be silently inserted, removed, merged, split or renumbered. This R20.3 title/scope revision is an explicit governed roadmap change preserving subdivision number and dependency order while enforcing the zero-cost product constraint.
+No subdivision may be silently inserted, removed, merged, split or renumbered. R20.5 remains the only active subdivision until its exact-head acceptance, merge, and unique continuity normalization are complete.
 
 ---
 
@@ -205,14 +206,7 @@ The local generation boundary is **COMPLETE** and only public evidence was retur
 
 ## Manual intervention boundary
 
-**PARTIAL / REQUIRED.** Online key generation is complete. The remaining privileged actions are:
-
-- create/update GitHub environment `tuf-production-signing` and its two online-role secrets without exposing their values;
-- perform the exact offline Root v2 2-of-3 ceremony locally;
-- immediately use the locally retained new Snapshot/Timestamp seeds to build the public Root v2 + Snapshot v4 + Timestamp v4 transition package;
-- return only that public transition package for repository integration.
-
-The repository tooling must discover Root custody keys by Root-authorized public keyid rather than relying on a private filename convention, and must never record private paths or passphrases in public output.
+**COMPLETE.** R20.3 privileged provisioning/ceremony work and the live zero-cost signer challenge are accepted. Historical ceremony details remain here for auditability; no R20.3 action is required by R20.5.
 
 No paid provider account, billing setup, cloud region or OIDC trust is required by the reference path.
 
@@ -240,7 +234,7 @@ Keep online metadata continuously fresh without user intervention while preservi
 
 ## Steady-state policy candidate
 
-Subject to acceptance and outage testing:
+Accepted by R20.4:
 
 - scheduled check every **6 hours**;
 - Timestamp expiry target **48 hours**;
@@ -253,7 +247,7 @@ This trades a bounded freeze window for resilience to a missed schedule while ke
 
 ## Manual intervention
 
-Conditional only for GitHub environment/protection configuration not available through connected tooling.
+**NONE** in steady-state operation. The scheduled workflow and protected publication path are complete and normalized before R20.5.
 
 ---
 
@@ -274,9 +268,38 @@ Make operational failures visible to maintainers but non-destructive and underst
 - no fallback that accepts expired or unverifiable metadata;
 - operator runbook for emergency manual refresh and GitHub Actions/signing-backend outage.
 
+## Accepted R20.5 monitoring policy
+
+R20.5 implementation is built from normalized `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956` on branch `r20/05-expiry-monitoring-ux-hardening`.
+
+- Root warning at **90 days** remaining and critical at **30 days**;
+- Targets warning at **90 days** remaining and critical at **30 days**;
+- Snapshot/Timestamp warning at **36 hours** remaining and critical at **24 hours**;
+- R20.4 last-success age warning after **9 hours** and critical after **18 hours**;
+- one consecutive completed R20.4 failure is warning; two or more are critical;
+- unverifiable or expired metadata is critical and remains fail-closed;
+- warnings are visible but do not fail the production monitor; critical state fails the monitor before client-facing online metadata expiry;
+- application startup/local work are never blocked by update-service health;
+- localized temporary-service UX is provided in English and French without accepting stale trust data.
+
+Repository artifacts:
+
+- `src/kodepoia/update/operations_health.py` — role lifetime, R20.4 run-health and localized safe UX mapping;
+- `scripts/r20_5_expiry_monitor.py` — secret-free CLI/report/Actions annotations and job summary;
+- `.github/workflows/r20-5-expiry-monitoring.yml` — scheduled read-only monitor;
+- `.github/workflows/r20-5-expiry-monitoring-acceptance.yml` — Ubuntu/Windows exact-head acceptance;
+- `tests/test_r20_5_operations_health.py` — threshold, missed-run, fail-closed and UX regressions;
+- `docs/release/R20_5_UPDATE_OPERATIONS_RUNBOOK.md` — emergency/manual/outage procedure.
+
+The production monitor runs every six hours at minute 47, separated from the R20.4 minute-17 refresh schedule. It has only `actions: read` and `contents: read`; no online signing secret or publication permission is in its scope.
+
+## Current gate
+
+Implementation is present; R20.5 remains **ACTIVE** until the exact final branch HEAD passes its dedicated acceptance and inherited regressions, merges with expected-head protection, and receives one continuity-only post-merge normalization. R20.6 is not authorized before that sequence completes.
+
 ## Manual intervention
 
-**NONE** after online signer exists.
+**NONE** after online signer exists. Emergency actions in the runbook are conditional incident recovery, not an R20.5 implementation prerequisite.
 
 ---
 
@@ -332,6 +355,7 @@ Before R20.1 starts:
 - R20.3 Root rotation must be sequential and dual-authorized according to TUF Root update rules; if its acceptance fails, Root v1 remains authoritative and no new online key is trusted.
 - R20.3 must not expose a transient repository state where Root v2 is trusted but Snapshot/Timestamp still require the revoked v1 online-role keys; the first v4/v4 generation is part of the same governed transition.
 - R20.4 automation must be disable-able without invalidating installed Kodepoia; emergency local signing remains a documented recovery path.
+- R20.5 monitoring is read-only and may fail closed without modifying update metadata or application startup behavior.
 - If the GitHub-secret backend is unavailable or later deemed insufficient, the provider-neutral R20.2 interface allows migration to an optional external signer without making that provider mandatory for Kodepoia.
 
 ## Terminal rule

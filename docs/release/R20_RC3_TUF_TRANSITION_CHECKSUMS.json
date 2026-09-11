@@ -1,0 +1,9 @@
+{
+  "root_sha256": "c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7",
+  "targets_sha256": "eb7fb24368969f3266998719ba5ce0a2572be5b8e610142cf86964c4c966616e",
+  "snapshot_sha256": "1b163e035085c4d56d14ce55bc427e2568d7aad72f2c9f7edad776e0908fdda4",
+  "timestamp_sha256": "8aa04d5ef730524c2cefbf4e91ff1eeb42fd28fe5ba9918b7b60f65a6272bb0e",
+  "installer_sha256": "8689f1649cd33e08fa93bd546c383ed0029afc0d1a86b4f5cb6c3f03bcece0c1",
+  "installer_size": 37708034,
+  "release_source_sha": "a369cb4239de66089785ae96c28e854a23e31f99"
+}

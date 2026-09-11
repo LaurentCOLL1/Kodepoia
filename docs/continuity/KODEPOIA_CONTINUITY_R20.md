@@ -1,10 +1,10 @@
 # KODEPOIA CONTINUITY — R20
 
-**Status:** R20.4 COMPLETE + NORMALIZED; R20.5 EXPIRY MONITORING / ALERTING / CLIENT UX HARDENING IMPLEMENTED ON DEDICATED BRANCH; EXACT-HEAD ACCEPTANCE PENDING; R20.6 NOT AUTHORIZED
+**Status:** R20.5 COMPLETE + NORMALIZED; EXPIRY MONITORING / ALERTING / CLIENT UX HARDENING ACCEPTED; R20.6 NEXT AUTHORIZED SUBDIVISION
 
-This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning, R20.1, R20.2, R20.3 and R20.4 are complete and normalized. R20.4 implementation PR #430 merged from accepted exact HEAD `391ffc27c7a360a8ebb2f4f4483128ca67b52f99` as `main` `3099561a38a7df6abf7e90fc8cd29ac035147cc2`. Its unique continuity-only normalization PR #431 merged exact head `b65eeec42d30b72a46022652caff8d1343bc07d4` as normalized `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956`, the sole authorized R20.5 base.
+This file is the active continuation authority for **R20 — Continuous Trusted Update Operations**. R20 planning and R20.1 through R20.5 are complete and normalized. R20.5 implementation PR #432 merged accepted exact HEAD `bbf30a86eb9a2f332c3805ed19f36327b355e32a` with expected-head protection as `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`. The unique post-merge branch `r20/05-continuity-normalization` jointly finalizes this continuity file and `docs/roadmap/R20_PLAN.md`; once merged, that resulting `main` is the sole authorized R20.6 base. No second R20.5 normalization is authorized merely to embed the resulting normalization merge SHA recursively.
 
-R20.5 is implemented on branch `r20/05-expiry-monitoring-ux-hardening` from that exact normalized base. The branch adds secret-free metadata lifetime and R20.4 run-health monitoring, warning/critical thresholds, read-only scheduled observability, localized non-blocking update-service UX mapping, exact-head acceptance, and `docs/release/R20_5_UPDATE_OPERATIONS_RUNBOOK.md`. R20.5 is **not yet complete** in this pre-acceptance continuity state: completion still requires acceptance on the final exact branch HEAD, expected-head merge, then exactly one continuity-only post-merge normalization.
+R20.5 established secret-free Root/Targets/Snapshot/Timestamp lifetime monitoring, warning/critical thresholds, R20.4 refresh-run health evidence, read-only scheduled observability, localized non-blocking update-service UX, fail-closed handling of expired/unverifiable metadata, immutable R16.9 authority registration for its two workflows, and `docs/release/R20_5_UPDATE_OPERATIONS_RUNBOOK.md`. Application startup and local/offline work remain independent of update-service availability.
 
 R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
@@ -250,35 +250,67 @@ Normalization PR #431 merged on 2026-09-10 as `main` `fa8460a7681554e2e9cd47adc5
 
 Manual intervention for R20.4: **NONE / COMPLETE + NORMALIZED**. Existing R20.3 online signer environment secrets were reused; no Root/Targets private material was needed, and no production metadata refresh was forced while the current generation remained sufficiently fresh.
 
-## R20.5 — Expiry Monitoring, Alerting & Client UX Hardening — IMPLEMENTED / EXACT-HEAD ACCEPTANCE PENDING
+## R20.5 — Expiry Monitoring, Alerting & Client UX Hardening — COMPLETE + NORMALIZED
 
 Implementation branch: `r20/05-expiry-monitoring-ux-hardening`.
 
 Authorized base: normalized R20.4 `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956`.
 
+Accepted exact implementation HEAD: `bbf30a86eb9a2f332c3805ed19f36327b355e32a`.
+
+Implementation PR #432 merged with expected-head protection as `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`.
+
 Objective: make operational failures visible to maintainers but non-destructive and understandable to users.
 
-### Implemented scope
+### R20.5 accepted exact-head evidence
+
+Push exact-head evidence on `bbf30a86eb9a2f332c3805ed19f36327b355e32a`:
+
+- R20.5 Expiry Monitoring UX Acceptance #10: **SUCCESS** on Ubuntu and Windows;
+- R0 Repository Guard #2740: **SUCCESS** on Ubuntu and Windows;
+- Python Core #2711: **SUCCESS** across Python Core Ubuntu/Windows, package builds and integrated KodeStudio UI;
+- KodeStudio UI Smoke #2675: **SUCCESS**.
+
+PR #432 exact-head evidence on the unchanged SHA:
+
+- R20.5 Expiry Monitoring UX Acceptance #11: **SUCCESS** on Ubuntu and Windows;
+- R0 Repository Guard #2741: **SUCCESS** on Ubuntu and Windows;
+- KodeStudio UI Smoke #2676: **SUCCESS**;
+- R16.9 Supply Chain Provenance Acceptance #297: **SUCCESS** on Ubuntu and Windows;
+- R16.12 Representative Windows Desktop Acceptance #268: **SUCCESS** with the accepted .NET 10 SDK.
+
+PR-level Python Core #2712 had one isolated generic Windows-runner inherited R16.12 failure with `dotnet_probe_failed` while 2359 tests passed. This was accepted as a runner/toolchain variance, not a source defect, because the unchanged exact HEAD had already passed Python Core Windows in push #2711 and the dedicated PR-level R16.12 acceptance #268 passed on Windows with explicit accepted .NET SDK setup. No source correction was made for that variance.
+
+### R20.5 accepted behavior
 
 - `src/kodepoia/update/operations_health.py` verifies the exact Root/Targets/Snapshot/Timestamp view, records remaining role lifetime, combines role health with R20.4 workflow-run evidence, and emits secret-free maintainer state.
 - Root/Targets warning/critical thresholds are 90/30 days. Snapshot/Timestamp warning/critical thresholds are 36/24 hours.
 - R20.4 run-health warning begins when the last successful production refresh is older than 9 hours or the latest completed run failed; critical begins after 18 hours without success or two consecutive completed failures.
-- Expired, inconsistent or unverifiable metadata is critical and remains fail-closed.
+- Expired, inconsistent or unverifiable metadata is critical and remains fail-closed; cryptographically valid-but-expired metadata may still be reported as verified evidence but is never accepted for update trust.
 - `scripts/r20_5_expiry_monitor.py` emits machine-readable JSON, GitHub warning/error annotations and a job summary; production exits non-zero only at critical state.
 - `.github/workflows/r20-5-expiry-monitoring.yml` is a read-only production monitor scheduled every six hours at minute 47 with only `actions: read` and `contents: read`. It receives no signing secret and has no metadata/publication permission.
 - `.github/workflows/r20-5-expiry-monitoring-acceptance.yml` provides Ubuntu + Windows exact-head acceptance and inherited R20.1–R20.4 regression coverage.
-- update-service failure states are mapped to localized English/French temporary-service messages; application startup and local/offline work stay available and no stale-trust fallback is introduced.
+- Both R20.5 workflows are registered under immutable R16.9 supply-chain authority; the authority workflow count is synchronized to 45.
+- Update-service failure states are mapped to localized English/French temporary-service messages; application startup and local/offline work stay available and no stale-trust fallback is introduced.
 - `tests/test_r20_5_operations_health.py` covers lifetime thresholds, expiry/corruption fail-closed behavior, stale/missed/failed R20.4 evidence, secret-free combined reports, and localized safe UX.
 - `docs/release/R20_5_UPDATE_OPERATIONS_RUNBOOK.md` documents normal warning response, **Emergency manual refresh**, **GitHub Actions outage**, signer failure and Root/Targets authority escalation without bypassing protected publication or TUF verification.
-- `docs/roadmap/R20_PLAN.md` is synchronized to R20.4 normalized reality and the implemented R20.5 policy/artifacts.
+- The mandatory path remains zero-cost and requires no new Root/Targets private-key provisioning.
 
-### Current R20.5 gate
+### R20.5 post-merge continuity normalization — COMPLETE
 
-R20.5 is not yet declared complete here. The final implementation branch HEAD must pass its dedicated R20.5 acceptance on Ubuntu and Windows together with the inherited regressions. Only that unchanged exact accepted HEAD may be merged. After the implementation merge, exactly one branch `r20/05-continuity-normalization` may update only this continuity file to record final accepted-run/PR/merge evidence and authorize R20.6.
+Pre-normalization base: `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`.
 
-No R20.6 work may begin before that normalization reaches `main`.
+Unique normalization branch: `r20/05-continuity-normalization`.
 
-Manual intervention for R20.5: **NONE**. The monitor is read-only and reuses public metadata plus GitHub workflow-run evidence; it does not require new private-key provisioning.
+This documentation-only branch jointly finalizes `docs/roadmap/R20_PLAN.md` and `docs/continuity/KODEPOIA_CONTINUITY_R20.md`. Its protected exact-head merge is the sole R20.5 post-merge normalization. The resulting normalized `main` SHA is established by that merge and becomes the only authorized R20.6 base; do not create a second R20.5 normalization merely to embed that merge SHA.
+
+Manual intervention for R20.5: **NONE / COMPLETE + NORMALIZED**. The monitor is read-only and reuses public metadata plus GitHub workflow-run evidence; it required no new private-key provisioning.
+
+## R20.6 — Long-Offline Client & Continuous-Operations Integrated Acceptance — NEXT AUTHORIZED SUBDIVISION
+
+R20.6 may begin only from the normalized `main` produced by the unique R20.5 normalization merge.
+
+Objective: prove that a client returning after a long offline period can safely obtain current authorized metadata and update without weakening freshness, while exercising continuous-operations recovery and preserving user data/local work.
 
 ## R20 security invariants
 
@@ -308,4 +340,4 @@ R20.3: **COMPLETE + NORMALIZED** — public online-key generation, GitHub enviro
 
 R20.4: **NONE / COMPLETE + NORMALIZED** — scheduled/manual freshness automation, protected atomic publication path, short-lifetime policy, exact byte binding and Node-24 action-pin migration are accepted; normalization PR #431 produced `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956`.
 
-R20.5: **NONE / IMPLEMENTED, ACCEPTANCE PENDING** — monitoring, alerting, localized UX hardening and emergency runbook require no new private-key provisioning boundary.
+R20.5: **NONE / COMPLETE + NORMALIZED** — monitoring, alerting, localized UX hardening, immutable supply-chain registration and emergency runbook are accepted; implementation PR #432 produced `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`, and the unique normalization branch establishes the sole R20.6 base when merged.

@@ -57,8 +57,7 @@ def _git_blob(commit: str, path: str) -> bytes:
     completed = subprocess.run(
         ["git", "show", f"{commit}:{path}"],
         check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
     )
     if completed.returncode != 0:
         detail = completed.stderr.decode("utf-8", errors="replace").strip()

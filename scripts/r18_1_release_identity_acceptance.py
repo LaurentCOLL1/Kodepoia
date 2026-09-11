@@ -119,14 +119,26 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
     next_nightly = _release(channel="nightly", stage="dev", serial=1, minor=2)
 
     expected_static_identity = {
-        "schema_version": 1,
-        "product": "Kodepoia",
-        "package": "kodepoia",
-        "channel": "beta",
-        "build_type": "prerelease",
-        "source_binding": "exact-head",
-        "version": {"major": 1, "minor": 1, "patch": 0, "stage": "rc", "serial": 1},
+        "schema_version": CURRENT_RELEASE.schema_version,
+        "product": CURRENT_RELEASE.product,
+        "package": CURRENT_RELEASE.package,
+        "channel": CURRENT_RELEASE.channel,
+        "build_type": CURRENT_RELEASE.build_type,
+        "source_binding": CURRENT_RELEASE.source_binding,
+        "version": {
+            "major": CURRENT_RELEASE.major,
+            "minor": CURRENT_RELEASE.minor,
+            "patch": CURRENT_RELEASE.patch,
+            "stage": CURRENT_RELEASE.stage,
+            "serial": CURRENT_RELEASE.serial,
+        },
     }
+    expected_pep440 = (
+        f"{CURRENT_RELEASE.base_version}{CURRENT_RELEASE.stage}{CURRENT_RELEASE.serial}"
+    )
+    expected_public = (
+        f"{CURRENT_RELEASE.base_version}-{CURRENT_RELEASE.stage}{CURRENT_RELEASE.serial}"
+    )
 
     checks = {
         "exact_source_bound": _git_head(root) == exact_source,
@@ -138,14 +150,15 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
         "canonical_package_name": CURRENT_RELEASE.package == "kodepoia",
         "canonical_channel_beta": CURRENT_RELEASE.channel == "beta",
         "canonical_build_type": CURRENT_RELEASE.build_type == "prerelease",
-        "canonical_pep440_version": CURRENT_RELEASE.pep440_version == "1.1.0rc1",
-        "canonical_public_version": CURRENT_RELEASE.public_version == "1.1.0-rc1",
-        "canonical_installer_version": CURRENT_RELEASE.installer_version == "1.1.0-rc1",
+        "canonical_pep440_version": CURRENT_RELEASE.pep440_version == expected_pep440,
+        "canonical_public_version": CURRENT_RELEASE.public_version == expected_public,
+        "canonical_installer_version": CURRENT_RELEASE.installer_version == expected_public,
         "package_version_derived": kodepoia.__version__ == CURRENT_RELEASE.pep440_version,
         "pyproject_matches_canonical": pyproject["project"]["version"] == CURRENT_RELEASE.pep440_version,
-        "cli_matches_canonical": cli == "kodepoia 1.1.0-rc1 (beta)",
+        "cli_matches_canonical": cli
+        == f"kodepoia {CURRENT_RELEASE.public_version} ({CURRENT_RELEASE.channel})",
         "inno_requires_external_canonical_version": (
-            '#define AppVersion "1.1.0-rc1"' not in iss
+            f'#define AppVersion "{CURRENT_RELEASE.public_version}"' not in iss
             and "#error AppVersion must be supplied from the canonical Kodepoia release identity" in iss
             and "AppVersion={#AppVersion}" in iss
         ),

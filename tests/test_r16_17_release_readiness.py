@@ -3,6 +3,8 @@ from __future__ import annotations
 import tomllib
 from pathlib import Path
 
+from packaging.version import Version
+
 import kodepoia
 from kodepoia.quality.release_readiness import (
     PRIOR_VERSION,
@@ -26,8 +28,8 @@ def test_r16_17_release_baseline_remains_frozen_while_current_identity_advances(
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["project"]["version"] == CURRENT_RELEASE.pep440_version
     assert kodepoia.__version__ == CURRENT_RELEASE.pep440_version
-    assert CURRENT_RELEASE.pep440_version == "1.1.0rc2"
-    assert CURRENT_RELEASE.public_version == "1.1.0-rc2"
+    assert CURRENT_RELEASE.source_binding == "exact-head"
+    assert Version(CURRENT_RELEASE.pep440_version) > Version(RELEASE_VERSION)
 
 
 def test_r16_17_migration_and_failed_migration_rollback_are_exact() -> None:

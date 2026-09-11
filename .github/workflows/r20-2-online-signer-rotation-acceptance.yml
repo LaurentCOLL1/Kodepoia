@@ -79,17 +79,64 @@ jobs:
           tests/test_r18_6_update_trust.py
           tests/test_r18_7_update_discovery.py
 
-      - name: Assert production Root is untouched
+      - name: Verify frozen R20.2 Root boundary and current successor
         shell: python
         run: |
           import hashlib
+          import subprocess
           from pathlib import Path
 
-          root = Path("update-repository/metadata/root.json").read_bytes()
-          expected = "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
-          actual = hashlib.sha256(root).hexdigest()
-          if actual != expected:
-              raise SystemExit(f"R20.2 must not change production Root v1: {actual}")
+          from tuf.api.metadata import Metadata, Root
+
+          R20_2_END_SHA = "9ab039519e434b24fff1c45dfeed2aa2fef4920f"
+          EXPECTED_ROOT_V1_SHA256 = "892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5"
+
+          historical_root_bytes = subprocess.check_output(
+              [
+                  "git",
+                  "show",
+                  f"{R20_2_END_SHA}:update-repository/metadata/root.json",
+              ]
+          )
+          historical_sha = hashlib.sha256(historical_root_bytes).hexdigest()
+          if historical_sha != EXPECTED_ROOT_V1_SHA256:
+              raise SystemExit(
+                  f"R20.2 phase-end Root v1 drifted: expected {EXPECTED_ROOT_V1_SHA256}, got {historical_sha}"
+              )
+
+          historical_root = Metadata.from_bytes(historical_root_bytes)
+          if not isinstance(historical_root.signed, Root) or historical_root.signed.version != 1:
+              raise SystemExit("R20.2 phase-end Root is not the accepted Root v1")
+          historical_root.signed.verify_delegate(
+              "root", historical_root.signed_bytes, historical_root.signatures
+          )
+
+          current_root_bytes = Path("update-repository/metadata/root.json").read_bytes()
+          current_root = Metadata.from_bytes(current_root_bytes)
+          if not isinstance(current_root.signed, Root):
+              raise SystemExit("current root.json has the wrong TUF type")
+          if current_root.signed.version < historical_root.signed.version:
+              raise SystemExit("current Root version rolled back below R20.2")
+
+          if current_root.signed.version == historical_root.signed.version:
+              if current_root_bytes != historical_root_bytes:
+                  raise SystemExit("Root v1 bytes changed without a version increment")
+          elif current_root.signed.version == historical_root.signed.version + 1:
+              historical_root.signed.verify_delegate(
+                  "root", current_root.signed_bytes, current_root.signatures
+              )
+              current_root.signed.verify_delegate(
+                  "root", current_root.signed_bytes, current_root.signatures
+              )
+          else:
+              raise SystemExit(
+                  "R20.2 acceptance needs explicit intermediate Root-chain evidence for a jump larger than one version"
+              )
+
+          print(
+              "R20.2 frozen Root boundary verified; current Root successor is version",
+              current_root.signed.version,
+          )
 
       - name: Assert R20.2 contains no provider credential workflow
         shell: python
@@ -110,16 +157,35 @@ jobs:
       - name: Emit public R20.2 evidence
         shell: python
         run: |
+          import hashlib
           import json
           import os
+          import subprocess
           from pathlib import Path
+
+          from tuf.api.metadata import Metadata, Root
+
+          r20_2_end_sha = "9ab039519e434b24fff1c45dfeed2aa2fef4920f"
+          historical_root = subprocess.check_output(
+              ["git", "show", f"{r20_2_end_sha}:update-repository/metadata/root.json"]
+          )
+          current_root_bytes = Path("update-repository/metadata/root.json").read_bytes()
+          current_root = Metadata.from_bytes(current_root_bytes)
+          if not isinstance(current_root.signed, Root):
+              raise SystemExit("current root.json has the wrong TUF type")
 
           report = {
               "format": "kodepoia-r20-2-online-signer-rotation-acceptance",
-              "schema_version": 1,
+              "schema_version": 2,
               "source_sha": os.environ["EVIDENCE_SHA"].strip().lower(),
+              "historical_source_sha": r20_2_end_sha,
+              "historical_root_sha256": hashlib.sha256(historical_root).hexdigest(),
+              "historical_root_version": 1,
+              "current_root_sha256": hashlib.sha256(current_root_bytes).hexdigest(),
+              "current_root_version": current_root.signed.version,
+              "current_root_successor_verified": True,
               "provider_neutral": True,
-              "production_root_modified": False,
+              "production_root_modified_during_r20_2": False,
               "private_keys_in_ci_evidence": False,
               "live_kms_provisioned": False,
               "offline_root_signing_performed": False,

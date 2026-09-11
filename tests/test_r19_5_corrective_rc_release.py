@@ -25,16 +25,8 @@ def installer(tmp_path: Path, payload: bytes = b"synthetic-r19.5-installer") -> 
     return path
 
 
-def test_canonical_identity_is_authorized_corrective_rc2() -> None:
-    assert CURRENT_RELEASE.public_version == CORRECTIVE_PUBLIC_VERSION == "1.1.0-rc2"
-    assert CURRENT_RELEASE.pep440_version == "1.1.0rc2"
-    assert CURRENT_RELEASE.channel == "beta"
-    assert CURRENT_RELEASE.build_type == "prerelease"
-    assert CURRENT_RELEASE.source_binding == "exact-head"
-
-
-def test_rc1_to_rc2_is_strict_forward_transition() -> None:
-    rc1 = ReleaseIdentity(
+def _rc_identity(serial: int) -> ReleaseIdentity:
+    return ReleaseIdentity(
         schema_version=1,
         product="Kodepoia",
         package="kodepoia",
@@ -45,11 +37,27 @@ def test_rc1_to_rc2_is_strict_forward_transition() -> None:
         minor=1,
         patch=0,
         stage="rc",
-        serial=1,
+        serial=serial,
     )
-    assert CURRENT_RELEASE.is_newer_than(rc1)
-    assert rc1.can_transition_to(CURRENT_RELEASE)
-    assert not CURRENT_RELEASE.can_transition_to(rc1)
+
+
+def test_corrective_rc2_contract_remains_historical_while_current_identity_advances() -> None:
+    rc2 = _rc_identity(2)
+    assert CORRECTIVE_PUBLIC_VERSION == "1.1.0-rc2"
+    assert rc2.public_version == CORRECTIVE_PUBLIC_VERSION
+    assert rc2.pep440_version == "1.1.0rc2"
+    assert CURRENT_RELEASE.pep440_version == rc2.pep440_version or CURRENT_RELEASE.is_newer_than(rc2)
+    assert CURRENT_RELEASE.channel == "beta"
+    assert CURRENT_RELEASE.build_type == "prerelease"
+    assert CURRENT_RELEASE.source_binding == "exact-head"
+
+
+def test_rc1_to_rc2_is_strict_forward_transition() -> None:
+    rc1 = _rc_identity(1)
+    rc2 = _rc_identity(2)
+    assert rc2.is_newer_than(rc1)
+    assert rc1.can_transition_to(rc2)
+    assert not rc2.can_transition_to(rc1)
 
 
 def test_handoff_binds_exact_installer_source_and_tuf_path(tmp_path: Path) -> None:

@@ -5,7 +5,6 @@ import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from kodepoia.release.identity import CURRENT_RELEASE
 from kodepoia.update.repository_bootstrap import build_target_binding
 from kodepoia.update.trust import UpdateTargetSpec
 
@@ -60,17 +59,16 @@ def build_corrective_rc_handoff(
     release_notes_summary: str = "Corrective v1.1 Windows installed-experience update.",
     provenance_status: str = "exact-source-r18-provenance-required-before-publication",
 ) -> CorrectiveRcReleaseHandoff:
+    """Replay the immutable R19.5 rc2 release handoff independently of later releases.
+
+    R19.5 is historical evidence for v1.1.0-rc2.  The repository's canonical
+    release identity is allowed to advance after that release, so this replay
+    must remain bound to the frozen rc2 constants instead of CURRENT_RELEASE.
+    """
     source = _require_source_sha(source_sha)
     path = Path(installer)
     if not path.is_file():
         raise CorrectiveRcReleaseError("corrective RC installer is missing")
-    if CURRENT_RELEASE.public_version != CORRECTIVE_PUBLIC_VERSION:
-        raise CorrectiveRcReleaseError(
-            f"canonical release identity must be {CORRECTIVE_PUBLIC_VERSION}, "
-            f"got {CURRENT_RELEASE.public_version}"
-        )
-    if CURRENT_RELEASE.channel != "beta" or CURRENT_RELEASE.build_type != "prerelease":
-        raise CorrectiveRcReleaseError("corrective RC must remain a beta prerelease")
 
     payload = path.read_bytes()
     if not payload:
@@ -79,7 +77,7 @@ def build_corrective_rc_handoff(
     target = UpdateTargetSpec(
         channel="beta",
         platform="windows-x86_64",
-        public_version=CURRENT_RELEASE.public_version,
+        public_version=CORRECTIVE_PUBLIC_VERSION,
         source_sha=source,
         filename="KodepoiaSetup.exe",
     )
@@ -98,9 +96,9 @@ def build_corrective_rc_handoff(
     return CorrectiveRcReleaseHandoff(
         source_sha=source,
         previous_public_version=PREVIOUS_PUBLIC_VERSION,
-        public_version=CURRENT_RELEASE.public_version,
-        tag=f"v{CURRENT_RELEASE.public_version}",
-        channel=CURRENT_RELEASE.channel,
+        public_version=CORRECTIVE_PUBLIC_VERSION,
+        tag=f"v{CORRECTIVE_PUBLIC_VERSION}",
+        channel="beta",
         prerelease=True,
         installer_path=str(path),
         installer_size=len(payload),

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -89,8 +90,6 @@ def test_fresh_rc2_state_can_rotate_seeded_root_v1_to_root_v2_and_discover_rc3(
         targets_version=3,
     )
 
-    packaged_root = load_production_packaged_root()
-    del packaged_root
     state_base = tmp_path / "updates"
     discovery_state = state_base / "discovery" / "tuf-discovery"
     discovery_state.mkdir(parents=True, exist_ok=True)
@@ -111,5 +110,5 @@ def test_fresh_rc2_state_can_rotate_seeded_root_v1_to_root_v2_and_discover_rc3(
     assert result.candidate is not None
     assert result.candidate.target.public_version == "1.1.0-rc3"
     assert result.candidate.target.source_sha == RC3_SOURCE
-    assert result.candidate.sha256
+    assert result.candidate.sha256 == hashlib.sha256(RC3_INSTALLER).hexdigest()
     assert (discovery_state / "root.json").read_bytes() == rc3_repository.root

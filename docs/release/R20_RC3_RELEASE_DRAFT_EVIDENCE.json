@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "tag": "v1.1.0-rc3",
+  "draft": true,
+  "prerelease": true,
+  "target_commitish": "a369cb4239de66089785ae96c28e854a23e31f99",
+  "asset": {
+    "name": "KodepoiaSetup.exe",
+    "size": 37708034,
+    "sha256": "8689f1649cd33e08fa93bd546c383ed0029afc0d1a86b4f5cb6c3f03bcece0c1",
+    "github_asset_id": 557968343,
+    "state": "uploaded"
+  },
+  "release_id": 387320042,
+  "published": false,
+  "targets_v3_payload_url_after_publish": "https://github.com/LaurentCOLL1/Kodepoia/releases/download/v1.1.0-rc3/KodepoiaSetup.exe"
+}

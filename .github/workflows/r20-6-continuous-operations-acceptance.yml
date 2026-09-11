@@ -79,10 +79,21 @@ jobs:
           tests/test_supply_chain_r16_9.py
 
       - name: Emit exact-source R20.6 integrated evidence
-        run: >-
-          python scripts/r20_6_continuous_operations_acceptance.py
-          --source-sha "$EVIDENCE_SHA"
-          --output artifacts/r20_6/continuous-operations.json
+        shell: python
+        run: |
+          import os
+          import subprocess
+
+          subprocess.check_call(
+              [
+                  "python",
+                  "scripts/r20_6_continuous_operations_acceptance.py",
+                  "--source-sha",
+                  os.environ["EVIDENCE_SHA"],
+                  "--output",
+                  "artifacts/r20_6/continuous-operations.json",
+              ]
+          )
 
       - name: Assert complete terminal acceptance matrix
         shell: python

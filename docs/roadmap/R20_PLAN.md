@@ -45,7 +45,8 @@ The intended steady state is:
 - Accepted Timestamp replacement keyid: `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
 - Accepted unsigned Root v2 SHA-256: `7ae909722149fe7f05380f93b7317c99347f8b3c1d102b7b6ddca64bbe1bbe1d`; it has no production effect until the governed offline ceremony and complete online-role transition are accepted.
 - R20.4 is **COMPLETE + NORMALIZED** on `main` `fa8460a7681554e2e9cd47adc591e2fed5af0956`; this exact normalized head is the authorized R20.5 base.
-- R20.5 implementation PR #432 merged accepted exact HEAD `bbf30a86eb9a2f332c3805ed19f36327b355e32a` with expected-head protection as `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`; the unique R20.5 post-merge normalization is the only remaining step before R20.6.
+- R20.5 implementation PR #432 merged accepted exact HEAD `bbf30a86eb9a2f332c3805ed19f36327b355e32a` as `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`.
+- R20.5 unique normalization PR #433 merged exact head `9ec92ac1a667e2e06da757e5cb45f0d79a571a08` as normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51`; this exact SHA is the sole authorized R20.6 base.
 
 ## External architecture constraints re-verified for R20.3
 
@@ -84,9 +85,9 @@ The intended steady state is:
 | R20.3 | Zero-Cost Online-Key Provisioning & Root Rotation | **COMPLETE + NORMALIZED** | COMPLETE — zero-cost signer challenge and governed transition accepted | R20.2 |
 | R20.4 | Scheduled Metadata Refresh & Atomic Publication | **COMPLETE + NORMALIZED** | NONE in steady state | R20.3 |
 | R20.5 | Expiry Monitoring, Alerting & Client UX Hardening | **COMPLETE + NORMALIZED** | NONE | R20.4 |
-| R20.6 | Long-Offline Client & Continuous-Operations Integrated Acceptance | **NEXT AUTHORIZED SUBDIVISION** | CONDITIONAL for live incident/rotation drill | R20.1–R20.5 |
+| R20.6 | Long-Offline Client & Continuous-Operations Integrated Acceptance | **ACTIVE — IMPLEMENTED / EXACT-HEAD ACCEPTANCE PENDING** | NONE — deterministic drill is sufficient | R20.1–R20.5 |
 
-No subdivision may be silently inserted, removed, merged, split or renumbered. R20.6 may begin only from the `main` produced by the unique R20.5 post-merge normalization. No second R20.5 normalization is authorized merely to embed that resulting merge SHA recursively.
+No subdivision may be silently inserted, removed, merged, split or renumbered. R20.6 is the only active subdivision and is built from normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51`. No `R20.7` is authorized.
 
 ---
 
@@ -311,7 +312,7 @@ PR-level Python Core #2712 had one isolated generic Windows-runner `dotnet_probe
 
 Implementation PR #432 merged with expected-head protection as `main` `94b787b11e1010c9ad6cfa77bd96360e49e0fb8e`.
 
-The unique post-merge normalization branch is `r20/05-continuity-normalization`, based exactly on that implementation merge. This documentation-only normalization jointly finalizes this roadmap and `docs/continuity/KODEPOIA_CONTINUITY_R20.md`. Once merged, the resulting `main` is the sole authorized R20.6 base; no second R20.5 normalization is permitted merely to embed that merge SHA recursively.
+The unique R20.5 post-merge normalization branch `r20/05-continuity-normalization` merged through PR #433 from exact head `9ec92ac1a667e2e06da757e5cb45f0d79a571a08` as normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51`. That is the sole authorized R20.6 base. No second R20.5 normalization is permitted merely to embed the merge SHA recursively.
 
 ## Manual intervention
 
@@ -345,9 +346,33 @@ Prove the operational promise that a user can return long after installation and
 - installed user settings/projects survive normal update flow;
 - the complete mandatory operational path remains usable without any paid infrastructure service.
 
+## Implemented integrated acceptance
+
+R20.6 implementation is built from normalized `main` `ca1f1415dbad47f46f1a4714b2da225cfd4e9e51` on branch `r20/06-long-offline-continuous-operations`.
+
+The required matrix is represented as one deterministic **17-case** exact-source report. It reuses the accepted TUF verifier, R20.4 steady-state refresh, R20.5 non-blocking UX mapping and R19 seamless update handoff rather than adding a new production trust path.
+
+Repository artifacts:
+
+- `src/kodepoia/update/continuous_operations.py` — deterministic integrated R20.6 acceptance model;
+- `scripts/r20_6_continuous_operations_acceptance.py` — exact-source report emitter;
+- `tests/test_r20_6_continuous_operations.py` — terminal matrix and non-production regressions;
+- `.github/workflows/r20-6-continuous-operations-acceptance.yml` — Ubuntu/Windows exact-head acceptance;
+- `docs/release/R20_6_CONTINUOUS_OPERATIONS_ACCEPTANCE.md` — terminal acceptance/security interpretation.
+
+The acceptance has no production effect: it uses synthetic signers/repositories only, never consumes production private keys, never publishes metadata, never creates a release and never performs a live Root/Targets ceremony. The formerly conditional live incident/key-rotation drill is therefore **not required** for completion because every required security boundary is deterministically exercised without privileged production mutation.
+
+R20.6 also replays preservation of user settings and project data through the verified update handoff and retains the already accepted R19.5 real-Windows rc1→rc2 installer replay as inherited live evidence.
+
+## Current gate
+
+R20.6 remains **ACTIVE** until the unchanged final branch HEAD passes its dedicated Ubuntu/Windows acceptance plus inherited regressions and repository gates, merges with expected-head protection, and then receives exactly one joint post-merge normalization of this roadmap and `docs/continuity/KODEPOIA_CONTINUITY_R20.md`.
+
+Only that normalization may mark R20 terminally **COMPLETE + NORMALIZED**. No `R20.7` is authorized.
+
 ## Manual intervention
 
-Conditional for a live key-rotation/incident drill if explicit privileged approval is required.
+**NONE for the implemented acceptance.** A live incident/key-rotation drill was conditional, not mandatory; deterministic synthetic evidence covers the required boundaries with `production_effect=false`.
 
 ---
 
@@ -372,6 +397,7 @@ Before R20.1 starts:
 - R20.3 must not expose a transient repository state where Root v2 is trusted but Snapshot/Timestamp still require the revoked v1 online-role keys; the first v4/v4 generation is part of the same governed transition.
 - R20.4 automation must be disable-able without invalidating installed Kodepoia; emergency local signing remains a documented recovery path.
 - R20.5 monitoring is read-only and may fail closed without modifying update metadata or application startup behavior.
+- R20.6 acceptance is synthetic, exact-source and non-production; failure cannot mutate production metadata or user trust state.
 - If the GitHub-secret backend is unavailable or later deemed insufficient, the provider-neutral R20.2 interface allows migration to an optional external signer without making that provider mandatory for Kodepoia.
 
 ## Terminal rule

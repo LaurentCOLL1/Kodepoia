@@ -6,24 +6,45 @@ This file is the terminal continuation authority for **R20 — Continuous Truste
 
 The detailed pre-R20.6 narrative remains frozen in Git history at the normalized R20.5 parent. This compacted terminal authority preserves every execution-critical head, PR, trust identifier, security invariant and manual boundary needed to understand the completed R20 phase without recursively rewriting prior normalized history.
 
-The unique documentation-only branch `r20/06-continuity-normalization` jointly finalizes this file and `docs/roadmap/R20_PLAN.md`. Its merge closes R20 terminally. No second normalization may be created merely to record that normalization's own resulting head or merge SHA recursively.
+The unique documentation-only branch `r20/06-continuity-normalization` jointly finalized this file and `docs/roadmap/R20_PLAN.md`. Its merge closed R20 terminally. No second R20 normalization may be created merely to record that normalization's own resulting head or merge SHA recursively.
 
 R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
-## Frozen inherited authority
+## Post-R20 release operations — current distribution authority
+
+**Latest-state authority:** this section supersedes only stale *current release / current metadata* wording in the frozen R20-closure baseline below. It does **not** reopen R20, create R20.7, alter the completed R20 subdivision set, or constitute a second R20 phase normalization. The underlying R20 implementation/normalization evidence remains immutable historical authority.
+
+- Current public beta prerelease: **`v1.1.0-rc4`**, published 2026-09-12, target/source SHA `42e58b6b9c00d53c27e005020d6e99688958ee3a`.
+- Accepted rc4 Windows installer: `KodepoiaSetup.exe`, `37,713,467` bytes, SHA-256 `54f751593b86d62eec50ea6852cc8683f0154d8645f9d98b84ccc6319ba058ee`, `production_signed=false`.
+- Fresh-client Root bootstrap correction: PR #438 accepted exact head `841fa729f9743a47e26ea489affda0ef418aea09` and merged as `main` `aeea4a3fd2da2bca25f4c8126d496e241b8823d6`. The packaged Root v1 anchor is now used to verify the sequential public Root v2 rotation before current metadata discovery.
+- rc4 identity/rebuild PR #439 accepted source `42e58b6b9c00d53c27e005020d6e99688958ee3a` and merged as `main` `5757cf28981fa70a89e39c3456302f90cc06e031` after exact-source release/update qualification.
+- Atomic rc4 TUF transition PR #440 accepted head `d61240bbca6b7a85b2fdfdb9442b6beac0a8ce7f` and merged as current pre-documentation-normalization `main` **`575aa74d3f3109989d39322dbc12cab8cb912ca7`**.
+- Current production Root remains **v2**, SHA-256 `c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7`, 2-of-3 threshold, expiry `2027-09-08T14:59:19Z`.
+- Current production Targets is **v4**, SHA-256 `9db8604cd2e9fc3de052ad01c0f25727650b2b4c410ed2383cd911de183282ba`, length `1677`, expiry `2027-09-12T06:08:24Z`, signed by offline Targets keyid `70e86d478a769ffbefbf6febc37435a2a4563197df03d6dcda6627282fa5cf00`.
+- Targets v4 preserves the accepted rc3 target and additionally authorizes rc4 at exact source, size, hash, beta channel and final GitHub Release payload URL.
+- Current production Snapshot is **v6**, SHA-256 `5d636b3d9ad81f5bb533a13b790e18873736f70cdf38e43f939c8740731e5fb9`, length `469`, expiry `2026-09-15T06:22:35Z`, signed by online keyid `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`.
+- Current production Timestamp is **v6**, SHA-256 `03fb5f4c31c48ab5bc43d89178e5c805b54b1f519df193d03cf01ee75bed2463`, length `470`, expiry `2026-09-14T06:22:35Z`, signed by distinct online keyid `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
+- Snapshot v6 binds exact Targets v4 bytes/version/hash/length; Timestamp v6 binds exact signed Snapshot v6 bytes/version/hash/length. The generation is therefore `Root v2 / Targets v4 / Snapshot v6 / Timestamp v6` with no mixed public view.
+- Root/Targets private custody remains outside Git/repository/CI; Snapshot/Timestamp online custody remains limited to their distinct low-authority R20 signing identities.
+- The repository-root `KodepoiaSetup.exe` and `KodepoiaSetup.exe.sha256` remain a **historical rc1 mirror**. The current recommended end-user installer is the rc4 GitHub Release asset, not the root mirror.
+- Public rc3 remains historical predecessor evidence. rc4 is the first published prerelease that actually packages the fresh Root v1→v2 bootstrap correction discovered after rc3 publication.
+
+## Frozen inherited authority at R20 closure — historical baseline
+
+The following values describe the inherited/current state at the R20 closure boundary. They are intentionally preserved as historical R20 evidence; the post-R20 release authority above records the subsequently published rc3/rc4 evolution.
 
 - Repository: `LaurentCOLL1/Kodepoia`.
 - Normalized R19 base: `main` `a5cb56fdf5993be3222b486fa80748f5aa339b71`.
 - R19 terminal continuity: `docs/continuity/KODEPOIA_CONTINUITY_R19.md`.
-- Public prerelease authority: `v1.1.0-rc2`.
+- Public prerelease authority at R20 start/closure baseline: `v1.1.0-rc2`.
 - Accepted release source: `18ee16173d12f34a3508ccc0ad1a9ce38e9ecd3e`.
 - Accepted installer SHA-256: `a753ecef07757c3a8d6f97db4db7c77bece9d8129bdd0887eb7dea71d805ff8c`.
 - Accepted installer length: `37613254` bytes.
 - Historical predecessor Root v1 SHA-256: `892442754966aa643bbe15a2910aa3fef59032c8f5eade34fed62efd96aefee5`.
-- Current production Root is **v2**, SHA-256 `c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7`, threshold 2-of-3, expiry `2027-09-08T14:59:19Z`.
-- Targets remains exact **v2**, SHA-256 `0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f`, length `1001`, expiry `2027-09-08T17:32:00Z`.
-- Current production Snapshot is **v4**, SHA-256 `1fccbcc5721acf59188761a79b70d829fa1ae23e77e505d1c1e9867c110eced9`, replacement keyid `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`.
-- Current production Timestamp is **v4**, SHA-256 `74c815dc414ae946aba1f7c427ae044dbaa3a5e1fb15bbdb436e33881fc6e501`, distinct replacement keyid `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
+- Production Root at R20 closure is **v2**, SHA-256 `c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7`, threshold 2-of-3, expiry `2027-09-08T14:59:19Z`.
+- Targets at R20 closure is exact **v2**, SHA-256 `0b65bf34e50d43ed1f82f0f4a17875fb0a4bb597ed5b6066749dc9352e504e3f`, length `1001`, expiry `2027-09-08T17:32:00Z`.
+- Production Snapshot at R20 closure is **v4**, SHA-256 `1fccbcc5721acf59188761a79b70d829fa1ae23e77e505d1c1e9867c110eced9`, replacement keyid `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`.
+- Production Timestamp at R20 closure is **v4**, SHA-256 `74c815dc414ae946aba1f7c427ae044dbaa3a5e1fb15bbdb436e33881fc6e501`, distinct replacement keyid `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
 - Snapshot v4 and Timestamp v4 retain transition expiry `2026-10-08T21:44:18Z`; R20.4 did not manufacture an unnecessary production refresh while sufficient lifetime remained.
 - Snapshot v4 binds exact Targets v2 bytes/version/hash/length; Timestamp v4 binds exact signed Snapshot v4 bytes/version/hash/length.
 - Root/Targets private custody remains outside Git/repository/CI.
@@ -195,7 +216,7 @@ PR #434 evidence on the same unchanged HEAD:
 
 The exact accepted implementation was therefore merged with expected-head protection as `main` `be4f9227331ba7a21dd591ec528ec8d9b3369029`.
 
-The unique documentation-only branch `r20/06-continuity-normalization` jointly finalizes `docs/roadmap/R20_PLAN.md` and this continuity authority. Its merge is the terminal R20 normalization. No second normalization may be created merely to embed its own final head or merge SHA recursively.
+The unique documentation-only branch `r20/06-continuity-normalization` jointly finalized `docs/roadmap/R20_PLAN.md` and this continuity authority. Its merge is the terminal R20 normalization. No second normalization may be created merely to embed its own final head or merge SHA recursively.
 
 Manual intervention for R20.6: **NONE / COMPLETE + NORMALIZED**. No new secret provisioning, Root/Targets ceremony or live production mutation is required by the accepted design.
 
@@ -234,4 +255,4 @@ R20.6: **NONE / COMPLETE + NORMALIZED** — deterministic terminal acceptance us
 
 ## Terminal rule
 
-R20 is **COMPLETE + NORMALIZED** after the unique joint R20.6 documentation normalization merges. **No `R20.7` is authorized.** Do not create a second R20 normalization merely to record the terminal normalization's own resulting head or merge SHA.
+R20 is **COMPLETE + NORMALIZED** after the unique joint R20.6 documentation normalization merges. **No `R20.7` is authorized.** Post-R20 release operations and documentation errata do not reopen the phase and do not authorize a second R20 normalization.

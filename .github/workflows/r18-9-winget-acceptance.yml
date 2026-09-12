@@ -71,7 +71,7 @@ jobs:
 
       - name: Build exact-source KodepoiaSetup.exe
         shell: pwsh
-        run: ./scripts/build_windows_installer.ps1 -Version "1.1.0-rc1"
+        run: ./scripts/build_windows_installer.ps1
 
       - name: Generate and validate WinGet readiness evidence
         shell: pwsh

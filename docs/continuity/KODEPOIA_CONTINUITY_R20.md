@@ -14,24 +14,25 @@ R19 remains **COMPLETE + NORMALIZED** and frozen. No `R19.6` is authorized.
 
 **Latest-state authority:** this section supersedes only stale *current release / current metadata* wording in the frozen R20-closure baseline below. It does **not** reopen R20, create R20.7, alter the completed R20 subdivision set, or constitute a second R20 phase normalization. The underlying R20 implementation/normalization evidence remains immutable historical authority.
 
-- Current public beta prerelease: **`v1.1.0-rc4`**, published 2026-09-12, target/source SHA `42e58b6b9c00d53c27e005020d6e99688958ee3a`.
-- Accepted rc4 Windows installer: `KodepoiaSetup.exe`, `37,713,467` bytes, SHA-256 `54f751593b86d62eec50ea6852cc8683f0154d8645f9d98b84ccc6319ba058ee`, `production_signed=false`.
-- Fresh-client Root bootstrap correction: PR #438 accepted exact head `841fa729f9743a47e26ea489affda0ef418aea09` and merged as `main` `aeea4a3fd2da2bca25f4c8126d496e241b8823d6`. The packaged Root v1 anchor is now used to verify the sequential public Root v2 rotation before current metadata discovery.
-- rc4 identity/rebuild PR #439 accepted source `42e58b6b9c00d53c27e005020d6e99688958ee3a` and merged as `main` `5757cf28981fa70a89e39c3456302f90cc06e031` after exact-source release/update qualification.
-- Atomic rc4 TUF transition PR #440 accepted head `d61240bbca6b7a85b2fdfdb9442b6beac0a8ce7f` and merged as current pre-documentation-normalization `main` **`575aa74d3f3109989d39322dbc12cab8cb912ca7`**.
+- Current public beta prerelease: **`v1.1.0-rc5`**, published 2026-09-12, target/source SHA `3f25eefa1a65cbbe9eb5822d6f68741675cf179b`.
+- Accepted rc5 Windows installer: `KodepoiaSetup.exe`, `37,712,707` bytes, SHA-256 `30636a6ef5db4b3d171acc3817282595eff8ba724ff6c175329a10e8c5e8d42b`, `production_signed=false`.
+- Fresh-client Root bootstrap correction remains inherited from PR #438, accepted exact head `841fa729f9743a47e26ea489affda0ef418aea09` and merged as `main` `aeea4a3fd2da2bca25f4c8126d496e241b8823d6`. The packaged Root v1 anchor verifies the sequential public Root v2 rotation before current metadata discovery.
+- Windows packaging/install-path hotfix PR #442 added the packaged TUF resource inclusion, fail-closed package assertions, selectable destination directory and exact installed-updater smoke coverage; it merged before rc5 identity staging.
+- rc5 identity/rebuild PR #443 accepted source `3f25eefa1a65cbbe9eb5822d6f68741675cf179b` and merged as `main` `08e12572966950cb24dcef206eb32c4507f9c92d` after exact-source Windows/release qualification.
+- Atomic rc5 TUF transition PR #444 accepted exact head `731212d38a7d31a59840cd772a48561a4cfa6b12` after exact-head TUF/update and Windows Installer acceptance, then merged as current pre-documentation-normalization `main` **`d33998160c6ce33f95989b3b3fbeba16af2455b3`**.
 - Current production Root remains **v2**, SHA-256 `c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7`, 2-of-3 threshold, expiry `2027-09-08T14:59:19Z`.
-- Current production Targets is **v4**, SHA-256 `9db8604cd2e9fc3de052ad01c0f25727650b2b4c410ed2383cd911de183282ba`, length `1677`, expiry `2027-09-12T06:08:24Z`, signed by offline Targets keyid `70e86d478a769ffbefbf6febc37435a2a4563197df03d6dcda6627282fa5cf00`.
-- Targets v4 preserves the accepted rc3 target and additionally authorizes rc4 at exact source, size, hash, beta channel and final GitHub Release payload URL.
-- Current production Snapshot is **v6**, SHA-256 `5d636b3d9ad81f5bb533a13b790e18873736f70cdf38e43f939c8740731e5fb9`, length `469`, expiry `2026-09-15T06:22:35Z`, signed by online keyid `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`.
-- Current production Timestamp is **v6**, SHA-256 `03fb5f4c31c48ab5bc43d89178e5c805b54b1f519df193d03cf01ee75bed2463`, length `470`, expiry `2026-09-14T06:22:35Z`, signed by distinct online keyid `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
-- Snapshot v6 binds exact Targets v4 bytes/version/hash/length; Timestamp v6 binds exact signed Snapshot v6 bytes/version/hash/length. The generation is therefore `Root v2 / Targets v4 / Snapshot v6 / Timestamp v6` with no mixed public view.
+- Current production Targets is **v5**, SHA-256 `d5c30941d6ae9ad21555db0e16ef6a1aa8f38a6d0049fdcebd29fc71d97a2757`, length `2392`, expiry `2027-09-12T20:49:31Z`, signed by offline Targets keyid `70e86d478a769ffbefbf6febc37435a2a4563197df03d6dcda6627282fa5cf00`.
+- Targets v5 preserves the accepted rc3 and rc4 targets and additionally authorizes rc5 at exact source, size, hash, beta channel and final GitHub Release payload URL.
+- Current production Snapshot is **v7**, SHA-256 `66d7095dbe98ca5cd5d8de098d3537466aa92ec782db6b64c3282fce18a69df2`, length `469`, expiry `2026-09-15T21:47:58Z`, signed by online keyid `fac1c790b4d6dbeb04ca4a803bd80e6fde19127fc7ada34003cef5d6b50506d8`.
+- Current production Timestamp is **v7**, SHA-256 `e91412f70ed161e9f26b3dd61721377af543d3ab837e6ee8d72d4c5ba64f8586`, length `470`, expiry `2026-09-14T21:47:58Z`, signed by distinct online keyid `8d81006fd9de63660d74c43b6926ed664b2e9f1bdf81a9556367232533d5a2ad`.
+- Snapshot v7 binds exact Targets v5 bytes/version/hash/length; Timestamp v7 binds exact signed Snapshot v7 bytes/version/hash/length. The generation is therefore `Root v2 / Targets v5 / Snapshot v7 / Timestamp v7` with no mixed public view.
 - Root/Targets private custody remains outside Git/repository/CI; Snapshot/Timestamp online custody remains limited to their distinct low-authority R20 signing identities.
-- The repository-root `KodepoiaSetup.exe` and `KodepoiaSetup.exe.sha256` remain a **historical rc1 mirror**. The current recommended end-user installer is the rc4 GitHub Release asset, not the root mirror.
-- Public rc3 remains historical predecessor evidence. rc4 is the first published prerelease that actually packages the fresh Root v1→v2 bootstrap correction discovered after rc3 publication.
+- The repository-root `KodepoiaSetup.exe` and `KodepoiaSetup.exe.sha256` remain a **historical rc1 mirror**. The current recommended end-user installer is the rc5 GitHub Release asset, not the root mirror.
+- Public rc3 and rc4 remain historical predecessor evidence. rc4 first packaged the fresh Root v1→v2 bootstrap correction; rc5 additionally fixes Windows updater package-data inclusion and exposes user-selectable installation destination while preserving the same trust root.
 
 ## Frozen inherited authority at R20 closure — historical baseline
 
-The following values describe the inherited/current state at the R20 closure boundary. They are intentionally preserved as historical R20 evidence; the post-R20 release authority above records the subsequently published rc3/rc4 evolution.
+The following values describe the inherited/current state at the R20 closure boundary. They are intentionally preserved as historical R20 evidence; the post-R20 release authority above records the subsequently published rc3/rc4/rc5 evolution.
 
 - Repository: `LaurentCOLL1/Kodepoia`.
 - Normalized R19 base: `main` `a5cb56fdf5993be3222b486fa80748f5aa339b71`.

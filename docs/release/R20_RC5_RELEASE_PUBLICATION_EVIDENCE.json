@@ -1,0 +1,19 @@
+{
+  "asset": {
+    "github_asset_id": 559134222,
+    "name": "KodepoiaSetup.exe",
+    "sha256": "30636a6ef5db4b3d171acc3817282595eff8ba724ff6c175329a10e8c5e8d42b",
+    "size": 37712707,
+    "state": "uploaded",
+    "url": "https://github.com/LaurentCOLL1/Kodepoia/releases/download/v1.1.0-rc5/KodepoiaSetup.exe"
+  },
+  "draft": false,
+  "prerelease": true,
+  "published": true,
+  "published_at": "2026-09-12T22:55:53Z",
+  "release_id": 387546105,
+  "schema_version": 1,
+  "tag": "v1.1.0-rc5",
+  "tag_commit": "3f25eefa1a65cbbe9eb5822d6f68741675cf179b",
+  "target_commitish": "3f25eefa1a65cbbe9eb5822d6f68741675cf179b"
+}

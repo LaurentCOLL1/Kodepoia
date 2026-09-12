@@ -12,42 +12,43 @@ Kodepoia accompagne un projet depuis l'idée initiale jusqu'à sa maintenance. K
 - R17 a livré l'installation Windows autonome, le français, la création guidée et le Chat/Vision local.
 - R18 a livré l'identité de release canonique, bundles/manifests vérifiables, SBOM/provenance, frontière Authenticode, staging/promotion gouvernés, métadonnées TUF anti-rollback/freeze, découverte et installation consentie des mises à jour, préparation WinGet, drills de révocation/rollback et acceptance adversariale intégrée.
 - R19 a établi le correctif de release et le parcours d'auto-mise-à-jour vérifié ; R20 a transformé cette chaîne en opération continue avec Root/Targets hors ligne, Snapshot/Timestamp en rôles online distincts, renouvellement planifié, monitoring/UX et acceptance long-offline.
-- Release publique beta actuelle : **`v1.1.0-rc4`**, source exacte `42e58b6b9c00d53c27e005020d6e99688958ee3a`.
-- `main` post-publication/TUF actuel avant cette normalisation documentaire : `575aa74d3f3109989d39322dbc12cab8cb912ca7`.
+- Release publique beta actuelle : **`v1.1.0-rc5`**, source exacte `3f25eefa1a65cbbe9eb5822d6f68741675cf179b`.
+- `main` post-publication/TUF actuel avant cette normalisation documentaire : `d33998160c6ce33f95989b3b3fbeba16af2455b3`.
 - Ancien nom de travail : `FORGEGAMEDEV`.
 
 La clôture des phases ne signifie pas qu'une release stable signée de production existe. Les releases `rc` restent des **préreleases / beta** et le manifeste de l'installateur courant indique `production_signed=false`.
 
 ## Installer Kodepoia sur Windows — utilisateur final
 
-### Méthode recommandée — GitHub Release `v1.1.0-rc4`
+### Méthode recommandée — GitHub Release `v1.1.0-rc5`
 
-Télécharger **`KodepoiaSetup.exe`** depuis la release publique **[Kodepoia 1.1.0-rc4](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.0-rc4)**.
+Télécharger **`KodepoiaSetup.exe`** depuis la release publique **[Kodepoia 1.1.0-rc5](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.0-rc5)**.
 
-Installateur rc4 accepté :
+Installateur rc5 accepté :
 
-- version : `1.1.0-rc4` ;
-- source exacte : `42e58b6b9c00d53c27e005020d6e99688958ee3a` ;
-- taille : `37 713 467` octets ;
-- SHA-256 : `54f751593b86d62eec50ea6852cc8683f0154d8645f9d98b84ccc6319ba058ee` ;
+- version : `1.1.0-rc5` ;
+- source exacte : `3f25eefa1a65cbbe9eb5822d6f68741675cf179b` ;
+- taille : `37 712 707` octets ;
+- SHA-256 : `30636a6ef5db4b3d171acc3817282595eff8ba724ff6c175329a10e8c5e8d42b` ;
 - canal : `beta` ;
 - signature de production revendiquée : **non** (`production_signed=false`).
 
-`v1.1.0-rc4` contient notamment le correctif de bootstrap de confiance permettant à une installation fraîche avec l'ancre Root v1 embarquée de vérifier la rotation séquentielle vers le Root public v2 avant la découverte des mises à jour actuelles.
+`v1.1.0-rc5` conserve le correctif de bootstrap de confiance de rc4 et corrige le packaging Windows de l'updater : les ressources TUF nécessaires au démarrage du service de mise à jour sont désormais embarquées dans la distribution. L'assistant d'installation permet également de choisir le lecteur et le nom du dossier d'installation au lieu de réutiliser silencieusement un ancien emplacement.
 
-1. Télécharger `KodepoiaSetup.exe` depuis la release rc4.
+1. Télécharger `KodepoiaSetup.exe` depuis la release rc5.
 2. Facultatif mais recommandé : calculer son SHA-256 et le comparer à la valeur ci-dessus.
 3. Exécuter `KodepoiaSetup.exe`.
-4. Suivre l'assistant d'installation en français ou en anglais.
-5. Lancer **Kodepoia** depuis le menu Démarrer ou le raccourci Bureau.
+4. Choisir le dossier d'installation souhaité dans l'assistant.
+5. Suivre l'assistant d'installation en français ou en anglais.
+6. Lancer **Kodepoia** depuis le menu Démarrer ou le raccourci Bureau.
 
 Cette version est une **prérelease / beta**. Elle ne doit pas être présentée comme une release stable signée de production ; Windows/SmartScreen peut afficher un avertissement de réputation ou de signature.
 
-`KodepoiaSetup.exe` installe KodeStudio dans le profil utilisateur, crée une entrée de désinstallation et les raccourcis. L'exécutable embarque le runtime nécessaire : Python et `pip` ne sont pas requis sur la machine cible.
+`KodepoiaSetup.exe` installe KodeStudio dans le dossier choisi, crée une entrée de désinstallation et les raccourcis. L'exécutable embarque le runtime nécessaire : Python et `pip` ne sont pas requis sur la machine cible.
 
 ### Miroir historique à la racine du dépôt
 
-Le fichier `KodepoiaSetup.exe` présent à la racine du dépôt et `KodepoiaSetup.exe.sha256` restent un **miroir historique de `v1.1.0-rc1`**. Ils ne constituent plus la méthode d'installation recommandée et ne doivent pas être confondus avec l'asset rc4 actuel.
+Le fichier `KodepoiaSetup.exe` présent à la racine du dépôt et `KodepoiaSetup.exe.sha256` restent un **miroir historique de `v1.1.0-rc1`**. Ils ne constituent plus la méthode d'installation recommandée et ne doivent pas être confondus avec l'asset rc5 actuel.
 
 Le checksum historique du miroir racine est `3d11af229392a6756a2bbc161af0150aca92168d843a42a3944ab5c01660b8e0`.
 
@@ -56,10 +57,10 @@ Le checksum historique du miroir racine est `3d11af229392a6756a2bbc161af0150aca9
 La chaîne publique de mise à jour actuelle est :
 
 - Root **v2** — rôle haute autorité conservé hors ligne et protégé par seuil ;
-- Targets **v4** — signé hors ligne, conserve rc3 et autorise rc4 ;
-- Snapshot **v6** — rôle online dédié ;
-- Timestamp **v6** — rôle online séparé ;
-- rc4 autorisé par Targets avec la taille et le SHA-256 exacts indiqués ci-dessus.
+- Targets **v5** — signé hors ligne, conserve rc3 + rc4 et autorise rc5 ;
+- Snapshot **v7** — rôle online dédié ;
+- Timestamp **v7** — rôle online séparé ;
+- rc5 autorisé par Targets avec la taille et le SHA-256 exacts indiqués ci-dessus.
 
 Les mises à jour refusent les métadonnées expirées, les rollbacks, les vues mixtes Snapshot/Targets et les artefacts dont le hash ou la taille ne correspondent pas à l'autorité TUF. Une indisponibilité du service de mise à jour ne doit pas empêcher le démarrage de Kodepoia ni le travail local.
 
@@ -171,7 +172,7 @@ dist/windows/KodepoiaSetup.exe
 dist/windows/installer-manifest.json
 ```
 
-Le workflow `.github/workflows/windows-installer.yml` effectue en plus une installation silencieuse temporaire, un smoke test de l'exécutable installé et une vérification de l'uninstallateur avant de publier l'artefact CI.
+Le workflow `.github/workflows/windows-installer.yml` effectue en plus une installation silencieuse temporaire dans un dossier personnalisé, vérifie la présence des ressources TUF de l'updater, lance un smoke test de l'exécutable installé puis valide la désinstallation avant de publier l'artefact CI.
 
 ### Signature
 

@@ -1,0 +1,22 @@
+{
+  "installer_sha256": "30636a6ef5db4b3d171acc3817282595eff8ba724ff6c175329a10e8c5e8d42b",
+  "installer_size": 37712707,
+  "new_keys_generated": false,
+  "preserves_rc3_target": true,
+  "previous_targets_sha256": "9db8604cd2e9fc3de052ad01c0f25727650b2b4c410ed2383cd911de183282ba",
+  "previous_targets_version": 4,
+  "private_keys_in_output": false,
+  "production_signed_installer_claimed": false,
+  "public_version": "1.1.0-rc5",
+  "purpose": "Kodepoia 1.1.0-rc5 offline Targets v5 authorization handoff",
+  "release_source_sha": "3f25eefa1a65cbbe9eb5822d6f68741675cf179b",
+  "root_sha256": "c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7",
+  "root_version": 2,
+  "schema_version": 1,
+  "snapshot_timestamp_signed_here": false,
+  "target_path": "channels/beta/windows-x86_64/1.1.0-rc5/3f25eefa1a65cbbe9eb5822d6f68741675cf179b/KodepoiaSetup.exe",
+  "targets_keyid": "70e86d478a769ffbefbf6febc37435a2a4563197df03d6dcda6627282fa5cf00",
+  "targets_length": 2392,
+  "targets_sha256": "d5c30941d6ae9ad21555db0e16ef6a1aa8f38a6d0049fdcebd29fc71d97a2757",
+  "targets_version": 5
+}

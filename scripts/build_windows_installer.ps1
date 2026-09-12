@@ -65,6 +65,7 @@ $NuitkaArgs = @(
     "--enable-plugin=pyside6",
     "--windows-console-mode=disable",
     "--include-package=kodepoia",
+    "--include-package-data=kodepoia.update",
     "--output-dir=$BuildRoot",
     "--output-filename=KodepoiaStudio.exe"
 )
@@ -99,6 +100,24 @@ if ($CandidateDist.FullName -ne $FinalDist) {
 $StandaloneExe = Join-Path $FinalDist "KodepoiaStudio.exe"
 if (-not (Test-Path $StandaloneExe)) {
     throw "Missing standalone executable: $StandaloneExe"
+}
+
+# The trusted updater loads these files through importlib.resources at runtime.
+# Fail the build before creating an installer if Nuitka omitted package data.
+$RequiredUpdateData = @(
+    "kodepoia\update\trusted_root.production.json",
+    "kodepoia\update\trusted_root.production.manifest.json",
+    "kodepoia\update\trusted_root.synthetic.json",
+    "kodepoia\update\trusted_root.synthetic.manifest.json"
+)
+foreach ($RelativePath in $RequiredUpdateData) {
+    $ResourcePath = Join-Path $FinalDist $RelativePath
+    if (-not (Test-Path $ResourcePath -PathType Leaf)) {
+        throw "Missing trusted update package data in standalone distribution: $RelativePath"
+    }
+    if ((Get-Item $ResourcePath).Length -le 0) {
+        throw "Trusted update package data is empty in standalone distribution: $RelativePath"
+    }
 }
 
 if (-not $Iscc) {

@@ -1,0 +1,14 @@
+{
+  "base_main": "5757cf28981fa70a89e39c3456302f90cc06e031",
+  "branch": "release/r20-rc4-tuf-transition",
+  "private_material_in_repository": false,
+  "release_draft": true,
+  "release_tag": "v1.1.0-rc4",
+  "state": "staged-not-published",
+  "tuf_generation": {
+    "root": 2,
+    "snapshot": 6,
+    "targets": 4,
+    "timestamp": 6
+  }
+}

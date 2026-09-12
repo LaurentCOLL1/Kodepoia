@@ -15,6 +15,7 @@ on:
       - src/kodepoia/kodestudio/v11_localization.py
       - tests/test_r18_7_update_discovery.py
       - tests/test_r18_7_kodestudio_updates.py
+      - tests/test_r20_rc3_fresh_root_bootstrap.py
       - docs/roadmap/R18_PLAN.md
       - docs/continuity/KODEPOIA_CONTINUITY.md
   workflow_dispatch:
@@ -71,11 +72,13 @@ jobs:
         run: >-
           python -m compileall -q
           src/kodepoia/update/discovery.py
+          src/kodepoia/update/startup.py
           src/kodepoia/kodestudio/update_settings.py
           src/kodepoia/kodestudio/v11_localization.py
           src/kodepoia/kodestudio/app_v11.py
           tests/test_r18_7_update_discovery.py
           tests/test_r18_7_kodestudio_updates.py
+          tests/test_r20_rc3_fresh_root_bootstrap.py
 
       - name: Collect Ruff R18.7 diagnostics
         shell: python
@@ -94,11 +97,13 @@ jobs:
               "--output-format",
               "json",
               "src/kodepoia/update/discovery.py",
+              "src/kodepoia/update/startup.py",
               "src/kodepoia/kodestudio/update_settings.py",
               "src/kodepoia/kodestudio/v11_localization.py",
               "src/kodepoia/kodestudio/app_v11.py",
               "tests/test_r18_7_update_discovery.py",
               "tests/test_r18_7_kodestudio_updates.py",
+              "tests/test_r20_rc3_fresh_root_bootstrap.py",
           ]
           result = subprocess.run(command, text=True, capture_output=True, check=False)
           (output / "ruff.json").write_text(result.stdout or "[]\n", encoding="utf-8")
@@ -117,6 +122,7 @@ jobs:
           python -m pytest -q
           tests/test_r18_7_update_discovery.py
           tests/test_r18_7_kodestudio_updates.py
+          tests/test_r20_rc3_fresh_root_bootstrap.py
 
       - name: Emit exact-source R18.7 evidence
         shell: python

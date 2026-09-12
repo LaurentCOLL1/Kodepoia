@@ -91,6 +91,27 @@ def default_update_state_dir() -> Path:
     return Path.home() / ".kodepoia" / "updates"
 
 
+def _seed_packaged_discovery_root(base_state: Path, root_bytes: bytes) -> None:
+    """Seed the embedded Root before the first network refresh.
+
+    The discovery verifier already supports a sequential Root transition once a
+    trusted Root exists in its state directory. Fresh installs must therefore
+    start from the exact embedded Root rather than attempting to pin the newest
+    network Root directly after a server-side Root rotation.
+    """
+
+    discovery_state = base_state / "discovery" / "tuf-discovery"
+    state_path = discovery_state / "state.json"
+    if state_path.is_file():
+        return
+
+    discovery_state.mkdir(parents=True, exist_ok=True)
+    root_path = discovery_state / "root.json"
+    temp_path = discovery_state / ".root.json.bootstrap.tmp"
+    temp_path.write_bytes(root_bytes)
+    temp_path.replace(root_path)
+
+
 def build_packaged_update_services(
     *,
     state_dir: str | Path | None = None,
@@ -101,6 +122,7 @@ def build_packaged_update_services(
 
     root = load_production_packaged_root()
     base_state = Path(state_dir) if state_dir is not None else default_update_state_dir()
+    _seed_packaged_discovery_root(base_state, root.root_bytes)
     policy = NetworkTransportPolicy()
     transport = transport_factory(policy)
     discovery = UpdateDiscoveryService(

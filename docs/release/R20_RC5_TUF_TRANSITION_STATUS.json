@@ -1,0 +1,21 @@
+{
+  "base_main": "08e12572966950cb24dcef206eb32c4507f9c92d",
+  "branch": "release/r20-rc5-tuf-transition",
+  "installer": {
+    "name": "KodepoiaSetup.exe",
+    "sha256": "30636a6ef5db4b3d171acc3817282595eff8ba724ff6c175329a10e8c5e8d42b",
+    "size": 37712707,
+    "source_sha": "3f25eefa1a65cbbe9eb5822d6f68741675cf179b"
+  },
+  "online_public_package_sha256": "9fb1666baf2dc44f6f2324bd059aa3ee1b64faab3a9cfa23a1cce5dad15cda00",
+  "private_material_in_repository": false,
+  "release_draft": true,
+  "release_tag": "v1.1.0-rc5",
+  "state": "staged-not-published-online-signed",
+  "tuf_generation": {
+    "root": 2,
+    "snapshot": 7,
+    "targets": 5,
+    "timestamp": 7
+  }
+}

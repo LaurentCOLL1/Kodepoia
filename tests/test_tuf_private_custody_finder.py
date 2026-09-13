@@ -64,11 +64,13 @@ def test_finder_locates_complete_custody_tree(tmp_path: Path) -> None:
         check=False,
         capture_output=True,
         text=True,
+        errors="replace",
     )
     combined = completed.stdout + completed.stderr
     assert completed.returncode == 0, combined
     assert str(custody) in combined
-    assert "Racine privée TUF trouvée" in combined
+    assert "TUF" in combined
+    assert "Run-TufReleaseCeremony.cmd" in combined
     assert "DO-NOT-PRINT-SNAPSHOT-SECRET" not in combined
     assert "DO-NOT-PRINT-TIMESTAMP-SECRET" not in combined
     assert "DO-NOT-PRINT-PEM" not in combined
@@ -100,6 +102,10 @@ def test_finder_rejects_incomplete_tree(tmp_path: Path) -> None:
         check=False,
         capture_output=True,
         text=True,
+        errors="replace",
     )
+    combined = completed.stdout + completed.stderr
     assert completed.returncode != 0
-    assert "Aucune racine privée TUF complète" in (completed.stdout + completed.stderr)
+    assert "TUF_SNAPSHOT_ED25519_SEED_B64.txt" in combined
+    assert "TUF_TIMESTAMP_ED25519_SEED_B64.txt" in combined
+    assert "*.pem" in combined

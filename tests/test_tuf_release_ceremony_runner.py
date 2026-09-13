@@ -25,6 +25,7 @@ from tuf.api.metadata import Metadata, Snapshot, Targets, Timestamp
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 PYTHON_RUNNER = REPOSITORY_ROOT / "scripts" / "tuf_release_ceremony.py"
 POWERSHELL_LAUNCHER = REPOSITORY_ROOT / "scripts" / "Run-TufReleaseCeremony.ps1"
+RELEASE_IDENTITY = REPOSITORY_ROOT / "src" / "kodepoia" / "release" / "release_identity.json"
 
 
 def _signed_bytes(payload: dict[str, object], signer: CryptoSigner) -> bytes:
@@ -40,6 +41,19 @@ def _seed_b64(private_key: Ed25519PrivateKey) -> str:
 
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def _current_public_version() -> str:
+    identity = json.loads(RELEASE_IDENTITY.read_text(encoding="utf-8"))
+    version = identity["version"]
+    base = f"{version['major']}.{version['minor']}.{version['patch']}"
+    stage = str(version.get("stage", "")).strip()
+    serial = version.get("serial")
+    if not stage or stage == "final":
+        return base
+    if not isinstance(serial, int) or serial < 1:
+        raise AssertionError("prerelease identity must declare a positive serial")
+    return f"{base}-{stage}{serial}"
 
 
 def _load_runner_module() -> object:
@@ -112,6 +126,7 @@ def test_synthetic_ceremony_signs_verifies_and_applies_atomically(
     monkeypatch.chdir(REPOSITORY_ROOT)
     module = _load_runner_module()
     now = datetime.now(UTC).replace(microsecond=0)
+    public_version = _current_public_version()
 
     root_private = Ed25519PrivateKey.generate()
     targets_private = Ed25519PrivateKey.generate()
@@ -234,7 +249,7 @@ def test_synthetic_ceremony_signs_verifies_and_applies_atomically(
         [
             str(PYTHON_RUNNER),
             "--public-version",
-            "1.1.0-rc5",
+            public_version,
             "--source-sha",
             source_sha,
             "--asset",
@@ -273,7 +288,9 @@ def test_synthetic_ceremony_signs_verifies_and_applies_atomically(
     assert isinstance(final_targets.signed, Targets)
     assert isinstance(final_snapshot.signed, Snapshot)
     assert isinstance(final_timestamp.signed, Timestamp)
-    expected_target = f"channels/beta/windows-x86_64/1.1.0-rc5/{source_sha}/KodepoiaSetup.exe"
+    expected_target = (
+        f"channels/beta/windows-x86_64/{public_version}/{source_sha}/KodepoiaSetup.exe"
+    )
     assert expected_target in final_targets.signed.targets
     final_snapshot.signed.meta["targets.json"].verify_length_and_hashes(
         (metadata_dir / "targets.json").read_bytes()

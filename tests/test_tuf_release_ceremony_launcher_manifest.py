@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import base64
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -24,6 +24,30 @@ def _public_version() -> str:
         f"{version['major']}.{version['minor']}.{version['patch']}-"
         f"{version['stage']}{version['serial']}"
     )
+
+
+def _write_fake_python(directory: Path) -> None:
+    if os.name == "nt":
+        (directory / "python.cmd").write_text(
+            "@echo off\r\n"
+            'if "%~1"=="-c" exit /b 0\r\n'
+            "echo FAKE_PYTHON_ARGS:%*\r\n"
+            "exit /b 1\r\n",
+            encoding="utf-8",
+        )
+        return
+
+    fake = directory / "python"
+    fake.write_text(
+        "#!/bin/sh\n"
+        'if [ "$1" = "-c" ]; then exit 0; fi\n'
+        "printf 'FAKE_PYTHON_ARGS:'\n"
+        "printf ' <%s>' \"$@\"\n"
+        "printf '\\n'\n"
+        "exit 1\n",
+        encoding="utf-8",
+    )
+    fake.chmod(0o755)
 
 
 def test_launcher_auto_adopts_installer_manifest_contract() -> None:
@@ -93,7 +117,9 @@ def test_launcher_rejects_explicit_identity_that_conflicts_with_manifest(
     assert "version publique" in combined.lower()
 
 
-def test_launcher_reaches_python_after_auto_asset_size(tmp_path: Path) -> None:
+def test_launcher_passes_auto_asset_size_to_python_without_value_property(
+    tmp_path: Path,
+) -> None:
     pwsh = _powershell()
     if pwsh is None:
         return
@@ -120,9 +146,14 @@ def test_launcher_reaches_python_after_auto_asset_size(tmp_path: Path) -> None:
 
     custody = tmp_path / "custody"
     custody.mkdir()
-    seed = base64.b64encode(bytes(range(32))).decode("ascii")
-    (custody / "TUF_SNAPSHOT_ED25519_SEED_B64.txt").write_text(seed, encoding="utf-8")
-    (custody / "TUF_TIMESTAMP_ED25519_SEED_B64.txt").write_text(seed, encoding="utf-8")
+    (custody / "TUF_SNAPSHOT_ED25519_SEED_B64.txt").write_text("snapshot-test", encoding="utf-8")
+    (custody / "TUF_TIMESTAMP_ED25519_SEED_B64.txt").write_text("timestamp-test", encoding="utf-8")
+
+    fake_bin = tmp_path / "fake-bin"
+    fake_bin.mkdir()
+    _write_fake_python(fake_bin)
+    env = os.environ.copy()
+    env["PATH"] = str(fake_bin) + os.pathsep + env.get("PATH", "")
 
     completed = subprocess.run(
         [
@@ -136,12 +167,17 @@ def test_launcher_reaches_python_after_auto_asset_size(tmp_path: Path) -> None:
             str(custody),
         ],
         cwd=REPOSITORY_ROOT,
+        env=env,
         check=False,
         capture_output=True,
         text=True,
         errors="replace",
+        timeout=30,
     )
     combined = completed.stdout + completed.stderr
     assert "=== Kodepoia TUF Release Ceremony ===" in combined
+    assert "FAKE_PYTHON_ARGS:" in combined
+    assert "--expected-asset-size" in combined
+    assert str(len(asset_bytes)) in combined
     assert "propriété « Value »" not in combined
     assert "property 'Value'" not in combined

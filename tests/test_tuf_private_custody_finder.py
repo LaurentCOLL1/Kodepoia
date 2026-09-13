@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -30,6 +31,43 @@ def test_cmd_hardens_script_resolution_and_distinguishes_tooling_failure() -> No
     assert "le helper de recherche TUF est introuvable" in source
     assert "Cette erreur concerne l'outillage local" in source
     assert "exit /b 2" in source
+
+
+def test_cmd_does_not_forward_discovery_verb_via_percent_star() -> None:
+    source = CMD_LAUNCHER.read_text(encoding="utf-8")
+    assert '-File "%FINDER%" %2 %3 %4 %5 %6 %7 %8 %9' in source
+    assert '-File "%FINDER%" %*' not in source
+    assert "SHIFT does not" in source
+
+
+def test_cmd_discovery_invocation_does_not_repass_find_verb_on_windows(
+    tmp_path: Path,
+) -> None:
+    if os.name != "nt" or shutil.which("cmd.exe") is None:
+        return
+
+    completed = subprocess.run(
+        [
+            "cmd.exe",
+            "/d",
+            "/c",
+            str(CMD_LAUNCHER),
+            "--find-custody",
+            "-SearchRoot",
+            str(tmp_path),
+        ],
+        cwd=REPOSITORY_ROOT,
+        input="\n",
+        check=False,
+        capture_output=True,
+        text=True,
+        errors="replace",
+        timeout=60,
+    )
+    combined = completed.stdout + completed.stderr
+    assert "NamedParameterNotFound" not in combined
+    assert "TUF_SNAPSHOT_ED25519_SEED_B64.txt" in combined
+    assert "TUF_TIMESTAMP_ED25519_SEED_B64.txt" in combined
 
 
 def test_finder_uses_filesystem_drives_and_never_reads_secret_contents() -> None:

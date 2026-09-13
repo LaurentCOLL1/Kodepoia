@@ -41,8 +41,9 @@ if not exist "%FINDER%" (
   pause
   exit /b 2
 )
-shift
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%FINDER%" %*
+rem Do not use SHIFT + %%* here: Windows CMD documents that SHIFT does not
+rem modify %%*. Forward only the arguments that follow the discovery verb.
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%FINDER%" %2 %3 %4 %5 %6 %7 %8 %9
 set "EXITCODE=%ERRORLEVEL%"
 echo.
 if not "%EXITCODE%"=="0" (

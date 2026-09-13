@@ -116,7 +116,7 @@ try {
 
     $python = Resolve-PythonCommand
     $arguments = @(
-        "scripts/tuf_release_ceremony.py",
+        "scripts/tuf_release_ceremony_safe.py",
         "--public-version", $PublicVersion,
         "--source-sha", $SourceSha,
         "--asset", $resolvedAsset,

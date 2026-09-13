@@ -171,7 +171,10 @@ def test_powershell_authenticode_partial_path_is_process_data_not_command_text()
     command = observed["command"]
     assert isinstance(command, list)
     assert str(path) not in command
-    assert "-LiteralPath $p" in command[-1]
+    script = command[-1]
+    assert "Import-Module -Name $module -ErrorAction Stop" in script
+    assert "Get-Item -LiteralPath $p -ErrorAction Stop" in script
+    assert "Get-AuthenticodeSignature -Content $bytes -SourcePathOrExtension 'exe'" in script
     env = observed["env"]
     assert isinstance(env, dict)
     assert env[POWERSHELL_LITERAL_PATH_ENV] == str(path)

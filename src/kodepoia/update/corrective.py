@@ -13,7 +13,6 @@ from kodepoia.update.delivery import (
     AuthenticodeEvidence,
     AuthenticodeVerifier,
     InstallerIdentityEvidence,
-    InstallerIdentityVerifier,
     StreamingTargetTransport,
     UpdateVerificationFailed,
     VerifiedUpdateArtifact,

@@ -11,6 +11,7 @@ import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import (
     BestAvailableEncryption,
@@ -81,10 +82,13 @@ def test_python_ceremony_runner_compiles_and_exposes_help(tmp_path: Path) -> Non
     assert "fail-closed" in completed.stdout
     assert "--offline-key-dir" in completed.stdout
     assert "--expected-root-sha256" in completed.stdout
+    assert "--authenticode-policy" in completed.stdout
+    assert "require-valid" in completed.stdout
+    assert "allow-unsigned" in completed.stdout
     assert "--apply" in completed.stdout
 
 
-def test_ceremony_sources_preserve_private_material_boundary() -> None:
+def test_ceremony_sources_preserve_private_material_boundary_and_policy_bridge() -> None:
     python_source = PYTHON_RUNNER.read_text(encoding="utf-8")
     powershell_source = POWERSHELL_LAUNCHER.read_text(encoding="utf-8")
 
@@ -92,12 +96,17 @@ def test_ceremony_sources_preserve_private_material_boundary() -> None:
     assert '"private_key_paths_in_report": False' in python_source
     assert "Do not generate a replacement key" in python_source
     assert "n'envoyez jamais les clés, seeds ou passphrases" in python_source
+    assert "AUTHENTICODE_POLICY_REQUIRE_VALID" in python_source
+    assert "AUTHENTICODE_POLICY_KEY" in python_source
 
     assert "TUF_SNAPSHOT_ED25519_SEED_B64.txt" in powershell_source
     assert "TUF_TIMESTAMP_ED25519_SEED_B64.txt" in powershell_source
     assert "Remove-Item Env:TUF_SNAPSHOT_ED25519_SEED_B64" in powershell_source
     assert "Remove-Item Env:TUF_TIMESTAMP_ED25519_SEED_B64" in powershell_source
     assert "Les clés/seeds privés ne seront jamais affichés" in powershell_source
+    assert '[ValidateSet("require-valid", "allow-unsigned")]' in powershell_source
+    assert '[string]$AuthenticodePolicy = "require-valid"' in powershell_source
+    assert '"--authenticode-policy", $AuthenticodePolicy' in powershell_source
 
 
 def test_windows_launcher_parses_when_pwsh_is_available() -> None:
@@ -120,8 +129,18 @@ def test_windows_launcher_parses_when_pwsh_is_available() -> None:
     assert completed.returncode == 0, completed.stderr
 
 
-def test_synthetic_ceremony_signs_verifies_and_applies_atomically(
-    tmp_path: Path, monkeypatch
+@pytest.mark.parametrize(
+    ("requested_policy", "expected_policy"),
+    [
+        (None, "require-valid"),
+        ("allow-unsigned", "allow-unsigned"),
+    ],
+)
+def test_synthetic_ceremony_signs_policy_verifies_and_applies_atomically(
+    tmp_path: Path,
+    monkeypatch,
+    requested_policy: str | None,
+    expected_policy: str,
 ) -> None:
     monkeypatch.chdir(REPOSITORY_ROOT)
     module = _load_runner_module()
@@ -243,34 +262,33 @@ def test_synthetic_ceremony_signs_verifies_and_applies_atomically(
     report_path = tmp_path / "ceremony-report.json"
     summary_path = tmp_path / "ceremony-summary.txt"
     staging_dir = tmp_path / "staged"
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        [
-            str(PYTHON_RUNNER),
-            "--public-version",
-            public_version,
-            "--source-sha",
-            source_sha,
-            "--asset",
-            str(asset),
-            "--offline-key-dir",
-            str(custody_dir),
-            "--metadata-dir",
-            str(metadata_dir),
-            "--online-public-keys",
-            str(public_manifest_path),
-            "--expected-root-sha256",
-            _sha256(root_bytes),
-            "--staging-dir",
-            str(staging_dir),
-            "--report",
-            str(report_path),
-            "--summary",
-            str(summary_path),
-            "--apply",
-        ],
-    )
+    argv = [
+        str(PYTHON_RUNNER),
+        "--public-version",
+        public_version,
+        "--source-sha",
+        source_sha,
+        "--asset",
+        str(asset),
+        "--offline-key-dir",
+        str(custody_dir),
+        "--metadata-dir",
+        str(metadata_dir),
+        "--online-public-keys",
+        str(public_manifest_path),
+        "--expected-root-sha256",
+        _sha256(root_bytes),
+        "--staging-dir",
+        str(staging_dir),
+        "--report",
+        str(report_path),
+        "--summary",
+        str(summary_path),
+        "--apply",
+    ]
+    if requested_policy is not None:
+        argv.extend(["--authenticode-policy", requested_policy])
+    monkeypatch.setattr(sys, "argv", argv)
 
     assert module.main() == 0
     report = json.loads(report_path.read_text(encoding="utf-8"))
@@ -281,6 +299,7 @@ def test_synthetic_ceremony_signs_verifies_and_applies_atomically(
     assert report["generation"]["targets_version"] == 2
     assert report["generation"]["snapshot_version"] == 2
     assert report["generation"]["timestamp_version"] == 2
+    assert report["generation"]["authenticode_policy"] == expected_policy
 
     final_targets = Metadata.from_bytes((metadata_dir / "targets.json").read_bytes())
     final_snapshot = Metadata.from_bytes((metadata_dir / "snapshot.json").read_bytes())
@@ -292,6 +311,9 @@ def test_synthetic_ceremony_signs_verifies_and_applies_atomically(
         f"channels/beta/windows-x86_64/{public_version}/{source_sha}/KodepoiaSetup.exe"
     )
     assert expected_target in final_targets.signed.targets
+    target_custom = final_targets.signed.targets[expected_target].custom
+    assert isinstance(target_custom, dict)
+    assert target_custom["authenticode_policy"] == expected_policy
     final_snapshot.signed.meta["targets.json"].verify_length_and_hashes(
         (metadata_dir / "targets.json").read_bytes()
     )

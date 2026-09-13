@@ -44,13 +44,32 @@ function Resolve-RequiredValue {
 }
 
 function Resolve-PythonCommand {
-    $candidates = @(
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$RepoRoot
+    )
+
+    $candidates = @()
+    $venvPython = Join-Path $RepoRoot ".venv\Scripts\python.exe"
+    if (Test-Path -LiteralPath $venvPython -PathType Leaf) {
+        $candidates += @{ File = $venvPython; Prefix = @() }
+    }
+    $candidates += @(
         @{ File = "python"; Prefix = @() },
         @{ File = "py"; Prefix = @("-3.12") }
     )
+
+    $probeCode = (
+        "import sys; assert sys.version_info >= (3, 12); " +
+        "from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey; " +
+        "from securesystemslib.signer import Signer; " +
+        "from tuf.api.metadata import Metadata; " +
+        "import kodepoia.update.online_signing; import kodepoia.update.zero_cost_signing"
+    )
+
     foreach ($candidate in $candidates) {
         try {
-            $probeArgs = @($candidate.Prefix) + @("-c", "import sys; assert sys.version_info >= (3, 12)")
+            $probeArgs = @($candidate.Prefix) + @("-c", $probeCode)
             & $candidate.File @probeArgs 2>$null
             if ($LASTEXITCODE -eq 0) {
                 return $candidate
@@ -60,7 +79,12 @@ function Resolve-PythonCommand {
             continue
         }
     }
-    throw "Python 3.12+ est introuvable. Activez l'environnement virtuel Kodepoia puis relancez ce fichier."
+    throw (
+        "Aucun Python 3.12+ prêt pour la cérémonie TUF n'a été trouvé. " +
+        "Le lanceur exige cryptography, securesystemslib, tuf et les modules Kodepoia de mise à jour. " +
+        "Installez l'environnement du dépôt, par exemple avec : " +
+        ".\.venv\Scripts\python.exe -m pip install -e . ; puis relancez exactement le même fichier."
+    )
 }
 
 function Resolve-UniquePrivateFile {
@@ -182,6 +206,9 @@ try {
         throw "La racine privée TUF doit être située hors du dépôt Kodepoia."
     }
 
+    $currentStage = "détection de Python 3.12+ et des dépendances TUF"
+    $python = Resolve-PythonCommand -RepoRoot $repoRoot
+
     $currentStage = "découverte des seeds Snapshot/Timestamp"
     $snapshotSecretFile = Resolve-UniquePrivateFile `
         -Root $resolvedCustody `
@@ -198,9 +225,6 @@ try {
     if ([string]::IsNullOrWhiteSpace($snapshotSecret) -or [string]::IsNullOrWhiteSpace($timestampSecret)) {
         throw "Un seed Snapshot/Timestamp privé est vide."
     }
-
-    $currentStage = "détection de Python 3.12+"
-    $python = Resolve-PythonCommand
 
     $currentStage = "construction des arguments de cérémonie"
     $arguments = @(

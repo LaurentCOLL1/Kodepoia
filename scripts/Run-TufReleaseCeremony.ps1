@@ -59,15 +59,13 @@ function Resolve-PythonCommand {
         @{ File = "py"; Prefix = @("-3.12") }
     )
 
-    $probeCode = @"
-import sys
-assert sys.version_info >= (3, 12)
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-from securesystemslib.signer import Signer
-from tuf.api.metadata import Metadata
-import kodepoia.update.online_signing
-import kodepoia.update.zero_cost_signing
-"@
+    $probeCode = (
+        "import sys; assert sys.version_info >= (3, 12); " +
+        "from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey; " +
+        "from securesystemslib.signer import Signer; " +
+        "from tuf.api.metadata import Metadata; " +
+        "import kodepoia.update.online_signing; import kodepoia.update.zero_cost_signing"
+    )
 
     foreach ($candidate in $candidates) {
         try {

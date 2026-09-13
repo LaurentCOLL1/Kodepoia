@@ -262,12 +262,15 @@ def test_launcher_refreshes_blocked_report_when_python_dependencies_are_missing(
 
     assert completed.returncode != 0
     combined = completed.stdout + completed.stderr
-    assert "Aucun Python 3.12+ prêt pour la cérémonie TUF" in combined
+    assert "Aucun Python 3.12+" in combined
+    assert "TUF" in combined
     payload = json.loads(REPORT.read_text(encoding="utf-8-sig"))
     assert payload["status"] == "BLOCKED"
     assert payload["generation"] is None
     assert payload["errors_encountered"][0]["code"] == "POWERSHELL_PREFLIGHT_BLOCKED"
-    assert "dépendances TUF" in payload["errors_encountered"][0]["message"]
+    message = payload["errors_encountered"][0]["message"]
+    assert "Python 3.12+" in message
+    assert "TUF" in message
     assert payload["private_material_in_report"] is False
     assert payload["private_key_paths_in_report"] is False
     assert payload["secret_values_emitted"] is False

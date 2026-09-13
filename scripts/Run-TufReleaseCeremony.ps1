@@ -81,20 +81,55 @@ function Resolve-UniquePrivateFile {
     return $matches[0].FullName
 }
 
+function Adopt-ManifestValue {
+    param(
+        [string]$CurrentValue,
+        [string]$ManifestValue,
+        [string]$Label
+    )
+    if ([string]::IsNullOrWhiteSpace($ManifestValue)) {
+        return $CurrentValue
+    }
+    if (-not [string]::IsNullOrWhiteSpace($CurrentValue) -and $CurrentValue.Trim() -ne $ManifestValue.Trim()) {
+        throw "$Label fourni ne correspond pas à installer-manifest.json."
+    }
+    return $ManifestValue.Trim()
+}
+
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $reportPath = Join-Path $repoRoot "artifacts\tuf_ceremony\ceremony-report.json"
 $summaryPath = Join-Path $repoRoot "artifacts\tuf_ceremony\ceremony-summary.txt"
 
 Push-Location $repoRoot
 try {
-    $PublicVersion = Resolve-RequiredValue $PublicVersion "Version publique (ex. 1.1.0-rc6)"
-    $SourceSha = Resolve-RequiredValue $SourceSha "SHA source exact (40 caractères)"
     $AssetPath = Resolve-RequiredValue $AssetPath "Chemin complet de KodepoiaSetup.exe"
     $PrivateCustodyDirectory = Resolve-RequiredValue $PrivateCustodyDirectory "Racine privée de garde TUF (hors dépôt)"
 
     $resolvedAsset = (Resolve-Path -LiteralPath $AssetPath).Path
-    $resolvedCustody = (Resolve-Path -LiteralPath $PrivateCustodyDirectory).Path
+    if ((Get-Item -LiteralPath $resolvedAsset).Name -ne "KodepoiaSetup.exe") {
+        throw "L'asset attendu doit s'appeler exactement KodepoiaSetup.exe."
+    }
 
+    $manifestPath = Join-Path (Split-Path -Parent $resolvedAsset) "installer-manifest.json"
+    $manifestLoaded = $false
+    if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
+        $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+        if ([string]$manifest.installer -ne "KodepoiaSetup.exe") {
+            throw "installer-manifest.json ne décrit pas KodepoiaSetup.exe."
+        }
+        $PublicVersion = Adopt-ManifestValue $PublicVersion ([string]$manifest.public_version) "La version publique"
+        $SourceSha = Adopt-ManifestValue $SourceSha ([string]$manifest.source_sha) "Le SHA source"
+        $ExpectedAssetSha256 = Adopt-ManifestValue $ExpectedAssetSha256 ([string]$manifest.sha256) "Le SHA-256 de l'installateur"
+        $manifestLoaded = $true
+    }
+
+    $PublicVersion = Resolve-RequiredValue $PublicVersion "Version publique (ex. 1.1.0-rc6)"
+    $SourceSha = Resolve-RequiredValue $SourceSha "SHA source exact (40 caractères)"
+    if ($null -eq $ExpectedAssetSize) {
+        $ExpectedAssetSize = [long](Get-Item -LiteralPath $resolvedAsset).Length
+    }
+
+    $resolvedCustody = (Resolve-Path -LiteralPath $PrivateCustodyDirectory).Path
     if ($resolvedCustody.StartsWith($repoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
         throw "La racine privée TUF doit être située hors du dépôt Kodepoia."
     }
@@ -149,6 +184,7 @@ try {
     Write-Host "Version : $PublicVersion"
     Write-Host "Source  : $SourceSha"
     Write-Host "Asset   : $resolvedAsset"
+    Write-Host "Manifest: $(if ($manifestLoaded) { 'détecté et vérifié' } else { 'absent - valeurs fournies manuellement' })"
     Write-Host "Mode    : $(if ($Apply) { 'APPLY' } else { 'STAGE/VERIFY' })"
     Write-Host "Les clés/seeds privés ne seront jamais affichés ni écrits dans le rapport."
     Write-Host ""

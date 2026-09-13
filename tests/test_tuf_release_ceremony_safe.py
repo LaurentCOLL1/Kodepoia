@@ -133,7 +133,9 @@ def test_transactional_apply_restores_originals_on_mid_apply_failure(
     assert not list(metadata_dir.glob(".*.ceremony.*"))
 
 
-def test_transactional_apply_commits_complete_generation(tmp_path: Path) -> None:
+def test_transactional_apply_commits_complete_generation_without_recovery_status(
+    tmp_path: Path,
+) -> None:
     metadata_dir = tmp_path / "metadata"
     metadata_dir.mkdir()
     staged = {
@@ -149,7 +151,8 @@ def test_transactional_apply_commits_complete_generation(tmp_path: Path) -> None
 
     for name, data in staged.items():
         assert (metadata_dir / name).read_bytes() == data
-    assert any(item["code"] == "TRANSACTIONAL_METADATA_APPLY" for item in report.fixes)
+    assert any(item["name"] == "transactional-apply" for item in report.checks)
+    assert report.fixes == []
     assert not list(metadata_dir.glob(".*.ceremony.*"))
 
 

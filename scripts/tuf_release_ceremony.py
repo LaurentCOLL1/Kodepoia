@@ -333,7 +333,7 @@ def _config_from_manifest(role: str, entry: dict[str, object]) -> OnlineSignerCo
         raise CeremonyError(
             "ONLINE_PUBLIC_MANIFEST_INVALID",
             f"public key identity or secret resource mismatch for {role}",
-            resolution="Restore the accepted online signer public-key manifest.",
+            resolution="Restore the accepted R20 online public-key manifest.",
         )
     return OnlineSignerConfig(
         role=role,
@@ -403,12 +403,7 @@ def _resolve_online_signers(public_keys_path: Path, root: Root, report: Report) 
     return resolved.snapshot, resolved.timestamp
 
 
-def _asset_identity(
-    asset: Path,
-    expected_sha: str | None,
-    expected_size: int | None,
-    report: Report,
-) -> tuple[int, str]:
+def _asset_identity(asset: Path, expected_sha: str | None, expected_size: int | None, report: Report) -> tuple[int, str]:
     if not asset.is_file():
         raise CeremonyError(
             "ASSET_MISSING",

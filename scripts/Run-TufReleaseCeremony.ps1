@@ -201,6 +201,8 @@ try {
 
     $currentStage = "détection de Python 3.12+"
     $python = Resolve-PythonCommand
+
+    $currentStage = "construction des arguments de cérémonie"
     $arguments = @(
         "scripts/tuf_release_ceremony_safe.py",
         "--public-version", $PublicVersion,
@@ -215,7 +217,7 @@ try {
         $arguments += @("--expected-asset-sha256", $ExpectedAssetSha256.Trim())
     }
     if ($null -ne $ExpectedAssetSize) {
-        $arguments += @("--expected-asset-size", $ExpectedAssetSize.Value.ToString())
+        $arguments += @("--expected-asset-size", ([long]$ExpectedAssetSize).ToString())
     }
     if (-not [string]::IsNullOrWhiteSpace($ExpectedRootSha256)) {
         $arguments += @("--expected-root-sha256", $ExpectedRootSha256.Trim())

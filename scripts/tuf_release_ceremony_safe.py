@@ -161,10 +161,9 @@ def _transactional_apply(
                 auto_fixable=True,
             ) from exc
 
-        report.fix(
-            "TRANSACTIONAL_METADATA_APPLY",
-            "update-repository/metadata",
-            "replaced Targets/Snapshot/Timestamp after complete verification with rollback backups available during the transaction",
+        report.check(
+            "transactional-apply",
+            "Targets/Snapshot/Timestamp replaced after complete verification; rollback backups were held for the duration of the transaction",
         )
     finally:
         for path in temp_paths:

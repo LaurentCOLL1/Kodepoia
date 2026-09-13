@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -154,6 +155,61 @@ def test_transactional_apply_commits_complete_generation_without_recovery_status
     assert any(item["name"] == "transactional-apply" for item in report.checks)
     assert report.fixes == []
     assert not list(metadata_dir.glob(".*.ceremony.*"))
+
+
+def test_unexpected_exception_emits_redacted_shareable_report(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    report_path = tmp_path / "ceremony-report.json"
+    summary_path = tmp_path / "ceremony-summary.txt"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "tuf_release_ceremony_safe.py",
+            "--report",
+            str(report_path),
+            "--summary",
+            str(summary_path),
+        ],
+    )
+
+    def explode() -> int:
+        raise RuntimeError("PRIVATE /secret/custody/location must not leak")
+
+    monkeypatch.setattr(base, "main", explode)
+    assert safe.main() == 1
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["status"] == "BLOCKED"
+    assert payload["private_material_in_report"] is False
+    assert payload["private_key_paths_in_report"] is False
+    serialized = json.dumps(payload)
+    assert "/secret/custody/location" not in serialized
+    assert "PRIVATE" not in serialized
+    assert summary_path.is_file()
+
+
+def test_nonzero_exit_without_report_gets_redacted_fallback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    report_path = tmp_path / "ceremony-report.json"
+    summary_path = tmp_path / "ceremony-summary.txt"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "tuf_release_ceremony_safe.py",
+            "--report",
+            str(report_path),
+            "--summary",
+            str(summary_path),
+        ],
+    )
+    monkeypatch.setattr(base, "main", lambda: 1)
+    assert safe.main() == 1
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["status"] == "BLOCKED"
+    assert payload["errors_encountered"][0]["code"] == "UNEXPECTED_CEREMONY_ERROR"
 
 
 def test_windows_launcher_routes_through_hardened_engine() -> None:

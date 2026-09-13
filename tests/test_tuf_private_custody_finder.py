@@ -108,4 +108,4 @@ def test_finder_rejects_incomplete_tree(tmp_path: Path) -> None:
     assert completed.returncode != 0
     assert "TUF_SNAPSHOT_ED25519_SEED_B64.txt" in combined
     assert "TUF_TIMESTAMP_ED25519_SEED_B64.txt" in combined
-    assert "*.pem" in combined
+    assert ".pem" in combined

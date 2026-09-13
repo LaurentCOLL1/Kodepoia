@@ -29,16 +29,33 @@ function Test-PathInside {
     )
 }
 
+function Test-SamePath {
+    param(
+        [string]$Left,
+        [string]$Right
+    )
+    $leftPath = [System.IO.Path]::GetFullPath($Left).TrimEnd('\', '/')
+    $rightPath = [System.IO.Path]::GetFullPath($Right).TrimEnd('\', '/')
+    return $leftPath.Equals($rightPath, [System.StringComparison]::OrdinalIgnoreCase)
+}
+
 function Get-NearestCustodyRoot {
     param(
         [System.IO.FileInfo]$SnapshotSeed,
-        [string]$RepoRoot
+        [string]$RepoRoot,
+        [string]$BoundaryRoot,
+        [bool]$AllowBoundaryCandidate
     )
 
     $directory = $SnapshotSeed.Directory
     while ($null -ne $directory) {
         $candidate = $directory.FullName
-        if (-not (Test-PathInside -Path $candidate -Parent $RepoRoot)) {
+        if (-not (Test-PathInside -Path $candidate -Parent $BoundaryRoot)) {
+            break
+        }
+
+        $atBoundary = Test-SamePath -Left $candidate -Right $BoundaryRoot
+        if (($AllowBoundaryCandidate -or -not $atBoundary) -and -not (Test-PathInside -Path $candidate -Parent $RepoRoot)) {
             $timestamp = Get-ChildItem `
                 -LiteralPath $candidate `
                 -Recurse `
@@ -59,6 +76,10 @@ function Get-NearestCustodyRoot {
                 }
             }
         }
+
+        if ($atBoundary) {
+            break
+        }
         $directory = $directory.Parent
     }
     return $null
@@ -71,8 +92,9 @@ else {
     $RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
 }
 
+$explicitSearchRoots = $null -ne $SearchRoot -and $SearchRoot.Count -gt 0
 $roots = @()
-if ($null -ne $SearchRoot -and $SearchRoot.Count -gt 0) {
+if ($explicitSearchRoots) {
     foreach ($root in $SearchRoot) {
         try {
             $roots += (Resolve-Path -LiteralPath $root -ErrorAction Stop).Path
@@ -114,7 +136,11 @@ foreach ($root in $roots) {
             -ErrorAction SilentlyContinue
     )
     foreach ($snapshotSeed in $snapshotSeeds) {
-        $candidate = Get-NearestCustodyRoot -SnapshotSeed $snapshotSeed -RepoRoot $RepositoryRoot
+        $candidate = Get-NearestCustodyRoot `
+            -SnapshotSeed $snapshotSeed `
+            -RepoRoot $RepositoryRoot `
+            -BoundaryRoot $root `
+            -AllowBoundaryCandidate $explicitSearchRoots
         if (-not [string]::IsNullOrWhiteSpace($candidate)) {
             [void]$candidates.Add($candidate)
         }
@@ -128,8 +154,8 @@ if ($candidates.Count -eq 0) {
     Write-Host "- $SnapshotSeedName"
     Write-Host "- $TimestampSeedName"
     Write-Host "- au moins un fichier .pem"
-    Write-Host "Vous pouvez limiter la recherche, par exemple :"
-    Write-Host '  .\scripts\Run-TufReleaseCeremony.cmd --find-custody -SearchRoot M:\,G:\'
+    Write-Host "Vous pouvez limiter la recherche à un lecteur, par exemple :"
+    Write-Host '  .\scripts\Run-TufReleaseCeremony.cmd --find-custody -SearchRoot M:\'
     exit 2
 }
 

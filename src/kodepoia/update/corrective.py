@@ -80,13 +80,18 @@ def _powershell_environment(path: Path) -> dict[str, str]:
 
 
 class PowerShellAuthenticodeVerifier:
-    """Query Authenticode with fixed code while transporting the path only as process data."""
+    """Verify staged EXE bytes with fixed PowerShell while the path remains process data."""
 
     _SCRIPT = (
         "$ErrorActionPreference='Stop';"
         f"$p=$env:{POWERSHELL_LITERAL_PATH_ENV};"
         "if([string]::IsNullOrEmpty($p)){exit 8};"
-        "$s=Get-AuthenticodeSignature -LiteralPath $p;"
+        "$module=Join-Path $PSHOME 'Modules\\Microsoft.PowerShell.Security\\"
+        "Microsoft.PowerShell.Security.psd1';"
+        "Import-Module -Name $module -ErrorAction Stop;"
+        "$item=Get-Item -LiteralPath $p -ErrorAction Stop;"
+        "$bytes=[System.IO.File]::ReadAllBytes($item.FullName);"
+        "$s=Get-AuthenticodeSignature -Content $bytes -SourcePathOrExtension 'exe';"
         "[Console]::Out.Write(($s.Status.ToString())+'|'+($s.StatusMessage))"
     )
 

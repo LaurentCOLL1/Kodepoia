@@ -50,7 +50,8 @@ function Resolve-PythonCommand {
     )
     foreach ($candidate in $candidates) {
         try {
-            & $candidate.File @($candidate.Prefix) -c "import sys; assert sys.version_info >= (3, 12)" 2>$null
+            $probeArgs = @($candidate.Prefix) + @("-c", "import sys; assert sys.version_info >= (3, 12)")
+            & $candidate.File @probeArgs 2>$null
             if ($LASTEXITCODE -eq 0) {
                 return $candidate
             }
@@ -62,8 +63,25 @@ function Resolve-PythonCommand {
     throw "Python 3.12+ est introuvable. Activez l'environnement virtuel Kodepoia puis relancez ce fichier."
 }
 
+function Resolve-UniquePrivateFile {
+    param(
+        [string]$Root,
+        [string]$FileName,
+        [string]$Label
+    )
+    $matches = @(
+        Get-ChildItem -LiteralPath $Root -Recurse -File -Filter $FileName -ErrorAction Stop
+    )
+    if ($matches.Count -eq 0) {
+        throw "$Label privé introuvable sous la racine de garde TUF."
+    }
+    if ($matches.Count -gt 1) {
+        throw "Plusieurs fichiers $FileName ont été trouvés sous la racine de garde. Conservez une seule copie autoritative avant de relancer."
+    }
+    return $matches[0].FullName
+}
+
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$ceremonyScript = Join-Path $PSScriptRoot "tuf_release_ceremony.py"
 $reportPath = Join-Path $repoRoot "artifacts\tuf_ceremony\ceremony-report.json"
 $summaryPath = Join-Path $repoRoot "artifacts\tuf_ceremony\ceremony-summary.txt"
 
@@ -72,23 +90,23 @@ try {
     $PublicVersion = Resolve-RequiredValue $PublicVersion "Version publique (ex. 1.1.0-rc6)"
     $SourceSha = Resolve-RequiredValue $SourceSha "SHA source exact (40 caractères)"
     $AssetPath = Resolve-RequiredValue $AssetPath "Chemin complet de KodepoiaSetup.exe"
-    $PrivateCustodyDirectory = Resolve-RequiredValue $PrivateCustodyDirectory "Répertoire privé de garde TUF (hors dépôt)"
+    $PrivateCustodyDirectory = Resolve-RequiredValue $PrivateCustodyDirectory "Racine privée de garde TUF (hors dépôt)"
 
     $resolvedAsset = (Resolve-Path -LiteralPath $AssetPath).Path
     $resolvedCustody = (Resolve-Path -LiteralPath $PrivateCustodyDirectory).Path
 
     if ($resolvedCustody.StartsWith($repoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "Le répertoire privé TUF doit être situé hors du dépôt Kodepoia."
+        throw "La racine privée TUF doit être située hors du dépôt Kodepoia."
     }
 
-    $snapshotSecretFile = Join-Path $resolvedCustody "TUF_SNAPSHOT_ED25519_SEED_B64.txt"
-    $timestampSecretFile = Join-Path $resolvedCustody "TUF_TIMESTAMP_ED25519_SEED_B64.txt"
-    if (-not (Test-Path -LiteralPath $snapshotSecretFile -PathType Leaf)) {
-        throw "Seed Snapshot privé introuvable dans le répertoire de garde."
-    }
-    if (-not (Test-Path -LiteralPath $timestampSecretFile -PathType Leaf)) {
-        throw "Seed Timestamp privé introuvable dans le répertoire de garde."
-    }
+    $snapshotSecretFile = Resolve-UniquePrivateFile `
+        -Root $resolvedCustody `
+        -FileName "TUF_SNAPSHOT_ED25519_SEED_B64.txt" `
+        -Label "Seed Snapshot"
+    $timestampSecretFile = Resolve-UniquePrivateFile `
+        -Root $resolvedCustody `
+        -FileName "TUF_TIMESTAMP_ED25519_SEED_B64.txt" `
+        -Label "Seed Timestamp"
 
     $snapshotSecret = (Get-Content -LiteralPath $snapshotSecretFile -Raw).Trim()
     $timestampSecret = (Get-Content -LiteralPath $timestampSecretFile -Raw).Trim()
@@ -135,7 +153,8 @@ try {
     Write-Host "Les clés/seeds privés ne seront jamais affichés ni écrits dans le rapport."
     Write-Host ""
 
-    & $python.File @($python.Prefix) @arguments
+    $pythonArgs = @($python.Prefix) + $arguments
+    & $python.File @pythonArgs
     $exitCode = $LASTEXITCODE
 
     Write-Host ""
@@ -150,7 +169,7 @@ try {
     else {
         Write-Host "CEREMONIE BLOQUEE" -ForegroundColor Red
         Write-Host "Rapport sûr pour ChatGPT : $reportPath"
-        Write-Host "N'envoyez jamais le répertoire privé, les PEM, les seeds ou la passphrase."
+        Write-Host "N'envoyez jamais la racine privée, les PEM, les seeds ou la passphrase."
     }
     exit $exitCode
 }

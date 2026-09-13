@@ -96,20 +96,66 @@ function Adopt-ManifestValue {
     return $ManifestValue.Trim()
 }
 
+function Write-RedactedPreflightReport {
+    param(
+        [string]$ReportPath,
+        [string]$SummaryPath,
+        [string]$Stage
+    )
+    try {
+        $reportDirectory = Split-Path -Parent $ReportPath
+        $summaryDirectory = Split-Path -Parent $SummaryPath
+        New-Item -ItemType Directory -Force -Path $reportDirectory | Out-Null
+        New-Item -ItemType Directory -Force -Path $summaryDirectory | Out-Null
+        $payload = [ordered]@{
+            format = "kodepoia-tuf-release-ceremony"
+            schema_version = 1
+            status = "BLOCKED"
+            generation = $null
+            checks = @()
+            errors_encountered = @(
+                [ordered]@{
+                    code = "POWERSHELL_PREFLIGHT_BLOCKED"
+                    message = "La cérémonie s'est arrêtée pendant le précontrôle : $Stage. Le détail local a été volontairement exclu de ce rapport partageable."
+                    auto_fixable = $false
+                    resolution = "Consultez le message affiché dans la console locale. Partagez uniquement ce rapport avec ChatGPT et ne partagez jamais les chemins privés, PEM, seeds ou passphrases."
+                }
+            )
+            automatic_fixes = @()
+            private_material_in_report = $false
+            private_key_paths_in_report = $false
+            secret_values_emitted = $false
+        }
+        $payload | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ReportPath -Encoding UTF8
+        @(
+            "Kodepoia TUF release ceremony: BLOCKED",
+            "Précontrôle bloqué à l'étape : $Stage.",
+            "Consultez ceremony-report.json et partagez uniquement ce rapport avec ChatGPT."
+        ) | Set-Content -LiteralPath $SummaryPath -Encoding UTF8
+    }
+    catch {
+        # The local console remains authoritative if even the shareable report cannot be written.
+    }
+}
+
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $reportPath = Join-Path $repoRoot "artifacts\tuf_ceremony\ceremony-report.json"
 $summaryPath = Join-Path $repoRoot "artifacts\tuf_ceremony\ceremony-summary.txt"
+$currentStage = "initialisation"
 
 Push-Location $repoRoot
 try {
+    $currentStage = "sélection de l'installateur et de la garde privée"
     $AssetPath = Resolve-RequiredValue $AssetPath "Chemin complet de KodepoiaSetup.exe"
     $PrivateCustodyDirectory = Resolve-RequiredValue $PrivateCustodyDirectory "Racine privée de garde TUF (hors dépôt)"
 
+    $currentStage = "validation de l'installateur"
     $resolvedAsset = (Resolve-Path -LiteralPath $AssetPath).Path
     if ((Get-Item -LiteralPath $resolvedAsset).Name -ne "KodepoiaSetup.exe") {
         throw "L'asset attendu doit s'appeler exactement KodepoiaSetup.exe."
     }
 
+    $currentStage = "validation de installer-manifest.json"
     $manifestPath = Join-Path (Split-Path -Parent $resolvedAsset) "installer-manifest.json"
     $manifestLoaded = $false
     if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
@@ -123,17 +169,20 @@ try {
         $manifestLoaded = $true
     }
 
+    $currentStage = "validation de l'identité de release"
     $PublicVersion = Resolve-RequiredValue $PublicVersion "Version publique (ex. 1.1.0-rc6)"
     $SourceSha = Resolve-RequiredValue $SourceSha "SHA source exact (40 caractères)"
     if ($null -eq $ExpectedAssetSize) {
         $ExpectedAssetSize = [long](Get-Item -LiteralPath $resolvedAsset).Length
     }
 
+    $currentStage = "validation de la racine de garde TUF"
     $resolvedCustody = (Resolve-Path -LiteralPath $PrivateCustodyDirectory).Path
     if ($resolvedCustody.StartsWith($repoRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
         throw "La racine privée TUF doit être située hors du dépôt Kodepoia."
     }
 
+    $currentStage = "découverte des seeds Snapshot/Timestamp"
     $snapshotSecretFile = Resolve-UniquePrivateFile `
         -Root $resolvedCustody `
         -FileName "TUF_SNAPSHOT_ED25519_SEED_B64.txt" `
@@ -143,12 +192,14 @@ try {
         -FileName "TUF_TIMESTAMP_ED25519_SEED_B64.txt" `
         -Label "Seed Timestamp"
 
+    $currentStage = "chargement protégé des seeds Snapshot/Timestamp"
     $snapshotSecret = (Get-Content -LiteralPath $snapshotSecretFile -Raw).Trim()
     $timestampSecret = (Get-Content -LiteralPath $timestampSecretFile -Raw).Trim()
     if ([string]::IsNullOrWhiteSpace($snapshotSecret) -or [string]::IsNullOrWhiteSpace($timestampSecret)) {
         throw "Un seed Snapshot/Timestamp privé est vide."
     }
 
+    $currentStage = "détection de Python 3.12+"
     $python = Resolve-PythonCommand
     $arguments = @(
         "scripts/tuf_release_ceremony_safe.py",
@@ -189,6 +240,7 @@ try {
     Write-Host "Les clés/seeds privés ne seront jamais affichés ni écrits dans le rapport."
     Write-Host ""
 
+    $currentStage = "cérémonie TUF Python"
     $pythonArgs = @($python.Prefix) + $arguments
     & $python.File @pythonArgs
     $exitCode = $LASTEXITCODE
@@ -210,8 +262,10 @@ try {
     exit $exitCode
 }
 catch {
+    Write-RedactedPreflightReport -ReportPath $reportPath -SummaryPath $summaryPath -Stage $currentStage
     Write-Host "CEREMONIE BLOQUEE AVANT SIGNATURE" -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
+    Write-Host "Rapport sûr pour ChatGPT : $reportPath"
     Write-Host "Corrigez ce point puis relancez exactement le même fichier."
     exit 1
 }

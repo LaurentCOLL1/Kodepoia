@@ -21,6 +21,17 @@ def test_cmd_exposes_custody_discovery_subcommand() -> None:
     assert "Find-TufPrivateCustody.ps1" in source
 
 
+def test_cmd_hardens_script_resolution_and_distinguishes_tooling_failure() -> None:
+    source = CMD_LAUNCHER.read_text(encoding="utf-8")
+    assert 'set "CALLER_CWD=%CD%"' in source
+    assert 'set "SCRIPT_DIR=%~dp0"' in source
+    assert '%REPO_ROOT%\\scripts\\Find-TufPrivateCustody.ps1' in source
+    assert '%CALLER_CWD%\\scripts\\Find-TufPrivateCustody.ps1' in source
+    assert "le helper de recherche TUF est introuvable" in source
+    assert "Cette erreur concerne l'outillage local" in source
+    assert "exit /b 2" in source
+
+
 def test_finder_uses_filesystem_drives_and_never_reads_secret_contents() -> None:
     source = FINDER.read_text(encoding="utf-8")
     assert "Get-PSDrive -PSProvider FileSystem" in source

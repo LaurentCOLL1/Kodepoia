@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import os
+import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -172,11 +174,70 @@ def _transactional_apply(
             path.unlink(missing_ok=True)
 
 
+def _requested_path(flag: str, default: str) -> Path:
+    try:
+        index = sys.argv.index(flag)
+        value = sys.argv[index + 1]
+    except (ValueError, IndexError):
+        value = default
+    return Path(value).expanduser().resolve()
+
+
+def _ensure_redacted_blocked_report() -> None:
+    report_path = _requested_path("--report", "artifacts/tuf_ceremony/ceremony-report.json")
+    summary_path = _requested_path("--summary", "artifacts/tuf_ceremony/ceremony-summary.txt")
+    if report_path.is_file():
+        return
+    issue = {
+        "code": "UNEXPECTED_CEREMONY_ERROR",
+        "message": "The ceremony stopped because of an unexpected internal or operating-system error. Details were intentionally omitted from this shareable report.",
+        "auto_fixable": False,
+        "resolution": (
+            "Share only this ceremony-report.json with ChatGPT. Keep the private custody directory, PEM files, seeds and passphrases private."
+        ),
+    }
+    payload = {
+        "format": base.FORMAT,
+        "schema_version": base.SCHEMA_VERSION,
+        "status": "BLOCKED",
+        "generation": None,
+        "checks": [],
+        "errors_encountered": [issue],
+        "automatic_fixes": [],
+        "private_material_in_report": False,
+        "private_key_paths_in_report": False,
+        "secret_values_emitted": False,
+    }
+    try:
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        summary_path.write_text(
+            "Kodepoia TUF release ceremony: BLOCKED\n"
+            "Erreur inattendue expurgée. Consultez ceremony-report.json et partagez uniquement ce rapport avec ChatGPT.\n",
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
+
+
 def main() -> int:
-    # Keep the proven ceremony engine and replace only the two hardening-sensitive operations.
+    # Keep the proven ceremony engine and replace only the hardening-sensitive operations.
     base._build_online_pair = _build_online_pair_preserving_snapshot_meta
     base._atomic_apply = _transactional_apply
-    return base.main()
+    try:
+        exit_code = base.main()
+    except Exception:  # noqa: BLE001 - final fail-closed boundary intentionally redacts details
+        _ensure_redacted_blocked_report()
+        print(
+            "CEREMONIE BLOQUEE: une erreur inattendue a été expurgée. "
+            "Partagez uniquement ceremony-report.json avec ChatGPT.",
+            file=sys.stderr,
+        )
+        return 1
+    if exit_code != 0:
+        _ensure_redacted_blocked_report()
+    return exit_code
 
 
 if __name__ == "__main__":

@@ -15,4 +15,6 @@ This policy does not replace TUF authorization. Exact target length and SHA-256,
 
 Both packaged PowerShell verifier paths use fixed PowerShell code and `-LiteralPath`. The staged installer path is supplied only as process data through `KODEPOIA_UPDATER_LITERAL_PATH`; it is never concatenated into `-Command` text. This includes the staging form `.KodepoiaSetup.exe.partial` and ordinary Windows parent directories containing spaces.
 
+For Authenticode, the fixed script explicitly imports the built-in `Microsoft.PowerShell.Security` module from the Windows PowerShell `$PSHOME` module directory, resolves the staged file with `Get-Item -LiteralPath`, reads those exact bytes, and invokes `Get-AuthenticodeSignature -Content` with `SourcePathOrExtension` fixed to `exe`. This preserves literal staged-path handling while evaluating the payload as the installer type authorized by TUF even though the temporary filename ends in `.partial`.
+
 The already-published rc6 metadata has no `authenticode_policy` key and therefore remains `require-valid`. It must not be reinterpreted from its historical `signing_status` text or mutated in place. A future target that intentionally authorizes an unsigned installer must explicitly carry `authenticode_policy: "allow-unsigned"` in its signed TUF target metadata.

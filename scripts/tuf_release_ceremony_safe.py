@@ -183,10 +183,20 @@ def _requested_path(flag: str, default: str) -> Path:
     return Path(value).expanduser().resolve()
 
 
-def _ensure_redacted_blocked_report() -> None:
+def _read_existing(path: Path) -> bytes | None:
+    try:
+        return path.read_bytes()
+    except FileNotFoundError:
+        return None
+    except OSError:
+        return None
+
+
+def _ensure_redacted_blocked_report(previous_report: bytes | None) -> None:
     report_path = _requested_path("--report", "artifacts/tuf_ceremony/ceremony-report.json")
     summary_path = _requested_path("--summary", "artifacts/tuf_ceremony/ceremony-summary.txt")
-    if report_path.is_file():
+    current_report = _read_existing(report_path)
+    if current_report is not None and current_report != previous_report:
         return
     issue = {
         "code": "UNEXPECTED_CEREMONY_ERROR",
@@ -225,10 +235,12 @@ def main() -> int:
     # Keep the proven ceremony engine and replace only the hardening-sensitive operations.
     base._build_online_pair = _build_online_pair_preserving_snapshot_meta
     base._atomic_apply = _transactional_apply
+    report_path = _requested_path("--report", "artifacts/tuf_ceremony/ceremony-report.json")
+    previous_report = _read_existing(report_path)
     try:
         exit_code = base.main()
     except Exception:  # noqa: BLE001 - final fail-closed boundary intentionally redacts details
-        _ensure_redacted_blocked_report()
+        _ensure_redacted_blocked_report(previous_report)
         print(
             "CEREMONIE BLOQUEE: une erreur inattendue a été expurgée. "
             "Partagez uniquement ceremony-report.json avec ChatGPT.",
@@ -236,7 +248,7 @@ def main() -> int:
         )
         return 1
     if exit_code != 0:
-        _ensure_redacted_blocked_report()
+        _ensure_redacted_blocked_report(previous_report)
     return exit_code
 
 

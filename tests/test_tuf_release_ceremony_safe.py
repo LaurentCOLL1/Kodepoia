@@ -212,6 +212,65 @@ def test_nonzero_exit_without_report_gets_redacted_fallback(
     assert payload["errors_encountered"][0]["code"] == "UNEXPECTED_CEREMONY_ERROR"
 
 
+def test_stale_success_report_cannot_mask_current_failed_attempt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    report_path = tmp_path / "ceremony-report.json"
+    summary_path = tmp_path / "ceremony-summary.txt"
+    report_path.write_text('{"status":"SUCCESS","stale":true}\n', encoding="utf-8")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "tuf_release_ceremony_safe.py",
+            "--report",
+            str(report_path),
+            "--summary",
+            str(summary_path),
+        ],
+    )
+    monkeypatch.setattr(base, "main", lambda: 1)
+
+    assert safe.main() == 1
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["status"] == "BLOCKED"
+    assert "stale" not in payload
+    assert payload["errors_encountered"][0]["code"] == "UNEXPECTED_CEREMONY_ERROR"
+
+
+def test_current_blocked_report_written_by_base_is_preserved(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    report_path = tmp_path / "ceremony-report.json"
+    summary_path = tmp_path / "ceremony-summary.txt"
+    old = '{"status":"SUCCESS","stale":true}\n'
+    report_path.write_text(old, encoding="utf-8")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "tuf_release_ceremony_safe.py",
+            "--report",
+            str(report_path),
+            "--summary",
+            str(summary_path),
+        ],
+    )
+
+    def write_current_block() -> int:
+        report_path.write_text(
+            '{"status":"BLOCKED","errors_encountered":[{"code":"KNOWN_CURRENT_ERROR"}]}\n',
+            encoding="utf-8",
+        )
+        return 1
+
+    monkeypatch.setattr(base, "main", write_current_block)
+    assert safe.main() == 1
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["status"] == "BLOCKED"
+    assert payload["errors_encountered"][0]["code"] == "KNOWN_CURRENT_ERROR"
+
+
 def test_windows_launcher_routes_through_hardened_engine() -> None:
     source = (SCRIPTS_DIR / "Run-TufReleaseCeremony.ps1").read_text(encoding="utf-8")
     assert '"scripts/tuf_release_ceremony_safe.py"' in source

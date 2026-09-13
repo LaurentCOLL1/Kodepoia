@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "status": "planned_not_built_or_published",
+  "release": {
+    "version": "1.1.0-rc6",
+    "channel": "beta",
+    "purpose": "validation_only_end_to_end_updater_rc5_to_rc6",
+    "new_functionality_allowed": false,
+    "r20_reopened": false,
+    "r20_7_allowed": false
+  },
+  "continuity_baseline": {
+    "main_sha": "2946f3b6c4bcff4297c20d355144729854225990",
+    "canonical_markdown": "docs/release/RC6_VALIDATION_CONTINUITY.md"
+  },
+  "rc5_public_baseline": {
+    "tag": "v1.1.0-rc5",
+    "source_sha": "3f25eefa1a65cbbe9eb5822d6f68741675cf179b",
+    "release_id": 387546105,
+    "asset_id": 559134222,
+    "asset_name": "KodepoiaSetup.exe",
+    "asset_size": 37712707,
+    "asset_sha256": "30636a6ef5db4b3d171acc3817282595eff8ba724ff6c175329a10e8c5e8d42b",
+    "asset_url": "https://github.com/LaurentCOLL1/Kodepoia/releases/download/v1.1.0-rc5/KodepoiaSetup.exe"
+  },
+  "rc5_installed_acceptance": {
+    "public_installer_identity_verified": true,
+    "custom_path_install_succeeded": true,
+    "packaged_trusted_root_manifest_present": true,
+    "packaged_trusted_root_manifest_relative_path": "kodepoia/update/trusted_root.production.manifest.json",
+    "packaged_trusted_root_manifest_size": 278,
+    "kodestudio_started_as_rc5": true,
+    "beta_update_search_succeeded": true,
+    "candidate": "1.1.0-rc5",
+    "source_verification": "tuf-verified-metadata",
+    "download_verify_newer_candidate_tested": false,
+    "verified_installer_upgrade_tested": false,
+    "reason_full_path_not_tested": "no candidate newer than rc5 existed at checkpoint"
+  },
+  "tuf_checkpoint": {
+    "root": {
+      "version": 2,
+      "sha256": "c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7",
+      "expires": "2027-09-08T14:59:19Z"
+    },
+    "targets": {
+      "version": 5,
+      "sha256": "d5c30941d6ae9ad21555db0e16ef6a1aa8f38a6d0049fdcebd29fc71d97a2757",
+      "length": 2392,
+      "expires": "2027-09-12T20:49:31Z",
+      "authorized_keyid": "70e86d478a769ffbefbf6febc37435a2a4563197df03d6dcda6627282fa5cf00"
+    },
+    "snapshot": {
+      "version": 7,
+      "sha256": "66d7095dbe98ca5cd5d8de098d3537466aa92ec782db6b64c3282fce18a69df2",
+      "length": 469,
+      "expires": "2026-09-15T21:47:58Z"
+    },
+    "timestamp": {
+      "version": 7,
+      "sha256": "e91412f70ed161e9f26b3dd61721377af543d3ab837e6ee8d72d4c5ba64f8586",
+      "length": 470,
+      "expires": "2026-09-14T21:47:58Z"
+    },
+    "online_versions_must_be_refetched_at_signing_time": true,
+    "future_versions_hardcoded": false
+  },
+  "rc6_required_sequence": [
+    "refetch_live_main_and_tuf_state",
+    "make_minimal_release_identity_version_delta_only",
+    "pin_exact_rc6_source_sha",
+    "build_windows_installer_from_exact_sha",
+    "record_installer_size_and_sha256",
+    "create_draft_prerelease_targeted_to_exact_source_sha",
+    "upload_exact_installer_asset",
+    "generate_and_sign_next_monotonic_targets_preserving_prior_authorized_targets_and_adding_rc6",
+    "generate_and_sign_next_monotonic_snapshot_from_live_state",
+    "generate_and_sign_next_monotonic_timestamp_from_live_state",
+    "validate_exact_head_release_checks",
+    "publish_rc6_draft",
+    "verify_public_tag_and_asset",
+    "run_real_installed_rc5_to_rc6_search_download_verify_install_restart_acceptance",
+    "record_acceptance_and_normalize_continuity"
+  ],
+  "security_invariants": {
+    "root_v2_expected_unchanged": true,
+    "new_targets_key_for_rc6_allowed": false,
+    "private_keys_seeds_passphrases_in_git_allowed": false,
+    "private_keys_seeds_passphrases_in_public_evidence_allowed": false,
+    "exact_head_evidence_required": true,
+    "fail_closed_on_identity_or_tuf_drift": true
+  }
+}

@@ -18,6 +18,11 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from securesystemslib.signer import CryptoSigner, SSlibKey, Signer
 from tuf.api.metadata import Metadata, Root, Snapshot, Targets, Timestamp
 
+from kodepoia.update.corrective import (
+    AUTHENTICODE_POLICIES,
+    AUTHENTICODE_POLICY_KEY,
+    AUTHENTICODE_POLICY_REQUIRE_VALID,
+)
 from kodepoia.update.online_signing import OnlineSignerConfig, resolve_online_signers
 from kodepoia.update.zero_cost_signing import (
     ZERO_COST_PROVIDER,
@@ -438,12 +443,23 @@ def _build_targets(
     platform: str,
     payload_url: str,
     release_notes_summary: str,
+    authenticode_policy: str,
     report: Report,
 ) -> tuple[bytes, bool, str]:
+    if authenticode_policy not in AUTHENTICODE_POLICIES:
+        raise CeremonyError(
+            "INVALID_AUTHENTICODE_POLICY",
+            f"unsupported Authenticode policy: {authenticode_policy!r}",
+            resolution=(
+                "Use exactly 'require-valid' or 'allow-unsigned'. Do not invent aliases or weaken "
+                "the target-scoped policy outside signed TUF metadata."
+            ),
+        )
     target_path = f"channels/{channel}/{platform}/{public_version}/{source_sha}/{filename}"
     targets = dict(current.signed.targets)
     existing = targets.get(target_path)
     expected_custom = {
+        AUTHENTICODE_POLICY_KEY: authenticode_policy,
         "channel": channel,
         "payload_url": payload_url,
         "provenance_status": "exact-source-r18-provenance-required-before-publication",
@@ -467,6 +483,7 @@ def _build_targets(
                 resolution="Stop and inspect the existing authorization. Never overwrite a conflicting target silently.",
             )
         report.check("targets-idempotency", "exact release target is already authorized")
+        report.check("authenticode-policy", f"target policy={authenticode_policy}")
         return _serialize(current), False, target_path
 
     payload = current.signed.to_dict()
@@ -494,6 +511,7 @@ def _build_targets(
         "targets-transition",
         f"Targets v{current.signed.version} -> v{new_md.signed.version}; prior targets preserved; one target added",
     )
+    report.check("authenticode-policy", f"target policy={authenticode_policy}")
     return new_bytes, True, target_path
 
 
@@ -655,6 +673,15 @@ def main() -> int:
     parser.add_argument("--expected-asset-size", type=int)
     parser.add_argument("--expected-root-sha256")
     parser.add_argument(
+        "--authenticode-policy",
+        choices=sorted(AUTHENTICODE_POLICIES),
+        default=AUTHENTICODE_POLICY_REQUIRE_VALID,
+        help=(
+            "Exact signed TUF target policy. Defaults fail-closed to require-valid; "
+            "allow-unsigned must be requested explicitly for that exact target."
+        ),
+    )
+    parser.add_argument(
         "--release-notes-summary",
         default="Kodepoia validation-only release candidate for updater end-to-end acceptance.",
     )
@@ -764,6 +791,7 @@ def main() -> int:
             platform=args.platform,
             payload_url=payload_url,
             release_notes_summary=args.release_notes_summary,
+            authenticode_policy=args.authenticode_policy,
             report=report,
         )
         new_targets_md = _parse(new_targets_bytes, Targets, "new targets.json")
@@ -830,6 +858,7 @@ def main() -> int:
             "source_sha": args.source_sha.lower(),
             "public_version": args.public_version,
             "payload_url": payload_url,
+            "authenticode_policy": args.authenticode_policy,
             "applied": bool(args.apply),
         }
         status = "SUCCESS_WITH_RECOVERY" if report.fixes else "SUCCESS"

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import subprocess
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -8,61 +7,15 @@ from pathlib import Path
 
 from kodepoia.release.identity import CURRENT_RELEASE
 from kodepoia.update.bootstrap import load_production_packaged_root
-from kodepoia.update.delivery import (
-    AuthenticodeEvidence,
+from kodepoia.update.corrective import (
+    PolicyUpdateDiscoveryService,
+    PolicyVerifiedUpdateDownloader,
+    PowerShellAuthenticodeVerifier,
     PowerShellInstallerIdentityVerifier,
-    VerifiedUpdateDownloader,
 )
-from kodepoia.update.discovery import UpdateDiscoveryResult, UpdateDiscoveryService
+from kodepoia.update.discovery import UpdateDiscoveryResult
 from kodepoia.update.network import NetworkTransportPolicy, NetworkUpdateTransport
 from kodepoia.update.seamless import SeamlessUpdateInstallCoordinator, WindowsInnoUpdateLauncher
-
-
-class PowerShellAuthenticodeVerifier:
-    """Verify Authenticode through packaged Windows PowerShell without SignTool SDK."""
-
-    _SCRIPT = (
-        "$ErrorActionPreference='Stop';"
-        "$s=Get-AuthenticodeSignature -LiteralPath $args[0];"
-        "[Console]::Out.Write(($s.Status.ToString())+'|'+($s.StatusMessage))"
-    )
-
-    def __init__(
-        self,
-        powershell: str = "powershell.exe",
-        *,
-        runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
-    ) -> None:
-        if not powershell.strip():
-            raise ValueError("PowerShell executable must be non-empty")
-        self.powershell = powershell
-        self.runner = runner
-
-    def verify(self, path: Path) -> AuthenticodeEvidence:
-        result = self.runner(
-            [
-                self.powershell,
-                "-NoLogo",
-                "-NoProfile",
-                "-NonInteractive",
-                "-Command",
-                self._SCRIPT,
-                str(path),
-            ],
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        output = (result.stdout or "").strip()
-        status, _, detail = output.partition("|")
-        verified = result.returncode == 0 and status.strip().lower() == "valid"
-        if not detail:
-            detail = (result.stderr or output or f"PowerShell exit code {result.returncode}").strip()
-        return AuthenticodeEvidence(
-            verified=verified,
-            status=status.strip().lower() or "invalid",
-            detail=detail,
-        )
 
 
 class UnavailableUpdateDiscoveryService:
@@ -125,7 +78,7 @@ def build_packaged_update_services(
     _seed_packaged_discovery_root(base_state, root.root_bytes)
     policy = NetworkTransportPolicy()
     transport = transport_factory(policy)
-    discovery = UpdateDiscoveryService(
+    discovery = PolicyUpdateDiscoveryService(
         base_state / "discovery",
         root_pin=root.pin,
         transport=transport,
@@ -136,7 +89,7 @@ def build_packaged_update_services(
     runtime_platform = platform_name or sys.platform
     installer: SeamlessUpdateInstallCoordinator | None = None
     if runtime_platform == "win32":
-        downloader = VerifiedUpdateDownloader(
+        downloader = PolicyVerifiedUpdateDownloader(
             base_state / "downloads",
             authenticode=PowerShellAuthenticodeVerifier(),
             identity=PowerShellInstallerIdentityVerifier(),

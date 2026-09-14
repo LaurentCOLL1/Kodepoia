@@ -22,6 +22,10 @@ param(
     [string]$ExpectedRootSha256,
 
     [Parameter(Mandatory = $false)]
+    [ValidateSet("require-valid", "allow-unsigned")]
+    [string]$AuthenticodePolicy = "require-valid",
+
+    [Parameter(Mandatory = $false)]
     [switch]$Apply
 )
 
@@ -233,6 +237,7 @@ try {
         "--source-sha", $SourceSha,
         "--asset", $resolvedAsset,
         "--offline-key-dir", $resolvedCustody,
+        "--authenticode-policy", $AuthenticodePolicy,
         "--report", $reportPath,
         "--summary", $summaryPath
     )
@@ -262,6 +267,7 @@ try {
     Write-Host "Source  : $SourceSha"
     Write-Host "Asset   : $resolvedAsset"
     Write-Host "Manifest: $(if ($manifestLoaded) { 'détecté et vérifié' } else { 'absent - valeurs fournies manuellement' })"
+    Write-Host "Politique Authenticode TUF : $AuthenticodePolicy"
     Write-Host "Mode    : $(if ($Apply) { 'APPLY' } else { 'STAGE/VERIFY' })"
     Write-Host "Les clés/seeds privés ne seront jamais affichés ni écrits dans le rapport."
     Write-Host ""

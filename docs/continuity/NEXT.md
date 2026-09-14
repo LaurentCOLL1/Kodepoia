@@ -1,131 +1,155 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-14 during rc8 validation-only qualification  
-Companion state: `docs/continuity/STATE.md`  
-Baseline to re-check before any mutation: live `main` was `c61347993af70f9167d08f2ff5e46f33f7686b4e` at this checkpoint.
+Last synchronized: 2026-09-14 after exact-head rc8 qualification, source merge and R17 artifact binding  
+Companion state: `docs/continuity/STATE.md`
 
 ## Goal
 
-The updater-only correction, rc7 publication/TUF authorization and the real Windows rc7 discovery health gate are complete. The remaining sequence is now strictly:
+The remaining updater-incident sequence is now strictly:
 
-`finish exact-head rc8 qualification -> merge exact qualified rc8 source -> obtain/bind exact rc8 installer -> draft/publication gates -> TUF authorize rc8 -> real updater E2E rc7 -> rc8`
+`manual unpublished rc8 draft -> re-fetch/verify exact draft asset -> prepare and qualify rc8 TUF transition while draft remains unpublished -> explicit rc8 publication -> re-fetch/verify public tag and asset -> merge/apply qualified TUF authorization -> real Windows updater E2E rc7 -> rc8`
 
-The historical `rc5 -> rc6` attempt remains failed/incomplete and must never be relabeled successful.
+The historical `rc5 -> rc6` attempt remains failed/incomplete and must never be relabeled successful. No unrelated feature work is authorized until the fresh installed-updater E2E succeeds.
 
-No unrelated feature work is authorized until the fresh installed-updater E2E path succeeds.
+## Completed — rc8 source qualification
 
-## Completed — rc7 baseline
+- exact qualified source: `fa787ab7ef76f2556b56ac1f058916a1425455af`;
+- PR `#462` qualified with exactly 40 PR-triggered workflows;
+- terminal re-fetch: all 40 `completed/success` on that exact source SHA;
+- final long gates R18.2, R17 and R18.11 all succeeded;
+- #462 merged with exact-head guard;
+- post-merge `main`: `9554dbf3968360a61c2b6392398502572bf8f198`;
+- the release/tag authority remains the exact source `fa787ab7...`, not the merge commit.
 
-- rc7 exact qualified source: `fafe96ce45c4ca98ef5c40f50c596036071eb6f9`;
-- public prerelease: `v1.1.0-rc7`;
-- installer length: `37734287` bytes;
-- installer SHA-256: `c2e6da8e18d55c9e0397385ec5de9feb5a71b8d283db1d8322a7dff7d9a233c0`;
-- live pre-rc8 metadata generation: Root `2`, Targets `7`, Snapshot `9`, Timestamp `9`;
-- rc7 target policy: `authenticode_policy = "allow-unsigned"`;
-- real Windows rc7 UI evidence confirms running `1.1.0-rc7` and successful **Check for updates** with candidate sourced from `tuf-verified-metadata` and no PowerShell/AuthentiCode/TUF/installer-identity error.
+No failed, skipped, neutral, cancelled or otherwise non-success workflow was treated as green.
 
-The rc7 health gate authorized rc8 creation. The full staged download path is still unproven until rc7 discovers and downloads a newer rc8 target.
+## Completed — exact rc8 installer authority
 
-## ACTIVE — rc8 validation-only PR #462
+Authoritative R17 evidence:
 
-Exact active authority at this checkpoint:
+- R17 run ID: `34871154670`;
+- artifact name: `KodepoiaSetup-Windows`;
+- artifact ID: `10360685910`;
+- file: `KodepoiaSetup.exe`;
+- public version: `1.1.0-rc8`;
+- source SHA: `fa787ab7ef76f2556b56ac1f058916a1425455af`;
+- length: `37730750` bytes;
+- SHA-256: `6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422`;
+- exact artifact is genuinely unsigned (`production_signed=false`; PE certificate table absent);
+- derived target-scoped policy: `authenticode_policy = "allow-unsigned"`.
 
-- PR: `#462` — `Release 1.1.0-rc8 — validation-only candidate`;
-- branch: `release/1.1.0-rc8-validation`;
-- exact head: `fa787ab7ef76f2556b56ac1f058916a1425455af`;
-- creation base: `c61347993af70f9167d08f2ff5e46f33f7686b4e`;
-- scope: exactly 2 files, `+2/-2`;
-- `pyproject.toml`: `1.1.0rc7 -> 1.1.0rc8`;
-- `src/kodepoia/release/release_identity.json`: serial `7 -> 8`;
-- no updater code, dependency, TUF metadata or unrelated feature change.
+The updater contract was revalidated: exact TUF length/SHA checks occur before Authenticode, `allow-unsigned` accepts only exact `NotSigned`, installer identity is verified afterward, and launch requires explicit user consent.
 
-CI checkpoint for exact head `fa787ab7ef76f2556b56ac1f058916a1425455af`:
+## Current release state
 
-- 40 PR-triggered workflows total;
-- 37 completed `success`;
-- 3 still running:
-  - `R18.2 Deterministic Release Bundle Acceptance`;
-  - `R17 Windows Installer`;
-  - `R18.11 Integrated Adversarial Release Update Acceptance`.
+Latest live checks show:
 
-This is a snapshot only. Re-fetch live workflow state before acting.
+- `v1.1.0-rc8` GitHub release: absent;
+- `refs/tags/v1.1.0-rc8`: absent.
 
-## Next authorized action — finish exact-head qualification
+This is expected and leaves a clean draft-first boundary.
 
-1. Re-fetch live `main` and PR #462.
-2. Confirm PR #462 head is still exactly `fa787ab7ef76f2556b56ac1f058916a1425455af`.
-3. Re-fetch **all** PR-triggered workflow runs for that SHA.
-4. Require all 40 to be `completed` with conclusion exactly `success`.
-5. If any is `failure`, `cancelled`, `timed_out`, `action_required`, `startup_failure`, `stale`, `skipped`, `neutral`, or otherwise not exactly `success`, do not merge; inspect and resolve the real cause without weakening verification.
-6. If the head SHA changed, old green evidence is invalid for release qualification; qualify the new exact SHA from scratch.
-7. Only when all 40 exact-head runs are green may PR #462 be merged.
+## NEXT AUTHORIZED ACTION — manual draft creation
 
-## After PR #462 merges — rc8 artifact authority
+This is a manual publication boundary. Create an **unpublished draft**, do not publish it yet.
 
-Do not assume the rc8 installer identity, size, hash or signature state.
+Required draft identity:
 
-For the exact qualified rc8 source:
+- tag: `v1.1.0-rc8`;
+- target exact source: `fa787ab7ef76f2556b56ac1f058916a1425455af`;
+- title: `Kodepoia 1.1.0-rc8`;
+- draft: yes;
+- prerelease: yes;
+- exactly one installer asset: `KodepoiaSetup.exe`;
+- expected length: `37730750` bytes;
+- expected SHA-256: `6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422`.
 
-1. identify the authoritative `R17 Windows Installer` run/artifact for the exact qualified source;
-2. obtain `KodepoiaSetup.exe` from that exact run;
-3. establish authoritative byte length and SHA-256;
-4. inspect the exact artifact's Authenticode state;
-5. derive target-scoped TUF `authenticode_policy` from the artifact result:
-   - genuinely unsigned exact artifact -> `allow-unsigned` may be used for that exact target;
-   - signed artifact -> signed-required policy as defined by the updater contract;
-   - malformed/unknown/contradictory evidence -> stop fail-closed;
-6. preserve source SHA, artifact length/SHA and evidence in release continuity.
+Recommended release notes:
 
-## rc8 publication/TUF sequence
+```text
+Kodepoia 1.1.0-rc8 — validation-only updater E2E release candidate.
 
-After exact source and installer qualification:
+Qualified exact source:
+fa787ab7ef76f2556b56ac1f058916a1425455af
 
-1. prepare rc8 release using draft-first discipline;
-2. never replace/mutate an already-published asset in place;
-3. verify tag/source binds to the exact qualified rc8 source;
-4. verify release asset bytes match the qualified installer exactly;
-5. prepare the rc8 TUF target with exact:
-   - channel/platform/version path;
-   - source SHA;
-   - public version;
-   - release asset URL;
-   - byte length;
-   - SHA-256;
-   - `withdrawn=false`;
-   - target-scoped `authenticode_policy`;
-6. advance Targets/Snapshot/Timestamp monotonically and maintain all existing rc3-rc7 targets unless a separately authorized withdrawal exists;
-7. stage and cryptographically verify the complete TUF transition before apply;
-8. if offline Targets signing, private key custody, passphrase entry, Windows-only manual publication, or another secret-bearing/manual boundary is required, **stop** and give the user exact commands/actions; do not improvise or bypass it;
-9. only merge/publish TUF authorization when all exact-head checks pass.
+Windows installer SHA-256:
+6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422
+```
 
-## Final real-machine E2E objective
+Do not publish the draft after upload. Stop with it unpublished.
 
-With rc7 installed and healthy, test exactly:
+## Immediately after the draft exists
+
+Re-fetch the draft release and require all of these before any TUF mutation:
+
+1. tag exactly `v1.1.0-rc8`;
+2. target/source exactly `fa787ab7ef76f2556b56ac1f058916a1425455af`;
+3. `draft=true` and `prerelease=true`;
+4. exactly one intended installer asset named `KodepoiaSetup.exe`;
+5. asset size exactly `37730750`;
+6. GitHub asset digest exactly `sha256:6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422`;
+7. no unexpected tag/source/release or asset drift.
+
+Any mismatch is a hard stop; do not replace a public asset or weaken the gate.
+
+## TUF transition to prepare after exact draft verification
+
+Live pre-rc8 metadata authority remains Root 2 / Targets 7 / Snapshot 9 / Timestamp 9.
+
+The new target must be exactly:
+
+`channels/beta/windows-x86_64/1.1.0-rc8/fa787ab7ef76f2556b56ac1f058916a1425455af/KodepoiaSetup.exe`
+
+with:
+
+```text
+channel = beta
+public_version = 1.1.0-rc8
+source_sha = fa787ab7ef76f2556b56ac1f058916a1425455af
+payload_url = https://github.com/LaurentCOLL1/Kodepoia/releases/download/v1.1.0-rc8/KodepoiaSetup.exe
+length = 37730750
+sha256 = 6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422
+withdrawn = false
+signing_status = unsigned; production trust is not claimed
+authenticode_policy = allow-unsigned
+```
+
+Preserve every rc3-rc7 target. Expected monotonic versions are Targets `8`, Snapshot `10`, Timestamp `10`; exact expiry values and signatures must come from the authorized metadata tooling, never be invented.
+
+Stage and cryptographically verify the complete transition before apply. If Targets signing requires an offline/private key, passphrase, custody path or other secret-bearing action, stop and give the user the exact local command/action. Do not request or expose signing material in chat.
+
+## Publication ordering
+
+Follow the same fail-closed ordering proven for rc7:
+
+1. keep the rc8 GitHub release as an unpublished draft while the TUF transition PR is prepared and exact-head qualified;
+2. do not merge the TUF transition while the release is still only a draft;
+3. at the separate authorized publication boundary, explicitly publish the already-verified rc8 prerelease;
+4. re-fetch the public release, tag and asset;
+5. require exact source, asset name, size and SHA-256 again;
+6. only then merge/apply the already-qualified TUF authorization.
+
+Never mutate or replace the asset after public publication.
+
+## Final real-machine E2E
+
+Once rc8 is both public and TUF-authorized, use the already-installed healthy rc7 and test exactly:
 
 `installed rc7 -> discover rc8 -> download -> staged .KodepoiaSetup.exe.partial -> verified TUF metadata -> exact length -> exact SHA-256 -> target-scoped Authenticode policy -> installer identity -> explicit consent -> installer launch -> upgrade -> restart -> confirm rc8 -> Check for updates again`
 
-Required evidence includes:
+Required evidence:
 
-- rc7 actually discovers rc8, not itself;
-- download succeeds through the repaired PowerShell literal-path/data transport with normal Windows path characters/spaces;
-- `.KodepoiaSetup.exe.partial` verification succeeds;
-- TUF length/SHA checks occur before Authenticode policy acceptance;
-- the exact target-scoped policy is honored without accepting broken/untrusted signature states;
-- installer identity matches rc8;
-- no automatic installer launch without explicit consent;
-- restart reports `1.1.0-rc8`;
-- a subsequent update check is healthy.
+- rc7 discovers rc8 rather than itself;
+- repaired PowerShell literal-path/data transport successfully handles the staged partial path;
+- exact length and SHA checks occur before Authenticode acceptance;
+- target-scoped `allow-unsigned` accepts only the exact unsigned state and no broken/untrusted state;
+- installer identity is `1.1.0-rc8`;
+- no automatic launch occurs without explicit consent;
+- upgrade/restart succeeds and reports `1.1.0-rc8`;
+- subsequent update check is healthy.
 
-Only this successful E2E closes the updater incident.
-
-## Continuity protection
-
-A dedicated continuity branch was created while PR #462 qualification was in progress:
-
-`docs/continuity-rc8-qualification-20260914`
-
-If the current conversation ends before these updates reach `main`, locate that branch/its continuity PR and use it as the latest written handoff, while still re-fetching live GitHub state. Do not modify the rc8 head merely to carry documentation because that would invalidate exact-head qualification evidence.
+Only this successful path closes the updater incident.
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends rc8 depuis docs/continuity/STATE.md et docs/continuity/NEXT.md (ou la branche docs/continuity-rc8-qualification-20260914 si elle n'est pas encore fusionnée). Revalide d'abord main et la PR #462. Le head rc8 attendu au checkpoint est fa787ab7ef76f2556b56ac1f058916a1425455af. Re-fetch les 40 workflows et ne fusionne que s'ils sont tous completed/success sur ce SHA exact. Ensuite poursuis l'artefact R17, publication/TUF et l'E2E rc7 -> rc8 sans contourner aucun échec.`
+`@Recherche sur le Web Continue rc8 depuis docs/continuity/STATE.md et docs/continuity/NEXT.md. #462 est qualifiée 40/40 et fusionnée; source rc8 exacte fa787ab7ef76f2556b56ac1f058916a1425455af; main après merge 9554dbf3968360a61c2b6392398502572bf8f198; R17 run 34871154670 / artifact 10360685910; KodepoiaSetup.exe = 37730750 octets / SHA-256 6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422 / réellement non signé / policy allow-unsigned. La prochaine frontière est la création manuelle du draft GitHub v1.1.0-rc8 ciblant fa787ab7..., prerelease et non publié, avec cet EXE exact. Re-fetch et vérifie le draft avant tout TUF; ne contourne aucun échec.`

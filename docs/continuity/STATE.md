@@ -1,55 +1,87 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-13 22:59 CEST  
+Last synchronized: 2026-09-14 04:50 CEST  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`  
-Canonical `main` SHA at handoff: `f8e7857da0605f76ae7009181a7e4b9839e9ae41`
+Canonical `main` SHA: `b9f801ef30177ee9b46eeb5bbb32d39e76a13a82`
 
 ## Immediate authority
 
-This file is the current short-form handoff for the updater validation incident discovered during the real Windows `1.1.0-rc5 -> 1.1.0-rc6` exercise. It supplements the long continuity history and must be read together with `docs/continuity/NEXT.md` before any new mutation.
+This file is the current short-form authority for the updater incident discovered during the real Windows `1.1.0-rc5 -> 1.1.0-rc6` exercise. Read it together with `docs/continuity/NEXT.md` before any release mutation.
 
-The older `docs/release/RC6_VALIDATION_CONTINUITY.md` still contains its pre-build wording (`PLANNED — NOT YET BUILT OR PUBLISHED`). That historical file is no longer a reliable statement of the live rc6 state. Re-read GitHub live state before using any identity from it.
+The updater-only corrective implementation is now **qualified and merged**:
 
-## Current public release / repository state
+- corrective PR: `#456` — `Fix updater PowerShell paths and TUF Authenticode policy`;
+- exact qualified corrective head: `7d1a23c6f8c6be9a0564ad60f411a8c39e39979b`;
+- merge commit on `main`: `b9f801ef30177ee9b46eeb5bbb32d39e76a13a82`;
+- every pull-request-triggered workflow returned `completed/success` on the exact qualified head before merge;
+- Python Core Windows executed the complete suite on that exact head: `2417 passed, 26 skipped, 0 failed`;
+- R17 Windows Installer passed build, exact-source provenance, custom-directory silent install, packaged updater smoke and uninstall;
+- R18.11 Integrated Adversarial Release Update passed fresh R18.1-R18.10 regressions, exact-source candidate build, immutable R17 fixture rebuild, clean install, upgrade, packaged smoke, uninstall and final integrated verdict;
+- R0, R18.6, R18.7, R18.8, R18.10, R19.2, R19.3, R19.4 and R19.5 all passed on the same exact corrective head, along with the repository-wide platform/build workflows triggered by the PR.
 
-- `main` is at `f8e7857da0605f76ae7009181a7e4b9839e9ae41`, merge of PR `#454` (`release/1.1.0-rc6-tuf-transition`).
-- No pull request is open at the time of this handoff.
-- Public prerelease `v1.1.0-rc6` exists and is published.
-- `v1.1.0-rc6` tag resolves to exact source commit `fdd88dfd6cee8408bf33de1c4ee4f70103fda340`.
-- Public rc6 asset: `KodepoiaSetup.exe`.
-- Public rc6 asset size: `37712720` bytes.
-- Public rc6 asset SHA-256: `4214f19eea690357ef5aff20b74f9a4733dc1940d8a4315df803e9264ea46e6f`.
-- rc6 release ID: `387864235`; installer asset ID: `561016551`.
-- The rc6 TUF transition has already been merged into `main`; do not recreate or replace it merely to repair the client-side updater defect described below.
+No failing check was bypassed. Earlier Windows and Apple transient/failing attempts were corrected or re-run on later exact heads; only the final exact qualified head above was used for merge authority.
 
-## Real-machine finding that blocks declaring the updater E2E validated
+## Corrective behavior now in `main`
 
-The real Windows rc5 -> rc6 path progressed far enough to expose an updater verification defect. The correction scope was explicitly accepted and is intentionally narrow: **updater only**.
+The merged updater correction preserves fail-closed trust semantics:
 
-The defect family to repair is:
+1. Both PowerShell verifier paths use fixed executable PowerShell code. The staged installer path is transported as process data via `KODEPOIA_UPDATER_LITERAL_PATH`; the path is never concatenated into `-Command` text.
+2. Path dereference uses `-LiteralPath`, covering normal Windows paths with spaces and the updater staging form `.KodepoiaSetup.exe.partial`.
+3. Authenticode verification of the staged partial file evaluates its bytes as executable content while retaining literal path dereference.
+4. Trusted TUF target metadata may carry exactly one structured key: `authenticode_policy`.
+5. Accepted policy values are exactly:
+   - `require-valid`;
+   - `allow-unsigned`.
+6. Missing policy defaults to `require-valid`.
+7. Unknown, malformed or contradictory policy fails closed.
+8. `allow-unsigned` permits only the exact Authenticode `NotSigned` state for that exact TUF-authorized target; invalid, broken, untrusted or unknown signature states remain rejected.
+9. Legacy `signing_status` remains informational and never authorizes an unsigned installer.
+10. Verified TUF metadata provenance, non-withdrawn state, exact target length, exact SHA-256 and installer identity/version remain mandatory before installation can proceed.
 
-1. PowerShell invocation/path handling must safely support the updater's staged installer path, including the hidden partial filename form such as `.KodepoiaSetup.exe.partial` and installation/cache paths containing spaces or other normal Windows path characters.
-2. Both PowerShell-based verifier paths must use fixed code and `-LiteralPath`; user/model-controlled shell text must never be evaluated.
-3. Authenticode acceptance must be governed by an explicit policy carried by trusted TUF target metadata. Default behavior remains fail-closed: require `Valid`. `NotSigned` may be accepted **only** when the target metadata explicitly declares that policy for that exact authorized installer.
-4. TUF authorization, exact target length, and SHA-256 verification remain mandatory regardless of Authenticode policy. The corrective work must not turn any verification failure into a blanket bypass.
-5. Windows-focused regression tests must cover the exact staged `.partial` path and the Authenticode policy matrix.
+## Current public release / trusted repository state
 
-## Security invariants
+The already-published rc6 release was not mutated by the corrective work:
 
-The following constraints are non-negotiable for the corrective branch:
+- public prerelease: `v1.1.0-rc6`;
+- tag/source: `fdd88dfd6cee8408bf33de1c4ee4f70103fda340`;
+- asset: `KodepoiaSetup.exe`;
+- size: `37712720` bytes;
+- SHA-256: `4214f19eea690357ef5aff20b74f9a4733dc1940d8a4315df803e9264ea46e6f`;
+- release ID: `387864235`;
+- installer asset ID: `561016551`.
 
-- no feature work;
-- no unrelated refactor or dependency upgrade;
-- no weakening of TUF signature/threshold/version/hash/length verification;
-- no unconditional acceptance of unsigned installers;
-- no shell interpolation of the staged installer path;
-- no private TUF key, seed, passphrase, custody path or signing material in Git, GitHub logs, release assets, documentation, or chat;
-- fail closed on missing/unknown Authenticode policy.
+Trusted update metadata remained unchanged through the corrective merge:
 
-## Release sequencing decision already accepted
+- Root version `2`;
+- Targets version `6`;
+- Snapshot version `8`;
+- Timestamp version `8`.
 
-Do **not** mutate the already-published rc6 asset as a shortcut. The next release work is to qualify the updater-only correction in a later prerelease, then perform a fresh real-machine E2E transition with a still-newer validation candidate. The detailed sequence and acceptance gates are in `docs/continuity/NEXT.md`.
+The rc6 target has no structured `authenticode_policy`, therefore the corrected client treats rc6 as `require-valid`. The historical free-text `signing_status` for rc6 does not become an authorization bypass.
+
+The older `docs/release/RC6_VALIDATION_CONTINUITY.md` retains historical pre-build wording and is not the live authority for rc6 identity or current corrective status.
+
+## Incident status
+
+The **client-side updater defect is corrected and merged**, but the installed-updater E2E incident is **not yet closed**.
+
+Do not claim the historical `rc5 -> rc6` attempt succeeded retroactively. A fresh transition must validate the repaired updater using the already accepted sequence:
+
+`installed rc7 -> discover rc8 -> download -> TUF length/SHA -> Authenticode policy -> installer identity -> explicit consent -> installer launch -> upgrade -> restart -> confirm rc8 -> search again`
+
+Only a complete successful real-machine `rc7 -> rc8` path closes the updater E2E incident.
+
+## Security invariants for the remaining release sequence
+
+- no unrelated feature work in rc7 or rc8;
+- never mutate the already-published rc6 asset or rewrite its history;
+- no weakening of TUF signature, threshold, rollback, expiry, version, length or hash verification;
+- no unconditional unsigned acceptance;
+- no shell interpolation of staged paths;
+- no private TUF key, seed, passphrase, custody path or signing material in Git, GitHub logs, release assets, documentation or chat;
+- use current live metadata when selecting future TUF versions; never infer next versions solely from stale continuity prose;
+- stop at any manual Windows, offline Targets-signing, public-release publication or other custody-sensitive boundary and record the exact required intervention before proceeding further.
 
 ## Resume rule
 
@@ -57,7 +89,7 @@ A new ChatGPT conversation must first:
 
 1. read `docs/continuity/STATE.md`;
 2. read `docs/continuity/NEXT.md`;
-3. re-fetch live `main`, open PRs, the rc6 release/tag, and current trusted TUF metadata;
-4. compare live state with the SHA and identities above before writing code.
+3. re-fetch live `main`, open PRs, current public release/tag state and current Root/Targets/Snapshot/Timestamp;
+4. compare live state with the identities recorded here before creating an rc7 release branch or changing metadata.
 
-If live GitHub state differs, the live repository/release state wins and the difference must be recorded before proceeding.
+If live GitHub state differs, live repository/release state wins and the difference must be recorded before proceeding.

@@ -51,6 +51,7 @@ def create_vision_chat_page(
     assistant: VisionAssistant | None = None,
     initial_draft: VisionDraft | None = None,
     apply_callback: Callable[[VisionDraft], None] | None = None,
+    preferred_model: str | None = None,
 ):
     from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
     from PySide6.QtWidgets import (
@@ -158,8 +159,9 @@ def create_vision_chat_page(
         model_combo.addItem(tr.text("chat.guided"), None)
         for model_name in service.available_models():
             model_combo.addItem(model_name, model_name)
-        if current:
-            index = model_combo.findData(current)
+        target = current or preferred_model
+        if target:
+            index = model_combo.findData(target)
             if index >= 0:
                 model_combo.setCurrentIndex(index)
 

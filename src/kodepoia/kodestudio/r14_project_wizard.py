@@ -179,5 +179,6 @@ def create_project_dialog(parent=None, *, locale: str | None = None):
     dialog._r14_backend_profile = lambda: _selected_backend_profile(dialog)
     dialog._r14_backend_refresh = refresh_backend
     dialog._r14_backend_tab_index = backend_tab_index
+    dialog.project_root = lambda: Path(dialog.directory.text()).expanduser().resolve(strict=False)
     refresh_backend()
     return dialog

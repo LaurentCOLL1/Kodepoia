@@ -41,7 +41,13 @@ class OllamaClient:
         )
         try:
             with self._urlopen(request, timeout=timeout) as response:
-                decoded = json.loads(response.read().decode("utf-8"))
+                raw = response.read()
+        except json.JSONDecodeError as exc:
+            raise BrainUnavailable(f"Invalid JSON returned by Ollama: {exc}") from exc
+        if not raw:
+            return {}
+        try:
+            decoded = json.loads(raw.decode("utf-8"))
         except json.JSONDecodeError as exc:
             raise BrainUnavailable(f"Invalid JSON returned by Ollama: {exc}") from exc
         if not isinstance(decoded, dict):
@@ -127,6 +133,25 @@ class OllamaClient:
     def model_capabilities(self, model: str) -> set[str]:
         data = self.show_model(model)
         return {str(value).lower() for value in data.get("capabilities", [])}
+
+    def pull_model(self, model: str, *, timeout: float = 3600.0) -> dict[str, Any]:
+        """Install or refresh one Ollama model and wait for the final API response."""
+        name = str(model).strip()
+        if not name:
+            raise ValueError("model name must not be empty")
+        return self._request(
+            "POST",
+            "/api/pull",
+            {"model": name, "stream": False},
+            timeout=timeout,
+        )
+
+    def delete_model(self, model: str, *, timeout: float = 120.0) -> None:
+        """Delete one locally installed Ollama model."""
+        name = str(model).strip()
+        if not name:
+            raise ValueError("model name must not be empty")
+        self._request("DELETE", "/api/delete", {"model": name}, timeout=timeout)
 
     def running_models(self) -> list[dict[str, Any]]:
         data = self._request("GET", "/api/ps")

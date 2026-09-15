@@ -1,80 +1,76 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-15 for Roadmap V2 planning from live `main` `6b7ec8d4504da83579af98d8235326ea4268d63f`  
+Last synchronized: 2026-09-15 after Roadmap V2 preparation PR `#472` merged  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
 ## Stable public boundary
 
-The updater corrective/validation sequence is complete:
+Public Windows **`v1.1.0-rc8`** remains the last fully real-machine updater-E2E-qualified distribution baseline. The updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 is terminal and remains **COMPLETE + NORMALIZED**; do not reopen it or invent `R20.7`.
 
-`rc7 corrective release -> healthy installed rc7 -> validation-only rc8 -> exact-source qualification -> draft-first publication -> qualified TUF authorization -> real Windows updater E2E rc7 -> rc8`
+Roadmap preparation PR `#472` was qualified with **25/25** `completed/success` PR workflows on exact head `eac1a9bc1c8ad0e99de13e46c5048354ec932311` and merged as `87fc09e16531260d64cf3d5fb59f511295e2b703`.
 
-The real-machine E2E succeeded and the updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete and must never be relabeled successful.
+This closes roadmap preparation only. **V2.0 is not COMPLETE. V2.1.1 is blocked until V2.0 is COMPLETE + NORMALIZED.**
 
-Public Windows `v1.1.0-rc8` remains the last fully real-machine updater-E2E-qualified distribution baseline. Do not reopen R20, invent `R20.7`, or create another release candidate merely to repeat the successful rc7 -> rc8 proof.
+## Immediate execution order
 
-## New authorized development direction
+### V2.0.1 — Capability matrix/runtime truth
 
-The user authorized preparation of Roadmap V2. This is a new development track layered on the completed V1/R1–R20 foundation, not a rewrite of historical acceptance.
+Create the dedicated V2.0 implementation branch from re-fetched live `main` and establish one machine-readable/runtime truth model that distinguishes:
 
-The immediate priority is **V2.1 — Research Workspace**, because the current KodeStudio Research page is technically functional at the primitive level but does not yet provide a usable research-assistant workflow.
+- public rc8 (`public-validated`);
+- live `main`/source (`source-available`);
+- explicitly `acceptance-proven` capabilities;
+- `experimental` capabilities;
+- `unavailable` capabilities.
 
-On the planning baseline:
+Represent provider/runtime state explicitly as `ready`, `unavailable`, `auth-required`, `network-restricted` or `not-implemented`. Represent accelerator state explicitly as `priority`, `available`, `experimental`, `deferred` or `unsupported`.
 
-- **Search** calls `ResearchService.query()` and searches already persisted project research reports/findings;
-- it does **not** discover new Internet results;
-- **Fetch** is a separate operation for a known local path or explicit Web URL;
-- Web fetch remains governed by network permission, URL/SSRF safety, bounded response policies and ResearchGuard;
-- therefore a user who enters a new question in a fresh project can legitimately receive no useful result even though the UI appears to offer “search”.
+The public/source distinction is mandatory: presence on `main` must never imply presence in `v1.1.0-rc8`.
 
-This semantic mismatch is the first V2 usability defect to correct.
+### V2.0.2 — KodeStudio diagnostics
 
-## Execution order
+Make the capability truth visible and actionable in KodeStudio. At minimum, distinguish:
 
-1. **V2.0 baseline/capability truth** — preserve the distinction between public rc8, live `main`, experimental features and unavailable providers.
-2. **V2.1.1 honest Research UX and diagnostics** — visibly distinguish saved-research search from external source discovery; expose provider/network state and actionable empty/error states.
-3. **V2.1.2 real discovery providers** — implement bounded discovery for official/general Web plus GitHub, followed by guarded fetch of selected candidates.
-4. **V2.1.3 evidence workspace** — source cards, preview, metadata, version/freshness/trust, include/exclude, deduplication and cache/refetch lineage.
-5. **V2.1.4 cited synthesis + Research Packs** — claim-linked citations and governed project knowledge/Context Builder integration.
-6. **V2.1.5 community/media providers** — forums and YouTube/transcript paths, with STT/frames only through separately governed media operations.
-7. **V2.1.6 ResearchGuard hardening** — prompt injection, malicious redirects, SSRF attempts, timeouts, stale/version-conflicting evidence, provider outages and cancellation.
-8. **V2.2 project knowledge/context integration**.
-9. **V2.3 Model Lab** for end-to-end governed SFT/LoRA/QLoRA UX.
-10. **V2.4 real Kaggle T4×2 E2E and explicit multi-GPU qualification**.
-11. **V2.5 cross-workspace orchestration**.
-12. **V2.6 hardening and a future post-rc8 public release**, only when its exact functional boundary is known and qualified.
+- a provider/query that really ran successfully but returned zero matches;
+- provider unavailable/not configured;
+- authentication required;
+- network access restricted/disabled;
+- not implemented;
+- other actionable transport/policy failure where applicable.
 
-The detailed Research contract is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+No unavailable path may appear as a successful empty search.
 
-## Accelerator decision
+The current baseline must remain honest: `ResearchService.query()` searches persisted project research reports; it does not perform Internet discovery. External Web acquisition remains a separate guarded explicit-locator operation until V2.1 adds real discovery providers.
 
-For the current R15 training architecture, **Kaggle GPU T4×2 is the primary remote-training target**.
+### V2.0.3 — Reusable exact-head V2 acceptance
 
-The two T4s remain separate 16 GiB devices. V2.4 must first prove the existing conservative Kaggle path on a real account, then qualify explicit two-process/multi-GPU execution with per-device evidence. No component may pretend that 2 × 16 GiB is a single 32 GiB VRAM pool.
+Add deterministic tests and a reusable acceptance template/runner that:
 
-**TPU v5e-8 is deferred.** It is not useless in general, but using it correctly would create a separate XLA/JAX or PyTorch/XLA backend and acceptance surface. Do not spend V2 engineering effort on TPU unless a concrete benchmark proposal shows a material advantage for a Kodepoia workload that is not adequately served by the qualified GPU path.
+- binds evidence to an expected exact head SHA and fails on mismatch;
+- proves capability/provider/accelerator state vocabulary and invariants;
+- proves the real zero-result success case separately from unavailable/auth/network/not-implemented cases;
+- proves KodeStudio and current documentation expose the same capability truth;
+- emits inspectable acceptance evidence suitable for future V2 subdivisions.
+
+Then re-fetch **all required PR-triggered workflows on the exact final V2.0 head**. Merge only if every required workflow is `completed/success`. After merge, normalize `STATE.md`, `NEXT.md` and any other current authority affected by V2.0. Only then mark V2.0 **COMPLETE + NORMALIZED**.
+
+## Only after V2.0 COMPLETE + NORMALIZED
+
+Begin **V2.1.1 — Honest Research UX and diagnostics**, then continue V2.1 subdivision by subdivision according to `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`. Do not skip subdivision acceptance or continuity normalization.
+
+## Accelerator policy
+
+Kaggle **T4×2** remains the priority remote accelerator for the current CUDA/PyTorch/PEFT/QLoRA training path. Treat the two T4s as two separate 16 GiB devices. TPU v5e-8 remains deferred unless a concrete benchmark justifies the engineering and acceptance cost of a distinct XLA/JAX or PyTorch/XLA backend.
 
 ## Release boundary
 
-Roadmap V2 planning does not reserve `rc9`, `1.1.0`, `1.2.0` or any other version. Do not mutate release tags, installer artifacts or TUF metadata merely because the roadmap is merged.
-
-Before any future updater/release/TUF mutation:
-
-1. re-fetch live `main`;
-2. re-fetch latest public release/tag/asset;
-3. re-read live Root/Targets/Snapshot/Timestamp metadata;
-4. preserve exact-source qualification and draft-first release discipline;
-5. preserve TUF exact length/SHA binding, signature/threshold/rollback/version/expiry checks and installer identity verification;
-6. keep Authenticode exceptions target-scoped only;
-7. require explicit user consent before installer launch;
-8. stop on any failed verification rather than bypassing it;
-9. never expose private signing keys, seeds, passphrases or custody paths.
+No V2 planning or implementation step by itself authorizes a new release, installer publication or TUF mutation. Keep `v1.1.0-rc8` as the public reference until a future release is explicitly scoped and qualified.
 
 ## Per-subdivision discipline
 
-For each V2 subdivision: re-fetch live state, branch from an exact SHA, implement only that scope, add deterministic tests/acceptance, re-fetch all required workflows on the exact head, merge only after successful gates, then normalize continuity before the next subdivision. If a manual intervention is genuinely required, stop and state exactly what the operator must do instead of bypassing the gate.
+For every subdivision: re-fetch live `main`, branch from the exact SHA, implement only the authorized scope, add deterministic tests/acceptance, re-fetch all required workflows on the exact head, merge only when all required gates succeed, and normalize continuity before starting the next subdivision. If and only if a genuine manual intervention is required, stop and state exactly what the operator must do.
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md et docs/roadmap/KODEPOIA_ROADMAP_V2.md. Revalide d'abord le main live. La distribution publique de référence reste rc8 et l'incident updater est clos. Continue la prochaine subdivision V2 non terminée, en priorité V2.1 Research Workspace : le Search actuel ne découvre pas Internet, il cherche les rapports de recherche déjà persistés. Implémente un vrai flux question -> découverte de sources -> fetch gardé -> inspection -> synthèse citée -> Research Pack, sans affaiblir ResearchGuard. Kaggle T4×2 est prioritaire pour le training; TPU v5e-8 reste différé sauf benchmark justifiant un backend XLA distinct. Ne crée aucune release/TUF mutation sans demande et qualification explicites.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live. La distribution publique de référence reste v1.1.0-rc8 et l'incident updater est clos. Ne rouvre pas R20 et n'invente pas R20.7. Si V2.0 n'est pas COMPLETE + NORMALIZED, poursuis d'abord V2.0.1 capability truth, V2.0.2 KodeStudio diagnostics puis V2.0.3 exact-head acceptance, avec qualification complète et normalisation. Ne commence V2.1.1 qu'ensuite. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`

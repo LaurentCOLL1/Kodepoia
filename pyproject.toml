@@ -50,6 +50,7 @@ dev = [
 [project.scripts]
 kodepoia = "kodepoia.cli:main"
 kodepoia-studio = "kodepoia.kodestudio.app_v11:main"
+kodepoia-kaggle-training = "kodepoia.tuning.kaggle_remote:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/kodepoia"]

@@ -12,30 +12,32 @@ Kodepoia accompagne un projet depuis l'idée initiale jusqu'à sa maintenance. K
 - R17 a livré l'installation Windows autonome, le français, la création guidée et le Chat/Vision local.
 - R18 a livré l'identité de release canonique, bundles/manifests vérifiables, SBOM/provenance, frontière Authenticode, staging/promotion gouvernés, métadonnées TUF anti-rollback/freeze, découverte et installation consentie des mises à jour, préparation WinGet, drills de révocation/rollback et acceptance adversariale intégrée.
 - R19 a établi le correctif de release et le parcours d'auto-mise-à-jour vérifié ; R20 a transformé cette chaîne en opération continue avec Root/Targets hors ligne, Snapshot/Timestamp en rôles online distincts, renouvellement planifié, monitoring/UX et acceptance long-offline.
-- Release publique beta actuelle : **`v1.1.0-rc5`**, source exacte `3f25eefa1a65cbbe9eb5822d6f68741675cf179b`.
-- `main` post-publication/TUF actuel avant cette normalisation documentaire : `d33998160c6ce33f95989b3b3fbeba16af2455b3`.
+- Release publique beta actuelle : **`v1.1.0-rc8`**, source exacte `fa787ab7ef76f2556b56ac1f058916a1425455af`.
+- Le vrai E2E Windows installé **rc7 → rc8 est PASS** : découverte via métadonnées TUF, téléchargement, vérification, consentement explicite, lancement de l'installateur, upgrade, redémarrage en rc8 et nouvelle recherche confirmant rc8 comme version courante.
+- La clôture canonique de cet incident updater est enregistrée par la PR #467, fusionnée comme `e40477699d98bda2f804c269339929de719556b5`. Toute reprise doit néanmoins re-fetcher le `main` live plutôt que supposer que ce SHA restera éternellement HEAD.
 - Ancien nom de travail : `FORGEGAMEDEV`.
 
-La clôture des phases ne signifie pas qu'une release stable signée de production existe. Les releases `rc` restent des **préreleases / beta** et le manifeste de l'installateur courant indique `production_signed=false`.
+La clôture des phases ne signifie pas qu'une release stable signée de production existe. Les releases `rc` restent des **préreleases / beta** et le manifeste de l'installateur rc8 indique `production_signed=false`.
 
 ## Installer Kodepoia sur Windows — utilisateur final
 
-### Méthode recommandée — GitHub Release `v1.1.0-rc5`
+### Méthode recommandée — GitHub Release `v1.1.0-rc8`
 
-Télécharger **`KodepoiaSetup.exe`** depuis la release publique **[Kodepoia 1.1.0-rc5](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.0-rc5)**.
+Télécharger **`KodepoiaSetup.exe`** depuis la release publique **[Kodepoia 1.1.0-rc8](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.0-rc8)**.
 
-Installateur rc5 accepté :
+Installateur rc8 accepté :
 
-- version : `1.1.0-rc5` ;
-- source exacte : `3f25eefa1a65cbbe9eb5822d6f68741675cf179b` ;
-- taille : `37 712 707` octets ;
-- SHA-256 : `30636a6ef5db4b3d171acc3817282595eff8ba724ff6c175329a10e8c5e8d42b` ;
+- version : `1.1.0-rc8` ;
+- source exacte : `fa787ab7ef76f2556b56ac1f058916a1425455af` ;
+- taille : `37 730 750` octets ;
+- SHA-256 : `6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422` ;
 - canal : `beta` ;
-- signature de production revendiquée : **non** (`production_signed=false`).
+- signature de production revendiquée : **non** (`production_signed=false`) ;
+- politique TUF Authenticode ciblée pour cet artefact exact : `allow-unsigned`.
 
-`v1.1.0-rc5` conserve le correctif de bootstrap de confiance de rc4 et corrige le packaging Windows de l'updater : les ressources TUF nécessaires au démarrage du service de mise à jour sont désormais embarquées dans la distribution. L'assistant d'installation permet également de choisir le lecteur et le nom du dossier d'installation au lieu de réutiliser silencieusement un ancien emplacement.
+`v1.1.0-rc8` est un candidat de validation sans nouvelle fonctionnalité updater. Il a été construit pour confirmer le parcours réel de mise à jour depuis la baseline corrective rc7. Le parcours installé rc7 → rc8 a été exécuté avec succès sur Windows sans substitution manuelle de l'installateur rc8. Les correctifs précédents restent hérités, notamment l'embarquement des ressources TUF requises par l'updater et le choix du lecteur/dossier d'installation.
 
-1. Télécharger `KodepoiaSetup.exe` depuis la release rc5.
+1. Télécharger `KodepoiaSetup.exe` depuis la release rc8.
 2. Facultatif mais recommandé : calculer son SHA-256 et le comparer à la valeur ci-dessus.
 3. Exécuter `KodepoiaSetup.exe`.
 4. Choisir le dossier d'installation souhaité dans l'assistant.
@@ -48,7 +50,7 @@ Cette version est une **prérelease / beta**. Elle ne doit pas être présentée
 
 ### Miroir historique à la racine du dépôt
 
-Le fichier `KodepoiaSetup.exe` présent à la racine du dépôt et `KodepoiaSetup.exe.sha256` restent un **miroir historique de `v1.1.0-rc1`**. Ils ne constituent plus la méthode d'installation recommandée et ne doivent pas être confondus avec l'asset rc5 actuel.
+Le fichier `KodepoiaSetup.exe` présent à la racine du dépôt et `KodepoiaSetup.exe.sha256` restent un **miroir historique de `v1.1.0-rc1`**. Ils ne constituent plus la méthode d'installation recommandée et ne doivent pas être confondus avec l'asset rc8 actuel.
 
 Le checksum historique du miroir racine est `3d11af229392a6756a2bbc161af0150aca92168d843a42a3944ab5c01660b8e0`.
 
@@ -57,12 +59,14 @@ Le checksum historique du miroir racine est `3d11af229392a6756a2bbc161af0150aca9
 La chaîne publique de mise à jour actuelle est :
 
 - Root **v2** — rôle haute autorité conservé hors ligne et protégé par seuil ;
-- Targets **v5** — signé hors ligne, conserve rc3 + rc4 et autorise rc5 ;
-- Snapshot **v7** — rôle online dédié ;
-- Timestamp **v7** — rôle online séparé ;
-- rc5 autorisé par Targets avec la taille et le SHA-256 exacts indiqués ci-dessus.
+- Targets **v8** — signé hors ligne, préserve les targets rc3 à rc7 et autorise rc8 ;
+- Snapshot **v10** — rôle online dédié, lié aux octets/version/hash/longueur exacts de Targets v8 ;
+- Timestamp **v10** — rôle online séparé, lié aux octets/version/hash/longueur exacts de Snapshot v10 ;
+- rc8 est autorisé par Targets avec la taille `37 730 750` et le SHA-256 exacts ci-dessus, `withdrawn=false` et `authenticode_policy="allow-unsigned"` ciblé sur cet artefact.
 
 Les mises à jour refusent les métadonnées expirées, les rollbacks, les vues mixtes Snapshot/Targets et les artefacts dont le hash ou la taille ne correspondent pas à l'autorité TUF. Une indisponibilité du service de mise à jour ne doit pas empêcher le démarrage de Kodepoia ni le travail local.
+
+Le vrai E2E Windows rc7 → rc8 est documenté dans `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md`. L'ancien essai rc5 → rc6 reste historiquement **failed/incomplete** et ne doit pas être requalifié rétrospectivement comme succès.
 
 ### Désinstallation
 
@@ -176,7 +180,7 @@ Le workflow `.github/workflows/windows-installer.yml` effectue en plus une insta
 
 ### Signature
 
-Le manifeste indique actuellement `production_signed=false`. Une véritable signature Windows ne sera revendiquée qu'après utilisation explicite d'un certificat/identité de signature réel et validation des preuves correspondantes.
+Le manifeste rc8 indique `production_signed=false`. Une véritable signature Windows ne sera revendiquée qu'après utilisation explicite d'un certificat/identité de signature réel et validation des preuves correspondantes. L'exception `allow-unsigned` utilisée par TUF pour rc8 est strictement target-scoped et ne vaut pas autorisation générale d'accepter des exécutables non signés.
 
 ## Principes non négociables
 
@@ -211,16 +215,20 @@ L'architecture v1.0 reste gelée. Une évolution ne réécrit pas rétroactiveme
 
 Documents principaux :
 
-- `docs/architecture/KODEPOIA_ARCHITECTURE_V1_0.md`
-- `docs/architecture/KODEPOIA_ARCHITECTURE_DECISIONS.md`
-- `docs/roadmap/KODEPOIA_ROADMAP_V1_0.md`
-- `docs/roadmap/R17_PLAN.md`
-- `docs/roadmap/R18_PLAN.md`
-- `docs/roadmap/R19_PLAN.md`
-- `docs/roadmap/R20_PLAN.md`
-- `docs/continuity/KODEPOIA_CONTINUITY.md`
-- `docs/continuity/KODEPOIA_CONTINUITY_R19.md`
-- `docs/continuity/KODEPOIA_CONTINUITY_R20.md`
+- `docs/continuity/STATE.md` — autorité immédiate de reprise ;
+- `docs/continuity/NEXT.md` — prochaine frontière autorisée et prompt de reprise ;
+- `docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md` — résumé compact de l'autorité publique courante ;
+- `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md` — preuve terminale du vrai E2E rc7 → rc8 ;
+- `docs/architecture/KODEPOIA_ARCHITECTURE_V1_0.md` ;
+- `docs/architecture/KODEPOIA_ARCHITECTURE_DECISIONS.md` ;
+- `docs/roadmap/KODEPOIA_ROADMAP_V1_0.md` ;
+- `docs/roadmap/R17_PLAN.md` ;
+- `docs/roadmap/R18_PLAN.md` ;
+- `docs/roadmap/R19_PLAN.md` ;
+- `docs/roadmap/R20_PLAN.md` ;
+- `docs/continuity/KODEPOIA_CONTINUITY_R20.md` — autorité terminale R20 + historique des opérations post-R20 ;
+- `docs/continuity/KODEPOIA_CONTINUITY_R19.md` — autorité R19 gelée ;
+- `docs/continuity/KODEPOIA_CONTINUITY.md` — grande archive historique R1–R18.
 
 ## Sécurité
 

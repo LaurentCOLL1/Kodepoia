@@ -211,10 +211,15 @@ def create_model_manager_group(
     recommendation.setObjectName("recommendedOllamaModelSelector")
     for item in RECOMMENDED_MODELS:
         description = item.description_fr if french else item.description_en
-        recommendation.addItem(f"{item.role.upper()} — {item.name} — {description}", item.name)
+        recommendation.addItem(
+            f"{item.role.upper()} — {item.name} — {description}",
+            item.name,
+        )
     custom = QLineEdit()
     custom.setObjectName("customOllamaModelInput")
-    custom.setPlaceholderText(ui("ou saisir un modèle/tag Ollama", "or enter an Ollama model/tag"))
+    custom.setPlaceholderText(
+        ui("ou saisir un modèle/tag Ollama", "or enter an Ollama model/tag")
+    )
     install_button = QPushButton(ui("Installer / mettre à jour", "Install / update"))
     install_button.setObjectName("installOllamaModelButton")
     install_row.addWidget(recommendation, 2)
@@ -244,8 +249,11 @@ def create_model_manager_group(
 
     note = QLabel(
         ui(
-            "Les rôles mémorisent les modèles préférés. Le chat Vision utilise CORE quand il est disponible ; les autres surfaces peuvent réutiliser ces préférences progressivement.",
-            "Roles store preferred models. Vision chat uses CORE when available; other surfaces can progressively reuse these preferences.",
+            "Les rôles mémorisent les modèles préférés. Le chat Vision utilise CORE "
+            "quand il est disponible ; les autres surfaces peuvent réutiliser ces "
+            "préférences progressivement.",
+            "Roles store preferred models. Vision chat uses CORE when available; "
+            "other surfaces can progressively reuse these preferences.",
         )
     )
     note.setWordWrap(True)
@@ -279,12 +287,7 @@ def create_model_manager_group(
         task.signals.error.connect(failed)
         pool.start(task)
 
-    def populate(snapshot: object) -> None:
-        if not isinstance(snapshot, dict):
-            return
-        models = [str(value) for value in snapshot.get("models", [])]
-        installed.clear()
-        installed.addItems(models)
+    def populate_roles(models: list[str]) -> None:
         saved = saved_model_roles(preferences)
         for role, box in role_boxes.items():
             target = saved.get(role)
@@ -296,12 +299,28 @@ def create_model_manager_group(
             if target:
                 index = box.findData(target)
                 if index < 0:
-                    box.addItem(ui(f"{target} (absent)", f"{target} (missing)"), target)
+                    box.addItem(
+                        ui(f"{target} (absent)", f"{target} (missing)"),
+                        target,
+                    )
                     index = box.findData(target)
                 box.setCurrentIndex(index)
             box.blockSignals(False)
+
+    def populate(snapshot: object) -> None:
+        if not isinstance(snapshot, dict):
+            return
+        models = [str(value) for value in snapshot.get("models", [])]
+        installed.clear()
+        installed.addItems(models)
+        populate_roles(models)
         version = snapshot.get("version", "unknown")
-        status.setText(ui(f"État : connecté — Ollama {version}", f"Status: connected — Ollama {version}"))
+        status.setText(
+            ui(
+                f"État : connecté — Ollama {version}",
+                f"Status: connected — Ollama {version}",
+            )
+        )
 
     def refresh_models() -> None:
         run_task(service.snapshot, populate)
@@ -359,7 +378,7 @@ def create_model_manager_group(
     group._kodepoia_refresh_models = refresh_models
     group._kodepoia_model_manager = service
     group._kodepoia_workers = workers
-    refresh_models()
+    populate_roles([])
     return group
 
 

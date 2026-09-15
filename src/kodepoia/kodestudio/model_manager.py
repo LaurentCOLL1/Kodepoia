@@ -148,6 +148,8 @@ def create_model_manager_group(
         QVBoxLayout,
     )
 
+    from kodepoia.kodestudio.kaggle_quota import create_kaggle_quota_group
+
     service = manager or OllamaModelManager(preferences)
     french = locale.lower().startswith("fr")
 
@@ -172,7 +174,7 @@ def create_model_manager_group(
             else:
                 self.signals.done.emit(result)
 
-    group = QGroupBox(ui("IA locale / modèles Ollama", "Local AI / Ollama models"))
+    group = QGroupBox(ui("IA / modèles et calcul distant", "AI / models and remote compute"))
     group.setObjectName("ollamaModelManagerGroup")
     layout = QVBoxLayout(group)
 
@@ -258,6 +260,9 @@ def create_model_manager_group(
     )
     note.setWordWrap(True)
     layout.addWidget(note)
+
+    kaggle_group = create_kaggle_quota_group(locale=locale)
+    layout.addWidget(kaggle_group)
 
     pool = QThreadPool.globalInstance()
     workers: list[Task] = []
@@ -377,6 +382,7 @@ def create_model_manager_group(
 
     group._kodepoia_refresh_models = refresh_models
     group._kodepoia_model_manager = service
+    group._kodepoia_kaggle_quota_group = kaggle_group
     group._kodepoia_workers = workers
     populate_roles([])
     return group

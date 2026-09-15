@@ -214,7 +214,7 @@ def test_r16_9_mutable_authority_action_reference_fails_closed(tmp_path: Path) -
 def test_r16_9_mutable_legacy_reference_is_non_authoritative_observation(tmp_path: Path) -> None:
     root = _workflow_root(
         tmp_path,
-        "permissions:\n  contents: read\njobs:\n    steps:\n      - uses: actions/checkout@v4\n",
+        "permissions:\n  contents: read\njobs:\n  t:\n    steps:\n      - uses: actions/checkout@v4\n",
         name="legacy.yml",
     )
     audit = audit_workflows(root, _policy(authority=(".github/workflows/authority.yml",)))

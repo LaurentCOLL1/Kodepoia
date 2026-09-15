@@ -4,6 +4,8 @@
 
 Kodepoia accompagne un projet depuis l'idée initiale jusqu'à sa maintenance. KodeStudio réunit création guidée, Project DNA, Vision produit, développement, recherche, médias, plateformes, sécurité, tests et outils IA locaux dans une interface unique. Kodepoia n'est pas un simple frontend de LLM : les actions restent gouvernées par les limites et preuves définies par l'architecture.
 
+**Guide utilisateur complet : [`docs/user/KODEPOIA_USER_GUIDE.md`](docs/user/KODEPOIA_USER_GUIDE.md)** — installation, création et reprise de projets, modèles Ollama, rôles FAST/CORE/CODE/HEAVY, tuning SFT/LoRA/QLoRA, sécurité, mises à jour et dépannage.
+
 ## État du projet
 
 - Architecture **v1.0 : COMPLETE + NORMALIZED et gelée**.
@@ -17,7 +19,7 @@ Kodepoia accompagne un projet depuis l'idée initiale jusqu'à sa maintenance. K
 - La clôture canonique de cet incident updater est enregistrée par la PR #467, fusionnée comme `e40477699d98bda2f804c269339929de719556b5`. Toute reprise doit néanmoins re-fetcher le `main` live plutôt que supposer que ce SHA restera éternellement HEAD.
 - Ancien nom de travail : `FORGEGAMEDEV`.
 
-La clôture des phases ne signifie pas qu'une release stable signée de production existe. Les releases `rc` restent des **préreleases / beta** et le manifeste de l'installateur rc8 indique `production_signed=false`.
+La clôture des phases ne signifie pas qu'une release stable signée de production existe. Les releases `rc` restent des **prereleases / beta** et le manifeste de l'installateur rc8 indique `production_signed=false`.
 
 ## Installer Kodepoia sur Windows — utilisateur final
 
@@ -44,7 +46,7 @@ Installateur rc8 accepté :
 5. Suivre l'assistant d'installation en français ou en anglais.
 6. Lancer **Kodepoia** depuis le menu Démarrer ou le raccourci Bureau.
 
-Cette version est une **prérelease / beta**. Elle ne doit pas être présentée comme une release stable signée de production ; Windows/SmartScreen peut afficher un avertissement de réputation ou de signature.
+Cette version est une **prerelease / beta**. Elle ne doit pas être présentée comme une release stable signée de production ; Windows/SmartScreen peut afficher un avertissement de réputation ou de signature.
 
 `KodepoiaSetup.exe` installe KodeStudio dans le dossier choisi, crée une entrée de désinstallation et les raccourcis. L'exécutable embarque le runtime nécessaire : Python et `pip` ne sont pas requis sur la machine cible.
 
@@ -215,6 +217,7 @@ L'architecture v1.0 reste gelée. Une évolution ne réécrit pas rétroactiveme
 
 Documents principaux :
 
+- `docs/user/KODEPOIA_USER_GUIDE.md` — guide complet d’utilisation ;
 - `docs/continuity/STATE.md` — autorité immédiate de reprise ;
 - `docs/continuity/NEXT.md` — prochaine frontière autorisée et prompt de reprise ;
 - `docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md` — résumé compact de l'autorité publique courante ;

@@ -1,8 +1,9 @@
 # Kodepoia — Current Authority
 
-**Current state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.
+**Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
+**Current development direction:** Roadmap V2, with V2.1 Research Workspace as the first usability priority.
 
-This compact file summarizes the current cross-phase/public-release authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
+This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
 ## Current repository and release
 
@@ -41,22 +42,41 @@ The complete installed updater path succeeded:
 
 The terminal post-upgrade state showed KodeStudio running as `1.1.0-rc8`, Beta selected, candidate `1.1.0-rc8`, source `tuf-verified-metadata`, declared size `37730750` bytes and status that the installed version is current, with download/install controls disabled. Full evidence is in `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md`.
 
+## V2 development authority
+
+Roadmap V1/R1–R20 remains frozen historical authority. The user explicitly authorized a separate **Roadmap V2** on 2026-09-15. The planning baseline was live `main` `6b7ec8d4504da83579af98d8235326ea4268d63f` (PR `#471` merge), but this SHA must be re-fetched before future implementation because it is not a permanent HEAD assertion.
+
+The active planning documents are:
+
+- `docs/roadmap/KODEPOIA_ROADMAP_V2.md`;
+- `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+
+The first V2 priority is **V2.1 Research Workspace**. Current source behavior on the planning baseline is intentionally recorded truthfully: KodeStudio's Research “Search” invokes `ResearchService.query()` over existing persisted research reports; it is not external discovery. Web acquisition is a separate guarded fetch primitive for an explicit URL/locator. V2.1 must turn those primitives into a real `question -> discovery -> guarded fetch -> evidence selection -> cited synthesis -> Research Pack` workflow without weakening ResearchGuard.
+
+Post-rc8 source features on `main` are development capabilities until a later release is explicitly qualified. Their presence in source does not mean they exist in the public rc8 installer.
+
+For remote tuning, Kaggle **T4×2** is the primary V2 target for the current CUDA/PyTorch/PEFT/QLoRA path. The two GPUs remain separate 16 GiB devices and multi-GPU use requires explicit qualification. **TPU v5e-8 is deferred experimental capacity**, not a release blocker; support requires a separate XLA/JAX or PyTorch/XLA backend/acceptance and should be scheduled only if benchmark evidence justifies it.
+
+No post-rc8 release version or TUF transition is authorized solely by the V2 roadmap.
+
 ## Continuity hierarchy
 
 Use the following documents in this order when interpreting current state:
 
 1. `docs/continuity/STATE.md` for immediate operational authority;
 2. `docs/continuity/NEXT.md` for the next authorized direction and resume prompt;
-3. this file for the compact cross-phase/public-release summary;
-4. `docs/continuity/KODEPOIA_CONTINUITY_R20.md` for terminal R20 authority and historical post-R20 release operations;
-5. `docs/continuity/KODEPOIA_CONTINUITY_R19.md` for frozen R19 authority;
-6. `docs/continuity/KODEPOIA_CONTINUITY.md` for the large historical R1–R18 continuity archive;
-7. phase plans and Git history for immutable phase-specific evidence.
+3. this file for the compact cross-phase/public-release/development summary;
+4. `docs/roadmap/KODEPOIA_ROADMAP_V2.md` for the active V2 development ordering;
+5. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for the first V2 implementation contract;
+6. `docs/continuity/KODEPOIA_CONTINUITY_R20.md` for terminal R20 authority and historical post-R20 release operations;
+7. `docs/continuity/KODEPOIA_CONTINUITY_R19.md` for frozen R19 authority;
+8. `docs/continuity/KODEPOIA_CONTINUITY.md` for the large historical R1–R18 continuity archive;
+9. phase plans and Git history for immutable phase-specific evidence.
 
 The large legacy continuity archives intentionally remain historical. Stale “current” wording inside old frozen sections is superseded by `STATE.md`, `NEXT.md`, this file and the explicit current-distribution section of the R20 continuity rather than by retroactive rewriting of historical phase evidence.
 
-## Terminal boundary
+## Terminal R20 boundary
 
 R20 is **COMPLETE + NORMALIZED**. Post-R20 releases and updater/TUF operations are release operations built on the completed R20 machinery. They do **not** create R20.7 or reopen R20.
 
-The rc7 corrective release, rc8 validation-only release, rc8 TUF authorization, public release verification, real Windows rc7 -> rc8 E2E and continuity closure are complete. No additional rc8 corrective release or TUF mutation is required by this incident. Future work must come from the normal project roadmap or an explicit new request and must preserve all existing fail-closed trust invariants.
+The rc7 corrective release, rc8 validation-only release, rc8 TUF authorization, public release verification, real Windows rc7 -> rc8 E2E and continuity closure are complete. No additional rc8 corrective release or TUF mutation is required by this incident. V2 work proceeds as a new roadmap while preserving all existing fail-closed trust invariants.

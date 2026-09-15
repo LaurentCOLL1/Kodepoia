@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-15 after successful real Windows rc7 -> rc8 updater E2E, closure-time CI normalization and rc8 public-documentation alignment  
+Last synchronized: 2026-09-15 after opening the V2 roadmap direction from live `main` `6b7ec8d4504da83579af98d8235326ea4268d63f`  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -126,12 +126,32 @@ Future work may use installed rc8 as the validated baseline, but must preserve a
 - explicit user consent before installer launch;
 - no private signing material in Git, CI, public artifacts or chat.
 
+## V2 development direction
+
+The user explicitly authorized preparation of a **Roadmap V2** on 2026-09-15. V1/R1–R20 remain frozen historical evidence; V2 is a new development track and must not be represented as an extension such as `R20.7`.
+
+At roadmap-open time, live `main` was re-fetched at `6b7ec8d4504da83579af98d8235326ea4268d63f` (merge of PR `#471`). This SHA is a planning baseline only; future implementation sessions must re-fetch live `main` and never assume it remains current.
+
+Two authorities must now be distinguished:
+
+- **public distribution authority:** Windows `v1.1.0-rc8`, still the last fully real-machine updater-E2E-qualified public baseline;
+- **development authority:** live `main`, which already contains post-rc8 source changes not present in the rc8 installer.
+
+The active V2 roadmap is `docs/roadmap/KODEPOIA_ROADMAP_V2.md`. Its first implementation priority is **V2.1 Research Workspace**, specified by `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+
+The current Research UX must not be described as a complete Web search engine. On the planning baseline, KodeStudio's “Search” action calls `ResearchService.query()` over already persisted project research reports, while new Web acquisition is a separate guarded fetch operation requiring an explicit locator/URL. V2.1 therefore adds honest UX/diagnostics first, followed by real discovery providers, inspectable evidence, cited synthesis and governed project Research Packs.
+
+For remote training, Kaggle **T4×2 is the primary V2 target** for the current CUDA/PyTorch/PEFT/QLoRA stack. TPU v5e-8 is deferred experimental capacity and is not a V2 release blocker. A TPU path may be scheduled only after a concrete benchmark proposal justifies the separate XLA/JAX or PyTorch/XLA engineering and acceptance work.
+
+No public release number is reserved by the V2 planning documents. No release/TUF mutation is authorized merely by creating or accepting the roadmap.
+
 ## Resume rule
 
-For any future release or updater work:
+For any future work:
 
-1. re-fetch live `main`, latest public release/tag/asset and current TUF metadata;
-2. treat rc8 as the last fully real-machine E2E-validated Windows baseline unless later continuity explicitly supersedes it;
-3. read `docs/continuity/NEXT.md` for the currently authorized direction;
-4. use `README.md` and `KODEPOIA_CURRENT_AUTHORITY.md` only as synchronized summaries, not as substitutes for live revalidation;
-5. stop on any discrepancy rather than inferring or weakening a gate.
+1. re-fetch live `main` and read this file with `docs/continuity/NEXT.md`;
+2. if the work touches release/updater/TUF, also re-fetch the latest public release/tag/asset and current TUF metadata;
+3. treat rc8 as the last fully real-machine E2E-validated Windows distribution baseline unless later continuity explicitly supersedes it;
+4. follow `docs/roadmap/KODEPOIA_ROADMAP_V2.md` for new feature work, starting with the next uncompleted V2.1 subdivision unless the user explicitly reprioritizes;
+5. use `README.md` and `KODEPOIA_CURRENT_AUTHORITY.md` as synchronized summaries, not substitutes for live revalidation;
+6. stop on any discrepancy or required manual intervention rather than inferring or weakening a gate.

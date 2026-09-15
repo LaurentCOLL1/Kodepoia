@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-14 after successful real Windows rc7 -> rc8 updater E2E and closure-time CI normalization  
+Last synchronized: 2026-09-15 after successful real Windows rc7 -> rc8 updater E2E, closure-time CI normalization and rc8 public-documentation alignment  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -11,6 +11,8 @@ Read this file together with `docs/continuity/NEXT.md` before future release/upd
 The rc7 corrective release, rc8 validation-only release, rc8 TUF authorization, publication and the real installed Windows updater E2E are complete. The updater incident exercised by rc8 is **CLOSED**.
 
 The historical `rc5 -> rc6` attempt remains failed/incomplete and must never be relabeled successful.
+
+`README.md`, `docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md` and the explicit post-R20 current-distribution section of `docs/continuity/KODEPOIA_CONTINUITY_R20.md` are aligned to the rc8 authority. Older frozen continuity sections remain historical evidence and are not retroactively rewritten.
 
 ## Validated rc8 source and installer authority
 
@@ -97,6 +99,19 @@ The terminal post-upgrade screenshot shows:
 
 Full acceptance evidence is recorded in `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md`.
 
+## Canonical closure and public-documentation alignment
+
+The rc8 E2E closure PR `#467` was accepted on exact head `a6e67e0ad052275e6b2bf069a50c127ec4043fdf` after 25/25 PR-triggered workflows completed successfully and merged as `e40477699d98bda2f804c269339929de719556b5`; its seven push-triggered post-merge workflows also completed successfully.
+
+After that closure, the user-facing/current-state documentation was explicitly realigned so that no active entry point continues to advertise rc4 or rc5 as the current release:
+
+- `README.md` identifies rc8 as the recommended/current beta release, with the exact installer authority and TUF generation;
+- `docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md` identifies rc8 and the real E2E as current authority;
+- `docs/continuity/KODEPOIA_CONTINUITY_R20.md` keeps its frozen R20 evidence but updates its clearly marked post-R20 current-distribution authority to rc8;
+- this file and `NEXT.md` remain the immediate resume authority.
+
+This documentation alignment is not a new release, does not mutate TUF, does not reopen R20 and does not change the already-accepted rc8 binaries or updater behavior.
+
 ## Incident closure
 
 The corrective/validation sequence achieved its intended proof. The updater incident is closed. No additional rc8 release mutation, TUF mutation or corrective release is required from this acceptance result.
@@ -118,4 +133,5 @@ For any future release or updater work:
 1. re-fetch live `main`, latest public release/tag/asset and current TUF metadata;
 2. treat rc8 as the last fully real-machine E2E-validated Windows baseline unless later continuity explicitly supersedes it;
 3. read `docs/continuity/NEXT.md` for the currently authorized direction;
-4. stop on any discrepancy rather than inferring or weakening a gate.
+4. use `README.md` and `KODEPOIA_CURRENT_AUTHORITY.md` only as synchronized summaries, not as substitutes for live revalidation;
+5. stop on any discrepancy rather than inferring or weakening a gate.

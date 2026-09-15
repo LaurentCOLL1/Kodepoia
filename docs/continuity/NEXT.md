@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-14 after successful real Windows rc7 -> rc8 updater E2E and closure-time CI normalization  
+Last synchronized: 2026-09-15 after successful real Windows rc7 -> rc8 updater E2E, closure-time CI normalization and rc8 public-documentation alignment  
 Companion state: `docs/continuity/STATE.md`
 
 ## Goal
@@ -12,6 +12,8 @@ The updater corrective/validation sequence is complete:
 The real-machine E2E succeeded and the updater incident is **CLOSED**.
 
 The historical `rc5 -> rc6` attempt remains failed/incomplete and must never be relabeled successful.
+
+The active user-facing/current-state documentation is aligned with this closure: `README.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `STATE.md`, this file and the explicitly current post-R20 section of `KODEPOIA_CONTINUITY_R20.md` all identify rc8 as the current validated beta authority. Older frozen continuity text remains historical evidence.
 
 ## Completed authority
 
@@ -29,7 +31,10 @@ The historical `rc5 -> rc6` attempt remains failed/incomplete and must never be 
 - seven push-triggered workflows on the TUF merge completed successfully;
 - real installed Windows rc7 -> rc8 updater E2E: PASS;
 - closure-time CI normalization PR `#466`, exact head `ab86b7c5b504189c69c4317317a9b7e330a33239`: 25/25 PR-triggered workflows `completed/success` before merge;
-- CI normalization merge: `6d53794aa71a7740ca7157e41f2ae37f60f33a80`.
+- CI normalization merge: `6d53794aa71a7740ca7157e41f2ae37f60f33a80`;
+- canonical E2E closure PR `#467`, exact head `a6e67e0ad052275e6b2bf069a50c127ec4043fdf`: 25/25 PR-triggered workflows `completed/success` before merge;
+- closure merge: `e40477699d98bda2f804c269339929de719556b5`, followed by seven successful push-triggered workflows;
+- current README/current-authority documentation is aligned to rc8 and does not change product/release/TUF semantics.
 
 See `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md` for the terminal acceptance evidence.
 
@@ -38,6 +43,8 @@ See `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md` for the terminal acceptance evi
 There is **no remaining rc8 corrective action** required by this incident.
 
 Do not create another release candidate merely to repeat the already-successful rc7 -> rc8 validation. Do not reopen R20 or invent `R20.7`; R20 remains complete/normalized unless a separately approved roadmap change explicitly says otherwise.
+
+Do not create a follow-up release/TUF mutation merely to make documentation mention its own normalization commit. Documentation normalization is complete once its exact-head checks pass and it is merged; future sessions should re-fetch live `main` rather than recursively writing every documentation merge SHA back into current-state files.
 
 The next work should come from the normal project roadmap or an explicit new user request, not from the now-closed updater incident.
 
@@ -62,4 +69,4 @@ Use the project roadmap and current repository state as authority. The rc8 seque
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md et docs/continuity/NEXT.md. Le correctif updater est clos: rc8 source fa787ab7ef76f2556b56ac1f058916a1425455af est public, TUF-authorisé et le vrai E2E Windows rc7 -> rc8 a réussi. La normalisation CI de clôture #466 est fusionnée. Revalide d'abord le main et l'état live, puis suis la roadmap ou ma prochaine demande sans rouvrir artificiellement l'incident updater.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md et docs/continuity/NEXT.md. Le correctif updater est clos : rc8 source fa787ab7ef76f2556b56ac1f058916a1425455af est public, TUF-autorisé et le vrai E2E Windows rc7 -> rc8 a réussi. README.md, KODEPOIA_CURRENT_AUTHORITY.md et l'autorité post-R20 sont alignés sur rc8. Revalide d'abord le main live, la release publique rc8 et les métadonnées TUF live, puis suis la roadmap ou ma prochaine demande sans rouvrir artificiellement l'incident updater ni inventer R20.7.`

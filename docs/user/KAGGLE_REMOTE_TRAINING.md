@@ -5,12 +5,22 @@ Kodepoia peut utiliser Kaggle comme capacité de calcul GPU distante pour les en
 ## Principes de sécurité
 
 - Le dataset Kaggle créé par Kodepoia est privé. La commande d'upload n'utilise jamais `--public`.
-- Le kernel Kaggle est privé et utilise un GPU explicite : `NvidiaTeslaT4` par défaut ou `NvidiaL4`.
+- Le kernel Kaggle est privé et utilise un accélérateur explicite. Le choix recommandé et par défaut est `NvidiaTeslaT4`, qui correspond dans l'interface Kaggle actuelle à **GPU T4 x2**.
 - Aucun token, mot de passe, clé Kaggle ou secret Hugging Face n'est écrit dans le bundle d'entraînement.
 - Pour un modèle Hugging Face nécessitant une authentification, configurez `HF_TOKEN` dans **Kaggle Secrets**. Le script Kaggle le lit à l'exécution et ne le rapatrie pas dans les artefacts.
 - Les exports train et validation sont contrôlés par SHA-256 avant l'upload puis de nouveau dans le worker R15.9.
 - Après téléchargement, Kodepoia vérifie l'identité du plan, les digests de l'adapter et des checkpoints, les nombres de lignes, le nombre d'étapes et le fait que seul le split train a été optimisé.
 - Un résultat modifié, incomplet ou lié à un autre plan est rejeté avant le registre de modèles et avant toute promotion Ollama.
+
+## Accélérateurs Kaggle pertinents
+
+L'interface Kaggle peut actuellement proposer **GPU T4 x2** et **TPU v5e-8** selon le compte. Pour Kodepoia R15, le chemin validé est le GPU T4 x2 : le moteur actuel utilise PyTorch, CUDA et, pour QLoRA, bitsandbytes/NF4.
+
+Le champ API `machine_shape` reste `NvidiaTeslaT4` même lorsque l'interface affiche `GPU T4 x2`. Kaggle fournit alors deux GPU T4 de 16 Go chacun. Il faut les considérer comme **deux mémoires VRAM distinctes de 16 Go**, et non comme un GPU unique de 32 Go.
+
+Le TPU v5e-8 n'est pas encore utilisé par Kodepoia R15. L'ajouter proprement demanderait un backend XLA/JAX ou PyTorch/XLA séparé et une nouvelle acceptance ; Kodepoia ne convertira donc jamais silencieusement un plan CUDA/QLoRA en entraînement TPU.
+
+`NvidiaL4` reste compris par le backend pour les contextes Kaggle où il est réellement disponible, mais Kodepoia ne doit pas supposer qu'il est proposé à tous les comptes. Le T4 x2 demeure la cible portable par défaut.
 
 ## Pré-requis
 
@@ -70,9 +80,11 @@ kodepoia-kaggle-training fetch --bundle <DOSSIER_DU_RUN>
 
 Le backend ne lance pas automatiquement `upload` pendant `prepare`. Cette séparation est volontaire : l'envoi des données vers Kaggle reste une action explicite.
 
-## T4 ou L4
+## Utilisation des deux T4
 
-Kodepoia accepte actuellement `NvidiaTeslaT4` et `NvidiaL4`. Le T4 est le choix par défaut pour maximiser la disponibilité. Le L4 peut être choisi lorsqu'il est disponible sur le compte Kaggle. Les accélérateurs retirés ou non retenus par la politique Kodepoia ne sont pas acceptés par la configuration.
+La première acceptance du backend Kaggle valide l'allocation T4 x2, la confidentialité du bundle et la chaîne d'intégrité. L'exploitation multi-GPU doit rester explicite : Kodepoia ne doit pas additionner artificiellement les 2 × 16 Go de VRAM ni prétendre qu'un modèle nécessitant plus de 16 Go sur un seul device est automatiquement compatible.
+
+Une phase suivante pourra qualifier un mode multi-GPU dédié (data parallel ou stratégie de sharding compatible PEFT/QLoRA) avec métriques séparées par GPU. Tant que cette phase n'est pas validée, le dimensionnement conservateur d'un entraînement doit rester basé sur 16 Go de VRAM par device.
 
 ## Internet et modèles
 

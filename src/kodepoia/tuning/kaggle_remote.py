@@ -7,7 +7,6 @@ import os
 import re
 import shutil
 import subprocess
-import sys
 from dataclasses import dataclass, replace
 from enum import StrEnum
 from pathlib import Path

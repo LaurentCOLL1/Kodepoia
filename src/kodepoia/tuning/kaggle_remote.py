@@ -31,7 +31,18 @@ _BUNDLE_SCHEMA = "kodepoia.r15.kaggle-training-bundle"
 _BUNDLE_SCHEMA_VERSION = 1
 _SAFE_SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{1,49}$")
 _SAFE_USERNAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{1,49}$")
-_SECRET_MARKERS = ("api_key", "credential", "password", "secret", "token")
+_SECRET_KEYS = {
+    "access_token",
+    "api_key",
+    "credential",
+    "credentials",
+    "kaggle_api_token",
+    "kaggle_key",
+    "password",
+    "refresh_token",
+    "secret",
+    "token",
+}
 
 
 class KaggleRemoteError(RuntimeError):
@@ -132,6 +143,10 @@ class KaggleRemoteConfig:
     def kernel_id(self) -> str:
         return f"{self.username}/{self.kernel_slug}"
 
+    @property
+    def kernel_title(self) -> str:
+        return self.kernel_slug.replace("-", " ")
+
     def to_dict(self) -> dict[str, object]:
         return {
             "accelerator": self.accelerator.value,
@@ -182,9 +197,17 @@ def _write_json(path: Path, payload: object) -> None:
 
 
 def _assert_no_secret_fields(payload: object) -> None:
-    serialized = json.dumps(payload, sort_keys=True).lower()
-    if any(marker in serialized for marker in _SECRET_MARKERS):
-        raise KaggleRemoteError("Kaggle bundle must not contain credential or secret fields")
+    def visit(value: object) -> None:
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if str(key).lower() in _SECRET_KEYS:
+                    raise KaggleRemoteError("Kaggle bundle must not contain credential or secret fields")
+                visit(item)
+        elif isinstance(value, (list, tuple)):
+            for item in value:
+                visit(item)
+
+    visit(payload)
 
 
 def training_plan_payload(plan: TrainingPlan) -> dict[str, object]:
@@ -228,7 +251,9 @@ def load_training_plan(path: Path) -> TrainingPlan:
         resources=ResourceRequest(**resources_raw),
         timeout_seconds=float(raw["timeout_seconds"]),
         capability_report_digest=(
-            None if raw.get("capability_report_digest") is None else str(raw["capability_report_digest"])
+            None
+            if raw.get("capability_report_digest") is None
+            else str(raw["capability_report_digest"])
         ),
         fixture_authorization=(
             None if raw.get("fixture_authorization") is None else str(raw["fixture_authorization"])
@@ -250,12 +275,21 @@ class KaggleResultValidator(TrainingRunner):
 
 
 class KaggleRemoteTrainer:
-    def __init__(self, *, runner: CommandRunner | None = None, kaggle_executable: str | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        runner: CommandRunner | None = None,
+        kaggle_executable: str | None = None,
+    ) -> None:
         self.runner = runner or SubprocessCommandRunner()
         self.kaggle_executable = kaggle_executable or shutil.which("kaggle") or "kaggle"
 
     def doctor(self) -> KaggleDoctorReport:
-        executable = shutil.which(self.kaggle_executable) if self.kaggle_executable == "kaggle" else self.kaggle_executable
+        executable = (
+            shutil.which(self.kaggle_executable)
+            if self.kaggle_executable == "kaggle"
+            else self.kaggle_executable
+        )
         if not executable or (os.path.sep in executable and not Path(executable).exists()):
             return KaggleDoctorReport(False, False, None, "Kaggle CLI is not installed or not on PATH")
         version_result = self.runner.run([executable, "--version"], timeout=30.0)
@@ -377,7 +411,7 @@ class KaggleRemoteTrainer:
             "language": "python",
             "machine_shape": config.accelerator.value,
             "model_sources": [],
-            "title": f"Kodepoia training {plan.run_id}",
+            "title": config.kernel_title,
         }
         _assert_no_secret_fields(kernel_metadata)
         _write_json(kernel_dir / "kernel-metadata.json", kernel_metadata)
@@ -419,7 +453,14 @@ class KaggleRemoteTrainer:
 
     def dataset_status(self, bundle: KaggleTrainingBundle) -> CommandResult:
         return self._checked(
-            [self.kaggle_executable, "datasets", "status", bundle.config.dataset_id, "--format", "json"],
+            [
+                self.kaggle_executable,
+                "datasets",
+                "status",
+                bundle.config.dataset_id,
+                "--format",
+                "json",
+            ],
             timeout=120.0,
         )
 
@@ -452,7 +493,9 @@ class KaggleRemoteTrainer:
         if not output_path.is_file():
             matches = list(bundle.output_dir.rglob("worker-output.json"))
             if len(matches) != 1:
-                raise KaggleRemoteError("Kaggle output does not contain exactly one worker-output.json")
+                raise KaggleRemoteError(
+                    "Kaggle output does not contain exactly one worker-output.json"
+                )
             output_path = matches[0]
         output_root = output_path.parent
         output = json.loads(output_path.read_text(encoding="utf-8"))
@@ -462,7 +505,9 @@ class KaggleRemoteTrainer:
         result = self.runner.run(argv, timeout=timeout)
         if result.returncode != 0:
             stderr = result.stderr.strip()[:4096]
-            raise KaggleRemoteError(f"Kaggle CLI command failed ({result.returncode}): {stderr}")
+            raise KaggleRemoteError(
+                f"Kaggle CLI command failed ({result.returncode}): {stderr}"
+            )
         return result
 
 
@@ -508,6 +553,7 @@ for name in ("train.jsonl", "validation.jsonl", "worker-config.json", "kodepoia.
 
 try:
     from kaggle_secrets import UserSecretsClient
+
     hf_token = UserSecretsClient().get_secret("HF_TOKEN")
     if hf_token:
         os.environ["HF_TOKEN"] = hf_token
@@ -522,7 +568,10 @@ install = subprocess.run(
     text=True,
     check=False,
 )
-(work / "pip-install.log").write_text(install.stdout + "\n" + install.stderr, encoding="utf-8")
+(work / "pip-install.log").write_text(
+    install.stdout + "\n" + install.stderr,
+    encoding="utf-8",
+)
 if install.returncode != 0:
     raise SystemExit("Kodepoia tuning dependencies failed to install")
 
@@ -541,7 +590,15 @@ payload = json.loads(training.stdout)
     json.dumps(payload, indent=2, sort_keys=True) + "\n",
     encoding="utf-8",
 )
-print(json.dumps({"plan_digest": manifest["plan_digest"], "run_id": manifest["run_id"], "state": "completed"}))
+print(
+    json.dumps(
+        {
+            "plan_digest": manifest["plan_digest"],
+            "run_id": manifest["run_id"],
+            "state": "completed",
+        }
+    )
+)
 '''
 
 
@@ -568,7 +625,9 @@ def _bundle_from_root(root: Path) -> KaggleTrainingBundle:
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Governed Kodepoia remote training on Kaggle")
+    parser = argparse.ArgumentParser(
+        description="Governed Kodepoia remote training on Kaggle"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("doctor", help="Check Kaggle CLI and authentication")
 
@@ -579,7 +638,11 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument("--username", required=True)
     prepare.add_argument("--dataset-slug", required=True)
     prepare.add_argument("--kernel-slug", required=True)
-    prepare.add_argument("--accelerator", choices=[item.value for item in KaggleAccelerator], default=KaggleAccelerator.NVIDIA_T4.value)
+    prepare.add_argument(
+        "--accelerator",
+        choices=[item.value for item in KaggleAccelerator],
+        default=KaggleAccelerator.NVIDIA_T4.value,
+    )
     prepare.add_argument("--output", type=Path, required=True)
 
     for name in ("upload", "dataset-status", "run", "status", "fetch"):

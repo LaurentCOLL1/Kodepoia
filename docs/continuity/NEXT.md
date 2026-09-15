@@ -1,72 +1,80 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-15 after successful real Windows rc7 -> rc8 updater E2E, closure-time CI normalization and rc8 public-documentation alignment  
-Companion state: `docs/continuity/STATE.md`
+Last synchronized: 2026-09-15 for Roadmap V2 planning from live `main` `6b7ec8d4504da83579af98d8235326ea4268d63f`  
+Companion state: `docs/continuity/STATE.md`  
+Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
-## Goal
+## Stable public boundary
 
 The updater corrective/validation sequence is complete:
 
 `rc7 corrective release -> healthy installed rc7 -> validation-only rc8 -> exact-source qualification -> draft-first publication -> qualified TUF authorization -> real Windows updater E2E rc7 -> rc8`
 
-The real-machine E2E succeeded and the updater incident is **CLOSED**.
+The real-machine E2E succeeded and the updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete and must never be relabeled successful.
 
-The historical `rc5 -> rc6` attempt remains failed/incomplete and must never be relabeled successful.
+Public Windows `v1.1.0-rc8` remains the last fully real-machine updater-E2E-qualified distribution baseline. Do not reopen R20, invent `R20.7`, or create another release candidate merely to repeat the successful rc7 -> rc8 proof.
 
-The active user-facing/current-state documentation is aligned with this closure: `README.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `STATE.md`, this file and the explicitly current post-R20 section of `KODEPOIA_CONTINUITY_R20.md` all identify rc8 as the current validated beta authority. Older frozen continuity text remains historical evidence.
+## New authorized development direction
 
-## Completed authority
+The user authorized preparation of Roadmap V2. This is a new development track layered on the completed V1/R1–R20 foundation, not a rewrite of historical acceptance.
 
-- exact rc8 source: `fa787ab7ef76f2556b56ac1f058916a1425455af`;
-- source PR `#462`: 40/40 exact-head workflows `completed/success` before merge;
-- authoritative installer: `KodepoiaSetup.exe`;
-- installer length: `37730750` bytes;
-- installer SHA-256: `6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422`;
-- public prerelease: `v1.1.0-rc8`, tag resolving directly to the exact source;
-- target-scoped policy: `authenticode_policy = "allow-unsigned"` for this genuinely unsigned exact artifact;
-- TUF PR `#464`, exact head `10804c629ca81de8b5e54ddfbfaf53370e88a201`;
-- TUF exact-head qualification: 30/30 workflows `completed/success`;
-- TUF merge: `1deb84e1b63581ed78ea90480fde2019623d01de`;
-- live TUF generation after rc8: Root v2 / Targets v8 / Snapshot v10 / Timestamp v10;
-- seven push-triggered workflows on the TUF merge completed successfully;
-- real installed Windows rc7 -> rc8 updater E2E: PASS;
-- closure-time CI normalization PR `#466`, exact head `ab86b7c5b504189c69c4317317a9b7e330a33239`: 25/25 PR-triggered workflows `completed/success` before merge;
-- CI normalization merge: `6d53794aa71a7740ca7157e41f2ae37f60f33a80`;
-- canonical E2E closure PR `#467`, exact head `a6e67e0ad052275e6b2bf069a50c127ec4043fdf`: 25/25 PR-triggered workflows `completed/success` before merge;
-- closure merge: `e40477699d98bda2f804c269339929de719556b5`, followed by seven successful push-triggered workflows;
-- current README/current-authority documentation is aligned to rc8 and does not change product/release/TUF semantics.
+The immediate priority is **V2.1 — Research Workspace**, because the current KodeStudio Research page is technically functional at the primitive level but does not yet provide a usable research-assistant workflow.
 
-See `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md` for the terminal acceptance evidence.
+On the planning baseline:
 
-## Current boundary
+- **Search** calls `ResearchService.query()` and searches already persisted project research reports/findings;
+- it does **not** discover new Internet results;
+- **Fetch** is a separate operation for a known local path or explicit Web URL;
+- Web fetch remains governed by network permission, URL/SSRF safety, bounded response policies and ResearchGuard;
+- therefore a user who enters a new question in a fresh project can legitimately receive no useful result even though the UI appears to offer “search”.
 
-There is **no remaining rc8 corrective action** required by this incident.
+This semantic mismatch is the first V2 usability defect to correct.
 
-Do not create another release candidate merely to repeat the already-successful rc7 -> rc8 validation. Do not reopen R20 or invent `R20.7`; R20 remains complete/normalized unless a separately approved roadmap change explicitly says otherwise.
+## Execution order
 
-Do not create a follow-up release/TUF mutation merely to make documentation mention its own normalization commit. Documentation normalization is complete once its exact-head checks pass and it is merged; future sessions should re-fetch live `main` rather than recursively writing every documentation merge SHA back into current-state files.
+1. **V2.0 baseline/capability truth** — preserve the distinction between public rc8, live `main`, experimental features and unavailable providers.
+2. **V2.1.1 honest Research UX and diagnostics** — visibly distinguish saved-research search from external source discovery; expose provider/network state and actionable empty/error states.
+3. **V2.1.2 real discovery providers** — implement bounded discovery for official/general Web plus GitHub, followed by guarded fetch of selected candidates.
+4. **V2.1.3 evidence workspace** — source cards, preview, metadata, version/freshness/trust, include/exclude, deduplication and cache/refetch lineage.
+5. **V2.1.4 cited synthesis + Research Packs** — claim-linked citations and governed project knowledge/Context Builder integration.
+6. **V2.1.5 community/media providers** — forums and YouTube/transcript paths, with STT/frames only through separately governed media operations.
+7. **V2.1.6 ResearchGuard hardening** — prompt injection, malicious redirects, SSRF attempts, timeouts, stale/version-conflicting evidence, provider outages and cancellation.
+8. **V2.2 project knowledge/context integration**.
+9. **V2.3 Model Lab** for end-to-end governed SFT/LoRA/QLoRA UX.
+10. **V2.4 real Kaggle T4×2 E2E and explicit multi-GPU qualification**.
+11. **V2.5 cross-workspace orchestration**.
+12. **V2.6 hardening and a future post-rc8 public release**, only when its exact functional boundary is known and qualified.
 
-The next work should come from the normal project roadmap or an explicit new user request, not from the now-closed updater incident.
+The detailed Research contract is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
 
-## If future work touches the updater or releases
+## Accelerator decision
 
-Before any new updater/release/TUF mutation:
+For the current R15 training architecture, **Kaggle GPU T4×2 is the primary remote-training target**.
+
+The two T4s remain separate 16 GiB devices. V2.4 must first prove the existing conservative Kaggle path on a real account, then qualify explicit two-process/multi-GPU execution with per-device evidence. No component may pretend that 2 × 16 GiB is a single 32 GiB VRAM pool.
+
+**TPU v5e-8 is deferred.** It is not useless in general, but using it correctly would create a separate XLA/JAX or PyTorch/XLA backend and acceptance surface. Do not spend V2 engineering effort on TPU unless a concrete benchmark proposal shows a material advantage for a Kodepoia workload that is not adequately served by the qualified GPU path.
+
+## Release boundary
+
+Roadmap V2 planning does not reserve `rc9`, `1.1.0`, `1.2.0` or any other version. Do not mutate release tags, installer artifacts or TUF metadata merely because the roadmap is merged.
+
+Before any future updater/release/TUF mutation:
 
 1. re-fetch live `main`;
-2. re-fetch the latest public release/tag/asset;
+2. re-fetch latest public release/tag/asset;
 3. re-read live Root/Targets/Snapshot/Timestamp metadata;
-4. treat rc8 as the last real-machine E2E-validated Windows baseline unless later continuity supersedes it;
-5. preserve exact-source qualification and draft-first release discipline;
-6. preserve TUF exact length/SHA binding, signature/threshold/rollback/version/expiry checks and installer identity verification;
-7. keep Authenticode exceptions target-scoped only;
-8. require explicit user consent before installer launch;
-9. stop on any failed verification rather than bypassing it;
-10. never expose private signing keys, seeds, passphrases or custody paths.
+4. preserve exact-source qualification and draft-first release discipline;
+5. preserve TUF exact length/SHA binding, signature/threshold/rollback/version/expiry checks and installer identity verification;
+6. keep Authenticode exceptions target-scoped only;
+7. require explicit user consent before installer launch;
+8. stop on any failed verification rather than bypassing it;
+9. never expose private signing keys, seeds, passphrases or custody paths.
 
-## If future work is unrelated to updater/release
+## Per-subdivision discipline
 
-Use the project roadmap and current repository state as authority. The rc8 sequence imposes no additional feature freeze now that its E2E validation has succeeded.
+For each V2 subdivision: re-fetch live state, branch from an exact SHA, implement only that scope, add deterministic tests/acceptance, re-fetch all required workflows on the exact head, merge only after successful gates, then normalize continuity before the next subdivision. If a manual intervention is genuinely required, stop and state exactly what the operator must do instead of bypassing the gate.
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md et docs/continuity/NEXT.md. Le correctif updater est clos : rc8 source fa787ab7ef76f2556b56ac1f058916a1425455af est public, TUF-autorisé et le vrai E2E Windows rc7 -> rc8 a réussi. README.md, KODEPOIA_CURRENT_AUTHORITY.md et l'autorité post-R20 sont alignés sur rc8. Revalide d'abord le main live, la release publique rc8 et les métadonnées TUF live, puis suis la roadmap ou ma prochaine demande sans rouvrir artificiellement l'incident updater ni inventer R20.7.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md et docs/roadmap/KODEPOIA_ROADMAP_V2.md. Revalide d'abord le main live. La distribution publique de référence reste rc8 et l'incident updater est clos. Continue la prochaine subdivision V2 non terminée, en priorité V2.1 Research Workspace : le Search actuel ne découvre pas Internet, il cherche les rapports de recherche déjà persistés. Implémente un vrai flux question -> découverte de sources -> fetch gardé -> inspection -> synthèse citée -> Research Pack, sans affaiblir ResearchGuard. Kaggle T4×2 est prioritaire pour le training; TPU v5e-8 reste différé sauf benchmark justifiant un backend XLA distinct. Ne crée aucune release/TUF mutation sans demande et qualification explicites.`

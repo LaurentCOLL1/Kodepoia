@@ -40,6 +40,20 @@ kodepoia-kaggle-training doctor
 
 Le diagnostic vérifie la présence de la CLI, sa version et qu'une requête authentifiée vers vos datasets fonctionne. Il n'affiche jamais de jeton d'accès.
 
+## Quota GPU/TPU dans KodeStudio
+
+La page **Paramètres** de KodeStudio affiche maintenant un panneau **Calcul distant Kaggle**. La lecture est volontairement manuelle : aucune requête Kaggle n'est effectuée au démarrage de KodeStudio. Cliquez sur **Actualiser le quota GPU/TPU** pour interroger la CLI officielle.
+
+Kodepoia exécute alors :
+
+```powershell
+kaggle quota --format json
+```
+
+Cette commande, disponible à partir de Kaggle CLI 2.2.1, renvoie le quota hebdomadaire d'accélérateur avec les champs `resource`, `used`, `remaining`, `total` et `refreshAt`. KodeStudio présente séparément les lignes GPU et TPU et borne le temps restant à zéro si le serveur signale un dépassement.
+
+La lecture de quota reste strictement observationnelle : elle ne démarre aucun notebook, ne change aucun `TrainingPlan`, ne choisit pas silencieusement un accélérateur et ne participe pas à la décision de promotion d'un modèle. Les identifiants restent gérés exclusivement par la CLI Kaggle déjà authentifiée.
+
 ## Flux d'entraînement
 
 1. R15 construit un `TrainingPlan` gouverné, avec modèle/révision, tokenizer/révision, digests, dataset, hyperparamètres, quantification, seeds et autorisation `TRAIN`.

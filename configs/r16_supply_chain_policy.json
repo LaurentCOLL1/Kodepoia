@@ -51,6 +51,7 @@
     "immutable_authority_workflows": [
       ".github/workflows/python-core.yml",
       ".github/workflows/r0-bootstrap.yml",
+      ".github/workflows/r15-kaggle-remote-training.yml",
       ".github/workflows/r16-1-red-team-acceptance.yml",
       ".github/workflows/r16-2-prompt-injection-acceptance.yml",
       ".github/workflows/r16-3-workspace-quarantine-acceptance.yml",

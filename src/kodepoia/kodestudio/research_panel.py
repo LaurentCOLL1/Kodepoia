@@ -546,7 +546,12 @@ def create_research_page(
         row = results.currentRow()
         if current is None or not 0 <= row < len(current.items):
             return
-        details.setPlainText(json.dumps(current.items[row].to_dict(), ensure_ascii=False, indent=2, sort_keys=True))
+        payload = current.items[row].to_dict()
+        if current.operation == "discover":
+            payload["candidate_only"] = bool(current.metadata.get("candidate_only", True))
+            payload["fetched"] = bool(current.metadata.get("fetched", False))
+            payload["persisted"] = bool(current.metadata.get("persisted", False))
+        details.setPlainText(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
 
     search_button.clicked.connect(run_search)
     query.returnPressed.connect(run_search)

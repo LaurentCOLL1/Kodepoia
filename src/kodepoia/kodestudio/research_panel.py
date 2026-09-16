@@ -216,10 +216,13 @@ def create_research_page(
     capability.setWordWrap(True)
     layout.addWidget(capability)
 
-    diagnostics = QPlainTextEdit()
-    diagnostics.setObjectName("researchCapabilityDiagnostics")
-    diagnostics.setAccessibleName(tr.text("research.status.name"))
-    diagnostics.setAccessibleDescription(tr.text("research.refresh_status.description"))
+    diagnostics = mark_accessible(
+        QPlainTextEdit(),
+        object_name="researchCapabilityDiagnostics",
+        name=tr.text("research.status.name"),
+        description=tr.text("research.refresh_status.description"),
+        description_required=True,
+    )
     diagnostics.setReadOnly(True)
     diagnostics.setMaximumHeight(190)
     layout.addWidget(diagnostics)

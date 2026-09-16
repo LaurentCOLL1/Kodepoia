@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-15 after Roadmap V2 preparation PR `#472` merged  
+Last synchronized: 2026-09-16 after V2.0 PR `#474` merged and continuity normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -8,56 +8,43 @@ Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
 Public Windows **`v1.1.0-rc8`** remains the last fully real-machine updater-E2E-qualified distribution baseline. The updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 is terminal and remains **COMPLETE + NORMALIZED**; do not reopen it or invent `R20.7`.
 
-Roadmap preparation PR `#472` was qualified with **25/25** `completed/success` PR workflows on exact head `eac1a9bc1c8ad0e99de13e46c5048354ec932311` and merged as `87fc09e16531260d64cf3d5fb59f511295e2b703`.
+V2.0 implementation PR `#474` was qualified with **27/27** `completed/success` PR workflows on exact head `79749ab25d58faaca6421bcda4eb460194a3683c` and merged with an exact-head guard as `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`.
 
-This closes roadmap preparation only. **V2.0 is not COMPLETE. V2.1.1 is blocked until V2.0 is COMPLETE + NORMALIZED.**
+V2.0.3 emitted exact-head capability-truth acceptance evidence on Ubuntu and Windows. The capability truth, KodeStudio diagnostics and reusable acceptance contract are therefore accepted, and this continuity change completes the required post-merge normalization.
+
+**V2.0 is COMPLETE + NORMALIZED. V2.1.1 is now authorized.**
 
 ## Immediate execution order
 
-### V2.0.1 — Capability matrix/runtime truth
+### V2.1.1 — Honest Research UX and diagnostics
 
-Create the dedicated V2.0 implementation branch from re-fetched live `main` and establish one machine-readable/runtime truth model that distinguishes:
+Create a dedicated branch from re-fetched live `main` and implement only V2.1.1 from `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
 
-- public rc8 (`public-validated`);
-- live `main`/source (`source-available`);
-- explicitly `acceptance-proven` capabilities;
-- `experimental` capabilities;
-- `unavailable` capabilities.
+Required product truth:
 
-Represent provider/runtime state explicitly as `ready`, `unavailable`, `auth-required`, `network-restricted` or `not-implemented`. Represent accelerator state explicitly as `priority`, `available`, `experimental`, `deferred` or `unsupported`.
+- keep **Search saved research** as the local query over already persisted project research reports;
+- expose **Search sources** as a distinct external/local discovery operation, without pretending discovery exists where no provider is implemented;
+- make the default empty state explain whether there are no saved reports, no discovery provider, network access is disabled/restricted, authentication is missing, or an available provider genuinely returned no matches;
+- keep fetch-by-explicit-URL available as the existing guarded acquisition path;
+- surface provider/network/authentication states using the accepted V2.0 capability truth contract;
+- errors and unavailable states must be actionable, localized and test-covered;
+- raw JSON may remain available for diagnostics/export but must not be the principal user experience.
 
-The public/source distinction is mandatory: presence on `main` must never imply presence in `v1.1.0-rc8`.
+V2.1.1 acceptance must prove saved-report query separately from external discovery semantics and must preserve all ResearchGuard/protected-action invariants. Re-fetch every required PR-triggered workflow on the exact final V2.1.1 head and merge only if every required gate is `completed/success`.
 
-### V2.0.2 — KodeStudio diagnostics
+After V2.1.1 merge, normalize continuity before starting V2.1.2.
 
-Make the capability truth visible and actionable in KodeStudio. At minimum, distinguish:
+## Later V2.1 order
 
-- a provider/query that really ran successfully but returned zero matches;
-- provider unavailable/not configured;
-- authentication required;
-- network access restricted/disabled;
-- not implemented;
-- other actionable transport/policy failure where applicable.
+Only after V2.1.1 is COMPLETE + NORMALIZED, continue:
 
-No unavailable path may appear as a successful empty search.
+1. V2.1.2 — Discovery providers;
+2. V2.1.3 — Evidence workspace;
+3. V2.1.4 — Cited synthesis and Research Packs;
+4. V2.1.5 — Extended media/community sources;
+5. V2.1.6 — ResearchGuard hardening.
 
-The current baseline must remain honest: `ResearchService.query()` searches persisted project research reports; it does not perform Internet discovery. External Web acquisition remains a separate guarded explicit-locator operation until V2.1 adds real discovery providers.
-
-### V2.0.3 — Reusable exact-head V2 acceptance
-
-Add deterministic tests and a reusable acceptance template/runner that:
-
-- binds evidence to an expected exact head SHA and fails on mismatch;
-- proves capability/provider/accelerator state vocabulary and invariants;
-- proves the real zero-result success case separately from unavailable/auth/network/not-implemented cases;
-- proves KodeStudio and current documentation expose the same capability truth;
-- emits inspectable acceptance evidence suitable for future V2 subdivisions.
-
-Then re-fetch **all required PR-triggered workflows on the exact final V2.0 head**. Merge only if every required workflow is `completed/success`. After merge, normalize `STATE.md`, `NEXT.md` and any other current authority affected by V2.0. Only then mark V2.0 **COMPLETE + NORMALIZED**.
-
-## Only after V2.0 COMPLETE + NORMALIZED
-
-Begin **V2.1.1 — Honest Research UX and diagnostics**, then continue V2.1 subdivision by subdivision according to `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`. Do not skip subdivision acceptance or continuity normalization.
+Do not skip subdivision acceptance or continuity normalization.
 
 ## Accelerator policy
 
@@ -73,4 +60,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live. La distribution publique de référence reste v1.1.0-rc8 et l'incident updater est clos. Ne rouvre pas R20 et n'invente pas R20.7. Si V2.0 n'est pas COMPLETE + NORMALIZED, poursuis d'abord V2.0.1 capability truth, V2.0.2 KodeStudio diagnostics puis V2.0.3 exact-head acceptance, avec qualification complète et normalisation. Ne commence V2.1.1 qu'ensuite. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live. V2.0 est COMPLETE + NORMALIZED après PR #474 qualifiée 27/27 sur le head exact 79749ab25d58faaca6421bcda4eb460194a3683c et merge 043dba64111f763f0e9544ea8cde9a3cbf9b1dff. Commence ou continue V2.1.1 — Honest Research UX and diagnostics — sur branche dédiée, avec acceptance exact-head et normalisation avant V2.1.2. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`

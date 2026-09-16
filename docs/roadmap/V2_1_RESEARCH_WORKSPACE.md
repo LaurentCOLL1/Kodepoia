@@ -1,23 +1,24 @@
 # V2.1 — Research Workspace
 
-Status: **PLANNED — implementation must be qualified subdivision by subdivision**  
-Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
+Status: **ACTIVE — V2.1.1 Honest Research UX and diagnostics is the current authorized subdivision**  
+Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
+Prerequisite: **V2.0 COMPLETE + NORMALIZED** after PR `#474`, exact implementation head `79749ab25d58faaca6421bcda4eb460194a3683c`, merge `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`
 
 ## 1. Problem statement
 
-The current Research page is not a full Internet/search assistant. Its “Search” action calls `ResearchService.query()`, which searches findings and artifacts already persisted under the active project's research reports. It does not discover new Web results. The separate “Fetch” action accepts one local path or one explicit HTTP(S) locator and, for Web access, requires the network permission path to be enabled.
+The current Research page is not a full Internet/search assistant. Its saved-research “Search” action calls `ResearchService.query()`, which searches findings and artifacts already persisted under the active project's research reports. It does not discover new Web results. The separate “Fetch” action accepts one local path or one explicit HTTP(S) locator and, for Web access, requires the network permission path to be enabled.
 
-This distinction is technically defensible but poor product UX: a user naturally expects to type a question such as “Godot 4.7 navigation changes” and receive relevant sources. Instead, a new project may return an empty result because no previous research report exists, while Web acquisition expects the user to already know the URL.
+V2.0 now makes the capability truth explicit and actionable: provider/runtime states distinguish `ready`, `unavailable`, `auth-required`, `network-restricted` and `not-implemented`; capability provenance distinguishes public rc8, live source and acceptance proof; unavailable providers cannot be represented as successful empty searches.
 
-V2.1 makes these semantics explicit and adds real governed discovery before fetch/synthesis.
+V2.1 builds on that accepted truth. V2.1.1 first fixes the product semantics and failure UX without pretending external discovery exists before V2.1.2 implements discovery providers.
 
 ## 2. User workflow
 
-The target workflow is:
+The target V2.1 workflow is:
 
 `question -> scope -> discover -> inspect -> fetch -> select evidence -> synthesize with citations -> save Research Pack -> reuse in project context`
 
-The primary KodeStudio screen must let the user:
+The primary KodeStudio screen must ultimately let the user:
 
 - enter a natural-language question;
 - optionally scope by provider, domain/product, version, time window and active project;
@@ -28,6 +29,8 @@ The primary KodeStudio screen must let the user:
 - request a synthesis whose factual claims link back to included evidence;
 - save selected evidence and synthesis as a governed project-scoped Research Pack;
 - refresh stale sources without silently replacing historical evidence.
+
+V2.1.1 does **not** claim the full workflow complete. It establishes honest controls, labels and diagnostics so that saved research, future discovery and explicit-locator fetch are unambiguous before real discovery providers are added.
 
 ## 3. Source/provider architecture
 
@@ -92,15 +95,15 @@ A pack must not overwrite previous evidence merely because a source changed. Ref
 
 ## 6. UI contract
 
-The current ambiguous controls must be replaced or relabeled so these operations cannot be confused:
+The ambiguous controls must be replaced or relabeled so these operations cannot be confused:
 
 - **Search saved research** — local query over already persisted reports;
-- **Search sources** — real discovery through enabled external/local discovery providers;
+- **Search sources** — real discovery through enabled external/local discovery providers; during V2.1.1 this control/state must honestly report `not-implemented` or another accepted V2.0 capability state until V2.1.2 provides real discovery;
 - **Open/fetch source** — guarded acquisition of one candidate or explicit locator;
 - **Synthesize** — use only selected fetched evidence;
 - **Save to project knowledge** — create/update governed derived knowledge through the Research Pack contract.
 
-The default empty state must explain whether the user has no saved research, no discovery provider, network access is disabled, authentication is missing or the provider returned no matches.
+The default empty state must explain whether the user has no saved research, no discovery provider, network access is disabled/restricted, authentication is missing or an available provider genuinely returned no matches.
 
 Raw JSON remains available for diagnostics/export but must not be the principal user experience.
 
@@ -121,7 +124,7 @@ The ranking system must not hide conflicting evidence. A synthesis should identi
 
 Every external operation returns an actionable state such as:
 
-- network disabled;
+- network disabled/restricted;
 - provider unavailable/not configured;
 - authentication required;
 - rate/usage limit reached;
@@ -137,13 +140,17 @@ No user-facing “success” state may represent an empty no-op whose cause is u
 
 ## 9. Acceptance plan
 
-### V2.1.1 — Honest UX and diagnostics
+### V2.1.1 — Honest UX and diagnostics — CURRENT
 
-- prove saved-report query separately from external discovery;
-- new project empty state explains that no saved reports exist;
-- provider/network state is visible;
+- prove saved-report query separately from external discovery semantics;
+- new-project empty state explains that no saved reports exist;
+- provider/network/authentication state is visible using the accepted V2.0 truth contract;
+- external discovery is visibly unavailable/not implemented until a real provider is present;
 - fetch-by-URL remains available and guarded;
-- errors are actionable, localized and test-covered.
+- errors and unavailable states are actionable, localized and test-covered;
+- raw JSON remains secondary to the human-readable status/empty-state UX;
+- exact-head acceptance and all required PR workflows must succeed before merge;
+- continuity must be normalized after merge before V2.1.2 starts.
 
 ### V2.1.2 — Discovery providers
 

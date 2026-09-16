@@ -14,6 +14,15 @@ from kodepoia.intelligence.research.service import (
 )
 from kodepoia.kodestudio.accessibility import mark_accessible
 from kodepoia.kodestudio.localization import KodeStudioTranslator
+from kodepoia.kodestudio.research_ux import (
+    ResearchUxTranslator,
+    default_empty_state_text,
+    discovery_state_text,
+    error_text,
+    fetch_status_text,
+    provider_summary_text,
+    saved_search_status_text,
+)
 
 
 def research_capability_rows(
@@ -79,6 +88,7 @@ def create_research_page(
     )
 
     tr = translator
+    ux = ResearchUxTranslator(locale=translator.locale)
     research = service or ResearchService(project_root)
     page = QWidget()
     page.setObjectName("researchPage")
@@ -91,9 +101,9 @@ def create_research_page(
     description.setObjectName("researchDescription")
     layout.addWidget(description)
 
-    query_scope = QLabel(tr.text("research.query.description"))
+    query_scope = QLabel(ux.text("research_ux.saved.description"))
     query_scope.setObjectName("researchQueryScope")
-    query_scope.setAccessibleName(tr.text("research.query.name"))
+    query_scope.setAccessibleName(ux.text("research_ux.saved.name"))
     query_scope.setWordWrap(True)
     layout.addWidget(query_scope)
 
@@ -102,10 +112,10 @@ def create_research_page(
         QLineEdit(),
         object_name="researchQuery",
         name=tr.text("research.query.name"),
-        description=tr.text("research.query.description"),
+        description=ux.text("research_ux.saved.description"),
         description_required=True,
     )
-    query.setPlaceholderText(tr.text("research.query.placeholder"))
+    query.setPlaceholderText(ux.text("research_ux.saved.placeholder"))
     source_filter = mark_accessible(
         QComboBox(),
         object_name="researchSourceFilter",
@@ -117,16 +127,47 @@ def create_research_page(
     for kind in ResearchSourceKind:
         source_filter.addItem(kind.value, kind.value)
     search_button = mark_accessible(
-        QPushButton(tr.text("research.search")),
+        QPushButton(ux.text("research_ux.saved.button")),
         object_name="researchSearchButton",
-        name=tr.text("research.search"),
-        description=tr.text("research.search.description"),
+        name=ux.text("research_ux.saved.name"),
+        description=ux.text("research_ux.saved.description"),
         description_required=True,
     )
     query_row.addWidget(query, 1)
     query_row.addWidget(source_filter)
     query_row.addWidget(search_button)
     layout.addLayout(query_row)
+
+    discovery_row = QHBoxLayout()
+    discovery_button = mark_accessible(
+        QPushButton(ux.text("research_ux.discovery.button")),
+        object_name="researchDiscoveryButton",
+        name=ux.text("research_ux.discovery.name"),
+        description=ux.text("research_ux.discovery.description"),
+        description_required=True,
+    )
+    # V2.1.1 deliberately exposes discovery as unavailable instead of wiring a fake no-op.
+    # V2.1.2 is the first subdivision allowed to enable this control with real providers.
+    discovery_button.setEnabled(False)
+    discovery_state = QLabel("")
+    discovery_state.setObjectName("researchDiscoveryState")
+    discovery_state.setAccessibleName(ux.text("research_ux.discovery.name"))
+    discovery_state.setWordWrap(True)
+    discovery_row.addWidget(discovery_button)
+    discovery_row.addWidget(discovery_state, 1)
+    layout.addLayout(discovery_row)
+
+    provider_summary = QLabel("")
+    provider_summary.setObjectName("researchProviderSummary")
+    provider_summary.setAccessibleName(ux.text("research_ux.diagnostics.title"))
+    provider_summary.setWordWrap(True)
+    layout.addWidget(provider_summary)
+
+    empty_state = QLabel("")
+    empty_state.setObjectName("researchEmptyState")
+    empty_state.setAccessibleName(tr.text("research.results.name"))
+    empty_state.setWordWrap(True)
+    layout.addWidget(empty_state)
 
     fetch_form = QFormLayout()
     fetch_kind = mark_accessible(
@@ -159,10 +200,10 @@ def create_research_page(
     )
     allow_network.setChecked(bool(research.allow_network))
     fetch_button = mark_accessible(
-        QPushButton(tr.text("research.fetch")),
+        QPushButton(ux.text("research_ux.fetch.button")),
         object_name="researchFetchButton",
-        name=tr.text("research.fetch"),
-        description=tr.text("research.fetch.description"),
+        name=ux.text("research_ux.fetch.name"),
+        description=ux.text("research_ux.fetch.description"),
         description_required=True,
     )
     fetch_form.addRow(tr.text("research.fetch_kind.label"), fetch_kind)
@@ -216,6 +257,10 @@ def create_research_page(
     capability.setWordWrap(True)
     layout.addWidget(capability)
 
+    diagnostics_title = QLabel(ux.text("research_ux.diagnostics.title"))
+    diagnostics_title.setObjectName("researchDiagnosticsLabel")
+    layout.addWidget(diagnostics_title)
+
     diagnostics = mark_accessible(
         QPlainTextEdit(),
         object_name="researchCapabilityDiagnostics",
@@ -224,7 +269,7 @@ def create_research_page(
         description_required=True,
     )
     diagnostics.setReadOnly(True)
-    diagnostics.setMaximumHeight(190)
+    diagnostics.setMaximumHeight(150)
     layout.addWidget(diagnostics)
 
     warning = QLabel("")
@@ -257,6 +302,10 @@ def create_research_page(
     results.horizontalHeader().setStretchLastSection(True)
     layout.addWidget(results, 2)
 
+    technical_label = QLabel(ux.text("research_ux.technical.title"))
+    technical_label.setObjectName("researchTechnicalDetailsLabel")
+    layout.addWidget(technical_label)
+
     details = mark_accessible(
         QPlainTextEdit(),
         object_name="researchDetails",
@@ -265,12 +314,14 @@ def create_research_page(
         description_required=True,
     )
     details.setReadOnly(True)
-    layout.addWidget(details, 1)
+    details.setMaximumHeight(160)
+    layout.addWidget(details)
 
     page._research_service = research
     page._research_result = None
     page._research_cancellation = None
     page._research_tasks = []
+    page._research_report_count = 0
     pool = QThreadPool.globalInstance()
 
     class TaskSignals(QObject):
@@ -292,6 +343,48 @@ def create_research_page(
             finally:
                 self.signals.finished.emit()
 
+    def current_status_metadata() -> dict[str, Any]:
+        try:
+            return dict(research.status().metadata)
+        except Exception:
+            return {}
+
+    def refresh_report_count() -> int:
+        metadata = current_status_metadata()
+        value = metadata.get("reports", 0)
+        try:
+            page._research_report_count = max(0, int(value))
+        except (TypeError, ValueError):
+            page._research_report_count = 0
+        return page._research_report_count
+
+    def refresh_human_state(*, reset_empty: bool = False) -> None:
+        network = bool(allow_network.isChecked())
+        discovery_state.setText(
+            discovery_state_text(
+                ux,
+                allow_network=network,
+                github_authenticated=False,
+            )
+        )
+        provider_summary.setText(
+            provider_summary_text(
+                ux,
+                allow_network=network,
+                github_authenticated=False,
+            )
+        )
+        if reset_empty or page._research_result is None:
+            empty_state.setText(
+                default_empty_state_text(
+                    ux,
+                    report_count=refresh_report_count(),
+                    allow_network=network,
+                    github_authenticated=False,
+                )
+            )
+            empty_state.setVisible(True)
+
     def refresh_capability_diagnostics() -> None:
         diagnostics.setPlainText(
             research_capability_diagnostics_text(
@@ -299,11 +392,13 @@ def create_research_page(
                 github_authenticated=False,
             )
         )
+        refresh_human_state()
 
     def set_busy(value: bool) -> None:
         search_button.setEnabled(not value)
         fetch_button.setEnabled(not value)
         refresh_button.setEnabled(not value)
+        discovery_button.setEnabled(False)
         cancel_button.setEnabled(value)
 
     def render(result: ResearchServiceResult) -> None:
@@ -326,17 +421,47 @@ def create_research_page(
         suspicious = any(item.suspicious for item in result.items)
         warning.setVisible(suspicious)
         warning.setText(tr.text("research.warning.suspicious") if suspicious else "")
-        status_text = tr.text(
-            "research.status.result",
-            operation=result.operation,
-            status=result.status.value.upper(),
-            count=len(result.items),
-            reason=result.reason or "—",
-        )
-        if result.operation == "query" and not result.items:
-            status_text = f"{status_text} — {tr.text('research.query.description')}"
+
+        if result.operation == "query":
+            status_text = saved_search_status_text(
+                ux,
+                status=result.status.value,
+                count=len(result.items),
+            )
+            if not result.items:
+                empty_state.setText(ux.text("research_ux.empty.no_saved_matches"))
+                empty_state.setVisible(True)
+            else:
+                empty_state.setVisible(False)
+        elif result.operation == "fetch":
+            status_text = fetch_status_text(
+                ux,
+                status=result.status.value,
+                count=len(result.items),
+                reason=result.reason,
+            )
+            if not result.items:
+                empty_state.setText(status_text)
+                empty_state.setVisible(True)
+            else:
+                empty_state.setVisible(False)
+        else:
+            status_text = tr.text(
+                "research.status.result",
+                operation=result.operation,
+                status=result.status.value.upper(),
+                count=len(result.items),
+                reason=result.reason or "—",
+            )
+
         capability.setText(status_text)
-        refresh_capability_diagnostics()
+        diagnostics.setPlainText(
+            research_capability_diagnostics_text(
+                allow_network=bool(allow_network.isChecked()),
+                github_authenticated=False,
+            )
+        )
+        refresh_human_state(reset_empty=False)
         copy_button.setEnabled(True)
         export_button.setEnabled(True)
         if result.items:
@@ -349,8 +474,17 @@ def create_research_page(
         results.setRowCount(0)
         details.setPlainText(message)
         warning.setVisible(False)
-        capability.setText(tr.text("research.status.error", reason=message))
-        refresh_capability_diagnostics()
+        human = error_text(ux, message)
+        capability.setText(human)
+        empty_state.setText(human)
+        empty_state.setVisible(True)
+        diagnostics.setPlainText(
+            research_capability_diagnostics_text(
+                allow_network=bool(allow_network.isChecked()),
+                github_authenticated=False,
+            )
+        )
+        refresh_human_state(reset_empty=False)
         copy_button.setEnabled(False)
         export_button.setEnabled(False)
 
@@ -397,6 +531,7 @@ def create_research_page(
             cancel_button.setEnabled(False)
 
     def refresh_status() -> None:
+        refresh_report_count()
         refresh_capability_diagnostics()
         run_async(lambda _token: research.status())
 
@@ -432,6 +567,7 @@ def create_research_page(
     results.itemSelectionChanged.connect(show_selected)
     allow_network.toggled.connect(lambda _checked: refresh_capability_diagnostics())
 
+    refresh_report_count()
     refresh_capability_diagnostics()
     page._research_run_search = run_search
     page._research_run_fetch = run_fetch
@@ -439,4 +575,5 @@ def create_research_page(
     page._research_render = render
     page._research_set_busy = set_busy
     page._research_refresh_capability_diagnostics = refresh_capability_diagnostics
+    page._research_refresh_human_state = refresh_human_state
     return page

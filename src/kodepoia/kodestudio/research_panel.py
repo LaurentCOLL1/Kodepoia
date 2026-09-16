@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from kodepoia.capability_truth import build_capability_matrix
 from kodepoia.intelligence.research.contracts import ResearchSourceKind
+from kodepoia.intelligence.research.discovery import ResearchDiscoveryService
 from kodepoia.intelligence.research.service import (
     ResearchCancellation,
     ResearchFetchRequest,
@@ -18,6 +19,7 @@ from kodepoia.kodestudio.research_ux import (
     ResearchUxTranslator,
     default_empty_state_text,
     discovery_state_text,
+    discovery_status_text,
     error_text,
     fetch_status_text,
     provider_summary_text,
@@ -90,6 +92,11 @@ def create_research_page(
     tr = translator
     ux = ResearchUxTranslator(locale=translator.locale)
     research = service or ResearchService(project_root)
+    discovery = ResearchDiscoveryService(
+        project_root,
+        allow_network=research.allow_network,
+        secrets=research.secrets,
+    )
     page = QWidget()
     page.setObjectName("researchPage")
     page.setAccessibleName(tr.text("research.title"))
@@ -146,9 +153,6 @@ def create_research_page(
         description=ux.text("research_ux.discovery.description"),
         description_required=True,
     )
-    # V2.1.1 deliberately exposes discovery as unavailable instead of wiring a fake no-op.
-    # V2.1.2 is the first subdivision allowed to enable this control with real providers.
-    discovery_button.setEnabled(False)
     discovery_state = QLabel("")
     discovery_state.setObjectName("researchDiscoveryState")
     discovery_state.setAccessibleName(ux.text("research_ux.discovery.name"))
@@ -177,11 +181,7 @@ def create_research_page(
         description=tr.text("research.fetch_kind.description"),
         description_required=True,
     )
-    for kind in (
-        ResearchSourceKind.LOCAL,
-        ResearchSourceKind.OFFICIAL_DOCS,
-        ResearchSourceKind.WEB,
-    ):
+    for kind in (ResearchSourceKind.LOCAL, ResearchSourceKind.OFFICIAL_DOCS, ResearchSourceKind.WEB):
         fetch_kind.addItem(kind.value, kind.value)
     locator = mark_accessible(
         QLineEdit(),
@@ -318,10 +318,12 @@ def create_research_page(
     layout.addWidget(details)
 
     page._research_service = research
+    page._research_discovery_service = discovery
     page._research_result = None
     page._research_cancellation = None
     page._research_tasks = []
     page._research_report_count = 0
+    page._research_busy = False
     pool = QThreadPool.globalInstance()
 
     class TaskSignals(QObject):
@@ -338,7 +340,7 @@ def create_research_page(
         def run(self) -> None:
             try:
                 self.signals.result.emit(self.operation())
-            except Exception as exc:  # display boundary; domain errors remain plain text
+            except Exception as exc:
                 self.signals.error.emit(str(exc))
             finally:
                 self.signals.finished.emit()
@@ -350,8 +352,7 @@ def create_research_page(
             return {}
 
     def refresh_report_count() -> int:
-        metadata = current_status_metadata()
-        value = metadata.get("reports", 0)
+        value = current_status_metadata().get("reports", 0)
         try:
             page._research_report_count = max(0, int(value))
         except (TypeError, ValueError):
@@ -361,19 +362,12 @@ def create_research_page(
     def refresh_human_state(*, reset_empty: bool = False) -> None:
         network = bool(allow_network.isChecked())
         discovery_state.setText(
-            discovery_state_text(
-                ux,
-                allow_network=network,
-                github_authenticated=False,
-            )
+            discovery_state_text(ux, allow_network=network, github_authenticated=False)
         )
         provider_summary.setText(
-            provider_summary_text(
-                ux,
-                allow_network=network,
-                github_authenticated=False,
-            )
+            provider_summary_text(ux, allow_network=network, github_authenticated=False)
         )
+        discovery_button.setEnabled(network and not page._research_busy)
         if reset_empty or page._research_result is None:
             empty_state.setText(
                 default_empty_state_text(
@@ -395,10 +389,11 @@ def create_research_page(
         refresh_human_state()
 
     def set_busy(value: bool) -> None:
+        page._research_busy = value
         search_button.setEnabled(not value)
         fetch_button.setEnabled(not value)
         refresh_button.setEnabled(not value)
-        discovery_button.setEnabled(False)
+        discovery_button.setEnabled(not value and bool(allow_network.isChecked()))
         cancel_button.setEnabled(value)
 
     def render(result: ResearchServiceResult) -> None:
@@ -416,23 +411,27 @@ def create_research_page(
             )
             for column, value in enumerate(values):
                 results.setItem(row, column, QTableWidgetItem(value))
-        payload = research.serialized(result)
-        details.setPlainText(payload)
+        details.setPlainText(research.serialized(result))
         suspicious = any(item.suspicious for item in result.items)
         warning.setVisible(suspicious)
         warning.setText(tr.text("research.warning.suspicious") if suspicious else "")
 
         if result.operation == "query":
-            status_text = saved_search_status_text(
-                ux,
-                status=result.status.value,
-                count=len(result.items),
-            )
+            status_text = saved_search_status_text(ux, status=result.status.value, count=len(result.items))
             if not result.items:
                 empty_state.setText(ux.text("research_ux.empty.no_saved_matches"))
                 empty_state.setVisible(True)
             else:
                 empty_state.setVisible(False)
+        elif result.operation == "discover":
+            status_text = discovery_status_text(
+                ux,
+                status=result.status.value,
+                count=len(result.items),
+                providers=result.metadata.get("providers", []),
+            )
+            empty_state.setText(status_text)
+            empty_state.setVisible(not bool(result.items))
         elif result.operation == "fetch":
             status_text = fetch_status_text(
                 ux,
@@ -455,13 +454,7 @@ def create_research_page(
             )
 
         capability.setText(status_text)
-        diagnostics.setPlainText(
-            research_capability_diagnostics_text(
-                allow_network=bool(allow_network.isChecked()),
-                github_authenticated=False,
-            )
-        )
-        refresh_human_state(reset_empty=False)
+        refresh_capability_diagnostics()
         copy_button.setEnabled(True)
         export_button.setEnabled(True)
         if result.items:
@@ -478,20 +471,13 @@ def create_research_page(
         capability.setText(human)
         empty_state.setText(human)
         empty_state.setVisible(True)
-        diagnostics.setPlainText(
-            research_capability_diagnostics_text(
-                allow_network=bool(allow_network.isChecked()),
-                github_authenticated=False,
-            )
-        )
-        refresh_human_state(reset_empty=False)
+        refresh_capability_diagnostics()
         copy_button.setEnabled(False)
         export_button.setEnabled(False)
 
     def finish_task() -> None:
         set_busy(False)
         page._research_cancellation = None
-        page._research_tasks = [task for task in page._research_tasks if not task.isAutoDelete()]
 
     def run_async(operation: Callable[[ResearchCancellation], ResearchServiceResult]) -> None:
         token = ResearchCancellation()
@@ -515,6 +501,12 @@ def create_research_page(
                 cancellation=token,
             )
         )
+
+    def run_discovery() -> None:
+        network = bool(allow_network.isChecked())
+        discovery.allow_network = network
+        refresh_capability_diagnostics()
+        run_async(lambda token: discovery.discover(query.text(), cancellation=token))
 
     def run_fetch() -> None:
         kind = ResearchSourceKind(str(fetch_kind.currentData()))
@@ -554,11 +546,11 @@ def create_research_page(
         row = results.currentRow()
         if current is None or not 0 <= row < len(current.items):
             return
-        item = current.items[row]
-        details.setPlainText(json.dumps(item.to_dict(), ensure_ascii=False, indent=2, sort_keys=True))
+        details.setPlainText(json.dumps(current.items[row].to_dict(), ensure_ascii=False, indent=2, sort_keys=True))
 
     search_button.clicked.connect(run_search)
     query.returnPressed.connect(run_search)
+    discovery_button.clicked.connect(run_discovery)
     fetch_button.clicked.connect(run_fetch)
     cancel_button.clicked.connect(cancel)
     refresh_button.clicked.connect(refresh_status)
@@ -570,6 +562,7 @@ def create_research_page(
     refresh_report_count()
     refresh_capability_diagnostics()
     page._research_run_search = run_search
+    page._research_run_discovery = run_discovery
     page._research_run_fetch = run_fetch
     page._research_cancel_active = cancel
     page._research_render = render

@@ -1,9 +1,10 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.0 COMPLETE + NORMALIZED; V2.1.1 authorized**  
+Status: **ACTIVE — V2.1.1 COMPLETE + NORMALIZED; V2.1.2 authorized**  
 Created: 2026-09-15  
 Roadmap preparation merged by PR `#472` as `87fc09e16531260d64cf3d5fb59f511295e2b703` after 25/25 exact-head PR workflows succeeded  
 V2.0 implementation merged by PR `#474` as `043dba64111f763f0e9544ea8cde9a3cbf9b1dff` after 27/27 exact-head PR workflows succeeded on `79749ab25d58faaca6421bcda4eb460194a3683c`  
+V2.1.1 implementation merged by PR `#476` as `16ef244e9cad922421f2440ef8185e9e896a164d` after 27/27 exact-head PR workflows succeeded on `c485083419f492e9c10989f6aadbda5bc436d5cc`  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
 ## 1. Purpose
@@ -34,9 +35,7 @@ Accepted runtime vocabulary:
 
 #### V2.0.2 — KodeStudio diagnostics — COMPLETE
 
-KodeStudio now exposes visible and actionable capability/provider/network/authentication diagnostics. A genuine successful zero-result saved-research query is distinct from provider absence, missing authentication, denied network access and an unimplemented path.
-
-The current Research behavior remains explicit: saved-research query is local persisted-report search, while external acquisition is a separate guarded explicit-locator operation.
+KodeStudio exposes visible and actionable capability/provider/network/authentication diagnostics. A genuine successful zero-result saved-research query is distinct from provider absence, missing authentication, denied network access and an unimplemented path.
 
 #### V2.0.3 — Reusable V2 exact-head acceptance — COMPLETE
 
@@ -46,7 +45,7 @@ V2.0 DoD is satisfied: implementation tests passed, acceptance was bound to the 
 
 ### V2.1 — Research Workspace: real discovery, evidence and cited synthesis
 
-**Status: ACTIVE. Immediate subdivision: V2.1.1 — Honest Research UX and diagnostics.**
+**Status: ACTIVE. V2.1.1 is COMPLETE + NORMALIZED. Immediate subdivision: V2.1.2 — Discovery providers.**
 
 Goal: replace the current low-level Research UX with a complete question-to-evidence workflow. Normative details are in `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
 
@@ -56,8 +55,8 @@ Target flow:
 
 Subdivisions:
 
-- **V2.1.1 — Honest Research UX and diagnostics — NEXT:** separate saved-research search from external discovery; surface provider/network/auth states and actionable empty/error states using the accepted V2.0 truth contract.
-- **V2.1.2 — Discovery providers:** bounded official/general Web and GitHub discovery, provider interfaces, ranking/deduplication and guarded selected-source fetch.
+- **V2.1.1 — Honest Research UX and diagnostics — COMPLETE + NORMALIZED:** saved research, future external discovery and explicit-locator fetch are distinct operations; provider/network/auth states and actionable empty/error states are visible; external discovery is not falsely claimed before providers exist. Accepted head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`.
+- **V2.1.2 — Discovery providers — NEXT:** bounded official/general Web and GitHub discovery, provider interfaces, ranking/deduplication and guarded selected-source fetch.
 - **V2.1.3 — Evidence workspace:** source cards, preview, metadata, trust/freshness/version, include/exclude and cache/refetch lineage.
 - **V2.1.4 — Cited synthesis and Research Packs:** claim-linked citations, uncertainty and governed project knowledge/Context Builder/RAG integration.
 - **V2.1.5 — Extended media/community sources:** forums and YouTube/transcript paths; STT/frames only through separately governed media operations.
@@ -112,6 +111,6 @@ External outages, quota exhaustion and unavailable optional providers never just
 
 ## 5. Immediate V2 work
 
-The immediate implementation target is **V2.1.1 — Honest Research UX and diagnostics**.
+The immediate implementation target is **V2.1.2 — Discovery providers**.
 
-V2.1.2 must not start until V2.1.1 is **COMPLETE + NORMALIZED**.
+V2.1.3 must not start until V2.1.2 is **COMPLETE + NORMALIZED**.

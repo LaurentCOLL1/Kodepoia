@@ -52,6 +52,17 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
     provider_summary = provider_summary_text(en)
     discovery_state = discovery_state_text(en)
 
+    implementation_workspace = (
+        "V2.1.1 does **not** claim the full workflow complete" in workspace
+        and "### V2.1.1 — Honest UX and diagnostics — CURRENT" in workspace
+        and "### V2.1.2 — Discovery providers" in workspace
+    )
+    normalized_workspace = (
+        "### V2.1.1 — Honest UX and diagnostics — COMPLETE + NORMALIZED" in workspace
+        and "### V2.1.2 — Discovery providers — CURRENT" in workspace
+        and "V2.1.1 is now COMPLETE + NORMALIZED" in workspace
+    )
+
     checks = [
         _check(
             "saved-search-semantics",
@@ -115,12 +126,11 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
         ),
         _check(
             "workspace-scope",
-            "V2.1.1 does **not** claim the full workflow complete" in workspace
+            (implementation_workspace or normalized_workspace)
             and "Search saved research" in workspace
             and "Search sources" in workspace
-            and "Open/fetch source" in workspace
-            and "V2.1.2 — Discovery providers" in workspace,
-            "Implementation remains inside V2.1.1 and leaves real discovery to V2.1.2.",
+            and "Open/fetch source" in workspace,
+            "V2.1.1 scope is valid during implementation or its post-merge normalization; real discovery remains V2.1.2.",
         ),
     ]
 

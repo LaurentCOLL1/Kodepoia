@@ -1,16 +1,17 @@
 # V2.1 — Research Workspace
 
-Status: **ACTIVE — V2.1.1 Honest Research UX and diagnostics is the current authorized subdivision**  
+Status: **ACTIVE — V2.1.1 COMPLETE + NORMALIZED; V2.1.2 Discovery providers is the current authorized subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
-Prerequisite: **V2.0 COMPLETE + NORMALIZED** after PR `#474`, exact implementation head `79749ab25d58faaca6421bcda4eb460194a3683c`, merge `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`
+Prerequisite: **V2.0 COMPLETE + NORMALIZED** after PR `#474`, exact implementation head `79749ab25d58faaca6421bcda4eb460194a3683c`, merge `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`  
+V2.1.1 accepted by PR `#476`, exact head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, 27/27 PR workflows successful
 
 ## 1. Problem statement
 
-The current Research page is not a full Internet/search assistant. Its saved-research “Search” action calls `ResearchService.query()`, which searches findings and artifacts already persisted under the active project's research reports. It does not discover new Web results. The separate “Fetch” action accepts one local path or one explicit HTTP(S) locator and, for Web access, requires the network permission path to be enabled.
+The Research page now distinguishes its three real operations. **Search saved research** calls `ResearchService.query()` and searches findings/artifacts already persisted under the active project's research reports. **Search sources** is a separate discovery operation and, after V2.1.1, cannot masquerade as saved-report search or an empty success. **Open/fetch source** remains the guarded acquisition path for one local path or explicit HTTP(S) locator.
 
-V2.0 now makes the capability truth explicit and actionable: provider/runtime states distinguish `ready`, `unavailable`, `auth-required`, `network-restricted` and `not-implemented`; capability provenance distinguishes public rc8, live source and acceptance proof; unavailable providers cannot be represented as successful empty searches.
+V2.0 makes the capability truth explicit and actionable: provider/runtime states distinguish `ready`, `unavailable`, `auth-required`, `network-restricted` and `not-implemented`; capability provenance distinguishes public rc8, live source and acceptance proof; unavailable providers cannot be represented as successful empty searches.
 
-V2.1 builds on that accepted truth. V2.1.1 first fixes the product semantics and failure UX without pretending external discovery exists before V2.1.2 implements discovery providers.
+V2.1.1 is now COMPLETE + NORMALIZED. V2.1.2 may add real discovery providers, but it must preserve the semantic and security separation established by V2.1.1.
 
 ## 2. User workflow
 
@@ -29,8 +30,6 @@ The primary KodeStudio screen must ultimately let the user:
 - request a synthesis whose factual claims link back to included evidence;
 - save selected evidence and synthesis as a governed project-scoped Research Pack;
 - refresh stale sources without silently replacing historical evidence.
-
-V2.1.1 does **not** claim the full workflow complete. It establishes honest controls, labels and diagnostics so that saved research, future discovery and explicit-locator fetch are unambiguous before real discovery providers are added.
 
 ## 3. Source/provider architecture
 
@@ -95,10 +94,10 @@ A pack must not overwrite previous evidence merely because a source changed. Ref
 
 ## 6. UI contract
 
-The ambiguous controls must be replaced or relabeled so these operations cannot be confused:
+The operations must remain unambiguous:
 
 - **Search saved research** — local query over already persisted reports;
-- **Search sources** — real discovery through enabled external/local discovery providers; during V2.1.1 this control/state must honestly report `not-implemented` or another accepted V2.0 capability state until V2.1.2 provides real discovery;
+- **Search sources** — real discovery through enabled external/local discovery providers; V2.1.2 is responsible for making this operation real for its accepted provider set;
 - **Open/fetch source** — guarded acquisition of one candidate or explicit locator;
 - **Synthesize** — use only selected fetched evidence;
 - **Save to project knowledge** — create/update governed derived knowledge through the Research Pack contract.
@@ -140,25 +139,26 @@ No user-facing “success” state may represent an empty no-op whose cause is u
 
 ## 9. Acceptance plan
 
-### V2.1.1 — Honest UX and diagnostics — CURRENT
+### V2.1.1 — Honest UX and diagnostics — COMPLETE + NORMALIZED
 
-- prove saved-report query separately from external discovery semantics;
-- new-project empty state explains that no saved reports exist;
-- provider/network/authentication state is visible using the accepted V2.0 truth contract;
-- external discovery is visibly unavailable/not implemented until a real provider is present;
-- fetch-by-URL remains available and guarded;
-- errors and unavailable states are actionable, localized and test-covered;
-- raw JSON remains secondary to the human-readable status/empty-state UX;
-- exact-head acceptance and all required PR workflows must succeed before merge;
-- continuity must be normalized after merge before V2.1.2 starts.
+Accepted implementation head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, **27/27** PR workflows successful.
 
-### V2.1.2 — Discovery providers
+Exact-head evidence:
+
+- Ubuntu: `v2-1-1-honest-research-ux-ubuntu-latest-c485083419f492e9c10989f6aadbda5bc436d5cc`, SHA-256 `29bdb2bb193a3a2c7a397e3d2c1307f0d323d07ff5425081803ca28e133d4d26`;
+- Windows: `v2-1-1-honest-research-ux-windows-latest-c485083419f492e9c10989f6aadbda5bc436d5cc`, SHA-256 `215a5b7e1a931a04ecb957bb561c01695c8f6b992f3889aaa72026e8f8969aa6`.
+
+The accepted implementation proves saved-report query separately from external discovery semantics, visible capability/network/authentication states, guarded explicit-locator fetch, localized actionable errors/empty states and secondary raw JSON diagnostics.
+
+### V2.1.2 — Discovery providers — CURRENT
 
 - deterministic provider contract and fixtures;
 - at least official/general Web plus GitHub discovery path;
 - bounded results, cancellation, deduplication and no hidden retries;
 - candidate discovery alone performs no protected mutation;
-- discovered URL still passes guarded fetch.
+- discovered URL still passes guarded fetch;
+- exact-head acceptance and all required PR workflows must succeed before merge;
+- continuity must be normalized after merge before V2.1.3 starts.
 
 ### V2.1.3 — Evidence workspace
 

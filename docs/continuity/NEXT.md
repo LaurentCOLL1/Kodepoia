@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-16 after V2.0 PR `#474` merged and continuity normalization  
+Last synchronized: 2026-09-16 after V2.1.1 PR `#476` merged and continuity normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -8,41 +8,46 @@ Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
 Public Windows **`v1.1.0-rc8`** remains the last fully real-machine updater-E2E-qualified distribution baseline. The updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 is terminal and remains **COMPLETE + NORMALIZED**; do not reopen it or invent `R20.7`.
 
-V2.0 implementation PR `#474` was qualified with **27/27** `completed/success` PR workflows on exact head `79749ab25d58faaca6421bcda4eb460194a3683c` and merged with an exact-head guard as `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`.
+V2.0 remains **COMPLETE + NORMALIZED**.
 
-V2.0.3 emitted exact-head capability-truth acceptance evidence on Ubuntu and Windows. The capability truth, KodeStudio diagnostics and reusable acceptance contract are therefore accepted, and this continuity change completes the required post-merge normalization.
+V2.1.1 implementation PR `#476` was qualified with **27/27** `completed/success` PR workflows on exact head `c485083419f492e9c10989f6aadbda5bc436d5cc` and merged with an exact-head guard as `16ef244e9cad922421f2440ef8185e9e896a164d`.
 
-**V2.0 is COMPLETE + NORMALIZED. V2.1.1 is now authorized.**
+V2.1.1 exact-head acceptance evidence was emitted on Ubuntu and Windows:
+
+- `v2-1-1-honest-research-ux-ubuntu-latest-c485083419f492e9c10989f6aadbda5bc436d5cc` — SHA-256 `29bdb2bb193a3a2c7a397e3d2c1307f0d323d07ff5425081803ca28e133d4d26`;
+- `v2-1-1-honest-research-ux-windows-latest-c485083419f492e9c10989f6aadbda5bc436d5cc` — SHA-256 `215a5b7e1a931a04ecb957bb561c01695c8f6b992f3889aaa72026e8f8969aa6`.
+
+This continuity change completes the required post-merge normalization.
+
+**V2.1.1 is COMPLETE + NORMALIZED. V2.1.2 is now authorized.**
 
 ## Immediate execution order
 
-### V2.1.1 — Honest Research UX and diagnostics
+### V2.1.2 — Discovery providers
 
-Create a dedicated branch from re-fetched live `main` and implement only V2.1.1 from `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+Create a dedicated branch from re-fetched live `main` and implement only V2.1.2 from `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
 
-Required product truth:
+Required product/architecture truth:
 
-- keep **Search saved research** as the local query over already persisted project research reports;
-- expose **Search sources** as a distinct external/local discovery operation, without pretending discovery exists where no provider is implemented;
-- make the default empty state explain whether there are no saved reports, no discovery provider, network access is disabled/restricted, authentication is missing, or an available provider genuinely returned no matches;
-- keep fetch-by-explicit-URL available as the existing guarded acquisition path;
-- surface provider/network/authentication states using the accepted V2.0 capability truth contract;
-- errors and unavailable states must be actionable, localized and test-covered;
-- raw JSON may remain available for diagnostics/export but must not be the principal user experience.
+- define a deterministic discovery-provider contract whose output is bounded candidate descriptors, not trusted fetched content;
+- provide at least an official/general Web discovery path plus a GitHub discovery path;
+- make result bounds, cancellation and deduplication explicit and deterministic;
+- perform no hidden retries and no protected mutation merely because a candidate was discovered;
+- keep candidate discovery separate from acquisition;
+- every selected/discovered locator must still pass the existing guarded fetch path and ResearchGuard/protected-action policies before content is accepted;
+- provider/network/authentication/rate-limit failures must remain explicit states, not empty-success results;
+- add deterministic fixtures/tests and exact-head acceptance proving the provider contract, bounded results, cancellation, dedupe and guarded-fetch separation.
 
-V2.1.1 acceptance must prove saved-report query separately from external discovery semantics and must preserve all ResearchGuard/protected-action invariants. Re-fetch every required PR-triggered workflow on the exact final V2.1.1 head and merge only if every required gate is `completed/success`.
-
-After V2.1.1 merge, normalize continuity before starting V2.1.2.
+After V2.1.2 merge, normalize continuity before starting V2.1.3.
 
 ## Later V2.1 order
 
-Only after V2.1.1 is COMPLETE + NORMALIZED, continue:
+Only after V2.1.2 is COMPLETE + NORMALIZED, continue:
 
-1. V2.1.2 — Discovery providers;
-2. V2.1.3 — Evidence workspace;
-3. V2.1.4 — Cited synthesis and Research Packs;
-4. V2.1.5 — Extended media/community sources;
-5. V2.1.6 — ResearchGuard hardening.
+1. V2.1.3 — Evidence workspace;
+2. V2.1.4 — Cited synthesis and Research Packs;
+3. V2.1.5 — Extended media/community sources;
+4. V2.1.6 — ResearchGuard hardening.
 
 Do not skip subdivision acceptance or continuity normalization.
 
@@ -60,4 +65,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live. V2.0 est COMPLETE + NORMALIZED après PR #474 qualifiée 27/27 sur le head exact 79749ab25d58faaca6421bcda4eb460194a3683c et merge 043dba64111f763f0e9544ea8cde9a3cbf9b1dff. Commence ou continue V2.1.1 — Honest Research UX and diagnostics — sur branche dédiée, avec acceptance exact-head et normalisation avant V2.1.2. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live. V2.0 est COMPLETE + NORMALIZED. V2.1.1 est COMPLETE + NORMALIZED après PR #476 qualifiée 27/27 sur le head exact c485083419f492e9c10989f6aadbda5bc436d5cc et merge 16ef244e9cad922421f2440ef8185e9e896a164d. Commence ou continue V2.1.2 — Discovery providers — sur branche dédiée, avec acceptance exact-head et normalisation avant V2.1.3. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`

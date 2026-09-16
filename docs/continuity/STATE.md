@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-16 after V2.0 implementation PR `#474` merged and post-merge normalization  
+Last synchronized: 2026-09-16 after V2.1.1 implementation PR `#476` merged and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -25,17 +25,45 @@ V2.0.3 exact-head evidence was emitted inside `Python Core` for both operating s
 - `v2-0-capability-truth-ubuntu-latest-79749ab25d58faaca6421bcda4eb460194a3683c` — SHA-256 `a5dd36a7f0b758c577879c71b34ec65c0b0c24848c7962337d3fe5a8e66e3c2d`;
 - `v2-0-capability-truth-windows-latest-79749ab25d58faaca6421bcda4eb460194a3683c` — SHA-256 `8dad43c801f848883bba4e86f249ca8a035a0a37739bcde2645f0ccaf0d79e8d`.
 
-Current execution state:
+V2.0 remains **COMPLETE + NORMALIZED**.
 
-- Roadmap V2 preparation / PR `#472`: **COMPLETE**;
-- V2.0.1 capability matrix/runtime truth: **COMPLETE**;
-- V2.0.2 KodeStudio diagnostics: **COMPLETE**;
-- V2.0.3 reusable exact-head acceptance: **COMPLETE**;
-- V2.0 post-merge continuity normalization: **COMPLETE by this authority update**;
-- **V2.0 overall: COMPLETE + NORMALIZED**;
-- **V2.1.1 — Honest Research UX and diagnostics: NEXT AUTHORIZED SUBDIVISION**.
+## V2.1.1 — Honest Research UX and diagnostics — COMPLETE + NORMALIZED
 
-## Accepted V2.0 capability truth
+V2.1.1 implementation PR `#476` was qualified on exact head:
+
+`c485083419f492e9c10989f6aadbda5bc436d5cc`
+
+All **27/27** PR-triggered workflows on that exact SHA completed with conclusion `success`. `Python Core`, `KodeStudio UI Smoke`, `R17 Windows Installer`, `R18.11 Integrated Adversarial Release Update Acceptance`, Android and Apple acceptance all passed. `R13 Apple Xcode Acceptance` initially hit a hosted-runner `xcrun simctl` timeout; the single failed job was rerun on the same `GITHUB_SHA`/`GITHUB_REF` and the rerun completed successfully without any code change or head movement.
+
+PR `#476` was then merged with exact-head guard as merge commit:
+
+`16ef244e9cad922421f2440ef8185e9e896a164d`
+
+V2.1.1 exact-head evidence emitted by `Python Core`:
+
+- `v2-1-1-honest-research-ux-ubuntu-latest-c485083419f492e9c10989f6aadbda5bc436d5cc` — SHA-256 `29bdb2bb193a3a2c7a397e3d2c1307f0d323d07ff5425081803ca28e133d4d26`;
+- `v2-1-1-honest-research-ux-windows-latest-c485083419f492e9c10989f6aadbda5bc436d5cc` — SHA-256 `215a5b7e1a931a04ecb957bb561c01695c8f6b992f3889aaa72026e8f8969aa6`.
+
+Accepted product truth after V2.1.1:
+
+- **Search saved research** queries already persisted project research only;
+- **Search sources** is a separate operation and was deliberately exposed as unavailable/not implemented until V2.1.2 provides real discovery providers;
+- **Open/fetch source** remains the existing guarded locator acquisition path;
+- provider/network/authentication failures are visible and actionable instead of being rendered as successful empty searches;
+- raw JSON is secondary diagnostic detail, not the primary UX;
+- ResearchGuard and protected-action boundaries remain unchanged.
+
+This authority update is the required post-merge normalization. Therefore **V2.1.1 is COMPLETE + NORMALIZED**.
+
+## V2.1 authorization
+
+The only next authorized subdivision is **V2.1.2 — Discovery providers**.
+
+V2.1.2 must implement only the discovery-provider scope from `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`: deterministic provider interfaces/fixtures, at least official/general Web plus GitHub discovery, bounded results, cancellation, deduplication, no hidden retries, no protected mutation from discovery alone, and continued guarded fetch for every selected/discovered locator.
+
+No later V2.1 subdivision may be started before V2.1.2 is qualified on its exact head, merged and continuity-normalized.
+
+## Accepted V2 capability truth
 
 The runtime truth model distinguishes:
 
@@ -44,16 +72,6 @@ The runtime truth model distinguishes:
 - accelerator state: `priority`, `available`, `experimental`, `deferred`, `unsupported`.
 
 Presence on live `main` does not imply presence in public rc8. Acceptance proof is separately bound to exact source evidence.
-
-KodeStudio Research now exposes actionable capability/network/authentication diagnostics. A provider that is unavailable, unauthenticated, network-restricted or not implemented cannot be represented as a successful empty search.
-
-The saved-research `Search` operation remains a query over already persisted project research reports through `ResearchService.query()`. A zero-result query is a legitimate empty local-search result only when that saved-report query actually ran. It is not external Internet discovery. Web acquisition remains a separate guarded explicit-locator fetch until V2.1 introduces governed discovery providers.
-
-## V2.1 authorization
-
-Because V2.0 is now **COMPLETE + NORMALIZED**, V2.1.1 may start. V2.1 must proceed subdivision by subdivision according to `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` with a dedicated branch, deterministic tests/acceptance, exact-head workflow qualification, merge only on complete success, and continuity normalization before the next subdivision.
-
-No later V2.1 subdivision may be started before the current subdivision is merged and normalized.
 
 ## Accelerator authority
 
@@ -73,7 +91,7 @@ For future work:
 
 1. re-fetch live `main` and read `STATE.md` + `NEXT.md`;
 2. begin or continue the current V2.1 subdivision only if the previous subdivision is COMPLETE + NORMALIZED;
-3. the immediate next subdivision is **V2.1.1 — Honest Research UX and diagnostics**;
+3. the immediate next subdivision is **V2.1.2 — Discovery providers**;
 4. for every subdivision, branch from an exact live SHA, implement only that scope, add deterministic tests/acceptance, re-fetch all required workflows on the exact head, merge only after successful gates, then normalize continuity;
 5. if a genuine manual intervention is required, stop at that subdivision and describe exactly what the operator must do; never bypass a failed or missing gate;
 6. never reopen R20 or invent R20.7.

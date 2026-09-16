@@ -107,7 +107,6 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
             and "X-Subscription-Token" in discovery_source
             and "/search/repositories" in discovery_source
             and "per_page" in discovery_source
-            and "limit <= 20" not in discovery_source
             and "1 <= limit <= 20" in discovery_source,
             "Brave Web and official GitHub repository-search providers are bounded and explicit.",
         ),

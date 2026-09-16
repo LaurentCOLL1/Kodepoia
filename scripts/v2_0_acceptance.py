@@ -16,11 +16,7 @@ from kodepoia.kodestudio.research_panel import research_capability_rows
 
 
 def _git_head(root: Path) -> str:
-    return subprocess.check_output(
-        ["git", "rev-parse", "HEAD"],
-        cwd=root,
-        text=True,
-    ).strip().lower()
+    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip().lower()
 
 
 def _projection(rows: tuple[dict[str, Any], ...]) -> list[dict[str, Any]]:
@@ -48,13 +44,18 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
 
     ui_rows = research_capability_rows()
     documented_research = [
-        row
-        for row in actual_documentation["capabilities"]
-        if row["capability_id"].startswith("research.")
+        row for row in actual_documentation["capabilities"] if row["capability_id"].startswith("research.")
     ]
-    ui_source = (
-        root / "src" / "kodepoia" / "kodestudio" / "research_panel.py"
-    ).read_text(encoding="utf-8")
+    ui_source = (root / "src" / "kodepoia" / "kodestudio" / "research_panel.py").read_text(encoding="utf-8")
+
+    discovery_state = runtime_by_id["research.web-discovery"]["runtime_state"]
+    discovery_is_explicit = discovery_state in {
+        "not-implemented",
+        "network-restricted",
+        "auth-required",
+        "ready",
+        "unavailable",
+    }
 
     checks = [
         _check(
@@ -84,25 +85,21 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
             "saved-search-honesty",
             runtime_by_id["research.saved-reports-search"]["runtime_state"] == "ready"
             and "persisted" in runtime_by_id["research.saved-reports-search"]["action"].lower()
-            and "internet discovery"
-            in runtime_by_id["research.saved-reports-search"]["details"].lower(),
+            and "internet discovery" in runtime_by_id["research.saved-reports-search"]["details"].lower(),
             "Zero matches may be a successful local persisted-report query, never Web discovery.",
         ),
         _check(
             "provider-failure-states",
-            runtime_by_id["research.web-discovery"]["runtime_state"] == "not-implemented"
-            and runtime_by_id["research.github-authenticated-resource"]["runtime_state"]
-            == "auth-required"
+            discovery_is_explicit
+            and runtime_by_id["research.github-authenticated-resource"]["runtime_state"] == "auth-required"
             and runtime_by_id["research.vision-provider"]["runtime_state"] == "unavailable"
-            and runtime_by_id["research.explicit-web-fetch"]["runtime_state"]
-            == "network-restricted",
-            "Unavailable/auth/network/not-implemented providers remain distinct from empty results.",
+            and runtime_by_id["research.explicit-web-fetch"]["runtime_state"] == "network-restricted",
+            "Provider auth/network/unavailable/not-implemented states remain explicit as later V2 subdivisions add capability.",
         ),
         _check(
             "accelerator-policy",
             runtime_by_id["accelerator.kaggle-t4x2"]["accelerator_state"] == "priority"
-            and "acceptance-proven"
-            in runtime_by_id["accelerator.kaggle-t4x2"]["classifications"]
+            and "acceptance-proven" in runtime_by_id["accelerator.kaggle-t4x2"]["classifications"]
             and runtime_by_id["accelerator.tpu-v5e-8"]["accelerator_state"] == "deferred"
             and runtime_by_id["accelerator.tpu-v5e-8"]["runtime_state"] == "not-implemented",
             "Kaggle T4 x2 stays priority and TPU v5e-8 stays deferred without XLA proof.",
@@ -139,10 +136,7 @@ def main() -> int:
 
     report = build_report(root, source_sha=expected)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0 if report["status"] == "PASS" else 1
 

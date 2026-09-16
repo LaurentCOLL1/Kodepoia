@@ -1,0 +1,15 @@
+{
+  "schema": "kodepoia.v2.1.1.acceptance-template",
+  "schema_version": 1,
+  "source_sha": "<exact-40-char-commit-sha>",
+  "required_checks": [
+    "saved-search-semantics",
+    "discovery-honesty",
+    "new-project-empty-state",
+    "provider-state-visibility",
+    "guarded-fetch-preserved",
+    "localized-actionable-copy",
+    "raw-json-secondary",
+    "workspace-scope"
+  ]
+}

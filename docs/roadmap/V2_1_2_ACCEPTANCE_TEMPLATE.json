@@ -1,0 +1,15 @@
+{
+  "schema": "kodepoia.v2.1.2.acceptance-template",
+  "schema_version": 1,
+  "source_sha": "<exact-40-char-commit-sha>",
+  "required_checks": [
+    "provider-contracts",
+    "candidate-boundary",
+    "partial-provider-failure",
+    "provider-failure-not-empty-success",
+    "ui-discovery-wiring",
+    "guarded-fetch-separation",
+    "capability-truth",
+    "workspace-scope"
+  ]
+}

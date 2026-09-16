@@ -56,6 +56,15 @@ jobs:
       - name: Validate or emit R9 integrated acceptance
         if: runner.os == 'Linux'
         run: python scripts/r9_integrated_acceptance.py --check-or-print docs/roadmap/R9_INTEGRATED_ACCEPTANCE.json
+      - name: Run V2.0 capability truth exact-head acceptance
+        run: python scripts/v2_0_acceptance.py --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}" --output artifacts/v2_0/capability-truth.json
+      - name: Upload V2.0 exact-head evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-0-capability-truth-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: artifacts/v2_0/capability-truth.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Validate PowerShell acceptance runner syntax
         if: runner.os == 'Windows'
         shell: pwsh
@@ -104,7 +113,7 @@ jobs:
       - name: Compile
         run: python -m compileall -q src tests
       - name: KodeStudio smoke
-        run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py tests/test_r6_6_localization_ui.py tests/test_r7_10_research_ui.py tests/test_r8_10_kodestudio.py
+        run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py tests/test_r6_6_localization_ui.py tests/test_r7_10_research_ui.py tests/test_r8_10_kodestudio.py tests/test_v2_0_research_ui.py
 
   package-build:
     name: package-build-${{ matrix.os }}

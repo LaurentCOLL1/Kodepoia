@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "policy_id": "r16.9-supply-chain-v1",
-  "pin_resolution_date": "2026-09-16",
-  "pin_resolution_authority": "verified GitHub immutable release refs; Node-24 migration in R20.4; V2 capability-truth acceptance registered as immutable authority; legacy mutable source_ref labels retained only for non-authoritative inventory",
+  "pin_resolution_date": "2026-09-10",
+  "pin_resolution_authority": "verified GitHub immutable release refs; Node-24 migration in R20.4; legacy mutable source_ref labels retained only for non-authoritative inventory",
   "external_action_pins": {
     "actions/checkout": {
       "source_ref": "v4",
@@ -95,8 +95,7 @@
       ".github/workflows/r20-4-scheduled-metadata-refresh-acceptance.yml",
       ".github/workflows/r20-5-expiry-monitoring.yml",
       ".github/workflows/r20-5-expiry-monitoring-acceptance.yml",
-      ".github/workflows/r20-6-continuous-operations-acceptance.yml",
-      ".github/workflows/v2-capability-truth-acceptance.yml"
+      ".github/workflows/r20-6-continuous-operations-acceptance.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

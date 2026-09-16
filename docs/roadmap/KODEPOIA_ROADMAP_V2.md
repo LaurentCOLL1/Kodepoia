@@ -1,8 +1,9 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — roadmap preparation accepted; V2.0 execution gate pending**  
+Status: **ACTIVE — V2.0 COMPLETE + NORMALIZED; V2.1.1 authorized**  
 Created: 2026-09-15  
 Roadmap preparation merged by PR `#472` as `87fc09e16531260d64cf3d5fb59f511295e2b703` after 25/25 exact-head PR workflows succeeded  
+V2.0 implementation merged by PR `#474` as `043dba64111f763f0e9544ea8cde9a3cbf9b1dff` after 27/27 exact-head PR workflows succeeded on `79749ab25d58faaca6421bcda4eb460194a3683c`  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
 ## 1. Purpose
@@ -17,44 +18,35 @@ A critical distinction governs all V2 work: the public rc8 distribution, live `m
 
 ### V2.0 — Baseline, capability truth and usability audit
 
-**Status: NOT COMPLETE. V2.1 is blocked until V2.0 is COMPLETE + NORMALIZED.**
+**Status: COMPLETE + NORMALIZED.**
 
-Goal: establish one exact, testable truth model for what is public, source-available, acceptance-proven, experimental or unavailable, and make that truth visible in KodeStudio.
+V2.0 established one exact, testable truth model for what is public, source-available, acceptance-proven, experimental or unavailable, and made that truth visible in KodeStudio.
 
-#### V2.0.1 — Capability matrix/runtime truth
+#### V2.0.1 — Capability matrix/runtime truth — COMPLETE
 
-Deliverables:
+Accepted runtime vocabulary:
 
-- machine-readable capability classification: `public-validated`, `source-available`, `acceptance-proven`, `experimental`, `unavailable`;
+- capability classification: `public-validated`, `source-available`, `acceptance-proven`, `experimental`, `unavailable`;
 - provider/runtime state: `ready`, `unavailable`, `auth-required`, `network-restricted`, `not-implemented`;
 - accelerator state: `priority`, `available`, `experimental`, `deferred`, `unsupported`;
-- explicit distinction between public `v1.1.0-rc8` and post-rc8 live-source capabilities;
-- no claim that an implementation is acceptance-proven without bound evidence.
+- public `v1.1.0-rc8` and post-rc8 live-source capability truth remain distinct;
+- acceptance claims require bound evidence and are not inferred from source presence alone.
 
-#### V2.0.2 — KodeStudio diagnostics
+#### V2.0.2 — KodeStudio diagnostics — COMPLETE
 
-Deliverables:
+KodeStudio now exposes visible and actionable capability/provider/network/authentication diagnostics. A genuine successful zero-result saved-research query is distinct from provider absence, missing authentication, denied network access and an unimplemented path.
 
-- visible and actionable capability/provider/network/authentication diagnostics;
-- a genuine successful zero-result query is distinct from provider absence, missing authentication, denied network access and an unimplemented path;
-- no unavailable provider can look like a successful empty search;
-- the current Research behavior is labeled truthfully: saved-research query is local persisted-report search, while external acquisition is a separate guarded explicit-locator operation.
+The current Research behavior remains explicit: saved-research query is local persisted-report search, while external acquisition is a separate guarded explicit-locator operation.
 
-#### V2.0.3 — Reusable V2 exact-head acceptance
+#### V2.0.3 — Reusable V2 exact-head acceptance — COMPLETE
 
-Deliverables:
+Reusable exact-head acceptance is integrated into existing authority workflows. On exact implementation head `79749ab25d58faaca6421bcda4eb460194a3683c`, all **27/27** PR workflows completed successfully and the Linux/Windows capability-truth evidence artifacts were emitted. The accepted merge commit is `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`.
 
-- reusable exact-head-bound acceptance contract/template;
-- deterministic tests for capability/provider/accelerator states;
-- acceptance evidence proving zero-result-success separately from unavailable/auth/network/not-implemented states;
-- parity check proving KodeStudio and current documentation expose the same capability truth;
-- evidence reusable by later V2 subdivisions.
-
-V2.0 DoD: implementation tests pass, acceptance is bound to the exact head, every required PR workflow on that head is `completed/success`, the branch is merged, and continuity is normalized. Only then is V2.0 **COMPLETE + NORMALIZED**.
+V2.0 DoD is satisfied: implementation tests passed, acceptance was bound to the exact head, every required PR workflow on that head succeeded, the branch was merged, and continuity was normalized.
 
 ### V2.1 — Research Workspace: real discovery, evidence and cited synthesis
 
-**Start condition: V2.0 COMPLETE + NORMALIZED.**
+**Status: ACTIVE. Immediate subdivision: V2.1.1 — Honest Research UX and diagnostics.**
 
 Goal: replace the current low-level Research UX with a complete question-to-evidence workflow. Normative details are in `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
 
@@ -64,7 +56,7 @@ Target flow:
 
 Subdivisions:
 
-- **V2.1.1 — Honest Research UX and diagnostics:** separate saved-research search from external discovery; surface provider/network/auth states and actionable empty/error states using the V2.0 truth contract.
+- **V2.1.1 — Honest Research UX and diagnostics — NEXT:** separate saved-research search from external discovery; surface provider/network/auth states and actionable empty/error states using the accepted V2.0 truth contract.
 - **V2.1.2 — Discovery providers:** bounded official/general Web and GitHub discovery, provider interfaces, ranking/deduplication and guarded selected-source fetch.
 - **V2.1.3 — Evidence workspace:** source cards, preview, metadata, trust/freshness/version, include/exclude and cache/refetch lineage.
 - **V2.1.4 — Cited synthesis and Research Packs:** claim-linked citations, uncertainty and governed project knowledge/Context Builder/RAG integration.
@@ -72,6 +64,8 @@ Subdivisions:
 - **V2.1.6 — ResearchGuard hardening:** prompt-injection corpus, malicious redirects, SSRF, timeouts, stale/version conflicts, outages, cancellation and offline behavior.
 
 V2.1 DoD: from KodeStudio, an ordinary research question either produces inspectable sources, selected evidence and a cited answer, or a visible diagnostic explaining exactly why discovery cannot run. External content remains data, never privileged instruction.
+
+Each V2.1 subdivision must be implemented on its own dedicated branch, qualified on its exact final head, merged only after every required workflow succeeds, and continuity-normalized before the next subdivision starts.
 
 ### V2.2 — Project Knowledge, Context Builder and Memory integration
 
@@ -116,8 +110,8 @@ Every subdivision follows the same discipline:
 
 External outages, quota exhaustion and unavailable optional providers never justify weakening fail-closed behavior; they surface as explicit diagnostics.
 
-## 5. Immediate V2 start
+## 5. Immediate V2 work
 
-The first implementation target after Roadmap V2 preparation and its post-merge normalization is **V2.0.1 — capability matrix/runtime truth**, followed by **V2.0.2 — KodeStudio diagnostics** and **V2.0.3 — reusable exact-head V2 acceptance**.
+The immediate implementation target is **V2.1.1 — Honest Research UX and diagnostics**.
 
-**V2.1.1 must not start until V2.0 is COMPLETE + NORMALIZED.**
+V2.1.2 must not start until V2.1.1 is **COMPLETE + NORMALIZED**.

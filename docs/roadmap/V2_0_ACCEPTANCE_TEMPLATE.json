@@ -1,0 +1,18 @@
+{
+  "schema": "kodepoia.v2.capability-acceptance",
+  "schema_version": 1,
+  "source_sha": "<exact-head-sha>",
+  "status": "PASS|FAIL",
+  "checks_total": 7,
+  "checks_passed": "<integer>",
+  "failed_checks": [],
+  "checks": [
+    {"name": "documentation-runtime-parity", "status": "PASS|FAIL", "detail": "<detail>"},
+    {"name": "ui-runtime-parity", "status": "PASS|FAIL", "detail": "<detail>"},
+    {"name": "ui-wiring", "status": "PASS|FAIL", "detail": "<detail>"},
+    {"name": "public-distribution-boundary", "status": "PASS|FAIL", "detail": "<detail>"},
+    {"name": "saved-search-honesty", "status": "PASS|FAIL", "detail": "<detail>"},
+    {"name": "provider-failure-states", "status": "PASS|FAIL", "detail": "<detail>"},
+    {"name": "accelerator-policy", "status": "PASS|FAIL", "detail": "<detail>"}
+  ]
+}

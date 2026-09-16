@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
+from kodepoia.capability_truth import build_capability_matrix
 from kodepoia.intelligence.research.contracts import ResearchSourceKind
 from kodepoia.intelligence.research.service import (
     ResearchCancellation,
@@ -13,6 +14,44 @@ from kodepoia.intelligence.research.service import (
 )
 from kodepoia.kodestudio.accessibility import mark_accessible
 from kodepoia.kodestudio.localization import KodeStudioTranslator
+
+
+def research_capability_rows(
+    *,
+    allow_network: bool = False,
+    github_authenticated: bool = False,
+) -> tuple[dict[str, Any], ...]:
+    """Return the canonical V2 research capability rows consumed by KodeStudio."""
+
+    return tuple(
+        row
+        for row in build_capability_matrix(
+            allow_network=allow_network,
+            github_authenticated=github_authenticated,
+        )
+        if row["capability_id"].startswith("research.")
+    )
+
+
+def research_capability_diagnostics_text(
+    *,
+    allow_network: bool = False,
+    github_authenticated: bool = False,
+) -> str:
+    """Render actionable diagnostics without turning provider failure into zero results."""
+
+    lines = ["Capability truth (V2):"]
+    for row in research_capability_rows(
+        allow_network=allow_network,
+        github_authenticated=github_authenticated,
+    ):
+        classes = ", ".join(row["classifications"])
+        lines.append(
+            f"{row['capability_id']}: {row['runtime_state'].upper()} | "
+            f"network={row['network_state']} | auth={row['authentication_state']} | "
+            f"classes={classes} — {row['details']} Action: {row['action']}"
+        )
+    return "\n".join(lines)
 
 
 def create_research_page(
@@ -51,6 +90,12 @@ def create_research_page(
     description.setWordWrap(True)
     description.setObjectName("researchDescription")
     layout.addWidget(description)
+
+    query_scope = QLabel(tr.text("research.query.description"))
+    query_scope.setObjectName("researchQueryScope")
+    query_scope.setAccessibleName(tr.text("research.query.name"))
+    query_scope.setWordWrap(True)
+    layout.addWidget(query_scope)
 
     query_row = QHBoxLayout()
     query = mark_accessible(
@@ -112,6 +157,7 @@ def create_research_page(
         description=tr.text("research.allow_network.description"),
         description_required=True,
     )
+    allow_network.setChecked(bool(research.allow_network))
     fetch_button = mark_accessible(
         QPushButton(tr.text("research.fetch")),
         object_name="researchFetchButton",
@@ -169,6 +215,17 @@ def create_research_page(
     capability.setAccessibleName(tr.text("research.status.name"))
     capability.setWordWrap(True)
     layout.addWidget(capability)
+
+    diagnostics = mark_accessible(
+        QPlainTextEdit(),
+        object_name="researchCapabilityDiagnostics",
+        name=tr.text("research.status.name"),
+        description=tr.text("research.refresh_status.description"),
+        description_required=True,
+    )
+    diagnostics.setReadOnly(True)
+    diagnostics.setMaximumHeight(190)
+    layout.addWidget(diagnostics)
 
     warning = QLabel("")
     warning.setObjectName("researchSuspiciousWarning")
@@ -235,6 +292,14 @@ def create_research_page(
             finally:
                 self.signals.finished.emit()
 
+    def refresh_capability_diagnostics() -> None:
+        diagnostics.setPlainText(
+            research_capability_diagnostics_text(
+                allow_network=bool(allow_network.isChecked()),
+                github_authenticated=False,
+            )
+        )
+
     def set_busy(value: bool) -> None:
         search_button.setEnabled(not value)
         fetch_button.setEnabled(not value)
@@ -261,15 +326,17 @@ def create_research_page(
         suspicious = any(item.suspicious for item in result.items)
         warning.setVisible(suspicious)
         warning.setText(tr.text("research.warning.suspicious") if suspicious else "")
-        capability.setText(
-            tr.text(
-                "research.status.result",
-                operation=result.operation,
-                status=result.status.value.upper(),
-                count=len(result.items),
-                reason=result.reason or "—",
-            )
+        status_text = tr.text(
+            "research.status.result",
+            operation=result.operation,
+            status=result.status.value.upper(),
+            count=len(result.items),
+            reason=result.reason or "—",
         )
+        if result.operation == "query" and not result.items:
+            status_text = f"{status_text} — {tr.text('research.query.description')}"
+        capability.setText(status_text)
+        refresh_capability_diagnostics()
         copy_button.setEnabled(True)
         export_button.setEnabled(True)
         if result.items:
@@ -283,6 +350,7 @@ def create_research_page(
         details.setPlainText(message)
         warning.setVisible(False)
         capability.setText(tr.text("research.status.error", reason=message))
+        refresh_capability_diagnostics()
         copy_button.setEnabled(False)
         export_button.setEnabled(False)
 
@@ -317,6 +385,7 @@ def create_research_page(
     def run_fetch() -> None:
         kind = ResearchSourceKind(str(fetch_kind.currentData()))
         research.allow_network = bool(allow_network.isChecked())
+        refresh_capability_diagnostics()
         request = ResearchFetchRequest(kind=kind, locator=locator.text())
         run_async(lambda token: research.fetch(request, cancellation=token))
 
@@ -328,6 +397,7 @@ def create_research_page(
             cancel_button.setEnabled(False)
 
     def refresh_status() -> None:
+        refresh_capability_diagnostics()
         run_async(lambda _token: research.status())
 
     def copy_result() -> None:
@@ -360,10 +430,13 @@ def create_research_page(
     copy_button.clicked.connect(copy_result)
     export_button.clicked.connect(export_result)
     results.itemSelectionChanged.connect(show_selected)
+    allow_network.toggled.connect(lambda _checked: refresh_capability_diagnostics())
 
+    refresh_capability_diagnostics()
     page._research_run_search = run_search
     page._research_run_fetch = run_fetch
     page._research_cancel_active = cancel
     page._research_render = render
     page._research_set_busy = set_busy
+    page._research_refresh_capability_diagnostics = refresh_capability_diagnostics
     return page

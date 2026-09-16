@@ -1,0 +1,20 @@
+{
+  "capabilities": [
+    {"accelerator_state":"priority","authentication_state":"required","capability_id":"accelerator.kaggle-t4x2","classifications":["source-available","acceptance-proven"],"network_state":"restricted","runtime_state":"auth-required"},
+    {"accelerator_state":"deferred","authentication_state":"required","capability_id":"accelerator.tpu-v5e-8","classifications":["experimental","unavailable"],"network_state":"restricted","runtime_state":"not-implemented"},
+    {"accelerator_state":null,"authentication_state":"not-required","capability_id":"research.community-normalization","classifications":["public-validated","source-available","acceptance-proven"],"network_state":"not-required","runtime_state":"ready"},
+    {"accelerator_state":null,"authentication_state":"not-required","capability_id":"research.explicit-web-fetch","classifications":["public-validated","source-available","acceptance-proven"],"network_state":"restricted","runtime_state":"network-restricted"},
+    {"accelerator_state":null,"authentication_state":"required","capability_id":"research.github-authenticated-resource","classifications":["source-available","experimental"],"network_state":"restricted","runtime_state":"auth-required"},
+    {"accelerator_state":null,"authentication_state":"optional","capability_id":"research.github-discovery","classifications":["unavailable"],"network_state":"restricted","runtime_state":"not-implemented"},
+    {"accelerator_state":null,"authentication_state":"optional","capability_id":"research.github-known-resource","classifications":["public-validated","source-available","acceptance-proven"],"network_state":"restricted","runtime_state":"network-restricted"},
+    {"accelerator_state":null,"authentication_state":"not-required","capability_id":"research.local-document-fetch","classifications":["public-validated","source-available","acceptance-proven"],"network_state":"not-required","runtime_state":"ready"},
+    {"accelerator_state":null,"authentication_state":"not-required","capability_id":"research.saved-reports-search","classifications":["public-validated","source-available","acceptance-proven"],"network_state":"not-required","runtime_state":"ready"},
+    {"accelerator_state":null,"authentication_state":"not-required","capability_id":"research.vision-provider","classifications":["public-validated","source-available","acceptance-proven","unavailable"],"network_state":"not-required","runtime_state":"unavailable"},
+    {"accelerator_state":null,"authentication_state":"not-required","capability_id":"research.web-discovery","classifications":["unavailable"],"network_state":"restricted","runtime_state":"not-implemented"},
+    {"accelerator_state":null,"authentication_state":"not-required","capability_id":"research.youtube-transcript","classifications":["public-validated","source-available","acceptance-proven"],"network_state":"restricted","runtime_state":"network-restricted"}
+  ],
+  "public_distribution":{"source_sha":"fa787ab7ef76f2556b56ac1f058916a1425455af","tag":"v1.1.0-rc8"},
+  "runtime_context":{"github_authenticated":false,"network_allowed":false},
+  "schema":"kodepoia.v2.capability-matrix.documentation",
+  "schema_version":1
+}

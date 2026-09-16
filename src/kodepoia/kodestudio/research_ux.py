@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Mapping
 
 from kodepoia.capability_truth import build_capability_matrix
 from kodepoia.quality.localization import KodeLocalization, LocaleCatalog, LocalizedMessage, pseudo_catalog
 
-
 SOURCE_LOCALE = "en"
 PSEUDO_LOCALE = "qps-ploc"
-
 
 RESEARCH_UX_SOURCE_CATALOG = LocaleCatalog(
     locale=SOURCE_LOCALE,
@@ -25,11 +23,23 @@ RESEARCH_UX_SOURCE_CATALOG = LocaleCatalog(
         LocalizedMessage.text("research_ux.discovery.name", "Source discovery"),
         LocalizedMessage.text(
             "research_ux.discovery.description",
-            "Discover new candidate sources through qualified providers. V2.1.1 exposes capability state only; real discovery begins in V2.1.2.",
+            "Discover new Web and GitHub candidate sources. Candidates are not fetched, persisted, trusted, or evidence until you explicitly open/fetch a locator.",
         ),
         LocalizedMessage.text(
-            "research_ux.discovery.not_implemented",
-            "Search sources: NOT IMPLEMENTED — no qualified discovery provider is available yet. Use Search saved research or Open/fetch source with a known locator.",
+            "research_ux.discovery.network_restricted",
+            "Search sources: NETWORK-RESTRICTED — enable network to query the qualified discovery providers.",
+        ),
+        LocalizedMessage.text(
+            "research_ux.discovery.available",
+            "Search sources is available. GitHub public discovery can run without credentials; Brave Web discovery also requires brave/search_api_key.",
+        ),
+        LocalizedMessage.text(
+            "research_ux.discovery.result",
+            "Source discovery: {status} — {count} candidate(s). Nothing here has been fetched, persisted, trusted, or promoted to evidence. {provider_summary}",
+        ),
+        LocalizedMessage.text(
+            "research_ux.discovery.provider",
+            "{provider}: {status}{reason}",
         ),
         LocalizedMessage.text("research_ux.fetch.button", "Open/fetch source"),
         LocalizedMessage.text("research_ux.fetch.name", "Known-source acquisition"),
@@ -50,12 +60,12 @@ RESEARCH_UX_SOURCE_CATALOG = LocaleCatalog(
             "No matching saved research stored in this project was found. This was a local saved-report search, not source discovery.",
         ),
         LocalizedMessage.text(
-            "research_ux.empty.discovery_unavailable",
-            "Source discovery is not implemented yet. V2.1.2 is the first subdivision allowed to add qualified discovery providers.",
+            "research_ux.empty.discovery_restricted",
+            "Source discovery exists in live source but is network-restricted until you explicitly enable network.",
         ),
         LocalizedMessage.text(
             "research_ux.empty.network_restricted",
-            "Known Web-source fetch is network-restricted. Enable network only for the explicit fetch when appropriate.",
+            "Known Web-source fetch is network-restricted. Enable network only for the explicit operation when appropriate.",
         ),
         LocalizedMessage.text(
             "research_ux.empty.auth_required",
@@ -63,7 +73,7 @@ RESEARCH_UX_SOURCE_CATALOG = LocaleCatalog(
         ),
         LocalizedMessage.text(
             "research_ux.provider.summary",
-            "Provider status — discovery: {discovery} • explicit Web fetch: {web} • private GitHub: {github} • vision: {vision}",
+            "Provider status — Web discovery: {discovery} • GitHub discovery: {github_discovery} • explicit Web fetch: {web} • private GitHub: {github} • vision: {vision}",
         ),
         LocalizedMessage.text(
             "research_ux.saved.result",
@@ -85,10 +95,7 @@ RESEARCH_UX_SOURCE_CATALOG = LocaleCatalog(
             "research_ux.fetch.unavailable_action",
             "The source provider or transport is unavailable. Check provider/network diagnostics and retry the same explicit locator when the dependency is available.",
         ),
-        LocalizedMessage.text(
-            "research_ux.error.empty_query",
-            "Enter a question before searching saved research.",
-        ),
+        LocalizedMessage.text("research_ux.error.empty_query", "Enter a question before searching."),
         LocalizedMessage.text(
             "research_ux.error.empty_locator",
             "Enter a local path or explicit HTTP(S) URL before opening/fetching a source.",
@@ -125,11 +132,7 @@ class ResearchUxTranslator:
         )
 
 
-def _research_rows(
-    *,
-    allow_network: bool = False,
-    github_authenticated: bool = False,
-) -> dict[str, dict[str, Any]]:
+def _research_rows(*, allow_network: bool = False, github_authenticated: bool = False) -> dict[str, dict[str, Any]]:
     return {
         row["capability_id"]: row
         for row in build_capability_matrix(
@@ -150,6 +153,7 @@ def provider_summary_text(
     return translator.text(
         "research_ux.provider.summary",
         discovery=rows["research.web-discovery"]["runtime_state"].upper(),
+        github_discovery=rows["research.github-discovery"]["runtime_state"].upper(),
         web=rows["research.explicit-web-fetch"]["runtime_state"].upper(),
         github=rows["research.github-authenticated-resource"]["runtime_state"].upper(),
         vision=rows["research.vision-provider"]["runtime_state"].upper(),
@@ -162,11 +166,9 @@ def discovery_state_text(
     allow_network: bool = False,
     github_authenticated: bool = False,
 ) -> str:
-    rows = _research_rows(allow_network=allow_network, github_authenticated=github_authenticated)
-    state = rows["research.web-discovery"]["runtime_state"]
-    if state == "not-implemented":
-        return translator.text("research_ux.discovery.not_implemented")
-    return f"{translator.text('research_ux.discovery.button')}: {state.upper()}"
+    if allow_network:
+        return translator.text("research_ux.discovery.available")
+    return translator.text("research_ux.discovery.network_restricted")
 
 
 def default_empty_state_text(
@@ -182,8 +184,8 @@ def default_empty_state_text(
         if report_count <= 0
         else translator.text("research_ux.empty.saved_available", count=report_count)
     ]
-    if rows["research.web-discovery"]["runtime_state"] != "ready":
-        parts.append(translator.text("research_ux.empty.discovery_unavailable"))
+    if not allow_network:
+        parts.append(translator.text("research_ux.empty.discovery_restricted"))
     if rows["research.explicit-web-fetch"]["runtime_state"] == "network-restricted":
         parts.append(translator.text("research_ux.empty.network_restricted"))
     if rows["research.github-authenticated-resource"]["runtime_state"] == "auth-required":
@@ -191,22 +193,45 @@ def default_empty_state_text(
     return "\n".join(parts)
 
 
-def saved_search_status_text(
-    translator: ResearchUxTranslator,
-    *,
-    status: str,
-    count: int,
-) -> str:
+def saved_search_status_text(translator: ResearchUxTranslator, *, status: str, count: int) -> str:
     message = (
         translator.text("research_ux.empty.no_saved_matches")
         if count == 0
         else translator.text("research_ux.saved.matches")
     )
+    return translator.text("research_ux.saved.result", status=status.upper(), count=count, message=message)
+
+
+def discovery_status_text(
+    translator: ResearchUxTranslator,
+    *,
+    status: str,
+    count: int,
+    providers: object,
+) -> str:
+    summaries: list[str] = []
+    if isinstance(providers, list):
+        for raw in providers:
+            if not isinstance(raw, Mapping):
+                continue
+            provider = str(raw.get("provider_id", "provider"))
+            provider_status = str(raw.get("status", "unknown")).upper()
+            reason_value = str(raw.get("reason", "")).strip()
+            reason = f" ({reason_value})" if reason_value else ""
+            summaries.append(
+                translator.text(
+                    "research_ux.discovery.provider",
+                    provider=provider,
+                    status=provider_status,
+                    reason=reason,
+                )
+            )
+    provider_summary = " • ".join(summaries) if summaries else "provider state unavailable"
     return translator.text(
-        "research_ux.saved.result",
+        "research_ux.discovery.result",
         status=status.upper(),
         count=count,
-        message=message,
+        provider_summary=provider_summary,
     )
 
 
@@ -236,7 +261,7 @@ def fetch_status_text(
 
 def error_text(translator: ResearchUxTranslator, message: str) -> str:
     lowered = message.casefold()
-    if "query must not be empty" in lowered:
+    if "query must not be empty" in lowered or "discovery query must not be empty" in lowered:
         return translator.text("research_ux.error.empty_query")
     if "locator must not be empty" in lowered:
         return translator.text("research_ux.error.empty_locator")

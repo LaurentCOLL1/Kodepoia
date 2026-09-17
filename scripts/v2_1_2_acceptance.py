@@ -95,9 +95,14 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
     partial_states = {entry["provider_id"]: entry for entry in partial.metadata["providers"]}
     failed_states = {entry["provider_id"]: entry for entry in failed.metadata["providers"]}
     implementation_phase = "### V2.1.2 — Discovery providers — CURRENT" in workspace
-    normalized_phase = (
-        "### V2.1.2 — Discovery providers — COMPLETE + NORMALIZED" in workspace
-        and "### V2.1.3 — Evidence workspace — CURRENT" in workspace
+    normalized_phase = "### V2.1.2 — Discovery providers — COMPLETE + NORMALIZED" in workspace
+    discovery_mutation_boundary = (
+        "candidate discovery alone performs no protected mutation" in workspace
+        or "does not itself create evidence" in workspace
+    )
+    guarded_fetch_boundary = (
+        "discovered URL still passes guarded fetch" in workspace
+        or "Every acquisition still passes guarded fetch" in workspace
     )
 
     checks = [
@@ -164,9 +169,9 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
         _check(
             "workspace-scope",
             (implementation_phase or normalized_phase)
-            and "candidate discovery alone performs no protected mutation" in workspace
-            and "discovered URL still passes guarded fetch" in workspace,
-            "V2.1.2 remains the scoped discovery subdivision during implementation or post-merge normalization.",
+            and discovery_mutation_boundary
+            and guarded_fetch_boundary,
+            "V2.1.2 remains valid after normalization and later subdivisions while discovery/fetch boundaries stay explicit.",
         ),
     ]
 

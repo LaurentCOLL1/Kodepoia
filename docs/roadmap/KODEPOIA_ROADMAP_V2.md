@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1.2 COMPLETE + NORMALIZED; V2.1.3 authorized**  
+Status: **ACTIVE — V2.1.3 COMPLETE + NORMALIZED; V2.1.4 authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -9,7 +9,8 @@ Public Windows distribution baseline: `v1.1.0-rc8`
 - V2 roadmap preparation: PR `#472`, merge `87fc09e16531260d64cf3d5fb59f511295e2b703`, 25/25 exact-head PR workflows successful.
 - V2.0: PR `#474`, accepted head `79749ab25d58faaca6421bcda4eb460194a3683c`, merge `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`, 27/27 successful.
 - V2.1.1: PR `#476`, accepted head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, 27/27 successful.
-- V2.1.2: PR `#478`, accepted head `e1e209ebcf78265f04b30b0019d201d58dae76ef`, merge `347068de7f9be9275754bbda7c55f4e0d5e66bac`, 27/27 successful.
+- V2.1.2: PR `#478`, accepted head `e1e209ebcf78265f04b30b0019d201d58dae76ef`, merge `347068de7f9be9275754bbda7c55f4e0d5e66bac`, 27/27 successful; normalization PR `#479`, head `02f00beb070492c398858dcfa70ce0118872b55d`, merge `39ceec560ff069d98530687f77e7ad1c41670d3a`.
+- V2.1.3: PR `#480`, accepted head `c4cff95ea2309ea5482e6c24c61002b13becb48f`, merge `0c3d365626df666f2a847b9320b0730dc0110afa`, 27/27 successful.
 
 V2 does not reopen R20, does not create `R20.7`, and does not turn post-rc8 source capabilities into public rc8 capabilities.
 
@@ -40,25 +41,47 @@ Exact-head evidence:
 - Ubuntu `v2-1-2-discovery-providers-ubuntu-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef` — SHA-256 `e9c0d999b28d38c6319229354f19156b6b19e14d35ff567a9f0fcab25ebcd164`;
 - Windows `v2-1-2-discovery-providers-windows-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef` — SHA-256 `8ff58d6ea0f4590654387b5b2c405df265aa36b91044c023e10f0c9ea304df8a`.
 
-### V2.1.3 — Evidence workspace — NEXT
+### V2.1.3 — Evidence workspace — COMPLETE + NORMALIZED
+
+Accepted scope:
+
+- structured source/evidence rows rather than raw-JSON-only inspection;
+- stable canonical source identity and visible canonical locator;
+- visible publication/update/version, trust, freshness and suspicious indicators;
+- explicit candidate-only versus fetched lifecycle;
+- include/exclude state only for fetched artifact IDs;
+- immutable lightweight retrieval revisions and inspectable refetch lineage, including unchanged-content refetches;
+- duplicate source identities normalized while provider provenance is retained;
+- stale/conflicting versions remain inspectable;
+- dedicated KodeStudio Evidence workspace preserving the historical seven-column Research results contract.
+
+Exact-head acceptance on `c4cff95ea2309ea5482e6c24c61002b13becb48f` reported **13/13 PASS**.
+
+Exact-head evidence:
+
+- Ubuntu `v2-1-3-evidence-workspace-ubuntu-latest-c4cff95ea2309ea5482e6c24c61002b13becb48f` — SHA-256 `753436509fc379e5bfc93426d5be0b5605083c5959679c8b61abb79feac54d27`;
+- Windows `v2-1-3-evidence-workspace-windows-latest-c4cff95ea2309ea5482e6c24c61002b13becb48f` — SHA-256 `043a626b059277bd4dbcb8cf0f7b32ed1b5e2fd1ac71c993c31c3802e049dd2c`.
+
+### V2.1.4 — Cited synthesis and Research Packs — NEXT
 
 Implement only:
 
-- source cards / structured inspectable source rows;
-- canonical locator, source dates/version, trust and freshness metadata;
-- explicit include/exclude state for fetched evidence;
-- candidate-vs-fetched distinction preserved;
-- cache/refetch lineage without silent historical replacement;
-- duplicate source identities normalized without losing provider provenance;
+- synthesis from explicitly selected fetched evidence;
+- claim-linked, inspectable citations bound to the evidence revision actually used;
+- visible uncertainty and unresolved stale/conflicting evidence;
+- governed Research Pack persistence with scoped question, selected evidence/revisions, citations, synthesis and provenance metadata;
+- stable Research Pack digest and project-scoped persistence under `.kodepoia/`;
+- clear KodeStudio synthesis/save workflow;
 - deterministic backend/UI tests and exact-head Ubuntu/Windows acceptance.
 
-Do **not** pull V2.1.4 cited synthesis or Research Pack persistence into V2.1.3.
+Preserve ResearchGuard, secret redaction and protected-action boundaries. Discovery candidates must never be cited as fetched evidence merely because they were discovered.
+
+Do **not** pull V2.1.5 forum/YouTube/media provider expansion or V2.1.6 adversarial hardening forward.
 
 ### Later V2.1 order
 
-1. V2.1.4 — Cited synthesis and Research Packs.
-2. V2.1.5 — Extended media/community sources.
-3. V2.1.6 — ResearchGuard hardening.
+1. V2.1.5 — Extended media/community sources.
+2. V2.1.6 — ResearchGuard hardening.
 
 Each subdivision requires its own branch, exact-head acceptance, all required workflows successful, protected merge, and post-merge continuity normalization before the next subdivision.
 

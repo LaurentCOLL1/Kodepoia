@@ -5,8 +5,12 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Mapping
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
+from kodepoia.core.guardian import KodeGuardian
+from kodepoia.core.permissions import Capability, PermissionGrant, PermissionSet
+from kodepoia.core.secrets import KodeSecrets
+from kodepoia.exceptions import PermissionDenied
 from kodepoia.intelligence.research.community import CommunityResearchClient
 from kodepoia.intelligence.research.contracts import (
     ResearchArtifact,
@@ -23,10 +27,31 @@ from kodepoia.intelligence.research.service import (
     ResearchViewItem,
 )
 from kodepoia.intelligence.research.store import ResearchStore
-from kodepoia.intelligence.research.web import RawWebResponse, WebPolicyViolation
-from kodepoia.intelligence.research.youtube import YouTubeLocator, YouTubeResearchClient
+from kodepoia.intelligence.research.web import (
+    GuardedHttpTransport,
+    RawWebResponse,
+    Resolver,
+    SingleRequestTransport,
+    WebPolicy,
+    WebPolicyViolation,
+    WebRateLimitExceeded,
+    WebTransportError,
+    resolve_public_target,
+    validate_raw_web_response,
+)
+from kodepoia.intelligence.research.youtube import (
+    GuardedYouTubeApiTransport,
+    YouTubeAuthorizedCaptionProvider,
+    YouTubeCredentialRef,
+    YouTubeDataApiMetadataProvider,
+    YouTubeLocator,
+    YouTubeResearchClient,
+)
 
 V2_1_5_SCHEMA_VERSION = 1
+YOUTUBE_CREDENTIAL_NAMESPACE = "youtube"
+YOUTUBE_API_KEY = "data_api_key"
+YOUTUBE_OAUTH_TOKEN = "oauth_access_token"
 _YOUTUBE_HOSTS = {
     "youtube.com",
     "www.youtube.com",
@@ -172,26 +197,35 @@ class ExtendedFetchResult:
 
     def to_service_result(self) -> ResearchServiceResult:
         return ResearchServiceResult(
-            operation=self.operation,
+            operation="fetch",
             status=self.status,
             items=self.items,
             reason=self.reason,
-            metadata={"v2_1_5": True, **dict(self.metadata)},
+            metadata={
+                "v2_1_5": True,
+                "provider_operation": self.operation,
+                **dict(self.metadata),
+            },
         )
 
 
 @dataclass(slots=True)
 class ExtendedSourceCoordinator:
-    """V2.1.5 bridge from candidate discovery to the canonical ResearchStore/Evidence lifecycle.
+    """V2.1.5 bridge from discovery candidates to canonical fetched evidence.
 
-    Discovery stays descriptor-only. Only guarded YouTube/community clients can create
-    persisted artifacts, and their artifacts are projected through the same revision and
-    evidence-selection stores used by the rest of the Research Workspace.
+    Discovery remains descriptor-only. Guarded community/YouTube acquisition is explicit,
+    project-scoped, and feeds the same ResearchStore/EvidenceWorkspace lifecycle as all
+    other fetched research evidence.
     """
 
     project_root: Path
     youtube_client: YouTubeResearchClient | None = None
     community_client: CommunityResearchClient | None = None
+    allow_network: bool = False
+    secrets: KodeSecrets | None = None
+    web_transport: SingleRequestTransport | None = None
+    web_policy: WebPolicy = field(default_factory=WebPolicy)
+    resolver: Resolver | None = None
     _store: ResearchStore = field(init=False, repr=False)
     _selection_store: EvidenceSelectionStore = field(init=False, repr=False)
 
@@ -200,10 +234,12 @@ class ExtendedSourceCoordinator:
         self.project_root = root
         self._store = ResearchStore(root)
         self._selection_store = EvidenceSelectionStore(root)
+        if self.community_client is None:
+            self.community_client = CommunityResearchClient(root, policy=self.web_policy)
 
     @staticmethod
     def classify_discovery(items: Iterable[ResearchViewItem]) -> tuple[ResearchViewItem, ...]:
-        """Reclassify existing guarded web-discovery descriptors without fetching them."""
+        """Return extended-source candidates derived from existing guarded descriptors."""
 
         classified: list[ResearchViewItem] = []
         for item in items:
@@ -229,6 +265,30 @@ class ExtendedSourceCoordinator:
                 ).to_view_item()
             )
         return tuple(classified)
+
+    @staticmethod
+    def classify_discovery_result(result: ResearchServiceResult) -> ResearchServiceResult:
+        """Replace recognized Web descriptors with typed community/YouTube candidates."""
+
+        if result.operation != "discover" or not result.items:
+            return result
+        replacements = {
+            item.locator: item
+            for item in ExtendedSourceCoordinator.classify_discovery(result.items)
+        }
+        if not replacements:
+            return result
+        items = tuple(replacements.get(item.locator, item) for item in result.items)
+        metadata = dict(result.metadata)
+        metadata["extended_source_candidates"] = len(replacements)
+        metadata["extended_source_kinds"] = sorted({item.source_kind for item in replacements.values()})
+        return ResearchServiceResult(
+            operation=result.operation,
+            status=result.status,
+            items=items,
+            reason=result.reason,
+            metadata=metadata,
+        )
 
     @staticmethod
     def youtube_search_candidates(payload: Mapping[str, Any]) -> tuple[ResearchViewItem, ...]:
@@ -287,6 +347,75 @@ class ExtendedSourceCoordinator:
             rank=rank,
         ).to_view_item()
 
+    def _guardian(self) -> KodeGuardian:
+        permissions = PermissionSet()
+        permissions.grant(PermissionGrant(Capability.NETWORK))
+        return KodeGuardian(permissions)
+
+    def _resolve(self, url: str):
+        if self.resolver is None:
+            return resolve_public_target(url, policy=self.web_policy)
+        return resolve_public_target(url, policy=self.web_policy, resolver=self.resolver)
+
+    def _raw_community_response(self, locator: str) -> tuple[RawWebResponse, tuple[str, ...]]:
+        if not self.allow_network and self.web_transport is None:
+            raise PermissionDenied("NETWORK capability is not granted for community research")
+        transport = self.web_transport or GuardedHttpTransport(self._guardian())
+        current_url = locator
+        redirects: list[str] = []
+        for hop in range(self.web_policy.max_redirects + 1):
+            target = self._resolve(current_url)
+            response = transport.send(target, policy=self.web_policy)
+            validate_raw_web_response(response, policy=self.web_policy)
+            status = response.status_code
+            if status in {301, 302, 303, 307, 308}:
+                location = response.header("Location").strip()
+                if not location:
+                    raise WebPolicyViolation("Community redirect is missing Location")
+                if hop >= self.web_policy.max_redirects:
+                    raise WebPolicyViolation("Community redirect limit exceeded")
+                next_target = self._resolve(urljoin(target.normalized_url, location))
+                redirects.append(next_target.normalized_url)
+                current_url = next_target.normalized_url
+                continue
+            if status == 429:
+                raise WebRateLimitExceeded("community_rate_limited")
+            return (
+                RawWebResponse(
+                    url=target.normalized_url,
+                    status_code=response.status_code,
+                    headers=dict(response.headers),
+                    body=bytes(response.body),
+                ),
+                tuple(redirects),
+            )
+        raise WebPolicyViolation("Community redirect limit exceeded")
+
+    def _runtime_youtube_client(self) -> tuple[YouTubeResearchClient | None, str]:
+        if self.youtube_client is not None:
+            return self.youtube_client, ""
+        if not self.allow_network:
+            return None, "network_permission_not_granted"
+        if self.secrets is None:
+            return None, "youtube_credentials_unconfigured"
+        transport = GuardedYouTubeApiTransport(self._guardian(), self.secrets)
+        metadata_provider = YouTubeDataApiMetadataProvider(
+            transport,
+            api_key_ref=YouTubeCredentialRef(YOUTUBE_CREDENTIAL_NAMESPACE, YOUTUBE_API_KEY),
+        )
+        transcript_provider = YouTubeAuthorizedCaptionProvider(
+            transport,
+            oauth_ref=YouTubeCredentialRef(YOUTUBE_CREDENTIAL_NAMESPACE, YOUTUBE_OAUTH_TOKEN),
+        )
+        return (
+            YouTubeResearchClient(
+                self.project_root,
+                metadata_provider=metadata_provider,
+                transcript_provider=transcript_provider,
+            ),
+            "",
+        )
+
     def fetch_youtube(
         self,
         locator: str,
@@ -295,20 +424,47 @@ class ExtendedSourceCoordinator:
         preferred_languages: tuple[str, ...] = (),
         include_transcript: bool = True,
     ) -> ExtendedFetchResult:
-        if self.youtube_client is None:
+        client, unavailable_reason = self._runtime_youtube_client()
+        if client is None:
+            status = (
+                ResearchOperationStatus.BLOCKED
+                if unavailable_reason in {"network_permission_not_granted", "youtube_credentials_unconfigured"}
+                else ResearchOperationStatus.UNAVAILABLE
+            )
+            return ExtendedFetchResult(
+                "fetch-youtube",
+                status,
+                reason=unavailable_reason or "youtube_provider_unconfigured",
+                metadata={
+                    "fetched": False,
+                    "persisted": False,
+                    "credential_namespace": YOUTUBE_CREDENTIAL_NAMESPACE,
+                    "api_key_ref": YOUTUBE_API_KEY,
+                    "oauth_ref": YOUTUBE_OAUTH_TOKEN,
+                },
+            )
+        try:
+            result = client.research(
+                locator,
+                retrieved_at=retrieved_at,
+                preferred_languages=preferred_languages,
+                include_transcript=include_transcript,
+                persist_cache=True,
+            )
+        except PermissionDenied as exc:
+            return ExtendedFetchResult(
+                "fetch-youtube",
+                ResearchOperationStatus.BLOCKED,
+                reason=str(exc),
+                metadata={"fetched": False, "persisted": False},
+            )
+        except (WebPolicyViolation, WebTransportError, RuntimeError) as exc:
             return ExtendedFetchResult(
                 "fetch-youtube",
                 ResearchOperationStatus.UNAVAILABLE,
-                reason="youtube_provider_unconfigured",
+                reason=str(exc),
                 metadata={"fetched": False, "persisted": False},
             )
-        result = self.youtube_client.research(
-            locator,
-            retrieved_at=retrieved_at,
-            preferred_languages=preferred_languages,
-            include_transcript=include_transcript,
-            persist_cache=True,
-        )
         items: list[ResearchViewItem] = []
         if result.metadata_artifact is not None:
             items.append(_artifact_item(result.metadata_artifact, reason="fetched:youtube-metadata"))
@@ -317,7 +473,11 @@ class ExtendedSourceCoordinator:
         statuses = {result.metadata_status, result.transcript_status}
         if items:
             status = ResearchOperationStatus.READY
-            reason = "youtube_fetched" if statuses <= {ResearchStatus.READY, ResearchStatus.NOT_APPLICABLE} else "youtube_fetched_partial"
+            reason = (
+                "youtube_fetched"
+                if statuses <= {ResearchStatus.READY, ResearchStatus.NOT_APPLICABLE}
+                else "youtube_fetched_partial"
+            )
         elif ResearchStatus.BLOCKED in statuses:
             status = ResearchOperationStatus.BLOCKED
             reason = result.transcript_reason or result.metadata_reason or "youtube_fetch_blocked"
@@ -340,6 +500,60 @@ class ExtendedSourceCoordinator:
                 "stt_fallback_trusted": False,
                 "frame_extraction_trusted": False,
             },
+        )
+
+    def fetch_community_url(
+        self,
+        locator: str,
+        *,
+        retrieved_at: str,
+    ) -> ExtendedFetchResult:
+        try:
+            response, redirects = self._raw_community_response(locator)
+        except PermissionDenied as exc:
+            return ExtendedFetchResult(
+                "fetch-community",
+                ResearchOperationStatus.BLOCKED,
+                reason=str(exc),
+                metadata={"fetched": False, "persisted": False},
+            )
+        except WebRateLimitExceeded as exc:
+            return ExtendedFetchResult(
+                "fetch-community",
+                ResearchOperationStatus.UNAVAILABLE,
+                reason=str(exc),
+                metadata={"fetched": False, "persisted": False, "rate_limited": True},
+            )
+        except (WebPolicyViolation, WebTransportError) as exc:
+            return ExtendedFetchResult(
+                "fetch-community",
+                ResearchOperationStatus.UNAVAILABLE,
+                reason=str(exc),
+                metadata={"fetched": False, "persisted": False},
+            )
+        if not 200 <= response.status_code < 300:
+            return ExtendedFetchResult(
+                "fetch-community",
+                ResearchOperationStatus.UNAVAILABLE,
+                reason=f"community_http_status_{response.status_code}",
+                metadata={
+                    "fetched": False,
+                    "persisted": False,
+                    "redirects": list(redirects),
+                },
+            )
+        platform = (urlsplit(response.url).hostname or "").lower()
+        result = self.fetch_community(
+            response,
+            retrieved_at=retrieved_at,
+            platform=platform,
+        )
+        return ExtendedFetchResult(
+            result.operation,
+            result.status,
+            result.items,
+            reason=result.reason,
+            metadata={**dict(result.metadata), "redirects": list(redirects)},
         )
 
     def fetch_community(

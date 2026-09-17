@@ -103,7 +103,10 @@ def run(source_sha: str) -> dict[str, object]:
     )
 
     candidates = EvidenceWorkspace.project(
-        (_candidate("https://example.com/docs/", "brave-web"), _candidate("https://example.com/docs#top", "github-public"))
+        (
+            _candidate("https://example.com/docs/", "brave-web"),
+            _candidate("https://example.com/docs#top", "github-public"),
+        )
     )
     candidate = candidates.rows[0]
     checks.append(
@@ -137,7 +140,8 @@ def run(source_sha: str) -> dict[str, object]:
         checks.append(
             _check(
                 "selection-boundary",
-                selection_rejected and selection_store.load().get("a" * 64) is EvidenceSelection.EXCLUDED,
+                selection_rejected
+                and selection_store.load().get("a" * 64) is EvidenceSelection.EXCLUDED,
                 "Include/exclude is persisted only against fetched artifact IDs.",
             )
         )
@@ -200,17 +204,25 @@ def run(source_sha: str) -> dict[str, object]:
     checks.append(
         _check(
             "ui-evidence-workspace",
-            "researchEvidenceIncludeButton" in panel
+            "researchEvidenceWorkspaceTable" in panel
+            and "researchEvidenceIncludeButton" in panel
             and "researchEvidenceExcludeButton" in panel
             and "Canonical locator" in panel
             and "EvidenceWorkspace.project" in panel,
-            "KodeStudio exposes lifecycle, canonical locator, lineage and fetched-evidence selection controls.",
+            "KodeStudio exposes a dedicated structured Evidence workspace without replacing legacy results.",
+        )
+    )
+    checks.append(
+        _check(
+            "legacy-ui-contract",
+            "QTableWidget(0, 7)" in panel and "details.setMaximumHeight(160)" in panel,
+            "V2.1.3 preserves the seven-column Research result contract and bounded JSON details.",
         )
     )
     checks.append(
         _check(
             "raw-json-secondary",
-            panel.index("researchResultsTable") < panel.index("researchDetails"),
+            panel.index("researchEvidenceWorkspaceTable") < panel.index("researchDetails"),
             "Structured evidence rows precede raw technical JSON details in the Research page.",
         )
     )

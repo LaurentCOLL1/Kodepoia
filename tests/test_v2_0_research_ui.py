@@ -44,7 +44,8 @@ def test_research_ui_exposes_scope_and_actionable_capability_states(tmp_path: Pa
     assert scope is not None and diagnostics is not None
     assert "stored in this project" in scope.text().lower()
     text = diagnostics.toPlainText()
-    assert "research.web-discovery: NOT-IMPLEMENTED" in text
+    assert "research.web-discovery: NETWORK-RESTRICTED" in text
+    assert "research.github-discovery: NETWORK-RESTRICTED" in text
     assert "research.github-authenticated-resource: AUTH-REQUIRED" in text
     assert "research.vision-provider: UNAVAILABLE" in text
     assert "research.explicit-web-fetch: NETWORK-RESTRICTED" in text
@@ -83,5 +84,6 @@ def test_network_toggle_updates_provider_truth_without_hiding_failures(tmp_path:
     QApplication.processEvents()
     updated = diagnostics.toPlainText()
     assert "research.explicit-web-fetch: READY" in updated
-    assert "research.web-discovery: NOT-IMPLEMENTED" in updated
+    assert "research.github-discovery: READY" in updated
+    assert "research.web-discovery: AUTH-REQUIRED" in updated
     window.close()

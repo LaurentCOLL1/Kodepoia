@@ -50,7 +50,7 @@ def test_kodestudio_research_rows_share_canonical_truth() -> None:
 def test_provider_failures_are_not_empty_result_states() -> None:
     rows = _by_id()
     assert rows["research.saved-reports-search"]["runtime_state"] == "ready"
-    assert rows["research.web-discovery"]["runtime_state"] == "not-implemented"
+    assert rows["research.web-discovery"]["runtime_state"] == "network-restricted"
     assert rows["research.github-authenticated-resource"]["runtime_state"] == "auth-required"
     assert rows["research.vision-provider"]["runtime_state"] == "unavailable"
     assert rows["research.explicit-web-fetch"]["runtime_state"] == "network-restricted"
@@ -59,6 +59,8 @@ def test_provider_failures_are_not_empty_result_states() -> None:
 def test_network_and_auth_transitions_are_explicit() -> None:
     network = _by_id(allow_network=True)
     assert network["research.explicit-web-fetch"]["runtime_state"] == "ready"
+    assert network["research.web-discovery"]["runtime_state"] == "auth-required"
+    assert network["research.github-discovery"]["runtime_state"] == "ready"
     assert network["research.github-known-resource"]["runtime_state"] == "ready"
     assert network["research.github-authenticated-resource"]["runtime_state"] == "auth-required"
 

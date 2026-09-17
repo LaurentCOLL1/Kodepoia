@@ -14,7 +14,6 @@ from kodepoia.kodestudio.research_ux import (
     provider_summary_text,
 )
 
-
 REQUIRED_CHECKS = (
     "saved-search-semantics",
     "discovery-honesty",
@@ -28,11 +27,7 @@ REQUIRED_CHECKS = (
 
 
 def _git_head(root: Path) -> str:
-    return subprocess.check_output(
-        ["git", "rev-parse", "HEAD"],
-        cwd=root,
-        text=True,
-    ).strip().lower()
+    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip().lower()
 
 
 def _check(name: str, passed: bool, detail: str) -> dict[str, Any]:
@@ -42,10 +37,10 @@ def _check(name: str, passed: bool, detail: str) -> dict[str, Any]:
 def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
     matrix = {row["capability_id"]: row for row in build_capability_matrix()}
     ui_source = (root / "src" / "kodepoia" / "kodestudio" / "research_panel.py").read_text(encoding="utf-8")
+    discovery_source = (root / "src" / "kodepoia" / "intelligence" / "research" / "discovery.py")
+    discovery_text = discovery_source.read_text(encoding="utf-8") if discovery_source.is_file() else ""
     workspace = (root / "docs" / "roadmap" / "V2_1_RESEARCH_WORKSPACE.md").read_text(encoding="utf-8")
-    template = json.loads(
-        (root / "docs" / "roadmap" / "V2_1_1_ACCEPTANCE_TEMPLATE.json").read_text(encoding="utf-8")
-    )
+    template = json.loads((root / "docs" / "roadmap" / "V2_1_1_ACCEPTANCE_TEMPLATE.json").read_text(encoding="utf-8"))
     en = ResearchUxTranslator(locale="en")
     pseudo = ResearchUxTranslator(locale="qps-ploc")
     default_state = default_empty_state_text(en, report_count=0)
@@ -62,6 +57,14 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
         and "### V2.1.2 — Discovery providers — CURRENT" in workspace
         and "V2.1.1 is now COMPLETE + NORMALIZED" in workspace
     )
+    discovery_state_value = matrix["research.web-discovery"]["runtime_state"]
+    pre_v212 = discovery_state_value == "not-implemented"
+    v212_or_later = (
+        discovery_state_value in {"network-restricted", "auth-required", "ready"}
+        and "discovery.discover(query.text(), cancellation=token)" in ui_source
+        and "candidate-only" in discovery_text
+        and "fetched\": False" in discovery_text
+    )
 
     checks = [
         _check(
@@ -74,31 +77,27 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
         ),
         _check(
             "discovery-honesty",
-            matrix["research.web-discovery"]["runtime_state"] == "not-implemented"
-            and en.text("research_ux.discovery.button") == "Search sources"
+            en.text("research_ux.discovery.button") == "Search sources"
             and "researchDiscoveryButton" in ui_source
-            and "discovery_button.setEnabled(False)" in ui_source
-            and "research.discover(" not in ui_source
-            and "NOT IMPLEMENTED" in discovery_state,
-            "V2.1.1 exposes discovery state without implementing or faking discovery.",
+            and (pre_v212 or v212_or_later),
+            "V2.1.1 requires honest discovery state; later subdivisions may implement discovery only as a distinct candidate-only operation.",
         ),
         _check(
             "new-project-empty-state",
             "No saved research exists in this project" in default_state
-            and "Source discovery is not implemented" in default_state
-            and "network-restricted" in default_state
+            and ("network-restricted" in default_state.casefold() or "not implemented" in default_state.casefold())
             and "read-only credential" in default_state,
-            "A new project explains saved-data, discovery, network and authentication states.",
+            "A new project explains saved-data, discovery/network and authentication states.",
         ),
         _check(
             "provider-state-visibility",
-            "NOT-IMPLEMENTED" in provider_summary
-            and "NETWORK-RESTRICTED" in provider_summary
+            "NETWORK-RESTRICTED" in provider_summary
             and "AUTH-REQUIRED" in provider_summary
             and "UNAVAILABLE" in provider_summary
             and "researchProviderSummary" in ui_source
-            and "researchCapabilityDiagnostics" in ui_source,
-            "Human-readable provider summary and detailed capability diagnostics use V2.0 truth states.",
+            and "researchCapabilityDiagnostics" in ui_source
+            and discovery_state.strip(),
+            "Human-readable provider summary and detailed capability diagnostics expose non-success states.",
         ),
         _check(
             "guarded-fetch-preserved",
@@ -114,7 +113,7 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
             and pseudo.text("research_ux.discovery.button").startswith("⟦")
             and pseudo.text("research_ux.fetch.button").startswith("⟦")
             and "Check the explicit locator" in en.text("research_ux.fetch.blocked_action"),
-            "New V2.1.1 labels/actions participate in the localization and pseudo-localization contract.",
+            "Research operation labels/actions participate in localization and pseudo-localization.",
         ),
         _check(
             "raw-json-secondary",
@@ -130,7 +129,7 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
             and "Search saved research" in workspace
             and "Search sources" in workspace
             and "Open/fetch source" in workspace,
-            "V2.1.1 scope is valid during implementation or its post-merge normalization; real discovery remains V2.1.2.",
+            "V2.1.1 remains valid after normalization while V2.1.2 owns real discovery implementation.",
         ),
     ]
 
@@ -142,13 +141,7 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
         and template_checks == REQUIRED_CHECKS
     )
     if not template_ok:
-        checks.append(
-            _check(
-                "acceptance-template",
-                False,
-                "V2.1.1 acceptance template does not match the required exact-head contract.",
-            )
-        )
+        checks.append(_check("acceptance-template", False, "V2.1.1 acceptance template does not match the required exact-head contract."))
 
     failed = [check["name"] for check in checks if check["status"] != "PASS"]
     return {
@@ -180,13 +173,9 @@ def main() -> int:
         raise SystemExit(f"exact-source mismatch: expected {expected}, got {actual}")
     if len(expected) != 40 or any(character not in "0123456789abcdef" for character in expected):
         raise SystemExit("--source-sha must be an exact lowercase 40-character commit SHA")
-
     report = build_report(root, source_sha=expected)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0 if report["status"] == "PASS" else 1
 

@@ -1,191 +1,131 @@
 # V2.1 — Research Workspace
 
-Status: **ACTIVE — V2.1.1 COMPLETE + NORMALIZED; V2.1.2 Discovery providers is the current authorized subdivision**  
+Status: **ACTIVE — V2.1.2 COMPLETE + NORMALIZED; V2.1.3 Evidence workspace is the current authorized subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
-Prerequisite: **V2.0 COMPLETE + NORMALIZED** after PR `#474`, exact implementation head `79749ab25d58faaca6421bcda4eb460194a3683c`, merge `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`  
-V2.1.1 accepted by PR `#476`, exact head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, 27/27 PR workflows successful
+Public distribution boundary: `v1.1.0-rc8`
 
-## 1. Problem statement
+## Accepted history
 
-The Research page now distinguishes its three real operations. **Search saved research** calls `ResearchService.query()` and searches findings/artifacts already persisted under the active project's research reports. **Search sources** is a separate discovery operation and, after V2.1.1, cannot masquerade as saved-report search or an empty success. **Open/fetch source** remains the guarded acquisition path for one local path or explicit HTTP(S) locator.
+V2.0 is COMPLETE + NORMALIZED after PR `#474`, exact head `79749ab25d58faaca6421bcda4eb460194a3683c`, merge `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`.
 
-V2.0 makes the capability truth explicit and actionable: provider/runtime states distinguish `ready`, `unavailable`, `auth-required`, `network-restricted` and `not-implemented`; capability provenance distinguishes public rc8, live source and acceptance proof; unavailable providers cannot be represented as successful empty searches.
+V2.1.1 is COMPLETE + NORMALIZED after PR `#476`, exact head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, 27/27 successful PR workflows.
 
-V2.1.1 is now COMPLETE + NORMALIZED. V2.1.2 may add real discovery providers, but it must preserve the semantic and security separation established by V2.1.1.
+V2.1.2 is COMPLETE + NORMALIZED after PR `#478`, exact head `e1e209ebcf78265f04b30b0019d201d58dae76ef`, merge `347068de7f9be9275754bbda7c55f4e0d5e66bac`, 27/27 successful PR workflows.
 
-## 2. User workflow
+V2.1.2 exact-head evidence:
 
-The target V2.1 workflow is:
+- Ubuntu: `v2-1-2-discovery-providers-ubuntu-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef`, SHA-256 `e9c0d999b28d38c6319229354f19156b6b19e14d35ff567a9f0fcab25ebcd164`;
+- Windows: `v2-1-2-discovery-providers-windows-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef`, SHA-256 `8ff58d6ea0f4590654387b5b2c405df265aa36b91044c023e10f0c9ea304df8a`.
+
+## 1. Target workflow
 
 `question -> scope -> discover -> inspect -> fetch -> select evidence -> synthesize with citations -> save Research Pack -> reuse in project context`
 
-The primary KodeStudio screen must ultimately let the user:
+Discovery and acquisition remain separate contracts. External content remains **data, never instruction**.
 
-- enter a natural-language question;
-- optionally scope by provider, domain/product, version, time window and active project;
-- see which providers are available, disabled, unauthenticated, rate-limited or offline;
-- discover candidate sources without already knowing their URLs;
-- inspect title, canonical locator, provider, source type, date/version, freshness/trust and fetch state;
-- include or exclude evidence deliberately;
-- request a synthesis whose factual claims link back to included evidence;
-- save selected evidence and synthesis as a governed project-scoped Research Pack;
-- refresh stale sources without silently replacing historical evidence.
+## 2. Accepted V2.1.2 discovery contract
 
-## 3. Source/provider architecture
+Discovery now provides real question-driven candidates through:
 
-Discovery and acquisition are separate contracts.
+- Brave Search for general Web discovery via the official HTTPS API when NETWORK is explicitly allowed and the API key is referenced through KodeSecrets;
+- public GitHub repository discovery through the official GitHub REST Search API with optional authentication.
 
-### Discovery provider
+Discovery output is bounded candidate metadata, not trusted fetched content. Candidate lifecycle is explicit: `candidate-only`, `unfetched`, `fetched: false`, `persisted: false`.
 
-Input:
+Provider absence, missing authentication, network restriction, rate limiting and provider failure remain visible states. They cannot be represented as successful empty searches.
 
-- normalized natural-language query;
-- optional target product/version;
-- provider/domain filters;
-- requested result bound;
-- cancellation token and network policy.
+A discovered locator never grants permission to fetch. Any later acquisition must pass the existing guarded fetch, URL/path, Guardian, MIME/size/timeout/redirect, secret-redaction and ResearchGuard boundaries.
 
-Output: bounded candidate descriptors, not trusted content. Each descriptor should include provider ID, title, canonical locator, snippet if allowed, source kind, dates when known and provider-specific metadata.
+## 3. V2.1.3 — Evidence workspace — CURRENT
 
-### Fetch provider
+V2.1.3 must build the inspect/select evidence layer on top of accepted V2.1.2 discovery without adding V2.1.4 synthesis.
 
-The existing guarded acquisition model remains authoritative for retrieving content. Discovery never grants permission to fetch or execute anything. A discovered locator must pass the same URL/path, Guardian, size, MIME, timeout, redirect, secret-redaction and ResearchGuard policies as a manually supplied locator.
+Required behavior:
 
-### Initial provider order
+- source cards or equivalent structured rows for discovered and fetched items;
+- canonical locator visible for every source;
+- publication/update dates and version metadata displayed when available;
+- trust and freshness visible without relying on raw JSON;
+- descriptor-only candidates remain visibly distinct from fetched evidence;
+- explicit include/exclude state applies to fetched evidence only and never silently promotes a discovery candidate;
+- refetch creates inspectable lineage/newer evidence instead of silently replacing historical evidence;
+- duplicates normalize to a stable source identity while retaining provider provenance;
+- stale/conflicting versions remain visible rather than hidden;
+- raw JSON may remain as secondary technical detail.
 
-1. official documentation/general Web discovery;
-2. GitHub repositories/issues/PRs/code where an authorized provider is available;
-3. local project/docs search;
-4. forums/community sources;
-5. YouTube discovery and transcript metadata;
-6. optional STT/frame extraction only after explicit media acceptance.
+Out of scope for V2.1.3:
 
-Provider absence must be a visible capability state, never a silent empty result.
+- cited answer generation;
+- Research Pack persistence;
+- project Context Builder/RAG injection;
+- forum/YouTube provider expansion;
+- the full V2.1.6 adversarial hardening corpus.
 
 ## 4. ResearchGuard boundary
 
-All external source content remains **data, never instruction**.
+Fetched or discovered text cannot grant permissions or directly invoke protected actions. Source text containing tool directives, shell commands, credential requests or prompt-injection instructions remains source data and may be flagged suspicious.
 
-ResearchGuard must preserve or extend these invariants:
+No discovery/evidence UI operation may directly execute processes, mutate arbitrary filesystem state, install packages, grant NETWORK, expose secrets or promote models.
 
-- fetched text cannot grant permissions;
-- text such as “ignore previous instructions”, shell commands, tokens or tool directives is treated as source content and may be flagged suspicious;
-- discovered/fetched content cannot directly invoke KodeCode, process execution, network access, filesystem mutation, package installation or model promotion;
-- source-derived suggestions may be presented to the user but a later action must pass the normal protected tool/permission contract;
-- secrets are redacted before persistence/display where the existing secrets boundary applies;
-- citations/provenance survive synthesis and export.
+## 5. Evidence and lineage model
 
-## 5. Evidence model and Research Pack
+For V2.1.3, an inspectable fetched evidence record should preserve at minimum:
 
-A Research Pack is a project-scoped derived artifact containing at minimum:
-
-- original question and normalized scope;
-- exact discovery/fetch timestamps;
-- provider and canonical locator for each selected source;
-- content/artifact digest and cache identity;
-- source version/date/freshness/trust metadata when known;
-- ResearchGuard indicators;
+- stable source identity and canonical locator;
+- provider provenance;
+- source kind/title;
+- retrieval timestamp;
+- publication/update/version metadata when known;
+- freshness/trust/suspicious indicators;
+- artifact/content digest or existing cache identity where available;
 - explicit included/excluded state;
-- cited synthesis with claim-to-source links;
-- model identity/config if an LLM generated the synthesis;
-- schema version and pack digest.
+- lineage relation to earlier/refetched representations of the same source.
 
-A pack must not overwrite previous evidence merely because a source changed. Refetch creates new evidence lineage and marks older evidence stale where appropriate.
+Historical evidence must not be silently overwritten by a refresh.
 
 ## 6. UI contract
 
-The operations must remain unambiguous:
+The Research workspace operations remain distinct:
 
-- **Search saved research** — local query over already persisted reports;
-- **Search sources** — real discovery through enabled external/local discovery providers; V2.1.2 is responsible for making this operation real for its accepted provider set;
+- **Search saved research** — query persisted project research;
+- **Search sources** — external discovery through accepted providers;
 - **Open/fetch source** — guarded acquisition of one candidate or explicit locator;
-- **Synthesize** — use only selected fetched evidence;
-- **Save to project knowledge** — create/update governed derived knowledge through the Research Pack contract.
+- **Evidence selection** — inspect/include/exclude fetched evidence, introduced by V2.1.3;
+- **Synthesize** and **Save to project knowledge** remain future V2.1.4 work.
 
-The default empty state must explain whether the user has no saved research, no discovery provider, network access is disabled/restricted, authentication is missing or an available provider genuinely returned no matches.
+The UI must make lifecycle state understandable without requiring users to inspect raw JSON.
 
-Raw JSON remains available for diagnostics/export but must not be the principal user experience.
+## 7. V2.1.3 acceptance plan
 
-## 7. Version awareness and ranking
+Deterministic acceptance must prove at least:
 
-Research is frequently wrong because it is correct for the wrong version. The workspace therefore ranks and labels evidence using:
+1. discovered candidate and fetched evidence are visually and structurally distinct;
+2. canonical locator/trust/freshness/version/date metadata render from deterministic fixtures;
+3. include/exclude cannot promote an unfetched candidate;
+4. fetched evidence can be included/excluded explicitly;
+5. refetch creates lineage rather than silent replacement;
+6. duplicate identities preserve provider provenance;
+7. stale/version-conflicting evidence remains inspectable;
+8. no protected mutation occurs merely from inspect/include/exclude;
+9. Ubuntu and Windows exact-head acceptance artifacts are emitted;
+10. every required PR workflow succeeds on the same exact head before merge.
 
-- explicit target version from the active Project DNA when available;
-- source-declared versions;
-- publication/update dates;
-- official vs community provenance;
-- freshness/cache state;
-- conflicts between sources.
+After merge, continuity must be normalized before V2.1.4 begins.
 
-The ranking system must not hide conflicting evidence. A synthesis should identify meaningful conflicts and uncertainty rather than manufacture consensus.
+## 8. Later V2.1 sequence
 
-## 8. Failure UX
+### V2.1.4 — Cited synthesis and Research Packs
 
-Every external operation returns an actionable state such as:
+Claim-linked citations, uncertainty, governed Research Pack persistence and project knowledge/Context Builder/RAG integration.
 
-- network disabled/restricted;
-- provider unavailable/not configured;
-- authentication required;
-- rate/usage limit reached;
-- DNS/TLS/timeout failure;
-- URL blocked by policy;
-- unsupported MIME/oversized response;
-- source requires JavaScript or cannot be extracted;
-- transcript unavailable;
-- cancelled;
-- stale cached evidence available.
+### V2.1.5 — Extended media/community sources
 
-No user-facing “success” state may represent an empty no-op whose cause is unknown.
+Forums and YouTube/transcript discovery paths; separately governed STT/frame extraction only when accepted.
 
-## 9. Acceptance plan
+### V2.1.6 — ResearchGuard hardening
 
-### V2.1.1 — Honest UX and diagnostics — COMPLETE + NORMALIZED
+Prompt injection, malicious redirects, SSRF, timeout/outage/cancellation, stale/version conflicts and offline/cache adversarial coverage.
 
-Accepted implementation head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, **27/27** PR workflows successful.
+## 9. Definition of done
 
-Exact-head evidence:
-
-- Ubuntu: `v2-1-1-honest-research-ux-ubuntu-latest-c485083419f492e9c10989f6aadbda5bc436d5cc`, SHA-256 `29bdb2bb193a3a2c7a397e3d2c1307f0d323d07ff5425081803ca28e133d4d26`;
-- Windows: `v2-1-1-honest-research-ux-windows-latest-c485083419f492e9c10989f6aadbda5bc436d5cc`, SHA-256 `215a5b7e1a931a04ecb957bb561c01695c8f6b992f3889aaa72026e8f8969aa6`.
-
-The accepted implementation proves saved-report query separately from external discovery semantics, visible capability/network/authentication states, guarded explicit-locator fetch, localized actionable errors/empty states and secondary raw JSON diagnostics.
-
-### V2.1.2 — Discovery providers — CURRENT
-
-- deterministic provider contract and fixtures;
-- at least official/general Web plus GitHub discovery path;
-- bounded results, cancellation, deduplication and no hidden retries;
-- candidate discovery alone performs no protected mutation;
-- discovered URL still passes guarded fetch;
-- exact-head acceptance and all required PR workflows must succeed before merge;
-- continuity must be normalized after merge before V2.1.3 starts.
-
-### V2.1.3 — Evidence workspace
-
-- source cards and inspect/include/exclude flow;
-- canonical locator, dates/version/trust/freshness displayed;
-- cache/refetch lineage;
-- duplicate sources normalized without losing provider provenance.
-
-### V2.1.4 — Cited synthesis and packs
-
-- synthesis cannot cite evidence outside the selected set;
-- every persisted citation resolves to stored provenance;
-- Research Pack digest is deterministic for its immutable payload;
-- pack can be injected into project Context Builder/RAG as untrusted-derived knowledge, never as privileged instruction.
-
-### V2.1.5 — Community/media
-
-- forum/YouTube provider health and explicit limitations;
-- transcript path only when legally/technically available;
-- STT/frame jobs remain separately governed and cancellable.
-
-### V2.1.6 — Hardening
-
-Acceptance corpus covers prompt injection, malicious redirect, localhost/private-address SSRF attempts, credential-bearing URLs, unsupported MIME, oversized body, timeout, partial provider outage, duplicate results, stale version conflict, suspicious content, cancellation and offline cache behavior.
-
-## 10. Definition of done
-
-V2.1 is complete only when, from KodeStudio on a real project, an ordinary user can type a question they do not already know the answer/URL to, receive useful discoverable sources, inspect and select them, obtain a cited synthesis, save the evidence as governed project knowledge, and understand any failure without reading source code or raw JSON.
-
-A passing test of the old URL fetch primitive alone is not sufficient to mark V2.1 complete.
+V2.1 is complete only when an ordinary KodeStudio user can ask a question, discover sources, inspect and select fetched evidence, obtain a cited synthesis, save governed project knowledge, and understand failures without reading source code or raw JSON.

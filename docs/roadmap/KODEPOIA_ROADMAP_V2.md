@@ -1,116 +1,92 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1.1 COMPLETE + NORMALIZED; V2.1.2 authorized**  
+Status: **ACTIVE — V2.1.2 COMPLETE + NORMALIZED; V2.1.3 authorized**  
 Created: 2026-09-15  
-Roadmap preparation merged by PR `#472` as `87fc09e16531260d64cf3d5fb59f511295e2b703` after 25/25 exact-head PR workflows succeeded  
-V2.0 implementation merged by PR `#474` as `043dba64111f763f0e9544ea8cde9a3cbf9b1dff` after 27/27 exact-head PR workflows succeeded on `79749ab25d58faaca6421bcda4eb460194a3683c`  
-V2.1.1 implementation merged by PR `#476` as `16ef244e9cad922421f2440ef8185e9e896a164d` after 27/27 exact-head PR workflows succeeded on `c485083419f492e9c10989f6aadbda5bc436d5cc`  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
-## 1. Purpose
+## Authority checkpoints
 
-Roadmap V1 remains frozen historical architecture and acceptance evidence. V2 does not reopen R20, does not create `R20.7`, and does not retroactively rewrite R1–R20 history.
+- V2 roadmap preparation: PR `#472`, merge `87fc09e16531260d64cf3d5fb59f511295e2b703`, 25/25 exact-head PR workflows successful.
+- V2.0: PR `#474`, accepted head `79749ab25d58faaca6421bcda4eb460194a3683c`, merge `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`, 27/27 successful.
+- V2.1.1: PR `#476`, accepted head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, 27/27 successful.
+- V2.1.2: PR `#478`, accepted head `e1e209ebcf78265f04b30b0019d201d58dae76ef`, merge `347068de7f9be9275754bbda7c55f4e0d5e66bac`, 27/27 successful.
 
-V2 shifts the emphasis from isolated capabilities to truthful, usable, end-to-end KodeStudio workflows while preserving protected-core, least-privilege, provenance, rollback and fail-closed invariants.
+V2 does not reopen R20, does not create `R20.7`, and does not turn post-rc8 source capabilities into public rc8 capabilities.
 
-A critical distinction governs all V2 work: the public rc8 distribution, live `main` source, explicit acceptance evidence, experimental work and unavailable paths are different states and must never be collapsed into one claim of support.
-
-## 2. Mandatory V2 ordering
-
-### V2.0 — Baseline, capability truth and usability audit
-
-**Status: COMPLETE + NORMALIZED.**
-
-V2.0 established one exact, testable truth model for what is public, source-available, acceptance-proven, experimental or unavailable, and made that truth visible in KodeStudio.
-
-#### V2.0.1 — Capability matrix/runtime truth — COMPLETE
-
-Accepted runtime vocabulary:
-
-- capability classification: `public-validated`, `source-available`, `acceptance-proven`, `experimental`, `unavailable`;
-- provider/runtime state: `ready`, `unavailable`, `auth-required`, `network-restricted`, `not-implemented`;
-- accelerator state: `priority`, `available`, `experimental`, `deferred`, `unsupported`;
-- public `v1.1.0-rc8` and post-rc8 live-source capability truth remain distinct;
-- acceptance claims require bound evidence and are not inferred from source presence alone.
-
-#### V2.0.2 — KodeStudio diagnostics — COMPLETE
-
-KodeStudio exposes visible and actionable capability/provider/network/authentication diagnostics. A genuine successful zero-result saved-research query is distinct from provider absence, missing authentication, denied network access and an unimplemented path.
-
-#### V2.0.3 — Reusable V2 exact-head acceptance — COMPLETE
-
-Reusable exact-head acceptance is integrated into existing authority workflows. On exact implementation head `79749ab25d58faaca6421bcda4eb460194a3683c`, all **27/27** PR workflows completed successfully and the Linux/Windows capability-truth evidence artifacts were emitted. The accepted merge commit is `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`.
-
-V2.0 DoD is satisfied: implementation tests passed, acceptance was bound to the exact head, every required PR workflow on that head succeeded, the branch was merged, and continuity was normalized.
-
-### V2.1 — Research Workspace: real discovery, evidence and cited synthesis
-
-**Status: ACTIVE. V2.1.1 is COMPLETE + NORMALIZED. Immediate subdivision: V2.1.2 — Discovery providers.**
-
-Goal: replace the current low-level Research UX with a complete question-to-evidence workflow. Normative details are in `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+## V2.1 — Research Workspace
 
 Target flow:
 
 `question -> provider discovery -> source cards -> guarded fetch -> inspect/include/exclude -> cited synthesis -> governed Research Pack -> project context/RAG`
 
-Subdivisions:
+### V2.1.1 — Honest Research UX and diagnostics — COMPLETE + NORMALIZED
 
-- **V2.1.1 — Honest Research UX and diagnostics — COMPLETE + NORMALIZED:** saved research, future external discovery and explicit-locator fetch are distinct operations; provider/network/auth states and actionable empty/error states are visible; external discovery is not falsely claimed before providers exist. Accepted head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`.
-- **V2.1.2 — Discovery providers — NEXT:** bounded official/general Web and GitHub discovery, provider interfaces, ranking/deduplication and guarded selected-source fetch.
-- **V2.1.3 — Evidence workspace:** source cards, preview, metadata, trust/freshness/version, include/exclude and cache/refetch lineage.
-- **V2.1.4 — Cited synthesis and Research Packs:** claim-linked citations, uncertainty and governed project knowledge/Context Builder/RAG integration.
-- **V2.1.5 — Extended media/community sources:** forums and YouTube/transcript paths; STT/frames only through separately governed media operations.
-- **V2.1.6 — ResearchGuard hardening:** prompt-injection corpus, malicious redirects, SSRF, timeouts, stale/version conflicts, outages, cancellation and offline behavior.
+Saved research, external discovery and explicit-locator fetch are distinct operations. Provider/network/auth failures are explicit rather than empty-success states.
 
-V2.1 DoD: from KodeStudio, an ordinary research question either produces inspectable sources, selected evidence and a cited answer, or a visible diagnostic explaining exactly why discovery cannot run. External content remains data, never privileged instruction.
+### V2.1.2 — Discovery providers — COMPLETE + NORMALIZED
 
-Each V2.1 subdivision must be implemented on its own dedicated branch, qualified on its exact final head, merged only after every required workflow succeeds, and continuity-normalized before the next subdivision starts.
+Accepted scope:
 
-### V2.2 — Project Knowledge, Context Builder and Memory integration
+- Brave Search general-Web discovery through its official HTTPS API when NETWORK is explicitly allowed and credentials are referenced through KodeSecrets;
+- public GitHub repository discovery through the official REST Search API with optional authentication;
+- bounded descriptor-only candidates marked `candidate-only` / `unfetched`;
+- discovery never automatically fetches, persists or promotes candidates to evidence;
+- provider/auth/network/rate-limit failures remain explicit;
+- KodeStudio `Search sources` performs real discovery only under NETWORK permission;
+- discovery remains separate from guarded `ResearchService.fetch()`.
 
-Goal: make accepted research reusable without copying text manually.
+Exact-head evidence:
 
-Deliverables include project-scoped Research Packs with immutable provenance/digests, semantic retrieval over accepted sources and project files, inspectable Context Builder selection, version-aware invalidation and explicit include/exclude/refresh/delete controls. Untrusted Web text never silently becomes durable instruction.
+- Ubuntu `v2-1-2-discovery-providers-ubuntu-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef` — SHA-256 `e9c0d999b28d38c6319229354f19156b6b19e14d35ff567a9f0fcab25ebcd164`;
+- Windows `v2-1-2-discovery-providers-windows-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef` — SHA-256 `8ff58d6ea0f4590654387b5b2c405df265aa36b91044c023e10f0c9ea304df8a`.
 
-### V2.3 — Model Lab: governed improvement UX
+### V2.1.3 — Evidence workspace — NEXT
 
-Goal: expose the accepted R15 training backend as an understandable end-to-end workflow: base-model/role selection, validated datasets, resource estimates, local/qualified remote backend, dry-run, SFT/LoRA/QLoRA, progress/checkpoints, before/after KodeBench and explicit promote/reject gates. Training completion or lower loss alone never authorizes promotion.
+Implement only:
 
-### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU
+- source cards / structured inspectable source rows;
+- canonical locator, source dates/version, trust and freshness metadata;
+- explicit include/exclude state for fetched evidence;
+- candidate-vs-fetched distinction preserved;
+- cache/refetch lineage without silent historical replacement;
+- duplicate source identities normalized without losing provider provenance;
+- deterministic backend/UI tests and exact-head Ubuntu/Windows acceptance.
 
-Kaggle `GPU T4 x2` remains the primary remote-training target for the current CUDA/PyTorch/PEFT/QLoRA stack. Two T4 devices remain two separate 16 GiB devices, never one fictitious 32 GiB pool. First qualify the conservative real-account path, then explicitly qualify deliberate two-process/multi-GPU execution with per-device evidence and the normal R15 integrity/benchmark gates.
+Do **not** pull V2.1.4 cited synthesis or Research Pack persistence into V2.1.3.
 
-### V2.5 — Cross-workspace orchestration
+### Later V2.1 order
 
-Goal: enable Research, Chat/Vision, KodeCode, Vault, Godot/Blender/ComfyUI and QA to cooperate around the same project through explicit handoff contracts, shared project-root identity, protected mutations and resumable evidence, never unrestricted model access to filesystem/network/process APIs.
+1. V2.1.4 — Cited synthesis and Research Packs.
+2. V2.1.5 — Extended media/community sources.
+3. V2.1.6 — ResearchGuard hardening.
 
-### V2.6 — V2 hardening and next public Windows release
+Each subdivision requires its own branch, exact-head acceptance, all required workflows successful, protected merge, and post-merge continuity normalization before the next subdivision.
 
-A post-rc8 release is authorized only after the selected V2 boundary is acceptance-proven and exact-source release gates pass. No release number is reserved by this roadmap. Publication remains draft-first and any TUF mutation occurs only after normal qualification.
+## Remaining V2 sequence
 
-## 3. TPU v5e-8 policy
+- V2.2 — Project Knowledge, Context Builder and Memory integration.
+- V2.3 — Model Lab governed improvement UX.
+- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
+- V2.5 — Cross-workspace orchestration.
+- V2.6 — V2 hardening and next public Windows release.
 
-TPU v5e-8 is **deferred experimental capacity**, not a V2 critical path or release blocker. Supporting it correctly requires a separately qualified XLA/JAX or PyTorch/XLA execution path, dependencies/capability detection, training semantics, checkpoint compatibility, resource accounting and acceptance evidence.
+## Accelerator authority
 
-Schedule TPU work only if a benchmark proposal demonstrates a material advantage for a concrete Kodepoia workload not adequately served by the qualified GPU path. Until then, Kaggle T4×2 receives engineering priority.
+Kaggle `GPU T4 x2` remains the primary remote-training target for the current CUDA/PyTorch/PEFT/QLoRA stack. Treat the two T4 devices as two separate 16 GiB GPUs, never a fictitious single 32 GiB pool.
 
-## 4. V2 acceptance discipline
+TPU v5e-8 remains deferred. A distinct XLA/JAX or PyTorch/XLA backend is authorized only if a concrete benchmark demonstrates a material Kodepoia advantage that justifies its own implementation and acceptance surface.
 
-Every subdivision follows the same discipline:
+## Acceptance discipline
+
+For every subdivision:
 
 1. re-fetch live `main` and continuity authority;
-2. create a dedicated branch from an exact SHA;
+2. branch from an exact SHA;
 3. implement only the authorized scope;
-4. add/update deterministic tests and acceptance evidence;
-5. re-fetch every required workflow for the exact branch head;
-6. merge only after all required gates for that exact head are successful;
+4. add deterministic tests and exact-head acceptance evidence;
+5. re-fetch every required workflow for the exact head;
+6. merge only after every required workflow succeeds on that same head;
 7. normalize continuity after merge before the next subdivision;
-8. stop for genuine manual intervention rather than bypassing a gate.
+8. stop only for a genuine manual intervention that cannot be performed through connected tooling.
 
-External outages, quota exhaustion and unavailable optional providers never justify weakening fail-closed behavior; they surface as explicit diagnostics.
-
-## 5. Immediate V2 work
-
-The immediate implementation target is **V2.1.2 — Discovery providers**.
-
-V2.1.3 must not start until V2.1.2 is **COMPLETE + NORMALIZED**.
+No V2 step by itself authorizes release/TUF/updater mutation. The public reference remains `v1.1.0-rc8` until a future release is separately scoped and qualified.

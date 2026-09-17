@@ -54,8 +54,14 @@ def build_report(root: Path, *, source_sha: str) -> dict[str, Any]:
     )
     normalized_workspace = (
         "### V2.1.1 — Honest UX and diagnostics — COMPLETE + NORMALIZED" in workspace
-        and "### V2.1.2 — Discovery providers — CURRENT" in workspace
-        and "V2.1.1 is now COMPLETE + NORMALIZED" in workspace
+        and (
+            "### V2.1.2 — Discovery providers — CURRENT" in workspace
+            or "### V2.1.2 — Discovery providers — COMPLETE + NORMALIZED" in workspace
+        )
+        and (
+            "V2.1.1 is now COMPLETE + NORMALIZED" in workspace
+            or "V2.1.1 is COMPLETE + NORMALIZED" in workspace
+        )
     )
     discovery_state_value = matrix["research.web-discovery"]["runtime_state"]
     pre_v212 = discovery_state_value == "not-implemented"

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from kodepoia.core.secrets import KodeSecrets, MemorySecretBackend
 from kodepoia.intelligence.research.community import CommunityResearchClient
 from kodepoia.intelligence.research.contracts import ResearchStatus
 from kodepoia.intelligence.research.evidence import EvidenceLifecycle
@@ -165,6 +166,23 @@ def test_unavailable_transcript_is_explicit_and_not_replaced_by_stt(tmp_path: Pa
     assert result.metadata["transcript_reason"] == "transcript_provider_unconfigured"
     assert result.metadata["stt_fallback_trusted"] is False
     assert len(result.items) == 1
+
+
+def test_runtime_youtube_missing_credentials_is_explicitly_blocked(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    coordinator = ExtendedSourceCoordinator(
+        root,
+        allow_network=True,
+        secrets=KodeSecrets(MemorySecretBackend()),
+        resolver=lambda _host, _port: ("8.8.8.8",),
+    )
+    result = coordinator.fetch_youtube(VIDEO_ID, retrieved_at=STAMP_1)
+    assert result.status is ResearchOperationStatus.BLOCKED
+    assert result.items == ()
+    assert result.metadata["metadata_status"] == "blocked"
+    assert result.metadata["transcript_status"] == "blocked"
+    assert "credential is unavailable" in result.metadata["metadata_reason"]
+    assert "credential is unavailable" in result.metadata["transcript_reason"]
 
 
 def test_community_thread_enters_same_store_with_parent_relationships(tmp_path: Path) -> None:

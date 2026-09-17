@@ -43,7 +43,9 @@ def main() -> int:
 
     module = Path("src/kodepoia/intelligence/research/extended_sources.py").read_text(encoding="utf-8")
     youtube_module = Path("src/kodepoia/intelligence/research/youtube.py").read_text(encoding="utf-8")
-    panel = Path("src/kodepoia/kodestudio/research_panel.py").read_text(encoding="utf-8")
+    adapter = Path("src/kodepoia/kodestudio/research_extended_panel.py").read_text(encoding="utf-8")
+    ui_test = Path("tests/test_v2_1_5_research_ui.py").read_text(encoding="utf-8")
+    python_core = Path(".github/workflows/python-core.yml").read_text(encoding="utf-8")
     roadmap = Path("docs/roadmap/V2_1_RESEARCH_WORKSPACE.md").read_text(encoding="utf-8")
 
     checks.extend(
@@ -76,10 +78,26 @@ def main() -> int:
             ),
             _check(
                 "kodestudio-structured-lifecycle",
-                "ResearchSourceKind" in panel
-                and "EvidenceWorkspace" in panel
-                and "researchDiscoveryButton" in panel
-                and "researchFetchButton" in panel,
+                "class ExtendedResearchServiceAdapter" in adapter
+                and "class ExtendedResearchDiscoveryService" in adapter
+                and "ResearchSourceKind.COMMUNITY" in adapter
+                and "ResearchSourceKind.YOUTUBE" in adapter
+                and "researchExtendedSourceState" in adapter
+                and "sync_selected_candidate_to_fetch" in adapter,
+            ),
+            _check(
+                "kodestudio-ui-regression-test",
+                "test_v215_kodestudio_exposes_extended_fetch_kinds_and_provider_state" in ui_test
+                and "test_v215_selecting_typed_candidate_prefills_explicit_fetch" in ui_test
+                and "test_v215_youtube_without_network_is_explicitly_blocked" in ui_test
+                and "tests/test_v2_1_5_research_ui.py" in python_core,
+            ),
+            _check(
+                "authoritative-cross-platform-evidence",
+                "Run V2.1.5 extended sources exact-head acceptance" in python_core
+                and "Upload V2.1.5 exact-head evidence" in python_core
+                and "v2-1-5-extended-sources-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}" in python_core
+                and "os: [ubuntu-latest, windows-latest]" in python_core,
             ),
             _check(
                 "authority-current-v2-1-5",

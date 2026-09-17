@@ -7,12 +7,19 @@ from typing import Any, Callable
 from kodepoia.capability_truth import build_capability_matrix
 from kodepoia.intelligence.research.contracts import ResearchSourceKind
 from kodepoia.intelligence.research.discovery import ResearchDiscoveryService
+from kodepoia.intelligence.research.evidence import (
+    EvidenceLifecycle,
+    EvidenceSelection,
+    EvidenceSelectionStore,
+    EvidenceWorkspace,
+)
 from kodepoia.intelligence.research.service import (
     ResearchCancellation,
     ResearchFetchRequest,
     ResearchService,
     ResearchServiceResult,
 )
+from kodepoia.intelligence.research.store import ResearchStore
 from kodepoia.kodestudio.accessibility import mark_accessible
 from kodepoia.kodestudio.localization import KodeStudioTranslator
 from kodepoia.kodestudio.research_ux import (
@@ -72,7 +79,7 @@ def create_research_page(
     service: ResearchService | None = None,
     status_bar=None,
 ):
-    from PySide6.QtCore import QObject, QRunnable, Qt, QThreadPool, Signal
+    from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
     from PySide6.QtWidgets import (
         QApplication,
         QCheckBox,
@@ -97,6 +104,8 @@ def create_research_page(
         allow_network=research.allow_network,
         secrets=research.secrets,
     )
+    evidence_store = ResearchStore(project_root)
+    selection_store = EvidenceSelectionStore(project_root)
     page = QWidget()
     page.setObjectName("researchPage")
     page.setAccessibleName(tr.text("research.title"))
@@ -280,7 +289,7 @@ def create_research_page(
     layout.addWidget(warning)
 
     results = mark_accessible(
-        QTableWidget(0, 7),
+        QTableWidget(0, 14),
         object_name="researchResultsTable",
         name=tr.text("research.results.name"),
         description=tr.text("research.results.description"),
@@ -295,12 +304,41 @@ def create_research_page(
             tr.text("research.column.trust"),
             tr.text("research.column.suspicious"),
             tr.text("research.column.title"),
+            "Lifecycle",
+            "Selection",
+            "Canonical locator",
+            "Retrieved",
+            "Updated / published",
+            "Providers",
+            "Lineage",
         ]
     )
     results.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
     results.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
     results.horizontalHeader().setStretchLastSection(True)
     layout.addWidget(results, 2)
+
+    evidence_actions = QHBoxLayout()
+    include_button = mark_accessible(
+        QPushButton("Include fetched evidence"),
+        object_name="researchEvidenceIncludeButton",
+        name="Include fetched evidence",
+        description="Include the selected fetched artifact in the evidence workspace.",
+        description_required=True,
+    )
+    exclude_button = mark_accessible(
+        QPushButton("Exclude fetched evidence"),
+        object_name="researchEvidenceExcludeButton",
+        name="Exclude fetched evidence",
+        description="Exclude the selected fetched artifact without deleting its evidence or lineage.",
+        description_required=True,
+    )
+    include_button.setEnabled(False)
+    exclude_button.setEnabled(False)
+    evidence_actions.addWidget(include_button)
+    evidence_actions.addWidget(exclude_button)
+    evidence_actions.addStretch(1)
+    layout.addLayout(evidence_actions)
 
     technical_label = QLabel(ux.text("research_ux.technical.title"))
     technical_label.setObjectName("researchTechnicalDetailsLabel")
@@ -314,12 +352,13 @@ def create_research_page(
         description_required=True,
     )
     details.setReadOnly(True)
-    details.setMaximumHeight(160)
+    details.setMaximumHeight(200)
     layout.addWidget(details)
 
     page._research_service = research
     page._research_discovery_service = discovery
     page._research_result = None
+    page._research_workspace = EvidenceWorkspace(())
     page._research_cancellation = None
     page._research_tasks = []
     page._research_report_count = 0
@@ -396,18 +435,35 @@ def create_research_page(
         discovery_button.setEnabled(not value and bool(allow_network.isChecked()))
         cancel_button.setEnabled(value)
 
+    def build_workspace(result: ResearchServiceResult) -> EvidenceWorkspace:
+        return EvidenceWorkspace.project(
+            result.items,
+            revisions=evidence_store.list_evidence_revisions(),
+            selections=selection_store.load(),
+        )
+
     def render(result: ResearchServiceResult) -> None:
         page._research_result = result
-        results.setRowCount(len(result.items))
-        for row, item in enumerate(result.items):
+        workspace = build_workspace(result)
+        page._research_workspace = workspace
+        results.setRowCount(len(workspace.rows))
+        for row, item in enumerate(workspace.rows):
+            updated_or_published = item.updated_at or item.published_at or "—"
             values = (
                 item.source_kind,
-                item.status.value.upper(),
+                item.status.upper(),
                 item.freshness.upper(),
                 item.version or "—",
                 item.trust,
                 "YES" if item.suspicious else "NO",
-                item.title or item.locator or item.text[:80],
+                item.title or item.canonical_locator,
+                item.lifecycle.value.upper(),
+                item.selection.value.upper(),
+                item.canonical_locator or "—",
+                item.retrieved_at or "—",
+                updated_or_published,
+                ", ".join(item.provider_ids) or "—",
+                str(len(item.lineage_revision_ids) or len(item.lineage_artifact_ids)),
             )
             for column, value in enumerate(values):
                 results.setItem(row, column, QTableWidgetItem(value))
@@ -457,13 +513,16 @@ def create_research_page(
         refresh_capability_diagnostics()
         copy_button.setEnabled(True)
         export_button.setEnabled(True)
-        if result.items:
+        include_button.setEnabled(False)
+        exclude_button.setEnabled(False)
+        if workspace.rows:
             results.selectRow(0)
         if status_bar is not None:
             status_bar.showMessage(capability.text())
 
     def show_error(message: str) -> None:
         page._research_result = None
+        page._research_workspace = EvidenceWorkspace(())
         results.setRowCount(0)
         details.setPlainText(message)
         warning.setVisible(False)
@@ -474,6 +533,8 @@ def create_research_page(
         refresh_capability_diagnostics()
         copy_button.setEnabled(False)
         export_button.setEnabled(False)
+        include_button.setEnabled(False)
+        exclude_button.setEnabled(False)
 
     def finish_task() -> None:
         set_busy(False)
@@ -541,17 +602,39 @@ def create_research_page(
         destination = research.export(current)
         capability.setText(tr.text("research.status.exported", path=str(destination)))
 
+    def selected_workspace_row():
+        row = results.currentRow()
+        workspace = page._research_workspace
+        if not 0 <= row < len(workspace.rows):
+            return None
+        return workspace.rows[row]
+
     def show_selected() -> None:
         current = page._research_result
-        row = results.currentRow()
-        if current is None or not 0 <= row < len(current.items):
+        workspace_row = selected_workspace_row()
+        if current is None or workspace_row is None:
+            include_button.setEnabled(False)
+            exclude_button.setEnabled(False)
             return
-        payload = current.items[row].to_dict()
+        fetched = workspace_row.lifecycle is EvidenceLifecycle.FETCHED
+        include_button.setEnabled(fetched and workspace_row.selection is not EvidenceSelection.INCLUDED)
+        exclude_button.setEnabled(fetched and workspace_row.selection is not EvidenceSelection.EXCLUDED)
+        payload = workspace_row.to_dict()
         if current.operation == "discover":
             payload["candidate_only"] = bool(current.metadata.get("candidate_only", True))
             payload["fetched"] = bool(current.metadata.get("fetched", False))
             payload["persisted"] = bool(current.metadata.get("persisted", False))
         details.setPlainText(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+
+    def set_evidence_selection(selection: EvidenceSelection) -> None:
+        current = page._research_result
+        workspace_row = selected_workspace_row()
+        if current is None or workspace_row is None:
+            return
+        if workspace_row.lifecycle is not EvidenceLifecycle.FETCHED or not workspace_row.artifact_id:
+            raise ValueError("Candidate-only sources cannot be included or excluded as evidence")
+        selection_store.set(workspace_row.artifact_id, selection)
+        render(current)
 
     search_button.clicked.connect(run_search)
     query.returnPressed.connect(run_search)
@@ -561,6 +644,8 @@ def create_research_page(
     refresh_button.clicked.connect(refresh_status)
     copy_button.clicked.connect(copy_result)
     export_button.clicked.connect(export_result)
+    include_button.clicked.connect(lambda: set_evidence_selection(EvidenceSelection.INCLUDED))
+    exclude_button.clicked.connect(lambda: set_evidence_selection(EvidenceSelection.EXCLUDED))
     results.itemSelectionChanged.connect(show_selected)
     allow_network.toggled.connect(lambda _checked: refresh_capability_diagnostics())
 
@@ -574,4 +659,5 @@ def create_research_page(
     page._research_set_busy = set_busy
     page._research_refresh_capability_diagnostics = refresh_capability_diagnostics
     page._research_refresh_human_state = refresh_human_state
+    page._research_set_evidence_selection = set_evidence_selection
     return page

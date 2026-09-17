@@ -6,10 +6,12 @@ from typing import Any
 
 from kodepoia.core.secrets import KodeSecrets
 from kodepoia.intelligence.research.contracts import ResearchSourceKind
+from kodepoia.intelligence.research.discovery import ResearchDiscoveryService
 from kodepoia.intelligence.research.extended_sources import ExtendedSourceCoordinator
 from kodepoia.intelligence.research.service import (
     ResearchCancellation,
     ResearchOperationStatus,
+    ResearchService,
     ResearchServiceResult,
 )
 from kodepoia.kodestudio import research_panel as _panel
@@ -56,7 +58,7 @@ class ExtendedResearchFetchRequest:
         return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
-def _ensure_runtime_secrets(research) -> KodeSecrets:
+def _ensure_runtime_secrets(research: Any) -> KodeSecrets:
     secrets = getattr(research, "secrets", None)
     if secrets is None:
         secrets = KodeSecrets()
@@ -73,21 +75,90 @@ def _cancelled_result() -> ResearchServiceResult:
     )
 
 
-def _extend_page(page, project_root: Path) -> None:
-    from PySide6.QtWidgets import QCheckBox, QComboBox, QLabel, QLineEdit, QTableWidget
+class ExtendedResearchServiceAdapter:
+    """Delegate historical Research operations and route only V2.1.5 fetch kinds."""
 
-    research = page._research_service
-    discovery = page._research_discovery_service
-    secrets = _ensure_runtime_secrets(research)
-    discovery.secrets = secrets
-    coordinator = ExtendedSourceCoordinator(
-        project_root,
-        allow_network=bool(research.allow_network),
-        secrets=secrets,
-        web_transport=research.web_transport,
-        web_policy=research.web_policy,
-    )
-    page._research_extended_sources = coordinator
+    def __init__(self, delegate: Any, coordinator: ExtendedSourceCoordinator) -> None:
+        self._delegate = delegate
+        self.coordinator = coordinator
+
+    @property
+    def allow_network(self) -> bool:
+        return bool(self._delegate.allow_network)
+
+    @allow_network.setter
+    def allow_network(self, value: bool) -> None:
+        enabled = bool(value)
+        self._delegate.allow_network = enabled
+        self.coordinator.allow_network = enabled
+
+    @property
+    def secrets(self):
+        return self._delegate.secrets
+
+    @secrets.setter
+    def secrets(self, value) -> None:
+        self._delegate.secrets = value
+        self.coordinator.secrets = value
+
+    @property
+    def web_transport(self):
+        return self._delegate.web_transport
+
+    @property
+    def web_policy(self):
+        return self._delegate.web_policy
+
+    def fetch(
+        self,
+        request: ExtendedResearchFetchRequest,
+        *,
+        cancellation: ResearchCancellation | None = None,
+    ) -> ResearchServiceResult:
+        token = cancellation or ResearchCancellation()
+        if token.cancelled:
+            return _cancelled_result()
+        if request.kind in _BASE_KINDS:
+            return self._delegate.fetch(request, cancellation=token)
+
+        self.coordinator.allow_network = self.allow_network
+        if request.kind is ResearchSourceKind.COMMUNITY:
+            extended = self.coordinator.fetch_community_url(
+                request.locator,
+                retrieved_at=request.effective_retrieved_at,
+            )
+        elif request.kind is ResearchSourceKind.YOUTUBE:
+            extended = self.coordinator.fetch_youtube(
+                request.locator,
+                retrieved_at=request.effective_retrieved_at,
+                include_transcript=True,
+            )
+        else:  # pragma: no cover - guarded by request validation
+            raise ValueError("Unsupported extended Research source kind")
+        if token.cancelled:
+            return _cancelled_result()
+        return extended.to_service_result()
+
+    def __getattr__(self, name: str):
+        return getattr(self._delegate, name)
+
+
+class ExtendedResearchDiscoveryService(ResearchDiscoveryService):
+    """Preserve V2.1.2 discovery while typing recognized media/community candidates."""
+
+    def discover(
+        self,
+        query: str,
+        *,
+        limit: int = 10,
+        cancellation: ResearchCancellation | None = None,
+    ) -> ResearchServiceResult:
+        result = super().discover(query, limit=limit, cancellation=cancellation)
+        return ExtendedSourceCoordinator.classify_discovery_result(result)
+
+
+def _extend_page(page, coordinator: ExtendedSourceCoordinator) -> None:
+    from PySide6.QtWidgets import QCheckBox, QComboBox, QLabel, QLineEdit, QTableWidget
 
     fetch_kind = page.findChild(QComboBox, "researchFetchKind")
     locator = page.findChild(QLineEdit, "researchLocator")
@@ -112,46 +183,7 @@ def _extend_page(page, project_root: Path) -> None:
     if layout is not None:
         layout.insertWidget(4, state)
     page._research_extended_source_state = state
-
-    original_discover = discovery.discover
-
-    def discover_with_extended_candidates(*args: Any, **kwargs: Any) -> ResearchServiceResult:
-        result = original_discover(*args, **kwargs)
-        return ExtendedSourceCoordinator.classify_discovery_result(result)
-
-    discovery.discover = discover_with_extended_candidates
-
-    original_fetch = research.fetch
-
-    def fetch_with_extended_sources(
-        request: ExtendedResearchFetchRequest,
-        *,
-        cancellation: ResearchCancellation | None = None,
-    ) -> ResearchServiceResult:
-        token = cancellation or ResearchCancellation()
-        if token.cancelled:
-            return _cancelled_result()
-        if request.kind in _BASE_KINDS:
-            return original_fetch(request, cancellation=token)
-
-        if request.kind is ResearchSourceKind.COMMUNITY:
-            extended = coordinator.fetch_community_url(
-                request.locator,
-                retrieved_at=request.effective_retrieved_at,
-            )
-        elif request.kind is ResearchSourceKind.YOUTUBE:
-            extended = coordinator.fetch_youtube(
-                request.locator,
-                retrieved_at=request.effective_retrieved_at,
-                include_transcript=True,
-            )
-        else:  # pragma: no cover - guarded by request validation
-            raise ValueError("Unsupported extended Research source kind")
-        if token.cancelled:
-            return _cancelled_result()
-        return extended.to_service_result()
-
-    research.fetch = fetch_with_extended_sources
+    page._research_extended_sources = coordinator
 
     def sync_selected_candidate_to_fetch() -> None:
         current = page._research_result
@@ -186,22 +218,34 @@ def create_research_page(
     service=None,
     status_bar=None,
 ):
+    root = Path(project_root).resolve(strict=False)
+    base_service = service or ResearchService(root)
+    secrets = _ensure_runtime_secrets(base_service)
+    coordinator = ExtendedSourceCoordinator(
+        root,
+        allow_network=bool(base_service.allow_network),
+        secrets=secrets,
+        web_transport=base_service.web_transport,
+        web_policy=base_service.web_policy,
+    )
+    adapted_service = ExtendedResearchServiceAdapter(base_service, coordinator)
     page = _ORIGINAL_CREATE_RESEARCH_PAGE(
-        project_root,
+        root,
         translator=translator,
-        service=service,
+        service=adapted_service,
         status_bar=status_bar,
     )
-    _extend_page(page, Path(project_root).resolve(strict=False))
+    _extend_page(page, coordinator)
     return page
 
 
 def install_extended_research_ui() -> None:
-    """Install the V2.1.5 adapter before app.py imports create_research_page."""
+    """Install V2.1.5 adapters before app.py imports create_research_page."""
 
     global _INSTALLED
     if _INSTALLED:
         return
     _panel.ResearchFetchRequest = ExtendedResearchFetchRequest
+    _panel.ResearchDiscoveryService = ExtendedResearchDiscoveryService
     _panel.create_research_page = create_research_page
     _INSTALLED = True

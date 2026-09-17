@@ -71,12 +71,12 @@ def _cancelled_result() -> ResearchServiceResult:
         "fetch",
         ResearchOperationStatus.CANCELLED,
         reason="cancelled",
-        metadata={"v2_1_5": True},
+        metadata={"v2_1_5": True, "v2_1_6_hardened": True},
     )
 
 
 class ExtendedResearchServiceAdapter:
-    """Delegate historical Research operations and route only V2.1.5 fetch kinds."""
+    """Delegate historical Research operations and route only extended fetch kinds."""
 
     def __init__(self, delegate: Any, coordinator: ExtendedSourceCoordinator) -> None:
         self._delegate = delegate
@@ -126,16 +126,18 @@ class ExtendedResearchServiceAdapter:
             extended = self.coordinator.fetch_community_url(
                 request.locator,
                 retrieved_at=request.effective_retrieved_at,
+                cancellation=token,
             )
         elif request.kind is ResearchSourceKind.YOUTUBE:
             extended = self.coordinator.fetch_youtube(
                 request.locator,
                 retrieved_at=request.effective_retrieved_at,
                 include_transcript=True,
+                cancellation=token,
             )
         else:  # pragma: no cover - guarded by request validation
             raise ValueError("Unsupported extended Research source kind")
-        if token.cancelled:
+        if token.cancelled and extended.status is not ResearchOperationStatus.CANCELLED:
             return _cancelled_result()
         return extended.to_service_result()
 
@@ -172,9 +174,9 @@ def _extend_page(page, coordinator: ExtendedSourceCoordinator) -> None:
             fetch_kind.addItem(kind.value, kind.value)
 
     state = QLabel(
-        "V2.1.5 sources: Community HTML is fetched through the guarded Web transport; "
-        "YouTube metadata uses KodeSecrets youtube/data_api_key and captions use "
-        "youtube/oauth_access_token. Unavailable transcripts remain explicit."
+        "V2.1.6 hardened sources: Community HTML and YouTube acquisition remain guarded; "
+        "policy blocks, provider outages, cancellation and unavailable transcripts stay explicit. "
+        "Provider diagnostics are redacted before display."
     )
     state.setObjectName("researchExtendedSourceState")
     state.setAccessibleName("Extended research provider state")
@@ -240,7 +242,7 @@ def create_research_page(
 
 
 def install_extended_research_ui() -> None:
-    """Install V2.1.5 adapters before app.py imports create_research_page."""
+    """Install extended Research adapters before app.py imports create_research_page."""
 
     global _INSTALLED
     if _INSTALLED:

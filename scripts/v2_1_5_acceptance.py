@@ -42,6 +42,7 @@ def main() -> int:
     )
 
     module = Path("src/kodepoia/intelligence/research/extended_sources.py").read_text(encoding="utf-8")
+    youtube_module = Path("src/kodepoia/intelligence/research/youtube.py").read_text(encoding="utf-8")
     panel = Path("src/kodepoia/kodestudio/research_panel.py").read_text(encoding="utf-8")
     roadmap = Path("docs/roadmap/V2_1_RESEARCH_WORKSPACE.md").read_text(encoding="utf-8")
 
@@ -59,7 +60,7 @@ def main() -> int:
             ),
             _check(
                 "transcript-unavailable-explicit",
-                "transcript_provider_unconfigured" in module
+                "transcript_provider_unconfigured" in youtube_module
                 and '"transcript_status"' in module
                 and '"transcript_reason"' in module,
             ),
@@ -82,13 +83,14 @@ def main() -> int:
             ),
             _check(
                 "authority-current-v2-1-5",
-                "V2.1.5" in roadmap and "Extended media/community sources" in roadmap,
+                "V2.1.5 — Extended media/community sources — CURRENT" in roadmap,
             ),
             _check(
-                "strict-scope",
-                "STT fallback" in roadmap
-                and "authoritative citations" in roadmap
-                and "posting" in roadmap.lower(),
+                "strict-scope-authority",
+                "separately governed acquisition path" in roadmap
+                and "cannot silently become trusted evidence" in roadmap
+                and "any public release, installer publication or TUF transition" in roadmap
+                and "V2.1.6 — ResearchGuard hardening — LATER" in roadmap,
             ),
         ]
     )

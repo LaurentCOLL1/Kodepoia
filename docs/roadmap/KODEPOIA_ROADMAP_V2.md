@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1.4 COMPLETE + NORMALIZED; V2.1.5 authorized**  
+Status: **ACTIVE — V2.1.5 COMPLETE + NORMALIZED; V2.1.6 authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -11,7 +11,8 @@ Public Windows distribution baseline: `v1.1.0-rc8`
 - V2.1.1: PR `#476`, accepted head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, 27/27 successful.
 - V2.1.2: PR `#478`, accepted head `e1e209ebcf78265f04b30b0019d201d58dae76ef`, merge `347068de7f9be9275754bbda7c55f4e0d5e66bac`, 27/27 successful; normalization PR `#479`, head `02f00beb070492c398858dcfa70ce0118872b55d`, merge `39ceec560ff069d98530687f77e7ad1c41670d3a`.
 - V2.1.3: PR `#480`, accepted head `c4cff95ea2309ea5482e6c24c61002b13becb48f`, merge `0c3d365626df666f2a847b9320b0730dc0110afa`, 27/27 successful.
-- V2.1.4: PR `#482`, accepted head `7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921`, merge `a5efbe44c0ed8c42c251cf0462ef7d8c24d7ecda`, 27/27 successful. Python Core run `35241928338` reached final success on attempt 2 after a targeted rerun of the Ubuntu job; no R16.16 product change was required.
+- V2.1.4: PR `#482`, accepted head `7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921`, merge `a5efbe44c0ed8c42c251cf0462ef7d8c24d7ecda`, 27/27 successful.
+- V2.1.5: PR `#484`, accepted head `f46068a410e7e0ea3f32f8decc77eed6aa105355`, merge `bfe7fa6b4def1a291d97bd2b9365bda321bcde52`, 27/27 successful; deterministic acceptance 12/12 PASS on Ubuntu and Windows.
 
 V2 does not reopen R20, does not create `R20.7`, and does not turn post-rc8 source capabilities into public rc8 capabilities.
 
@@ -75,26 +76,40 @@ Exact-head acceptance on `7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921` reported **1
 
 Exact-head evidence:
 
-- Ubuntu rerun `v2-1-4-cited-synthesis-ubuntu-latest-7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921` — SHA-256 `ef883894e5833d7d6cf4f6e6cb76360d701b5b66142d5de7e92ea29fa7e38490`;
+- Ubuntu `v2-1-4-cited-synthesis-ubuntu-latest-7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921` — SHA-256 `ef883894e5833d7d6cf4f6e6cb76360d701b5b66142d5de7e92ea29fa7e38490`;
 - Windows `v2-1-4-cited-synthesis-windows-latest-7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921` — SHA-256 `c83fee4ffb3326ef2a409f7cf8e0ed3907ccc7f9cbee1aa79b5a10cfa790ae1f`.
 
-### V2.1.5 — Extended media/community sources — NEXT
+### V2.1.5 — Extended media/community sources — COMPLETE + NORMALIZED
 
-Implement only the provider-expansion boundary defined by `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`:
+Accepted scope:
 
-- forum/community discovery paths;
-- YouTube/video discovery and transcript-oriented acquisition paths;
-- descriptor-only discovery candidates remain unfetched until explicit guarded acquisition;
-- provider/network/authentication/rate-limit failure states remain explicit;
-- canonical source identity, provider provenance, evidence selection, immutable retrieval lineage, cited synthesis and Research Pack contracts from V2.1.2–V2.1.4 remain intact;
-- speech-to-text and frame extraction are not implicitly trusted; they require separate governance and acceptance before their outputs can become fetched evidence;
-- deterministic backend/UI tests plus exact-head acceptance must prove the implemented boundary on Ubuntu and Windows.
+- recognized YouTube/community discovery items are typed descriptor-only candidates until explicit guarded acquisition;
+- official YouTube `search.list` results normalize into bounded candidate-only video descriptors without implicit fetch or persistence;
+- guarded YouTube metadata/transcript acquisition exposes network, missing-credential, provider and transcript-unavailable states instead of false empty-success results;
+- guarded community acquisition preserves semantic thread relationships including parent/quote linkage and does not treat popularity as authority;
+- acquired community/media artifacts reuse the canonical `ResearchStore`, `EvidenceWorkspace`, selection, immutable revision, citation and Research Pack contracts from V2.1.3–V2.1.4;
+- speech-to-text fallback and frame extraction remain explicitly non-authoritative and cannot silently become trusted evidence;
+- KodeStudio exposes structured Community/YouTube provider state, typed fetch choices and candidate-to-explicit-fetch handoff;
+- descriptions, posts, comments and transcripts remain source data and cannot grant permissions or invoke protected actions.
 
-Do **not** pull V2.1.6 adversarial hardening or any public release/TUF/updater work forward.
+Exact-head acceptance on `f46068a410e7e0ea3f32f8decc77eed6aa105355` reported **12/12 PASS** on Ubuntu and Windows, and all **27/27** pull-request workflows completed successfully before merge.
 
-### V2.1.6 — ResearchGuard hardening — LATER
+Exact-head evidence:
 
-Prompt injection, malicious redirects, SSRF, timeout/outage/cancellation, stale/version conflicts and offline/cache adversarial coverage. This begins only after V2.1.5 is COMPLETE + NORMALIZED.
+- Ubuntu `v2-1-5-extended-sources-ubuntu-latest-f46068a410e7e0ea3f32f8decc77eed6aa105355` — SHA-256 `6275abca3e380e118120718834fd34e68e819822860220b4f79a2f63ff69c2e7`;
+- Windows `v2-1-5-extended-sources-windows-latest-f46068a410e7e0ea3f32f8decc77eed6aa105355` — SHA-256 `68373539d62e0e348ce6ab7ff5f23c567b0f0e287a98901f31895d34986a4b0b`.
+
+### V2.1.6 — ResearchGuard hardening — NEXT
+
+Implement only the adversarial hardening boundary defined by `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`:
+
+- prompt-injection and source-instruction adversarial coverage across discovery, fetched evidence and synthesis inputs;
+- malicious redirect and SSRF boundary coverage for external acquisition;
+- timeout, outage and cancellation behavior that remains explicit and fail-closed;
+- stale/version-conflict and offline/cache adversarial behavior while preserving immutable evidence/citation lineage;
+- deterministic backend/UI tests plus exact-head Ubuntu/Windows acceptance proving the implemented hardening boundary.
+
+Do **not** pull V2.2 Context Builder/Memory integration or any public release/TUF/updater work forward.
 
 Each subdivision requires its own branch, exact-head acceptance, all required workflows successful, protected merge, and post-merge continuity normalization before the next subdivision.
 

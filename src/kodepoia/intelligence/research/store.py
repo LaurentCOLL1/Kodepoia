@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from kodepoia.intelligence.research.contracts import ResearchArtifact, ResearchReport, ResearchRequest
+from kodepoia.intelligence.research.evidence import EvidenceRevision
 from kodepoia.kodecode.workspace import WorkspaceBoundary
 
 
@@ -69,10 +70,43 @@ class ResearchStore:
         self._require_initialized_project()
         return self._typed_path("artifacts", artifact_id).is_file()
 
+    def save_evidence_revision(self, revision: EvidenceRevision) -> Path:
+        self._require_initialized_project()
+        path = self._typed_path("evidence_revisions", revision.revision_id)
+        if path.is_file():
+            stored = EvidenceRevision.from_dict(self._read_object(path))
+            if stored.to_dict() != revision.to_dict():
+                raise ValueError("Evidence revision ID collision")
+            return path
+        self._write_json(path, revision.to_dict())
+        return path
+
+    def load_evidence_revision(self, revision_id: str) -> EvidenceRevision:
+        self._require_initialized_project()
+        return EvidenceRevision.from_dict(
+            self._read_object(self._typed_path("evidence_revisions", revision_id))
+        )
+
+    def list_evidence_revisions(self) -> tuple[EvidenceRevision, ...]:
+        self._require_initialized_project()
+        directory = self._boundary.resolve(".kodepoia/research/evidence_revisions")
+        if not directory.is_dir():
+            return ()
+        revisions = [
+            self.load_evidence_revision(path.stem)
+            for path in sorted(directory.iterdir(), key=lambda item: item.name)
+            if path.is_file() and path.suffix == ".json"
+        ]
+        return tuple(sorted(revisions, key=lambda item: (item.retrieved_at, item.revision_id)))
+
     def save_artifact(self, artifact: ResearchArtifact) -> Path:
         self._require_initialized_project()
         path = self._typed_path("artifacts", artifact.artifact_id)
+        if path.is_file():
+            previous = ResearchArtifact.from_dict(self._read_object(path))
+            self.save_evidence_revision(EvidenceRevision.from_artifact(previous))
         self._write_json(path, artifact.to_dict())
+        self.save_evidence_revision(EvidenceRevision.from_artifact(artifact))
         return path
 
     def load_artifact(self, artifact_id: str) -> ResearchArtifact:

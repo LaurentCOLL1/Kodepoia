@@ -21,7 +21,10 @@ from kodepoia.intelligence.research.evidence import (
     EvidenceSelectionStore,
     EvidenceWorkspace,
 )
+from kodepoia.intelligence.research.orchestration import redact_research_text
 from kodepoia.intelligence.research.service import (
+    ResearchCancellation,
+    ResearchCancelled,
     ResearchOperationStatus,
     ResearchServiceResult,
     ResearchViewItem,
@@ -116,7 +119,18 @@ def _artifact_item(artifact: ResearchArtifact, *, reason: str) -> ResearchViewIt
     )
 
 
+def _eligible_http_locator(locator: str) -> bool:
+    parsed = urlsplit(locator.strip())
+    if parsed.scheme.lower() not in {"http", "https"}:
+        return False
+    if parsed.username is not None or parsed.password is not None:
+        return False
+    return bool(parsed.hostname)
+
+
 def _looks_community(locator: str) -> bool:
+    if not _eligible_http_locator(locator):
+        return False
     parsed = urlsplit(locator.strip())
     host = (parsed.hostname or "").lower().rstrip(".")
     if host in _COMMUNITY_HOSTS:
@@ -126,6 +140,8 @@ def _looks_community(locator: str) -> bool:
 
 
 def _looks_youtube(locator: str) -> bool:
+    if not _eligible_http_locator(locator):
+        return False
     parsed = urlsplit(locator.strip())
     return (parsed.hostname or "").lower().rstrip(".") in _YOUTUBE_HOSTS
 
@@ -215,7 +231,8 @@ class ExtendedSourceCoordinator:
 
     Discovery remains descriptor-only. Guarded community/YouTube acquisition is explicit,
     project-scoped, and feeds the same ResearchStore/EvidenceWorkspace lifecycle as all
-    other fetched research evidence.
+    other fetched research evidence. V2.1.6 hardening keeps policy failures fail-closed,
+    redacts provider diagnostics, and checks cancellation before new evidence is persisted.
     """
 
     project_root: Path
@@ -236,6 +253,14 @@ class ExtendedSourceCoordinator:
         self._selection_store = EvidenceSelectionStore(root)
         if self.community_client is None:
             self.community_client = CommunityResearchClient(root, policy=self.web_policy)
+
+    def _redact_reason(self, value: str) -> str:
+        return redact_research_text(value, secrets=self.secrets)
+
+    @staticmethod
+    def _require_active(cancellation: ResearchCancellation | None) -> None:
+        if cancellation is not None:
+            cancellation.require_active()
 
     @staticmethod
     def classify_discovery(items: Iterable[ResearchViewItem]) -> tuple[ResearchViewItem, ...]:
@@ -357,15 +382,22 @@ class ExtendedSourceCoordinator:
             return resolve_public_target(url, policy=self.web_policy)
         return resolve_public_target(url, policy=self.web_policy, resolver=self.resolver)
 
-    def _raw_community_response(self, locator: str) -> tuple[RawWebResponse, tuple[str, ...]]:
+    def _raw_community_response(
+        self,
+        locator: str,
+        *,
+        cancellation: ResearchCancellation | None = None,
+    ) -> tuple[RawWebResponse, tuple[str, ...]]:
         if not self.allow_network and self.web_transport is None:
             raise PermissionDenied("NETWORK capability is not granted for community research")
         transport = self.web_transport or GuardedHttpTransport(self._guardian())
         current_url = locator
         redirects: list[str] = []
         for hop in range(self.web_policy.max_redirects + 1):
+            self._require_active(cancellation)
             target = self._resolve(current_url)
             response = transport.send(target, policy=self.web_policy)
+            self._require_active(cancellation)
             validate_raw_web_response(response, policy=self.web_policy)
             status = response.status_code
             if status in {301, 302, 303, 307, 308}:
@@ -423,7 +455,17 @@ class ExtendedSourceCoordinator:
         retrieved_at: str,
         preferred_languages: tuple[str, ...] = (),
         include_transcript: bool = True,
+        cancellation: ResearchCancellation | None = None,
     ) -> ExtendedFetchResult:
+        try:
+            self._require_active(cancellation)
+        except ResearchCancelled:
+            return ExtendedFetchResult(
+                "fetch-youtube",
+                ResearchOperationStatus.CANCELLED,
+                reason="cancelled",
+                metadata={"fetched": False, "persisted": False},
+            )
         client, unavailable_reason = self._runtime_youtube_client()
         if client is None:
             status = (
@@ -449,22 +491,55 @@ class ExtendedSourceCoordinator:
                 retrieved_at=retrieved_at,
                 preferred_languages=preferred_languages,
                 include_transcript=include_transcript,
-                persist_cache=True,
+                persist_cache=False,
+            )
+            self._require_active(cancellation)
+        except ResearchCancelled:
+            return ExtendedFetchResult(
+                "fetch-youtube",
+                ResearchOperationStatus.CANCELLED,
+                reason="cancelled",
+                metadata={"fetched": False, "persisted": False},
             )
         except PermissionDenied as exc:
             return ExtendedFetchResult(
                 "fetch-youtube",
                 ResearchOperationStatus.BLOCKED,
-                reason=str(exc),
+                reason=self._redact_reason(str(exc)),
                 metadata={"fetched": False, "persisted": False},
             )
-        except (WebPolicyViolation, WebTransportError, RuntimeError) as exc:
+        except WebPolicyViolation as exc:
+            return ExtendedFetchResult(
+                "fetch-youtube",
+                ResearchOperationStatus.BLOCKED,
+                reason=self._redact_reason(str(exc)),
+                metadata={"fetched": False, "persisted": False, "policy_blocked": True},
+            )
+        except (WebRateLimitExceeded, WebTransportError, RuntimeError) as exc:
             return ExtendedFetchResult(
                 "fetch-youtube",
                 ResearchOperationStatus.UNAVAILABLE,
-                reason=str(exc),
+                reason=self._redact_reason(str(exc)),
                 metadata={"fetched": False, "persisted": False},
             )
+
+        artifacts = tuple(
+            artifact
+            for artifact in (result.metadata_artifact, result.transcript_artifact)
+            if artifact is not None
+        )
+        try:
+            self._require_active(cancellation)
+        except ResearchCancelled:
+            return ExtendedFetchResult(
+                "fetch-youtube",
+                ResearchOperationStatus.CANCELLED,
+                reason="cancelled",
+                metadata={"fetched": False, "persisted": False},
+            )
+        for artifact in artifacts:
+            self._store.save_artifact(artifact)
+
         items: list[ResearchViewItem] = []
         if result.metadata_artifact is not None:
             items.append(_artifact_item(result.metadata_artifact, reason="fetched:youtube-metadata"))
@@ -484,6 +559,7 @@ class ExtendedSourceCoordinator:
         else:
             status = ResearchOperationStatus.UNAVAILABLE
             reason = result.transcript_reason or result.metadata_reason or "youtube_fetch_unavailable"
+        reason = self._redact_reason(reason)
         return ExtendedFetchResult(
             "fetch-youtube",
             status,
@@ -494,8 +570,8 @@ class ExtendedSourceCoordinator:
                 "persisted": bool(items),
                 "metadata_status": result.metadata_status.value,
                 "transcript_status": result.transcript_status.value,
-                "metadata_reason": result.metadata_reason,
-                "transcript_reason": result.transcript_reason,
+                "metadata_reason": self._redact_reason(result.metadata_reason),
+                "transcript_reason": self._redact_reason(result.transcript_reason),
                 "transcript_authority": "provider-caption-only",
                 "stt_fallback_trusted": False,
                 "frame_extraction_trusted": False,
@@ -507,28 +583,47 @@ class ExtendedSourceCoordinator:
         locator: str,
         *,
         retrieved_at: str,
+        cancellation: ResearchCancellation | None = None,
     ) -> ExtendedFetchResult:
         try:
-            response, redirects = self._raw_community_response(locator)
+            self._require_active(cancellation)
+            response, redirects = self._raw_community_response(
+                locator,
+                cancellation=cancellation,
+            )
+        except ResearchCancelled:
+            return ExtendedFetchResult(
+                "fetch-community",
+                ResearchOperationStatus.CANCELLED,
+                reason="cancelled",
+                metadata={"fetched": False, "persisted": False},
+            )
         except PermissionDenied as exc:
             return ExtendedFetchResult(
                 "fetch-community",
                 ResearchOperationStatus.BLOCKED,
-                reason=str(exc),
+                reason=self._redact_reason(str(exc)),
                 metadata={"fetched": False, "persisted": False},
             )
         except WebRateLimitExceeded as exc:
             return ExtendedFetchResult(
                 "fetch-community",
                 ResearchOperationStatus.UNAVAILABLE,
-                reason=str(exc),
+                reason=self._redact_reason(str(exc)),
                 metadata={"fetched": False, "persisted": False, "rate_limited": True},
             )
-        except (WebPolicyViolation, WebTransportError) as exc:
+        except WebPolicyViolation as exc:
+            return ExtendedFetchResult(
+                "fetch-community",
+                ResearchOperationStatus.BLOCKED,
+                reason=self._redact_reason(str(exc)),
+                metadata={"fetched": False, "persisted": False, "policy_blocked": True},
+            )
+        except WebTransportError as exc:
             return ExtendedFetchResult(
                 "fetch-community",
                 ResearchOperationStatus.UNAVAILABLE,
-                reason=str(exc),
+                reason=self._redact_reason(str(exc)),
                 metadata={"fetched": False, "persisted": False},
             )
         if not 200 <= response.status_code < 300:
@@ -547,6 +642,7 @@ class ExtendedSourceCoordinator:
             response,
             retrieved_at=retrieved_at,
             platform=platform,
+            cancellation=cancellation,
         )
         return ExtendedFetchResult(
             result.operation,
@@ -562,6 +658,7 @@ class ExtendedSourceCoordinator:
         *,
         retrieved_at: str,
         platform: str = "",
+        cancellation: ResearchCancellation | None = None,
     ) -> ExtendedFetchResult:
         if self.community_client is None:
             return ExtendedFetchResult(
@@ -571,26 +668,45 @@ class ExtendedSourceCoordinator:
                 metadata={"fetched": False, "persisted": False},
             )
         try:
+            self._require_active(cancellation)
             result = self.community_client.normalize(
                 response,
                 retrieved_at=retrieved_at,
                 platform=platform,
-                persist_cache=True,
+                persist_cache=False,
+            )
+            self._require_active(cancellation)
+        except ResearchCancelled:
+            return ExtendedFetchResult(
+                "fetch-community",
+                ResearchOperationStatus.CANCELLED,
+                reason="cancelled",
+                metadata={"fetched": False, "persisted": False},
             )
         except WebPolicyViolation as exc:
             return ExtendedFetchResult(
                 "fetch-community",
-                ResearchOperationStatus.UNAVAILABLE,
-                reason=str(exc),
-                metadata={"fetched": False, "persisted": False},
+                ResearchOperationStatus.BLOCKED,
+                reason=self._redact_reason(str(exc)),
+                metadata={"fetched": False, "persisted": False, "policy_blocked": True},
             )
         if result.artifact is None:
             return ExtendedFetchResult(
                 "fetch-community",
                 _status(result.status),
-                reason=result.reason or "community_fetch_unavailable",
+                reason=self._redact_reason(result.reason or "community_fetch_unavailable"),
                 metadata={"fetched": False, "persisted": False},
             )
+        try:
+            self._require_active(cancellation)
+        except ResearchCancelled:
+            return ExtendedFetchResult(
+                "fetch-community",
+                ResearchOperationStatus.CANCELLED,
+                reason="cancelled",
+                metadata={"fetched": False, "persisted": False},
+            )
+        self._store.save_artifact(result.artifact)
         return ExtendedFetchResult(
             "fetch-community",
             ResearchOperationStatus.READY,

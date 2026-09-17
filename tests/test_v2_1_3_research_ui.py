@@ -45,10 +45,12 @@ def test_candidate_row_shows_lifecycle_locator_and_has_no_selection_actions(tmp_
     qt_app()
     window = _window(tmp_path)
     page = window.findChild(QWidget, "researchPage")
-    table = window.findChild(QTableWidget, "researchResultsTable")
+    legacy_table = window.findChild(QTableWidget, "researchResultsTable")
+    table = window.findChild(QTableWidget, "researchEvidenceWorkspaceTable")
     include = window.findChild(QPushButton, "researchEvidenceIncludeButton")
     exclude = window.findChild(QPushButton, "researchEvidenceExcludeButton")
-    assert page is not None and table is not None and include is not None and exclude is not None
+    assert page is not None and legacy_table is not None and table is not None
+    assert include is not None and exclude is not None
     candidate = ResearchViewItem(
         source_kind="web",
         source_id=_sha("candidate-source"),
@@ -68,11 +70,13 @@ def test_candidate_row_shows_lifecycle_locator_and_has_no_selection_actions(tmp_
         )
     )
     QApplication.processEvents()
+    assert legacy_table.columnCount() == 7
+    assert legacy_table.rowCount() == 1
     assert table.rowCount() == 1
-    assert table.item(0, 7).text() == "CANDIDATE_ONLY"
-    assert table.item(0, 8).text() == "NOT_APPLICABLE"
-    assert table.item(0, 9).text() == "https://example.com/docs"
-    assert table.item(0, 12).text() == "brave-web"
+    assert table.item(0, 0).text() == "CANDIDATE_ONLY"
+    assert table.item(0, 1).text() == "NOT_APPLICABLE"
+    assert table.item(0, 2).text() == "https://example.com/docs"
+    assert table.item(0, 5).text() == "brave-web"
     assert not include.isEnabled()
     assert not exclude.isEnabled()
     window.close()
@@ -82,7 +86,7 @@ def test_fetched_row_can_be_excluded_without_deleting_evidence(tmp_path: Path) -
     qt_app()
     window = _window(tmp_path)
     page = window.findChild(QWidget, "researchPage")
-    table = window.findChild(QTableWidget, "researchResultsTable")
+    table = window.findChild(QTableWidget, "researchEvidenceWorkspaceTable")
     exclude = window.findChild(QPushButton, "researchEvidenceExcludeButton")
     assert page is not None and table is not None and exclude is not None
     artifact_id = _sha("artifact")
@@ -106,12 +110,12 @@ def test_fetched_row_can_be_excluded_without_deleting_evidence(tmp_path: Path) -
     )
     page._research_render(result)
     QApplication.processEvents()
-    assert table.item(0, 7).text() == "FETCHED"
-    assert table.item(0, 8).text() == "INCLUDED"
+    assert table.item(0, 0).text() == "FETCHED"
+    assert table.item(0, 1).text() == "INCLUDED"
     assert exclude.isEnabled()
     exclude.click()
     QApplication.processEvents()
-    assert table.item(0, 8).text() == "EXCLUDED"
+    assert table.item(0, 1).text() == "EXCLUDED"
     selection_path = tmp_path / "project" / ".kodepoia" / "research" / "evidence-selection.json"
     assert selection_path.is_file()
     assert artifact_id in selection_path.read_text(encoding="utf-8")

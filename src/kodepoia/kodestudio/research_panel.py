@@ -22,6 +22,7 @@ from kodepoia.intelligence.research.service import (
 from kodepoia.intelligence.research.store import ResearchStore
 from kodepoia.kodestudio.accessibility import mark_accessible
 from kodepoia.kodestudio.localization import KodeStudioTranslator
+from kodepoia.kodestudio.research_synthesis import create_cited_synthesis_widget
 from kodepoia.kodestudio.research_ux import (
     ResearchUxTranslator,
     default_empty_state_text,
@@ -365,6 +366,14 @@ def create_research_page(
     evidence_actions.addStretch(1)
     layout.addLayout(evidence_actions)
 
+    synthesis_widget = create_cited_synthesis_widget(
+        project_root,
+        workspace_provider=lambda: page._research_workspace,
+        selection_provider=selection_store.load,
+        question_provider=lambda: query.text().strip() or "Selected research evidence",
+    )
+    layout.addWidget(synthesis_widget)
+
     technical_label = QLabel(ux.text("research_ux.technical.title"))
     technical_label.setObjectName("researchTechnicalDetailsLabel")
     layout.addWidget(technical_label)
@@ -666,9 +675,17 @@ def create_research_page(
             exclude_button.setEnabled(False)
             return
         fetched = workspace_row.lifecycle is EvidenceLifecycle.FETCHED
-        include_button.setEnabled(fetched and workspace_row.selection is not EvidenceSelection.INCLUDED)
+        persisted_selection = selection_store.load().get(workspace_row.artifact_id)
+        include_button.setEnabled(
+            fetched
+            and (
+                workspace_row.selection is not EvidenceSelection.INCLUDED
+                or persisted_selection is not EvidenceSelection.INCLUDED
+            )
+        )
         exclude_button.setEnabled(fetched and workspace_row.selection is not EvidenceSelection.EXCLUDED)
         payload = workspace_row.to_dict()
+        payload["selection_explicit"] = persisted_selection is not None
         if current.operation == "discover":
             payload["candidate_only"] = bool(current.metadata.get("candidate_only", True))
             payload["fetched"] = bool(current.metadata.get("fetched", False))
@@ -710,4 +727,5 @@ def create_research_page(
     page._research_refresh_capability_diagnostics = refresh_capability_diagnostics
     page._research_refresh_human_state = refresh_human_state
     page._research_set_evidence_selection = set_evidence_selection
+    page._research_synthesis_widget = synthesis_widget
     return page

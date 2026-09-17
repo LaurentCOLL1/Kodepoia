@@ -57,9 +57,11 @@ class ExtendedResearchFetchRequest:
 
 
 def _ensure_runtime_secrets(research) -> KodeSecrets:
-    if research.secrets is None:
-        research.secrets = KodeSecrets()
-    return research.secrets
+    secrets = getattr(research, "secrets", None)
+    if secrets is None:
+        secrets = KodeSecrets()
+        research.secrets = secrets
+    return secrets
 
 
 def _cancelled_result() -> ResearchServiceResult:
@@ -80,7 +82,7 @@ def _extend_page(page, project_root: Path) -> None:
     discovery.secrets = secrets
     coordinator = ExtendedSourceCoordinator(
         project_root,
-        allow_network=research.allow_network,
+        allow_network=bool(research.allow_network),
         secrets=secrets,
         web_transport=research.web_transport,
         web_policy=research.web_policy,
@@ -114,7 +116,6 @@ def _extend_page(page, project_root: Path) -> None:
     original_discover = discovery.discover
 
     def discover_with_extended_candidates(*args: Any, **kwargs: Any) -> ResearchServiceResult:
-        coordinator.allow_network = bool(network.isChecked())
         result = original_discover(*args, **kwargs)
         return ExtendedSourceCoordinator.classify_discovery_result(result)
 
@@ -133,7 +134,6 @@ def _extend_page(page, project_root: Path) -> None:
         if request.kind in _BASE_KINDS:
             return original_fetch(request, cancellation=token)
 
-        coordinator.allow_network = bool(network.isChecked())
         if request.kind is ResearchSourceKind.COMMUNITY:
             extended = coordinator.fetch_community_url(
                 request.locator,
@@ -176,6 +176,7 @@ def _extend_page(page, project_root: Path) -> None:
         coordinator.allow_network = bool(checked)
 
     network.toggled.connect(network_changed)
+    coordinator.allow_network = bool(network.isChecked())
 
 
 def create_research_page(

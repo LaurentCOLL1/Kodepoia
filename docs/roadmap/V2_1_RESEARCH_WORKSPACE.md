@@ -8,9 +8,13 @@ Public distribution boundary: `v1.1.0-rc8`
 
 V2.0 is COMPLETE + NORMALIZED after PR `#474`, exact head `79749ab25d58faaca6421bcda4eb460194a3683c`, merge `043dba64111f763f0e9544ea8cde9a3cbf9b1dff`.
 
-V2.1.1 is COMPLETE + NORMALIZED after PR `#476`, exact head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, 27/27 successful PR workflows.
+### V2.1.1 — Honest UX and diagnostics — COMPLETE + NORMALIZED
 
-V2.1.2 is COMPLETE + NORMALIZED after PR `#478`, exact head `e1e209ebcf78265f04b30b0019d201d58dae76ef`, merge `347068de7f9be9275754bbda7c55f4e0d5e66bac`, 27/27 successful PR workflows.
+V2.1.1 is now COMPLETE + NORMALIZED after PR `#476`, exact head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, 27/27 successful PR workflows.
+
+### V2.1.2 — Discovery providers — COMPLETE + NORMALIZED
+
+V2.1.2 is now COMPLETE + NORMALIZED after PR `#478`, exact head `e1e209ebcf78265f04b30b0019d201d58dae76ef`, merge `347068de7f9be9275754bbda7c55f4e0d5e66bac`, 27/27 successful PR workflows.
 
 V2.1.2 exact-head evidence:
 
@@ -32,11 +36,13 @@ Discovery now provides real question-driven candidates through:
 
 Discovery output is bounded candidate metadata, not trusted fetched content. Candidate lifecycle is explicit: `candidate-only`, `unfetched`, `fetched: false`, `persisted: false`.
 
+The accepted boundary also requires that candidate discovery alone performs no protected mutation, and every discovered URL still passes guarded fetch before any content is acquired or accepted as evidence.
+
 Provider absence, missing authentication, network restriction, rate limiting and provider failure remain visible states. They cannot be represented as successful empty searches.
 
 A discovered locator never grants permission to fetch. Any later acquisition must pass the existing guarded fetch, URL/path, Guardian, MIME/size/timeout/redirect, secret-redaction and ResearchGuard boundaries.
 
-## 3. V2.1.3 — Evidence workspace — CURRENT
+### V2.1.3 — Evidence workspace — CURRENT
 
 V2.1.3 must build the inspect/select evidence layer on top of accepted V2.1.2 discovery without adding V2.1.4 synthesis.
 

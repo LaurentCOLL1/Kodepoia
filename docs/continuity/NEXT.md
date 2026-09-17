@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-17 after V2.1.3 implementation PR `#480` merged and continuity normalization  
+Last synchronized: 2026-09-17 after V2.1.4 implementation PR `#482` merged and post-merge continuity normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -8,66 +8,74 @@ Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
 Public Windows **`v1.1.0-rc8`** remains the last fully real-machine updater-E2E-qualified distribution baseline. The updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 is terminal and remains **COMPLETE + NORMALIZED**; do not reopen it or invent `R20.7`.
 
-V2.0, V2.1.1, V2.1.2 and V2.1.3 are **COMPLETE + NORMALIZED**.
+V2.0, V2.1.1, V2.1.2, V2.1.3 and V2.1.4 are **COMPLETE + NORMALIZED**.
 
-## V2.1.3 accepted implementation
+## V2.1.4 accepted implementation
 
-V2.1.3 implementation PR `#480` was qualified with **27/27** `completed/success` PR workflows on exact head:
+V2.1.4 implementation PR `#482` was qualified with **27/27** `completed/success` pull-request workflows on exact head:
 
-`c4cff95ea2309ea5482e6c24c61002b13becb48f`
+`7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921`
 
-It merged with an exact-head guard as:
+It merged from that unchanged head as:
 
-`0c3d365626df666f2a847b9320b0730dc0110afa`
+`a5efbe44c0ed8c42c251cf0462ef7d8c24d7ecda`
 
-Exact-head acceptance evidence:
+The final exact-head qualification included:
 
-- `v2-1-3-evidence-workspace-ubuntu-latest-c4cff95ea2309ea5482e6c24c61002b13becb48f` — SHA-256 `753436509fc379e5bfc93426d5be0b5605083c5959679c8b61abb79feac54d27`;
-- `v2-1-3-evidence-workspace-windows-latest-c4cff95ea2309ea5482e6c24c61002b13becb48f` — SHA-256 `043a626b059277bd4dbcb8cf0f7b32ed1b5e2fd1ac71c993c31c3802e049dd2c`.
+- `R0 Repository Guard` run `35241928748` = `completed/success`;
+- `Python Core` run `35241928338` = `completed/success`, attempt 2 after a targeted rerun of the Ubuntu job;
+- `KodeStudio UI Smoke` run `35241928376` = `completed/success`;
+- `R17 Windows Installer` run `35241928065` = `completed/success`;
+- `R18.11 Integrated Adversarial Release Update Acceptance` run `35241928032` = `completed/success`.
 
-The exact-head V2.1.3 acceptance reported **13/13 PASS**. Accepted scope is evidence inspection and selection only:
+The first Ubuntu Python Core attempt had failed only in the historical R16.16 bounded resource-soak test because the runner resource measurement returned `resource_claim == False`. The targeted Ubuntu rerun job `105285922212` then completed successfully, including the full pytest suite. No R16.16 product change was made.
 
-- canonical source identity and canonical locator;
-- explicit candidate-only versus fetched lifecycle;
-- fetched-evidence include/exclude state without deleting artifacts;
-- immutable retrieval revisions and inspectable refetch lineage, including unchanged-content refetches;
-- duplicate normalization while retaining provider provenance;
-- visible source dates/version/trust/freshness and version conflicts;
-- dedicated structured Evidence workspace in KodeStudio while preserving the seven-column historical Research result contract;
-- no cited synthesis, Research Pack persistence, Context Builder/RAG injection or provider expansion pulled forward.
+V2.1.4 exact-head evidence:
+
+- Ubuntu rerun artifact `v2-1-4-cited-synthesis-ubuntu-latest-7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921` — SHA-256 `ef883894e5833d7d6cf4f6e6cb76360d701b5b66142d5de7e92ea29fa7e38490`;
+- Windows artifact `v2-1-4-cited-synthesis-windows-latest-7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921` — SHA-256 `c83fee4ffb3326ef2a409f7cf8e0ed3907ccc7f9cbee1aa79b5a10cfa790ae1f`.
+
+The deterministic V2.1.4 acceptance reported **13/13 PASS** on Ubuntu and Windows. Accepted product truth includes:
+
+- synthesis only from explicitly persisted INCLUDED fetched evidence;
+- immutable claim-to-citation provenance bound to artifact, evidence revision, canonical source identity and content digest;
+- later refetches cannot silently rewrite historical citation provenance;
+- visible stale/conflict uncertainty and explicit source-fact versus inference distinction;
+- source content remains guarded data and cannot grant permissions or invoke protected actions;
+- deterministic, schema-versioned, digest-bound, reopenable Research Packs under `.kodepoia/research/packs/`;
+- secret redaction and WorkspaceBoundary preservation;
+- structured KodeStudio synthesis/save/citation UI;
+- no V2.1.5 provider expansion, V2.1.6 hardening corpus or release/TUF mutation pulled forward.
 
 ## Immediate execution order
 
-### V2.1.4 — Cited synthesis and Research Packs — NEXT AUTHORIZED
+### V2.1.5 — Extended media/community sources — NEXT AUTHORIZED
 
-Branch only from re-fetched live `main` containing this V2.1.3 normalization, then implement only V2.1.4 from `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+Branch only from re-fetched live `main` containing this V2.1.4 normalization, then implement only the V2.1.5 scope defined in `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
 
-Required product/architecture truth:
+Current authorized scope:
 
-- synthesis consumes only explicitly selected **fetched evidence**; descriptor-only discovery candidates cannot be cited as if fetched;
-- every source-backed claim must have inspectable claim-to-evidence citation linkage using stable artifact/source identity;
-- citations must remain bound to the evidence revision actually used, so later refetches cannot silently rewrite an earlier answer's provenance;
-- uncertainty and conflicting/stale evidence must remain visible instead of being collapsed into false certainty;
-- generated synthesis must remain source-data-driven and must not grant permissions or execute source instructions;
-- save a governed Research Pack containing the scoped question, selected evidence/revisions, citations, synthesis, uncertainty/provenance metadata and a stable digest;
-- Research Pack persistence must be project-scoped under `.kodepoia/`, deterministic enough for acceptance, and must preserve ResearchGuard/secret-redaction/protected-action boundaries;
-- expose a clear KodeStudio synthesis/save workflow without making raw JSON the primary UX;
-- add deterministic backend/UI tests plus exact-head Ubuntu/Windows acceptance evidence.
+- add forum/community source discovery paths;
+- add YouTube/video discovery and transcript-oriented source paths;
+- keep discovery candidates descriptor-only until an explicit guarded fetch/acquisition step succeeds;
+- keep provider/network/authentication/rate-limit failures visible rather than converting them into empty-success results;
+- preserve canonical source identity, provider provenance, evidence selection, immutable revision lineage and cited synthesis contracts already accepted in V2.1.2–V2.1.4;
+- any speech-to-text or frame extraction must be separately governed and accepted before it can become trusted fetched evidence;
+- add deterministic backend/UI tests and exact-head acceptance evidence for the implemented V2.1.5 boundary.
 
 Do **not** pull forward:
 
-- V2.1.5 forum/YouTube/media provider expansion;
-- V2.1.6 adversarial ResearchGuard hardening corpus beyond what is required to preserve existing boundaries;
-- any new public release, installer publication or TUF transition.
+- V2.1.6 full adversarial ResearchGuard hardening for prompt injection, malicious redirects, SSRF, outage/timeout/cancellation and related corpus coverage beyond what is necessary to preserve existing fail-closed boundaries;
+- any new public release, installer publication or TUF transition;
+- unrelated Model Lab, accelerator or cross-workspace work.
 
-After V2.1.4 merges, normalize continuity before V2.1.5 begins.
+After V2.1.5 merges, normalize continuity before V2.1.6 begins.
 
 ## Later V2.1 order
 
-Only after each previous subdivision is COMPLETE + NORMALIZED, continue:
+Only after V2.1.5 is COMPLETE + NORMALIZED, continue with:
 
-1. V2.1.5 — Extended media/community sources;
-2. V2.1.6 — ResearchGuard hardening.
+1. V2.1.6 — ResearchGuard hardening.
 
 Do not skip subdivision acceptance or continuity normalization.
 
@@ -85,4 +93,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live et toute PR de normalisation ouverte. V2.1.3 a été qualifiée 27/27 sur le head exact c4cff95ea2309ea5482e6c24c61002b13becb48f puis fusionnée comme 0c3d365626df666f2a847b9320b0730dc0110afa. V2.1.4 — Cited synthesis and Research Packs — est la prochaine subdivision autorisée seulement depuis un main contenant la normalisation V2.1.3. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live et toute PR ouverte. V2.1.4 a été qualifiée 27/27 sur le head exact 7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921 puis fusionnée comme a5efbe44c0ed8c42c251cf0462ef7d8c24d7ecda. V2.1.4 est COMPLETE + NORMALIZED et V2.1.5 — Extended media/community sources — est la prochaine subdivision autorisée seulement depuis un main contenant cette normalisation. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`

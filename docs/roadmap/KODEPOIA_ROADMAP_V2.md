@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1.3 COMPLETE + NORMALIZED; V2.1.4 authorized**  
+Status: **ACTIVE — V2.1.4 COMPLETE + NORMALIZED; V2.1.5 authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -11,6 +11,7 @@ Public Windows distribution baseline: `v1.1.0-rc8`
 - V2.1.1: PR `#476`, accepted head `c485083419f492e9c10989f6aadbda5bc436d5cc`, merge `16ef244e9cad922421f2440ef8185e9e896a164d`, 27/27 successful.
 - V2.1.2: PR `#478`, accepted head `e1e209ebcf78265f04b30b0019d201d58dae76ef`, merge `347068de7f9be9275754bbda7c55f4e0d5e66bac`, 27/27 successful; normalization PR `#479`, head `02f00beb070492c398858dcfa70ce0118872b55d`, merge `39ceec560ff069d98530687f77e7ad1c41670d3a`.
 - V2.1.3: PR `#480`, accepted head `c4cff95ea2309ea5482e6c24c61002b13becb48f`, merge `0c3d365626df666f2a847b9320b0730dc0110afa`, 27/27 successful.
+- V2.1.4: PR `#482`, accepted head `7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921`, merge `a5efbe44c0ed8c42c251cf0462ef7d8c24d7ecda`, 27/27 successful. Python Core run `35241928338` reached final success on attempt 2 after a targeted rerun of the Ubuntu job; no R16.16 product change was required.
 
 V2 does not reopen R20, does not create `R20.7`, and does not turn post-rc8 source capabilities into public rc8 capabilities.
 
@@ -36,11 +37,6 @@ Accepted scope:
 - KodeStudio `Search sources` performs real discovery only under NETWORK permission;
 - discovery remains separate from guarded `ResearchService.fetch()`.
 
-Exact-head evidence:
-
-- Ubuntu `v2-1-2-discovery-providers-ubuntu-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef` — SHA-256 `e9c0d999b28d38c6319229354f19156b6b19e14d35ff567a9f0fcab25ebcd164`;
-- Windows `v2-1-2-discovery-providers-windows-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef` — SHA-256 `8ff58d6ea0f4590654387b5b2c405df265aa36b91044c023e10f0c9ea304df8a`.
-
 ### V2.1.3 — Evidence workspace — COMPLETE + NORMALIZED
 
 Accepted scope:
@@ -62,26 +58,43 @@ Exact-head evidence:
 - Ubuntu `v2-1-3-evidence-workspace-ubuntu-latest-c4cff95ea2309ea5482e6c24c61002b13becb48f` — SHA-256 `753436509fc379e5bfc93426d5be0b5605083c5959679c8b61abb79feac54d27`;
 - Windows `v2-1-3-evidence-workspace-windows-latest-c4cff95ea2309ea5482e6c24c61002b13becb48f` — SHA-256 `043a626b059277bd4dbcb8cf0f7b32ed1b5e2fd1ac71c993c31c3802e049dd2c`.
 
-### V2.1.4 — Cited synthesis and Research Packs — NEXT
+### V2.1.4 — Cited synthesis and Research Packs — COMPLETE + NORMALIZED
 
-Implement only:
+Accepted scope:
 
-- synthesis from explicitly selected fetched evidence;
-- claim-linked, inspectable citations bound to the evidence revision actually used;
-- visible uncertainty and unresolved stale/conflicting evidence;
-- governed Research Pack persistence with scoped question, selected evidence/revisions, citations, synthesis and provenance metadata;
-- stable Research Pack digest and project-scoped persistence under `.kodepoia/`;
-- clear KodeStudio synthesis/save workflow;
-- deterministic backend/UI tests and exact-head Ubuntu/Windows acceptance.
+- synthesis from explicitly persisted INCLUDED fetched evidence only;
+- claim-linked citations bound to artifact ID, evidence revision ID, canonical source identity and content digest;
+- immutable historical citation provenance across later refetches;
+- visible stale/conflict uncertainty and explicit source-fact versus inference distinction;
+- guarded source content that cannot grant permissions or invoke protected actions;
+- deterministic, schema-versioned, digest-bound and reopenable Research Packs stored below `.kodepoia/research/packs/`;
+- secret redaction and WorkspaceBoundary preservation;
+- structured KodeStudio synthesis, claim/citation and Research Pack save UI.
 
-Preserve ResearchGuard, secret redaction and protected-action boundaries. Discovery candidates must never be cited as fetched evidence merely because they were discovered.
+Exact-head acceptance on `7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921` reported **13/13 PASS** on Ubuntu and Windows, and all **27/27** pull-request workflows completed successfully before merge.
 
-Do **not** pull V2.1.5 forum/YouTube/media provider expansion or V2.1.6 adversarial hardening forward.
+Exact-head evidence:
 
-### Later V2.1 order
+- Ubuntu rerun `v2-1-4-cited-synthesis-ubuntu-latest-7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921` — SHA-256 `ef883894e5833d7d6cf4f6e6cb76360d701b5b66142d5de7e92ea29fa7e38490`;
+- Windows `v2-1-4-cited-synthesis-windows-latest-7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921` — SHA-256 `c83fee4ffb3326ef2a409f7cf8e0ed3907ccc7f9cbee1aa79b5a10cfa790ae1f`.
 
-1. V2.1.5 — Extended media/community sources.
-2. V2.1.6 — ResearchGuard hardening.
+### V2.1.5 — Extended media/community sources — NEXT
+
+Implement only the provider-expansion boundary defined by `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`:
+
+- forum/community discovery paths;
+- YouTube/video discovery and transcript-oriented acquisition paths;
+- descriptor-only discovery candidates remain unfetched until explicit guarded acquisition;
+- provider/network/authentication/rate-limit failure states remain explicit;
+- canonical source identity, provider provenance, evidence selection, immutable retrieval lineage, cited synthesis and Research Pack contracts from V2.1.2–V2.1.4 remain intact;
+- speech-to-text and frame extraction are not implicitly trusted; they require separate governance and acceptance before their outputs can become fetched evidence;
+- deterministic backend/UI tests plus exact-head acceptance must prove the implemented boundary on Ubuntu and Windows.
+
+Do **not** pull V2.1.6 adversarial hardening or any public release/TUF/updater work forward.
+
+### V2.1.6 — ResearchGuard hardening — LATER
+
+Prompt injection, malicious redirects, SSRF, timeout/outage/cancellation, stale/version conflicts and offline/cache adversarial coverage. This begins only after V2.1.5 is COMPLETE + NORMALIZED.
 
 Each subdivision requires its own branch, exact-head acceptance, all required workflows successful, protected merge, and post-merge continuity normalization before the next subdivision.
 

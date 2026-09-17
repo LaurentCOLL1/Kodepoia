@@ -6,6 +6,7 @@ import pytest
 
 from kodepoia.core.research_guard import ResearchGuard
 from kodepoia.core.secrets import KodeSecrets, MemorySecretBackend
+from kodepoia.core.trust import ContentAuthority, TrustLevel
 from kodepoia.intelligence.research.extended_sources import ExtendedSourceCoordinator
 from kodepoia.intelligence.research.service import (
     ResearchCancellation,
@@ -181,5 +182,6 @@ def test_v216_research_guard_marks_adversarial_source_text_as_untrusted() -> Non
     )
     assert guarded.suspicious is True
     assert guarded.trust is not None
-    assert guarded.trust.trusted is False
+    assert guarded.trust.level is TrustLevel.UNTRUSTED
+    assert guarded.trust.authority is ContentAuthority.DATA_ONLY
     assert {"ignore-instructions", "system-prompt", "execute-command"} <= set(guarded.indicators)

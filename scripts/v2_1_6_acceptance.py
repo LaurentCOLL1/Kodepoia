@@ -27,6 +27,10 @@ def main() -> int:
 
     root = Path(__file__).resolve().parents[1]
     hardened = (root / "src/kodepoia/intelligence/research/extended_sources.py").read_text(encoding="utf-8")
+    cache = (root / "src/kodepoia/intelligence/research/cache.py").read_text(encoding="utf-8")
+    evidence = (root / "src/kodepoia/intelligence/research/evidence.py").read_text(encoding="utf-8")
+    service = (root / "src/kodepoia/intelligence/research/service.py").read_text(encoding="utf-8")
+    workspace = (root / "src/kodepoia/kodecode/workspace.py").read_text(encoding="utf-8")
     ui = (root / "src/kodepoia/kodestudio/research_extended_panel.py").read_text(encoding="utf-8")
     roadmap = (root / "docs/roadmap/V2_1_RESEARCH_WORKSPACE.md").read_text(encoding="utf-8")
 
@@ -40,7 +44,11 @@ def main() -> int:
 
     checks = [
         _check("exact_head", observed.returncode == 0 and observed_sha == source_sha, observed_sha),
-        _check("adversarial_runtime_tests", targeted.returncode == 0, (targeted.stdout + targeted.stderr)[-3000:]),
+        _check(
+            "adversarial_runtime_tests",
+            targeted.returncode == 0,
+            (targeted.stdout + targeted.stderr)[-3000:],
+        ),
         _check(
             "policy_fail_closed",
             'ResearchOperationStatus.BLOCKED' in hardened and '"policy_blocked": True' in hardened,
@@ -62,8 +70,38 @@ def main() -> int:
             "extended discovery typing accepts only non-credential HTTP(S) locators",
         ),
         _check(
+            "stale_cache_honesty",
+            "CacheDecision.STALE" in cache
+            and "cache_ttl_expired_revalidation_required" in cache
+            and "ResearchOperationStatus.STALE" in service
+            and '"cache"' in service,
+            "offline cache state remains explicit STALE/UNAVAILABLE instead of fabricated live success",
+        ),
+        _check(
+            "immutable_version_conflict_lineage",
+            "conflicting_versions" in evidence
+            and "has_version_conflict" in evidence
+            and "lineage_revision_ids" in evidence
+            and "lineage_artifact_ids" in evidence,
+            "evidence projection retains immutable revision/artifact lineage and explicit version conflicts",
+        ),
+        _check(
+            "workspace_protected_actions_fail_closed",
+            "WorkspaceViolation" in workspace
+            and "Path escapes workspace" in workspace
+            and "Absolute paths are not allowed" in workspace,
+            "protected filesystem resolution remains confined to the project WorkspaceBoundary",
+        ),
+        _check(
+            "ui_degraded_states_structured",
+            "hardened_evidence_state_text" in ui
+            and "Lineage / hardening state" in ui
+            and all(token in ui for token in ("BLOCKED", "UNAVAILABLE", "CANCELLED", "STALE", "CONFLICT")),
+            "KodeStudio exposes blocked/unavailable/cancelled/stale/conflict state without raw JSON",
+        ),
+        _check(
             "ui_cancellation_propagated",
-            "cancellation=token" in ui and "V2.1.6 hardened sources" in ui,
+            "cancellation=token" in ui and "V2.1.6 hardened states" in ui,
             "KodeStudio forwards the active cancellation token and exposes hardened provider state",
         ),
         _check(

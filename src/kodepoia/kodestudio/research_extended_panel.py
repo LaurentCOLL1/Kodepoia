@@ -174,9 +174,9 @@ def _extend_page(page, coordinator: ExtendedSourceCoordinator) -> None:
             fetch_kind.addItem(kind.value, kind.value)
 
     state = QLabel(
-        "V2.1.6 hardened sources: Community HTML and YouTube acquisition remain guarded; "
-        "policy blocks, provider outages, cancellation and unavailable transcripts stay explicit. "
-        "Provider diagnostics are redacted before display."
+        "V2.1.6 hardened sources: Community HTML remains guarded; YouTube metadata and captions "
+        "remain governed. Policy blocks, provider outages, cancellation and unavailable transcripts "
+        "stay explicit; provider diagnostics are redacted before display."
     )
     state.setObjectName("researchExtendedSourceState")
     state.setAccessibleName("Extended research provider state")

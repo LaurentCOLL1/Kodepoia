@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-17 after V2.1.2 implementation PR `#478` merged; post-merge normalization is being qualified on this branch  
+Last synchronized: 2026-09-17 after V2.1.3 implementation PR `#480` merged and continuity normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -8,53 +8,66 @@ Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
 Public Windows **`v1.1.0-rc8`** remains the last fully real-machine updater-E2E-qualified distribution baseline. The updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 is terminal and remains **COMPLETE + NORMALIZED**; do not reopen it or invent `R20.7`.
 
-V2.0 and V2.1.1 remain **COMPLETE + NORMALIZED**.
+V2.0, V2.1.1, V2.1.2 and V2.1.3 are **COMPLETE + NORMALIZED**.
 
-## V2.1.2 accepted implementation
+## V2.1.3 accepted implementation
 
-V2.1.2 implementation PR `#478` was qualified with **27/27** `completed/success` PR workflows on exact head:
+V2.1.3 implementation PR `#480` was qualified with **27/27** `completed/success` PR workflows on exact head:
 
-`e1e209ebcf78265f04b30b0019d201d58dae76ef`
+`c4cff95ea2309ea5482e6c24c61002b13becb48f`
 
 It merged with an exact-head guard as:
 
-`347068de7f9be9275754bbda7c55f4e0d5e66bac`
+`0c3d365626df666f2a847b9320b0730dc0110afa`
 
 Exact-head acceptance evidence:
 
-- `v2-1-2-discovery-providers-ubuntu-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef` — SHA-256 `e9c0d999b28d38c6319229354f19156b6b19e14d35ff567a9f0fcab25ebcd164`;
-- `v2-1-2-discovery-providers-windows-latest-e1e209ebcf78265f04b30b0019d201d58dae76ef` — SHA-256 `8ff58d6ea0f4590654387b5b2c405df265aa36b91044c023e10f0c9ea304df8a`.
+- `v2-1-3-evidence-workspace-ubuntu-latest-c4cff95ea2309ea5482e6c24c61002b13becb48f` — SHA-256 `753436509fc379e5bfc93426d5be0b5605083c5959679c8b61abb79feac54d27`;
+- `v2-1-3-evidence-workspace-windows-latest-c4cff95ea2309ea5482e6c24c61002b13becb48f` — SHA-256 `043a626b059277bd4dbcb8cf0f7b32ed1b5e2fd1ac71c993c31c3802e049dd2c`.
 
-The accepted V2.1.2 boundary is real discovery only: Brave Search for general Web discovery, GitHub REST repository Search for public GitHub discovery, explicit provider/auth/network/rate-limit diagnostics, bounded candidate descriptors, and strict separation from guarded fetch/persistence/evidence.
+The exact-head V2.1.3 acceptance reported **13/13 PASS**. Accepted scope is evidence inspection and selection only:
 
-This documentation branch is the required post-merge normalization. **Do not begin V2.1.3 until the normalization PR itself has passed all required workflows on its exact head and has merged.**
+- canonical source identity and canonical locator;
+- explicit candidate-only versus fetched lifecycle;
+- fetched-evidence include/exclude state without deleting artifacts;
+- immutable retrieval revisions and inspectable refetch lineage, including unchanged-content refetches;
+- duplicate normalization while retaining provider provenance;
+- visible source dates/version/trust/freshness and version conflicts;
+- dedicated structured Evidence workspace in KodeStudio while preserving the seven-column historical Research result contract;
+- no cited synthesis, Research Pack persistence, Context Builder/RAG injection or provider expansion pulled forward.
 
 ## Immediate execution order
 
-### V2.1.3 — Evidence workspace — authorized only after normalization merge
+### V2.1.4 — Cited synthesis and Research Packs — NEXT AUTHORIZED
 
-Once V2.1.2 is formally **COMPLETE + NORMALIZED**, create a dedicated branch from re-fetched live `main` and implement only V2.1.3 from `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+Branch only from re-fetched live `main` containing this V2.1.3 normalization, then implement only V2.1.4 from `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
 
 Required product/architecture truth:
 
-- present discovered/fetched sources as inspectable source cards or equivalent structured rows rather than relying on raw JSON;
-- display canonical locator plus available publication/update/version metadata, source trust and freshness;
-- expose explicit include/exclude state for evidence selection without silently promoting discovery candidates;
-- preserve the distinction between descriptor-only candidates and fetched evidence;
-- add cache/refetch lineage so refreshing a source creates an inspectable newer evidence state rather than silently replacing historical evidence;
-- normalize duplicate source identities while retaining provider provenance;
-- do not implement cited synthesis or Research Pack persistence yet; those remain V2.1.4;
-- add deterministic backend/UI tests and exact-head acceptance proving these invariants on Ubuntu and Windows.
+- synthesis consumes only explicitly selected **fetched evidence**; descriptor-only discovery candidates cannot be cited as if fetched;
+- every source-backed claim must have inspectable claim-to-evidence citation linkage using stable artifact/source identity;
+- citations must remain bound to the evidence revision actually used, so later refetches cannot silently rewrite an earlier answer's provenance;
+- uncertainty and conflicting/stale evidence must remain visible instead of being collapsed into false certainty;
+- generated synthesis must remain source-data-driven and must not grant permissions or execute source instructions;
+- save a governed Research Pack containing the scoped question, selected evidence/revisions, citations, synthesis, uncertainty/provenance metadata and a stable digest;
+- Research Pack persistence must be project-scoped under `.kodepoia/`, deterministic enough for acceptance, and must preserve ResearchGuard/secret-redaction/protected-action boundaries;
+- expose a clear KodeStudio synthesis/save workflow without making raw JSON the primary UX;
+- add deterministic backend/UI tests plus exact-head Ubuntu/Windows acceptance evidence.
 
-After V2.1.3 merge, normalize continuity before starting V2.1.4.
+Do **not** pull forward:
+
+- V2.1.5 forum/YouTube/media provider expansion;
+- V2.1.6 adversarial ResearchGuard hardening corpus beyond what is required to preserve existing boundaries;
+- any new public release, installer publication or TUF transition.
+
+After V2.1.4 merges, normalize continuity before V2.1.5 begins.
 
 ## Later V2.1 order
 
 Only after each previous subdivision is COMPLETE + NORMALIZED, continue:
 
-1. V2.1.4 — Cited synthesis and Research Packs;
-2. V2.1.5 — Extended media/community sources;
-3. V2.1.6 — ResearchGuard hardening.
+1. V2.1.5 — Extended media/community sources;
+2. V2.1.6 — ResearchGuard hardening.
 
 Do not skip subdivision acceptance or continuity normalization.
 
@@ -72,4 +85,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live et toute PR de normalisation ouverte. V2.1.2 a été qualifiée 27/27 sur le head exact e1e209ebcf78265f04b30b0019d201d58dae76ef puis fusionnée comme 347068de7f9be9275754bbda7c55f4e0d5e66bac. Ne commence V2.1.3 qu'après la fusion de la normalisation post-V2.1.2. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live et toute PR de normalisation ouverte. V2.1.3 a été qualifiée 27/27 sur le head exact c4cff95ea2309ea5482e6c24c61002b13becb48f puis fusionnée comme 0c3d365626df666f2a847b9320b0730dc0110afa. V2.1.4 — Cited synthesis and Research Packs — est la prochaine subdivision autorisée seulement depuis un main contenant la normalisation V2.1.3. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`

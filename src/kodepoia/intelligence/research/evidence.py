@@ -5,12 +5,14 @@ import json
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Iterable, Mapping
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from kodepoia.intelligence.research.contracts import ResearchArtifact
-from kodepoia.intelligence.research.service import ResearchViewItem
 from kodepoia.kodecode.workspace import WorkspaceBoundary
+
+if TYPE_CHECKING:
+    from kodepoia.intelligence.research.service import ResearchViewItem
 
 EVIDENCE_WORKSPACE_SCHEMA_VERSION = 1
 
@@ -246,7 +248,7 @@ class EvidenceWorkspaceRow:
         }
 
 
-def _provider_ids(item: ResearchViewItem) -> tuple[str, ...]:
+def _provider_ids(item: "ResearchViewItem") -> tuple[str, ...]:
     prefix = "descriptor_only_not_fetched:"
     if item.reason.startswith(prefix):
         remainder = item.reason[len(prefix) :]
@@ -311,7 +313,7 @@ class EvidenceWorkspace:
     @classmethod
     def project(
         cls,
-        items: Iterable[ResearchViewItem],
+        items: Iterable["ResearchViewItem"],
         *,
         revisions: Iterable[EvidenceRevision] = (),
         selections: Mapping[str, EvidenceSelection] | None = None,

@@ -288,8 +288,10 @@ def create_research_page(
     warning.setVisible(False)
     layout.addWidget(warning)
 
+    # Keep the historical Research result table contract stable. V2.1.3 gets a
+    # distinct structured Evidence workspace instead of mutating this surface.
     results = mark_accessible(
-        QTableWidget(0, 14),
+        QTableWidget(0, 7),
         object_name="researchResultsTable",
         name=tr.text("research.results.name"),
         description=tr.text("research.results.description"),
@@ -304,6 +306,29 @@ def create_research_page(
             tr.text("research.column.trust"),
             tr.text("research.column.suspicious"),
             tr.text("research.column.title"),
+        ]
+    )
+    results.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+    results.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+    results.horizontalHeader().setStretchLastSection(True)
+    layout.addWidget(results, 2)
+
+    evidence_label = QLabel("Evidence workspace")
+    evidence_label.setObjectName("researchEvidenceWorkspaceLabel")
+    layout.addWidget(evidence_label)
+
+    evidence_results = mark_accessible(
+        QTableWidget(0, 7),
+        object_name="researchEvidenceWorkspaceTable",
+        name="Evidence workspace",
+        description=(
+            "Candidate and fetched source evidence with lifecycle, selection, canonical locator, "
+            "source dates, provider provenance, and retrieval lineage."
+        ),
+        description_required=True,
+    )
+    evidence_results.setHorizontalHeaderLabels(
+        [
             "Lifecycle",
             "Selection",
             "Canonical locator",
@@ -313,10 +338,10 @@ def create_research_page(
             "Lineage",
         ]
     )
-    results.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-    results.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-    results.horizontalHeader().setStretchLastSection(True)
-    layout.addWidget(results, 2)
+    evidence_results.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+    evidence_results.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+    evidence_results.horizontalHeader().setStretchLastSection(True)
+    layout.addWidget(evidence_results, 1)
 
     evidence_actions = QHBoxLayout()
     include_button = mark_accessible(
@@ -352,7 +377,7 @@ def create_research_page(
         description_required=True,
     )
     details.setReadOnly(True)
-    details.setMaximumHeight(200)
+    details.setMaximumHeight(160)
     layout.addWidget(details)
 
     page._research_service = research
@@ -446,17 +471,25 @@ def create_research_page(
         page._research_result = result
         workspace = build_workspace(result)
         page._research_workspace = workspace
-        results.setRowCount(len(workspace.rows))
-        for row, item in enumerate(workspace.rows):
-            updated_or_published = item.updated_at or item.published_at or "—"
+
+        results.setRowCount(len(result.items))
+        for row, item in enumerate(result.items):
             values = (
                 item.source_kind,
-                item.status.upper(),
+                item.status.value.upper(),
                 item.freshness.upper(),
                 item.version or "—",
                 item.trust,
                 "YES" if item.suspicious else "NO",
-                item.title or item.canonical_locator,
+                item.title or item.locator or item.text[:80],
+            )
+            for column, value in enumerate(values):
+                results.setItem(row, column, QTableWidgetItem(value))
+
+        evidence_results.setRowCount(len(workspace.rows))
+        for row, item in enumerate(workspace.rows):
+            updated_or_published = item.updated_at or item.published_at or "—"
+            values = (
                 item.lifecycle.value.upper(),
                 item.selection.value.upper(),
                 item.canonical_locator or "—",
@@ -466,7 +499,8 @@ def create_research_page(
                 str(len(item.lineage_revision_ids) or len(item.lineage_artifact_ids)),
             )
             for column, value in enumerate(values):
-                results.setItem(row, column, QTableWidgetItem(value))
+                evidence_results.setItem(row, column, QTableWidgetItem(value))
+
         details.setPlainText(research.serialized(result))
         suspicious = any(item.suspicious for item in result.items)
         warning.setVisible(suspicious)
@@ -515,8 +549,10 @@ def create_research_page(
         export_button.setEnabled(True)
         include_button.setEnabled(False)
         exclude_button.setEnabled(False)
-        if workspace.rows:
+        if result.items:
             results.selectRow(0)
+        if workspace.rows:
+            evidence_results.selectRow(0)
         if status_bar is not None:
             status_bar.showMessage(capability.text())
 
@@ -524,6 +560,7 @@ def create_research_page(
         page._research_result = None
         page._research_workspace = EvidenceWorkspace(())
         results.setRowCount(0)
+        evidence_results.setRowCount(0)
         details.setPlainText(message)
         warning.setVisible(False)
         human = error_text(ux, message)
@@ -603,13 +640,25 @@ def create_research_page(
         capability.setText(tr.text("research.status.exported", path=str(destination)))
 
     def selected_workspace_row():
-        row = results.currentRow()
+        row = evidence_results.currentRow()
         workspace = page._research_workspace
         if not 0 <= row < len(workspace.rows):
             return None
         return workspace.rows[row]
 
     def show_selected() -> None:
+        current = page._research_result
+        row = results.currentRow()
+        if current is None or not 0 <= row < len(current.items):
+            return
+        payload = current.items[row].to_dict()
+        if current.operation == "discover":
+            payload["candidate_only"] = bool(current.metadata.get("candidate_only", True))
+            payload["fetched"] = bool(current.metadata.get("fetched", False))
+            payload["persisted"] = bool(current.metadata.get("persisted", False))
+        details.setPlainText(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+
+    def show_selected_evidence() -> None:
         current = page._research_result
         workspace_row = selected_workspace_row()
         if current is None or workspace_row is None:
@@ -647,6 +696,7 @@ def create_research_page(
     include_button.clicked.connect(lambda: set_evidence_selection(EvidenceSelection.INCLUDED))
     exclude_button.clicked.connect(lambda: set_evidence_selection(EvidenceSelection.EXCLUDED))
     results.itemSelectionChanged.connect(show_selected)
+    evidence_results.itemSelectionChanged.connect(show_selected_evidence)
     allow_network.toggled.connect(lambda _checked: refresh_capability_diagnostics())
 
     refresh_report_count()

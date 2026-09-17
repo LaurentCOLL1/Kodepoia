@@ -71,7 +71,7 @@ def run(source_sha: str) -> dict[str, object]:
     ]
 
     with tempfile.TemporaryDirectory() as directory:
-        root = Path(directory)
+        root = Path(directory).resolve(strict=False)
         (root / ".kodepoia").mkdir()
         store = ResearchStore(root)
         included = _artifact(
@@ -260,11 +260,13 @@ def run(source_sha: str) -> dict[str, object]:
         pack_store = ResearchPackStore(root)
         pack_path = pack_store.save(secret_pack)
         reopened = pack_store.load(secret_pack.digest_sha256)
+        normalized_pack_root = pack_store.project_root
+        expected_pack_dir = normalized_pack_root / ".kodepoia" / "research" / "packs"
         checks.append(
             _check(
                 "pack-digest-project-scope",
                 reopened == secret_pack
-                and pack_path.parent == root / ".kodepoia" / "research" / "packs"
+                and pack_path.parent == expected_pack_dir
                 and pack_path.name == f"{secret_pack.digest_sha256}.json",
                 "Research Pack serialization is schema-versioned, digest-bound, project-scoped and reopenable.",
             )
@@ -274,7 +276,7 @@ def run(source_sha: str) -> dict[str, object]:
                 "redaction-and-boundary",
                 not find_secret_leaks(secret_pack.to_dict(), secrets.known_values())
                 and "***REDACTED***" in secret_pack.synthesis.synthesis
-                and root in pack_path.parents,
+                and normalized_pack_root in pack_path.parents,
                 "Raw secrets are redacted before durable synthesis/pack persistence and WorkspaceBoundary keeps storage inside the project.",
             )
         )

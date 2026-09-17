@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Callable
 
+from kodepoia.core.secrets import KodeSecrets
 from kodepoia.intelligence.research.evidence import EvidenceSelection, EvidenceWorkspace
 from kodepoia.intelligence.research.synthesis import (
     CitedSynthesisService,
@@ -19,6 +20,7 @@ def create_cited_synthesis_widget(
     workspace_provider: Callable[[], EvidenceWorkspace],
     selection_provider: Callable[[], dict[str, EvidenceSelection]],
     question_provider: Callable[[], str],
+    secrets: KodeSecrets | None = None,
 ):
     """Create the V2.1.4 structured synthesis/save surface for KodeStudio."""
 
@@ -83,7 +85,7 @@ def create_cited_synthesis_widget(
     provenance.setWordWrap(True)
     layout.addWidget(provenance)
 
-    synthesis_service = CitedSynthesisService(project_root)
+    synthesis_service = CitedSynthesisService(project_root, secrets=secrets)
     pack_store = ResearchPackStore(project_root)
     widget._research_synthesis = None
     widget._research_pack_path = None

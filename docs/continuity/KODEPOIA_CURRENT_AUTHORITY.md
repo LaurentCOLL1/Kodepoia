@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2; V2.1 Research Workspace is COMPLETE + NORMALIZED and V2.2 Project Knowledge / Context Builder / Memory is in planning-only qualification.
+**Current development direction:** Roadmap V2; V2.1 is COMPLETE + NORMALIZED, V2.2 planning is COMPLETE + NORMALIZED, and V2.2.1 Project Knowledge catalog/contracts is the current authorized subdivision.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -50,23 +50,25 @@ V2.1 Research Workspace is **COMPLETE + NORMALIZED** through V2.1.6. Its accepte
 
 `discovery -> candidate-only/unfetched -> explicit guarded fetch -> persisted evidence -> explicit include/exclude -> cited synthesis -> governed Research Pack`
 
-The current planning-only phase is **V2.2 — Project Knowledge, Context Builder and Memory integration**.
+V2.2 planning is also **COMPLETE + NORMALIZED**.
 
-Active V2 planning documents are:
+Planning PR `#488` was qualified **25/25** on exact head `face3a8b9b1053962635518d083b01a92a4ed2af` and merged with `expected_head_sha` protection as `875149032078beb681816604663056f66a2e1344`. The Tauri2 gate succeeded on attempt 2 on the unchanged planning head after an isolated first-attempt WebView2 runtime-probe failure; no product or workflow mutation was used to obtain the final success.
+
+Active V2 authority documents are:
 
 - `docs/roadmap/KODEPOIA_ROADMAP_V2.md`;
-- `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` — completed V2.1 authority;
-- `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` — V2.2 planning candidate.
+- `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` — completed V2.1 Research authority;
+- `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` — normalized V2.2 plan.
 
-The V2.2 plan derives from the original Roadmap V2 deliverables: immutable project-scoped Research Packs, semantic retrieval over accepted research/project files/relevant memory, explainable Context Builder selection, version-aware invalidation, user lifecycle controls, and no silent conversion of untrusted Web text into durable instructions.
+The current authorized implementation is **V2.2.1 — Project Knowledge catalog and contracts** only.
 
-The planning candidate freezes six subdivisions: Project Knowledge catalog/contracts, bounded semantic retrieval, explainable Context Builder, version-aware derived-knowledge lifecycle, project Memory/workspace consumption, and integrated hardening/acceptance.
+V2.2.1 may define/project deterministic project-scoped knowledge from governed Research Packs, WorkspaceBoundary-confined project files and verified active-project memory, with provenance/trust/version/freshness/state and deterministic identity/digest. It may not pull forward semantic retrieval, context injection, automatic memory writes, V2.5 orchestration or release/TUF/updater work.
 
-**No V2.2 implementation is authorized until the planning PR is qualified, merged and continuity-normalized.** Only that normalization may authorize V2.2.1.
+Existing security authority remains unchanged: immutable Research Pack provenance, ResearchGuard, KodeSecrets, WorkspaceBoundary and R16.7 MemoryStore integrity/quarantine/project-scope rules remain binding. Indexed or retrieved data never gains instruction authority merely by being selected.
 
 Post-rc8 source features on `main` remain development capabilities until a later release is explicitly qualified. Their presence in source does not mean they exist in the public rc8 installer.
 
-For remote tuning, Kaggle **T4×2** remains the primary V2 target for the current CUDA/PyTorch/PEFT/QLoRA path. The two GPUs remain separate 16 GiB devices and multi-GPU use requires explicit qualification. **TPU v5e-8 is deferred experimental capacity**, not a release blocker.
+Kaggle **T4×2** remains the primary V2 remote-training target for the current CUDA/PyTorch/PEFT/QLoRA path; the two devices remain separate 16 GiB GPUs. TPU v5e-8 remains deferred experimental capacity.
 
 No post-rc8 release version or TUF transition is authorized solely by the V2 roadmap.
 

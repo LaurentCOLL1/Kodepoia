@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1 COMPLETE + NORMALIZED; V2.2 planning candidate, implementation not yet authorized**  
+Status: **ACTIVE — V2.1 COMPLETE + NORMALIZED; V2.2 planning COMPLETE + NORMALIZED; V2.2.1 authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -124,9 +124,14 @@ Accepted scope and product truth:
 
 V2.1 is therefore complete through the ResearchGuard hardening boundary. No V2.1.7 is reserved or authorized.
 
-### V2.2 — Project Knowledge, Context Builder and Memory integration — PLANNING CANDIDATE
+### V2.2 — Project Knowledge, Context Builder and Memory integration — PLANNING COMPLETE + NORMALIZED
 
 Normative planning contract: `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`.
+
+Planning PR `#488` was qualified **25/25** on exact head `face3a8b9b1053962635518d083b01a92a4ed2af` and merged with exact-head protection as `875149032078beb681816604663056f66a2e1344`.
+
+Key final planning gates included `R0 Repository Guard` `35385962901`, `KodeStudio UI Smoke` `35385962916`, `Python Core` `35385962938`, `R12 Tauri2 Acceptance` `35385963079` and `R17 Windows Installer` `35385962997`. Tauri2 succeeded on attempt 2 on the unchanged head after an isolated first-attempt WebView2 runtime-probe failure; no code or gate was weakened.
+
 
 Goal: make accepted research useful without repeatedly copying text into prompts while preserving project scope, source traceability and untrusted-data boundaries.
 
@@ -139,11 +144,11 @@ Planned subdivisions:
 - **V2.2.5 — Project Memory bridge and workspace consumption** — Chat, KodeCode and specialist consumption through one project-scoped governed context/memory boundary, without V2.5 orchestration.
 - **V2.2.6 — Project Knowledge hardening and integrated acceptance** — adversarial cross-project, tamper, poisoning, stale/invalidation, secret, prompt-injection and integrated UI/workspace proof.
 
-V2.2 implementation remains blocked until this planning authority is qualified, merged and continuity-normalized. The normalization may authorize **V2.2.1 only**.
+The planning authority is now qualified and merged. This normalization authorizes **V2.2.1 — Project Knowledge catalog and contracts** only; V2.2.2 through V2.2.6 remain unauthorized until their predecessor is complete + normalized.
 
 ## Remaining V2 sequence
 
-- V2.2 — Project Knowledge, Context Builder and Memory integration — **planning candidate; no implementation before plan qualification + normalization**.
+- V2.2 — Project Knowledge, Context Builder and Memory integration — **planning COMPLETE + NORMALIZED; V2.2.1 is the current authorized subdivision**.
 - V2.3 — Model Lab governed improvement UX.
 - V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
 - V2.5 — Cross-workspace orchestration.

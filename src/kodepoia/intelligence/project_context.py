@@ -246,7 +246,7 @@ def _context_item_for_hit(
     mandatory: bool,
 ) -> ContextItem:
     return ContextItem(
-        source=f"Project Knowledge {hit.content_sha256[:12]}",
+        source=f"Project Knowledge {hit.content_sha256}",
         content=_trace_text(hit),
         priority=hit.score,
         mandatory=mandatory,

@@ -128,6 +128,15 @@ jobs:
           path: artifacts/v2_2_1/project-knowledge.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run V2.2.2 semantic retrieval exact-head acceptance
+        run: python scripts/v2_2_2_acceptance.py --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}" --output artifacts/v2_2_2/semantic-retrieval.json
+      - name: Upload V2.2.2 exact-head evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-2-2-semantic-retrieval-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: artifacts/v2_2_2/semantic-retrieval.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Validate PowerShell acceptance runner syntax
         if: runner.os == 'Windows'
         shell: pwsh

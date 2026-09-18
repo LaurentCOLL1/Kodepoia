@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-18 after V2.2 planning PR `#488` merge and post-merge planning normalization  
+Last synchronized: 2026-09-18 after V2.2.1 implementation PR `#490` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -80,41 +80,54 @@ The final exact-head gate set included:
 
 The normalized plan is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`.
 
+## V2.2.1 accepted implementation
+
+Implementation PR `#490` was qualified with **27/27** pull-request workflows on exact head `f5c6e90783476117d90ee86ea7edbed014d691a7` and merged with exact-head protection as `6341dbe6599505edc8d354e629d0fc962587f8ac`.
+
+The final exact-head gate set included:
+
+- `R0 Repository Guard` `35392522030` = success;
+- `KodeStudio UI Smoke` `35392521860` = success;
+- `Python Core` `35392522031` = success;
+- `R16.7 Memory Context Poisoning Acceptance` `35392521989` = success;
+- `R17 Windows Installer` `35392521882` = success.
+
+The deterministic V2.2.1 acceptance reported **11/11 PASS** on both Ubuntu and Windows with evidence payload SHA-256 `f5c695efe34fa86ea0c4a85dddfe5fef7650e86250c6a2a676c7798fc35b8a59`.
+
+Accepted product truth includes deterministic project-scoped knowledge contracts, atomic derived-catalog persistence, immutable Research Pack projection, WorkspaceBoundary-confined/redacted file projection, verified active-project memory projection, and a non-destructive `MemoryStore.list_project_scope()` path that does not inspect/quarantine unrelated project rows.
+
 ## Immediate execution order
 
-### V2.2.1 — Project Knowledge catalog and contracts — CURRENT AUTHORIZED SUBDIVISION
+### V2.2.2 — Bounded semantic retrieval — CURRENT AUTHORIZED SUBDIVISION
 
-V2.2.1 is the only implementation authorized after this normalization reaches live `main`.
+V2.2.2 is the only implementation authorized after this normalization reaches live `main`.
 
 Required scope:
 
-- typed deterministic project-scoped knowledge contract for governed Research Packs, WorkspaceBoundary-confined project files and verified active-project memory;
-- deterministic knowledge identity/digest;
-- provenance/trust/version/freshness/source-kind metadata;
-- explicit active/included/excluded/invalidated derived-state semantics;
-- project-confined catalog/index persistence;
-- projection only — immutable Research Packs and source evidence must not be rewritten;
-- no cross-project memory leakage;
-- deterministic tests and exact-head Ubuntu/Windows acceptance.
+- bounded retrieval request/result contracts over V2.2.1 project knowledge;
+- semantic scoring with deterministic ordering and deterministic tie-breaking;
+- project-scope filtering before any scoring;
+- explicit embedding/provider availability state;
+- no hidden network access and no model download;
+- no mutation merely because a knowledge item matched;
+- duplicate-source normalization without losing source/provenance references;
+- explicit valid-empty versus capability-unavailable diagnostics;
+- deterministic fixture embeddings;
+- exact-head Ubuntu/Windows acceptance.
 
 Explicitly out of scope until later subdivisions:
 
-- semantic retrieval/ranking (V2.2.2);
-- context selection/injection and explainability UI (V2.2.3);
-- refresh/delete lifecycle UI beyond the state contract (V2.2.4);
+- Context Builder/context injection and explainability UI (V2.2.3);
+- refresh/delete/include/exclude lifecycle UI (V2.2.4);
 - project Memory/workspace consumption bridge (V2.2.5);
 - integrated adversarial hardening (V2.2.6);
 - V2.3+, release/TUF/updater mutation or R20 reopening.
 
-The accepted V2.1 chain remains invariant:
-
-`discovery -> candidate-only/unfetched -> explicit guarded fetch -> persisted evidence -> explicit include/exclude -> cited synthesis -> governed Research Pack`
-
-V2.2.1 may index/project accepted knowledge, but indexing never grants instruction authority.
+The accepted V2.1 chain and V2.2.1 trust boundary remain invariant. A retrieval score ranks data relevance only; it never grants instruction authority or protected capability.
 
 ## Later V2.2 order
 
-After V2.2.1 is implemented, exact-head qualified, merged and normalized, proceed to V2.2.2 and continue one subdivision at a time through V2.2.6.
+After V2.2.2 is implemented, exact-head qualified, merged and normalized, proceed to V2.2.3 and continue one subdivision at a time through V2.2.6.
 
 ## Accelerator policy
 
@@ -130,4 +143,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. Le plan V2.2 est COMPLETE + NORMALIZED : PR #488 qualifiée 25/25 sur le head exact face3a8b9b1053962635518d083b01a92a4ed2af puis fusionnée comme 875149032078beb681816604663056f66a2e1344. La seule subdivision autorisée est V2.2.1 — Project Knowledge catalog and contracts. Implémente uniquement le catalogue/contrats project-scoped sur Research Packs immuables, fichiers confinés par WorkspaceBoundary et mémoire projet vérifiée, avec identité/digest/provenance/trust/version/freshness/state déterministes et acceptance Ubuntu/Windows exact-head. Ne tire pas en avant la recherche sémantique V2.2.2, l'injection de contexte V2.2.3, V2.3+, ni release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.2.1 est COMPLETE + NORMALIZED : PR #490 qualifiée 27/27 sur le head exact f5c6e90783476117d90ee86ea7edbed014d691a7, acceptance V2.2.1 11/11 PASS Ubuntu/Windows, R16.7 vert, puis merge 6341dbe6599505edc8d354e629d0fc962587f8ac. La seule subdivision autorisée est V2.2.2 — Bounded semantic retrieval. Implémente uniquement des contrats request/result bornés sur le catalogue V2.2.1, filtrage project-scope avant scoring, scoring/tri/tie-break déterministes, état explicite embedding/provider, zéro réseau/download implicite, normalisation de doublons sans perdre provenance et fixtures embeddings déterministes. Ne tire pas en avant Context Builder V2.2.3, lifecycle UI V2.2.4, workspace bridge V2.2.5, V2.3+, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`

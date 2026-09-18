@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-17 after V2.1.5 implementation PR `#484` merged and post-merge continuity normalization  
+Last synchronized: 2026-09-18 after V2.1.6 implementation PR `#486` merged and post-merge continuity normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -8,7 +8,7 @@ Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
 Public Windows **`v1.1.0-rc8`** remains the last fully real-machine updater-E2E-qualified distribution baseline. The updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 is terminal and remains **COMPLETE + NORMALIZED**; do not reopen it or invent `R20.7`.
 
-V2.0, V2.1.1, V2.1.2, V2.1.3, V2.1.4 and V2.1.5 are **COMPLETE + NORMALIZED**.
+V2.0 and V2.1.1 through V2.1.6 are **COMPLETE + NORMALIZED**.
 
 ## V2.1.5 accepted implementation
 
@@ -45,31 +45,44 @@ The deterministic V2.1.5 acceptance reported **12/12 PASS** on Ubuntu and Window
 - source content remains untrusted data and cannot grant permissions or invoke protected actions;
 - V2.1.6 adversarial hardening and all release/TUF/updater work remained out of scope.
 
+## V2.1.6 accepted implementation
+
+Implementation PR `#486` was qualified on exact head `2e788df0886e1e31512f53547ea4603186e964eb` with **27/27** successful pull-request workflows and merged as `7efcc3e941fe8db0e3cc00c81b147716c91eb30b`.
+
+The deterministic acceptance reported **12/12 PASS** on Ubuntu and Windows with evidence payload SHA-256 `076195a992effe8a1eac25d6074a5fc12508d004da7f9ec8b01f3177a4c40f74`.
+
+Exact-head artifacts:
+
+- Ubuntu `v2-1-6-researchguard-hardening-ubuntu-latest-2e788df0886e1e31512f53547ea4603186e964eb` — SHA-256 `32d972eb83a070fcb7a2844eae11403518bdfe412bd445db74a9556269a0dac1`;
+- Windows `v2-1-6-researchguard-hardening-windows-latest-2e788df0886e1e31512f53547ea4603186e964eb` — SHA-256 `7dd9a6ff8e79f40829a2b11439583ced1c221d63c4c0ca1882d2829a9f0ed4ee`.
+
+Accepted product truth includes:
+
+- unsafe extended-source locators, private/local/link-local/metadata targets, mixed public/private DNS and malicious redirects fail closed before trusted acquisition;
+- `BLOCKED` is reserved for policy/security denial and `UNAVAILABLE` for provider/transport failure;
+- provider diagnostics are KodeSecrets-redacted;
+- cancellation cannot persist new extended-source evidence after the cancellation gate trips;
+- stale/offline/cache and version-conflict states remain explicit while immutable evidence/citation lineage is preserved;
+- adversarial source text remains data-only and cannot grant capabilities, escape WorkspaceBoundary or invoke protected actions;
+- KodeStudio preserves V2.1.5 Community/YouTube and descriptor-only lifecycle semantics while structurally surfacing V2.1.6 degraded states.
+
 ## Immediate execution order
 
-### V2.1.6 — ResearchGuard hardening — NEXT AUTHORIZED
+### V2.2 — Project Knowledge, Context Builder and Memory integration — NEXT AUTHORIZED PHASE
 
-Branch only from re-fetched live `main` containing this V2.1.5 normalization, then implement only the V2.1.6 scope defined in `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+Do not invent V2.2 implementation scope from the phase title alone. Re-read `docs/roadmap/KODEPOIA_ROADMAP_V2.md` and the applicable live authorities, then create and normalize the appropriate V2.2 plan/subdivision boundary before implementing it.
 
-Current authorized scope:
+The accepted V2.1 chain remains invariant:
 
-- adversarial prompt-injection coverage for discovered and fetched source data;
-- malicious redirect and SSRF boundary hardening around external acquisition;
-- explicit timeout, outage and cancellation behavior that cannot masquerade as successful empty research;
-- stale/version-conflict and offline/cache adversarial coverage while preserving immutable evidence/citation lineage;
-- deterministic backend/UI tests plus exact-head Ubuntu/Windows acceptance evidence for the implemented V2.1.6 boundary.
+`discovery -> candidate-only/unfetched -> explicit guarded fetch -> persisted evidence -> explicit include/exclude -> cited synthesis -> governed Research Pack`
 
-Do **not** pull forward:
+V2.2 may consume governed project knowledge only through an explicitly designed trust/context boundary; arbitrary external source text does not become trusted memory or instruction authority.
 
-- V2.2 Project Knowledge / Context Builder / Memory integration;
-- any new public release, installer publication or TUF transition;
-- unrelated Model Lab, accelerator or cross-workspace work.
-
-After V2.1.6 merges, normalize continuity before V2.2 begins.
+Do **not** pull forward any new public release, installer publication or TUF transition, reopen R20, or mix unrelated Model Lab, accelerator or cross-workspace work into V2.2 planning.
 
 ## Later V2 order
 
-Only after V2.1.6 is COMPLETE + NORMALIZED, continue with V2.2 — Project Knowledge, Context Builder and Memory integration. Do not skip subdivision acceptance or continuity normalization.
+After V2.2, continue only according to the live normalized roadmap, one accepted subdivision at a time.
 
 ## Accelerator policy
 
@@ -85,4 +98,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_1_RESEARCH_WORKSPACE.md. Revalide d'abord le main live et toute PR ouverte. V2.1.5 a été qualifiée 27/27 sur le head exact f46068a410e7e0ea3f32f8decc77eed6aa105355 puis fusionnée comme bfe7fa6b4def1a291d97bd2b9365bda321bcde52. V2.1.5 est COMPLETE + NORMALIZED et V2.1.6 — ResearchGuard hardening — est la prochaine subdivision autorisée seulement depuis un main contenant cette normalisation. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et les autorités V2.2 applicables. Revalide d'abord le main live et toute PR ouverte. V2.1.6 a été qualifiée 27/27 sur le head exact 2e788df0886e1e31512f53547ea4603186e964eb puis fusionnée comme 7efcc3e941fe8db0e3cc00c81b147716c91eb30b. L'acceptance V2.1.6 est 12/12 PASS sur Ubuntu/Windows et V2.1.6 est COMPLETE + NORMALIZED. La prochaine activité autorisée est la planification/subdivision de V2.2 — Project Knowledge, Context Builder and Memory integration — depuis les autorités live, avant toute implémentation. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`

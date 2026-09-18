@@ -113,7 +113,14 @@ class ProjectKnowledgeItem:
         locator = _required_text(self.locator, "locator")
         _require_sha256(self.source_digest_sha256, "source_digest_sha256")
         _require_sha256(self.content_sha256, "content_sha256")
-        indicators = tuple(sorted(set(_required_text(value, "guard_indicator") for value in self.guard_indicators)))
+        indicators = tuple(
+            sorted(
+                set(
+                    _required_text(value, "guard_indicator")
+                    for value in self.guard_indicators
+                )
+            )
+        )
         provenance = _json_object(self.provenance)
         object.__setattr__(self, "project_scope", scope)
         object.__setattr__(self, "source_identity", source_identity)

@@ -34,7 +34,10 @@ from kodepoia.intelligence.research.web import (
     resolve_public_target,
 )
 from kodepoia.kodecode.workspace import WorkspaceBoundary, WorkspaceViolation
-from kodepoia.kodestudio.research_extended_panel import hardened_evidence_state_text
+from kodepoia.kodestudio.research_extended_panel import (
+    extended_research_state_text,
+    hardened_evidence_state_text,
+)
 
 PUBLIC_IP = "93.184.216.34"
 RETRIEVED_AT = "2026-09-17T20:00:00Z"
@@ -302,6 +305,23 @@ def test_v216_offline_cache_reports_stale_without_fabricating_live_success(tmp_p
     )
     assert invalidated.status is ResearchOperationStatus.UNAVAILABLE
     assert invalidated.reason == "cache_policy_changed"
+
+
+def test_v216_ui_state_preserves_v215_provider_lifecycle_with_hardening_help() -> None:
+    initial = extended_research_state_text()
+    assert "Community HTML" in initial
+    assert "YouTube metadata" in initial
+    for state in ("BLOCKED", "UNAVAILABLE", "CANCELLED", "STALE", "CONFLICT"):
+        assert state in initial
+
+    candidate = extended_research_state_text(
+        "Selected youtube candidate is descriptor-only. "
+        "Use Open/fetch source for guarded acquisition before evidence selection."
+    )
+    assert "Community HTML" in candidate
+    assert "descriptor-only" in candidate
+    assert "Open/fetch source" in candidate
+    assert "CANCELLED" in candidate
 
 
 def test_v216_version_conflict_preserves_immutable_lineage_and_is_ui_visible() -> None:

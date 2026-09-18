@@ -1,12 +1,12 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-18 for the V2.2 Project Knowledge / Context Builder / Memory planning candidate  
+Last synchronized: 2026-09-18 after V2.2 planning PR `#488` merge and post-merge planning normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
 ## Immediate authority
 
-Read this file together with `docs/continuity/NEXT.md` and re-fetch live GitHub state before acting. For V2 work, also read `docs/roadmap/KODEPOIA_ROADMAP_V2.md`; V2.1 historical/current Research authority is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`, and the current V2.2 planning candidate is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`.
+Read this file together with `docs/continuity/NEXT.md` and re-fetch live GitHub state before acting. For V2 work, also read `docs/roadmap/KODEPOIA_ROADMAP_V2.md`; V2.1 historical/current Research authority is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`, and the normalized V2.2 authority is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`.
 
 The public Windows distribution authority remains **`v1.1.0-rc8`**. The real installed Windows updater E2E `rc7 -> rc8` passed and the exercised updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 remains **COMPLETE + NORMALIZED**, terminal, and must not be reopened or extended as `R20.7`.
 
@@ -140,22 +140,25 @@ Accepted V2.1.6 product truth:
 
 V2.1.1 through V2.1.6 are **COMPLETE + NORMALIZED**. The Research Workspace sequence is closed at V2.1.6; no additional V2.1 subdivision is authorized.
 
-## V2.2 planning — CURRENT CANDIDATE
+## V2.2 planning — COMPLETE + NORMALIZED
 
-V2.2 — Project Knowledge, Context Builder and Memory integration — is now in a dedicated **planning-only** branch. The normative candidate plan is:
+Planning PR `#488` was qualified on exact head:
 
-`docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`
+`face3a8b9b1053962635518d083b01a92a4ed2af`
 
-The plan is grounded in the Roadmap V2 authority created by PR `#472`, which requires:
+All **25/25** pull-request workflows associated with that final planning head completed with conclusion `success`, including:
 
-- project-scoped Research Packs with immutable provenance/digests;
-- semantic retrieval over accepted research, project files and relevant memory scopes;
-- an explainable Context Builder;
-- version-aware invalidation;
-- include/exclude/refresh/delete-derived user controls;
-- no silent conversion of untrusted Web text into durable instructions.
+- `R0 Repository Guard` run `35385962901`;
+- `KodeStudio UI Smoke` run `35385962916`;
+- `Python Core` run `35385962938`;
+- `R12 Tauri2 Acceptance` run `35385963079`, successful on attempt 2 on the unchanged head after an isolated WebView2 runtime-probe failure on attempt 1;
+- `R17 Windows Installer` run `35385962997`.
 
-The candidate plan subdivides V2.2 into:
+PR `#488` merged from that exact head with `expected_head_sha` protection as merge commit:
+
+`875149032078beb681816604663056f66a2e1344`
+
+The planning authority freezes six subdivisions:
 
 1. V2.2.1 — Project Knowledge catalog and contracts;
 2. V2.2.2 — Bounded semantic retrieval;
@@ -164,11 +167,34 @@ The candidate plan subdivides V2.2 into:
 5. V2.2.5 — Project Memory bridge and workspace consumption;
 6. V2.2.6 — Project Knowledge hardening and integrated acceptance.
 
-**No V2.2 implementation is authorized by this planning candidate.** The planning PR must first be qualified on its exact final head, merged, and post-merge continuity-normalized. Only that normalization may authorize V2.2.1.
+Accepted planning invariants:
 
-Existing accepted primitives remain authoritative and must be reused rather than weakened: immutable Research Packs, ResearchContextBuilder, generic ContextBuilder, R16.7-hardened MemoryStore, ResearchMemoryBridge, WorkspaceBoundary, KodeSecrets and ResearchGuard.
+- reuse immutable Research Packs rather than rewriting historical source provenance;
+- keep project-file access inside WorkspaceBoundary;
+- reuse R16.7-hardened MemoryStore integrity, provenance, quarantine and project-scope rules;
+- keep research-derived/project knowledge data-only and untrusted;
+- no retrieval score or context-selection decision grants protected authority;
+- no implicit global-memory or training-dataset promotion;
+- no cross-project retrieval;
+- V2.2 planning does not authorize release/TUF/updater mutation, R20 reopening or V2.3+ work.
 
-V2.2 planning does not authorize any release/TUF/updater mutation, R20 reopening, V2.3 Model Lab work, V2.4 accelerator work, V2.5 cross-workspace orchestration or V2.6 release work.
+## V2.2.1 authorization — CURRENT
+
+**V2.2.1 — Project Knowledge catalog and contracts** is the only authorized implementation subdivision after this normalization reaches live `main`.
+
+V2.2.1 must implement only:
+
+- a typed deterministic project-scoped knowledge-item/catalog contract;
+- deterministic identity/digest bound to source identity plus project scope;
+- provenance, trust, version/freshness and source-kind metadata;
+- active/included/excluded/invalidated derived state;
+- project-confined catalog/index persistence;
+- projection of governed Research Packs without rewriting them;
+- WorkspaceBoundary-confined project-file projection;
+- verified active-project memory projection without cross-project leakage;
+- deterministic backend tests and exact-head Ubuntu/Windows acceptance evidence.
+
+V2.2.1 must **not** implement semantic ranking/retrieval, prompt/context injection, automatic memory writes, V2.5 orchestration, new external discovery/fetch providers, release/TUF/updater changes or any V2.2.2+ behavior.
 
 ## Accepted V2 capability truth
 
@@ -196,10 +222,10 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 
 For future work:
 
-1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_ROADMAP_V2.md` and the V2.2 plan;
-2. while the V2.2 planning PR is open, qualify only its exact final head and do not begin V2.2.1;
-3. after the planning PR merges, perform one post-merge continuity normalization;
-4. only the normalized planning authority may authorize V2.2.1 — Project Knowledge catalog and contracts;
-5. for every V2.2 subdivision, use a dedicated branch, deterministic tests/acceptance, exact-head workflow qualification, protected merge and post-merge normalization;
-6. preserve the V2.1 discovery -> explicit fetch -> evidence -> cited synthesis -> governed Research Pack separation and all R16.7 memory hardening;
-7. never reopen R20 or invent R20.7.
+1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`;
+2. verify V2.2 planning remains **COMPLETE + NORMALIZED** from planning PR `#488`, exact head `face3a8b9b1053962635518d083b01a92a4ed2af`, merge `875149032078beb681816604663056f66a2e1344`, and this normalization;
+3. the only authorized implementation is **V2.2.1 — Project Knowledge catalog and contracts**;
+4. branch V2.2.1 from the exact normalized live `main`, implement only its frozen scope, add deterministic tests/exact-head Ubuntu+Windows acceptance, re-fetch all PR workflows on the final head, merge only if every required gate succeeds, then normalize before V2.2.2;
+5. preserve immutable Research Pack provenance, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore hardening;
+6. do not pull forward semantic retrieval, context injection, V2.3+, release/TUF/updater work, R20 reopening or R20.7;
+7. if a genuine manual intervention is required, stop at V2.2.1 and state exactly what the operator must do rather than bypassing a gate.

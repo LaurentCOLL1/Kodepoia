@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2; V2.1 is COMPLETE + NORMALIZED, V2.2 planning is COMPLETE + NORMALIZED, and V2.2.1 Project Knowledge catalog/contracts is the current authorized subdivision.
+**Current development direction:** Roadmap V2; V2.1 is COMPLETE + NORMALIZED, V2.2.1 is COMPLETE + NORMALIZED, and V2.2.2 Bounded semantic retrieval is the current authorized subdivision.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -50,21 +50,25 @@ V2.1 Research Workspace is **COMPLETE + NORMALIZED** through V2.1.6. Its accepte
 
 `discovery -> candidate-only/unfetched -> explicit guarded fetch -> persisted evidence -> explicit include/exclude -> cited synthesis -> governed Research Pack`
 
-V2.2 planning is also **COMPLETE + NORMALIZED**.
+V2.2 planning is **COMPLETE + NORMALIZED**, and V2.2.1 is **COMPLETE + NORMALIZED**.
 
-Planning PR `#488` was qualified **25/25** on exact head `face3a8b9b1053962635518d083b01a92a4ed2af` and merged with `expected_head_sha` protection as `875149032078beb681816604663056f66a2e1344`. The Tauri2 gate succeeded on attempt 2 on the unchanged planning head after an isolated first-attempt WebView2 runtime-probe failure; no product or workflow mutation was used to obtain the final success.
+Planning PR `#488` was qualified **25/25** on exact head `face3a8b9b1053962635518d083b01a92a4ed2af` and merged as `875149032078beb681816604663056f66a2e1344`.
+
+V2.2.1 implementation PR `#490` was qualified **27/27** on exact head `f5c6e90783476117d90ee86ea7edbed014d691a7` and merged with exact-head protection as `6341dbe6599505edc8d354e629d0fc962587f8ac`. Its deterministic acceptance reported **11/11 PASS** on Ubuntu and Windows with evidence payload SHA-256 `f5c695efe34fa86ea0c4a85dddfe5fef7650e86250c6a2a676c7798fc35b8a59`; `R16.7 Memory Context Poisoning Acceptance` also passed on the final head.
+
+Accepted V2.2.1 capability truth is a deterministic project-scoped knowledge catalog over immutable Research Packs, explicitly selected WorkspaceBoundary-confined project files and verified active-project memory. The derived catalog is atomically persisted under `.kodepoia/knowledge/catalog-v1.json`. The accepted project-memory read path prefilters `project_scope` before integrity verification, so unrelated project memory is neither read nor quarantined.
 
 Active V2 authority documents are:
 
 - `docs/roadmap/KODEPOIA_ROADMAP_V2.md`;
 - `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` — completed V2.1 Research authority;
-- `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` — normalized V2.2 plan.
+- `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` — normalized V2.2 authority.
 
-The current authorized implementation is **V2.2.1 — Project Knowledge catalog and contracts** only.
+The current authorized implementation is **V2.2.2 — Bounded semantic retrieval** only.
 
-V2.2.1 may define/project deterministic project-scoped knowledge from governed Research Packs, WorkspaceBoundary-confined project files and verified active-project memory, with provenance/trust/version/freshness/state and deterministic identity/digest. It may not pull forward semantic retrieval, context injection, automatic memory writes, V2.5 orchestration or release/TUF/updater work.
+V2.2.2 may define bounded retrieval request/results, deterministic semantic scoring/order/tie-breaks, pre-scoring project-scope enforcement, explicit embedding/provider availability state, no-network fixture embeddings and duplicate-source normalization that preserves provenance. It may not pull forward Context Builder/context injection, lifecycle UI, workspace consumption, V2.3+, release/TUF/updater or R20 work.
 
-Existing security authority remains unchanged: immutable Research Pack provenance, ResearchGuard, KodeSecrets, WorkspaceBoundary and R16.7 MemoryStore integrity/quarantine/project-scope rules remain binding. Indexed or retrieved data never gains instruction authority merely by being selected.
+Existing security authority remains unchanged: immutable Research Pack provenance, ResearchGuard, KodeSecrets, WorkspaceBoundary and R16.7 MemoryStore integrity/quarantine/project-scope rules remain binding. Indexed or retrieved data never gains instruction authority merely by being selected or scored.
 
 Post-rc8 source features on `main` remain development capabilities until a later release is explicitly qualified. Their presence in source does not mean they exist in the public rc8 installer.
 

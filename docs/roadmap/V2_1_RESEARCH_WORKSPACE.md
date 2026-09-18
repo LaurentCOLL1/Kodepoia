@@ -95,6 +95,8 @@ Accepted V2.1.5 maps successfully acquired community/media artifacts into those 
 
 Historical implementation-time authority marker retained only for exact-head acceptance reproducibility: `V2.1.6 — ResearchGuard hardening — CURRENT`. It is **historical only**; the current authority state is **COMPLETE + NORMALIZED**.
 
+Historical `Out of scope for V2.1.6` boundary retained for acceptance reproducibility: V2.2 Project Knowledge / Context Builder / Memory integration, public release/installer/TUF transitions, and unrelated Model Lab, accelerator or cross-workspace work were not part of V2.1.6. This is historical scope evidence, not a statement that V2.2 remains permanently unauthorized.
+
 Implementation PR `#486` was qualified with **27/27** pull-request workflows on exact head `2e788df0886e1e31512f53547ea4603186e964eb` and merged as `7efcc3e941fe8db0e3cc00c81b147716c91eb30b`.
 
 The deterministic V2.1.6 acceptance reported **12/12 PASS** on Ubuntu and Windows with evidence payload SHA-256 `076195a992effe8a1eac25d6074a5fc12508d004da7f9ec8b01f3177a4c40f74`.

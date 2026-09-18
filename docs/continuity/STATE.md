@@ -138,11 +138,37 @@ Accepted V2.1.6 product truth:
 
 ## V2.1 authorization
 
-V2.1.1 through V2.1.6 are now **COMPLETE + NORMALIZED**. The Research Workspace sequence is closed at V2.1.6; no additional V2.1 subdivision is authorized.
+V2.1.1 through V2.1.6 are **COMPLETE + NORMALIZED**. The Research Workspace sequence is closed at V2.1.6; no additional V2.1 subdivision is authorized.
 
-The next roadmap phase is **V2.2 — Project Knowledge, Context Builder and Memory integration**. Before any V2.2 implementation, re-read the live roadmap authorities and create the appropriate V2.2 plan/subdivision boundary rather than inventing scope. V2.2 remains subject to the same branch, exact-head acceptance, all-workflows-success, protected-merge and post-merge-normalization discipline.
+## V2.2 planning — CURRENT CANDIDATE
 
-No V2.2 step may reopen R20, mutate the public rc8 release/TUF/updater boundary, or weaken the accepted V2.1 discovery -> explicit fetch -> evidence -> cited synthesis -> governed Research Pack separation.
+V2.2 — Project Knowledge, Context Builder and Memory integration — is now in a dedicated **planning-only** branch. The normative candidate plan is:
+
+`docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`
+
+The plan is grounded in the Roadmap V2 authority created by PR `#472`, which requires:
+
+- project-scoped Research Packs with immutable provenance/digests;
+- semantic retrieval over accepted research, project files and relevant memory scopes;
+- an explainable Context Builder;
+- version-aware invalidation;
+- include/exclude/refresh/delete-derived user controls;
+- no silent conversion of untrusted Web text into durable instructions.
+
+The candidate plan subdivides V2.2 into:
+
+1. V2.2.1 — Project Knowledge catalog and contracts;
+2. V2.2.2 — Bounded semantic retrieval;
+3. V2.2.3 — Explainable Context Builder;
+4. V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle;
+5. V2.2.5 — Project Memory bridge and workspace consumption;
+6. V2.2.6 — Project Knowledge hardening and integrated acceptance.
+
+**No V2.2 implementation is authorized by this planning candidate.** The planning PR must first be qualified on its exact final head, merged, and post-merge continuity-normalized. Only that normalization may authorize V2.2.1.
+
+Existing accepted primitives remain authoritative and must be reused rather than weakened: immutable Research Packs, ResearchContextBuilder, generic ContextBuilder, R16.7-hardened MemoryStore, ResearchMemoryBridge, WorkspaceBoundary, KodeSecrets and ResearchGuard.
+
+V2.2 planning does not authorize any release/TUF/updater mutation, R20 reopening, V2.3 Model Lab work, V2.4 accelerator work, V2.5 cross-workspace orchestration or V2.6 release work.
 
 ## Accepted V2 capability truth
 
@@ -170,9 +196,10 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 
 For future work:
 
-1. re-fetch live `main` and read `STATE.md` + `NEXT.md`;
-2. verify V2.1.6 remains **COMPLETE + NORMALIZED** from implementation PR `#486`, exact head `2e788df0886e1e31512f53547ea4603186e964eb`, merge `7efcc3e941fe8db0e3cc00c81b147716c91eb30b`, and this normalization;
-3. the next authorized activity is V2.2 planning/subdivision definition from the live roadmap authorities, followed by implementation only within the normalized V2.2 boundary;
-4. for every subdivision, branch from an exact live SHA, implement only that scope, add deterministic tests/acceptance, re-fetch all required workflows on the exact head, merge only after successful gates, then normalize continuity;
-5. if a genuine manual intervention is required, stop at that subdivision and describe exactly what the operator must do; never bypass a failed or missing gate;
-6. never reopen R20 or invent R20.7.
+1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_ROADMAP_V2.md` and the V2.2 plan;
+2. while the V2.2 planning PR is open, qualify only its exact final head and do not begin V2.2.1;
+3. after the planning PR merges, perform one post-merge continuity normalization;
+4. only the normalized planning authority may authorize V2.2.1 — Project Knowledge catalog and contracts;
+5. for every V2.2 subdivision, use a dedicated branch, deterministic tests/acceptance, exact-head workflow qualification, protected merge and post-merge normalization;
+6. preserve the V2.1 discovery -> explicit fetch -> evidence -> cited synthesis -> governed Research Pack separation and all R16.7 memory hardening;
+7. never reopen R20 or invent R20.7.

@@ -1,12 +1,12 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-18 after V2.1.6 implementation PR `#486` merged and post-merge continuity normalization  
+Last synchronized: 2026-09-18 for the V2.2 Project Knowledge / Context Builder / Memory planning candidate  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
 ## Immediate authority
 
-Read this file together with `docs/continuity/NEXT.md` and re-fetch live GitHub state before acting. For V2 work, also read `docs/roadmap/KODEPOIA_ROADMAP_V2.md`; for V2.1 specifically, read `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+Read this file together with `docs/continuity/NEXT.md` and re-fetch live GitHub state before acting. For V2 work, also read `docs/roadmap/KODEPOIA_ROADMAP_V2.md`; V2.1 historical/current Research authority is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`, and the current V2.2 planning candidate is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`.
 
 The public Windows distribution authority remains **`v1.1.0-rc8`**. The real installed Windows updater E2E `rc7 -> rc8` passed and the exercised updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 remains **COMPLETE + NORMALIZED**, terminal, and must not be reopened or extended as `R20.7`.
 

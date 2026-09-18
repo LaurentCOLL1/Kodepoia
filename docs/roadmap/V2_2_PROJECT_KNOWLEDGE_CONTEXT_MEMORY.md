@@ -237,7 +237,7 @@ These invariants apply to every V2.2 subdivision:
 
 ## 6. V2.2 subdivisions
 
-### V2.2.1 — Project Knowledge catalog and contracts
+### V2.2.1 — Project Knowledge catalog and contracts — COMPLETE + NORMALIZED
 
 Goal: define one deterministic project-scoped knowledge representation over the already accepted source classes.
 
@@ -263,7 +263,7 @@ Out of scope:
 
 Definition of done: an active project can enumerate a deterministic, provenance-bearing knowledge catalog whose items remain traceable to immutable sources.
 
-### V2.2.2 — Bounded semantic retrieval
+### V2.2.2 — Bounded semantic retrieval — CURRENT
 
 Goal: retrieve relevant project knowledge across accepted Research Packs, project files and eligible project memory.
 

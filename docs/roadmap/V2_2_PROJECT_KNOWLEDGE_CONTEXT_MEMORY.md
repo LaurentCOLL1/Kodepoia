@@ -1,8 +1,30 @@
 # V2.2 — Project Knowledge, Context Builder and Memory integration
 
-Status: **PLANNING CANDIDATE — no V2.2 implementation is authorized until this plan is qualified, merged and continuity-normalized**  
+Status: **PLANNING COMPLETE + NORMALIZED — V2.2.1 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Public distribution boundary: `v1.1.0-rc8`
+
+## Planning qualification
+
+Planning PR `#488` was qualified on exact head:
+
+`face3a8b9b1053962635518d083b01a92a4ed2af`
+
+All **25/25** pull-request workflows associated with the final planning head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35385962901`;
+- `KodeStudio UI Smoke` run `35385962916`;
+- `Python Core` run `35385962938`;
+- `R12 Tauri2 Acceptance` run `35385963079`, successful on attempt 2 on the unchanged head after an isolated WebView2 runtime-probe failure on attempt 1;
+- `R17 Windows Installer` run `35385962997`.
+
+PR `#488` merged from that exact head with `expected_head_sha` protection as merge commit:
+
+`875149032078beb681816604663056f66a2e1344`
+
+The Tauri retry did not alter the branch, product code, workflow or acceptance criteria; the final successful run remained bound to the same exact planning SHA.
+
+This post-merge normalization closes the planning gate and authorizes **V2.2.1 — Project Knowledge catalog and contracts** only. V2.2.2 through V2.2.6 remain planned but unauthorized until each predecessor is implemented, exact-head qualified, merged and normalized.
 
 ## 1. Authority and goal
 
@@ -391,12 +413,12 @@ The public Windows distribution authority remains `v1.1.0-rc8`.
 
 ## 12. Planning definition of done
 
-This V2.2 planning phase is complete only when:
+The V2.2 planning phase is complete because:
 
 - this plan is the accepted live authority;
 - the six subdivisions above are recorded in the V2 roadmap/continuity;
-- the planning PR is qualified on its exact final head;
-- the planning PR is merged with exact-head protection;
-- one post-merge continuity normalization records the accepted planning head/merge and authorizes **V2.2.1 only**.
+- planning PR `#488` was qualified on its exact final head;
+- planning PR `#488` was merged with exact-head protection;
+- this post-merge continuity normalization records the accepted planning head/merge and authorizes **V2.2.1 only**.
 
-No V2.2.1 implementation may begin before that normalization is live.
+**V2.2.1 may begin only from live `main` after this normalization PR itself is exact-head qualified and merged.**

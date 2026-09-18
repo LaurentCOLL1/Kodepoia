@@ -27,11 +27,26 @@ _EXTENDED_KINDS = {
 }
 _ORIGINAL_CREATE_RESEARCH_PAGE = _panel.create_research_page
 _INSTALLED = False
+_PROVIDER_STATE_HELP = (
+    "V2.1.5 sources: Community HTML is fetched through the guarded Web transport; "
+    "YouTube metadata uses KodeSecrets youtube/data_api_key and captions use "
+    "youtube/oauth_access_token. Unavailable transcripts remain explicit."
+)
 _HARDENED_STATE_HELP = (
     "V2.1.6 hardened states: BLOCKED means policy denial; UNAVAILABLE means provider/transport "
     "failure; CANCELLED never promotes new evidence; STALE means cached evidence requires "
     "revalidation; CONFLICT preserves every immutable retrieved version in lineage."
 )
+
+
+def extended_research_state_text(detail: str = "") -> str:
+    """Compose accepted V2.1.5 provider lifecycle text with V2.1.6 hardening state."""
+
+    sections = [_PROVIDER_STATE_HELP]
+    if detail.strip():
+        sections.append(detail.strip())
+    sections.append(_HARDENED_STATE_HELP)
+    return "\n".join(sections)
 
 
 def hardened_evidence_state_text(row: Any) -> str:
@@ -205,7 +220,7 @@ def _extend_page(page, coordinator: ExtendedSourceCoordinator) -> None:
         if fetch_kind.findData(kind.value) < 0:
             fetch_kind.addItem(kind.value, kind.value)
 
-    state = QLabel(_HARDENED_STATE_HELP)
+    state = QLabel(extended_research_state_text())
     state.setObjectName("researchExtendedSourceState")
     state.setAccessibleName("Extended research provider and degraded state")
     state.setWordWrap(True)
@@ -235,7 +250,7 @@ def _extend_page(page, coordinator: ExtendedSourceCoordinator) -> None:
             evidence_results.setItem(row_index, 6, QTableWidgetItem(rendered))
             if row_index == selected_row:
                 selected_state = degraded
-        state.setText(selected_state or _HARDENED_STATE_HELP)
+        state.setText(extended_research_state_text(selected_state))
 
     def sync_selected_candidate_to_fetch() -> None:
         current = page._research_result
@@ -250,8 +265,10 @@ def _extend_page(page, coordinator: ExtendedSourceCoordinator) -> None:
             fetch_kind.setCurrentIndex(index)
             locator.setText(item.locator)
             state.setText(
-                f"Selected {item.source_kind} candidate is descriptor-only. "
-                "Use Open/fetch source for guarded acquisition before evidence selection."
+                extended_research_state_text(
+                    f"Selected {item.source_kind} candidate is descriptor-only. "
+                    "Use Open/fetch source for guarded acquisition before evidence selection."
+                )
             )
 
     results.itemSelectionChanged.connect(sync_selected_candidate_to_fetch)

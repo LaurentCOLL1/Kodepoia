@@ -27,6 +27,39 @@ _EXTENDED_KINDS = {
 }
 _ORIGINAL_CREATE_RESEARCH_PAGE = _panel.create_research_page
 _INSTALLED = False
+_PROVIDER_STATE_HELP = (
+    "V2.1.5 sources: Community HTML is fetched through the guarded Web transport; "
+    "YouTube metadata uses KodeSecrets youtube/data_api_key and captions use "
+    "youtube/oauth_access_token. Unavailable transcripts remain explicit."
+)
+_HARDENED_STATE_HELP = (
+    "V2.1.6 hardened states: BLOCKED means policy denial; UNAVAILABLE means provider/transport "
+    "failure; CANCELLED never promotes new evidence; STALE means cached evidence requires "
+    "revalidation; CONFLICT preserves every immutable retrieved version in lineage."
+)
+
+
+def extended_research_state_text(detail: str = "") -> str:
+    """Compose accepted V2.1.5 provider lifecycle text with V2.1.6 hardening state."""
+
+    sections = [_PROVIDER_STATE_HELP]
+    if detail.strip():
+        sections.append(detail.strip())
+    sections.append(_HARDENED_STATE_HELP)
+    return "\n".join(sections)
+
+
+def hardened_evidence_state_text(row: Any) -> str:
+    """Render stale/version-conflict evidence state without requiring raw JSON inspection."""
+
+    states: list[str] = []
+    if str(getattr(row, "freshness", "")).strip().lower() == "stale":
+        states.append("STALE — cached evidence requires revalidation")
+    if bool(getattr(row, "has_version_conflict", False)):
+        versions = tuple(str(value) for value in getattr(row, "conflicting_versions", ()))
+        detail = ", ".join(versions) or "multiple versions"
+        states.append(f"CONFLICT — immutable lineage versions: {detail}")
+    return " | ".join(states)
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,12 +104,12 @@ def _cancelled_result() -> ResearchServiceResult:
         "fetch",
         ResearchOperationStatus.CANCELLED,
         reason="cancelled",
-        metadata={"v2_1_5": True},
+        metadata={"v2_1_5": True, "v2_1_6_hardened": True},
     )
 
 
 class ExtendedResearchServiceAdapter:
-    """Delegate historical Research operations and route only V2.1.5 fetch kinds."""
+    """Delegate historical Research operations and route only extended fetch kinds."""
 
     def __init__(self, delegate: Any, coordinator: ExtendedSourceCoordinator) -> None:
         self._delegate = delegate
@@ -126,16 +159,18 @@ class ExtendedResearchServiceAdapter:
             extended = self.coordinator.fetch_community_url(
                 request.locator,
                 retrieved_at=request.effective_retrieved_at,
+                cancellation=token,
             )
         elif request.kind is ResearchSourceKind.YOUTUBE:
             extended = self.coordinator.fetch_youtube(
                 request.locator,
                 retrieved_at=request.effective_retrieved_at,
                 include_transcript=True,
+                cancellation=token,
             )
         else:  # pragma: no cover - guarded by request validation
             raise ValueError("Unsupported extended Research source kind")
-        if token.cancelled:
+        if token.cancelled and extended.status is not ResearchOperationStatus.CANCELLED:
             return _cancelled_result()
         return extended.to_service_result()
 
@@ -158,32 +193,65 @@ class ExtendedResearchDiscoveryService(ResearchDiscoveryService):
 
 
 def _extend_page(page, coordinator: ExtendedSourceCoordinator) -> None:
-    from PySide6.QtWidgets import QCheckBox, QComboBox, QLabel, QLineEdit, QTableWidget
+    from PySide6.QtWidgets import (
+        QCheckBox,
+        QComboBox,
+        QLabel,
+        QLineEdit,
+        QTableWidget,
+        QTableWidgetItem,
+    )
 
     fetch_kind = page.findChild(QComboBox, "researchFetchKind")
     locator = page.findChild(QLineEdit, "researchLocator")
     network = page.findChild(QCheckBox, "researchAllowNetwork")
     results = page.findChild(QTableWidget, "researchResultsTable")
-    if fetch_kind is None or locator is None or network is None or results is None:
-        raise RuntimeError("Research panel V2.1.5 extension requires the accepted Research UI contract")
+    evidence_results = page.findChild(QTableWidget, "researchEvidenceWorkspaceTable")
+    if (
+        fetch_kind is None
+        or locator is None
+        or network is None
+        or results is None
+        or evidence_results is None
+    ):
+        raise RuntimeError("Research panel V2.1.6 extension requires the accepted Research UI contract")
 
     for kind in (ResearchSourceKind.COMMUNITY, ResearchSourceKind.YOUTUBE):
         if fetch_kind.findData(kind.value) < 0:
             fetch_kind.addItem(kind.value, kind.value)
 
-    state = QLabel(
-        "V2.1.5 sources: Community HTML is fetched through the guarded Web transport; "
-        "YouTube metadata uses KodeSecrets youtube/data_api_key and captions use "
-        "youtube/oauth_access_token. Unavailable transcripts remain explicit."
-    )
+    state = QLabel(extended_research_state_text())
     state.setObjectName("researchExtendedSourceState")
-    state.setAccessibleName("Extended research provider state")
+    state.setAccessibleName("Extended research provider and degraded state")
     state.setWordWrap(True)
     layout = page.layout()
     if layout is not None:
         layout.insertWidget(4, state)
     page._research_extended_source_state = state
     page._research_extended_sources = coordinator
+
+    lineage_header = evidence_results.horizontalHeaderItem(6)
+    if lineage_header is not None:
+        lineage_header.setText("Lineage / hardening state")
+
+    def refresh_hardened_evidence_state() -> None:
+        workspace = getattr(page, "_research_workspace", None)
+        rows = tuple(getattr(workspace, "rows", ()))
+        selected_state = ""
+        selected_row = evidence_results.currentRow()
+        for row_index, item in enumerate(rows):
+            if row_index >= evidence_results.rowCount():
+                break
+            lineage_count = len(item.lineage_revision_ids) or len(item.lineage_artifact_ids)
+            degraded = hardened_evidence_state_text(item)
+            rendered = str(lineage_count)
+            if degraded:
+                rendered = f"{rendered} | {degraded}"
+            evidence_results.setItem(row_index, 6, QTableWidgetItem(rendered))
+            if row_index == selected_row:
+                selected_state = degraded
+        if selected_state:
+            state.setText(extended_research_state_text(selected_state))
 
     def sync_selected_candidate_to_fetch() -> None:
         current = page._research_result
@@ -198,17 +266,21 @@ def _extend_page(page, coordinator: ExtendedSourceCoordinator) -> None:
             fetch_kind.setCurrentIndex(index)
             locator.setText(item.locator)
             state.setText(
-                f"Selected {item.source_kind} candidate is descriptor-only. "
-                "Use Open/fetch source for guarded acquisition before evidence selection."
+                extended_research_state_text(
+                    f"Selected {item.source_kind} candidate is descriptor-only. "
+                    "Use Open/fetch source for guarded acquisition before evidence selection."
+                )
             )
 
     results.itemSelectionChanged.connect(sync_selected_candidate_to_fetch)
+    evidence_results.itemSelectionChanged.connect(refresh_hardened_evidence_state)
 
     def network_changed(checked: bool) -> None:
         coordinator.allow_network = bool(checked)
 
     network.toggled.connect(network_changed)
     coordinator.allow_network = bool(network.isChecked())
+    refresh_hardened_evidence_state()
 
 
 def create_research_page(
@@ -240,7 +312,7 @@ def create_research_page(
 
 
 def install_extended_research_ui() -> None:
-    """Install V2.1.5 adapters before app.py imports create_research_page."""
+    """Install extended Research adapters before app.py imports create_research_page."""
 
     global _INSTALLED
     if _INSTALLED:

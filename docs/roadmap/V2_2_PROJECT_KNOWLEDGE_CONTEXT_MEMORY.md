@@ -26,6 +26,8 @@ The Tauri retry did not alter the branch, product code, workflow or acceptance c
 
 This post-merge normalization closes the planning gate and authorizes **V2.2.1 — Project Knowledge catalog and contracts** only. V2.2.2 through V2.2.6 remain planned but unauthorized until each predecessor is implemented, exact-head qualified, merged and normalized.
 
+Historical planning rule, now satisfied: **V2.2.1 may begin only after the planning normalization was live on `main`.** That gate was satisfied before implementation PR `#490` branched from normalized `main`.
+
 ## V2.2.1 implementation qualification
 
 Implementation PR `#490` was qualified on exact final head:

@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-17 after V2.1.5 implementation PR `#484` merged and post-merge continuity normalization  
+Last synchronized: 2026-09-18 after V2.1.6 implementation PR `#486` merged and post-merge continuity normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -97,13 +97,52 @@ Accepted V2.1.5 product truth:
 - external descriptions, comments, posts and transcripts remain untrusted source data and cannot grant permissions or invoke protected actions;
 - no V2.1.6 adversarial corpus or release/TUF/updater mutation was pulled forward.
 
+## V2.1.6 — ResearchGuard hardening — COMPLETE + NORMALIZED
+
+Implementation PR `#486` was qualified on exact head:
+
+`2e788df0886e1e31512f53547ea4603186e964eb`
+
+All **27/27** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35356758819`;
+- `Python Core` run `35356758688`;
+- `KodeStudio UI Smoke` run `35356758347`;
+- `R17 Windows Installer` run `35356758789`;
+- `R18.11 Integrated Adversarial Release Update Acceptance` run `35356758637`.
+
+PR `#486` merged from the unchanged exact head as merge commit:
+
+`7efcc3e941fe8db0e3cc00c81b147716c91eb30b`
+
+The deterministic V2.1.6 acceptance reported **12/12 PASS** on Ubuntu and Windows with identical evidence payload SHA-256:
+
+`076195a992effe8a1eac25d6074a5fc12508d004da7f9ec8b01f3177a4c40f74`
+
+Accepted exact-head artifacts:
+
+- Ubuntu `v2-1-6-researchguard-hardening-ubuntu-latest-2e788df0886e1e31512f53547ea4603186e964eb` — SHA-256 `32d972eb83a070fcb7a2844eae11403518bdfe412bd445db74a9556269a0dac1`;
+- Windows `v2-1-6-researchguard-hardening-windows-latest-2e788df0886e1e31512f53547ea4603186e964eb` — SHA-256 `7dd9a6ff8e79f40829a2b11439583ced1c221d63c4c0ca1882d2829a9f0ed4ee`.
+
+Accepted V2.1.6 product truth:
+
+- extended-source candidate typing fails closed for unsafe, non-HTTP(S) or credential-bearing locators;
+- private/local/link-local/metadata targets, mixed public/private DNS answers and malicious redirect chains are rejected before trusted acquisition;
+- policy/security denial is represented as `BLOCKED`, while provider/transport failure is represented as `UNAVAILABLE`;
+- provider diagnostics are redacted through KodeSecrets before display;
+- cancellation is propagated through extended acquisition and checked before any new ResearchStore/Evidence persistence;
+- offline/cache state remains explicit as stale or unavailable and cannot fabricate live provider success;
+- stale/version-conflict evidence preserves immutable revision/artifact lineage and historical citation provenance;
+- adversarial source instructions remain untrusted data and cannot authorize protected actions or escape WorkspaceBoundary;
+- KodeStudio preserves the accepted V2.1.5 provider/candidate lifecycle while also rendering `BLOCKED`, `UNAVAILABLE`, `CANCELLED`, `STALE` and `CONFLICT` states structurally.
+
 ## V2.1 authorization
 
-With V2.1.5 **COMPLETE + NORMALIZED**, the only next authorized subdivision is **V2.1.6 — ResearchGuard hardening**.
+V2.1.1 through V2.1.6 are now **COMPLETE + NORMALIZED**. The Research Workspace sequence is closed at V2.1.6; no additional V2.1 subdivision is authorized.
 
-Its exact scope must be taken from `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` after this normalization is live. The current boundary authorizes adversarial prompt-injection, redirect/SSRF, outage/timeout/cancellation, stale/version-conflict and offline/cache hardening while preserving the accepted candidate/fetch/evidence/synthesis separation and protected-action boundaries.
+The next roadmap phase is **V2.2 — Project Knowledge, Context Builder and Memory integration**. Before any V2.2 implementation, re-read the live roadmap authorities and create the appropriate V2.2 plan/subdivision boundary rather than inventing scope. V2.2 remains subject to the same branch, exact-head acceptance, all-workflows-success, protected-merge and post-merge-normalization discipline.
 
-No V2.2 implementation may begin until V2.1.6 is qualified on its exact head, merged and continuity-normalized.
+No V2.2 step may reopen R20, mutate the public rc8 release/TUF/updater boundary, or weaken the accepted V2.1 discovery -> explicit fetch -> evidence -> cited synthesis -> governed Research Pack separation.
 
 ## Accepted V2 capability truth
 
@@ -132,8 +171,8 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main` and read `STATE.md` + `NEXT.md`;
-2. verify V2.1.5 remains COMPLETE + NORMALIZED before beginning V2.1.6;
-3. the immediate next authorized implementation is **V2.1.6 — ResearchGuard hardening**;
+2. verify V2.1.6 remains **COMPLETE + NORMALIZED** from implementation PR `#486`, exact head `2e788df0886e1e31512f53547ea4603186e964eb`, merge `7efcc3e941fe8db0e3cc00c81b147716c91eb30b`, and this normalization;
+3. the next authorized activity is V2.2 planning/subdivision definition from the live roadmap authorities, followed by implementation only within the normalized V2.2 boundary;
 4. for every subdivision, branch from an exact live SHA, implement only that scope, add deterministic tests/acceptance, re-fetch all required workflows on the exact head, merge only after successful gates, then normalize continuity;
 5. if a genuine manual intervention is required, stop at that subdivision and describe exactly what the operator must do; never bypass a failed or missing gate;
 6. never reopen R20 or invent R20.7.

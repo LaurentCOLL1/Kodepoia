@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1.5 COMPLETE + NORMALIZED; V2.1.6 authorized**  
+Status: **ACTIVE — V2.1 COMPLETE + NORMALIZED through V2.1.6; V2.2 planning authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -13,6 +13,7 @@ Public Windows distribution baseline: `v1.1.0-rc8`
 - V2.1.3: PR `#480`, accepted head `c4cff95ea2309ea5482e6c24c61002b13becb48f`, merge `0c3d365626df666f2a847b9320b0730dc0110afa`, 27/27 successful.
 - V2.1.4: PR `#482`, accepted head `7d7fbcb6d7f4bfcf64b0d9e6ecdc2573673d3921`, merge `a5efbe44c0ed8c42c251cf0462ef7d8c24d7ecda`, 27/27 successful.
 - V2.1.5: PR `#484`, accepted head `f46068a410e7e0ea3f32f8decc77eed6aa105355`, merge `bfe7fa6b4def1a291d97bd2b9365bda321bcde52`, 27/27 successful; deterministic acceptance 12/12 PASS on Ubuntu and Windows.
+- V2.1.6: PR `#486`, accepted head `2e788df0886e1e31512f53547ea4603186e964eb`, merge `7efcc3e941fe8db0e3cc00c81b147716c91eb30b`, 27/27 successful; deterministic acceptance 12/12 PASS on Ubuntu and Windows.
 
 V2 does not reopen R20, does not create `R20.7`, and does not turn post-rc8 source capabilities into public rc8 capabilities.
 
@@ -99,23 +100,33 @@ Exact-head evidence:
 - Ubuntu `v2-1-5-extended-sources-ubuntu-latest-f46068a410e7e0ea3f32f8decc77eed6aa105355` — SHA-256 `6275abca3e380e118120718834fd34e68e819822860220b4f79a2f63ff69c2e7`;
 - Windows `v2-1-5-extended-sources-windows-latest-f46068a410e7e0ea3f32f8decc77eed6aa105355` — SHA-256 `68373539d62e0e348ce6ab7ff5f23c567b0f0e287a98901f31895d34986a4b0b`.
 
-### V2.1.6 — ResearchGuard hardening — NEXT
+### V2.1.6 — ResearchGuard hardening — COMPLETE + NORMALIZED
 
-Implement only the adversarial hardening boundary defined by `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`:
+Implementation PR `#486` was qualified with **27/27** pull-request workflows on exact head `2e788df0886e1e31512f53547ea4603186e964eb` and merged as `7efcc3e941fe8db0e3cc00c81b147716c91eb30b`.
 
-- prompt-injection and source-instruction adversarial coverage across discovery, fetched evidence and synthesis inputs;
-- malicious redirect and SSRF boundary coverage for external acquisition;
-- timeout, outage and cancellation behavior that remains explicit and fail-closed;
-- stale/version-conflict and offline/cache adversarial behavior while preserving immutable evidence/citation lineage;
-- deterministic backend/UI tests plus exact-head Ubuntu/Windows acceptance proving the implemented hardening boundary.
+The deterministic V2.1.6 acceptance reported **12/12 PASS** on Ubuntu and Windows with evidence payload SHA-256 `076195a992effe8a1eac25d6074a5fc12508d004da7f9ec8b01f3177a4c40f74`.
 
-Do **not** pull V2.2 Context Builder/Memory integration or any public release/TUF/updater work forward.
+Exact-head evidence:
 
-Each subdivision requires its own branch, exact-head acceptance, all required workflows successful, protected merge, and post-merge continuity normalization before the next subdivision.
+- Ubuntu `v2-1-6-researchguard-hardening-ubuntu-latest-2e788df0886e1e31512f53547ea4603186e964eb` — SHA-256 `32d972eb83a070fcb7a2844eae11403518bdfe412bd445db74a9556269a0dac1`;
+- Windows `v2-1-6-researchguard-hardening-windows-latest-2e788df0886e1e31512f53547ea4603186e964eb` — SHA-256 `7dd9a6ff8e79f40829a2b11439583ced1c221d63c4c0ca1882d2829a9f0ed4ee`.
+
+Accepted scope and product truth:
+
+- prompt-injection/source-instruction content remains untrusted data across discovery, fetched evidence and synthesis inputs;
+- unsafe/private/local/link-local/metadata targets, malicious redirects and mixed public/private DNS fail closed before trusted acquisition;
+- timeout/outage/provider failure remains explicit and distinct from policy denial, with `UNAVAILABLE` versus `BLOCKED` semantics;
+- cancellation is propagated and checked before new evidence persistence;
+- provider diagnostics are secret-redacted;
+- stale/offline/cache and version-conflict behavior remains visible while immutable evidence and citation lineage is preserved;
+- protected actions and WorkspaceBoundary remain fail closed under adversarial source content;
+- KodeStudio structurally exposes `BLOCKED`, `UNAVAILABLE`, `CANCELLED`, `STALE` and `CONFLICT` without regressing V2.1.5 provider/candidate state.
+
+V2.1 is therefore complete through the ResearchGuard hardening boundary. No V2.1.7 is reserved or authorized.
 
 ## Remaining V2 sequence
 
-- V2.2 — Project Knowledge, Context Builder and Memory integration.
+- V2.2 — Project Knowledge, Context Builder and Memory integration — **NEXT: plan/subdivide before implementation**.
 - V2.3 — Model Lab governed improvement UX.
 - V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
 - V2.5 — Cross-workspace orchestration.

@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-18 for the V2.2 Project Knowledge / Context Builder / Memory planning candidate  
+Last synchronized: 2026-09-18 after V2.2 planning PR `#488` merge and post-merge planning normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -66,44 +66,55 @@ Accepted product truth includes:
 - adversarial source text remains data-only and cannot grant capabilities, escape WorkspaceBoundary or invoke protected actions;
 - KodeStudio preserves V2.1.5 Community/YouTube and descriptor-only lifecycle semantics while structurally surfacing V2.1.6 degraded states.
 
+## V2.2 planning accepted
+
+Planning PR `#488` was qualified with **25/25** pull-request workflows on exact head `face3a8b9b1053962635518d083b01a92a4ed2af` and merged with exact-head protection as `875149032078beb681816604663056f66a2e1344`.
+
+The final exact-head gate set included:
+
+- `R0 Repository Guard` `35385962901` = success;
+- `KodeStudio UI Smoke` `35385962916` = success;
+- `Python Core` `35385962938` = success;
+- `R12 Tauri2 Acceptance` `35385963079` = success on attempt 2 on the same unchanged head after one isolated WebView2 runtime-probe failure;
+- `R17 Windows Installer` `35385962997` = success, including custom-directory install/updater smoke/uninstall.
+
+The normalized plan is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`.
+
 ## Immediate execution order
 
-### V2.2 planning — CURRENT
+### V2.2.1 — Project Knowledge catalog and contracts — CURRENT AUTHORIZED SUBDIVISION
 
-The current task is to qualify the planning-only authority:
+V2.2.1 is the only implementation authorized after this normalization reaches live `main`.
 
-`docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`
+Required scope:
 
-This plan derives directly from the accepted Roadmap V2 V2.2 deliverables and existing source primitives. It freezes six subdivisions:
+- typed deterministic project-scoped knowledge contract for governed Research Packs, WorkspaceBoundary-confined project files and verified active-project memory;
+- deterministic knowledge identity/digest;
+- provenance/trust/version/freshness/source-kind metadata;
+- explicit active/included/excluded/invalidated derived-state semantics;
+- project-confined catalog/index persistence;
+- projection only — immutable Research Packs and source evidence must not be rewritten;
+- no cross-project memory leakage;
+- deterministic tests and exact-head Ubuntu/Windows acceptance.
 
-1. **V2.2.1 — Project Knowledge catalog and contracts**
-2. **V2.2.2 — Bounded semantic retrieval**
-3. **V2.2.3 — Explainable Context Builder**
-4. **V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle**
-5. **V2.2.5 — Project Memory bridge and workspace consumption**
-6. **V2.2.6 — Project Knowledge hardening and integrated acceptance**
+Explicitly out of scope until later subdivisions:
 
-The planning PR is documentation-only. It must be qualified on its exact final head and merged before any V2.2 implementation. Then perform exactly one post-merge continuity normalization; only that normalized state may authorize **V2.2.1**.
-
-### V2.2.1 — Project Knowledge catalog and contracts — NOT YET AUTHORIZED
-
-After planning normalization only, V2.2.1 may establish the deterministic project-scoped knowledge catalog over:
-
-- governed Research Packs;
-- WorkspaceBoundary-confined project files;
-- verified active-project MemoryStore records.
-
-It must preserve provenance/trust/version metadata and must not implement semantic retrieval, context injection, automatic memory writes, cross-workspace orchestration or release work.
+- semantic retrieval/ranking (V2.2.2);
+- context selection/injection and explainability UI (V2.2.3);
+- refresh/delete lifecycle UI beyond the state contract (V2.2.4);
+- project Memory/workspace consumption bridge (V2.2.5);
+- integrated adversarial hardening (V2.2.6);
+- V2.3+, release/TUF/updater mutation or R20 reopening.
 
 The accepted V2.1 chain remains invariant:
 
 `discovery -> candidate-only/unfetched -> explicit guarded fetch -> persisted evidence -> explicit include/exclude -> cited synthesis -> governed Research Pack`
 
-Research-derived/project knowledge remains data and cannot become instruction authority merely by being indexed, retrieved or placed in context.
+V2.2.1 may index/project accepted knowledge, but indexing never grants instruction authority.
 
-## Later V2 order
+## Later V2.2 order
 
-Only after V2.2 is completed subdivision by subdivision and normalized may the roadmap proceed to V2.3. Do not pull forward V2.3 Model Lab, V2.4 accelerator qualification, V2.5 cross-workspace orchestration or V2.6 release work.
+After V2.2.1 is implemented, exact-head qualified, merged and normalized, proceed to V2.2.2 and continue one subdivision at a time through V2.2.6.
 
 ## Accelerator policy
 
@@ -119,4 +130,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.1.6 est COMPLETE + NORMALIZED. La tâche courante est la planification V2.2 seulement : qualifie la PR de planification sur son head exact, fusionne-la uniquement si tous ses workflows PR sont completed/success, puis effectue une normalisation post-merge avant toute V2.2.1. Le plan V2.2 doit conserver Research Packs immuables, project scope, ResearchGuard, WorkspaceBoundary, KodeSecrets, R16.7 MemoryStore hardening et l'interdiction de promotion implicite de texte Web en instructions durables. La distribution publique reste v1.1.0-rc8; R20 reste terminal.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. Le plan V2.2 est COMPLETE + NORMALIZED : PR #488 qualifiée 25/25 sur le head exact face3a8b9b1053962635518d083b01a92a4ed2af puis fusionnée comme 875149032078beb681816604663056f66a2e1344. La seule subdivision autorisée est V2.2.1 — Project Knowledge catalog and contracts. Implémente uniquement le catalogue/contrats project-scoped sur Research Packs immuables, fichiers confinés par WorkspaceBoundary et mémoire projet vérifiée, avec identité/digest/provenance/trust/version/freshness/state déterministes et acceptance Ubuntu/Windows exact-head. Ne tire pas en avant la recherche sémantique V2.2.2, l'injection de contexte V2.2.3, V2.3+, ni release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`

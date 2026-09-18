@@ -1,6 +1,6 @@
 # V2.1 — Research Workspace
 
-Status: **ACTIVE — V2.1.5 COMPLETE + NORMALIZED; V2.1.6 ResearchGuard hardening is the CURRENT authorized subdivision**  
+Status: **COMPLETE + NORMALIZED — V2.1.1 through V2.1.6 accepted; V2.2 is outside this workspace authority**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Public distribution boundary: `v1.1.0-rc8`
 
@@ -91,28 +91,30 @@ Accepted V2.1.4 adds cited synthesis and governed Research Packs. Citations reta
 
 Accepted V2.1.5 maps successfully acquired community/media artifacts into those same contracts rather than creating a parallel ungoverned store.
 
-## 3. V2.1.6 — ResearchGuard hardening — CURRENT
+## 3. V2.1.6 — ResearchGuard hardening — COMPLETE + NORMALIZED
 
-V2.1.6 hardens the full Research flow adversarially without changing the accepted discovery/evidence/synthesis authority model.
+Implementation PR `#486` was qualified with **27/27** pull-request workflows on exact head `2e788df0886e1e31512f53547ea4603186e964eb` and merged as `7efcc3e941fe8db0e3cc00c81b147716c91eb30b`.
 
-Required scope:
+The deterministic V2.1.6 acceptance reported **12/12 PASS** on Ubuntu and Windows with evidence payload SHA-256 `076195a992effe8a1eac25d6074a5fc12508d004da7f9ec8b01f3177a4c40f74`.
 
-- prompt-injection and source-instruction adversarial coverage across discovered descriptors, fetched content, synthesis inputs and Research Pack reuse boundaries;
-- malicious redirect coverage and SSRF defenses for external acquisition, including private/local/link-local/metadata targets and redirect chains;
-- explicit provider timeout, outage and cancellation states that fail closed and never become successful empty research;
-- stale/version-conflict adversarial cases that preserve immutable retrieval and citation lineage rather than silently retargeting historical evidence;
-- offline/cache behavior that distinguishes cached/stale evidence from live retrieval and cannot fabricate freshness or provider success;
-- source text requesting shell execution, package installation, credential disclosure, permission grants, filesystem mutation or other protected actions remains data and cannot authorize those operations;
-- KodeStudio must keep blocked/unavailable/stale/conflict/cancelled state understandable without raw JSON;
-- deterministic backend/UI adversarial tests and exact-head Ubuntu/Windows acceptance evidence are required.
+Exact-head evidence:
 
-Out of scope for V2.1.6:
+- Ubuntu `v2-1-6-researchguard-hardening-ubuntu-latest-2e788df0886e1e31512f53547ea4603186e964eb` — SHA-256 `32d972eb83a070fcb7a2844eae11403518bdfe412bd445db74a9556269a0dac1`;
+- Windows `v2-1-6-researchguard-hardening-windows-latest-2e788df0886e1e31512f53547ea4603186e964eb` — SHA-256 `7dd9a6ff8e79f40829a2b11439583ced1c221d63c4c0ca1882d2829a9f0ed4ee`.
 
-- V2.2 Project Knowledge / Context Builder / Memory integration;
-- any public release, installer publication or TUF transition;
-- unrelated Model Lab, accelerator or cross-workspace work.
+Accepted V2.1.6 behavior:
 
-V2.1.6 must be implemented on its own branch from a re-fetched `main` containing this normalization. Every required pull-request workflow must be re-fetched on the final exact head and must be `completed/success` before merge. Continuity normalization is required again after merge before V2.2 begins.
+- adversarial prompt/source instructions remain untrusted data and cannot grant capabilities or invoke protected actions;
+- unsafe/private/local/link-local/metadata destinations, malicious redirects and mixed public/private DNS answers fail closed before trusted acquisition;
+- policy denial is explicit `BLOCKED`, while provider/transport failure is explicit `UNAVAILABLE`;
+- extended-provider diagnostics are KodeSecrets-redacted;
+- cancellation propagates through extended acquisition and is checked before new ResearchStore/Evidence persistence;
+- stale/offline/cache behavior is explicit and cannot fabricate live freshness or provider success;
+- stale/version-conflict cases preserve immutable retrieval, revision, artifact and citation lineage;
+- WorkspaceBoundary/protected-action guarantees survive adversarial source content;
+- KodeStudio keeps the accepted V2.1.5 Community/YouTube and descriptor-only lifecycle while adding understandable `BLOCKED`, `UNAVAILABLE`, `CANCELLED`, `STALE` and `CONFLICT` presentation.
+
+The V2.1 Research Workspace sequence is closed at V2.1.6. V2.2 Project Knowledge / Context Builder / Memory integration must be planned under its own normalized authority before implementation.
 
 ## 4. ResearchGuard boundary
 
@@ -140,7 +142,7 @@ Accepted fetched evidence preserves at minimum:
 
 Citations preserve the exact artifact/revision identity actually used. Historical evidence and historical citation provenance must never be silently rewritten by refresh or by a later provider retrieval.
 
-V2.1.6 must prove these invariants under stale/conflict/offline/cache and adversarial provider conditions.
+V2.1.6 exact-head acceptance proved these invariants under stale/conflict/offline/cache and adversarial provider conditions.
 
 ## 6. Research Pack contract
 
@@ -171,7 +173,7 @@ The Research workspace operations remain distinct:
 - **Synthesize** — generate a citation-bearing answer from selected fetched evidence only;
 - **Save Research Pack** — persist the governed synthesis/evidence bundle for project reuse.
 
-V2.1.6 may add explicit adversarial/provider-state affordances, but blocked, unavailable, timeout, cancelled, stale and conflict state must remain understandable without requiring raw JSON inspection.
+V2.1.6 adds explicit adversarial/provider-state affordances; blocked, unavailable, timeout, cancelled, stale and conflict state remain understandable without requiring raw JSON inspection.
 
 ## 8. V2.1.5 accepted evidence summary
 
@@ -188,9 +190,9 @@ The accepted V2.1.5 implementation proved:
 
 The machine acceptance contains 12 checks and reported **12/12 PASS** on both Ubuntu and Windows.
 
-## 9. V2.1.6 acceptance direction
+## 9. V2.1.6 accepted evidence
 
-Deterministic acceptance must cover the exact hardening implemented and prove at least:
+The deterministic exact-head acceptance on `2e788df0886e1e31512f53547ea4603186e964eb` reported **12/12 PASS** on both Ubuntu and Windows and proved:
 
 1. malicious source instructions remain data and cannot grant capabilities or invoke protected actions;
 2. unsafe/private/local/link-local/metadata targets and malicious redirect chains are rejected before trusted acquisition;
@@ -198,12 +200,12 @@ Deterministic acceptance must cover the exact hardening implemented and prove at
 4. stale/version conflicts remain visible and do not rewrite historical evidence or citation provenance;
 5. offline/cache paths expose provenance/freshness honestly and do not fabricate live success;
 6. protected-action, WorkspaceBoundary and secret-redaction guarantees survive adversarial source content;
-7. KodeStudio renders the hardened failure/uncertainty states structurally;
-8. Ubuntu and Windows exact-head acceptance artifacts are emitted;
-9. every required pull-request workflow succeeds on the same exact head before merge.
-
-The concrete acceptance script must reflect only the hardening actually implemented in V2.1.6 and must not claim V2.2 Context Builder/Memory behavior.
+7. KodeStudio renders hardened failure/uncertainty states structurally while preserving V2.1.5 lifecycle state;
+8. Ubuntu and Windows exact-head acceptance artifacts were emitted with the recorded SHA-256 values above;
+9. all 27 required pull-request workflows succeeded on the same exact head before merge.
 
 ## 10. Definition of done
 
-V2.1 is complete only when an ordinary KodeStudio user can ask a question, discover supported Web/GitHub/community/media sources, inspect and select fetched evidence, obtain a cited synthesis, save governed project knowledge, understand provider/degraded/adversarial states without reading source code or raw JSON, and external source content cannot cross protected-action or trust boundaries.
+V2.1 is complete when an ordinary KodeStudio user can ask a question, discover supported Web/GitHub/community/media sources, inspect and select fetched evidence, obtain a cited synthesis, save governed project knowledge, understand provider/degraded/adversarial states without reading source code or raw JSON, and external source content cannot cross protected-action or trust boundaries.
+
+The accepted V2.1.1 through V2.1.6 implementation and exact-head acceptance evidence satisfy this Research Workspace definition of done. Further Project Knowledge / Context Builder / Memory behavior belongs to V2.2 and is not retroactively part of V2.1.

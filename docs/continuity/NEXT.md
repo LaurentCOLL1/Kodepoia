@@ -68,21 +68,42 @@ Accepted product truth includes:
 
 ## Immediate execution order
 
-### V2.2 — Project Knowledge, Context Builder and Memory integration — NEXT AUTHORIZED PHASE
+### V2.2 planning — CURRENT
 
-Do not invent V2.2 implementation scope from the phase title alone. Re-read `docs/roadmap/KODEPOIA_ROADMAP_V2.md` and the applicable live authorities, then create and normalize the appropriate V2.2 plan/subdivision boundary before implementing it.
+The current task is to qualify the planning-only authority:
+
+`docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`
+
+This plan derives directly from the accepted Roadmap V2 V2.2 deliverables and existing source primitives. It freezes six subdivisions:
+
+1. **V2.2.1 — Project Knowledge catalog and contracts**
+2. **V2.2.2 — Bounded semantic retrieval**
+3. **V2.2.3 — Explainable Context Builder**
+4. **V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle**
+5. **V2.2.5 — Project Memory bridge and workspace consumption**
+6. **V2.2.6 — Project Knowledge hardening and integrated acceptance**
+
+The planning PR is documentation-only. It must be qualified on its exact final head and merged before any V2.2 implementation. Then perform exactly one post-merge continuity normalization; only that normalized state may authorize **V2.2.1**.
+
+### V2.2.1 — Project Knowledge catalog and contracts — NOT YET AUTHORIZED
+
+After planning normalization only, V2.2.1 may establish the deterministic project-scoped knowledge catalog over:
+
+- governed Research Packs;
+- WorkspaceBoundary-confined project files;
+- verified active-project MemoryStore records.
+
+It must preserve provenance/trust/version metadata and must not implement semantic retrieval, context injection, automatic memory writes, cross-workspace orchestration or release work.
 
 The accepted V2.1 chain remains invariant:
 
 `discovery -> candidate-only/unfetched -> explicit guarded fetch -> persisted evidence -> explicit include/exclude -> cited synthesis -> governed Research Pack`
 
-V2.2 may consume governed project knowledge only through an explicitly designed trust/context boundary; arbitrary external source text does not become trusted memory or instruction authority.
-
-Do **not** pull forward any new public release, installer publication or TUF transition, reopen R20, or mix unrelated Model Lab, accelerator or cross-workspace work into V2.2 planning.
+Research-derived/project knowledge remains data and cannot become instruction authority merely by being indexed, retrieved or placed in context.
 
 ## Later V2 order
 
-After V2.2, continue only according to the live normalized roadmap, one accepted subdivision at a time.
+Only after V2.2 is completed subdivision by subdivision and normalized may the roadmap proceed to V2.3. Do not pull forward V2.3 Model Lab, V2.4 accelerator qualification, V2.5 cross-workspace orchestration or V2.6 release work.
 
 ## Accelerator policy
 
@@ -98,4 +119,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et les autorités V2.2 applicables. Revalide d'abord le main live et toute PR ouverte. V2.1.6 a été qualifiée 27/27 sur le head exact 2e788df0886e1e31512f53547ea4603186e964eb puis fusionnée comme 7efcc3e941fe8db0e3cc00c81b147716c91eb30b. L'acceptance V2.1.6 est 12/12 PASS sur Ubuntu/Windows et V2.1.6 est COMPLETE + NORMALIZED. La prochaine activité autorisée est la planification/subdivision de V2.2 — Project Knowledge, Context Builder and Memory integration — depuis les autorités live, avant toute implémentation. La distribution publique reste v1.1.0-rc8; l'incident updater reste clos; ne rouvre pas R20 et n'invente pas R20.7. Kaggle T4×2 reste prioritaire; TPU v5e-8 reste différé sauf benchmark justifiant réellement un backend XLA distinct.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.1.6 est COMPLETE + NORMALIZED. La tâche courante est la planification V2.2 seulement : qualifie la PR de planification sur son head exact, fusionne-la uniquement si tous ses workflows PR sont completed/success, puis effectue une normalisation post-merge avant toute V2.2.1. Le plan V2.2 doit conserver Research Packs immuables, project scope, ResearchGuard, WorkspaceBoundary, KodeSecrets, R16.7 MemoryStore hardening et l'interdiction de promotion implicite de texte Web en instructions durables. La distribution publique reste v1.1.0-rc8; R20 reste terminal.`

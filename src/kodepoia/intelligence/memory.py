@@ -420,6 +420,29 @@ class MemoryStore:
         records.sort(key=lambda record: (record.importance, record.id), reverse=True)
         return records[:limit]
 
+    def list_project_scope(
+        self,
+        project_scope: str,
+        *,
+        kind: str | None = None,
+        limit: int = 100,
+    ) -> list[MemoryRecord]:
+        """List one project without inspecting or mutating unrelated project rows."""
+
+        if limit < 0:
+            raise ValueError("limit must be >= 0")
+        project_scope = self._required_text(project_scope, "project_scope")
+        rows = self.db.execute(
+            "SELECT * FROM memories WHERE project_scope = ? ORDER BY id ASC",
+            (project_scope,),
+        ).fetchall()
+        verified = self._verify_and_quarantine(rows, requested_scope=project_scope)
+        if kind is not None:
+            verified = [row for row in verified if row["kind"] == kind]
+        records = [self._record(row) for row in verified]
+        records.sort(key=lambda record: (record.importance, record.id), reverse=True)
+        return records[:limit]
+
     def semantic_search(
         self,
         query_embedding: Iterable[float],

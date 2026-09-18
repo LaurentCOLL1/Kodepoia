@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2, with V2.1 Research Workspace as the first usability priority.
+**Current development direction:** Roadmap V2; V2.1 Research Workspace is COMPLETE + NORMALIZED and V2.2 Project Knowledge / Context Builder / Memory is in planning-only qualification.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -44,18 +44,29 @@ The terminal post-upgrade state showed KodeStudio running as `1.1.0-rc8`, Beta s
 
 ## V2 development authority
 
-Roadmap V1/R1–R20 remains frozen historical authority. The user explicitly authorized a separate **Roadmap V2** on 2026-09-15. The planning baseline was live `main` `6b7ec8d4504da83579af98d8235326ea4268d63f` (PR `#471` merge), but this SHA must be re-fetched before future implementation because it is not a permanent HEAD assertion.
+Roadmap V1/R1–R20 remains frozen historical authority. Roadmap V2 is the active development track layered on that accepted foundation.
 
-The active planning documents are:
+V2.1 Research Workspace is **COMPLETE + NORMALIZED** through V2.1.6. Its accepted chain remains:
+
+`discovery -> candidate-only/unfetched -> explicit guarded fetch -> persisted evidence -> explicit include/exclude -> cited synthesis -> governed Research Pack`
+
+The current planning-only phase is **V2.2 — Project Knowledge, Context Builder and Memory integration**.
+
+Active V2 planning documents are:
 
 - `docs/roadmap/KODEPOIA_ROADMAP_V2.md`;
-- `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`.
+- `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` — completed V2.1 authority;
+- `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` — V2.2 planning candidate.
 
-The first V2 priority is **V2.1 Research Workspace**. Current source behavior on the planning baseline is intentionally recorded truthfully: KodeStudio's Research “Search” invokes `ResearchService.query()` over existing persisted research reports; it is not external discovery. Web acquisition is a separate guarded fetch primitive for an explicit URL/locator. V2.1 must turn those primitives into a real `question -> discovery -> guarded fetch -> evidence selection -> cited synthesis -> Research Pack` workflow without weakening ResearchGuard.
+The V2.2 plan derives from the original Roadmap V2 deliverables: immutable project-scoped Research Packs, semantic retrieval over accepted research/project files/relevant memory, explainable Context Builder selection, version-aware invalidation, user lifecycle controls, and no silent conversion of untrusted Web text into durable instructions.
 
-Post-rc8 source features on `main` are development capabilities until a later release is explicitly qualified. Their presence in source does not mean they exist in the public rc8 installer.
+The planning candidate freezes six subdivisions: Project Knowledge catalog/contracts, bounded semantic retrieval, explainable Context Builder, version-aware derived-knowledge lifecycle, project Memory/workspace consumption, and integrated hardening/acceptance.
 
-For remote tuning, Kaggle **T4×2** is the primary V2 target for the current CUDA/PyTorch/PEFT/QLoRA path. The two GPUs remain separate 16 GiB devices and multi-GPU use requires explicit qualification. **TPU v5e-8 is deferred experimental capacity**, not a release blocker; support requires a separate XLA/JAX or PyTorch/XLA backend/acceptance and should be scheduled only if benchmark evidence justifies it.
+**No V2.2 implementation is authorized until the planning PR is qualified, merged and continuity-normalized.** Only that normalization may authorize V2.2.1.
+
+Post-rc8 source features on `main` remain development capabilities until a later release is explicitly qualified. Their presence in source does not mean they exist in the public rc8 installer.
+
+For remote tuning, Kaggle **T4×2** remains the primary V2 target for the current CUDA/PyTorch/PEFT/QLoRA path. The two GPUs remain separate 16 GiB devices and multi-GPU use requires explicit qualification. **TPU v5e-8 is deferred experimental capacity**, not a release blocker.
 
 No post-rc8 release version or TUF transition is authorized solely by the V2 roadmap.
 
@@ -67,11 +78,12 @@ Use the following documents in this order when interpreting current state:
 2. `docs/continuity/NEXT.md` for the next authorized direction and resume prompt;
 3. this file for the compact cross-phase/public-release/development summary;
 4. `docs/roadmap/KODEPOIA_ROADMAP_V2.md` for the active V2 development ordering;
-5. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for the first V2 implementation contract;
-6. `docs/continuity/KODEPOIA_CONTINUITY_R20.md` for terminal R20 authority and historical post-R20 release operations;
-7. `docs/continuity/KODEPOIA_CONTINUITY_R19.md` for frozen R19 authority;
-8. `docs/continuity/KODEPOIA_CONTINUITY.md` for the large historical R1–R18 continuity archive;
-9. phase plans and Git history for immutable phase-specific evidence.
+5. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for completed V2.1 Research authority;
+6. `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` for current V2.2 planning authority;
+7. `docs/continuity/KODEPOIA_CONTINUITY_R20.md` for terminal R20 authority and historical post-R20 release operations;
+8. `docs/continuity/KODEPOIA_CONTINUITY_R19.md` for frozen R19 authority;
+9. `docs/continuity/KODEPOIA_CONTINUITY.md` for the large historical R1–R18 continuity archive;
+10. phase plans and Git history for immutable phase-specific evidence.
 
 The large legacy continuity archives intentionally remain historical. Stale “current” wording inside old frozen sections is superseded by `STATE.md`, `NEXT.md`, this file and the explicit current-distribution section of the R20 continuity rather than by retroactive rewriting of historical phase evidence.
 

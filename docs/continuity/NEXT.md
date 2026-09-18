@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-18 after V2.1.6 implementation PR `#486` merged and post-merge continuity normalization  
+Last synchronized: 2026-09-18 for the V2.2 Project Knowledge / Context Builder / Memory planning candidate  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 

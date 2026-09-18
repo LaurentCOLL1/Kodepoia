@@ -376,7 +376,10 @@ class ProjectKnowledgeBuilder:
 
     def memory_items(self, memory: MemoryStore) -> tuple[ProjectKnowledgeItem, ...]:
         self._require_project()
-        records = memory.list(scope=self.project_scope, limit=self.max_memory_items + 1)
+        records = memory.list_project_scope(
+            self.project_scope,
+            limit=self.max_memory_items + 1,
+        )
         if len(records) > self.max_memory_items:
             raise ValueError("Project Knowledge memory projection exceeds the bounded item limit")
         items: list[ProjectKnowledgeItem] = []

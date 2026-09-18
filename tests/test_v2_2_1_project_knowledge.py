@@ -142,6 +142,9 @@ def test_builder_projects_pack_file_and_only_active_project_memory(tmp_path: Pat
     assert memory_item.version == "2"
     assert "Other project only." not in json.dumps(catalog.to_dict())
     assert memory.db.execute("SELECT COUNT(*) FROM memories").fetchone()[0] == before_rows
+    assert [record.content for record in memory.list_project_scope("project:other")] == [
+        "Other project only."
+    ]
     assert pack_path.read_bytes() == pack_bytes
     memory.close()
 

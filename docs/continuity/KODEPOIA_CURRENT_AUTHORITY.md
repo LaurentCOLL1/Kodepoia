@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2; V2.1 is COMPLETE + NORMALIZED, V2.2.1 is COMPLETE + NORMALIZED, and V2.2.2 Bounded semantic retrieval is the current authorized subdivision.
+**Current development direction:** Roadmap V2; V2.1 is COMPLETE + NORMALIZED, V2.2.2 is COMPLETE + NORMALIZED, and V2.2.3 Explainable Context Builder is the current authorized subdivision.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -50,13 +50,15 @@ V2.1 Research Workspace is **COMPLETE + NORMALIZED** through V2.1.6. Its accepte
 
 `discovery -> candidate-only/unfetched -> explicit guarded fetch -> persisted evidence -> explicit include/exclude -> cited synthesis -> governed Research Pack`
 
-V2.2 planning is **COMPLETE + NORMALIZED**, and V2.2.1 is **COMPLETE + NORMALIZED**.
+V2.2 planning, V2.2.1 and V2.2.2 are **COMPLETE + NORMALIZED**.
 
 Planning PR `#488` was qualified **25/25** on exact head `face3a8b9b1053962635518d083b01a92a4ed2af` and merged as `875149032078beb681816604663056f66a2e1344`.
 
-V2.2.1 implementation PR `#490` was qualified **27/27** on exact head `f5c6e90783476117d90ee86ea7edbed014d691a7` and merged with exact-head protection as `6341dbe6599505edc8d354e629d0fc962587f8ac`. Its deterministic acceptance reported **11/11 PASS** on Ubuntu and Windows with evidence payload SHA-256 `f5c695efe34fa86ea0c4a85dddfe5fef7650e86250c6a2a676c7798fc35b8a59`; `R16.7 Memory Context Poisoning Acceptance` also passed on the final head.
+V2.2.1 implementation PR `#490` was qualified **27/27** on exact head `f5c6e90783476117d90ee86ea7edbed014d691a7` and merged as `6341dbe6599505edc8d354e629d0fc962587f8ac`. Its deterministic acceptance reported **11/11 PASS** on Ubuntu and Windows; R16.7 also passed.
 
-Accepted V2.2.1 capability truth is a deterministic project-scoped knowledge catalog over immutable Research Packs, explicitly selected WorkspaceBoundary-confined project files and verified active-project memory. The derived catalog is atomically persisted under `.kodepoia/knowledge/catalog-v1.json`. The accepted project-memory read path prefilters `project_scope` before integrity verification, so unrelated project memory is neither read nor quarantined.
+V2.2.2 implementation PR `#492` was qualified **26/26** on exact head `c3294815ddf4b76f75f04cb29ee2fdfe1d27248d` and merged with exact-head protection as `2d332945c3b1f8d76cc98d651606679c89791485`. Its deterministic acceptance reported **10/10 PASS** on Ubuntu and Windows with evidence payload SHA-256 `e9eddabeec7b15a7901cd28722ef402e2b6d3fd2306ebe8fda582f0f46594cdf`. Python Core Windows succeeded on attempt 2 on the unchanged head after an isolated historical R16.16 temp-directory lock; no source or acceptance criterion changed.
+
+Accepted V2.2.1 capability truth remains a deterministic project-scoped knowledge catalog over immutable Research Packs, WorkspaceBoundary-confined project files and verified active-project memory. Accepted V2.2.2 capability truth adds bounded, deterministic project-scoped semantic retrieval with explicit empty/unavailable/bound-exceeded states, project-scope enforcement before provider access, caller-supplied embeddings only, provenance-preserving duplicate normalization and no retrieval-side mutation.
 
 Active V2 authority documents are:
 
@@ -64,11 +66,11 @@ Active V2 authority documents are:
 - `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` — completed V2.1 Research authority;
 - `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` — normalized V2.2 authority.
 
-The current authorized implementation is **V2.2.2 — Bounded semantic retrieval** only.
+The current authorized implementation is **V2.2.3 — Explainable Context Builder** only.
 
-V2.2.2 may define bounded retrieval request/results, deterministic semantic scoring/order/tie-breaks, pre-scoring project-scope enforcement, explicit embedding/provider availability state, no-network fixture embeddings and duplicate-source normalization that preserves provenance. It may not pull forward Context Builder/context injection, lifecycle UI, workspace consumption, V2.3+, release/TUF/updater or R20 work.
+V2.2.3 may wrap accepted retrieval results in inspectable context-candidate/selection contracts, deterministic selected/omitted rationale, explicit token-budget accounting, mandatory/optional semantics that do not elevate trust, preserved source/citation traceability and `<UNTRUSTED_DATA>` rendering, plus a KodeStudio preview with source/reason/trust/budget and explicit include/exclude override. It may not pull forward V2.2.4 lifecycle refresh/delete, V2.2.5 workspace consumption, V2.3+, release/TUF/updater or R20 work.
 
-Existing security authority remains unchanged: immutable Research Pack provenance, ResearchGuard, KodeSecrets, WorkspaceBoundary and R16.7 MemoryStore integrity/quarantine/project-scope rules remain binding. Indexed or retrieved data never gains instruction authority merely by being selected or scored.
+Existing security authority remains unchanged: immutable Research Pack provenance, ResearchGuard, KodeSecrets, WorkspaceBoundary and R16.7 MemoryStore integrity/quarantine/project-scope rules remain binding. Indexed, retrieved or context-selected data never gains instruction authority merely by being selected or scored.
 
 Post-rc8 source features on `main` remain development capabilities until a later release is explicitly qualified. Their presence in source does not mean they exist in the public rc8 installer.
 

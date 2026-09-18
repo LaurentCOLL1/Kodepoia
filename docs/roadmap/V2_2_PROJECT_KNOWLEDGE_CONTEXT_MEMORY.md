@@ -1,6 +1,6 @@
 # V2.2 — Project Knowledge, Context Builder and Memory integration
 
-Status: **V2.2.1 COMPLETE + NORMALIZED — V2.2.2 is the only authorized implementation subdivision**  
+Status: **V2.2.2 COMPLETE + NORMALIZED — V2.2.3 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Public distribution boundary: `v1.1.0-rc8`
 
@@ -66,6 +66,47 @@ Accepted V2.2.1 product truth:
 - V2.2.1 performs no semantic ranking, context injection, memory write, cross-workspace orchestration or V2.2.2+ behavior.
 
 This normalization closes V2.2.1 and authorizes **V2.2.2 — Bounded semantic retrieval** only.
+
+## V2.2.2 implementation qualification
+
+Implementation PR `#492` was qualified on exact final head:
+
+`c3294815ddf4b76f75f04cb29ee2fdfe1d27248d`
+
+All **26/26** pull-request workflows associated with that head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35398389155`;
+- `KodeStudio UI Smoke` run `35398389451`;
+- `Python Core` run `35398389163`, successful on attempt 2 on the unchanged head after an isolated Windows temporary-directory lock in historical `test_r16_16_resource_soak`;
+- `R17 Windows Installer` run `35398389099`.
+
+The deterministic V2.2.2 exact-head acceptance reported **10/10 PASS** on both Ubuntu and Windows with identical evidence payload SHA-256:
+
+`e9eddabeec7b15a7901cd28722ef402e2b6d3fd2306ebe8fda582f0f46594cdf`
+
+Accepted exact-head artifacts:
+
+- `v2-2-2-semantic-retrieval-ubuntu-latest-c3294815ddf4b76f75f04cb29ee2fdfe1d27248d`;
+- `v2-2-2-semantic-retrieval-windows-latest-c3294815ddf4b76f75f04cb29ee2fdfe1d27248d`.
+
+PR `#492` merged from that unchanged exact head with `expected_head_sha` protection as merge commit:
+
+`2d332945c3b1f8d76cc98d651606679c89791485`
+
+Accepted V2.2.2 product truth:
+
+- bounded project-scoped retrieval contracts distinguish `ready`, valid `empty`, `embedding_unavailable` and `candidate_limit_exceeded` states;
+- project scope and explicit candidate bounds are enforced before provider access or semantic scoring;
+- embedding capability is caller-supplied only; V2.2.2 creates no provider, hidden network request or model download;
+- cosine semantic scoring, ordering and tie-breaking are deterministic;
+- only active/included eligible project knowledge is scored, with optional source-kind restriction;
+- duplicate content is normalized by content digest while retaining every source/provenance reference;
+- retrieval is non-mutating: it does not persist catalog changes, memory writes or derived authority;
+- V2.2.2 does not implement Context Builder/context injection, lifecycle UI, workspace consumption or V2.2.3+ behavior.
+
+The first Python Core Windows attempt failed only after the V2.2.2 acceptance artifact had already passed and uploaded, when historical `test_r16_16_resource_soak` hit `WinError 32` deleting a temporary `processes` directory. A targeted rerun on the unchanged exact head completed successfully; no source, workflow or acceptance criterion changed.
+
+This normalization closes V2.2.2 and authorizes **V2.2.3 — Explainable Context Builder** only.
 
 ## 1. Authority and goal
 
@@ -265,7 +306,7 @@ Out of scope:
 
 Definition of done: an active project can enumerate a deterministic, provenance-bearing knowledge catalog whose items remain traceable to immutable sources.
 
-### V2.2.2 — Bounded semantic retrieval — CURRENT
+### V2.2.2 — Bounded semantic retrieval — COMPLETE + NORMALIZED
 
 Goal: retrieve relevant project knowledge across accepted Research Packs, project files and eligible project memory.
 
@@ -285,7 +326,7 @@ Required scope:
 
 Definition of done: a query returns a bounded, project-confined set of relevant knowledge candidates with reproducible scores/ordering and explicit capability state.
 
-### V2.2.3 — Explainable Context Builder
+### V2.2.3 — Explainable Context Builder — CURRENT
 
 Goal: turn retrieved candidates into inspectable, bounded context while showing why each item was or was not selected.
 
@@ -462,4 +503,6 @@ The V2.2 planning phase is complete because:
 - planning PR `#488` was merged with exact-head protection;
 - this post-merge continuity normalization records the accepted planning head/merge and authorizes **V2.2.1 only**.
 
-**V2.2.2 may begin only from live `main` after the V2.2.1 post-merge normalization PR itself is exact-head qualified and merged.**
+Historical implementation gate, now satisfied: **V2.2.2 may begin only from live `main` after the V2.2.1 post-merge normalization PR itself is exact-head qualified and merged.**
+
+**V2.2.3 may begin only from live `main` after the V2.2.2 post-merge normalization PR itself is exact-head qualified and merged.**

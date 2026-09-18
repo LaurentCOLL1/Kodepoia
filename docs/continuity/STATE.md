@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-18 after V2.2 planning PR `#488` merge and post-merge planning normalization  
+Last synchronized: 2026-09-18 after V2.2.1 implementation PR `#490` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -178,23 +178,62 @@ Accepted planning invariants:
 - no cross-project retrieval;
 - V2.2 planning does not authorize release/TUF/updater mutation, R20 reopening or V2.3+ work.
 
-## V2.2.1 authorization — CURRENT
+## V2.2.1 — Project Knowledge catalog and contracts — COMPLETE + NORMALIZED
 
-**V2.2.1 — Project Knowledge catalog and contracts** is the only authorized implementation subdivision after this normalization reaches live `main`.
+Implementation PR `#490` was qualified on exact final head:
 
-V2.2.1 must implement only:
+`f5c6e90783476117d90ee86ea7edbed014d691a7`
 
-- a typed deterministic project-scoped knowledge-item/catalog contract;
-- deterministic identity/digest bound to source identity plus project scope;
-- provenance, trust, version/freshness and source-kind metadata;
-- active/included/excluded/invalidated derived state;
-- project-confined catalog/index persistence;
-- projection of governed Research Packs without rewriting them;
-- WorkspaceBoundary-confined project-file projection;
-- verified active-project memory projection without cross-project leakage;
-- deterministic backend tests and exact-head Ubuntu/Windows acceptance evidence.
+All **27/27** pull-request workflows associated with that final head completed with conclusion `success`, including:
 
-V2.2.1 must **not** implement semantic ranking/retrieval, prompt/context injection, automatic memory writes, V2.5 orchestration, new external discovery/fetch providers, release/TUF/updater changes or any V2.2.2+ behavior.
+- `R0 Repository Guard` run `35392522030`;
+- `KodeStudio UI Smoke` run `35392521860`;
+- `Python Core` run `35392522031`;
+- `R16.7 Memory Context Poisoning Acceptance` run `35392521989`;
+- `R17 Windows Installer` run `35392521882`.
+
+The deterministic V2.2.1 acceptance reported **11/11 PASS** on Ubuntu and Windows with identical evidence payload SHA-256:
+
+`f5c695efe34fa86ea0c4a85dddfe5fef7650e86250c6a2a676c7798fc35b8a59`
+
+Accepted exact-head artifacts:
+
+- `v2-2-1-project-knowledge-ubuntu-latest-f5c6e90783476117d90ee86ea7edbed014d691a7`;
+- `v2-2-1-project-knowledge-windows-latest-f5c6e90783476117d90ee86ea7edbed014d691a7`.
+
+PR `#490` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`6341dbe6599505edc8d354e629d0fc962587f8ac`
+
+Accepted V2.2.1 product truth:
+
+- `ProjectKnowledgeItem` / catalog / state contracts are deterministic and explicitly project-scoped;
+- canonical knowledge identity binds project scope to source identity, while item/catalog digests bind normalized projected content/provenance;
+- the derived catalog persists atomically under `.kodepoia/knowledge/catalog-v1.json`;
+- immutable Research Packs are projected without rewriting source evidence;
+- project-file projection is WorkspaceBoundary-confined, bounded to UTF-8 text, secret-redacted and guarded;
+- only verified active-project memory is projected;
+- the accepted `MemoryStore.list_project_scope()` path prefilters one project before integrity verification, preventing unrelated valid project memory from being read or quarantined;
+- semantic ranking/retrieval, context injection, memory writes, V2.2.3+, release/TUF/updater and R20 work were not pulled forward.
+
+## V2.2.2 authorization — CURRENT
+
+**V2.2.2 — Bounded semantic retrieval** is the only authorized implementation subdivision after this normalization reaches live `main`.
+
+V2.2.2 must implement only:
+
+- one bounded retrieval request/result contract over eligible V2.2.1 project-knowledge items;
+- semantic scoring with deterministic ordering and tie-breaking;
+- project-scope enforcement **before** scoring;
+- explicit embedding/provider availability state;
+- no hidden network access or model download;
+- no mutation merely because an item matched;
+- duplicate-source normalization without losing provenance;
+- explicit distinction between unavailable embedding capability and a valid zero-result query;
+- deterministic fixture embeddings for acceptance;
+- exact-head Ubuntu/Windows acceptance evidence.
+
+V2.2.2 must **not** implement Context Builder/context injection, explainability UI, lifecycle refresh/delete UI, automatic memory writes, workspace consumption, V2.3+, release/TUF/updater changes or R20 reopening.
 
 ## Accepted V2 capability truth
 
@@ -223,9 +262,9 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`;
-2. verify V2.2 planning remains **COMPLETE + NORMALIZED** from planning PR `#488`, exact head `face3a8b9b1053962635518d083b01a92a4ed2af`, merge `875149032078beb681816604663056f66a2e1344`, and this normalization;
-3. the only authorized implementation is **V2.2.1 — Project Knowledge catalog and contracts**;
-4. branch V2.2.1 from the exact normalized live `main`, implement only its frozen scope, add deterministic tests/exact-head Ubuntu+Windows acceptance, re-fetch all PR workflows on the final head, merge only if every required gate succeeds, then normalize before V2.2.2;
-5. preserve immutable Research Pack provenance, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore hardening;
-6. do not pull forward semantic retrieval, context injection, V2.3+, release/TUF/updater work, R20 reopening or R20.7;
-7. if a genuine manual intervention is required, stop at V2.2.1 and state exactly what the operator must do rather than bypassing a gate.
+2. verify V2.2.1 remains **COMPLETE + NORMALIZED** from implementation PR `#490`, exact head `f5c6e90783476117d90ee86ea7edbed014d691a7`, merge `6341dbe6599505edc8d354e629d0fc962587f8ac`, and this normalization;
+3. the only authorized implementation is **V2.2.2 — Bounded semantic retrieval**;
+4. branch V2.2.2 from the exact normalized live `main`, implement only its frozen scope, add deterministic fixture-embedding tests/exact-head Ubuntu+Windows acceptance, re-fetch all PR workflows on the final head, merge only if every required gate succeeds, then normalize before V2.2.3;
+5. preserve V2.2.1 project-scope identity, immutable Research Pack provenance, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore hardening;
+6. do not pull forward Context Builder/injection, lifecycle UI, workspace consumption, V2.3+, release/TUF/updater work, R20 reopening or R20.7;
+7. if a genuine manual intervention is required, stop at V2.2.2 and state exactly what the operator must do rather than bypassing a gate.

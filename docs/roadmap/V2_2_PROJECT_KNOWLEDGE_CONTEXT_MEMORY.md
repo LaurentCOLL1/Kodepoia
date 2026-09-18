@@ -1,6 +1,6 @@
 # V2.2 — Project Knowledge, Context Builder and Memory integration
 
-Status: **PLANNING COMPLETE + NORMALIZED — V2.2.1 is the only authorized implementation subdivision**  
+Status: **V2.2.1 COMPLETE + NORMALIZED — V2.2.2 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Public distribution boundary: `v1.1.0-rc8`
 
@@ -25,6 +25,45 @@ PR `#488` merged from that exact head with `expected_head_sha` protection as mer
 The Tauri retry did not alter the branch, product code, workflow or acceptance criteria; the final successful run remained bound to the same exact planning SHA.
 
 This post-merge normalization closes the planning gate and authorizes **V2.2.1 — Project Knowledge catalog and contracts** only. V2.2.2 through V2.2.6 remain planned but unauthorized until each predecessor is implemented, exact-head qualified, merged and normalized.
+
+## V2.2.1 implementation qualification
+
+Implementation PR `#490` was qualified on exact final head:
+
+`f5c6e90783476117d90ee86ea7edbed014d691a7`
+
+All **27/27** pull-request workflows associated with that head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35392522030`;
+- `KodeStudio UI Smoke` run `35392521860`;
+- `Python Core` run `35392522031`;
+- `R16.7 Memory Context Poisoning Acceptance` run `35392521989`;
+- `R17 Windows Installer` run `35392521882`.
+
+The deterministic V2.2.1 exact-head acceptance reported **11/11 PASS** on both Ubuntu and Windows with identical evidence payload SHA-256:
+
+`f5c695efe34fa86ea0c4a85dddfe5fef7650e86250c6a2a676c7798fc35b8a59`
+
+Accepted exact-head artifacts:
+
+- `v2-2-1-project-knowledge-ubuntu-latest-f5c6e90783476117d90ee86ea7edbed014d691a7`;
+- `v2-2-1-project-knowledge-windows-latest-f5c6e90783476117d90ee86ea7edbed014d691a7`.
+
+PR `#490` merged from that unchanged exact head with `expected_head_sha` protection as merge commit:
+
+`6341dbe6599505edc8d354e629d0fc962587f8ac`
+
+Accepted V2.2.1 product truth:
+
+- one typed deterministic project-scoped knowledge contract spans governed Research Packs, explicitly selected project files and verified active-project memory;
+- project-knowledge identity is bound to explicit project scope plus source identity; item/catalog digests are canonical and deterministic;
+- the only persisted new state is a derived catalog below `.kodepoia/knowledge/catalog-v1.json`, written atomically;
+- Research Packs remain immutable source evidence and are never rewritten by catalog projection;
+- project files are resolved through WorkspaceBoundary, bounded to UTF-8 text, redacted through KodeSecrets/ResearchGuard and cannot recursively index the derived catalog;
+- project-memory projection uses a non-destructive prefiltered `MemoryStore.list_project_scope()` path so unrelated project rows are neither read nor quarantined;
+- V2.2.1 performs no semantic ranking, context injection, memory write, cross-workspace orchestration or V2.2.2+ behavior.
+
+This normalization closes V2.2.1 and authorizes **V2.2.2 — Bounded semantic retrieval** only.
 
 ## 1. Authority and goal
 
@@ -421,4 +460,4 @@ The V2.2 planning phase is complete because:
 - planning PR `#488` was merged with exact-head protection;
 - this post-merge continuity normalization records the accepted planning head/merge and authorizes **V2.2.1 only**.
 
-**V2.2.1 may begin only from live `main` after this normalization PR itself is exact-head qualified and merged.**
+**V2.2.2 may begin only from live `main` after the V2.2.1 post-merge normalization PR itself is exact-head qualified and merged.**

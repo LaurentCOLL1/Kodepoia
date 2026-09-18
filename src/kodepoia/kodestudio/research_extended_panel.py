@@ -250,7 +250,8 @@ def _extend_page(page, coordinator: ExtendedSourceCoordinator) -> None:
             evidence_results.setItem(row_index, 6, QTableWidgetItem(rendered))
             if row_index == selected_row:
                 selected_state = degraded
-        state.setText(extended_research_state_text(selected_state))
+        if selected_state:
+            state.setText(extended_research_state_text(selected_state))
 
     def sync_selected_candidate_to_fetch() -> None:
         current = page._research_result

@@ -84,7 +84,8 @@ def main() -> int:
         ),
         _check(
             "verified_project_memory_only",
-            "memory.list(scope=self.project_scope" in knowledge
+            "memory.list_project_scope(" in knowledge
+            and "def list_project_scope(" in memory
             and "record.project_scope != self.project_scope" in knowledge
             and "integrity_digest" in memory,
             "memory projection is bounded to verified active-project MemoryStore records",

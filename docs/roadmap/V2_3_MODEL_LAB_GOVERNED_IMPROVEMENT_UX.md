@@ -1,9 +1,32 @@
 # V2.3 — Model Lab governed improvement UX
 
-Status: **PLANNING — no V2.3 implementation subdivision is authorized until this plan is exact-head qualified, merged and post-merge normalized**  
+Status: **PLANNING COMPLETE + NORMALIZED — V2.3.1 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `b5ac64becc4b748aa77386121ba6a63e02cf88bd`  
 Public distribution boundary: `v1.1.0-rc8`
+
+## Planning qualification
+
+Planning PR `#502` was qualified on exact final head:
+
+`8a13bb5c7a334b500cebaedec8bf7988d10147c3`
+
+All **25/25** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35447327711`;
+- `KodeStudio UI Smoke` run `35447327644`;
+- `Python Core` run `35447327756`;
+- `R12 Tauri2 Acceptance` run `35447327773`;
+- `R13 Integrated Release Readiness` run `35447327678`;
+- `R17 Windows Installer` run `35447327730`.
+
+PR `#502` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`4744cc47827ca28c61395fc6c8e5064a18ae2b0c`
+
+This post-merge normalization satisfies the planning definition of done and authorizes **V2.3.1 — Model Lab shell, inventory and lineage only**.
+
+V2.3.2 through V2.3.6 remain planned and unauthorized until each prior subdivision is implemented, exact-head qualified, merged and post-merge normalized.
 
 ## 1. Authority and goal
 
@@ -126,7 +149,7 @@ Raw JSON may remain available behind diagnostics, but it must not be the primary
 
 The subdivision list below is frozen by the accepted V2.3 planning authority. No subdivision may be silently added, removed, merged, split or renumbered.
 
-### V2.3.1 — Model Lab shell, inventory and lineage
+### V2.3.1 — Model Lab shell, inventory and lineage — CURRENT
 
 Goal: create the structured Model Lab workspace and make current model-improvement state inspectable before enabling new mutations.
 
@@ -379,14 +402,14 @@ V2.3 does not authorize:
 
 ## 13. Planning definition of done
 
-The V2.3 planning phase is complete only when:
+The V2.3 planning phase is complete because:
 
 - this document is present as the dedicated V2.3 normative authority;
 - the six subdivisions above are recorded in current continuity and Roadmap V2;
 - R15/V2.2 reuse and trust boundaries are explicit;
 - V2.4/V2.5/V2.6 and release/R20 boundaries are explicit;
-- the planning PR is qualified on its exact final head;
-- the planning PR is merged with `expected_head_sha` protection;
-- a separate post-merge continuity normalization records the accepted planning head/merge and authorizes **V2.3.1 only**.
+- planning PR `#502` was qualified **25/25** on exact head `8a13bb5c7a334b500cebaedec8bf7988d10147c3`;
+- planning PR `#502` was merged with `expected_head_sha` protection as `4744cc47827ca28c61395fc6c8e5064a18ae2b0c`;
+- this post-merge continuity normalization records the accepted planning head/merge and authorizes **V2.3.1 only**.
 
-**V2.3.1 must not begin from the planning PR merge alone.**
+**V2.3.1 is now the only authorized implementation subdivision. V2.3.2+ remain unauthorized.**

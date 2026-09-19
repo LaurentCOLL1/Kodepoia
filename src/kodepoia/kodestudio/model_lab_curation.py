@@ -281,6 +281,8 @@ class ModelLabCurationService:
     ) -> None:
         self.root = Path(project_root).resolve(strict=False)
         self.r15 = r15_service or R15UXService.for_project(self.root)
+        if self.r15.root != self.root:
+            raise ValueError("R15 UX service project root does not match curation project root")
 
     @classmethod
     def for_project(cls, project_root: Path) -> "ModelLabCurationService":
@@ -339,15 +341,38 @@ class ModelLabCurationService:
                 "contaminated_group_ids",
                 "findings",
             } <= set(payload):
+                raw_findings = payload.get("findings")
+                findings = raw_findings if isinstance(raw_findings, list) else []
+                safe_findings: list[dict[str, object]] = []
+                for finding in findings:
+                    if not isinstance(finding, Mapping):
+                        continue
+                    safe_findings.append(
+                        {
+                            "item_id": str(finding.get("item_id", "")),
+                            "holdout_id": str(finding.get("holdout_id", "")),
+                            "group_id": str(finding.get("group_id", "")),
+                            "match_type": str(finding.get("match_type", "")),
+                            "similarity": finding.get("similarity"),
+                            "threshold": finding.get("threshold"),
+                            "review_required": bool(finding.get("review_required")),
+                        }
+                    )
                 reports.append(
                     {
                         "kind": "contamination",
                         "path": relative,
                         "state": "ready",
                         "policy_digest": payload.get("policy_digest"),
-                        "finding_count": len(payload.get("findings", []))
-                        if isinstance(payload.get("findings"), list)
-                        else 0,
+                        "finding_count": len(safe_findings),
+                        "findings": safe_findings,
+                        "match_types": sorted(
+                            {
+                                str(item.get("match_type"))
+                                for item in safe_findings
+                                if str(item.get("match_type", "")).strip()
+                            }
+                        ),
                         "quarantined_item_ids": [
                             str(item)
                             for item in payload.get("quarantined_item_ids", [])
@@ -362,14 +387,36 @@ class ModelLabCurationService:
                 )
                 continue
             if {"policy_digest", "clusters"} <= set(payload):
-                clusters = payload.get("clusters")
+                raw_clusters = payload.get("clusters")
+                clusters = raw_clusters if isinstance(raw_clusters, list) else []
+                safe_clusters: list[dict[str, object]] = []
+                for cluster in clusters:
+                    if not isinstance(cluster, Mapping):
+                        continue
+                    safe_clusters.append(
+                        {
+                            "group_id": str(cluster.get("group_id", "")),
+                            "member_ids": [
+                                str(item)
+                                for item in cluster.get("member_ids", [])
+                                if isinstance(item, str)
+                            ],
+                            "representative_id": str(
+                                cluster.get("representative_id", "")
+                            ),
+                        }
+                    )
                 reports.append(
                     {
                         "kind": "dedup",
                         "path": relative,
                         "state": "ready",
                         "policy_digest": payload.get("policy_digest"),
-                        "cluster_count": len(clusters) if isinstance(clusters, list) else 0,
+                        "cluster_count": len(safe_clusters),
+                        "clusters": safe_clusters,
+                        "member_count": sum(
+                            len(item["member_ids"]) for item in safe_clusters
+                        ),
                     }
                 )
         return experiences, reports
@@ -553,14 +600,95 @@ class ModelLabCurationService:
             )
         )
 
+    def dataset_preview_summary(
+        self,
+        snapshot: Mapping[str, object] | None = None,
+    ) -> dict[str, object]:
+        current = dict(snapshot or self.snapshot())
+        experiences = current.get("experiences")
+        records = experiences if isinstance(experiences, list) else []
+        eligible = [
+            item
+            for item in records
+            if isinstance(item, Mapping) and bool(item.get("dataset_eligible"))
+        ]
+
+        exclusions: dict[str, int] = {}
+        for item in records:
+            if not isinstance(item, Mapping) or bool(item.get("dataset_eligible")):
+                continue
+            blockers = item.get("dataset_blockers")
+            for blocker in blockers if isinstance(blockers, list) else []:
+                key = str(blocker)
+                exclusions[key] = exclusions.get(key, 0) + 1
+
+        def counts(field: str) -> dict[str, int]:
+            result: dict[str, int] = {}
+            for item in eligible:
+                value = item.get(field)
+                if value is None or not str(value).strip():
+                    continue
+                key = str(value)
+                result[key] = result.get(key, 0) + 1
+            return dict(sorted(result.items()))
+
+        latest_policy: Mapping[str, object] | None = None
+        datasets = current.get("datasets")
+        dataset_list = datasets if isinstance(datasets, list) else []
+        if dataset_list:
+            latest = dataset_list[-1]
+            path = self.root / str(latest.get("path", ""))
+            payload, state, _size = _bounded_json(path)
+            if state == "ready" and isinstance(payload, Mapping):
+                policy = payload.get("policy")
+                if isinstance(policy, Mapping):
+                    latest_policy = policy
+
+        split_summary: dict[str, object]
+        if latest_policy is None:
+            split_summary = {
+                "state": "policy_unavailable",
+                "detail": (
+                    "split assignment remains authoritative in the configured "
+                    "R15 dataset-build backend"
+                ),
+            }
+        else:
+            split_summary = {
+                "state": "reference_policy_available",
+                "train_weight": latest_policy.get("train_weight"),
+                "validation_weight": latest_policy.get("validation_weight"),
+                "test_weight": latest_policy.get("test_weight"),
+                "policy_version": latest_policy.get("version"),
+                "detail": (
+                    "reference weights are shown for explainability; the build "
+                    "backend remains authoritative"
+                ),
+            }
+
+        return {
+            "candidate_rows": len(eligible),
+            "excluded_rows": max(0, len(records) - len(eligible)),
+            "excluded_by_reason": dict(sorted(exclusions.items())),
+            "licenses": counts("license_expression"),
+            "domains": counts("domain"),
+            "tasks": counts("task"),
+            "split_summary": split_summary,
+            "raw_payloads_read": False,
+        }
+
     def preview_dataset_build(self) -> dict[str, object]:
-        return self.r15.execute(
+        dry_run = self.r15.execute(
             R15WorkflowRequest(
                 domain="dataset",
                 action="build",
                 mode=R15WorkflowMode.DRY_RUN,
             )
         )
+        return {
+            **dry_run,
+            "preview": self.dataset_preview_summary(),
+        }
 
     def apply_dataset_build(self, *, confirmed: bool) -> dict[str, object]:
         return self.r15.execute(

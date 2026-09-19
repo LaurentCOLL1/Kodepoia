@@ -1,6 +1,6 @@
 # V2.2 — Project Knowledge, Context Builder and Memory integration
 
-Status: **V2.2.3 COMPLETE + NORMALIZED — V2.2.4 is the only authorized implementation subdivision**  
+Status: **V2.2.4 COMPLETE + NORMALIZED — V2.2.5 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Public distribution boundary: `v1.1.0-rc8`
 
@@ -148,6 +148,48 @@ Accepted V2.2.3 product truth:
 - V2.2.4 lifecycle state and V2.2.5 workspace consumption were not pulled forward.
 
 This normalization closes V2.2.3 and authorizes **V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle** only.
+
+## V2.2.4 implementation qualification
+
+Implementation PR `#496` was qualified on exact final head:
+
+`c17e673d944dd0582f9c0e24368c0adf45dd3f40`
+
+All **27/27** pull-request workflows associated with that head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35413101428`;
+- `KodeStudio UI Smoke` run `35413101469`;
+- `R12 Tauri2 Acceptance` run `35413101488`;
+- `R13 Integrated Release Readiness` run `35413101477`;
+- `Python Core` run `35413101460`;
+- `R17 Windows Installer` run `35413101474`;
+- `R18.11 Integrated Adversarial Release Update Acceptance` run `35413101409`.
+
+The deterministic V2.2.4 exact-head acceptance reported **13/13 PASS** on both Ubuntu and Windows with identical evidence payload SHA-256:
+
+`5ee068e69dc60eba21c840f33a1cabe88008ac247eeb9ed43a7b7fbf90f1f363`
+
+Accepted exact-head artifacts:
+
+- `v2-2-4-version-aware-lifecycle-ubuntu-latest-c17e673d944dd0582f9c0e24368c0adf45dd3f40` — artifact ID `10575435457`;
+- `v2-2-4-version-aware-lifecycle-windows-latest-c17e673d944dd0582f9c0e24368c0adf45dd3f40` — artifact ID `10574915924`.
+
+PR `#496` merged from that unchanged exact head with `expected_head_sha` protection as merge commit:
+
+`ca27459ca04abbeba8275cc32ba7166e37acfd5a`
+
+Accepted V2.2.4 product truth:
+
+- explicit source/version fingerprints and per-item version dependency keys bind derived knowledge to the versions that actually affect it;
+- source/version changes produce deterministic fresh/stale/invalidated/missing lifecycle states and visible reasons;
+- stale/invalidated derived knowledge is projected as `ProjectKnowledgeState.INVALIDATED` and excluded by accepted retrieval eligibility;
+- refresh/rebuild uses the accepted Project Knowledge builder/store and preserves immutable Research Pack/source evidence;
+- Auto/Include/Exclude survives refresh/rebuild;
+- delete-derived is bounded and separated from source deletion;
+- KodeStudio Research exposes lifecycle state, source/delete boundary and explicit selection/refresh/delete-derived controls;
+- V2.2.5 workspace consumption / Memory bridge and V2.2.6 hardening were not pulled forward.
+
+This normalization closes V2.2.4 and authorizes **V2.2.5 — Project Memory bridge and workspace consumption** only.
 
 ## 1. Authority and goal
 
@@ -385,7 +427,7 @@ Required scope:
 
 Definition of done: the user can inspect a context bundle and understand why each item was selected, excluded or omitted for budget.
 
-### V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle — CURRENT
+### V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle — COMPLETE + NORMALIZED
 
 Goal: keep project knowledge honest as project files, Research Packs, engine/tool versions and source revisions change.
 
@@ -404,7 +446,7 @@ Required scope:
 
 Definition of done: version or source changes invalidate only the affected derived knowledge, and the user can deliberately refresh or remove it without losing historical provenance.
 
-### V2.2.5 — Project Memory bridge and workspace consumption
+### V2.2.5 — Project Memory bridge and workspace consumption — CURRENT
 
 Goal: let Chat, KodeCode and specialist workspaces consume governed project knowledge through the same project-scoped trust boundary.
 
@@ -549,3 +591,5 @@ Historical implementation gate, now satisfied: **V2.2.2 may begin only from live
 **V2.2.3 may begin only from live `main` after the V2.2.2 post-merge normalization PR itself is exact-head qualified and merged.**
 
 **V2.2.4 may begin only from live `main` after the V2.2.3 post-merge normalization PR itself is exact-head qualified and merged.**
+
+**V2.2.5 may begin only from live `main` after the V2.2.4 post-merge normalization PR itself is exact-head qualified and merged.**

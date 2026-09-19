@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-19 after V2.2.3 implementation PR `#494` merge and post-merge normalization  
+Last synchronized: 2026-09-19 after V2.2.4 implementation PR `#496` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -128,37 +128,53 @@ The deterministic V2.2.3 acceptance reported **11/11 PASS** on both Ubuntu and W
 
 Accepted product truth includes explainable project-context candidates, deterministic selected/omitted rationale, explicit token-budget accounting through the existing ContextBuilder, no trust/authority promotion from mandatory or Include, preserved source/knowledge/citation traceability and `<UNTRUSTED_DATA>` semantics, plus KodeStudio Research preview and Auto/Include/Exclude overrides before assembly.
 
+## V2.2.4 accepted implementation
+
+Implementation PR `#496` was qualified with **27/27** pull-request workflows on exact head `c17e673d944dd0582f9c0e24368c0adf45dd3f40` and merged with `expected_head_sha` protection as `ca27459ca04abbeba8275cc32ba7166e37acfd5a`.
+
+The final exact-head gate set included:
+
+- `R0 Repository Guard` `35413101428` = success;
+- `KodeStudio UI Smoke` `35413101469` = success;
+- `R12 Tauri2 Acceptance` `35413101488` = success;
+- `R13 Integrated Release Readiness` `35413101477` = success;
+- `Python Core` `35413101460` = success;
+- `R17 Windows Installer` `35413101474` = success;
+- `R18.11 Integrated Adversarial Release Update Acceptance` `35413101409` = success.
+
+The deterministic V2.2.4 acceptance reported **13/13 PASS** on both Ubuntu and Windows with evidence payload SHA-256 `5ee068e69dc60eba21c840f33a1cabe88008ac247eeb9ed43a7b7fbf90f1f363`.
+
+Accepted product truth includes per-item source/version fingerprints and version dependencies, deterministic fresh/stale/invalidated/missing lifecycle state, stale exclusion from retrieval, derived-only refresh/rebuild, persisted Auto/Include/Exclude, bounded delete-derived with immutable source preservation, and explicit KodeStudio lifecycle controls/source-delete boundary.
+
 ## Immediate execution order
 
-### V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle — CURRENT AUTHORIZED SUBDIVISION
+### V2.2.5 — Project Memory bridge and workspace consumption — CURRENT AUTHORIZED SUBDIVISION
 
-V2.2.4 is the only implementation authorized after this normalization reaches live `main`.
+V2.2.5 is the only implementation authorized after this normalization reaches live `main`.
 
 Required scope:
 
-- version/fingerprint inputs for derived knowledge;
-- deterministic stale/invalidated state when relevant source/version fingerprints change;
-- no silent retargeting of historical Research Pack citations;
-- refresh/rebuild of derived indexes without rewriting immutable source evidence;
-- bounded delete of derived knowledge;
-- include/exclude persistence;
-- user controls for include, exclude, refresh/rebuild and delete-derived;
-- explicit distinction between source deletion and derived-index deletion;
-- stale/invalidated items cannot be presented as fresh context without visible state;
-- deterministic lifecycle/UI tests;
+- explicit project-only bridge from governed knowledge/context into eligible memory/context surfaces;
+- reuse R16.7 MemoryStore integrity, provenance, conflict, invalidation and quarantine rules;
+- research-derived memory remains derived/untrusted;
+- no implicit global-memory or training-dataset promotion;
+- Chat, KodeCode and specialist workspaces consume the same governed context contract without directly reading unrestricted stores;
+- source/citation traceability survives workspace consumption;
+- user-visible indication of which project knowledge entered the active context;
+- no V2.5 cross-workspace task orchestration, handoff automation or sensitive mutation workflow;
+- deterministic workspace integration tests;
 - exact-head Ubuntu/Windows acceptance.
 
 Explicitly out of scope until later subdivisions:
 
-- project Memory/workspace consumption bridge (V2.2.5);
-- integrated adversarial hardening (V2.2.6);
-- V2.3+, release/TUF/updater mutation or R20 reopening.
+- integrated adversarial Project Knowledge hardening (V2.2.6);
+- V2.3+, V2.5 cross-workspace orchestration, release/TUF/updater mutation or R20 reopening.
 
-The accepted V2.1 chain and V2.2.1–V2.2.3 contracts remain invariant. Lifecycle state may invalidate or rebuild derived knowledge, but it may not rewrite immutable Research Pack provenance or promote selected/retrieved content to instruction authority.
+The accepted V2.1 chain and V2.2.1–V2.2.4 contracts remain invariant. Workspace consumption may carry governed project knowledge into supported surfaces, but it may not bypass project scope, MemoryStore integrity/quarantine, source traceability or untrusted-data boundaries.
 
 ## Later V2.2 order
 
-After V2.2.4 is implemented, exact-head qualified, merged and normalized, proceed to V2.2.5 and continue one subdivision at a time through V2.2.6.
+After V2.2.5 is implemented, exact-head qualified, merged and normalized, proceed to V2.2.6 only.
 
 ## Accelerator policy
 
@@ -174,4 +190,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.2.3 est COMPLETE + NORMALIZED : PR #494 qualifiée 27/27 sur le head exact ac9ad68938cc13cd819bb078839c5963d03a794e, acceptance V2.2.3 11/11 PASS Ubuntu/Windows avec evidence SHA-256 35c18af0424d15b54694ce537f89ae80de98dff262ea8168afe8ef73f5ef9765, puis merge 363bf1a3afa06949269208aa6d3639e439c899e5. La seule subdivision autorisée est V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle. Implémente uniquement version/fingerprint, stale/invalidation déterministe, refresh/rebuild du dérivé sans réécrire les sources immuables, delete-derived borné, persistance include/exclude, contrôles utilisateur et distinction source-delete/derived-delete. Ne tire pas en avant workspace bridge V2.2.5, hardening V2.2.6, V2.3+, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.2.4 est COMPLETE + NORMALIZED : PR #496 qualifiée 27/27 sur le head exact c17e673d944dd0582f9c0e24368c0adf45dd3f40, acceptance V2.2.4 13/13 PASS Ubuntu/Windows avec evidence SHA-256 5ee068e69dc60eba21c840f33a1cabe88008ac247eeb9ed43a7b7fbf90f1f363, puis merge ca27459ca04abbeba8275cc32ba7166e37acfd5a. La seule subdivision autorisée est V2.2.5 — Project Memory bridge and workspace consumption. Implémente uniquement le bridge project-only, la réutilisation stricte de R16.7 MemoryStore, la consommation gouvernée Chat/KodeCode/spécialistes, la traçabilité source/citation et la visibilité du contexte injecté. Ne tire pas en avant V2.2.6 hardening, orchestration cross-workspace V2.5, V2.3+, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`

@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-19 after V2.2.5 implementation PR `#498` merge and post-merge normalization  
+Last synchronized: 2026-09-19 after V2.2.6 implementation PR `#500` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -168,42 +168,51 @@ The unchanged final head needed one rerun of only the failed `python-core-window
 
 Accepted product truth is one project-scoped governed context snapshot shared by Chat/KodeCode/specialists; exact project/retrieval-context binding; preserved source/citation/trust/version traceability; Chat data-only semantics; KodeCode read-only policy/no direct MemoryStore read; specialist source visibility; and explicit-opt-in R16.7-backed derived project memory with no global/training promotion.
 
+## V2.2.6 accepted implementation
+
+Implementation PR `#500` was qualified with **26/26** pull-request workflows on exact head `add97a4889c68b7aed79125563917ddce8b70863` and merged with `expected_head_sha` protection as `2c122c913b57c0034f73ba25c34f3fd32507fafa`.
+
+The final exact-head gate set included:
+
+- `R0 Repository Guard` `35438155760` = success;
+- `KodeStudio UI Smoke` `35438155732` = success;
+- `R12 Tauri2 Acceptance` `35438155744` = success;
+- `R13 Integrated Release Readiness` `35438155814` = success;
+- `Python Core` `35438155746` = success;
+- `R17 Windows Installer` `35438155755` = success.
+
+The deterministic V2.2.6 acceptance reported **16/16 PASS** on Ubuntu and Windows with identical evidence payload SHA-256 `646071eb27ecf8e08ae7dfde3bd74e0f7d32a9dbd6e3d284a85c9093c5b5cc6d`.
+
+Accepted exact-head artifacts:
+
+- `v2-2-6-project-knowledge-hardening-ubuntu-latest-add97a4889c68b7aed79125563917ddce8b70863` — ID `10582792728`;
+- `v2-2-6-project-knowledge-hardening-windows-latest-add97a4889c68b7aed79125563917ddce8b70863` — ID `10582857766`.
+
+Accepted product truth is adversarial integrated proof of the complete V2.2 project-knowledge contract: cross-project rejection; MemoryStore replay/version/tamper/quarantine; Research Pack digest validation; source/version invalidation; prompt-injection and secret handling; Include/Exclude and delete-derived boundaries; deterministic retrieval/budget/capability state; cancellation non-regression; KodeStudio explainability; and Chat/KodeCode/specialist traceability/trust. No runtime product source was changed by V2.2.6.
+
+**V2.2 is COMPLETE + NORMALIZED. No V2.2.7 is authorized.**
+
 ## Immediate execution order
 
-### V2.2.6 — Project Knowledge hardening and integrated acceptance — CURRENT AUTHORIZED SUBDIVISION
+### V2.3 — Model Lab governed improvement UX — PLANNING ONLY
 
-V2.2.6 is the only implementation authorized after this normalization reaches live `main`.
+The only authorized next work is to create a dedicated planning authority for V2.3 from normalized live `main`.
 
-Required acceptance scope:
+The V2.3 planning step must:
 
-- cross-project retrieval attempts;
-- tampered/quarantined/replay/version-conflicting memory;
-- tampered Research Pack or digest mismatch;
-- stale/invalidated source/version fingerprints;
-- prompt injection/source-instruction text in Research Packs, files and memory;
-- secret-bearing content;
-- include/exclude consistency;
-- delete-derived versus source-delete separation;
-- deterministic retrieval ordering;
-- context budget truncation/omission;
-- embedding unavailable versus valid empty result;
-- cancellation where applicable;
-- KodeStudio explainability;
-- Chat/KodeCode/specialist traceability and trust;
-- exact-head Ubuntu/Windows acceptance artifacts.
+- derive scope from the accepted Roadmap V2 rather than inventing product work;
+- inspect and reuse existing training/model-governance primitives before proposing new architecture;
+- freeze explicit subdivisions, invariants, acceptance evidence and UI boundaries;
+- preserve V2.1/V2.2 source trust, project context and no-authority-promotion semantics where model improvement consumes project/research data;
+- preserve the current Kaggle T4×2 authority as two separate 16 GiB GPUs and keep TPU v5e-8 deferred unless benchmark evidence justifies a distinct backend;
+- remain planning/docs-only;
+- explicitly keep V2.4+, V2.5 cross-workspace orchestration, release/TUF/updater mutation and R20 reopening out of scope.
 
-Explicitly out of scope:
-
-- V2.3+ implementation;
-- V2.5 cross-workspace orchestration or handoff automation;
-- release/TUF/updater mutation;
-- R20 reopening or R20.7.
-
-The accepted V2.1 and V2.2.1-V2.2.5 contracts remain invariant. V2.2.6 hardens and proves them; it may not weaken project scope, untrusted-data treatment, lifecycle invalidation, MemoryStore integrity/quarantine or workspace traceability.
+**No V2.3 implementation may begin from the planning PR merge alone.** The planning head must first be exact-head qualified, merged with head protection, and post-merge normalized; only that normalized state may authorize the first V2.3 implementation subdivision.
 
 ## Later V2 order
 
-After V2.2.6 is implemented, exact-head qualified, merged and normalized, only then may the live Roadmap V2 authority determine whether V2.3 begins.
+After V2.3 planning is exact-head qualified, merged and normalized, execute only the first subdivision authorized by that new live V2.3 planning authority. V2.4, V2.5 and V2.6 remain later phases.
 
 ## Accelerator policy
 
@@ -219,4 +228,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.2.5 est COMPLETE + NORMALIZED : PR #498 qualifiée 31/31 sur le head exact d29d10e5456623d1b7063bb37386693c1eec625a, acceptance V2.2.5 13/13 PASS Ubuntu/Windows avec evidence SHA-256 22a8a287c8eead8530d2289fb19b9595e8774f0809f28c71754384b914ea8144, puis merge 11479e63dc48c45f2ec97f9950430cf35c986e8c. La seule subdivision autorisée est V2.2.6 — Project Knowledge hardening and integrated acceptance. Implémente uniquement les tests/guards adversariaux définis par le plan live : cross-project, mémoire/Research Pack altérés, stale/invalidation, prompt injection, secrets, overrides, delete-derived/source-delete, ordering/budget/capability/cancellation, explainability KodeStudio et consommation Chat/KodeCode/spécialistes avec traçabilité/trust. Ne tire pas en avant V2.3+, orchestration cross-workspace V2.5, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.2 est COMPLETE + NORMALIZED : V2.2.6 PR #500 qualifiée 26/26 sur le head exact add97a4889c68b7aed79125563917ddce8b70863, acceptance 16/16 PASS Ubuntu/Windows avec evidence SHA-256 646071eb27ecf8e08ae7dfde3bd74e0f7d32a9dbd6e3d284a85c9093c5b5cc6d, puis merge protégé 2c122c913b57c0034f73ba25c34f3fd32507fafa. Aucun V2.2.7 n'est autorisé. La seule prochaine étape autorisée est la planification docs-only de V2.3 — Model Lab governed improvement UX : inspecte les primitives live, crée une autorité de plan V2.3 bornée avec subdivisions/invariants/acceptance, qualifie son head exact, merge avec expected_head_sha, puis normalise avant toute implémentation V2.3. Ne tire pas en avant V2.4+, V2.5 orchestration, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`

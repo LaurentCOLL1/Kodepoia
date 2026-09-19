@@ -7,8 +7,9 @@ _EN = {
     "nav": "Model Lab",
     "title": "Model Lab",
     "subtitle": (
-        "Read-only V2.3.1 inventory of governed R15 datasets, benchmark/training evidence, "
-        "specialized-model lineage and optional local runtime state. No training or promotion is available here."
+        "Read-only V2.3.1 inventory of governed R15 datasets, benchmark/training "
+        "evidence, specialized-model lineage and optional local runtime state. "
+        "No training or promotion is available here."
     ),
     "refresh_inventory": "Refresh inventory",
     "refresh_runtime": "Refresh Ollama / Kaggle",
@@ -22,7 +23,10 @@ _EN = {
     "capabilities": "Training dependency capability",
     "lineage": "Lineage",
     "diagnostics": "Diagnostics JSON",
-    "read_only": "Read-only: dataset build, training, conversion, promotion and rollback are disabled in V2.3.1.",
+    "read_only": (
+        "Read-only: dataset build, training, conversion, promotion and rollback "
+        "are disabled in V2.3.1."
+    ),
     "not_checked": "not checked",
     "missing": "missing",
     "none": "none",
@@ -32,8 +36,9 @@ _FR = {
     "nav": "Laboratoire modèles",
     "title": "Laboratoire modèles",
     "subtitle": (
-        "Inventaire V2.3.1 en lecture seule des jeux de données R15 gouvernés, preuves de benchmark/entraînement, "
-        "lignage des modèles spécialisés et état local optionnel. Aucun entraînement ni promotion n'est disponible ici."
+        "Inventaire V2.3.1 en lecture seule des jeux de données R15 gouvernés, "
+        "preuves de benchmark/entraînement, lignage des modèles spécialisés et "
+        "état local optionnel. Aucun entraînement ni promotion n'est disponible ici."
     ),
     "refresh_inventory": "Actualiser l’inventaire",
     "refresh_runtime": "Actualiser Ollama / Kaggle",
@@ -47,7 +52,10 @@ _FR = {
     "capabilities": "Capacités des dépendances d’entraînement",
     "lineage": "Lignage",
     "diagnostics": "JSON de diagnostic",
-    "read_only": "Lecture seule : construction de dataset, entraînement, conversion, promotion et rollback sont désactivés en V2.3.1.",
+    "read_only": (
+        "Lecture seule : construction de dataset, entraînement, conversion, promotion "
+        "et rollback sont désactivés en V2.3.1."
+    ),
     "not_checked": "non vérifié",
     "missing": "absent",
     "none": "aucun",

@@ -473,18 +473,16 @@ class ModelLabInventoryService:
         if self._kaggle_doctor_provider is None:
             from kodepoia.tuning.kaggle_remote import KaggleRemoteTrainer
 
-            kaggle_doctor_provider: Callable[[], Mapping[str, object]] = (
-                lambda: KaggleRemoteTrainer().doctor().to_dict()
-            )
+            def kaggle_doctor_provider() -> Mapping[str, object]:
+                return KaggleRemoteTrainer().doctor().to_dict()
         else:
             kaggle_doctor_provider = self._kaggle_doctor_provider
 
         if self._kaggle_quota_provider is None:
             from kodepoia.kodestudio.kaggle_quota import KaggleQuotaService
 
-            kaggle_quota_provider: Callable[[], Mapping[str, object]] = (
-                lambda: KaggleQuotaService().snapshot().to_dict()
-            )
+            def kaggle_quota_provider() -> Mapping[str, object]:
+                return KaggleQuotaService().snapshot().to_dict()
         else:
             kaggle_quota_provider = self._kaggle_quota_provider
 

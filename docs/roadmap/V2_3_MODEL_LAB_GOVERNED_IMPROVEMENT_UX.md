@@ -177,6 +177,8 @@ Definition of done: the user can inspect what Model Lab knows, where each artifa
 
 Accepted implementation evidence:
 
+The implementation was developed and qualified while the governing subdivision marker was exactly `V2.3.1 — Model Lab shell, inventory and lineage — CURRENT`. That historical marker is retained here as immutable acceptance context only; it is superseded by the `COMPLETE + NORMALIZED` status above and does not re-authorize V2.3.1.
+
 - implementation PR `#504`;
 - exact final head `33d30747ebd915ab2bad56d3154f55a907830061`;
 - **28/28** pull-request workflows `completed/success`;

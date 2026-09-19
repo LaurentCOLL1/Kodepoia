@@ -175,7 +175,9 @@ def main() -> int:
             "localization_and_compatibility",
             '"nav": "Model Lab"' in localization
             and '"nav": "Laboratoire modèles"' in localization
-            and 'assert len(texts) == 15' in pseudo_test
+            and 'model_lab_refresh = window.findChild(' in pseudo_test
+            and '"modelLabRefreshInventory"' in pseudo_test
+            and 'model_lab_refresh.text().startswith("⟦")' in pseudo_test
             and "r15TuningPage" in (
                 root / "tests/test_r15_15_kodestudio.py"
             ).read_text(encoding="utf-8"),

@@ -4,6 +4,10 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
+from kodepoia.intelligence.project_workspace import (
+    ProjectWorkspaceContextSession,
+    ProjectWorkspaceSurface,
+)
 from kodepoia.kodecode.dap import DapTool, DebugAdapterSpec
 from kodepoia.kodecode.files import FileTool
 from kodepoia.kodecode.git_worktree import GitWorktreeTool
@@ -23,6 +27,7 @@ class KodeCodeToolAPI:
         *,
         language_servers: Iterable[LanguageServerSpec] = (),
         debug_adapters: Iterable[DebugAdapterSpec] = (),
+        workspace_context_session: ProjectWorkspaceContextSession | None = None,
     ) -> None:
         self.boundary = WorkspaceBoundary(root)
         self.files = FileTool(self.boundary)
@@ -32,7 +37,9 @@ class KodeCodeToolAPI:
         self.parser = ParserTool(self.boundary)
         self.lsp = LspTool(self.boundary, language_servers)
         self.dap = DapTool(self.boundary, debug_adapters)
+        self.workspace_context_session = workspace_context_session
         self._dispatch: dict[str, Callable[[dict[str, Any]], Any]] = {
+            "kodecode_project_context": self._project_context,
             "kodecode_files_list": self._files_list,
             "kodecode_files_read": self._files_read,
             "kodecode_search": self._search,
@@ -69,6 +76,11 @@ class KodeCodeToolAPI:
 
     def catalog(self) -> list[dict[str, Any]]:
         return [
+            self._schema(
+                "kodecode_project_context",
+                "Return the active governed project context for KodeCode",
+                {},
+            ),
             self._schema(
                 "kodecode_files_list", "List workspace files",
                 {"path": {"type": "string"}, "recursive": {"type": "boolean"}},
@@ -228,6 +240,19 @@ class KodeCodeToolAPI:
         }
         properties.update(extra or {})
         return cls._schema(name, description, properties, ["server_id", "path", "line", "character"])
+
+    def _project_context(self, _args: dict[str, Any]) -> dict[str, Any]:
+        if self.workspace_context_session is None:
+            return {"state": "empty", "reason": "no project context session"}
+        context = self.workspace_context_session.context_for(
+            ProjectWorkspaceSurface.KODECODE,
+            workspace_id="kodecode",
+        )
+        if context is None:
+            return {"state": "empty", "reason": "no governed project context is active"}
+        payload = context.to_dict()
+        payload["state"] = "ready"
+        return payload
 
     def _files_list(self, args: dict[str, Any]) -> list[dict[str, Any]]:
         return [asdict(item) for item in self.files.list_entries(

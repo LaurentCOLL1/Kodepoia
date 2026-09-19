@@ -27,6 +27,7 @@ def build_window(
     r14_service=None,
     r15_service=None,
     model_lab_service=None,
+    model_lab_curation_service=None,
     workspace_context_session: ProjectWorkspaceContextSession | None = None,
 ):
     from PySide6.QtWidgets import (
@@ -320,7 +321,29 @@ def build_window(
             "model_lab",
         )
 
+    def model_lab_curation_page() -> QWidget:
+        from kodepoia.kodestudio.model_lab_curation import ModelLabCurationService
+        from kodepoia.kodestudio.model_lab_curation_panel import (
+            create_model_lab_curation_page,
+        )
+
+        service = model_lab_curation_service
+        if service is None:
+            service = ModelLabCurationService(root, r15_service=r15_service)
+        return with_project_context(
+            create_model_lab_curation_page(
+                root,
+                locale=locale,
+                service=service,
+                status_bar=status,
+            ),
+            "model_lab_curation",
+        )
+
     from kodepoia.kodestudio.blender_localization import blender_nav_text
+    from kodepoia.kodestudio.model_lab_curation_localization import (
+        model_lab_curation_nav_text,
+    )
     from kodepoia.kodestudio.model_lab_localization import model_lab_nav_text
     from kodepoia.kodestudio.r11_localization import r11_nav_text
     from kodepoia.kodestudio.r12_localization import r12_nav_text
@@ -341,6 +364,7 @@ def build_window(
         (r14_nav_text(locale), r14_page),
         (r15_nav_text(locale), r15_page),
         (model_lab_nav_text(locale), model_lab_page),
+        (model_lab_curation_nav_text(locale), model_lab_curation_page),
         (tr.text("app.nav.security"), security_page),
         (tr.text("app.nav.audit"), None),
         (tr.text("app.nav.settings"), None),

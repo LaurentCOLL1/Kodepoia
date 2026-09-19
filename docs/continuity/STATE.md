@@ -254,23 +254,63 @@ Accepted V2.2.2 product truth:
 - retrieval performs no catalog persistence, memory writes or protected-action promotion;
 - V2.2.3 Context Builder/UI, V2.2.4 lifecycle work, V2.2.5 workspace consumption, V2.3+, release/TUF/updater and R20 work were not pulled forward.
 
-## V2.2.3 authorization — CURRENT
+## V2.2.3 — Explainable Context Builder — COMPLETE + NORMALIZED
 
-**V2.2.3 — Explainable Context Builder** is the only authorized implementation subdivision after this normalization reaches live `main`.
+Implementation PR `#494` was qualified on exact final head:
 
-V2.2.3 must implement only:
+`ac9ad68938cc13cd819bb078839c5963d03a794e`
 
-- a context-candidate contract carrying source identity, retrieval score, trust, version/freshness and token estimate;
-- deterministic selected/omitted rationale;
-- explicit token-budget accounting;
-- mandatory versus optional items without promoting untrusted data to privilege;
-- citation/source traceability in rendered context;
-- preserved `<UNTRUSTED_DATA>` semantics for external/research-derived material;
-- user-visible KodeStudio context preview showing source, reason, trust and budget impact;
-- explicit include/exclude override before final context assembly;
-- deterministic backend/UI tests and exact-head Ubuntu/Windows acceptance evidence.
+All **27/27** pull-request workflows associated with that final head completed with conclusion `success`, including:
 
-V2.2.3 must **not** implement version-aware lifecycle refresh/delete, project Memory/workspace consumption, V2.2.5+ behavior, V2.3+, release/TUF/updater changes or R20 reopening.
+- `R0 Repository Guard` run `35404034479`;
+- `KodeStudio UI Smoke` run `35404034456`;
+- `R12 Tauri2 Acceptance` run `35404034501`;
+- `R13 Integrated Release Readiness` run `35404034505`;
+- `Python Core` run `35404034510`;
+- `R17 Windows Installer` run `35404034515`.
+
+The deterministic V2.2.3 exact-head acceptance reported **11/11 PASS** on both Ubuntu and Windows with identical evidence payload SHA-256:
+
+`35c18af0424d15b54694ce537f89ae80de98dff262ea8168afe8ef73f5ef9765`
+
+Accepted exact-head artifacts:
+
+- `v2-2-3-explainable-context-ubuntu-latest-ac9ad68938cc13cd819bb078839c5963d03a794e` — artifact ID `10571726324`;
+- `v2-2-3-explainable-context-windows-latest-ac9ad68938cc13cd819bb078839c5963d03a794e` — artifact ID `10571666306`.
+
+PR `#494` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`363bf1a3afa06949269208aa6d3639e439c899e5`
+
+Accepted V2.2.3 product truth:
+
+- `ProjectContextCandidate`-style context candidates retain source identity, retrieval score, trust, freshness/version and token estimate;
+- selected/omitted rationale is deterministic, including `user_included`, `user_excluded`, `mandatory`, `within_budget` and `budget_exceeded`;
+- the existing `ContextBuilder` / `ContextItem` primitive is reused with explicit token-budget accounting rather than creating a parallel context engine;
+- mandatory or explicit Include affects selection only and never promotes trust or instruction authority;
+- source, knowledge and citation traceability survives rendered context;
+- project/research-derived content remains inside the existing `<UNTRUSTED_DATA>` boundary;
+- KodeStudio Research exposes source, score, trust, freshness/version, token cost, decision/rationale, budget and Auto/Include/Exclude before final assembly;
+- V2.2.4 lifecycle persistence/refresh/delete and V2.2.5 workspace consumption were not pulled forward.
+
+This normalization closes V2.2.3 and authorizes **V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle** only.
+
+## V2.2.4 authorization — CURRENT
+
+V2.2.4 must implement only the normalized plan scope:
+
+- version/fingerprint inputs for derived knowledge;
+- deterministic stale/invalidated state when relevant source/version fingerprints change;
+- no silent retargeting of historical Research Pack citations;
+- refresh/rebuild of derived indexes without rewriting immutable source evidence;
+- bounded delete of derived knowledge;
+- include/exclude persistence;
+- user controls for include, exclude, refresh/rebuild and delete-derived;
+- explicit distinction between source deletion and derived-index deletion;
+- stale/invalidated items cannot be presented as fresh context without visible state;
+- deterministic lifecycle/UI tests and exact-head Ubuntu/Windows acceptance evidence.
+
+V2.2.4 must **not** implement V2.2.5 project Memory/workspace consumption, V2.2.6 integrated hardening, V2.3+, release/TUF/updater changes or R20 reopening.
 
 ## Accepted V2 capability truth
 
@@ -299,9 +339,9 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`;
-2. verify V2.2.2 remains **COMPLETE + NORMALIZED** from implementation PR `#492`, exact head `c3294815ddf4b76f75f04cb29ee2fdfe1d27248d`, merge `2d332945c3b1f8d76cc98d651606679c89791485`, and this normalization;
-3. the only authorized implementation is **V2.2.3 — Explainable Context Builder**;
-4. branch V2.2.3 from the exact normalized live `main`, implement only its frozen scope, add deterministic backend/UI tests and exact-head Ubuntu+Windows acceptance, re-fetch all PR workflows on the final head, merge only if every required gate succeeds, then normalize before V2.2.4;
-5. preserve V2.2.1 project-knowledge provenance/project scope, V2.2.2 retrieval bounds/diagnostics, existing ContextBuilder trust rendering, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore hardening;
-6. do not pull forward version-aware lifecycle/delete, workspace consumption, V2.3+, release/TUF/updater work, R20 reopening or R20.7;
-7. if a genuine manual intervention is required, stop at V2.2.3 and state exactly what the operator must do rather than bypassing a gate.
+2. verify V2.2.3 remains **COMPLETE + NORMALIZED** from implementation PR `#494`, exact head `ac9ad68938cc13cd819bb078839c5963d03a794e`, merge `363bf1a3afa06949269208aa6d3639e439c899e5`, **27/27** exact-head workflows and **11/11 PASS** Ubuntu/Windows evidence `35c18af0424d15b54694ce537f89ae80de98dff262ea8168afe8ef73f5ef9765`;
+3. the only authorized implementation is **V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle**;
+4. branch V2.2.4 from the exact normalized live `main`, implement only its frozen lifecycle scope, add deterministic backend/UI tests and exact-head Ubuntu+Windows acceptance, re-fetch all PR workflows on the final head, merge only if every required gate succeeds, then normalize before V2.2.5;
+5. preserve immutable Research Pack provenance, V2.2.1 project scope, V2.2.2 retrieval bounds/diagnostics, V2.2.3 trust/budget/traceability semantics, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore hardening;
+6. do not pull forward V2.2.5 workspace consumption, V2.2.6 hardening, V2.3+, release/TUF/updater work, R20 reopening or R20.7;
+7. if a genuine manual intervention is required, stop at V2.2.4 and state exactly what the operator must do rather than bypassing a gate.

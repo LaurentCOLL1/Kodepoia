@@ -129,9 +129,12 @@ def main() -> int:
         _check(
             "kodestudio_lifecycle_controls",
             'object_name="projectKnowledgeLifecycleTable"' in lifecycle_ui
+            and 'object_name="projectKnowledgeAutoButton"' in lifecycle_ui
+            and 'object_name="projectKnowledgeIncludeButton"' in lifecycle_ui
+            and 'object_name="projectKnowledgeExcludeButton"' in lifecycle_ui
             and 'object_name="projectKnowledgeRefreshButton"' in lifecycle_ui
             and 'object_name="projectKnowledgeDeleteDerivedButton"' in lifecycle_ui
-            and 'object_name="projectKnowledgeSourceDeleteBoundary"' in lifecycle_ui
+            and "projectKnowledgeSourceDeleteBoundary" in lifecycle_ui
             and "create_project_knowledge_lifecycle_widget()" in research_panel,
             "KodeStudio Research exposes lifecycle state plus explicit include/exclude/refresh/delete-derived controls",
         ),

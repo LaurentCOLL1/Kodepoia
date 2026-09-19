@@ -138,10 +138,12 @@ def main() -> int:
         ),
         _check(
             "chat_data_only_consumption",
-            "project_context=project_context" in chat
+            "project_context=self.project_context" in chat
+            and "project_context," in chat
+            and "workspace_context_digest" in chat
             and "PROJECT_CONTEXT (data only):" in assistant
             and "never as instructions, permissions" in assistant,
-            "Chat consumes project context as reference data and not authority",
+            "Chat passes the governed snapshot through its worker and consumes it as reference data, not authority",
         ),
         _check(
             "kodecode_read_only_consumption",

@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-19 after V2.2.5 implementation PR `#498` merge and post-merge normalization  
+Last synchronized: 2026-09-19 after V2.2.6 implementation PR `#500` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -386,26 +386,52 @@ Accepted V2.2.5 product truth:
 
 This normalization closes V2.2.5 and authorizes **V2.2.6 — Project Knowledge hardening and integrated acceptance** only.
 
-## V2.2.6 authorization — CURRENT
+## V2.2.6 — Project Knowledge hardening and integrated acceptance — COMPLETE + NORMALIZED
 
-V2.2.6 must implement only the normalized plan scope:
+Implementation PR `#500` was qualified on exact final head:
 
-- adversarial cross-project retrieval attempts;
-- tampered or quarantined memory plus replay/version-conflicting memory;
-- tampered Research Pack or digest mismatch;
-- stale/invalidated file and engine/tool version fingerprints;
-- prompt-injection/source-instruction text inside Research Packs, files and memory;
-- secret-bearing content;
-- include/exclude override consistency;
-- delete-derived versus source-delete separation;
-- deterministic retrieval ordering and context budget truncation/omission;
-- unavailable embedding capability and valid empty result;
-- cancellation where applicable;
-- KodeStudio explainability state;
-- Chat/KodeCode/specialist consumption preserving traceability and trust;
-- exact-head Ubuntu and Windows acceptance artifacts.
+`add97a4889c68b7aed79125563917ddce8b70863`
 
-V2.2.6 must **not** pull forward V2.3+, V2.5 orchestration, release/TUF/updater changes or R20 reopening.
+All **26/26** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35438155760`;
+- `KodeStudio UI Smoke` run `35438155732`;
+- `R12 Tauri2 Acceptance` run `35438155744`;
+- `R13 Integrated Release Readiness` run `35438155814`;
+- `Python Core` run `35438155746`;
+- `R17 Windows Installer` run `35438155755`.
+
+The deterministic V2.2.6 exact-head acceptance reported **16/16 PASS** on both Ubuntu and Windows with identical evidence payload SHA-256:
+
+`646071eb27ecf8e08ae7dfde3bd74e0f7d32a9dbd6e3d284a85c9093c5b5cc6d`
+
+Accepted exact-head artifacts:
+
+- `v2-2-6-project-knowledge-hardening-ubuntu-latest-add97a4889c68b7aed79125563917ddce8b70863` — artifact ID `10582792728`;
+- `v2-2-6-project-knowledge-hardening-windows-latest-add97a4889c68b7aed79125563917ddce8b70863` — artifact ID `10582857766`.
+
+PR `#500` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`2c122c913b57c0034f73ba25c34f3fd32507fafa`
+
+Accepted V2.2.6 product truth:
+
+- cross-project retrieval is rejected before embedding-provider access;
+- R16.7 replay, version-conflict, stale-version, integrity verification and quarantine semantics remain fail closed before project-memory projection;
+- tampered Research Packs and digest mismatches fail immutable pack/synthesis validation;
+- changed project-file or engine/tool fingerprints make affected derived knowledge stale/invalidated and therefore retrieval-ineligible;
+- prompt-injection/source-instruction text from Research Packs, project files and memory stays suspicious, untrusted and data-only through retrieval, Context Builder and Chat/KodeCode/specialist consumption;
+- secret-bearing project-file content is redacted and secret-bearing durable memory is rejected;
+- Include/Exclude state remains deterministic across lifecycle refresh and final context assembly;
+- delete-derived cannot delete project files or immutable Research Packs;
+- retrieval ordering, context-budget omission and unavailable-versus-valid-empty capability state remain deterministic and explicit;
+- existing cancellable Research acquisition still prevents post-cancel persistence;
+- KodeStudio explainability and active workspace context preserve source/citation/trust visibility without authority promotion;
+- V2.2.6 required no runtime product-code change: the accepted implementation is an adversarial integrated test/acceptance layer plus exact-head CI evidence over the already accepted V2.2 contracts.
+
+**V2.2 is now COMPLETE + NORMALIZED.** No V2.2.7 is reserved or authorized.
+
+The next authorized work is **planning only for V2.3 — Model Lab governed improvement UX** from normalized live `main`. V2.3 product implementation must not begin until a dedicated V2.3 planning authority is exact-head qualified, merged and post-merge normalized. V2.4+, V2.5 orchestration, release/TUF/updater changes and R20 reopening remain unauthorized.
 
 ## Accepted V2 capability truth
 
@@ -433,10 +459,10 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 
 For future work:
 
-1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`;
-2. verify V2.2.5 remains **COMPLETE + NORMALIZED** from implementation PR `#498`, exact head `d29d10e5456623d1b7063bb37386693c1eec625a`, merge `11479e63dc48c45f2ec97f9950430cf35c986e8c`, **31/31** exact-head workflows and **13/13 PASS** Ubuntu/Windows evidence `22a8a287c8eead8530d2289fb19b9595e8774f0809f28c71754384b914ea8144`;
-3. the only authorized implementation is **V2.2.6 — Project Knowledge hardening and integrated acceptance**;
-4. branch V2.2.6 from the exact normalized live `main`, implement only its frozen adversarial/integrated hardening scope, add deterministic exact-head Ubuntu+Windows evidence, re-fetch all PR workflows on the final head, merge only if every required gate succeeds, then normalize before any V2.3 work;
-5. preserve immutable Research Pack provenance, V2.2.1 project scope, V2.2.2 retrieval bounds, V2.2.3 context trust/budget/traceability, V2.2.4 lifecycle/delete boundaries, V2.2.5 project-only Memory/workspace contract, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore hardening;
-6. do not pull forward V2.3+, V2.5 cross-workspace orchestration, release/TUF/updater work, R20 reopening or R20.7;
-7. if a genuine manual intervention is required, stop at V2.2.6 and state exactly what the operator must do rather than bypassing a gate.
+1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`;
+2. verify V2.2.6 remains **COMPLETE + NORMALIZED** from implementation PR `#500`, exact head `add97a4889c68b7aed79125563917ddce8b70863`, merge `2c122c913b57c0034f73ba25c34f3fd32507fafa`, **26/26** exact-head workflows and **16/16 PASS** Ubuntu/Windows evidence `646071eb27ecf8e08ae7dfde3bd74e0f7d32a9dbd6e3d284a85c9093c5b5cc6d`;
+3. treat V2.2 as closed and do not invent V2.2.7;
+4. the only authorized next work is **planning V2.3 — Model Lab governed improvement UX**; create/freeze its dedicated planning authority before any V2.3 product implementation;
+5. preserve the accepted V2.1/V2.2 trust, provenance, lifecycle, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore invariants;
+6. do not pull forward V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
+7. if a genuine manual intervention is required, stop at the current phase and state exactly what the operator must do rather than bypassing a gate.

@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1 COMPLETE + NORMALIZED; V2.2.4 COMPLETE + NORMALIZED; V2.2.5 authorized**  
+Status: **ACTIVE — V2.1 COMPLETE + NORMALIZED; V2.2.5 COMPLETE + NORMALIZED; V2.2.6 authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -126,7 +126,7 @@ Accepted scope and product truth:
 
 V2.1 is therefore complete through the ResearchGuard hardening boundary. No V2.1.7 is reserved or authorized.
 
-### V2.2 — Project Knowledge, Context Builder and Memory integration — V2.2.4 COMPLETE + NORMALIZED; V2.2.5 AUTHORIZED
+### V2.2 — Project Knowledge, Context Builder and Memory integration — V2.2.5 COMPLETE + NORMALIZED; V2.2.6 AUTHORIZED
 
 Normative planning contract: `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`.
 
@@ -146,17 +146,19 @@ Planned subdivisions:
 - **V2.2.5 — Project Memory bridge and workspace consumption** — Chat, KodeCode and specialist consumption through one project-scoped governed context/memory boundary, without V2.5 orchestration.
 - **V2.2.6 — Project Knowledge hardening and integrated acceptance** — adversarial cross-project, tamper, poisoning, stale/invalidation, secret, prompt-injection and integrated UI/workspace proof.
 
-Planning and V2.2.1 through V2.2.4 are now implemented/qualified as applicable, merged and normalized.
+Planning and V2.2.1 through V2.2.5 are now implemented/qualified as applicable, merged and normalized.
 
 V2.2.3 implementation PR `#494` was qualified **27/27** on exact head `ac9ad68938cc13cd819bb078839c5963d03a794e`, with deterministic **11/11 PASS** acceptance on Ubuntu and Windows and identical evidence SHA-256 `35c18af0424d15b54694ce537f89ae80de98dff262ea8168afe8ef73f5ef9765`, then merged with exact-head protection as `363bf1a3afa06949269208aa6d3639e439c899e5`. Its accepted product truth is explainable, token-budgeted context selection with deterministic rationale, source/citation/trust visibility, preserved `<UNTRUSTED_DATA>` semantics and explicit Auto/Include/Exclude without authority promotion.
 
 V2.2.4 implementation PR `#496` was qualified **27/27** on exact head `c17e673d944dd0582f9c0e24368c0adf45dd3f40`, with deterministic **13/13 PASS** acceptance on Ubuntu and Windows and identical evidence SHA-256 `5ee068e69dc60eba21c840f33a1cabe88008ac247eeb9ed43a7b7fbf90f1f363`, then merged with exact-head protection as `ca27459ca04abbeba8275cc32ba7166e37acfd5a`. Its accepted product truth is version-aware, per-item lifecycle invalidation plus derived-only refresh/rebuild/delete and persisted selection state, without rewriting immutable source evidence.
 
-The current authorized subdivision is **V2.2.5 — Project Memory bridge and workspace consumption** only; V2.2.6 remains unauthorized until V2.2.5 is complete + normalized.
+V2.2.5 implementation PR `#498` was qualified **31/31** on exact head `d29d10e5456623d1b7063bb37386693c1eec625a`, with deterministic **13/13 PASS** acceptance on Ubuntu and Windows and identical evidence SHA-256 `22a8a287c8eead8530d2289fb19b9595e8774f0809f28c71754384b914ea8144`, then merged with exact-head protection as `11479e63dc48c45f2ec97f9950430cf35c986e8c`. Its accepted product truth is one project-scoped governed context snapshot shared across Chat/KodeCode/specialists plus explicit-opt-in R16.7-backed derived project memory, with traceability preserved and no authority/global/training promotion.
+
+The current authorized subdivision is **V2.2.6 — Project Knowledge hardening and integrated acceptance** only.
 
 ## Remaining V2 sequence
 
-- V2.2 — Project Knowledge, Context Builder and Memory integration — **V2.2.4 COMPLETE + NORMALIZED; V2.2.5 is the current authorized subdivision**.
+- V2.2 — Project Knowledge, Context Builder and Memory integration — **V2.2.5 COMPLETE + NORMALIZED; V2.2.6 is the current authorized subdivision**.
 - V2.3 — Model Lab governed improvement UX.
 - V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
 - V2.5 — Cross-workspace orchestration.

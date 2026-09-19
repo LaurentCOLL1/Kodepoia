@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2; V2.1 and V2.2 are COMPLETE + NORMALIZED. The only authorized next work is planning-only V2.3 — Model Lab governed improvement UX; no V2.3 product implementation is authorized before that plan is exact-head qualified, merged and post-merge normalized.
+**Current development direction:** Roadmap V2; V2.1 and V2.2 are COMPLETE + NORMALIZED. V2.3 — Model Lab governed improvement UX is in docs-only planning; its dedicated plan is under qualification and no V2.3 product implementation is authorized before exact-head planning qualification, protected merge and post-merge normalization.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -72,11 +72,20 @@ Active V2 authority documents are:
 
 - `docs/roadmap/KODEPOIA_ROADMAP_V2.md`;
 - `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` — completed V2.1 Research authority;
-- `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` — completed normalized V2.2 authority.
+- `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` — completed normalized V2.2 authority;
+- `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md` — current V2.3 planning authority under qualification.
 
 V2.2 is closed at V2.2.6. No V2.2.7 is reserved or authorized.
 
-The only authorized next work is **planning-only V2.3 — Model Lab governed improvement UX**. That planning work must create a dedicated normative authority, freeze V2.3 subdivisions/invariants/acceptance, remain docs-only, and be exact-head qualified, merged and post-merge normalized before any V2.3 product implementation begins. V2.4+, V2.5 cross-workspace orchestration, release/TUF/updater mutation and R20 reopening remain unauthorized.
+V2.3 planning now has a dedicated normative document under qualification:
+
+`docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`
+
+It freezes six planned subdivisions: Model Lab inventory/lineage; governed experience+dataset curation; Bench and TRAIN/NO_TRAIN decision UX; governed training execution/recovery; candidate evaluation/export/promotion/rollback; and integrated hardening.
+
+The plan reuses accepted R15 backends rather than creating a parallel training stack. Project Knowledge/Research/context remain reference-only and do not become training data automatically; only the accepted R15 Experience governance -> dedup/contamination -> immutable dataset path can make examples training-eligible.
+
+No V2.3 product implementation is authorized yet. The planning PR must be exact-head qualified, merged with head protection and post-merge normalized before V2.3.1 can be authorized. V2.4+, V2.5 cross-workspace orchestration, release/TUF/updater mutation and R20 reopening remain unauthorized.
 
 Existing security authority remains unchanged: immutable Research Pack provenance, ResearchGuard, KodeSecrets, WorkspaceBoundary and R16.7 MemoryStore integrity/quarantine/project-scope rules remain binding. Indexed, retrieved or context-selected data never gains instruction authority merely by being selected or scored.
 
@@ -94,12 +103,13 @@ Use the following documents in this order when interpreting current state:
 2. `docs/continuity/NEXT.md` for the next authorized direction and resume prompt;
 3. this file for the compact cross-phase/public-release/development summary;
 4. `docs/roadmap/KODEPOIA_ROADMAP_V2.md` for the active V2 development ordering;
-5. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for completed V2.1 Research authority;
-6. `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` for completed normalized V2.2 authority;
-7. `docs/continuity/KODEPOIA_CONTINUITY_R20.md` for terminal R20 authority and historical post-R20 release operations;
-8. `docs/continuity/KODEPOIA_CONTINUITY_R19.md` for frozen R19 authority;
-9. `docs/continuity/KODEPOIA_CONTINUITY.md` for the large historical R1–R18 continuity archive;
-10. phase plans and Git history for immutable phase-specific evidence.
+5. `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md` for current V2.3 planning under qualification;
+6. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for completed V2.1 Research authority;
+7. `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` for completed normalized V2.2 authority;
+8. `docs/continuity/KODEPOIA_CONTINUITY_R20.md` for terminal R20 authority and historical post-R20 release operations;
+9. `docs/continuity/KODEPOIA_CONTINUITY_R19.md` for frozen R19 authority;
+10. `docs/continuity/KODEPOIA_CONTINUITY.md` for the large historical R1–R18 continuity archive;
+11. phase plans and Git history for immutable phase-specific evidence.
 
 The large legacy continuity archives intentionally remain historical. Stale “current” wording inside old frozen sections is superseded by `STATE.md`, `NEXT.md`, this file and the explicit current-distribution section of the R20 continuity rather than by retroactive rewriting of historical phase evidence.
 

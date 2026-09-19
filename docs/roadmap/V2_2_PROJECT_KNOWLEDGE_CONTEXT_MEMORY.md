@@ -1,6 +1,6 @@
 # V2.2 — Project Knowledge, Context Builder and Memory integration
 
-Status: **V2.2.4 COMPLETE + NORMALIZED — V2.2.5 is the only authorized implementation subdivision**  
+Status: **V2.2.5 COMPLETE + NORMALIZED — V2.2.6 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Public distribution boundary: `v1.1.0-rc8`
 
@@ -190,6 +190,53 @@ Accepted V2.2.4 product truth:
 - V2.2.5 workspace consumption / Memory bridge and V2.2.6 hardening were not pulled forward.
 
 This normalization closes V2.2.4 and authorizes **V2.2.5 — Project Memory bridge and workspace consumption** only.
+
+## V2.2.5 implementation qualification
+
+Implementation PR `#498` was qualified on exact final head:
+
+`d29d10e5456623d1b7063bb37386693c1eec625a`
+
+All **31/31** pull-request workflows associated with that head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35423380639`;
+- `KodeStudio UI Smoke` run `35423380566`;
+- `R12 Tauri2 Acceptance` run `35423380651`;
+- `R13 Integrated Release Readiness` run `35423380709`;
+- `R15.15 CLI KodeStudio UX Acceptance` run `35423380706`;
+- `R18.7 Update Discovery Channel UX Acceptance` run `35423380678`;
+- `Python Core` run `35423380620`;
+- `R17 Windows Installer` run `35423380625`;
+- `R18.11 Integrated Adversarial Release Update Acceptance` run `35423380657`.
+
+The deterministic V2.2.5 exact-head acceptance reported **13/13 PASS** on both Ubuntu and Windows with identical evidence payload SHA-256:
+
+`22a8a287c8eead8530d2289fb19b9595e8774f0809f28c71754384b914ea8144`
+
+Accepted exact-head artifacts:
+
+- `v2-2-5-project-workspace-ubuntu-latest-d29d10e5456623d1b7063bb37386693c1eec625a` — artifact ID `10578666529`;
+- `v2-2-5-project-workspace-windows-latest-d29d10e5456623d1b7063bb37386693c1eec625a` — artifact ID `10578731421`.
+
+The unchanged head needed one rerun of only the failed `python-core-windows-latest` job after an isolated historical R16.16 temporary-directory cleanup `WinError 32`. Ubuntu passed the same full suite; no source/workflow/acceptance criterion changed.
+
+PR `#498` merged from that unchanged exact head with `expected_head_sha` protection as merge commit:
+
+`11479e63dc48c45f2ec97f9950430cf35c986e8c`
+
+Accepted V2.2.5 product truth:
+
+- a shared project-scoped governed context snapshot feeds Chat, KodeCode and specialist surfaces;
+- exact project/retrieval-context binding rejects global/cross-project mismatch;
+- source/citation/trust/freshness/version/digest traceability survives consumption;
+- Chat treats the context as data-only, not instruction/permission authority;
+- KodeCode exposes a governed read-only context tool without direct durable MemoryStore access;
+- specialist workspaces expose read-only active-context provenance;
+- durable context memory is explicit-opt-in, derived/untrusted, project-scoped and implemented through R16.7 MemoryStore guards;
+- global-memory/training promotion is explicitly forbidden;
+- V2.2.6 hardening and V2.3+ were not pulled forward.
+
+This normalization closes V2.2.5 and authorizes **V2.2.6 — Project Knowledge hardening and integrated acceptance** only.
 
 ## 1. Authority and goal
 
@@ -446,7 +493,7 @@ Required scope:
 
 Definition of done: version or source changes invalidate only the affected derived knowledge, and the user can deliberately refresh or remove it without losing historical provenance.
 
-### V2.2.5 — Project Memory bridge and workspace consumption — CURRENT
+### V2.2.5 — Project Memory bridge and workspace consumption — COMPLETE + NORMALIZED
 
 Goal: let Chat, KodeCode and specialist workspaces consume governed project knowledge through the same project-scoped trust boundary.
 
@@ -464,7 +511,7 @@ Required scope:
 
 Definition of done: supported workspaces can consume the same scoped, cited project knowledge without bypassing memory or context guards.
 
-### V2.2.6 — Project Knowledge hardening and integrated acceptance
+### V2.2.6 — Project Knowledge hardening and integrated acceptance — CURRENT
 
 Goal: adversarially prove the complete V2.2 trust, lifecycle and cross-surface contract.
 
@@ -593,3 +640,5 @@ Historical implementation gate, now satisfied: **V2.2.2 may begin only from live
 **V2.2.4 may begin only from live `main` after the V2.2.3 post-merge normalization PR itself is exact-head qualified and merged.**
 
 **V2.2.5 may begin only from live `main` after the V2.2.4 post-merge normalization PR itself is exact-head qualified and merged.**
+
+**V2.2.6 may begin only from live `main` after the V2.2.5 post-merge normalization PR itself is exact-head qualified and merged.**

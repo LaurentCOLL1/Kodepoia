@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2; V2.1 is COMPLETE + NORMALIZED, V2.2.4 is COMPLETE + NORMALIZED, and V2.2.5 Project Memory bridge and workspace consumption is the current authorized subdivision.
+**Current development direction:** Roadmap V2; V2.1 is COMPLETE + NORMALIZED, V2.2.5 is COMPLETE + NORMALIZED, and V2.2.6 Project Knowledge hardening and integrated acceptance is the current authorized subdivision.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -50,7 +50,7 @@ V2.1 Research Workspace is **COMPLETE + NORMALIZED** through V2.1.6. Its accepte
 
 `discovery -> candidate-only/unfetched -> explicit guarded fetch -> persisted evidence -> explicit include/exclude -> cited synthesis -> governed Research Pack`
 
-V2.2 planning and V2.2.1 through V2.2.4 are **COMPLETE + NORMALIZED**.
+V2.2 planning and V2.2.1 through V2.2.5 are **COMPLETE + NORMALIZED**.
 
 Planning PR `#488` was qualified **25/25** on exact head `face3a8b9b1053962635518d083b01a92a4ed2af` and merged as `875149032078beb681816604663056f66a2e1344`.
 
@@ -62,7 +62,9 @@ V2.2.3 implementation PR `#494` was qualified **27/27** on exact head `ac9ad6893
 
 V2.2.4 implementation PR `#496` was qualified **27/27** on exact head `c17e673d944dd0582f9c0e24368c0adf45dd3f40` and merged with `expected_head_sha` protection as `ca27459ca04abbeba8275cc32ba7166e37acfd5a`. Its deterministic acceptance reported **13/13 PASS** on Ubuntu and Windows with evidence payload SHA-256 `5ee068e69dc60eba21c840f33a1cabe88008ac247eeb9ed43a7b7fbf90f1f363`. Exact-head artifacts were `v2-2-4-version-aware-lifecycle-ubuntu-latest-c17e673d944dd0582f9c0e24368c0adf45dd3f40` (ID `10575435457`) and `v2-2-4-version-aware-lifecycle-windows-latest-c17e673d944dd0582f9c0e24368c0adf45dd3f40` (ID `10574915924`).
 
-Accepted V2.2.1 capability truth remains a deterministic project-scoped knowledge catalog over immutable Research Packs, WorkspaceBoundary-confined project files and verified active-project memory. Accepted V2.2.2 capability truth adds bounded, deterministic project-scoped semantic retrieval with explicit empty/unavailable/bound-exceeded states, project-scope enforcement before provider access, caller-supplied embeddings only, provenance-preserving duplicate normalization and no retrieval-side mutation. Accepted V2.2.3 capability truth adds explainable context candidates, deterministic selected/omitted rationale, explicit token-budget accounting through the existing ContextBuilder, preserved source/knowledge/citation traceability and `<UNTRUSTED_DATA>` rendering, and KodeStudio Auto/Include/Exclude preview without trust or authority promotion. Accepted V2.2.4 capability truth adds explicit per-item source/version fingerprints, deterministic lifecycle invalidation, derived-only refresh/rebuild/delete, persisted selection state and KodeStudio lifecycle controls while preserving immutable source evidence and retrieval exclusion of stale/invalidated items.
+V2.2.5 implementation PR `#498` was qualified **31/31** on exact head `d29d10e5456623d1b7063bb37386693c1eec625a` and merged with `expected_head_sha` protection as `11479e63dc48c45f2ec97f9950430cf35c986e8c`. Its deterministic acceptance reported **13/13 PASS** on Ubuntu and Windows with evidence payload SHA-256 `22a8a287c8eead8530d2289fb19b9595e8774f0809f28c71754384b914ea8144`. Accepted exact-head artifacts were `v2-2-5-project-workspace-ubuntu-latest-d29d10e5456623d1b7063bb37386693c1eec625a` (ID `10578666529`) and `v2-2-5-project-workspace-windows-latest-d29d10e5456623d1b7063bb37386693c1eec625a` (ID `10578731421`). Python Core Windows succeeded on attempt 2 on the unchanged head after an isolated historical R16.16 temporary-directory cleanup lock; no source/workflow/acceptance criterion changed.
+
+Accepted V2.2.1 capability truth remains a deterministic project-scoped knowledge catalog over immutable Research Packs, WorkspaceBoundary-confined project files and verified active-project memory. Accepted V2.2.2 capability truth adds bounded, deterministic project-scoped semantic retrieval with explicit empty/unavailable/bound-exceeded states, project-scope enforcement before provider access, caller-supplied embeddings only, provenance-preserving duplicate normalization and no retrieval-side mutation. Accepted V2.2.3 capability truth adds explainable context candidates, deterministic selected/omitted rationale, explicit token-budget accounting through the existing ContextBuilder, preserved source/knowledge/citation traceability and `<UNTRUSTED_DATA>` rendering, and KodeStudio Auto/Include/Exclude preview without trust or authority promotion. Accepted V2.2.4 capability truth adds explicit per-item source/version fingerprints, deterministic lifecycle invalidation, derived-only refresh/rebuild/delete, persisted selection state and KodeStudio lifecycle controls while preserving immutable source evidence and retrieval exclusion of stale/invalidated items. Accepted V2.2.5 capability truth adds one project-scoped governed context snapshot consumed by Chat/KodeCode/specialists, preserves source/citation/trust/version traceability, keeps Chat data-only and KodeCode read-only, and permits durable project-context memory only through explicit-opt-in R16.7-backed derived project memory with no global/training promotion.
 
 Active V2 authority documents are:
 
@@ -70,9 +72,9 @@ Active V2 authority documents are:
 - `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` — completed V2.1 Research authority;
 - `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` — normalized V2.2 authority.
 
-The current authorized implementation is **V2.2.5 — Project Memory bridge and workspace consumption** only.
+The current authorized implementation is **V2.2.6 — Project Knowledge hardening and integrated acceptance** only.
 
-V2.2.5 may add an explicit project-only bridge from governed knowledge/context into eligible Memory/context surfaces, reuse R16.7 integrity/provenance/conflict/invalidation/quarantine rules, let Chat/KodeCode/specialist workspaces consume the same governed context contract, preserve source/citation traceability and show which project knowledge entered active context. It may not silently promote research-derived data to global memory/training data, directly read unrestricted stores, pull forward V2.2.6 hardening, implement V2.5 cross-workspace task orchestration, or modify release/TUF/updater/R20 authority.
+V2.2.6 may adversarially prove the accepted V2.2 contracts across cross-project scope, tampered/quarantined/replay/version-conflicting memory, tampered Research Packs, stale/version invalidation, prompt injection/source-instruction text, secrets, include/exclude consistency, delete-derived/source-delete separation, deterministic retrieval, context budget, unavailable/empty capability state, cancellation, KodeStudio explainability and Chat/KodeCode/specialist traceability/trust. It may not weaken existing guards, pull forward V2.3+, implement V2.5 cross-workspace orchestration, or modify release/TUF/updater/R20 authority.
 
 Existing security authority remains unchanged: immutable Research Pack provenance, ResearchGuard, KodeSecrets, WorkspaceBoundary and R16.7 MemoryStore integrity/quarantine/project-scope rules remain binding. Indexed, retrieved or context-selected data never gains instruction authority merely by being selected or scored.
 

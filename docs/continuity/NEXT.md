@@ -192,46 +192,56 @@ Accepted product truth is adversarial integrated proof of the complete V2.2 proj
 
 **V2.2 is COMPLETE + NORMALIZED. No V2.2.7 is authorized.**
 
+## V2.3 planning accepted
+
+Planning PR `#502` was qualified **25/25** on exact head `8a13bb5c7a334b500cebaedec8bf7988d10147c3` and merged with `expected_head_sha` protection as `4744cc47827ca28c61395fc6c8e5064a18ae2b0c`.
+
+Key exact-head gates:
+
+- `R0 Repository Guard` `35447327711` = success;
+- `KodeStudio UI Smoke` `35447327644` = success;
+- `Python Core` `35447327756` = success;
+- `R12 Tauri2 Acceptance` `35447327773` = success;
+- `R13 Integrated Release Readiness` `35447327678` = success;
+- `R17 Windows Installer` `35447327730` = success.
+
+The normalized V2.3 authority is `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`.
+
 ## Immediate execution order
 
-### V2.3 — Model Lab governed improvement UX — PLANNING CURRENT
+### V2.3.1 — Model Lab shell, inventory and lineage — AUTHORIZED
 
-Dedicated planning authority under qualification:
+Implement V2.3.1 only.
 
-`docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`
+Required scope:
 
-Planning base:
+- dedicated Model Lab entry in KodeStudio;
+- read-only structured overview of accepted R15 evidence stores;
+- installed/local Ollama inventory plus saved model-role preferences;
+- specialized-model registry candidates/active/retired/rejected state;
+- dataset identities/cards/manifests and benchmark/training/evaluation/export evidence discovery;
+- runtime capability summary without installing dependencies;
+- display existing Kaggle doctor/auth/network/quota state when available without changing accelerator behavior;
+- lineage graph/table from dataset -> plan -> run -> evaluation -> export/conversion/package -> model-registry version;
+- explicit missing/stale/tampered/unavailable states;
+- raw JSON diagnostics only, not the primary UX.
 
-`b5ac64becc4b748aa77386121ba6a63e02cf88bd`
+V2.3.1 is **read-only with respect to model-improvement mutations**:
 
-Frozen planned subdivisions:
+- no new training;
+- no dataset-build mutation;
+- no conversion/package mutation;
+- no promotion or rollback mutation;
+- no new accelerator behavior;
+- no Project Knowledge-to-training-data path.
 
-1. **V2.3.1 — Model Lab shell, inventory and lineage**;
-2. **V2.3.2 — Governed experience and dataset curation workspace**;
-3. **V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX**;
-4. **V2.3.4 — Governed training plan, execution and recovery UX**;
-5. **V2.3.5 — Candidate evaluation, export, promotion and rollback UX**;
-6. **V2.3.6 — Model Lab hardening and integrated acceptance**.
+Definition of done: the user can inspect what Model Lab knows, where each artifact came from and which prerequisites block later operations without running a mutation.
 
-The plan is explicitly a UX/governance layer over accepted R15 services. It must reuse Experience governance, immutable dataset, KodeBench, TRAIN/NO_TRAIN, runtime probes, TrainingPlan, evaluation, export, GGUF/Ollama packaging and specialized-model registry contracts.
-
-Critical boundaries:
-
-- no Project Knowledge/chat/research/memory content becomes training data automatically;
-- only R15-governed eligible experiences may feed the immutable dataset builder;
-- unknown/revoked license, secret/privacy failure or holdout contamination remains fail closed;
-- training requires an accepted TRAIN authorization, exact model/tokenizer/dataset identity and capability/resource evidence;
-- NO_TRAIN is a valid result;
-- critical regressions veto promotion;
-- promotion and rollback are explicit registry mutations, never implied by training success;
-- Kaggle T4×2 stays two separate 16 GiB devices and V2.4 retains production/multi-GPU qualification;
-- no public model/dataset publication, arbitrary commands, silent dependency installs, V2.4+, V2.5 orchestration, release/TUF/updater mutation or R20 work.
-
-**No V2.3 implementation is authorized yet.** The planning head must first be fully exact-head qualified, merged with `expected_head_sha`, then post-merge normalized. Only that normalization may authorize V2.3.1.
+V2.3.2+ remain unauthorized until V2.3.1 is exact-head qualified, merged and post-merge normalized.
 
 ## Later V2 order
 
-After V2.3 planning is qualified, merged and normalized, execute only V2.3.1. V2.4, V2.5 and V2.6 remain later phases.
+After V2.3.1 is COMPLETE + NORMALIZED, proceed only to the next subdivision authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
 
 ## Accelerator policy
 
@@ -247,4 +257,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.2 est COMPLETE + NORMALIZED et aucun V2.2.7 n'est autorisé. V2.3 est actuellement en planification docs-only depuis le main normalisé b5ac64becc4b748aa77386121ba6a63e02cf88bd. Le plan fige six subdivisions : V2.3.1 shell/inventory/lineage, V2.3.2 expérience+dataset gouvernés, V2.3.3 Bench+TRAIN/NO_TRAIN, V2.3.4 training plan/run/recovery, V2.3.5 evaluation/export/promotion/rollback, V2.3.6 hardening intégré. Réutilise le backend R15 existant, n'autorise aucune implémentation V2.3 avant qualification exacte du plan, merge protégé puis normalisation. Préserve les frontières training-data, contamination, licenses/secrets, exact lineage, critical-regression veto, Project Knowledge reference-only, Kaggle T4×2 séparées, TPU différé. Ne tire pas en avant V2.4+, V2.5 orchestration, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. Le planning V2.3 est COMPLETE + NORMALIZED : PR #502 qualifiée 25/25 sur le head exact 8a13bb5c7a334b500cebaedec8bf7988d10147c3 puis fusionnée avec expected_head_sha en 4744cc47827ca28c61395fc6c8e5064a18ae2b0c. La seule subdivision autorisée est V2.3.1 — Model Lab shell, inventory and lineage. Implémente une vue KodeStudio structurée et read-only réutilisant les stores/backends R15 existants : datasets, Bench, training/evaluation/export, registry spécialisé, inventaire Ollama/rôles, capabilities et état Kaggle, avec lineage et états degraded explicites. Aucun dataset build, training, conversion/package, promotion/rollback ou V2.3.2+ ne doit être tiré en avant. Préserve Project Knowledge reference-only, training-data governance, exact lineage, Kaggle T4×2 séparées, TPU différé, release/TUF/updater/R20 inchangés. Qualifie le head final exact, merge protégé, puis normalise avant V2.3.2.`

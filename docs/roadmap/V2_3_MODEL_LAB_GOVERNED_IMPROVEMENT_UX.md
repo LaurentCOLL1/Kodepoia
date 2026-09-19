@@ -1,6 +1,6 @@
 # V2.3 — Model Lab governed improvement UX
 
-Status: **PLANNING COMPLETE + NORMALIZED — V2.3.1 is the only authorized implementation subdivision**  
+Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1 COMPLETE + NORMALIZED — V2.3.2 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `b5ac64becc4b748aa77386121ba6a63e02cf88bd`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -149,7 +149,7 @@ Raw JSON may remain available behind diagnostics, but it must not be the primary
 
 The subdivision list below is frozen by the accepted V2.3 planning authority. No subdivision may be silently added, removed, merged, split or renumbered.
 
-### V2.3.1 — Model Lab shell, inventory and lineage — CURRENT
+### V2.3.1 — Model Lab shell, inventory and lineage — COMPLETE + NORMALIZED
 
 Goal: create the structured Model Lab workspace and make current model-improvement state inspectable before enabling new mutations.
 
@@ -175,7 +175,36 @@ Non-goals:
 
 Definition of done: the user can inspect what Model Lab knows, where each artifact came from, and which prerequisites block later operations without running a mutation.
 
-### V2.3.2 — Governed experience and dataset curation workspace
+Accepted implementation evidence:
+
+The implementation was developed and qualified while the governing subdivision marker was exactly `V2.3.1 — Model Lab shell, inventory and lineage — CURRENT`. That historical marker is retained here as immutable acceptance context only; it is superseded by the `COMPLETE + NORMALIZED` status above and does not re-authorize V2.3.1.
+
+- implementation PR `#504`;
+- exact final head `33d30747ebd915ab2bad56d3154f55a907830061`;
+- **28/28** pull-request workflows `completed/success`;
+- merge `1a7454f52bcd78ac2b44c3db467f6faa39df3a62` with `expected_head_sha` protection;
+- deterministic **14/14 PASS** exact-head acceptance on Ubuntu and Windows;
+- identical evidence payload SHA-256 `5063e101b899d2e7a409ab14d4e2ab684cb98b67f963980fdc8e9f990061b6cc`;
+- Ubuntu artifact `v2-3-1-model-lab-shell-ubuntu-latest-33d30747ebd915ab2bad56d3154f55a907830061` — ID `10588052972`;
+- Windows artifact `v2-3-1-model-lab-shell-windows-latest-33d30747ebd915ab2bad56d3154f55a907830061` — ID `10588422645`.
+
+Accepted product truth:
+
+- the Model Lab is a dedicated structured KodeStudio surface over existing R15 evidence/model infrastructure rather than a parallel backend;
+- R15 evidence discovery is bounded, project-scoped and read-only;
+- accepted specialized-model registry digest/integrity validation is reused;
+- dataset/training/evaluation/export/registry digests are exposed through read-only lineage;
+- saved Ollama role preferences are visible before any runtime access and installed-model inventory is refreshed explicitly;
+- Kaggle doctor/quota state is refreshed explicitly and does not alter accelerator behavior;
+- dependency capability is introspected without dependency/driver installation;
+- missing, invalid, stale, tampered and unavailable states are explicit;
+- raw JSON remains secondary diagnostics;
+- no dataset build, training, conversion/package, promotion or rollback mutation exists in V2.3.1;
+- Project Knowledge/Research/context remains reference-only and is not training authority.
+
+This normalization closes V2.3.1 and authorizes **V2.3.2 only**.
+
+### V2.3.2 — Governed experience and dataset curation workspace — CURRENT
 
 Goal: expose the accepted R15 training-data trust boundary as a structured, deliberate UX.
 
@@ -410,6 +439,8 @@ The V2.3 planning phase is complete because:
 - V2.4/V2.5/V2.6 and release/R20 boundaries are explicit;
 - planning PR `#502` was qualified **25/25** on exact head `8a13bb5c7a334b500cebaedec8bf7988d10147c3`;
 - planning PR `#502` was merged with `expected_head_sha` protection as `4744cc47827ca28c61395fc6c8e5064a18ae2b0c`;
-- this post-merge continuity normalization records the accepted planning head/merge and authorizes **V2.3.1 only**.
+- the planning post-merge normalization authorized **V2.3.1 only**;
+- V2.3.1 implementation PR `#504` was qualified **28/28** on exact head `33d30747ebd915ab2bad56d3154f55a907830061`, passed deterministic **14/14** acceptance on Ubuntu and Windows with evidence SHA-256 `5063e101b899d2e7a409ab14d4e2ab684cb98b67f963980fdc8e9f990061b6cc`, and merged as `1a7454f52bcd78ac2b44c3db467f6faa39df3a62`;
+- this post-merge continuity normalization records V2.3.1 as **COMPLETE + NORMALIZED** and authorizes **V2.3.2 only**.
 
-**V2.3.1 is now the only authorized implementation subdivision. V2.3.2+ remain unauthorized.**
+**V2.3.2 is now the only authorized implementation subdivision. V2.3.3+ remain unauthorized.**

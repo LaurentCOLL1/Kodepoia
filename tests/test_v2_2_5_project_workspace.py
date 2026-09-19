@@ -25,6 +25,7 @@ from kodepoia.intelligence.project_workspace import (
     ProjectWorkspaceSurface,
 )
 from kodepoia.kodecode.api import KodeCodeToolAPI
+from kodepoia.kodecode.executor import DEFAULT_TOOL_POLICIES, ToolEffect
 
 
 def _digest(value: str) -> str:
@@ -215,6 +216,8 @@ def test_kodecode_reads_only_the_shared_governed_context(tmp_path: Path) -> None
 
     names = [item["function"]["name"] for item in api.catalog()]
     assert "kodecode_project_context" in names
+    policy = DEFAULT_TOOL_POLICIES["kodecode_project_context"]
+    assert policy.effect is ToolEffect.READ
     payload = api.invoke("kodecode_project_context")
 
     assert payload["state"] == "ready"

@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-19 after V2.3 planning PR `#502` merge and post-merge normalization  
+Last synchronized: 2026-09-19 after V2.3.1 implementation PR `#504` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -476,7 +476,55 @@ Accepted planning invariants include:
 - TPU v5e-8 remains deferred;
 - no public publishing, arbitrary command surface, silent dependency installation, release/TUF/updater work or R20 reopening.
 
-This post-merge normalization authorizes **V2.3.1 — Model Lab shell, inventory and lineage only**. V2.3.2+ remain unauthorized until V2.3.1 is implemented, exact-head qualified, merged and post-merge normalized.
+This planning normalization authorized **V2.3.1 — Model Lab shell, inventory and lineage only**.
+
+## V2.3.1 — Model Lab shell, inventory and lineage — COMPLETE + NORMALIZED
+
+Implementation PR `#504` was qualified on exact final head:
+
+`33d30747ebd915ab2bad56d3154f55a907830061`
+
+All **28/28** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35456063171`;
+- `KodeStudio UI Smoke` run `35456063151`;
+- `Python Core` run `35456063128`;
+- `R12 Tauri2 Acceptance` run `35456063201`;
+- `R13 Integrated Release Readiness` run `35456063202`;
+- `R15.15 CLI KodeStudio UX Acceptance` run `35456063364`;
+- `R17 Windows Installer` run `35456063263`;
+- `R18.11 Integrated Adversarial Release Update Acceptance` run `35456063159`.
+
+The deterministic V2.3.1 acceptance reported **14/14 PASS** on Ubuntu and Windows with identical evidence payload SHA-256:
+
+`5063e101b899d2e7a409ab14d4e2ab684cb98b67f963980fdc8e9f990061b6cc`
+
+Accepted exact-head artifacts:
+
+- `v2-3-1-model-lab-shell-ubuntu-latest-33d30747ebd915ab2bad56d3154f55a907830061` — ID `10588052972`;
+- `v2-3-1-model-lab-shell-windows-latest-33d30747ebd915ab2bad56d3154f55a907830061` — ID `10588422645`.
+
+PR `#504` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`1a7454f52bcd78ac2b44c3db467f6faa39df3a62`
+
+Accepted V2.3.1 product truth:
+
+- KodeStudio now has a dedicated structured Model Lab entry while the accepted R15 Experience / Tune page remains available;
+- Model Lab discovers accepted project-scoped R15 experience, dataset, benchmark and tuning evidence through bounded read-only JSON inspection rather than a new training backend;
+- specialized-model registry records are inspected through the accepted R15.14 digest/integrity contract and tampered registry evidence remains explicit;
+- dataset/training/evaluation/export/registry digests are projected into a read-only lineage view;
+- saved Ollama role preferences are visible without contacting Ollama, while installed-model inventory refresh is an explicit read-only runtime action;
+- Kaggle doctor/quota state is queried only on explicit refresh and does not change accelerator behavior;
+- training dependency capability is introspected without installing packages or drivers;
+- missing, invalid, stale, tampered and unavailable states remain explicit; raw JSON is diagnostics-only rather than the primary UX;
+- the Model Lab shell exposes no dataset-build, training, conversion/package, promotion or rollback mutation;
+- FR/EN/pseudo-localization and the central KodeStudio accessibility contract include the new Model Lab controls;
+- Project Knowledge, Research Packs, chats, memory and retrieved context remain reference data only and do not become training examples.
+
+Two integration defects were corrected before the final accepted head: historical R15.15 Ruff import ordering and registration of the new Model Lab controls in the existing accessibility contract. No gate was weakened; only the final head above is accepted.
+
+This post-merge normalization authorizes **V2.3.2 — Governed experience and dataset curation workspace only**. V2.3.3+ remain unauthorized until V2.3.2 is implemented, exact-head qualified, merged and post-merge normalized.
 
 ## Accepted V2 capability truth
 
@@ -505,10 +553,10 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md`, completed `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` and normalized `V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`;
-2. verify V2.3 planning remains **COMPLETE + NORMALIZED** from PR `#502`, exact head `8a13bb5c7a334b500cebaedec8bf7988d10147c3`, **25/25** workflows and merge `4744cc47827ca28c61395fc6c8e5064a18ae2b0c`;
-3. implement **V2.3.1 — Model Lab shell, inventory and lineage only**;
-4. preserve the accepted R15 backend and V2.3 permanent trust/data-eligibility invariants;
-5. V2.3.1 must remain read-only regarding dataset build, training, conversion, promotion and rollback mutations;
-6. preserve Project Knowledge as reference-only and do not create automatic training capture;
-7. do not pull forward V2.3.2+, V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
-8. after V2.3.1 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.2.
+2. verify V2.3.1 remains **COMPLETE + NORMALIZED** from PR `#504`, exact head `33d30747ebd915ab2bad56d3154f55a907830061`, **28/28** workflows, **14/14 PASS** Ubuntu/Windows and merge `1a7454f52bcd78ac2b44c3db467f6faa39df3a62`;
+3. implement **V2.3.2 — Governed experience and dataset curation workspace only**;
+4. reuse the accepted R15 Experience governance, sanitization/license, dedup/contamination and immutable dataset contracts rather than creating a parallel data path;
+5. preserve Project Knowledge/Research/context as reference-only; no automatic training capture or implicit eligibility;
+6. keep curation and dataset-build mutations behind accepted typed R15 handlers, dry-run/preview and explicit confirmation as applicable;
+7. do not pull forward V2.3.3+, V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
+8. after V2.3.2 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.3.

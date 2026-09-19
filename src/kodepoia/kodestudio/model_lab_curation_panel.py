@@ -180,7 +180,15 @@ def create_model_lab_curation_page(
     evidence_layout = QVBoxLayout(evidence_group)
     evidence = create_table(
         "modelLabCurationEvidenceTable",
-        ["Kind", "State", "Policy digest", "Findings / clusters", "Quarantined", "Path"],
+        [
+            "Kind",
+            "State",
+            "Policy digest",
+            "Findings / clusters",
+            "Match types / members",
+            "Quarantined",
+            "Path",
+        ],
         tr.text("evidence"),
     )
     evidence_layout.addWidget(evidence)
@@ -226,6 +234,17 @@ def create_model_lab_curation_page(
         dataset_actions.addWidget(widget)
     dataset_actions.addStretch(1)
     datasets_layout.addLayout(dataset_actions)
+
+    dataset_preview_summary = QLabel()
+    dataset_preview_summary.setWordWrap(True)
+    mark_accessible(
+        dataset_preview_summary,
+        object_name="modelLabCurationDatasetPreview",
+        name=tr.text("preview_dataset"),
+        description=tr.text("preview_dataset"),
+        description_required=True,
+    )
+    datasets_layout.addWidget(dataset_preview_summary)
     body_layout.addWidget(datasets_group)
 
     confirm = QCheckBox(tr.text("confirm"))
@@ -314,6 +333,25 @@ def create_model_lab_curation_page(
             )
         )
 
+        preview_summary = curation.dataset_preview_summary(payload)
+        split_summary = preview_summary.get("split_summary")
+        split_map = split_summary if isinstance(split_summary, dict) else {}
+        dataset_preview_summary.setText(
+            " | ".join(
+                (
+                    f"Candidate rows: {preview_summary.get('candidate_rows', 0)}",
+                    f"Excluded rows: {preview_summary.get('excluded_rows', 0)}",
+                    "Licenses: "
+                    + json.dumps(preview_summary.get("licenses", {}), sort_keys=True),
+                    "Domains: "
+                    + json.dumps(preview_summary.get("domains", {}), sort_keys=True),
+                    "Tasks: "
+                    + json.dumps(preview_summary.get("tasks", {}), sort_keys=True),
+                    f"Split: {split_map.get('state', 'unknown')}",
+                )
+            )
+        )
+
         experience_rows: list[list[str]] = []
         for item in payload.get("experiences", []):
             if not isinstance(item, dict):
@@ -349,12 +387,18 @@ def create_model_lab_curation_page(
             count = item.get("finding_count", item.get("cluster_count", 0))
             quarantined = item.get("quarantined_item_ids")
             quarantined_count = len(quarantined) if isinstance(quarantined, list) else 0
+            match_types = item.get("match_types")
+            if isinstance(match_types, list):
+                match_or_members = ", ".join(str(value) for value in match_types)
+            else:
+                match_or_members = str(item.get("member_count", ""))
             evidence_rows.append(
                 [
                     str(item.get("kind", "")),
                     str(item.get("state", "")),
                     str(item.get("policy_digest", "")),
                     str(count),
+                    match_or_members,
                     str(quarantined_count),
                     str(item.get("path", "")),
                 ]

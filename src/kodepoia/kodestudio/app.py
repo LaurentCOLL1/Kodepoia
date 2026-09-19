@@ -171,15 +171,20 @@ def build_window(
         return page
 
     def research_page() -> QWidget:
+        import inspect
+
         from kodepoia.kodestudio.research_panel import create_research_page
 
-        return create_research_page(
-            root,
-            translator=tr,
-            service=research_service,
-            status_bar=status,
-            workspace_context_session=context_session,
-        )
+        kwargs = {
+            "translator": tr,
+            "service": research_service,
+            "status_bar": status,
+        }
+        if "workspace_context_session" in inspect.signature(
+            create_research_page
+        ).parameters:
+            kwargs["workspace_context_session"] = context_session
+        return create_research_page(root, **kwargs)
 
     def vault_page() -> QWidget:
         from kodepoia.kodestudio.vault_panel import create_vault_page

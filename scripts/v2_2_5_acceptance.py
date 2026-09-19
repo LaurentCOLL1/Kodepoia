@@ -46,6 +46,9 @@ def main() -> int:
     kodecode = (
         root / "src/kodepoia/kodecode/api.py"
     ).read_text(encoding="utf-8")
+    kodecode_executor = (
+        root / "src/kodepoia/kodecode/executor.py"
+    ).read_text(encoding="utf-8")
     app = (
         root / "src/kodepoia/kodestudio/app.py"
     ).read_text(encoding="utf-8")
@@ -149,8 +152,9 @@ def main() -> int:
             "kodecode_read_only_consumption",
             '"kodecode_project_context"' in kodecode
             and "ProjectWorkspaceSurface.KODECODE" in kodecode
-            and "MemoryStore" not in kodecode,
-            "KodeCode reads the shared governed context without direct durable-store access",
+            and "MemoryStore" not in kodecode
+            and '"kodecode_project_context": _READ' in kodecode_executor,
+            "KodeCode reads the shared governed context without direct durable-store access and keeps an explicit read-only executor policy",
         ),
         _check(
             "specialist_visibility",

@@ -423,12 +423,18 @@ def build_window(
     assistant = VisionAssistant(
         OllamaClient(base_url=saved_ollama_base_url(preferences), timeout=8.0)
     )
+    workspace_context_session = getattr(
+        window,
+        "_project_workspace_context_session",
+        None,
+    )
     chat_page = create_vision_chat_page(
         root,
         locale=chosen_locale,
         assistant=assistant,
         preferred_model=preferred_model(preferences, "core"),
         apply_callback=open_project_with_draft,
+        workspace_context_session=workspace_context_session,
     )
     _replace_stack_page(pages, 0, chat_page)
 

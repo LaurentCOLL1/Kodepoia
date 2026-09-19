@@ -23,6 +23,7 @@ from kodepoia.intelligence.research.store import ResearchStore
 from kodepoia.kodestudio.accessibility import mark_accessible
 from kodepoia.kodestudio.localization import KodeStudioTranslator
 from kodepoia.kodestudio.research_synthesis import create_cited_synthesis_widget
+from kodepoia.kodestudio.project_context_preview import create_project_context_preview_widget
 from kodepoia.kodestudio.research_ux import (
     ResearchUxTranslator,
     default_empty_state_text,
@@ -373,6 +374,10 @@ def create_research_page(
         question_provider=lambda: query.text().strip() or "Selected research evidence",
     )
     layout.addWidget(synthesis_widget)
+
+    project_context_widget = create_project_context_preview_widget()
+    layout.addWidget(project_context_widget)
+    page._project_context_preview_widget = project_context_widget
 
     technical_label = QLabel(ux.text("research_ux.technical.title"))
     technical_label.setObjectName("researchTechnicalDetailsLabel")

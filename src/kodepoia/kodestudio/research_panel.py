@@ -20,6 +20,7 @@ from kodepoia.intelligence.research.service import (
     ResearchServiceResult,
 )
 from kodepoia.intelligence.research.store import ResearchStore
+from kodepoia.intelligence.project_workspace import ProjectWorkspaceContextSession
 from kodepoia.kodestudio.accessibility import mark_accessible
 from kodepoia.kodestudio.localization import KodeStudioTranslator
 from kodepoia.kodestudio.research_synthesis import create_cited_synthesis_widget
@@ -83,6 +84,7 @@ def create_research_page(
     translator: KodeStudioTranslator,
     service: ResearchService | None = None,
     status_bar=None,
+    workspace_context_session: ProjectWorkspaceContextSession | None = None,
 ):
     from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
     from PySide6.QtWidgets import (
@@ -379,6 +381,10 @@ def create_research_page(
     layout.addWidget(synthesis_widget)
 
     project_context_widget = create_project_context_preview_widget()
+    if workspace_context_session is not None:
+        project_context_widget._project_context_on_bundle = (
+            workspace_context_session.activate
+        )
     layout.addWidget(project_context_widget)
     page._project_context_preview_widget = project_context_widget
 
@@ -402,6 +408,7 @@ def create_research_page(
     layout.addWidget(details)
 
     page._research_service = research
+    page._project_workspace_context_session = workspace_context_session
     page._research_discovery_service = discovery
     page._research_result = None
     page._research_workspace = EvidenceWorkspace(())

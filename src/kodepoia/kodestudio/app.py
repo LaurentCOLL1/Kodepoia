@@ -4,6 +4,10 @@ import sys
 from pathlib import Path
 
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
+from kodepoia.intelligence.project_workspace import (
+    ProjectWorkspaceContextSession,
+    ProjectWorkspaceSurface,
+)
 from kodepoia.kodestudio.accessibility import mark_accessible
 from kodepoia.kodestudio.runtime_localization import KodeStudioTranslator
 
@@ -22,6 +26,7 @@ def build_window(
     r13_service=None,
     r14_service=None,
     r15_service=None,
+    workspace_context_session: ProjectWorkspaceContextSession | None = None,
 ):
     from PySide6.QtWidgets import (
         QLabel,
@@ -43,6 +48,7 @@ def build_window(
         return fr if french else en
 
     root = (project_root or Path.cwd()).resolve(strict=False)
+    context_session = workspace_context_session or ProjectWorkspaceContextSession()
     window = QMainWindow()
     window.setObjectName("kodepoiaMainWindow")
     window.setAccessibleName("Kodepoia KodeStudio")
@@ -57,6 +63,7 @@ def build_window(
     window._kodepoia_kill_switch = switch
     window._kodepoia_locale = locale
     window._kodepoia_project_root = root
+    window._project_workspace_context_session = context_session
 
     nav = QListWidget()
     mark_accessible(
@@ -171,6 +178,7 @@ def build_window(
             translator=tr,
             service=research_service,
             status_bar=status,
+            workspace_context_session=context_session,
         )
 
     def vault_page() -> QWidget:
@@ -203,59 +211,94 @@ def build_window(
             status_bar=status,
         )
 
+    def with_project_context(page: QWidget, workspace_id: str) -> QWidget:
+        from kodepoia.kodestudio.project_workspace_context import (
+            create_project_workspace_context_widget,
+        )
+
+        context_widget = create_project_workspace_context_widget(
+            context_session,
+            surface=ProjectWorkspaceSurface.SPECIALIST,
+            workspace_id=workspace_id,
+        )
+        page_layout = page.layout()
+        if page_layout is not None:
+            insert = getattr(page_layout, "insertWidget", None)
+            if callable(insert):
+                insert(2, context_widget)
+            else:
+                page_layout.addWidget(context_widget)
+        page._project_workspace_context_widget = context_widget
+        return page
+
     def r11_page() -> QWidget:
         from kodepoia.kodestudio.r11_localization import R11Translator
         from kodepoia.kodestudio.r11_workspace import create_r11_workspace_page
 
-        return create_r11_workspace_page(
-            translator=R11Translator(locale),
-            service=r11_service,
-            status_bar=status,
-            kill_switch=switch,
+        return with_project_context(
+            create_r11_workspace_page(
+                translator=R11Translator(locale),
+                service=r11_service,
+                status_bar=status,
+                kill_switch=switch,
+            ),
+            "r11",
         )
 
     def r12_page() -> QWidget:
         from kodepoia.kodestudio.r12_localization import R12Translator
         from kodepoia.kodestudio.r12_workspace import create_r12_workspace_page
 
-        return create_r12_workspace_page(
-            root,
-            translator=R12Translator(locale),
-            service=r12_service,
-            status_bar=status,
-            kill_switch=switch,
+        return with_project_context(
+            create_r12_workspace_page(
+                root,
+                translator=R12Translator(locale),
+                service=r12_service,
+                status_bar=status,
+                kill_switch=switch,
+            ),
+            "r12",
         )
 
     def r13_page() -> QWidget:
         from kodepoia.kodestudio.r13_localization import R13Translator
         from kodepoia.kodestudio.r13_workspace import create_r13_workspace_page
 
-        return create_r13_workspace_page(
-            root,
-            translator=R13Translator(locale),
-            service=r13_service,
-            status_bar=status,
-            kill_switch=switch,
+        return with_project_context(
+            create_r13_workspace_page(
+                root,
+                translator=R13Translator(locale),
+                service=r13_service,
+                status_bar=status,
+                kill_switch=switch,
+            ),
+            "r13",
         )
 
     def r14_page() -> QWidget:
         from kodepoia.kodestudio.backend_liveops_panel import create_backend_liveops_page
 
-        return create_backend_liveops_page(
-            root,
-            locale=locale,
-            service=r14_service,
-            status_bar=status,
+        return with_project_context(
+            create_backend_liveops_page(
+                root,
+                locale=locale,
+                service=r14_service,
+                status_bar=status,
+            ),
+            "r14",
         )
 
     def r15_page() -> QWidget:
         from kodepoia.kodestudio.r15_tuning_panel import create_r15_tuning_page
 
-        return create_r15_tuning_page(
-            root,
-            locale=locale,
-            service=r15_service,
-            status_bar=status,
+        return with_project_context(
+            create_r15_tuning_page(
+                root,
+                locale=locale,
+                service=r15_service,
+                status_bar=status,
+            ),
+            "r15",
         )
 
     from kodepoia.kodestudio.blender_localization import blender_nav_text

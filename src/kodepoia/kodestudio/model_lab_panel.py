@@ -85,12 +85,16 @@ def create_model_lab_page(
 
     def table(name: str, headers: list[str], accessible: str) -> QTableWidget:
         widget = QTableWidget(0, len(headers))
-        widget.setObjectName(name)
         widget.setHorizontalHeaderLabels(headers)
         widget.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         widget.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        widget.setAccessibleName(accessible)
-        widget.setAccessibleDescription(accessible)
+        mark_accessible(
+            widget,
+            object_name=name,
+            name=accessible,
+            description=accessible,
+            description_required=True,
+        )
         widget.setMinimumHeight(125)
         return widget
 
@@ -171,10 +175,14 @@ def create_model_lab_page(
     diagnostics_group = QGroupBox(tr.text("diagnostics"))
     diagnostics_layout = QVBoxLayout(diagnostics_group)
     diagnostics = QPlainTextEdit()
-    diagnostics.setObjectName("modelLabDiagnostics")
     diagnostics.setReadOnly(True)
-    diagnostics.setAccessibleName(tr.text("diagnostics"))
-    diagnostics.setAccessibleDescription(tr.text("diagnostics"))
+    mark_accessible(
+        diagnostics,
+        object_name="modelLabDiagnostics",
+        name=tr.text("diagnostics"),
+        description=tr.text("diagnostics"),
+        description_required=True,
+    )
     diagnostics.setMaximumBlockCount(5000)
     diagnostics.setMinimumHeight(140)
     diagnostics_layout.addWidget(diagnostics)

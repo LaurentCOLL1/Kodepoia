@@ -77,7 +77,10 @@ def main() -> int:
             and '"rollback": False' in service
             and "test_model_lab_inventory_discovers_r15_evidence_and_registry_without_mutation"
             in backend_test,
-            "Model Lab exposes inventory/runtime reads only and the corpus proves project evidence bytes are unchanged",
+            (
+                "Model Lab exposes inventory/runtime reads only and the corpus proves "
+                "project evidence bytes are unchanged"
+            ),
         ),
         _check(
             "bounded_evidence_discovery",
@@ -115,7 +118,10 @@ def main() -> int:
             and '"evaluation_digest"' in service
             and '"target_kind": "model_registry"' in service
             and "modelLabLineageTable" in panel,
-            "dataset/training/evaluation/export/registry digests are projected into a read-only lineage table",
+            (
+                "dataset/training/evaluation/export/registry digests are projected "
+                "into a read-only lineage table"
+            ),
         ),
         _check(
             "ollama_roles_and_inventory",
@@ -150,7 +156,10 @@ def main() -> int:
             and "modelLabEvidenceTable" in panel
             and "modelLabRegistryTable" in panel
             and "modelLabDiagnostics" in panel,
-            "KodeStudio has a dedicated structured Model Lab surface with diagnostics JSON secondary to tables",
+            (
+                "KodeStudio has a dedicated structured Model Lab surface with "
+                "diagnostics JSON secondary to tables"
+            ),
         ),
         _check(
             "no_model_lab_mutation_controls",

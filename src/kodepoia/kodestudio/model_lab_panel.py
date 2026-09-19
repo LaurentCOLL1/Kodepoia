@@ -252,6 +252,35 @@ def create_model_lab_page(
                 )
             set_rows(registry, registry_rows)
 
+        ollama_payload = payload.get("ollama")
+        if isinstance(ollama_payload, dict):
+            roles_raw = ollama_payload.get("roles")
+            roles = roles_raw if isinstance(roles_raw, dict) else {}
+            configured_models = sorted(
+                {str(value) for value in roles.values() if str(value).strip()},
+                key=str.casefold,
+            )
+            set_rows(
+                models,
+                [
+                    [
+                        model_name,
+                        ", ".join(
+                            sorted(
+                                str(role)
+                                for role, chosen in roles.items()
+                                if str(chosen) == model_name
+                            )
+                        ),
+                    ]
+                    for model_name in configured_models
+                ],
+            )
+            ollama_state.setText(
+                f"{ollama_payload.get('state', 'not_checked')} — "
+                f"{ollama_payload.get('base_url', '')}".strip()
+            )
+
         capability_rows: list[list[str]] = []
         for item in payload.get("capabilities", []):
             if not isinstance(item, dict):
@@ -292,13 +321,23 @@ def create_model_lab_page(
             )
             role_map = ollama.get("roles")
             roles = role_map if isinstance(role_map, dict) else {}
+            runtime_models = {
+                str(model)
+                for model in ollama.get("models", [])
+                if str(model).strip()
+            }
+            configured_models = {
+                str(value)
+                for value in roles.values()
+                if str(value).strip()
+            }
             model_rows: list[list[str]] = []
-            for model in ollama.get("models", []):
-                model_text = str(model)
+            for model_text in sorted(runtime_models | configured_models, key=str.casefold):
                 preferred = sorted(
                     str(role) for role, chosen in roles.items() if str(chosen) == model_text
                 )
-                model_rows.append([model_text, ", ".join(preferred)])
+                suffix = "" if model_text in runtime_models else " (configured; not reported installed)"
+                model_rows.append([model_text + suffix, ", ".join(preferred)])
             set_rows(models, model_rows)
         kaggle = payload.get("kaggle")
         if isinstance(kaggle, dict):

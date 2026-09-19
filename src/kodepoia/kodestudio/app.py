@@ -321,12 +321,12 @@ def build_window(
         )
 
     from kodepoia.kodestudio.blender_localization import blender_nav_text
+    from kodepoia.kodestudio.model_lab_localization import model_lab_nav_text
     from kodepoia.kodestudio.r11_localization import r11_nav_text
     from kodepoia.kodestudio.r12_localization import r12_nav_text
     from kodepoia.kodestudio.r13_localization import r13_nav_text
     from kodepoia.kodestudio.r14_localization import r14_nav_text
     from kodepoia.kodestudio.r15_localization import r15_nav_text
-    from kodepoia.kodestudio.model_lab_localization import model_lab_nav_text
 
     sections = (
         (tr.text("app.nav.chat"), None),

@@ -235,7 +235,7 @@ def test_curation_snapshot_keeps_revoked_unknown_license_and_tamper_fail_closed(
         revoked_manifest,
     )
     missing_manifest = _capture_manifest(missing_license)
-    missing_manifest["record"]["state"] = "curated"
+    missing_manifest["record"]["task_label"] = "tampered-task"
     _write_json(
         root / ".kodepoia" / "experience" / "missing-license.json",
         missing_manifest,

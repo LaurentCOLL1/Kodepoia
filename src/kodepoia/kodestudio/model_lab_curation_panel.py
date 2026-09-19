@@ -89,9 +89,13 @@ def create_model_lab_curation_page(
 
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
-    scroll.setObjectName("modelLabCurationScroll")
-    scroll.setAccessibleName(tr.text("title"))
-    scroll.setAccessibleDescription(tr.text("subtitle"))
+    mark_accessible(
+        scroll,
+        object_name="modelLabCurationScroll",
+        name=tr.text("title"),
+        description=tr.text("subtitle"),
+        description_required=True,
+    )
     body = QWidget()
     body_layout = QVBoxLayout(body)
 

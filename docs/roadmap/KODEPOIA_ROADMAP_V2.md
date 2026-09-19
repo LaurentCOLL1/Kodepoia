@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1 COMPLETE + NORMALIZED; V2.2.5 COMPLETE + NORMALIZED; V2.2.6 authorized**  
+Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -16,6 +16,11 @@ Public Windows distribution baseline: `v1.1.0-rc8`
 - V2.1.6: PR `#486`, accepted head `2e788df0886e1e31512f53547ea4603186e964eb`, merge `7efcc3e941fe8db0e3cc00c81b147716c91eb30b`, 27/27 successful; deterministic acceptance 12/12 PASS on Ubuntu and Windows.
 - V2.2.1: PR `#490`, accepted head `f5c6e90783476117d90ee86ea7edbed014d691a7`, merge `6341dbe6599505edc8d354e629d0fc962587f8ac`, 27/27 successful; deterministic acceptance 11/11 PASS on Ubuntu and Windows; R16.7 Memory Context Poisoning Acceptance also passed.
 - V2.2.2: PR `#492`, accepted head `c3294815ddf4b76f75f04cb29ee2fdfe1d27248d`, merge `2d332945c3b1f8d76cc98d651606679c89791485`, 26/26 successful; deterministic acceptance 10/10 PASS on Ubuntu and Windows; Python Core Windows succeeded on attempt 2 on the unchanged head after an isolated historical R16.16 temp-directory lock.
+- V2.2.3: PR `#494`, accepted head `ac9ad68938cc13cd819bb078839c5963d03a794e`, merge `363bf1a3afa06949269208aa6d3639e439c899e5`, 27/27 successful; deterministic acceptance 11/11 PASS on Ubuntu and Windows.
+- V2.2.4: PR `#496`, accepted head `c17e673d944dd0582f9c0e24368c0adf45dd3f40`, merge `ca27459ca04abbeba8275cc32ba7166e37acfd5a`, 27/27 successful; deterministic acceptance 13/13 PASS on Ubuntu and Windows.
+- V2.2.5: PR `#498`, accepted head `d29d10e5456623d1b7063bb37386693c1eec625a`, merge `11479e63dc48c45f2ec97f9950430cf35c986e8c`, 31/31 successful; deterministic acceptance 13/13 PASS on Ubuntu and Windows.
+- V2.2.6: PR `#500`, accepted head `add97a4889c68b7aed79125563917ddce8b70863`, merge `2c122c913b57c0034f73ba25c34f3fd32507fafa`, 26/26 successful; deterministic integrated acceptance 16/16 PASS on Ubuntu and Windows with evidence SHA-256 `646071eb27ecf8e08ae7dfde3bd74e0f7d32a9dbd6e3d284a85c9093c5b5cc6d`.
+
 
 V2 does not reopen R20, does not create `R20.7`, and does not turn post-rc8 source capabilities into public rc8 capabilities.
 
@@ -126,7 +131,7 @@ Accepted scope and product truth:
 
 V2.1 is therefore complete through the ResearchGuard hardening boundary. No V2.1.7 is reserved or authorized.
 
-### V2.2 — Project Knowledge, Context Builder and Memory integration — V2.2.5 COMPLETE + NORMALIZED; V2.2.6 AUTHORIZED
+### V2.2 — Project Knowledge, Context Builder and Memory integration — COMPLETE + NORMALIZED
 
 Normative planning contract: `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`.
 
@@ -146,7 +151,7 @@ Planned subdivisions:
 - **V2.2.5 — Project Memory bridge and workspace consumption** — Chat, KodeCode and specialist consumption through one project-scoped governed context/memory boundary, without V2.5 orchestration.
 - **V2.2.6 — Project Knowledge hardening and integrated acceptance** — adversarial cross-project, tamper, poisoning, stale/invalidation, secret, prompt-injection and integrated UI/workspace proof.
 
-Planning and V2.2.1 through V2.2.5 are now implemented/qualified as applicable, merged and normalized.
+Planning and V2.2.1 through V2.2.6 are implemented/qualified as applicable, merged and normalized.
 
 V2.2.3 implementation PR `#494` was qualified **27/27** on exact head `ac9ad68938cc13cd819bb078839c5963d03a794e`, with deterministic **11/11 PASS** acceptance on Ubuntu and Windows and identical evidence SHA-256 `35c18af0424d15b54694ce537f89ae80de98dff262ea8168afe8ef73f5ef9765`, then merged with exact-head protection as `363bf1a3afa06949269208aa6d3639e439c899e5`. Its accepted product truth is explainable, token-budgeted context selection with deterministic rationale, source/citation/trust visibility, preserved `<UNTRUSTED_DATA>` semantics and explicit Auto/Include/Exclude without authority promotion.
 
@@ -154,12 +159,16 @@ V2.2.4 implementation PR `#496` was qualified **27/27** on exact head `c17e673d9
 
 V2.2.5 implementation PR `#498` was qualified **31/31** on exact head `d29d10e5456623d1b7063bb37386693c1eec625a`, with deterministic **13/13 PASS** acceptance on Ubuntu and Windows and identical evidence SHA-256 `22a8a287c8eead8530d2289fb19b9595e8774f0809f28c71754384b914ea8144`, then merged with exact-head protection as `11479e63dc48c45f2ec97f9950430cf35c986e8c`. Its accepted product truth is one project-scoped governed context snapshot shared across Chat/KodeCode/specialists plus explicit-opt-in R16.7-backed derived project memory, with traceability preserved and no authority/global/training promotion.
 
-The current authorized subdivision is **V2.2.6 — Project Knowledge hardening and integrated acceptance** only.
+V2.2.6 implementation PR `#500` was qualified **26/26** on exact head `add97a4889c68b7aed79125563917ddce8b70863`, with deterministic **16/16 PASS** integrated acceptance on Ubuntu and Windows and identical evidence SHA-256 `646071eb27ecf8e08ae7dfde3bd74e0f7d32a9dbd6e3d284a85c9093c5b5cc6d`, then merged with exact-head protection as `2c122c913b57c0034f73ba25c34f3fd32507fafa`. Its accepted truth is adversarial proof of the full V2.2 scope/trust/lifecycle/cross-surface contract without a runtime product-code change.
+
+V2.2 is therefore **COMPLETE + NORMALIZED** through V2.2.6. No V2.2.7 is reserved or authorized.
+
+The only authorized next work is **planning V2.3 — Model Lab governed improvement UX**. V2.3 implementation must wait for a dedicated planning authority to be exact-head qualified, merged and post-merge normalized.
 
 ## Remaining V2 sequence
 
-- V2.2 — Project Knowledge, Context Builder and Memory integration — **V2.2.5 COMPLETE + NORMALIZED; V2.2.6 is the current authorized subdivision**.
-- V2.3 — Model Lab governed improvement UX.
+- V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
+- V2.3 — Model Lab governed improvement UX — **planning is the current authorized work; implementation not yet authorized**.
 - V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.

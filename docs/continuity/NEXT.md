@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-18 after V2.2.2 implementation PR `#492` merge and post-merge normalization  
+Last synchronized: 2026-09-19 after V2.2.3 implementation PR `#494` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -111,37 +111,54 @@ The deterministic V2.2.2 acceptance reported **10/10 PASS** on both Ubuntu and W
 
 Accepted product truth includes bounded project-scoped semantic retrieval, explicit valid-empty versus embedding-unavailable state, project-scope/candidate-bound enforcement before provider access, deterministic cosine scoring/tie-breaks, caller-supplied provider only, duplicate-content normalization with full provenance retention, and zero retrieval-side catalog/memory mutation.
 
+## V2.2.3 accepted implementation
+
+Implementation PR `#494` was qualified with **27/27** pull-request workflows on exact head `ac9ad68938cc13cd819bb078839c5963d03a794e` and merged with `expected_head_sha` protection as `363bf1a3afa06949269208aa6d3639e439c899e5`.
+
+The final exact-head gate set included:
+
+- `R0 Repository Guard` `35404034479` = success;
+- `KodeStudio UI Smoke` `35404034456` = success;
+- `R12 Tauri2 Acceptance` `35404034501` = success;
+- `R13 Integrated Release Readiness` `35404034505` = success;
+- `Python Core` `35404034510` = success;
+- `R17 Windows Installer` `35404034515` = success.
+
+The deterministic V2.2.3 acceptance reported **11/11 PASS** on both Ubuntu and Windows with evidence payload SHA-256 `35c18af0424d15b54694ce537f89ae80de98dff262ea8168afe8ef73f5ef9765`.
+
+Accepted product truth includes explainable project-context candidates, deterministic selected/omitted rationale, explicit token-budget accounting through the existing ContextBuilder, no trust/authority promotion from mandatory or Include, preserved source/knowledge/citation traceability and `<UNTRUSTED_DATA>` semantics, plus KodeStudio Research preview and Auto/Include/Exclude overrides before assembly.
+
 ## Immediate execution order
 
-### V2.2.3 — Explainable Context Builder — CURRENT AUTHORIZED SUBDIVISION
+### V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle — CURRENT AUTHORIZED SUBDIVISION
 
-V2.2.3 is the only implementation authorized after this normalization reaches live `main`.
+V2.2.4 is the only implementation authorized after this normalization reaches live `main`.
 
 Required scope:
 
-- context-candidate contract carrying source identity, retrieval score, trust, version/freshness and token estimate;
-- deterministic selected/omitted rationale;
-- explicit token-budget accounting;
-- mandatory versus optional items without granting untrusted data privilege;
-- citation/source traceability in rendered context;
-- preserve existing `<UNTRUSTED_DATA>` semantics for external/research-derived content;
-- KodeStudio context preview showing source, reason, trust and budget impact;
-- explicit include/exclude override before final assembly;
-- deterministic backend/UI tests;
+- version/fingerprint inputs for derived knowledge;
+- deterministic stale/invalidated state when relevant source/version fingerprints change;
+- no silent retargeting of historical Research Pack citations;
+- refresh/rebuild of derived indexes without rewriting immutable source evidence;
+- bounded delete of derived knowledge;
+- include/exclude persistence;
+- user controls for include, exclude, refresh/rebuild and delete-derived;
+- explicit distinction between source deletion and derived-index deletion;
+- stale/invalidated items cannot be presented as fresh context without visible state;
+- deterministic lifecycle/UI tests;
 - exact-head Ubuntu/Windows acceptance.
 
 Explicitly out of scope until later subdivisions:
 
-- version-aware invalidation and lifecycle refresh/delete (V2.2.4);
 - project Memory/workspace consumption bridge (V2.2.5);
 - integrated adversarial hardening (V2.2.6);
 - V2.3+, release/TUF/updater mutation or R20 reopening.
 
-The accepted V2.1 chain, V2.2.1 project-knowledge boundary and V2.2.2 retrieval contract remain invariant. Selection explains relevance and budget only; it never grants protected authority.
+The accepted V2.1 chain and V2.2.1–V2.2.3 contracts remain invariant. Lifecycle state may invalidate or rebuild derived knowledge, but it may not rewrite immutable Research Pack provenance or promote selected/retrieved content to instruction authority.
 
 ## Later V2.2 order
 
-After V2.2.3 is implemented, exact-head qualified, merged and normalized, proceed to V2.2.4 and continue one subdivision at a time through V2.2.6.
+After V2.2.4 is implemented, exact-head qualified, merged and normalized, proceed to V2.2.5 and continue one subdivision at a time through V2.2.6.
 
 ## Accelerator policy
 
@@ -157,4 +174,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.2.2 est COMPLETE + NORMALIZED : PR #492 qualifiée 26/26 sur le head exact c3294815ddf4b76f75f04cb29ee2fdfe1d27248d, acceptance V2.2.2 10/10 PASS Ubuntu/Windows avec evidence SHA-256 e9eddabeec7b15a7901cd28722ef402e2b6d3fd2306ebe8fda582f0f46594cdf, Python Core Windows vert au second attempt sur le même SHA après un WinError 32 historique R16.16, puis merge 2d332945c3b1f8d76cc98d651606679c89791485. La seule subdivision autorisée est V2.2.3 — Explainable Context Builder. Implémente uniquement le contrat context-candidate, selected/omitted rationale déterministe, token-budget accounting, mandatory/optional sans promotion d'autorité, traceabilité source/citation, rendu <UNTRUSTED_DATA>, preview KodeStudio source/reason/trust/budget et include/exclude explicite. Ne tire pas en avant lifecycle V2.2.4, workspace bridge V2.2.5, V2.3+, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.2.3 est COMPLETE + NORMALIZED : PR #494 qualifiée 27/27 sur le head exact ac9ad68938cc13cd819bb078839c5963d03a794e, acceptance V2.2.3 11/11 PASS Ubuntu/Windows avec evidence SHA-256 35c18af0424d15b54694ce537f89ae80de98dff262ea8168afe8ef73f5ef9765, puis merge 363bf1a3afa06949269208aa6d3639e439c899e5. La seule subdivision autorisée est V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle. Implémente uniquement version/fingerprint, stale/invalidation déterministe, refresh/rebuild du dérivé sans réécrire les sources immuables, delete-derived borné, persistance include/exclude, contrôles utilisateur et distinction source-delete/derived-delete. Ne tire pas en avant workspace bridge V2.2.5, hardening V2.2.6, V2.3+, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`

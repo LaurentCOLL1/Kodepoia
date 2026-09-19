@@ -39,6 +39,7 @@ _EXECUTE = ToolPolicy(ToolEffect.EXECUTE, ActionType.EXECUTE)
 
 
 DEFAULT_TOOL_POLICIES: dict[str, ToolPolicy] = {
+    "kodecode_project_context": _READ,
     "kodecode_files_list": _READ,
     "kodecode_files_read": ToolPolicy(ToolEffect.READ, ActionType.READ, target_arg="path"),
     "kodecode_search": _READ,

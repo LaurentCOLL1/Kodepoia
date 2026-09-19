@@ -223,7 +223,7 @@ Definition of done: a user can understand exactly why an example is or is not tr
 
 Accepted implementation evidence:
 
-The implementation was developed and qualified while the governing subdivision marker was exactly `V2.3.2 — Governed experience and dataset curation workspace — CURRENT`. That historical marker is retained here as immutable acceptance context only; it is superseded by the `COMPLETE + NORMALIZED` status above and does not re-authorize V2.3.2.
+The implementation was developed and qualified while the governing subdivision marker was exactly `V2.3.2 — Governed experience and dataset curation workspace — CURRENT`. That historical marker is retained here as immutable acceptance context only; it is superseded by the `COMPLETE + NORMALIZED` status above and does not re-authorize V2.3.2. The same historical acceptance boundary stated `V2.3.3+ remain unauthorized`; that quoted boundary is retained only so exact-head V2.3.2 evidence remains reproducible and is superseded by the V2.3.3 authorization below.
 
 - implementation PR `#506`;
 - exact final head `f419e125fa28f72bbb11dce855047a64dc3be574`;

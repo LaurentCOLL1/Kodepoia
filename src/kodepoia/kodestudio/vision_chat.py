@@ -4,6 +4,13 @@ import json
 from pathlib import Path
 from typing import Callable
 
+from kodepoia.intelligence.project_workspace import (
+    ProjectWorkspaceContextSession,
+    ProjectWorkspaceSurface,
+)
+from kodepoia.kodestudio.project_workspace_context import (
+    create_project_workspace_context_widget,
+)
 from kodepoia.kodestudio.v11_localization import V11Translator
 from kodepoia.kodestudio.vision_assistant import (
     VisionAssistant,
@@ -52,6 +59,7 @@ def create_vision_chat_page(
     initial_draft: VisionDraft | None = None,
     apply_callback: Callable[[VisionDraft], None] | None = None,
     preferred_model: str | None = None,
+    workspace_context_session: ProjectWorkspaceContextSession | None = None,
 ):
     from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
     from PySide6.QtWidgets import (
@@ -73,11 +81,18 @@ def create_vision_chat_page(
         error = Signal(str)
 
     class RefineTask(QRunnable):
-        def __init__(self, text: str, model: str | None, draft: VisionDraft) -> None:
+        def __init__(
+            self,
+            text: str,
+            model: str | None,
+            draft: VisionDraft,
+            project_context: str | None,
+        ) -> None:
             super().__init__()
             self.text = text
             self.model = model
             self.draft = draft
+            self.project_context = project_context
             self.signals = WorkerSignals()
 
         def run(self) -> None:
@@ -87,6 +102,7 @@ def create_vision_chat_page(
                     current=self.draft,
                     model=self.model,
                     locale=locale,
+                    project_context=self.project_context,
                 )
             except Exception as exc:  # UI boundary: surface a redacted human error.
                 self.signals.error.emit(str(exc))
@@ -103,6 +119,15 @@ def create_vision_chat_page(
     intro.setWordWrap(True)
     layout.addWidget(title)
     layout.addWidget(intro)
+
+    context_widget = None
+    if workspace_context_session is not None:
+        context_widget = create_project_workspace_context_widget(
+            workspace_context_session,
+            surface=ProjectWorkspaceSurface.CHAT,
+            workspace_id="vision_chat",
+        )
+        layout.addWidget(context_widget)
 
     model_row = QHBoxLayout()
     model_row.addWidget(QLabel(tr.text("chat.model")))
@@ -150,6 +175,7 @@ def create_vision_chat_page(
         "draft": initial_draft or VisionDraft(),
         "last_result": None,
         "workers": [],
+        "workspace_context_digest": None,
     }
     pool = QThreadPool.globalInstance()
 
@@ -195,7 +221,23 @@ def create_vision_chat_page(
         message.clear()
         send.setEnabled(False)
         model = model_combo.currentData()
-        worker = RefineTask(text, str(model) if model else None, state["draft"])
+        project_context = None
+        if workspace_context_session is not None:
+            if context_widget is not None:
+                context_widget._project_workspace_refresh()
+            active = workspace_context_session.context_for(
+                ProjectWorkspaceSurface.CHAT,
+                workspace_id="vision_chat",
+            )
+            if active is not None:
+                project_context = active.render()
+                state["workspace_context_digest"] = active.snapshot.digest_sha256
+        worker = RefineTask(
+            text,
+            str(model) if model else None,
+            state["draft"],
+            project_context,
+        )
         worker.signals.done.connect(handle_result)
         worker.signals.error.connect(handle_error)
         state["workers"].append(worker)
@@ -228,6 +270,8 @@ def create_vision_chat_page(
     apply_button.clicked.connect(apply_session)
 
     page._kodepoia_vision_state = state
+    page._project_workspace_context_widget = context_widget
+    page._project_workspace_context_session = workspace_context_session
     page._kodepoia_refresh_models = refresh_models
     page._kodepoia_submit = submit
     page._kodepoia_apply = apply_session

@@ -5,8 +5,6 @@ import importlib.util
 import json
 from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import Any
-
 from kodepoia.kodestudio.model_manager import (
     OllamaModelManager,
     saved_model_roles,

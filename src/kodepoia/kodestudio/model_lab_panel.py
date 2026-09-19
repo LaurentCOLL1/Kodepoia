@@ -18,6 +18,7 @@ def create_model_lab_page(
 ):
     from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
     from PySide6.QtWidgets import (
+        QAbstractItemView,
         QGroupBox,
         QHBoxLayout,
         QLabel,
@@ -86,8 +87,8 @@ def create_model_lab_page(
         widget = QTableWidget(0, len(headers))
         widget.setObjectName(name)
         widget.setHorizontalHeaderLabels(headers)
-        widget.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        widget.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        widget.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        widget.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         widget.setAccessibleName(accessible)
         widget.setAccessibleDescription(accessible)
         widget.setMinimumHeight(125)

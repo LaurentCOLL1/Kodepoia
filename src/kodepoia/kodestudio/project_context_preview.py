@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from kodepoia.intelligence.project_context import (
     ExplainableProjectContextBuilder,
+    ProjectContextBundle,
     ProjectContextCandidate,
     ProjectContextOverride,
 )
@@ -12,7 +15,11 @@ from kodepoia.intelligence.project_retrieval import (
 from kodepoia.kodestudio.accessibility import mark_accessible
 
 
-def create_project_context_preview_widget(*, budget_tokens: int = 16_000):
+def create_project_context_preview_widget(
+    *,
+    budget_tokens: int = 16_000,
+    on_bundle: Callable[[ProjectRetrievalResult, ProjectContextBundle], None] | None = None,
+):
     """Create the V2.2.3 inspectable context-preview surface.
 
     The widget never creates an embedding provider or performs retrieval itself.
@@ -220,6 +227,8 @@ def create_project_context_preview_widget(*, budget_tokens: int = 16_000):
             overrides=overrides,
         )
         widget._project_context_bundle = bundle
+        if on_bundle is not None:
+            on_bundle(result, bundle)
         decisions = {
             item.candidate.content_sha256: (
                 f"{item.decision.value} / {item.reason.value}"

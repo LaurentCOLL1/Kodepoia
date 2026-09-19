@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning and V2.3.1 COMPLETE + NORMALIZED; V2.3.2 authorized**  
+Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning, V2.3.1 and V2.3.2 COMPLETE + NORMALIZED; V2.3.3 authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -199,12 +199,16 @@ V2.3.1 implementation PR `#504` was qualified **28/28** on exact final head `33d
 
 V2.3.1 is therefore **COMPLETE + NORMALIZED**.
 
-The current authorized implementation subdivision is **V2.3.2 only — Governed experience and dataset curation workspace**. It must reuse accepted R15 Experience governance, sanitization/license, dedup/contamination and immutable dataset contracts; Project Knowledge/Research/context remains reference-only. V2.3.3+ remain unauthorized until V2.3.2 is COMPLETE + NORMALIZED.
+V2.3.2 implementation PR `#506` was qualified **28/28** on exact final head `f419e125fa28f72bbb11dce855047a64dc3be574`, with deterministic **16/16 PASS** acceptance on Ubuntu and Windows and identical evidence SHA-256 `fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af`, then merged with `expected_head_sha` protection as `cefcffbfa55fdd0de096ebe8f029a2123c735d08`. Its accepted product truth is a structured Data Curation workspace over accepted R15 Experience/dataset governance: metadata-only eligibility/provenance/license/privacy/revocation/quarantine/integrity, safe dedup/contamination evidence, immutable dataset digest inspection, non-mutating preview and typed R15-only curation/dataset-build mutations with explicit guards; Project Knowledge/Research/context remains reference-only and no training/conversion/promotion/rollback mutation was pulled forward.
+
+V2.3.2 is therefore **COMPLETE + NORMALIZED**.
+
+The current authorized implementation subdivision is **V2.3.3 only — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX**. It must reuse accepted R15 KodeBench/gap-diagnosis/decision contracts, expose evidence-backed model-vs-system diagnosis and keep training launch unavailable in V2.3.3. Project Knowledge/Research/context remains data-only. V2.3.4+ remain unauthorized until V2.3.3 is COMPLETE + NORMALIZED.
 
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
-- V2.3 — Model Lab governed improvement UX — **planning and V2.3.1 COMPLETE + NORMALIZED; V2.3.2 is the current authorized subdivision**.
+- V2.3 — Model Lab governed improvement UX — **planning, V2.3.1 and V2.3.2 COMPLETE + NORMALIZED; V2.3.3 is the current authorized subdivision**.
 - V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.

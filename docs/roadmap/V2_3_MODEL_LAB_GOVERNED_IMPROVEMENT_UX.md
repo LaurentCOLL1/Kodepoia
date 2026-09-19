@@ -1,6 +1,6 @@
 # V2.3 — Model Lab governed improvement UX
 
-Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1 COMPLETE + NORMALIZED — V2.3.2 is the only authorized implementation subdivision**  
+Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1 and V2.3.2 COMPLETE + NORMALIZED — V2.3.3 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `b5ac64becc4b748aa77386121ba6a63e02cf88bd`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -204,7 +204,7 @@ Accepted product truth:
 
 This normalization closes V2.3.1 and authorizes **V2.3.2 only**.
 
-### V2.3.2 — Governed experience and dataset curation workspace — CURRENT
+### V2.3.2 — Governed experience and dataset curation workspace — COMPLETE + NORMALIZED
 
 Goal: expose the accepted R15 training-data trust boundary as a structured, deliberate UX.
 
@@ -221,7 +221,36 @@ Required scope:
 
 Definition of done: a user can understand exactly why an example is or is not training-eligible and can deliberately build an immutable dataset without bypassing governance.
 
-### V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX
+Accepted implementation evidence:
+
+The implementation was developed and qualified while the governing subdivision marker was exactly `V2.3.2 — Governed experience and dataset curation workspace — CURRENT`. That historical marker is retained here as immutable acceptance context only; it is superseded by the `COMPLETE + NORMALIZED` status above and does not re-authorize V2.3.2.
+
+- implementation PR `#506`;
+- exact final head `f419e125fa28f72bbb11dce855047a64dc3be574`;
+- **28/28** pull-request workflows `completed/success`;
+- merge `cefcffbfa55fdd0de096ebe8f029a2123c735d08` with `expected_head_sha` protection;
+- deterministic **16/16 PASS** exact-head V2.3.2 acceptance on Ubuntu and Windows;
+- identical evidence payload SHA-256 `fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af`;
+- Ubuntu artifact `v2-3-2-governed-curation-ubuntu-latest-f419e125fa28f72bbb11dce855047a64dc3be574` — ID `10593690427`;
+- Windows artifact `v2-3-2-governed-curation-windows-latest-f419e125fa28f72bbb11dce855047a64dc3be574` — ID `10592989545`.
+
+Accepted V2.3.2 product truth:
+
+- KodeStudio now has a dedicated structured **Data Curation** workspace while the accepted V2.3.1 Model Lab and R15 Experience / Tune surfaces remain available;
+- governed experience inspection exposes metadata, provenance, project scope, authorization/consent, license, privacy, sanitization, benchmark protection, revocation/quarantine and integrity without displaying or reading raw experience payloads;
+- deduplication and benchmark-holdout contamination evidence is presented as safe group/finding metadata, including exact/near match state, while contaminated groups remain dataset-ineligible;
+- immutable dataset manifests/cards are inspected through deterministic dataset identity/digest checks without reading exported JSONL rows;
+- non-mutating dataset preview summarizes candidate/excluded rows, exclusion reasons, licenses, domains, tasks and honest split-policy availability;
+- experience curation and dataset build mutations delegate exclusively to accepted typed `R15UXService` handlers; preview remains dry-run and apply remains explicit-confirmation/configured-backend gated;
+- the curation facade rejects cross-project R15 service binding and exposes no training, conversion/package, promotion or rollback control;
+- Project Knowledge, Research Packs, chat, memory and retrieved context are not scanned or auto-ingested as training examples;
+- FR/EN/pseudo-localization and central KodeStudio accessibility contracts include the new curation controls.
+
+Two qualification-only defects were corrected before the final accepted head: the historical V2.3.1 pseudo-localization acceptance was made forward-compatible without weakening its Model Lab assertion, and the V2.3.2 tamper fixture was corrected so its test mutation actually changes the governed record. No gate was weakened; only the exact final head above is accepted.
+
+This normalization closes V2.3.2 and authorizes **V2.3.3 only**.
+
+### V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — CURRENT
 
 Goal: make model-improvement decisions evidence-driven before training is offered.
 
@@ -441,6 +470,8 @@ The V2.3 planning phase is complete because:
 - planning PR `#502` was merged with `expected_head_sha` protection as `4744cc47827ca28c61395fc6c8e5064a18ae2b0c`;
 - the planning post-merge normalization authorized **V2.3.1 only**;
 - V2.3.1 implementation PR `#504` was qualified **28/28** on exact head `33d30747ebd915ab2bad56d3154f55a907830061`, passed deterministic **14/14** acceptance on Ubuntu and Windows with evidence SHA-256 `5063e101b899d2e7a409ab14d4e2ab684cb98b67f963980fdc8e9f990061b6cc`, and merged as `1a7454f52bcd78ac2b44c3db467f6faa39df3a62`;
-- this post-merge continuity normalization records V2.3.1 as **COMPLETE + NORMALIZED** and authorizes **V2.3.2 only**.
+- the V2.3.1 post-merge normalization recorded V2.3.1 as **COMPLETE + NORMALIZED** and authorized **V2.3.2 only**;
+- V2.3.2 implementation PR `#506` was qualified **28/28** on exact head `f419e125fa28f72bbb11dce855047a64dc3be574`, passed deterministic **16/16** acceptance on Ubuntu and Windows with evidence SHA-256 `fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af`, and merged as `cefcffbfa55fdd0de096ebe8f029a2123c735d08`;
+- this post-merge continuity normalization records V2.3.2 as **COMPLETE + NORMALIZED** and authorizes **V2.3.3 only**.
 
-**V2.3.2 is now the only authorized implementation subdivision. V2.3.3+ remain unauthorized.**
+**V2.3.3 is now the only authorized implementation subdivision. V2.3.4+ remain unauthorized.**

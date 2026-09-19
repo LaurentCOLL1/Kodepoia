@@ -146,6 +146,15 @@ jobs:
           path: artifacts/v2_2_3/explainable-context.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run V2.2.4 version-aware lifecycle exact-head acceptance
+        run: python scripts/v2_2_4_acceptance.py --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}" --output artifacts/v2_2_4/version-aware-lifecycle.json
+      - name: Upload V2.2.4 exact-head evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-2-4-version-aware-lifecycle-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: artifacts/v2_2_4/version-aware-lifecycle.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Validate PowerShell acceptance runner syntax
         if: runner.os == 'Windows'
         shell: pwsh
@@ -194,7 +203,7 @@ jobs:
       - name: Compile
         run: python -m compileall -q src tests
       - name: KodeStudio smoke
-        run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py tests/test_r6_6_localization_ui.py tests/test_r7_10_research_ui.py tests/test_r8_10_kodestudio.py tests/test_v2_0_research_ui.py tests/test_v2_1_1_research_ux.py tests/test_v2_1_2_research_ui.py tests/test_v2_1_3_research_ui.py tests/test_v2_1_4_research_ui.py tests/test_v2_1_5_research_ui.py
+        run: pytest tests/test_kodestudio_smoke.py tests/test_r6_5_accessibility_ui.py tests/test_r6_6_localization_ui.py tests/test_r7_10_research_ui.py tests/test_r8_10_kodestudio.py tests/test_v2_0_research_ui.py tests/test_v2_1_1_research_ux.py tests/test_v2_1_2_research_ui.py tests/test_v2_1_3_research_ui.py tests/test_v2_1_4_research_ui.py tests/test_v2_1_5_research_ui.py tests/test_v2_2_4_lifecycle_ui.py
 
   package-build:
     name: package-build-${{ matrix.os }}

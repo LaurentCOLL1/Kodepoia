@@ -194,25 +194,44 @@ Accepted product truth is adversarial integrated proof of the complete V2.2 proj
 
 ## Immediate execution order
 
-### V2.3 — Model Lab governed improvement UX — PLANNING ONLY
+### V2.3 — Model Lab governed improvement UX — PLANNING CURRENT
 
-The only authorized next work is to create a dedicated planning authority for V2.3 from normalized live `main`.
+Dedicated planning authority under qualification:
 
-The V2.3 planning step must:
+`docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`
 
-- derive scope from the accepted Roadmap V2 rather than inventing product work;
-- inspect and reuse existing training/model-governance primitives before proposing new architecture;
-- freeze explicit subdivisions, invariants, acceptance evidence and UI boundaries;
-- preserve V2.1/V2.2 source trust, project context and no-authority-promotion semantics where model improvement consumes project/research data;
-- preserve the current Kaggle T4×2 authority as two separate 16 GiB GPUs and keep TPU v5e-8 deferred unless benchmark evidence justifies a distinct backend;
-- remain planning/docs-only;
-- explicitly keep V2.4+, V2.5 cross-workspace orchestration, release/TUF/updater mutation and R20 reopening out of scope.
+Planning base:
 
-**No V2.3 implementation may begin from the planning PR merge alone.** The planning head must first be exact-head qualified, merged with head protection, and post-merge normalized; only that normalized state may authorize the first V2.3 implementation subdivision.
+`b5ac64becc4b748aa77386121ba6a63e02cf88bd`
+
+Frozen planned subdivisions:
+
+1. **V2.3.1 — Model Lab shell, inventory and lineage**;
+2. **V2.3.2 — Governed experience and dataset curation workspace**;
+3. **V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX**;
+4. **V2.3.4 — Governed training plan, execution and recovery UX**;
+5. **V2.3.5 — Candidate evaluation, export, promotion and rollback UX**;
+6. **V2.3.6 — Model Lab hardening and integrated acceptance**.
+
+The plan is explicitly a UX/governance layer over accepted R15 services. It must reuse Experience governance, immutable dataset, KodeBench, TRAIN/NO_TRAIN, runtime probes, TrainingPlan, evaluation, export, GGUF/Ollama packaging and specialized-model registry contracts.
+
+Critical boundaries:
+
+- no Project Knowledge/chat/research/memory content becomes training data automatically;
+- only R15-governed eligible experiences may feed the immutable dataset builder;
+- unknown/revoked license, secret/privacy failure or holdout contamination remains fail closed;
+- training requires an accepted TRAIN authorization, exact model/tokenizer/dataset identity and capability/resource evidence;
+- NO_TRAIN is a valid result;
+- critical regressions veto promotion;
+- promotion and rollback are explicit registry mutations, never implied by training success;
+- Kaggle T4×2 stays two separate 16 GiB devices and V2.4 retains production/multi-GPU qualification;
+- no public model/dataset publication, arbitrary commands, silent dependency installs, V2.4+, V2.5 orchestration, release/TUF/updater mutation or R20 work.
+
+**No V2.3 implementation is authorized yet.** The planning head must first be fully exact-head qualified, merged with `expected_head_sha`, then post-merge normalized. Only that normalization may authorize V2.3.1.
 
 ## Later V2 order
 
-After V2.3 planning is exact-head qualified, merged and normalized, execute only the first subdivision authorized by that new live V2.3 planning authority. V2.4, V2.5 and V2.6 remain later phases.
+After V2.3 planning is qualified, merged and normalized, execute only V2.3.1. V2.4, V2.5 and V2.6 remain later phases.
 
 ## Accelerator policy
 
@@ -228,4 +247,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md. V2.2 est COMPLETE + NORMALIZED : V2.2.6 PR #500 qualifiée 26/26 sur le head exact add97a4889c68b7aed79125563917ddce8b70863, acceptance 16/16 PASS Ubuntu/Windows avec evidence SHA-256 646071eb27ecf8e08ae7dfde3bd74e0f7d32a9dbd6e3d284a85c9093c5b5cc6d, puis merge protégé 2c122c913b57c0034f73ba25c34f3fd32507fafa. Aucun V2.2.7 n'est autorisé. La seule prochaine étape autorisée est la planification docs-only de V2.3 — Model Lab governed improvement UX : inspecte les primitives live, crée une autorité de plan V2.3 bornée avec subdivisions/invariants/acceptance, qualifie son head exact, merge avec expected_head_sha, puis normalise avant toute implémentation V2.3. Ne tire pas en avant V2.4+, V2.5 orchestration, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.2 est COMPLETE + NORMALIZED et aucun V2.2.7 n'est autorisé. V2.3 est actuellement en planification docs-only depuis le main normalisé b5ac64becc4b748aa77386121ba6a63e02cf88bd. Le plan fige six subdivisions : V2.3.1 shell/inventory/lineage, V2.3.2 expérience+dataset gouvernés, V2.3.3 Bench+TRAIN/NO_TRAIN, V2.3.4 training plan/run/recovery, V2.3.5 evaluation/export/promotion/rollback, V2.3.6 hardening intégré. Réutilise le backend R15 existant, n'autorise aucune implémentation V2.3 avant qualification exacte du plan, merge protégé puis normalisation. Préserve les frontières training-data, contamination, licenses/secrets, exact lineage, critical-regression veto, Project Knowledge reference-only, Kaggle T4×2 séparées, TPU différé. Ne tire pas en avant V2.4+, V2.5 orchestration, release/TUF/updater/R20. La distribution publique reste v1.1.0-rc8.`

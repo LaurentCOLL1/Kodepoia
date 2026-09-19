@@ -6,7 +6,7 @@ Canonical branch: `main`
 
 ## Immediate authority
 
-Read this file together with `docs/continuity/NEXT.md` and re-fetch live GitHub state before acting. For V2 work, also read `docs/roadmap/KODEPOIA_ROADMAP_V2.md`; V2.1 historical/current Research authority is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`, and the normalized V2.2 authority is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`.
+Read this file together with `docs/continuity/NEXT.md` and re-fetch live GitHub state before acting. For V2 work, also read `docs/roadmap/KODEPOIA_ROADMAP_V2.md`; V2.1 completed Research authority is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`, normalized V2.2 authority is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`, and the current planning authority under qualification is `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`.
 
 The public Windows distribution authority remains **`v1.1.0-rc8`**. The real installed Windows updater E2E `rc7 -> rc8` passed and the exercised updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 remains **COMPLETE + NORMALIZED**, terminal, and must not be reopened or extended as `R20.7`.
 
@@ -431,7 +431,39 @@ Accepted V2.2.6 product truth:
 
 **V2.2 is now COMPLETE + NORMALIZED.** No V2.2.7 is reserved or authorized.
 
-The next authorized work is **planning only for V2.3 — Model Lab governed improvement UX** from normalized live `main`. V2.3 product implementation must not begin until a dedicated V2.3 planning authority is exact-head qualified, merged and post-merge normalized. V2.4+, V2.5 orchestration, release/TUF/updater changes and R20 reopening remain unauthorized.
+## V2.3 planning — Model Lab governed improvement UX — CURRENT
+
+Planning is being performed from normalized live `main`:
+
+`b5ac64becc4b748aa77386121ba6a63e02cf88bd`
+
+Normative planning document under qualification:
+
+`docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`
+
+The plan reuses the accepted R15 Experience / KodeBench / Fine-tuning stack and freezes exactly six subdivisions:
+
+1. V2.3.1 — Model Lab shell, inventory and lineage;
+2. V2.3.2 — Governed experience and dataset curation workspace;
+3. V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX;
+4. V2.3.4 — Governed training plan, execution and recovery UX;
+5. V2.3.5 — Candidate evaluation, export, promotion and rollback UX;
+6. V2.3.6 — Model Lab hardening and integrated acceptance.
+
+Planning invariants include:
+
+- no automatic training capture from chats, Research Packs, Project Knowledge, memory, retrieved context or tool output;
+- training eligibility must continue through the accepted R15 Experience governance/dedup/contamination/immutable-dataset path;
+- Project Knowledge may support diagnosis as reference data only and cannot become training authority;
+- `NO_TRAIN` remains a valid evidence-backed outcome;
+- exact dataset/model/tokenizer/capability identities remain mandatory;
+- critical-domain regressions veto promotion;
+- promotion/rollback remains an explicit separate registry mutation;
+- Kaggle T4×2 remains two distinct 16 GiB devices and V2.4 retains accelerator production/multi-GPU scope;
+- TPU v5e-8 remains deferred;
+- no public publishing, arbitrary command surface, silent dependency installation, release/TUF/updater work, R20 reopening or V2.4+ pull-forward.
+
+This branch is **planning/docs-only**. No V2.3 implementation subdivision is authorized by the planning branch or planning PR merge alone. Only exact-head planning qualification, protected merge and a separate post-merge normalization may authorize **V2.3.1 only**.
 
 ## Accepted V2 capability truth
 
@@ -459,10 +491,11 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 
 For future work:
 
-1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`;
-2. verify V2.2.6 remains **COMPLETE + NORMALIZED** from implementation PR `#500`, exact head `add97a4889c68b7aed79125563917ddce8b70863`, merge `2c122c913b57c0034f73ba25c34f3fd32507fafa`, **26/26** exact-head workflows and **16/16 PASS** Ubuntu/Windows evidence `646071eb27ecf8e08ae7dfde3bd74e0f7d32a9dbd6e3d284a85c9093c5b5cc6d`;
-3. treat V2.2 as closed and do not invent V2.2.7;
-4. the only authorized next work is **planning V2.3 — Model Lab governed improvement UX**; create/freeze its dedicated planning authority before any V2.3 product implementation;
-5. preserve the accepted V2.1/V2.2 trust, provenance, lifecycle, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore invariants;
-6. do not pull forward V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
-7. if a genuine manual intervention is required, stop at the current phase and state exactly what the operator must do rather than bypassing a gate.
+1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md`, completed `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` and current `V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`;
+2. verify V2.2 remains **COMPLETE + NORMALIZED** and no V2.2.7 is authorized;
+3. while V2.3 planning is not yet exact-head qualified, merged and post-merge normalized, perform planning/docs work only;
+4. preserve the frozen six V2.3 subdivisions and the accepted R15 backend as the implementation authority rather than creating a parallel training stack;
+5. preserve R15 training-data eligibility, benchmark contamination firewall, TRAIN/NO_TRAIN decision, capability/resource preflight, exact training lineage, critical-regression veto, export/conversion/package lineage and registry promotion/rollback semantics;
+6. preserve V2.1/V2.2 untrusted-data, Project Knowledge reference-only, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore invariants;
+7. do not pull forward V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
+8. only the post-planning normalization may authorize V2.3.1; a genuine manual intervention stops the sequence rather than being bypassed.

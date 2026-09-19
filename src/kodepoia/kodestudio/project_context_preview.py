@@ -137,6 +137,7 @@ def create_project_context_preview_widget(
 
     widget._project_context_result = None
     widget._project_context_bundle = None
+    widget._project_context_on_bundle = on_bundle
     widget._project_context_override_boxes = {}
 
     def source_text(candidate: ProjectContextCandidate) -> str:
@@ -227,8 +228,9 @@ def create_project_context_preview_widget(
             overrides=overrides,
         )
         widget._project_context_bundle = bundle
-        if on_bundle is not None:
-            on_bundle(result, bundle)
+        callback = widget._project_context_on_bundle
+        if callback is not None:
+            callback(result, bundle)
         decisions = {
             item.candidate.content_sha256: (
                 f"{item.decision.value} / {item.reason.value}"

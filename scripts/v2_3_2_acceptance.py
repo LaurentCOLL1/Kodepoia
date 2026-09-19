@@ -98,14 +98,20 @@ def main() -> int:
             and '"payload_read": False' in service
             and '"payload_rows_read": False' in service
             and "RAW-TRAINING-MARKER-MUST-NOT-BE-READ" in backend_test,
-            "curation inventory exposes governed metadata/digests without reading raw experience payloads or dataset rows",
+            (
+                "curation inventory exposes governed metadata/digests without reading "
+                "raw experience payloads or dataset rows"
+            ),
         ),
         _check(
             "project_knowledge_not_training_authority",
             '"project_knowledge_auto_ingest": False' in service
             and "PROJECT-KNOWLEDGE-MUST-NOT-BECOME-TRAINING-DATA" in backend_test
             and ".kodepoia/knowledge" not in service,
-            "Project Knowledge/Research/context is not scanned or auto-ingested by the curation facade",
+            (
+                "Project Knowledge/Research/context is not scanned or auto-ingested "
+                "by the curation facade"
+            ),
         ),
         _check(
             "eligibility_provenance_privacy_license",
@@ -114,7 +120,10 @@ def main() -> int:
             and '"project_scope"' in service
             and '"sanitization"' in service
             and '"benchmark_protected"' in service,
-            "source identity/scope, consent, provenance, license, privacy, sanitization and benchmark protection are visible",
+            (
+                "source identity/scope, consent, provenance, license, privacy, "
+                "sanitization and benchmark protection are visible"
+            ),
         ),
         _check(
             "revocation_quarantine_fail_closed",
@@ -122,7 +131,10 @@ def main() -> int:
             and "state:revoked" in backend_test
             and "license:missing" in backend_test
             and '"tampered"' in service,
-            "revoked/quarantined/expired/rejected, missing license and integrity failure remain explicit blockers",
+            (
+                "revoked/quarantined/expired/rejected, missing license and integrity "
+                "failure remain explicit blockers"
+            ),
         ),
         _check(
             "dedup_contamination_outcomes",
@@ -131,7 +143,10 @@ def main() -> int:
             and '"quarantined_item_ids"' in service
             and '"benchmark_contamination"' in service
             and "Match types / members" in panel,
-            "exact/near contamination and dedup membership are structured without raw source content",
+            (
+                "exact/near contamination and dedup membership are structured "
+                "without raw source content"
+            ),
         ),
         _check(
             "dataset_preview_summary",
@@ -143,7 +158,10 @@ def main() -> int:
             and '"tasks"' in service
             and '"split_summary"' in service
             and "modelLabCurationDatasetPreview" in panel,
-            "non-mutating preview exposes row/exclusion/license/domain/task and honest split-policy state",
+            (
+                "non-mutating preview exposes row/exclusion/license/domain/task and "
+                "honest split-policy state"
+            ),
         ),
         _check(
             "typed_r15_curation_only",

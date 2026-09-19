@@ -180,6 +180,11 @@ def test_curation_workspace_is_wired_structured_accessible_and_localized(
     assert experiences.item(0, 5).text() == "allow"
     assert experiences.item(0, 7).text() == "passed"
 
+    preview_summary = window.findChild(QLabel, "modelLabCurationDatasetPreview")
+    assert preview_summary is not None
+    assert "Candidate rows:" in preview_summary.text()
+    assert "Licenses:" in preview_summary.text()
+
     for object_name in (
         "modelLabCurationPage",
         "modelLabCurationNoRawNotice",
@@ -192,6 +197,7 @@ def test_curation_workspace_is_wired_structured_accessible_and_localized(
         "modelLabCurationApplyExperience",
         "modelLabCurationEvidenceTable",
         "modelLabCurationDatasetsTable",
+        "modelLabCurationDatasetPreview",
         "modelLabCurationPreviewDataset",
         "modelLabCurationBuildDataset",
         "modelLabCurationInspectDataset",

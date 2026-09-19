@@ -1,12 +1,12 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-19 after V2.2.6 implementation PR `#500` merge and post-merge normalization  
+Last synchronized: 2026-09-19 after V2.3 planning PR `#502` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
 ## Immediate authority
 
-Read this file together with `docs/continuity/NEXT.md` and re-fetch live GitHub state before acting. For V2 work, also read `docs/roadmap/KODEPOIA_ROADMAP_V2.md`; V2.1 completed Research authority is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`, normalized V2.2 authority is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`, and the current planning authority under qualification is `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`.
+Read this file together with `docs/continuity/NEXT.md` and re-fetch live GitHub state before acting. For V2 work, also read `docs/roadmap/KODEPOIA_ROADMAP_V2.md`; V2.1 completed Research authority is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`, normalized V2.2 authority is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`, and the normalized V2.3 authority is `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`.
 
 The public Windows distribution authority remains **`v1.1.0-rc8`**. The real installed Windows updater E2E `rc7 -> rc8` passed and the exercised updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 remains **COMPLETE + NORMALIZED**, terminal, and must not be reopened or extended as `R20.7`.
 
@@ -431,17 +431,30 @@ Accepted V2.2.6 product truth:
 
 **V2.2 is now COMPLETE + NORMALIZED.** No V2.2.7 is reserved or authorized.
 
-## V2.3 planning — Model Lab governed improvement UX — CURRENT
+## V2.3 planning — Model Lab governed improvement UX — COMPLETE + NORMALIZED
 
-Planning is being performed from normalized live `main`:
+Planning PR `#502` was qualified on exact final head:
 
-`b5ac64becc4b748aa77386121ba6a63e02cf88bd`
+`8a13bb5c7a334b500cebaedec8bf7988d10147c3`
 
-Normative planning document under qualification:
+All **25/25** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35447327711`;
+- `KodeStudio UI Smoke` run `35447327644`;
+- `Python Core` run `35447327756`;
+- `R12 Tauri2 Acceptance` run `35447327773`;
+- `R13 Integrated Release Readiness` run `35447327678`;
+- `R17 Windows Installer` run `35447327730`.
+
+PR `#502` merged from that unchanged head with `expected_head_sha` protection as:
+
+`4744cc47827ca28c61395fc6c8e5064a18ae2b0c`
+
+The accepted V2.3 planning authority is:
 
 `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`
 
-The plan reuses the accepted R15 Experience / KodeBench / Fine-tuning stack and freezes exactly six subdivisions:
+It freezes exactly six subdivisions:
 
 1. V2.3.1 — Model Lab shell, inventory and lineage;
 2. V2.3.2 — Governed experience and dataset curation workspace;
@@ -450,20 +463,20 @@ The plan reuses the accepted R15 Experience / KodeBench / Fine-tuning stack and 
 5. V2.3.5 — Candidate evaluation, export, promotion and rollback UX;
 6. V2.3.6 — Model Lab hardening and integrated acceptance.
 
-Planning invariants include:
+Accepted planning invariants include:
 
-- no automatic training capture from chats, Research Packs, Project Knowledge, memory, retrieved context or tool output;
-- training eligibility must continue through the accepted R15 Experience governance/dedup/contamination/immutable-dataset path;
-- Project Knowledge may support diagnosis as reference data only and cannot become training authority;
-- `NO_TRAIN` remains a valid evidence-backed outcome;
+- V2.3 is a UX/governance layer over the accepted R15 Experience / KodeBench / Fine-tuning backend rather than a parallel training stack;
+- Project Knowledge, Research Packs, chats, memory, retrieved context and tool output do not become training data automatically;
+- training eligibility continues through the accepted R15 Experience governance/dedup/contamination/immutable-dataset path;
+- `NO_TRAIN` remains a valid evidence-backed first-class outcome;
 - exact dataset/model/tokenizer/capability identities remain mandatory;
 - critical-domain regressions veto promotion;
 - promotion/rollback remains an explicit separate registry mutation;
-- Kaggle T4×2 remains two distinct 16 GiB devices and V2.4 retains accelerator production/multi-GPU scope;
+- Kaggle T4×2 remains two distinct 16 GiB devices and V2.4 retains accelerator production/multi-GPU qualification;
 - TPU v5e-8 remains deferred;
-- no public publishing, arbitrary command surface, silent dependency installation, release/TUF/updater work, R20 reopening or V2.4+ pull-forward.
+- no public publishing, arbitrary command surface, silent dependency installation, release/TUF/updater work or R20 reopening.
 
-This branch is **planning/docs-only**. No V2.3 implementation subdivision is authorized by the planning branch or planning PR merge alone. Only exact-head planning qualification, protected merge and a separate post-merge normalization may authorize **V2.3.1 only**.
+This post-merge normalization authorizes **V2.3.1 — Model Lab shell, inventory and lineage only**. V2.3.2+ remain unauthorized until V2.3.1 is implemented, exact-head qualified, merged and post-merge normalized.
 
 ## Accepted V2 capability truth
 
@@ -491,11 +504,11 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 
 For future work:
 
-1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md`, completed `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` and current `V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`;
-2. verify V2.2 remains **COMPLETE + NORMALIZED** and no V2.2.7 is authorized;
-3. while V2.3 planning is not yet exact-head qualified, merged and post-merge normalized, perform planning/docs work only;
-4. preserve the frozen six V2.3 subdivisions and the accepted R15 backend as the implementation authority rather than creating a parallel training stack;
-5. preserve R15 training-data eligibility, benchmark contamination firewall, TRAIN/NO_TRAIN decision, capability/resource preflight, exact training lineage, critical-regression veto, export/conversion/package lineage and registry promotion/rollback semantics;
-6. preserve V2.1/V2.2 untrusted-data, Project Knowledge reference-only, WorkspaceBoundary, KodeSecrets, ResearchGuard and R16.7 MemoryStore invariants;
-7. do not pull forward V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
-8. only the post-planning normalization may authorize V2.3.1; a genuine manual intervention stops the sequence rather than being bypassed.
+1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md`, completed `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` and normalized `V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`;
+2. verify V2.3 planning remains **COMPLETE + NORMALIZED** from PR `#502`, exact head `8a13bb5c7a334b500cebaedec8bf7988d10147c3`, **25/25** workflows and merge `4744cc47827ca28c61395fc6c8e5064a18ae2b0c`;
+3. implement **V2.3.1 — Model Lab shell, inventory and lineage only**;
+4. preserve the accepted R15 backend and V2.3 permanent trust/data-eligibility invariants;
+5. V2.3.1 must remain read-only regarding dataset build, training, conversion, promotion and rollback mutations;
+6. preserve Project Knowledge as reference-only and do not create automatic training capture;
+7. do not pull forward V2.3.2+, V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
+8. after V2.3.1 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.2.

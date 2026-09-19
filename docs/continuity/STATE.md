@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-19 after V2.3.1 implementation PR `#504` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.2 implementation PR `#506` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -524,7 +524,53 @@ Accepted V2.3.1 product truth:
 
 Two integration defects were corrected before the final accepted head: historical R15.15 Ruff import ordering and registration of the new Model Lab controls in the existing accessibility contract. No gate was weakened; only the final head above is accepted.
 
-This post-merge normalization authorizes **V2.3.2 — Governed experience and dataset curation workspace only**. V2.3.3+ remain unauthorized until V2.3.2 is implemented, exact-head qualified, merged and post-merge normalized.
+This V2.3.1 post-merge normalization authorized **V2.3.2 — Governed experience and dataset curation workspace only**.
+
+## V2.3.2 — Governed experience and dataset curation workspace — COMPLETE + NORMALIZED
+
+Implementation PR `#506` was qualified on exact final head:
+
+`f419e125fa28f72bbb11dce855047a64dc3be574`
+
+All **28/28** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35472245615`;
+- `KodeStudio UI Smoke` run `35472245629`;
+- `Python Core` run `35472245626`;
+- `R12 Tauri2 Acceptance` run `35472245665`;
+- `R13 Integrated Release Readiness` run `35472245591`;
+- `R15.15 CLI KodeStudio UX Acceptance` run `35472245579`;
+- `R17 Windows Installer` run `35472245703`;
+- `R18.11 Integrated Adversarial Release Update Acceptance` run `35472245622`.
+
+The deterministic V2.3.2 acceptance reported **16/16 PASS** on Ubuntu and Windows with identical evidence payload SHA-256:
+
+`fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af`
+
+Accepted exact-head artifacts:
+
+- `v2-3-2-governed-curation-ubuntu-latest-f419e125fa28f72bbb11dce855047a64dc3be574` — ID `10593690427`;
+- `v2-3-2-governed-curation-windows-latest-f419e125fa28f72bbb11dce855047a64dc3be574` — ID `10592989545`.
+
+PR `#506` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`cefcffbfa55fdd0de096ebe8f029a2123c735d08`
+
+Accepted V2.3.2 product truth:
+
+- KodeStudio exposes a dedicated structured Data Curation workspace alongside the accepted Model Lab and R15 Experience / Tune surfaces;
+- experience eligibility/provenance/project scope/authorization/license/privacy/sanitization/benchmark protection/revocation/quarantine/integrity are visible without reading raw experience payloads;
+- deduplication and benchmark-contamination outcomes are structured and contaminated groups remain excluded;
+- immutable dataset manifest/card identity and digests are inspected without reading JSONL payload rows;
+- dataset preview is non-mutating and summarizes candidate/excluded rows, reasons, licenses, domains, tasks and split-policy availability;
+- curation and dataset-build mutations delegate exclusively to typed R15 handlers, preserve dry-run, explicit confirmation and configured-backend gates, and reject cross-project R15 service binding;
+- Project Knowledge, Research Packs, chat, memory and retrieved context remain reference-only and are not auto-ingested as training examples;
+- no training, conversion/package, promotion, rollback or new accelerator behavior was pulled forward;
+- FR/EN/pseudo-localization and accessibility coverage include the new workspace.
+
+Two qualification-only corrections preceded the final accepted head: V2.3.1 localization acceptance was made forward-compatible without weakening its historical Model Lab assertion, and the V2.3.2 tamper fixture was corrected to actually diverge. No gate was weakened.
+
+This post-merge normalization authorizes **V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX only**. V2.3.4+ remain unauthorized until V2.3.3 is implemented, exact-head qualified, merged and post-merge normalized.
 
 ## Accepted V2 capability truth
 
@@ -553,10 +599,10 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md`, completed `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` and normalized `V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`;
-2. verify V2.3.1 remains **COMPLETE + NORMALIZED** from PR `#504`, exact head `33d30747ebd915ab2bad56d3154f55a907830061`, **28/28** workflows, **14/14 PASS** Ubuntu/Windows and merge `1a7454f52bcd78ac2b44c3db467f6faa39df3a62`;
-3. implement **V2.3.2 — Governed experience and dataset curation workspace only**;
-4. reuse the accepted R15 Experience governance, sanitization/license, dedup/contamination and immutable dataset contracts rather than creating a parallel data path;
-5. preserve Project Knowledge/Research/context as reference-only; no automatic training capture or implicit eligibility;
-6. keep curation and dataset-build mutations behind accepted typed R15 handlers, dry-run/preview and explicit confirmation as applicable;
-7. do not pull forward V2.3.3+, V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
-8. after V2.3.2 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.3.
+2. verify V2.3.2 remains **COMPLETE + NORMALIZED** from PR `#506`, exact head `f419e125fa28f72bbb11dce855047a64dc3be574`, **28/28** workflows, **16/16 PASS** Ubuntu/Windows, evidence SHA-256 `fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af` and merge `cefcffbfa55fdd0de096ebe8f029a2123c735d08`;
+3. implement **V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX only**;
+4. reuse accepted R15 KodeBench, gap-diagnosis and decision contracts rather than creating a parallel benchmark or training-decision path;
+5. distinguish model capability gaps from tool, retrieval, routing, context, prompt and product defects, with evidence/reasons visible;
+6. keep training controls unavailable unless an accepted `TRAIN` decision is bound to an immutable governed dataset and exact base-model identity; V2.3.3 itself does not launch training;
+7. preserve Project Knowledge/Research/context as data-only diagnostic references and do not pull forward V2.3.4+, V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
+8. after V2.3.3 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.4.

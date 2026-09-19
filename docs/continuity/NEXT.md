@@ -233,40 +233,63 @@ Accepted product truth: dedicated structured Model Lab; bounded read-only R15 ev
 
 **V2.3.1 is COMPLETE + NORMALIZED.**
 
+## V2.3.2 accepted implementation
+
+Implementation PR `#506` was qualified **28/28** on exact final head `f419e125fa28f72bbb11dce855047a64dc3be574` and merged with `expected_head_sha` protection as `cefcffbfa55fdd0de096ebe8f029a2123c735d08`.
+
+Key exact-head gates:
+
+- `R0 Repository Guard` `35472245615` = success;
+- `KodeStudio UI Smoke` `35472245629` = success;
+- `Python Core` `35472245626` = success;
+- `R12 Tauri2 Acceptance` `35472245665` = success;
+- `R13 Integrated Release Readiness` `35472245591` = success;
+- `R15.15 CLI KodeStudio UX Acceptance` `35472245579` = success;
+- `R17 Windows Installer` `35472245703` = success;
+- `R18.11 Integrated Adversarial Release Update Acceptance` `35472245622` = success.
+
+Deterministic V2.3.2 acceptance: **16/16 PASS** on Ubuntu and Windows with identical evidence payload SHA-256 `fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af`.
+
+Accepted exact-head artifacts:
+
+- `v2-3-2-governed-curation-ubuntu-latest-f419e125fa28f72bbb11dce855047a64dc3be574` — ID `10593690427`;
+- `v2-3-2-governed-curation-windows-latest-f419e125fa28f72bbb11dce855047a64dc3be574` — ID `10592989545`.
+
+Accepted product truth: dedicated structured Data Curation workspace; metadata-only experience eligibility/provenance/license/privacy/sanitization/revocation/quarantine/integrity; safe dedup/contamination outcomes; immutable dataset identity/digest inspection without JSONL payload reads; non-mutating dataset preview; typed R15-only curation/dataset-build mutations with dry-run/confirmation/backend gates; cross-project binding rejection; Project Knowledge/Research/context remains reference-only; no training/conversion/promotion/rollback mutation.
+
+**V2.3.2 is COMPLETE + NORMALIZED.**
+
 ## Immediate execution order
 
-### V2.3.2 — Governed experience and dataset curation workspace — AUTHORIZED
+### V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — AUTHORIZED
 
-Implement V2.3.2 only.
+Implement V2.3.3 only.
 
 Required scope:
 
-- structured inspection of experience eligibility and immutable provenance;
-- visible source identity/type, project scope, consent/eligibility, privacy/sanitization, license assessment, revocation and quarantine state;
-- visible dedup/near-duplicate clusters and benchmark-holdout contamination outcomes;
-- explicit curation transitions only through accepted R15 typed handlers;
-- dataset-build preview/dry-run with row/split/license/domain/task summaries;
-- immutable dataset identity, manifest/export digests and dataset card after an explicitly authorized build;
-- revoked, quarantined, privacy-ineligible, license-ineligible and contaminated examples remain excluded;
-- Project Knowledge/Research/context may be linked for explanation but never auto-ingested or promoted to training authority;
-- raw JSON may remain diagnostics-only.
+- structured KodeBench suite/task/domain results over accepted benchmark evidence;
+- exact base-model identity plus reproducible benchmark run/config digests;
+- gap diagnosis that distinguishes model capability from tool, retrieval, routing, context, prompt and product defects;
+- explicit `TRAIN`, `NO_TRAIN`, `NOT_NEEDED`, blocked or inconclusive state only as provided by accepted decision contracts;
+- visible evidence and reasons for the diagnosis/decision;
+- Project Knowledge/Research/context may support diagnosis but remains data-only;
+- training controls remain disabled unless an accepted `TRAIN` authorization is bound to a valid immutable governed dataset and exact base-model identity.
 
 Permanent boundaries:
 
-- no direct filesystem/source mutation bypassing R15 Experience governance;
-- no secret-bearing training examples;
-- unknown, ambiguous or revoked license never becomes permission;
-- benchmark contamination remains a hard blocker;
-- no training launch, conversion/package, candidate promotion/rollback or new accelerator behavior;
-- no V2.3.3+, V2.4+, V2.5 orchestration, release/TUF/updater or R20 mutation.
+- reuse accepted R15 KodeBench/gap-diagnosis/decision APIs; do not create a parallel benchmark or decision backend;
+- V2.3.3 does not launch, cancel or recover training;
+- no conversion/package, candidate promotion/rollback or new accelerator behavior;
+- no automatic authority from prompt/source/project-context text;
+- no V2.3.4+, V2.4+, V2.5 orchestration, release/TUF/updater or R20 mutation.
 
-Definition of done: a user can understand exactly why each experience is or is not training-eligible and can deliberately create an immutable governed dataset without bypassing provenance, privacy, license, revocation, dedup or contamination gates.
+Definition of done: the user can see why training is or is not justified and cannot launch training from an unsupported, blocked or inconclusive diagnosis.
 
-V2.3.3+ remain unauthorized until V2.3.2 is exact-head qualified, merged and post-merge normalized.
+V2.3.4+ remain unauthorized until V2.3.3 is exact-head qualified, merged and post-merge normalized.
 
 ## Later V2 order
 
-After V2.3.1 is COMPLETE + NORMALIZED, proceed only to the next subdivision authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
+After V2.3.2 is COMPLETE + NORMALIZED, proceed only to the next subdivision authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
 
 ## Accelerator policy
 
@@ -282,4 +305,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.3.1 est COMPLETE + NORMALIZED : PR #504 qualifiée 28/28 sur le head exact 33d30747ebd915ab2bad56d3154f55a907830061, acceptance 14/14 PASS Ubuntu/Windows avec evidence SHA-256 5063e101b899d2e7a409ab14d4e2ab684cb98b67f963980fdc8e9f990061b6cc, puis fusionnée avec expected_head_sha en 1a7454f52bcd78ac2b44c3db467f6faa39df3a62. La seule subdivision autorisée est V2.3.2 — Governed experience and dataset curation workspace. Réutilise strictement les contrats R15 Experience/governance/sanitization/license/dedup/contamination/dataset; expose une UX structurée d’éligibilité/provenance/revocation/quarantine/dedup/contamination, curation via handlers typés, preview/dry-run puis build explicite d’un dataset immutable. Aucun Project Knowledge/Research/context ne devient donnée d’entraînement automatiquement. Aucun training, conversion/package, promotion/rollback, V2.3.3+, V2.4+, V2.5, release/TUF/updater ou R20 ne doit être tiré en avant. Qualifie le head final exact, merge protégé, puis normalise avant V2.3.3.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.3.2 est COMPLETE + NORMALIZED : PR #506 qualifiée 28/28 sur le head exact f419e125fa28f72bbb11dce855047a64dc3be574, acceptance 16/16 PASS Ubuntu/Windows avec evidence SHA-256 fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af, puis fusionnée avec expected_head_sha en cefcffbfa55fdd0de096ebe8f029a2123c735d08. La seule subdivision autorisée est V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX. Réutilise strictement les contrats R15 KodeBench/gap diagnosis/decision; expose les résultats suite/task/domain, identité du modèle de base et digests, distingue les gaps modèle des défauts outil/retrieval/routing/context/prompt/produit, et affiche une décision evidence-bound TRAIN/NO_TRAIN/NOT_NEEDED/blocked/inconclusive. Aucun training ne doit être lancé en V2.3.3 et Project Knowledge/Research/context reste data-only. Aucun V2.3.4+, V2.4+, V2.5, release/TUF/updater ou R20 ne doit être tiré en avant. Qualifie le head final exact, merge protégé, puis normalise avant V2.3.4.`

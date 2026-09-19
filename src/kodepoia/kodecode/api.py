@@ -2,12 +2,10 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
-from kodepoia.intelligence.project_workspace import (
-    ProjectWorkspaceContextSession,
-    ProjectWorkspaceSurface,
-)
+if TYPE_CHECKING:
+    from kodepoia.intelligence.project_workspace import ProjectWorkspaceContextSession
 from kodepoia.kodecode.dap import DapTool, DebugAdapterSpec
 from kodepoia.kodecode.files import FileTool
 from kodepoia.kodecode.git_worktree import GitWorktreeTool
@@ -244,6 +242,8 @@ class KodeCodeToolAPI:
     def _project_context(self, _args: dict[str, Any]) -> dict[str, Any]:
         if self.workspace_context_session is None:
             return {"state": "empty", "reason": "no project context session"}
+        from kodepoia.intelligence.project_workspace import ProjectWorkspaceSurface
+
         context = self.workspace_context_session.context_for(
             ProjectWorkspaceSurface.KODECODE,
             workspace_id="kodecode",

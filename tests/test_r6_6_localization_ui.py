@@ -25,8 +25,8 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         # R10.11 added Blender / 3D, R11.13 added Media / Franchise,
         # R12.15 added the governed Desktop workspace, R13.16 added
         # Mobile / DeviceLab / Release, R14.16 added Backend / LiveOps,
-        # and R15.15 adds Experience / Tune.
-        assert len(texts) == 14
+        # R15.15 added Experience / Tune, and V2.3.1 adds Model Lab.
+        assert len(texts) == 15
         assert all(text.startswith("⟦") and text.endswith("⟧") for text in texts)
         assert nav.minimumWidth() >= nav.sizeHintForColumn(0) + 24
 
@@ -44,6 +44,7 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         r13_cancel = window.findChild(QPushButton, "r13Cancel")
         r14_execute = window.findChild(QPushButton, "r14ExecuteButton")
         r15_execute = window.findChild(QPushButton, "r15ExecuteButton")
+        model_lab_refresh = window.findChild(QPushButton, "modelLabRefreshInventory")
         assert new_project is not None and new_project.text().startswith("⟦")
         assert stop is not None and stop.text().startswith("⟦")
         assert reset is not None and reset.text().startswith("⟦")
@@ -58,6 +59,7 @@ def test_kodestudio_pseudo_locale_expands_registered_main_surface_without_nav_tr
         assert r13_cancel is not None and r13_cancel.text().startswith("⟦")
         assert r14_execute is not None and r14_execute.text().startswith("⟦")
         assert r15_execute is not None and r15_execute.text().startswith("⟦")
+        assert model_lab_refresh is not None and model_lab_refresh.text().startswith("⟦")
 
         assert window.windowTitle().startswith("⟦")
         assert window.size().width() >= 1100

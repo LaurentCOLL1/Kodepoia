@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning COMPLETE + NORMALIZED; V2.3.1 authorized**  
+Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning and V2.3.1 COMPLETE + NORMALIZED; V2.3.2 authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -195,12 +195,16 @@ Planning invariants remain binding:
 - Kaggle T4×2 remains two separate 16 GiB devices; V2.3 does not claim V2.4 production/multi-GPU qualification;
 - no public publishing, arbitrary command surface, silent dependency install, release/TUF/updater mutation or R20 reopening.
 
-The current authorized implementation subdivision is **V2.3.1 only**. It is read-only with respect to dataset build, training, conversion/package and model promotion/rollback. V2.3.2+ remain unauthorized until V2.3.1 is COMPLETE + NORMALIZED.
+V2.3.1 implementation PR `#504` was qualified **28/28** on exact final head `33d30747ebd915ab2bad56d3154f55a907830061`, with deterministic **14/14 PASS** acceptance on Ubuntu and Windows and identical evidence SHA-256 `5063e101b899d2e7a409ab14d4e2ab684cb98b67f963980fdc8e9f990061b6cc`, then merged with `expected_head_sha` protection as `1a7454f52bcd78ac2b44c3db467f6faa39df3a62`. Its accepted product truth is a dedicated structured read-only Model Lab over existing R15 evidence/model infrastructure, with bounded inventory, registry integrity, lineage, explicit Ollama/Kaggle runtime refresh, capability introspection without installation and explicit degraded states, while exposing no dataset-build/training/conversion/promotion/rollback mutation.
+
+V2.3.1 is therefore **COMPLETE + NORMALIZED**.
+
+The current authorized implementation subdivision is **V2.3.2 only — Governed experience and dataset curation workspace**. It must reuse accepted R15 Experience governance, sanitization/license, dedup/contamination and immutable dataset contracts; Project Knowledge/Research/context remains reference-only. V2.3.3+ remain unauthorized until V2.3.2 is COMPLETE + NORMALIZED.
 
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
-- V2.3 — Model Lab governed improvement UX — **planning COMPLETE + NORMALIZED; V2.3.1 is the current authorized subdivision**.
+- V2.3 — Model Lab governed improvement UX — **planning and V2.3.1 COMPLETE + NORMALIZED; V2.3.2 is the current authorized subdivision**.
 - V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.

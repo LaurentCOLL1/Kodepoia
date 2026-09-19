@@ -240,6 +240,8 @@ This normalization closes V2.2.5 and authorizes **V2.2.6 — Project Knowledge h
 
 ## V2.2.6 implementation qualification
 
+Historical exact-head authority marker preserved for acceptance provenance: **V2.2.6 — Project Knowledge hardening and integrated acceptance — CURRENT**. That marker describes the implementation head when it was qualified; the live post-merge status of this document is **V2.2 COMPLETE + NORMALIZED**.
+
 Implementation PR `#500` was qualified on exact final head:
 
 `add97a4889c68b7aed79125563917ddce8b70863`

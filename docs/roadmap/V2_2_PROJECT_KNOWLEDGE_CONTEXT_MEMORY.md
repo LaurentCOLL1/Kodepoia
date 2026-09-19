@@ -1,6 +1,6 @@
 # V2.2 — Project Knowledge, Context Builder and Memory integration
 
-Status: **V2.2.2 COMPLETE + NORMALIZED — V2.2.3 is the only authorized implementation subdivision**  
+Status: **V2.2.3 COMPLETE + NORMALIZED — V2.2.4 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Public distribution boundary: `v1.1.0-rc8`
 
@@ -107,6 +107,47 @@ Accepted V2.2.2 product truth:
 The first Python Core Windows attempt failed only after the V2.2.2 acceptance artifact had already passed and uploaded, when historical `test_r16_16_resource_soak` hit `WinError 32` deleting a temporary `processes` directory. A targeted rerun on the unchanged exact head completed successfully; no source, workflow or acceptance criterion changed.
 
 This normalization closes V2.2.2 and authorizes **V2.2.3 — Explainable Context Builder** only.
+
+## V2.2.3 implementation qualification
+
+Implementation PR `#494` was qualified on exact final head:
+
+`ac9ad68938cc13cd819bb078839c5963d03a794e`
+
+All **27/27** pull-request workflows associated with that head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35404034479`;
+- `KodeStudio UI Smoke` run `35404034456`;
+- `R12 Tauri2 Acceptance` run `35404034501`;
+- `R13 Integrated Release Readiness` run `35404034505`;
+- `Python Core` run `35404034510`;
+- `R17 Windows Installer` run `35404034515`.
+
+The deterministic V2.2.3 exact-head acceptance reported **11/11 PASS** on both Ubuntu and Windows with identical evidence payload SHA-256:
+
+`35c18af0424d15b54694ce537f89ae80de98dff262ea8168afe8ef73f5ef9765`
+
+Accepted exact-head artifacts:
+
+- `v2-2-3-explainable-context-ubuntu-latest-ac9ad68938cc13cd819bb078839c5963d03a794e` — artifact ID `10571726324`;
+- `v2-2-3-explainable-context-windows-latest-ac9ad68938cc13cd819bb078839c5963d03a794e` — artifact ID `10571666306`.
+
+PR `#494` merged from that unchanged exact head with `expected_head_sha` protection as merge commit:
+
+`363bf1a3afa06949269208aa6d3639e439c899e5`
+
+Accepted V2.2.3 product truth:
+
+- context candidates retain source identity, retrieval score, trust, freshness/version and estimated token cost;
+- selected/omitted rationale is deterministic and includes user include/exclude, mandatory, within-budget and budget-exceeded outcomes;
+- the existing `ContextBuilder` / `ContextItem` implementation remains the single token-budgeted context engine;
+- mandatory or explicit Include never raises trust or turns project/research-derived data into privileged instruction;
+- source, knowledge and citation traceability is preserved into rendered context;
+- external/research-derived project knowledge remains inside `<UNTRUSTED_DATA>`;
+- KodeStudio Research exposes source, score, trust, freshness/version, token cost, rationale, budget and Auto/Include/Exclude overrides before assembly;
+- V2.2.4 lifecycle state and V2.2.5 workspace consumption were not pulled forward.
+
+This normalization closes V2.2.3 and authorizes **V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle** only.
 
 ## 1. Authority and goal
 
@@ -326,7 +367,7 @@ Required scope:
 
 Definition of done: a query returns a bounded, project-confined set of relevant knowledge candidates with reproducible scores/ordering and explicit capability state.
 
-### V2.2.3 — Explainable Context Builder — CURRENT
+### V2.2.3 — Explainable Context Builder — COMPLETE + NORMALIZED
 
 Goal: turn retrieved candidates into inspectable, bounded context while showing why each item was or was not selected.
 
@@ -344,7 +385,7 @@ Required scope:
 
 Definition of done: the user can inspect a context bundle and understand why each item was selected, excluded or omitted for budget.
 
-### V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle
+### V2.2.4 — Version-aware invalidation and derived-knowledge lifecycle — CURRENT
 
 Goal: keep project knowledge honest as project files, Research Packs, engine/tool versions and source revisions change.
 
@@ -506,3 +547,5 @@ The V2.2 planning phase is complete because:
 Historical implementation gate, now satisfied: **V2.2.2 may begin only from live `main` after the V2.2.1 post-merge normalization PR itself is exact-head qualified and merged.**
 
 **V2.2.3 may begin only from live `main` after the V2.2.2 post-merge normalization PR itself is exact-head qualified and merged.**
+
+**V2.2.4 may begin only from live `main` after the V2.2.3 post-merge normalization PR itself is exact-head qualified and merged.**

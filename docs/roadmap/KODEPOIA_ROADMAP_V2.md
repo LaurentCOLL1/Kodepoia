@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning authorized**  
+Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning in progress; no V2.3 implementation authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -165,10 +165,40 @@ V2.2 is therefore **COMPLETE + NORMALIZED** through V2.2.6. No V2.2.7 is reserve
 
 The only authorized next work is **planning V2.3 — Model Lab governed improvement UX**. V2.3 implementation must wait for a dedicated planning authority to be exact-head qualified, merged and post-merge normalized.
 
+### V2.3 — Model Lab governed improvement UX — PLANNING
+
+Normative planning contract under qualification:
+
+`docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`
+
+V2.3 reuses the accepted R15 Experience / Bench / Fine-tuning backend rather than creating a parallel model-improvement stack.
+
+Frozen planned subdivisions:
+
+- **V2.3.1 — Model Lab shell, inventory and lineage** — structured read-only Model Lab state over existing datasets, benchmarks, training/evaluation/export evidence, installed models and specialized-model registry lineage.
+- **V2.3.2 — Governed experience and dataset curation workspace** — structured eligibility/provenance/privacy/license/revocation/dedup/contamination UX plus explicit immutable dataset build.
+- **V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX** — KodeBench evidence, model-vs-system gap diagnosis and explicit evidence-backed decision before training.
+- **V2.3.4 — Governed training plan, execution and recovery UX** — exact model/tokenizer/dataset-bound SFT/QLoRA plan, capability/resource preflight, explicit launch, status/cancel/checkpoint/recovery using accepted local/Kaggle backends.
+- **V2.3.5 — Candidate evaluation, export, promotion and rollback UX** — paired base/candidate evaluation, critical-regression veto, export/GGUF/Ollama lineage and explicit registry promotion/rollback.
+- **V2.3.6 — Model Lab hardening and integrated acceptance** — adversarial proof of the complete UX/governance chain.
+
+Planning invariants:
+
+- Project Knowledge/Research/context remain reference data and never become training data automatically;
+- training eligibility continues to require the accepted R15 Experience governance -> dedup/contamination -> immutable dataset path;
+- `TRAIN` / `NO_TRAIN` remains evidence-backed and `NO_TRAIN` is a valid first-class outcome;
+- exact model/tokenizer/dataset/capability identities remain mandatory;
+- critical regressions veto promotion;
+- promotion/rollback remains an explicit separate registry mutation;
+- Kaggle T4×2 remains two separate 16 GiB devices; V2.3 does not claim V2.4 production/multi-GPU qualification;
+- no public publishing, arbitrary command surface, silent dependency install, release/TUF/updater mutation or R20 reopening.
+
+This planning work is docs-only. **V2.3.1 is not authorized by this planning branch or by the planning PR merge alone.** Only a post-merge normalization after exact-head planning qualification may authorize V2.3.1.
+
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
-- V2.3 — Model Lab governed improvement UX — **planning is the current authorized work; implementation not yet authorized**.
+- V2.3 — Model Lab governed improvement UX — **planning in progress; implementation not yet authorized**.
 - V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.

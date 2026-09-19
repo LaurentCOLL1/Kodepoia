@@ -26,6 +26,7 @@ def build_window(
     r13_service=None,
     r14_service=None,
     r15_service=None,
+    model_lab_service=None,
     workspace_context_session: ProjectWorkspaceContextSession | None = None,
 ):
     from PySide6.QtWidgets import (
@@ -306,12 +307,26 @@ def build_window(
             "r15",
         )
 
+    def model_lab_page() -> QWidget:
+        from kodepoia.kodestudio.model_lab_panel import create_model_lab_page
+
+        return with_project_context(
+            create_model_lab_page(
+                root,
+                locale=locale,
+                service=model_lab_service,
+                status_bar=status,
+            ),
+            "model_lab",
+        )
+
     from kodepoia.kodestudio.blender_localization import blender_nav_text
     from kodepoia.kodestudio.r11_localization import r11_nav_text
     from kodepoia.kodestudio.r12_localization import r12_nav_text
     from kodepoia.kodestudio.r13_localization import r13_nav_text
     from kodepoia.kodestudio.r14_localization import r14_nav_text
     from kodepoia.kodestudio.r15_localization import r15_nav_text
+    from kodepoia.kodestudio.model_lab_localization import model_lab_nav_text
 
     sections = (
         (tr.text("app.nav.chat"), None),
@@ -325,6 +340,7 @@ def build_window(
         (r13_nav_text(locale), r13_page),
         (r14_nav_text(locale), r14_page),
         (r15_nav_text(locale), r15_page),
+        (model_lab_nav_text(locale), model_lab_page),
         (tr.text("app.nav.security"), security_page),
         (tr.text("app.nav.audit"), None),
         (tr.text("app.nav.settings"), None),

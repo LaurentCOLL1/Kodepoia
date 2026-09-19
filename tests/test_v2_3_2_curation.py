@@ -300,6 +300,11 @@ def test_curation_and_dataset_mutations_delegate_only_to_r15_typed_handlers(
 
     dataset_preview = service.preview_dataset_build()
     assert dataset_preview["status"] == "dry_run"
+    assert dataset_preview["preview"]["raw_payloads_read"] is False
+    assert "licenses" in dataset_preview["preview"]
+    assert "domains" in dataset_preview["preview"]
+    assert "tasks" in dataset_preview["preview"]
+    assert "split_summary" in dataset_preview["preview"]
     assert len(calls) == 1
 
     with pytest.raises(R15UXPolicyError, match="confirmation"):
@@ -329,6 +334,21 @@ def test_unconfigured_mutation_backend_is_explicit_and_does_not_write(tmp_path: 
 
     after = sorted(path.relative_to(root).as_posix() for path in root.rglob("*"))
     assert before == after
+
+
+
+
+
+def test_curation_rejects_cross_project_r15_service_binding(tmp_path: Path) -> None:
+    left = tmp_path / "left"
+    right = tmp_path / "right"
+    left.mkdir()
+    right.mkdir()
+    with pytest.raises(ValueError, match="project root"):
+        ModelLabCurationService(
+            left,
+            r15_service=R15UXService(right),
+        )
 
 
 def test_dataset_manifest_tamper_is_explicit_without_reading_jsonl(tmp_path: Path) -> None:

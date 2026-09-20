@@ -60,6 +60,8 @@ class R15WorkflowRequest:
     action: str
     mode: R15WorkflowMode = R15WorkflowMode.INSPECT
     identifier: str | None = None
+    parent_identifier: str | None = None
+    backend: str | None = None
     confirmed: bool = False
 
     @property
@@ -151,6 +153,14 @@ _ACTIONS: tuple[R15ActionSpec, ...] = (
         terminal_mode=R15WorkflowMode.CANCEL,
         identifier_required=True,
         description="Cancel one exact training run identity.",
+    ),
+    R15ActionSpec(
+        "training",
+        "resume",
+        mutation=True,
+        terminal_mode=R15WorkflowMode.APPLY,
+        identifier_required=True,
+        description="Resume one exact lineage-bound training checkpoint through a configured backend.",
     ),
     R15ActionSpec(
         "conversion",
@@ -316,10 +326,27 @@ class R15UXService:
     def _validate(self, request: R15WorkflowRequest) -> R15ActionSpec:
         spec = self.action(request.domain, request.action)
         identifier = request.identifier.strip() if request.identifier else None
+        parent_identifier = (
+            request.parent_identifier.strip() if request.parent_identifier else None
+        )
         if spec.identifier_required and not identifier:
             raise R15UXPolicyError("stable identifier is required for this action")
-        if identifier and any(char in identifier for char in ("\n", "\r", "\x00")):
-            raise R15UXPolicyError("identifier contains forbidden control characters")
+        for label, value in (
+            ("identifier", identifier),
+            ("parent_identifier", parent_identifier),
+        ):
+            if value and any(char in value for char in ("\n", "\r", "\x00")):
+                raise R15UXPolicyError(f"{label} contains forbidden control characters")
+        if request.backend is not None:
+            backend = request.backend.strip().lower()
+            if request.domain != "training":
+                raise R15UXPolicyError("backend selection is only accepted for training actions")
+            if backend not in {"local", "kaggle"}:
+                raise R15UXPolicyError("training backend must be local or kaggle")
+        if spec.key == "training.resume" and not parent_identifier:
+            raise R15UXPolicyError("training.resume requires a parent plan identifier")
+        if parent_identifier and spec.key != "training.resume":
+            raise R15UXPolicyError("parent identifier is only accepted for training.resume")
         if spec.mutation:
             if request.mode is R15WorkflowMode.DRY_RUN:
                 return spec
@@ -340,6 +367,8 @@ class R15UXService:
             "workflow": spec.key,
             "mode": request.mode.value,
             "identifier": request.identifier,
+            "parent_identifier": request.parent_identifier,
+            "backend": request.backend,
             "mutation": spec.mutation,
             "redacted": True,
         }

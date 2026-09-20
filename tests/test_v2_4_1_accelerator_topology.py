@@ -235,10 +235,10 @@ def test_probe_worker_observes_every_device_but_legacy_scalars_remain_device_zer
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     class FakeTensor:
-        def __matmul__(self, _other: object) -> "FakeTensor":
+        def __matmul__(self, _other: object) -> FakeTensor:
             return self
 
-        def sum(self) -> "FakeTensor":
+        def sum(self) -> FakeTensor:
             return self
 
         def item(self) -> int:

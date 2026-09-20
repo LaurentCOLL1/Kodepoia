@@ -51,6 +51,15 @@ def main() -> int:
     state = _read("docs/continuity/STATE.md")
     next_doc = _read("docs/continuity/NEXT.md")
 
+    v233_current = (
+        "V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — CURRENT"
+        in authority
+    )
+    v233_normalized = (
+        "V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — COMPLETE + NORMALIZED"
+        in authority
+    )
+
     checks = [
         _check(
             "exact_head",
@@ -163,10 +172,10 @@ def main() -> int:
         ),
         _check(
             "current_authority",
-            "V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — CURRENT" in authority
+            (v233_current or v233_normalized)
             and "V2.3.3" in state
             and "V2.3.3" in next_doc,
-            "V2.3.3 remains the current authorized subdivision",
+            "V2.3.3 is either CURRENT or retained as COMPLETE + NORMALIZED historical acceptance context",
         ),
         _check(
             "later_scope_unauthorized",

@@ -407,7 +407,7 @@ Planning truth:
 
 **No V2.4 implementation is authorized yet.** The planning head must first be fully exact-head qualified, merged with `expected_head_sha`, then post-merge normalized. Only that normalization may authorize V2.4.1.
 
-## Later V2 order## Later V2 order
+## Later V2 order
 
 V2.4 planning is the current work. After the planning PR is exact-head qualified, merged and separately normalized, proceed only to **V2.4.1**. V2.4.2+, V2.5 orchestration and V2.6 release work remain unauthorized until their own authority gates are satisfied.
 

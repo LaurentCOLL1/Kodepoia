@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from kodepoia.tuning.contracts import QuantizationMode
+from kodepoia.tuning.contracts import QuantizationMode, TrainingBackend
 from kodepoia.tuning.kaggle_remote import (
     CommandResult,
     KaggleAccelerator,
@@ -128,6 +128,21 @@ def test_bundle_is_private_gpu_t4_and_contains_no_credentials(tmp_path: Path) ->
     serialized = json.dumps([kernel, dataset, manifest, saved_plan]).lower()
     for forbidden in ("kaggle_api_token", "kaggle_key", "password", "access_token", "refresh_token"):
         assert forbidden not in serialized
+
+
+def test_t4_provider_topology_request_is_explicit_and_not_observed_truth() -> None:
+    config = KaggleRemoteConfig(
+        username="kodepoiaTester",
+        dataset_slug="private-data",
+        kernel_slug="private-run",
+    )
+    request = config.topology_request()
+    assert request.provider == "kaggle"
+    assert request.shape == KaggleAccelerator.NVIDIA_T4.value
+    assert request.expected_backend is TrainingBackend.CUDA
+    assert request.expected_device_count == 2
+    assert request.expected_name_contains == "T4"
+    assert "observed" not in request.to_dict()
 
 
 def test_l4_is_supported_but_retired_p100_is_not() -> None:

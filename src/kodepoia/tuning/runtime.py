@@ -24,6 +24,14 @@ from .contracts import (
     RuntimeDisposition,
     RuntimeRequest,
     TrainingBackend,
+    TuningRuntimeError,
+)
+from .topology import (
+    AcceleratorTopologyReport,
+    ProviderAcceleratorRequest,
+    TopologyDisposition,
+    provider_request_blockers,
+    topology_from_worker_payload,
 )
 
 _MAX_CAPTURE_CHARS = 8192
@@ -126,6 +134,7 @@ def _safe_worker_evidence(payload: object) -> dict[str, object]:
         "packages",
         "python_version",
         "seed_applied",
+        "topology",
         "torch_backend_version",
         "vram_free_bytes",
         "vram_total_bytes",
@@ -150,10 +159,32 @@ def _safe_worker_evidence(payload: object) -> dict[str, object]:
             str(key): redact_runtime_text(str(value)) if key == "name" else value
             for key, value in device.items()
         }
+    topology = payload.get("topology")
+    if topology is not None:
+        if not isinstance(topology, dict):
+            raise ValueError("worker topology evidence is invalid")
+        raw_devices = topology.get("devices")
+        if not isinstance(raw_devices, list):
+            raise ValueError("worker topology devices evidence is invalid")
+        sanitized_devices: list[dict[str, object]] = []
+        for raw_device in raw_devices:
+            if not isinstance(raw_device, dict):
+                raise ValueError("worker topology device evidence is invalid")
+            sanitized = dict(raw_device)
+            if "name" in sanitized:
+                sanitized["name"] = redact_runtime_text(str(sanitized["name"]))
+            sanitized_devices.append(sanitized)
+        topology = {**topology, "devices": sanitized_devices}
+        try:
+            expected_backend = TrainingBackend(str(payload.get("backend", "")))
+            topology_from_worker_payload(topology, expected_backend=expected_backend)
+        except (TuningRuntimeError, ValueError) as exc:
+            raise ValueError("worker topology evidence is invalid") from exc
     return {
         **payload,
         "device": device,
         "packages": packages,
+        "topology": topology,
         "python_version": redact_runtime_text(str(payload.get("python_version", "unknown"))),
         "torch_backend_version": (
             None
@@ -338,6 +369,83 @@ class TrainingRuntime:
             vram_preflight,
             final_stderr,
             blockers=(),
+        )
+
+    def probe_topology(
+        self,
+        request: RuntimeRequest,
+        *,
+        provider_request: ProviderAcceleratorRequest | None = None,
+    ) -> AcceleratorTopologyReport:
+        if request.backend is TrainingBackend.CPU:
+            return AcceleratorTopologyReport(
+                disposition=TopologyDisposition.UNAVAILABLE,
+                request_digest=request.digest,
+                backend=TrainingBackend.CUDA,
+                provider_request=provider_request,
+                observed=None,
+                blockers=("accelerator_backend_required",),
+            )
+        first = self._run_worker(request, "probe")
+        if isinstance(first, CapabilityReport):
+            return AcceleratorTopologyReport(
+                disposition=TopologyDisposition.FAILED,
+                request_digest=request.digest,
+                backend=request.backend,
+                provider_request=provider_request,
+                observed=None,
+                blockers=(f"worker_{first.disposition.value}",),
+                stderr=first.stderr,
+            )
+        evidence, stderr = first
+        capability = CapabilityState(str(evidence.get("backend_capability", "unknown")))
+        if capability is not CapabilityState.SUPPORTED:
+            return AcceleratorTopologyReport(
+                disposition=TopologyDisposition.UNAVAILABLE,
+                request_digest=request.digest,
+                backend=request.backend,
+                provider_request=provider_request,
+                observed=None,
+                blockers=("backend_unavailable",),
+                stderr=stderr,
+            )
+        raw_topology = evidence.get("topology")
+        if not isinstance(raw_topology, Mapping):
+            return AcceleratorTopologyReport(
+                disposition=TopologyDisposition.FAILED,
+                request_digest=request.digest,
+                backend=request.backend,
+                provider_request=provider_request,
+                observed=None,
+                blockers=("topology_evidence_missing",),
+                stderr=stderr,
+            )
+        try:
+            observed = topology_from_worker_payload(
+                raw_topology,
+                expected_backend=request.backend,
+            )
+        except TuningRuntimeError:
+            return AcceleratorTopologyReport(
+                disposition=TopologyDisposition.FAILED,
+                request_digest=request.digest,
+                backend=request.backend,
+                provider_request=provider_request,
+                observed=None,
+                blockers=("topology_evidence_invalid",),
+                stderr=stderr,
+            )
+        blockers = provider_request_blockers(provider_request, observed)
+        return AcceleratorTopologyReport(
+            disposition=(
+                TopologyDisposition.MISMATCH if blockers else TopologyDisposition.READY
+            ),
+            request_digest=request.digest,
+            backend=request.backend,
+            provider_request=provider_request,
+            observed=observed,
+            blockers=blockers,
+            stderr=stderr,
         )
 
     def _run_worker(

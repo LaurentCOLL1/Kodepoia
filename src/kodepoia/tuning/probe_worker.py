@@ -48,6 +48,7 @@ def _base_result() -> dict[str, object]:
         "packages": {name: _version(name) for name in _PACKAGE_NAMES},
         "python_version": platform.python_version(),
         "seed_applied": False,
+        "topology": None,
         "torch_backend_version": None,
         "vram_free_bytes": None,
         "vram_total_bytes": None,
@@ -86,21 +87,46 @@ def _torch_probe(data: dict[str, Any], result: dict[str, object]) -> tuple[Any, 
             result["backend"] = requested
             result["backend_capability"] = "unsupported"
             return None
-        device = torch.device("cuda:0")
         backend_type = "rocm" if hip else "cuda"
         if backend_type != requested:
             result["backend"] = backend_type
             result["backend_capability"] = "unsupported"
             return None
-        props = torch.cuda.get_device_properties(0)
-        name = str(getattr(props, "name", backend_type))[:256]
-        try:
-            free_bytes, total_bytes = torch.cuda.mem_get_info(0)
-            result["vram_free_bytes"] = int(free_bytes)
-            result["vram_total_bytes"] = int(total_bytes)
-        except Exception:
-            result["vram_free_bytes"] = None
-            result["vram_total_bytes"] = None
+        device_count = int(torch.cuda.device_count())
+        if not 1 <= device_count <= 64:
+            result["backend"] = backend_type
+            result["backend_capability"] = "unsupported"
+            return None
+        devices: list[dict[str, object]] = []
+        for index in range(device_count):
+            props = torch.cuda.get_device_properties(index)
+            device_name = str(getattr(props, "name", backend_type))[:256]
+            try:
+                free_bytes, total_bytes = torch.cuda.mem_get_info(index)
+                free_value: int | None = int(free_bytes)
+                total_value: int | None = int(total_bytes)
+            except Exception:
+                free_value = None
+                total_value = None
+            devices.append(
+                {
+                    "backend_type": backend_type,
+                    "index": index,
+                    "name": device_name,
+                    "vram_free_bytes": free_value,
+                    "vram_total_bytes": total_value,
+                }
+            )
+        first = devices[0]
+        result["vram_free_bytes"] = first["vram_free_bytes"]
+        result["vram_total_bytes"] = first["vram_total_bytes"]
+        result["topology"] = {
+            "backend_type": backend_type,
+            "device_count": device_count,
+            "devices": devices,
+        }
+        device = torch.device("cuda:0")
+        name = str(first["name"])
         torch.cuda.manual_seed_all(seed)
     else:
         result["backend_capability"] = "unsupported"

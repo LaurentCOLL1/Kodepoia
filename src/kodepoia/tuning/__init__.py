@@ -18,6 +18,15 @@ from .contracts import (
     TuningRuntimeError,
 )
 from .runtime import HostResourceProbe, TrainingRuntime, redact_runtime_text
+from .topology import (
+    AcceleratorDevice,
+    AcceleratorTopologyReport,
+    ObservedAcceleratorTopology,
+    ProviderAcceleratorRequest,
+    SingleGpuSelection,
+    TopologyDisposition,
+    evaluate_single_gpu_selection,
+)
 from .training import (
     CheckpointRecord,
     DatasetBinding,
@@ -34,6 +43,8 @@ from .training import (
 )
 
 __all__ = [
+    "AcceleratorDevice",
+    "AcceleratorTopologyReport",
     "CapabilityReport",
     "CapabilityState",
     "CheckpointRecord",
@@ -42,12 +53,16 @@ __all__ = [
     "HostResourceProbe",
     "LoraTrainingConfig",
     "ModelBinding",
+    "ObservedAcceleratorTopology",
+    "ProviderAcceleratorRequest",
     "QuantizationMode",
     "ResourceRequest",
     "RuntimeDisposition",
     "RuntimeRequest",
     "SFTTrainingConfig",
     "SeedConfig",
+    "SingleGpuSelection",
+    "TopologyDisposition",
     "TrainingAuthorization",
     "TrainingBackend",
     "TrainingError",
@@ -58,5 +73,6 @@ __all__ = [
     "TrainingRunner",
     "TrainingRuntime",
     "TuningRuntimeError",
+    "evaluate_single_gpu_selection",
     "redact_runtime_text",
 ]

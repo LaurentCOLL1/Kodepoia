@@ -217,6 +217,7 @@ def main() -> int:
                 "assert len(texts) == 16" in pseudo_test
                 or "assert len(texts) == 17" in pseudo_test
                 or "assert len(texts) == 18" in pseudo_test
+                or "assert len(texts) == 19" in pseudo_test
             )
             and 'window.findChild(QPushButton, "modelLabCurationRefresh")' in pseudo_test
             and "test_curation_workspace_is_wired_structured_accessible_and_localized"

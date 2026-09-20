@@ -167,7 +167,10 @@ def main() -> int:
             '"nav": "Training"' in localization
             and '"nav": "Entraînement"' in localization
             and "qps-ploc" in localization
-            and "assert len(texts) == 18" in pseudo_test,
+            and (
+                "assert len(texts) == 18" in pseudo_test
+                or "assert len(texts) == 19" in pseudo_test
+            ),
             "EN/FR/qps-ploc includes V2.3.4",
         ),
         _check(

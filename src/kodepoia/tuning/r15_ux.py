@@ -62,6 +62,7 @@ class R15WorkflowRequest:
     identifier: str | None = None
     parent_identifier: str | None = None
     backend: str | None = None
+    role: str | None = None
     confirmed: bool = False
 
     @property
@@ -163,6 +164,20 @@ _ACTIONS: tuple[R15ActionSpec, ...] = (
         description="Resume one exact lineage-bound training checkpoint through a configured backend.",
     ),
     R15ActionSpec(
+        "export",
+        "status",
+        identifier_required=True,
+        description="Inspect immutable R15.11 export lineage for one candidate.",
+    ),
+    R15ActionSpec(
+        "export",
+        "run",
+        mutation=True,
+        terminal_mode=R15WorkflowMode.APPLY,
+        identifier_required=True,
+        description="Export one R15.10 accepted candidate through the configured R15.11 handler.",
+    ),
+    R15ActionSpec(
         "conversion",
         "doctor",
         description="Inspect GGUF/quantization capability without installing tools.",
@@ -173,7 +188,23 @@ _ACTIONS: tuple[R15ActionSpec, ...] = (
         identifier_required=True,
         description="Inspect conversion evidence for one candidate.",
     ),
+    R15ActionSpec(
+        "conversion",
+        "run",
+        mutation=True,
+        terminal_mode=R15WorkflowMode.APPLY,
+        identifier_required=True,
+        description="Run one governed R15.12 conversion/quantization plan through the configured handler.",
+    ),
     R15ActionSpec("ollama", "status", description="Inspect persisted Ollama packaging/runtime evidence."),
+    R15ActionSpec(
+        "ollama",
+        "package",
+        mutation=True,
+        terminal_mode=R15WorkflowMode.APPLY,
+        identifier_required=True,
+        description="Package one accepted candidate through the configured local R15.13 Ollama handler.",
+    ),
     R15ActionSpec(
         "registry",
         "candidates",
@@ -347,6 +378,14 @@ class R15UXService:
             raise R15UXPolicyError("training.resume requires a parent plan identifier")
         if parent_identifier and spec.key != "training.resume":
             raise R15UXPolicyError("parent identifier is only accepted for training.resume")
+        if request.role is not None:
+            role = request.role.strip().lower()
+            if spec.key not in {"registry.promote", "registry.rollback"}:
+                raise R15UXPolicyError(
+                    "role selection is only accepted for registry promotion/rollback"
+                )
+            if role not in {"fast", "core", "coder", "embed", "vision"}:
+                raise R15UXPolicyError("registry role is not recognized")
         if spec.mutation:
             if request.mode is R15WorkflowMode.DRY_RUN:
                 return spec
@@ -369,6 +408,7 @@ class R15UXService:
             "identifier": request.identifier,
             "parent_identifier": request.parent_identifier,
             "backend": request.backend,
+            "role": request.role,
             "mutation": spec.mutation,
             "redacted": True,
         }

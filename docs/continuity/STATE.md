@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-20 after V2.3.3 implementation PR `#508` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.4 implementation PR `#510` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -622,6 +622,54 @@ Qualification corrections before the final accepted head aligned the exact KodeB
 
 This post-merge normalization closes V2.3.3 and authorizes **V2.3.4 — Governed training plan, execution and recovery UX only**. V2.3.5+ remain unauthorized until V2.3.4 is implemented, exact-head qualified, merged and post-merge normalized.
 
+## V2.3.4 — Governed training plan, execution and recovery UX — COMPLETE + NORMALIZED
+
+Implementation PR `#510` was qualified on exact final head:
+
+`4f25fb6331ba76dfe51cd13c8a1560f66142a862`
+
+All **31/31** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35489030766`;
+- `KodeStudio UI Smoke` run `35489030819`;
+- `Python Core` run `35489030825`;
+- `R12 Tauri2 Acceptance` run `35489030843`;
+- `R13 Integrated Release Readiness` run `35489030751`;
+- `R15.8 Training Runtime Acceptance` run `35489030774`;
+- `R15.9 QLoRA SFT Acceptance` run `35489030804`;
+- `R15.15 CLI KodeStudio UX Acceptance` run `35489030861`;
+- `R17 Windows Installer` run `35489030828`;
+- `R18.11 Integrated Adversarial Release Update Acceptance` run `35489030758`.
+
+The deterministic V2.3.4 exact-head acceptance reported **18/18 PASS** on Ubuntu and Windows with identical evidence payload SHA-256:
+
+`f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113`
+
+Accepted exact-head artifacts:
+
+- `v2-3-4-governed-training-ubuntu-latest-4f25fb6331ba76dfe51cd13c8a1560f66142a862` — artifact ID `10598522634`;
+- `v2-3-4-governed-training-windows-latest-4f25fb6331ba76dfe51cd13c8a1560f66142a862` — artifact ID `10597613394`.
+
+PR `#510` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2`
+
+Accepted V2.3.4 product truth:
+
+- KodeStudio now exposes a structured **Training** workspace over accepted R15 training/runtime contracts rather than a parallel training engine;
+- immutable TrainingPlan identity remains bound to exact base model, tokenizer, governed dataset, accepted evidence-backed `TRAIN` decision and verified capability report;
+- capability/resource preflight is fail closed before launch;
+- local and Kaggle remain explicit selectable backends without fabricated readiness, pooled-VRAM or new multi-GPU semantics;
+- doctor/plan/run/status/cancel/resume use typed R15 UX actions, with dry-run and explicit confirmation for mutation paths;
+- run state, losses, resource evidence, checkpoints and resume lineage remain bound to immutable plan/run identities;
+- cancellation/recovery does not bypass ProcessSandbox/KillSwitch or checkpoint/plan lineage rules;
+- Project Knowledge, Research Packs and retrieved context remain reference/data only and cannot authorize or auto-populate training;
+- candidate evaluation/export/conversion/package, promotion, rollback and public publishing remain outside V2.3.4.
+
+Qualification corrections before the final accepted head fixed only integration/test-contract defects: KodeStudio import ordering for Ruff and the V2.3.4 KodeBench fixture's use of the persisted report contract. Every corrective commit invalidated prior-head CI evidence; only the exact final head above is accepted.
+
+This post-merge normalization closes V2.3.4 and authorizes **V2.3.5 — Candidate evaluation, export, promotion and rollback UX only**. V2.3.6+ remain unauthorized until V2.3.5 is implemented, exact-head qualified, merged and post-merge normalized.
+
 ## Accepted V2 capability truth
 
 The runtime truth model distinguishes:
@@ -649,10 +697,10 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md`, completed `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` and normalized `V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`;
-2. verify V2.3.3 remains **COMPLETE + NORMALIZED** from PR `#508`, exact head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`, **32/32** workflows, **16/16 PASS** Ubuntu/Windows, evidence SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064` and merge `b2943239885b5fc4e3791d48dfacf5b6947851a2`;
-3. implement **V2.3.4 — Governed training plan, execution and recovery UX only**;
-4. bind every training plan to the accepted `TRAIN` decision, exact base model/tokenizer and immutable governed dataset using existing R15 training contracts rather than a parallel runtime;
-5. expose capability/resource preflight, dry-run, explicit confirmation, bounded run status/progress/checkpoints and accepted cancel/recovery semantics;
-6. keep local/Kaggle backend truth explicit, require no live GPU/Kaggle account for mandatory CI, and do not add new accelerator or multi-GPU behavior;
-7. preserve Project Knowledge/Research/context as data-only references and do not pull forward V2.3.5+, V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
-8. after V2.3.4 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.5.
+2. verify V2.3.4 remains **COMPLETE + NORMALIZED** from PR `#510`, exact head `4f25fb6331ba76dfe51cd13c8a1560f66142a862`, **31/31** workflows, **18/18 PASS** Ubuntu/Windows, evidence SHA-256 `f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113` and merge `0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2`;
+3. implement **V2.3.5 — Candidate evaluation, export, promotion and rollback UX only**;
+4. reuse accepted R15.10/R15.11/R15.12/R15.13/R15.14 evaluation/export/GGUF/Ollama packaging/model-registry contracts rather than parallel candidate or promotion backends;
+5. require paired base-vs-candidate evidence on matching suite/config/holdout identity and preserve critical-regression vetoes;
+6. keep export/conversion/package lineage explicit and require exact promotion evidence plus explicit role mapping/confirmation before registry mutation;
+7. preserve rollback to prior immutable mapping, keep Project Knowledge/Research/context data-only, and do not pull forward public model-hub publishing, V2.3.6+, V2.4+, V2.5, release/TUF/updater work, R20 reopening or R20.7;
+8. after V2.3.5 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.6.

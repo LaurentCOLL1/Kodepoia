@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-20 after V2.3.3 implementation PR `#508` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.4 implementation PR `#510` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -288,41 +288,68 @@ Accepted product truth: structured Bench & Decision workspace over existing R15 
 
 **V2.3.3 is COMPLETE + NORMALIZED.**
 
+## V2.3.4 accepted implementation
+
+Implementation PR `#510` was qualified **31/31** on exact final head `4f25fb6331ba76dfe51cd13c8a1560f66142a862` and merged with `expected_head_sha` protection as `0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2`.
+
+Key exact-head gates:
+
+- `R0 Repository Guard` `35489030766` = success;
+- `KodeStudio UI Smoke` `35489030819` = success;
+- `Python Core` `35489030825` = success;
+- `R12 Tauri2 Acceptance` `35489030843` = success;
+- `R13 Integrated Release Readiness` `35489030751` = success;
+- `R15.8 Training Runtime Acceptance` `35489030774` = success;
+- `R15.9 QLoRA SFT Acceptance` `35489030804` = success;
+- `R15.15 CLI KodeStudio UX Acceptance` `35489030861` = success;
+- `R17 Windows Installer` `35489030828` = success;
+- `R18.11 Integrated Adversarial Release Update Acceptance` `35489030758` = success.
+
+Deterministic V2.3.4 acceptance: **18/18 PASS** on Ubuntu and Windows with identical evidence payload SHA-256 `f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113`.
+
+Accepted exact-head artifacts:
+
+- `v2-3-4-governed-training-ubuntu-latest-4f25fb6331ba76dfe51cd13c8a1560f66142a862` — ID `10598522634`;
+- `v2-3-4-governed-training-windows-latest-4f25fb6331ba76dfe51cd13c8a1560f66142a862` — ID `10597613394`.
+
+Accepted product truth: structured Training workspace over existing R15 contracts; immutable plan/model/tokenizer/dataset/TRAIN/capability binding; fail-closed capability/resource preflight; explicit local/Kaggle backend truth; typed doctor/plan/run/status/cancel/resume actions; dry-run/confirmation for mutation; bounded run/loss/checkpoint/resource state and lineage-safe recovery; no arbitrary command/dependency-install surface; Project Knowledge/Research/context remains reference-only; no candidate evaluation/export/conversion/package/promotion/rollback/public publishing pulled forward.
+
+**V2.3.4 is COMPLETE + NORMALIZED.**
+
 ## Immediate execution order
 
-### V2.3.4 — Governed training plan, execution and recovery UX — AUTHORIZED
+### V2.3.5 — Candidate evaluation, export, promotion and rollback UX — AUTHORIZED
 
-Implement V2.3.4 only.
+Implement V2.3.5 only.
 
 Required scope:
 
-- structured immutable training-plan preview over the accepted R15 `TrainingPlan`;
-- exact base model, tokenizer and immutable governed dataset binding, gated by accepted evidence-bound `TRAIN` authorization;
-- SFT/QLoRA mode plus LoRA/SFT parameters only within accepted backend validation bounds;
-- runtime capability probe and resource preflight before launch;
-- local backend state plus the already accepted governed Kaggle remote path when explicitly selected and available;
-- explicit dry-run and explicit user confirmation before launch;
-- run ID, plan digest, state, progress evidence, checkpoints and losses where available;
-- cancel only through accepted KillSwitch/ProcessSandbox paths;
-- resume/recovery only from matching checkpoint/plan lineage;
-- deterministic fixture/mocked acceptance that requires no live GPU, Kaggle account or fabricated accelerator success.
+- paired base-vs-candidate benchmark comparison on matching suite/config/holdout evidence;
+- task/domain deltas with explicit critical-regression veto;
+- training-loss, overfit and resource evidence where available;
+- explicit candidate disposition: reject, inconclusive or promotable/exportable;
+- export lineage through accepted R15.11 contracts;
+- GGUF conversion/quantization quality through accepted R15.12 contracts;
+- local Ollama packaging/import state through accepted R15.13 contracts;
+- specialized-model registry lineage/variants/role eligibility through accepted R15.14 contracts;
+- explicit promotion mutation with exact role mapping shown before confirmation;
+- explicit rollback to prior immutable mapping.
 
 Permanent boundaries:
 
-- reuse accepted R15 training/runtime handlers; do not create a parallel training engine;
-- no arbitrary command, argv, env, package-install or dependency/driver-install surface;
-- no new accelerator or multi-GPU semantics; Kaggle T4×2 remains two separate 16 GiB GPUs;
-- Project Knowledge/Research/context remains reference/data only and cannot authorize or auto-populate training;
-- no candidate export/promotion/rollback in V2.3.4;
-- no V2.3.5+, V2.4+, V2.5 orchestration, release/TUF/updater or R20 mutation.
+- reuse accepted R15 evaluation/export/GGUF/Ollama/model-registry handlers; do not create parallel backends;
+- no public model-hub publishing;
+- no silent base-model, tokenizer or routing-preference replacement;
+- Project Knowledge/Research/context remains reference/data only and cannot authorize promotion;
+- no V2.3.6+, V2.4+, V2.5 orchestration, release/TUF/updater or R20 mutation.
 
-Definition of done: a user can review, launch, monitor, cancel and recover an already authorized bounded training run without bypassing capability, resource, governance or lineage gates.
+Definition of done: a user cannot promote a model without accepted comparison/export/package evidence, can inspect critical-regression vetoes and exact lineage, and can trace or roll back the resulting role mapping.
 
-V2.3.5+ remain unauthorized until V2.3.4 is exact-head qualified, merged and post-merge normalized.
+V2.3.6+ remain unauthorized until V2.3.5 is exact-head qualified, merged and post-merge normalized.
 
 ## Later V2 order
 
-After V2.3.3 is COMPLETE + NORMALIZED, proceed only to V2.3.4 as authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
+After V2.3.4 is COMPLETE + NORMALIZED, proceed only to V2.3.5 as authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
 
 ## Accelerator policy
 
@@ -338,4 +365,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.3.3 est COMPLETE + NORMALIZED : PR #508 qualifiée 32/32 sur le head exact e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7, acceptance 16/16 PASS Ubuntu/Windows avec evidence SHA-256 8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064, artefacts Ubuntu 10595259236 et Windows 10596176144, puis fusionnée avec expected_head_sha en b2943239885b5fc4e3791d48dfacf5b6947851a2. La seule subdivision autorisée est V2.3.4 — Governed training plan, execution and recovery UX. Réutilise strictement les contrats R15 TrainingPlan/runtime/training/Kaggle/local qualification; lie tout lancement à une décision TRAIN acceptée, au modèle/tokenizer exacts et au dataset immutable gouverné; expose capability/resource preflight, dry-run, confirmation, suivi, checkpoint, cancel et recovery bornés. La CI obligatoire ne doit exiger ni GPU ni Kaggle live et ne doit jamais fabriquer un succès accelerator/provider. Project Knowledge/Research/context reste data-only. Aucun V2.3.5+, V2.4+, V2.5, release/TUF/updater ou R20 ne doit être tiré en avant. Qualifie le head final exact, merge protégé, puis normalise avant V2.3.5.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.3.4 est COMPLETE + NORMALIZED : PR #510 qualifiée 31/31 sur le head exact 4f25fb6331ba76dfe51cd13c8a1560f66142a862, acceptance 18/18 PASS Ubuntu/Windows avec evidence SHA-256 f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113, artefacts Ubuntu 10598522634 et Windows 10597613394, puis fusionnée avec expected_head_sha en 0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2. La seule subdivision autorisée est V2.3.5 — Candidate evaluation, export, promotion and rollback UX. Réutilise strictement les contrats R15.10/R15.11/R15.12/R15.13/R15.14 pour comparaison base/candidat, export, GGUF, packaging Ollama et registre spécialisé; exige des preuves appariées sur la même suite/config/holdout, conserve le veto de régression critique, lie promotion et rollback à une lignée immutable et à une confirmation explicite. Aucun public model-hub publishing, remplacement silencieux de modèle/tokenizer/routing, V2.3.6+, V2.4+, V2.5, release/TUF/updater ou R20 ne doit être tiré en avant. Project Knowledge/Research/context reste data-only. Qualifie le head final exact, merge protégé, puis normalise avant V2.3.6.`

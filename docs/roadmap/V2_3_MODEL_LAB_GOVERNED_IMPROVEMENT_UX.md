@@ -1,6 +1,6 @@
 # V2.3 — Model Lab governed improvement UX
 
-Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1, V2.3.2 and V2.3.3 COMPLETE + NORMALIZED — V2.3.4 is the only authorized implementation subdivision**  
+Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1 through V2.3.4 COMPLETE + NORMALIZED — V2.3.5 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `b5ac64becc4b748aa77386121ba6a63e02cf88bd`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -26,7 +26,7 @@ PR `#502` merged from that unchanged exact head with `expected_head_sha` protect
 
 This post-merge normalization satisfies the planning definition of done and authorizes **V2.3.1 — Model Lab shell, inventory and lineage only**.
 
-V2.3.1 through V2.3.3 are COMPLETE + NORMALIZED. V2.3.4 is now the only authorized implementation subdivision; V2.3.5+ remain planned and unauthorized until each prior subdivision is implemented, exact-head qualified, merged and post-merge normalized.
+V2.3.1 through V2.3.4 are COMPLETE + NORMALIZED. V2.3.5 is now the only authorized implementation subdivision; V2.3.6 remains planned and unauthorized until V2.3.5 is implemented, exact-head qualified, merged and post-merge normalized.
 
 ## 1. Authority and goal
 
@@ -295,7 +295,7 @@ Qualification corrections before the final accepted head aligned scorer-digest p
 
 This normalization closes V2.3.3 and authorizes **V2.3.4 only**.
 
-### V2.3.4 — Governed training plan, execution and recovery UX
+### V2.3.4 — Governed training plan, execution and recovery UX — COMPLETE + NORMALIZED
 
 Goal: expose the accepted R15 training runtime safely and transparently.
 
@@ -315,6 +315,35 @@ Required scope:
 - fixture-driven deterministic acceptance must not require a live GPU or Kaggle account.
 
 Definition of done: a user can review, launch, monitor, cancel and recover an authorized bounded training run without bypassing capability, resource or lineage gates.
+
+Accepted implementation evidence:
+
+The implementation was developed and qualified while V2.3.4 was the only authorized implementation subdivision. The historical V2.3.4 boundary that kept V2.3.5+ unauthorized is retained as immutable acceptance context only and is superseded by the V2.3.5 authorization below.
+
+- implementation PR `#510`;
+- exact final head `4f25fb6331ba76dfe51cd13c8a1560f66142a862`;
+- **31/31** pull-request workflows `completed/success`;
+- merge `0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2` with `expected_head_sha` protection;
+- deterministic **18/18 PASS** exact-head V2.3.4 acceptance on Ubuntu and Windows;
+- identical evidence payload SHA-256 `f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113`;
+- Ubuntu artifact `v2-3-4-governed-training-ubuntu-latest-4f25fb6331ba76dfe51cd13c8a1560f66142a862` — ID `10598522634`;
+- Windows artifact `v2-3-4-governed-training-windows-latest-4f25fb6331ba76dfe51cd13c8a1560f66142a862` — ID `10597613394`.
+
+Accepted product truth:
+
+- the **Training** workspace is a structured KodeStudio projection over accepted R15 TrainingPlan/runtime/training/Kaggle/local-qualification contracts rather than a parallel training backend;
+- immutable plan identity remains bound to exact base model, tokenizer, governed dataset, accepted evidence-backed `TRAIN` decision and verified capability report before launch;
+- capability/resource preflight remains fail closed;
+- local and Kaggle are explicit backend selections without fabricated provider readiness, pooled VRAM or new accelerator/multi-GPU semantics;
+- doctor/plan/run/status/cancel/resume use typed R15 UX actions; launch/cancel/recovery preserve dry-run or explicit-confirmation semantics where mutation occurs;
+- run state, losses, resource evidence, checkpoints and recovery remain plan/run-lineage bound;
+- ProcessSandbox/KillSwitch and existing checkpoint validation remain authoritative;
+- Project Knowledge, Research Packs and retrieved context remain reference/data only and cannot grant training authority or auto-ingest;
+- candidate evaluation/export/conversion/package, promotion, rollback and public publishing remain outside V2.3.4.
+
+Qualification corrections before the exact final head fixed KodeStudio import ordering required by Ruff and corrected the deterministic V2.3.4 KodeBench fixture to use the real persisted report contract. No gate was weakened, and no prior-head result was reused after a corrective commit.
+
+This normalization closes V2.3.4 and authorizes **V2.3.5 only**.
 
 ### V2.3.5 — Candidate evaluation, export, promotion and rollback UX
 
@@ -503,6 +532,8 @@ The V2.3 planning phase is complete because:
 - V2.3.2 implementation PR `#506` was qualified **28/28** on exact head `f419e125fa28f72bbb11dce855047a64dc3be574`, passed deterministic **16/16** acceptance on Ubuntu and Windows with evidence SHA-256 `fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af`, and merged as `cefcffbfa55fdd0de096ebe8f029a2123c735d08`;
 - the V2.3.2 post-merge continuity normalization recorded V2.3.2 as **COMPLETE + NORMALIZED** and authorized **V2.3.3 only**;
 - V2.3.3 implementation PR `#508` was qualified **32/32** on exact head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`, passed deterministic **16/16** acceptance on Ubuntu and Windows with evidence SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`, and merged as `b2943239885b5fc4e3791d48dfacf5b6947851a2`;
-- this post-merge continuity normalization records V2.3.3 as **COMPLETE + NORMALIZED** and authorizes **V2.3.4 only**.
+- the V2.3.3 post-merge continuity normalization recorded V2.3.3 as **COMPLETE + NORMALIZED** and authorized **V2.3.4 only**;
+- V2.3.4 implementation PR `#510` was qualified **31/31** on exact head `4f25fb6331ba76dfe51cd13c8a1560f66142a862`, passed deterministic **18/18** acceptance on Ubuntu and Windows with evidence SHA-256 `f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113`, and merged as `0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2`;
+- this post-merge continuity normalization records V2.3.4 as **COMPLETE + NORMALIZED** and authorizes **V2.3.5 only**.
 
-**V2.3.4 is now the only authorized implementation subdivision. V2.3.5+ remain unauthorized.**
+**V2.3.5 is now the only authorized implementation subdivision. V2.3.6+ remain unauthorized.**

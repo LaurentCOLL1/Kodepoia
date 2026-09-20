@@ -56,11 +56,21 @@ def main() -> int:
         "V2.3.6 — Model Lab hardening and integrated acceptance" in authority
         and "V2.4+ remain unauthorized" in authority
     )
+    v24_planning_current = (
+        "V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU is in docs-only planning"
+        in authority
+        and "V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — CURRENT"
+        in state
+        and "No V2.4 implementation is authorized yet" in next_doc
+    )
     v236_normalized = (
-        "V2.3 planning and V2.3.1 through V2.3.6 are COMPLETE + NORMALIZED"
-        in authority
-        and "planning V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU"
-        in authority
+        (
+            "V2.3 planning and V2.3.1 through V2.3.6 are COMPLETE + NORMALIZED"
+            in authority
+            and "planning V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU"
+            in authority
+        )
+        or v24_planning_current
     )
 
     checks = [
@@ -86,6 +96,12 @@ def main() -> int:
                     and "V2.4 implementation remains unauthorized" in state
                     and "V2.4 implementation remains unauthorized" in next_doc
                     and "V2.4 implementation remains unauthorized" in v23
+                )
+                or (
+                    v24_planning_current
+                    and "no V2.4 implementation subdivision is authorized" in authority
+                    and "No V2.4 implementation subdivision is authorized" in state
+                    and "No V2.4 implementation is authorized yet" in next_doc
                 )
             ),
             "historical V2.3.6 acceptance keeps V2.4 implementation bounded before and after normalization",

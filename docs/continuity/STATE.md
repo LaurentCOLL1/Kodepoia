@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-20 after V2.3.6 implementation PR `#514` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.6 normalization PR `#515` merge; V2.4 docs-only planning started from exact `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -764,6 +764,49 @@ The initial V2.3.6 head exposed only test-contract issues. Two corrective commit
 
 The only authorized next work is **planning V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU**. V2.4 implementation remains unauthorized until a dedicated planning authority is exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
 
+## V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — CURRENT
+
+Planning is being performed from normalized live `main`:
+
+`586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`
+
+Normative planning document under qualification:
+
+`docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`
+
+The plan freezes exactly six subdivisions:
+
+1. V2.4.1 — Accelerator topology and provider truth;
+2. V2.4.2 — Strategy, effective-batch and resource planning contract;
+3. V2.4.3 — Governed explicit two-GPU execution;
+4. V2.4.4 — Distributed checkpoint, cancellation and recovery;
+5. V2.4.5 — Model Lab accelerator UX and live Kaggle qualification;
+6. V2.4.6 — Production hardening and integrated acceptance.
+
+Live-source planning findings:
+
+- `NvidiaTeslaT4` requests Kaggle GPU T4 ×2, but provider metadata is not accepted as runtime topology proof;
+- R15.8 currently probes one `cuda:0` and serializes one device plus one free/total VRAM pair;
+- the current Kaggle kernel launches one training worker and binds no explicit world size/rank strategy;
+- existing reports/checkpoints are not yet topology/strategy-aware;
+- deterministic Kaggle control-plane tests already prove private bundle/CLI/output integrity without live provider access and must remain offline.
+
+Planning invariants:
+
+- two T4s remain two distinct devices; no 32 GiB pooled-VRAM claim;
+- per-device resource admission is fail closed;
+- `single_gpu` remains an explicit baseline;
+- only `replicated_data_parallel` across exactly two verified devices is reserved as the V2.4 multi-GPU intent;
+- replicated data parallel improves throughput semantics only and does not create sharded model memory;
+- no FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism or TPU is authorized;
+- topology/strategy/world-size/device ordinals/effective batch must become exact lineage;
+- distributed launch remains repository-owned and typed; prompt/project/model text cannot become launcher argv/env/rendezvous/package installs;
+- KillSwitch/ProcessSandbox must terminate the complete worker group;
+- live Kaggle production qualification is separate from deterministic CI and must be honestly unavailable when auth/network/quota is absent;
+- V2.5+, release/TUF/updater mutation and R20 reopening remain unauthorized.
+
+This branch is **planning/docs-only**. No V2.4 implementation subdivision is authorized by the planning branch or planning PR merge alone. Only exact-head planning qualification, protected merge and a separate post-merge normalization may authorize **V2.4.1 only**.
+
 ## Accepted V2 capability truth
 
 The runtime truth model distinguishes:
@@ -790,11 +833,11 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 
 For future work:
 
-1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md` and `KODEPOIA_ROADMAP_V2.md`;
-2. verify V2.3 remains **COMPLETE + NORMALIZED** through V2.3.6 from PR `#514`, exact head `cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e`, **26/26** workflows, **21/21 PASS** Ubuntu/Windows, evidence SHA-256 `935e35c549571a9ae578515bf2acd5cf9353b264b90da5fefb644a62a6d0e8cd` and merge `d511c1ef081ddc02c3071892862e2f83ed5ba8c0`;
-3. perform **V2.4 planning only — Kaggle T4×2 production qualification and explicit multi-GPU**;
-4. create a dedicated planning authority that defines two-distinct-16-GiB-device truth, baseline/strategy candidates, resource budgets, distributed topology, failure/cancellation/recovery/lineage, trust boundaries, deterministic offline CI and separate live qualification criteria;
-5. do not implement V2.4 behavior until that planning authority is exact-head qualified, merged and post-merge normalized;
-6. keep TPU v5e-8 deferred unless a separate benchmark demonstrates material advantage;
-7. keep V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized;
-8. preserve the public distribution boundary `v1.1.0-rc8`.
+1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`;
+2. verify V2.1, V2.2 and V2.3 remain **COMPLETE + NORMALIZED** and the public reference remains `v1.1.0-rc8`;
+3. while planning is under qualification, make **docs-only V2.4 planning changes only**;
+4. preserve the frozen six-subdivision plan and the two-distinct-device/no-pooling boundary;
+5. qualify the exact planning head and merge only with `expected_head_sha`;
+6. create a separate post-merge planning normalization;
+7. only that normalization may authorize **V2.4.1**;
+8. keep V2.4.2+, V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.

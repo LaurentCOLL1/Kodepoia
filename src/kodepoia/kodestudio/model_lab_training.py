@@ -132,7 +132,13 @@ class ModelLabTrainingService:
                 continue
             integrity, observed = _report_integrity(payload, "report_digest")
             digest = payload.get("report_digest")
-            if integrity == "ready" and isinstance(digest, str):
+            if (
+                integrity == "ready"
+                and isinstance(digest, str)
+                and payload.get("disposition") == "ready"
+                and payload.get("backend_capability") == "supported"
+                and not _list(payload.get("blockers"))
+            ):
                 ready_digests.add(digest)
             rows.append(
                 {

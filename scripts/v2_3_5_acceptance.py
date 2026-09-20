@@ -50,6 +50,12 @@ def main() -> int:
         in state
         and "No V2.4 implementation is authorized yet" in next_doc
     )
+    v24_planning_normalized = (
+        "V2.4 planning is COMPLETE + NORMALIZED" in authority
+        and "V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — COMPLETE + NORMALIZED"
+        in state
+        and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in next_doc
+    )
     v235_normalized = (
         (
             "V2.3.1 through V2.3.5 are **COMPLETE + NORMALIZED**" in authority
@@ -62,6 +68,7 @@ def main() -> int:
             in authority
         )
         or v24_planning_current
+        or v24_planning_normalized
     )
 
     checks = [
@@ -205,6 +212,12 @@ def main() -> int:
                     and "no V2.4 implementation subdivision is authorized" in authority
                     and "No V2.4 implementation subdivision is authorized" in state
                     and "No V2.4 implementation is authorized yet" in next_doc
+                )
+                or (
+                    v24_planning_normalized
+                    and "V2.4.2+ remain unauthorized" in authority
+                    and "V2.4.2+ remain unauthorized" in state
+                    and "V2.4.2+ remain unauthorized" in next_doc
                 )
             ),
             "historical V2.3.5 acceptance keeps later implementation scope bounded before and after normalization",

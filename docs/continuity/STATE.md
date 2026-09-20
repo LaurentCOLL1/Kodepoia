@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-20 after V2.3.6 normalization PR `#515` merge; V2.4 docs-only planning started from exact `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
+Last synchronized: 2026-09-20 after V2.4 planning PR `#516` merge and post-merge planning normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -762,11 +762,11 @@ The initial V2.3.6 head exposed only test-contract issues. Two corrective commit
 
 **V2.3 is now COMPLETE + NORMALIZED through V2.3.6.**
 
-The only authorized next work is **planning V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU**. V2.4 implementation remains unauthorized until a dedicated planning authority is exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
+V2.4 planning is **COMPLETE + NORMALIZED** from PR `#516`, exact final head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`, qualified **25/25** and merged as `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`. The only authorized implementation work is **V2.4.1 — Accelerator topology and provider truth**. V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
 
-## V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — CURRENT
+## V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — COMPLETE + NORMALIZED
 
-Planning is being performed from normalized live `main`:
+Planning was performed from normalized live `main`:
 
 `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`
 
@@ -805,7 +805,28 @@ Planning invariants:
 - live Kaggle production qualification is separate from deterministic CI and must be honestly unavailable when auth/network/quota is absent;
 - V2.5+, release/TUF/updater mutation and R20 reopening remain unauthorized.
 
-This branch is **planning/docs-only**. No V2.4 implementation subdivision is authorized by the planning branch or planning PR merge alone. Only exact-head planning qualification, protected merge and a separate post-merge normalization may authorize **V2.4.1 only**.
+Planning PR `#516` completed **25/25** exact-head workflows on final head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`, including R0 Repository Guard run `35535395734`, KodeStudio UI Smoke run `35535395763`, Python Core run `35535395830`, R13 Integrated Release Readiness run `35535395854` and R17 Windows Installer run `35535395721`. It merged with `expected_head_sha` protection as `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`.
+
+The initial planning head `7142659d00cea3ae6faf427ed100fb84ce28668e` failed only two historical V2.3.5 acceptance assertions after the authority wording advanced to V2.4 planning. Corrective commit `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7` made the V2.3.5/V2.3.6 authority checks forward-compatible and fixed the duplicated `NEXT.md` heading; no runtime product code, security boundary, workflow criterion or product gate was weakened.
+
+This post-merge normalization records **V2.4 planning COMPLETE + NORMALIZED** and authorizes **V2.4.1 — Accelerator topology and provider truth only**. V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized.
+
+## V2.4.1 — Accelerator topology and provider truth — CURRENT
+
+Authorized scope is strictly topology/provider truth:
+
+- introduce a versioned topology/capability contract without reinterpreting historical scalar R15.8 evidence;
+- probe actual CUDA device count and bounded per-device descriptors;
+- record separate per-device free/total VRAM and a deterministic topology digest;
+- distinguish requested Kaggle provider shape from observed runtime topology;
+- reject duplicate, missing or ambiguous device identity fail closed;
+- allow explicit `single_gpu` device selection only after verified topology;
+- preserve ProcessSandbox/KillSwitch/KodeSecrets/WorkspaceBoundary boundaries;
+- add deterministic Ubuntu/Windows acceptance without requiring live Kaggle, GPU, network or quota.
+
+Non-goals remain binding: no distributed training launch, no `replicated_data_parallel` execution yet, no FSDP/DeepSpeed/ZeRO/tensor/pipeline parallelism, no TPU/XLA, no release/TUF/updater mutation and no V2.5 work.
+
+V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
 
 ## Accepted V2 capability truth
 
@@ -834,10 +855,10 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`;
-2. verify V2.1, V2.2 and V2.3 remain **COMPLETE + NORMALIZED** and the public reference remains `v1.1.0-rc8`;
-3. while planning is under qualification, make **docs-only V2.4 planning changes only**;
-4. preserve the frozen six-subdivision plan and the two-distinct-device/no-pooling boundary;
-5. qualify the exact planning head and merge only with `expected_head_sha`;
-6. create a separate post-merge planning normalization;
-7. only that normalization may authorize **V2.4.1**;
+2. verify V2.4 planning remains **COMPLETE + NORMALIZED** from PR `#516`, exact head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`, **25/25** workflows and merge `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`;
+3. implement **V2.4.1 — Accelerator topology and provider truth only**;
+4. preserve provider-request versus observed-topology truth, separate per-device VRAM and no pooled-32-GiB semantics;
+5. provide deterministic exact-head tests/acceptance without live Kaggle/GPU requirements;
+6. merge only after all required workflows succeed on the unchanged exact head with `expected_head_sha`;
+7. post-merge normalize before authorizing V2.4.2;
 8. keep V2.4.2+, V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.

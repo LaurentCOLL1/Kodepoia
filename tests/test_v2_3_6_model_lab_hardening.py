@@ -329,9 +329,10 @@ def test_privacy_license_revocation_and_holdout_contamination_fail_closed(
     tmp_path: Path,
 ) -> None:
     root = tmp_path / "project"
-    private = _experience("private", privacy=PolicyDecision.DENY)
+    private = _experience("private", state=ExperienceState.OBSERVED, privacy=PolicyDecision.DENY)
     unknown_license = _experience(
         "unknown-license",
+        state=ExperienceState.OBSERVED,
         license_expression=None,
         license_decision=PolicyDecision.REVIEW,
     )

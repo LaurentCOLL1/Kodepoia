@@ -175,6 +175,7 @@ def test_snapshot_exposes_structured_bench_and_exact_decision_lineage(tmp_path: 
     assert report["models"][0]["model_digest"] == _digest("base-model")
     assert report["task_results"][0]["domain"] == "python"
     assert report["task_results"][0]["score"] == 0.0
+    assert len(str(report["suite_tasks"][0]["scorer_digest"])) == 64
 
     decision = snapshot["decisions"][0]
     assert decision["decision_digest"] == decision_digest

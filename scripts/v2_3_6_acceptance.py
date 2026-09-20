@@ -52,22 +52,43 @@ def main() -> int:
             "tests/test_v2_3_5_candidate_lifecycle.py",
         )
     )
+    v236_current = (
+        "V2.3.6 — Model Lab hardening and integrated acceptance" in authority
+        and "V2.4+ remain unauthorized" in authority
+    )
+    v236_normalized = (
+        "V2.3 planning and V2.3.1 through V2.3.6 are COMPLETE + NORMALIZED"
+        in authority
+        and "planning V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU"
+        in authority
+    )
 
     checks = [
         _check("exact_head", source_sha == observed_sha, "acceptance executes the exact requested SHA"),
         _check(
             "current_authority",
-            "V2.3.6 — Model Lab hardening and integrated acceptance" in authority
+            (v236_current or v236_normalized)
             and "V2.3.6" in state
             and "V2.3.6" in next_doc,
-            "V2.3.6 is the only authorized implementation subdivision",
+            "V2.3.6 is current or retained as normalized historical context",
         ),
         _check(
             "later_scope_unauthorized",
-            "V2.4+ remain unauthorized" in authority
-            and "V2.4+ remain unauthorized" in state
-            and "V2.4+ remain" in v23,
-            "V2.4+ remains outside the V2.3.6 scope",
+            (
+                (
+                    "V2.4+ remain unauthorized" in authority
+                    and "V2.4+ remain unauthorized" in state
+                    and "V2.4+ remain" in v23
+                )
+                or (
+                    v236_normalized
+                    and "V2.4 implementation remains unauthorized" in authority
+                    and "V2.4 implementation remains unauthorized" in state
+                    and "V2.4 implementation remains unauthorized" in next_doc
+                    and "V2.4 implementation remains unauthorized" in v23
+                )
+            ),
+            "historical V2.3.6 acceptance keeps V2.4 implementation bounded before and after normalization",
         ),
         _check(
             "reference_authority",

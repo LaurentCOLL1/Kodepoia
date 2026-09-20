@@ -178,7 +178,7 @@ def _report_summary(
                 "critical": bool(raw.get("critical")),
                 "prompt_digest": raw.get("prompt_digest"),
                 "protected_holdout_id": raw.get("protected_holdout_id"),
-                "scorer_digest": scorer.get("digest"),
+                "scorer_digest": raw.get("scorer_digest", scorer.get("digest")),
             }
         )
 

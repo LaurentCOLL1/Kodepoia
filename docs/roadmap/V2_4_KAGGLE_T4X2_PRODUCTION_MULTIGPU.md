@@ -1,9 +1,31 @@
 # V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU
 
-Status: **PLANNING — no V2.4 implementation subdivision is authorized until this plan is exact-head qualified, merged and post-merge normalized**  
+Status: **PLANNING COMPLETE + NORMALIZED — V2.4.1 is the only authorized implementation subdivision; V2.4.2+ remain unauthorized**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
 Public distribution boundary: `v1.1.0-rc8`
+
+## Planning qualification
+
+Planning PR `#516` was qualified on exact final head:
+
+`8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`
+
+All **25/25** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35535395734`;
+- `KodeStudio UI Smoke` run `35535395763`;
+- `Python Core` run `35535395830`;
+- `R13 Integrated Release Readiness` run `35535395854`;
+- `R17 Windows Installer` run `35535395721`.
+
+PR `#516` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`a14190f529a465e8e42ee0dd90a0248bc38e1b9c`
+
+The initial planning head `7142659d00cea3ae6faf427ed100fb84ce28668e` exposed only two historical V2.3.5 authority-compatibility assertions after the repository advanced to V2.4 planning. Corrective commit `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7` made the V2.3.5/V2.3.6 acceptance contracts forward-compatible with the new planning state and fixed a duplicated `NEXT.md` heading. It changed no V2.4 runtime/product code and weakened no product, security or trust gate.
+
+This post-merge normalization satisfies the planning definition of done and authorizes **V2.4.1 — Accelerator topology and provider truth only**. V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized.
 
 ## 1. Authority and goal
 
@@ -153,7 +175,7 @@ Bit-identical adapter bytes across independent GPU executions are not assumed. E
 
 The list below is frozen by the accepted V2.4 planning authority. No subdivision may be silently added, removed, merged, split or renumbered.
 
-### V2.4.1 — Accelerator topology and provider truth
+### V2.4.1 — Accelerator topology and provider truth — CURRENT
 
 Goal: replace single-device assumptions with versioned topology evidence while preserving historical R15.8 contracts.
 
@@ -360,6 +382,6 @@ V2.4 planning is complete only when:
 - manual-intervention handling is explicit;
 - V2.5/release/R20 boundaries are explicit;
 - the planning PR is merged with `expected_head_sha`;
-- a separate post-merge normalization records planning as COMPLETE + NORMALIZED and authorizes **V2.4.1 only**.
+- this post-merge normalization records planning as COMPLETE + NORMALIZED and authorizes **V2.4.1 only**.
 
-Until that normalization is merged, **no V2.4 implementation subdivision is authorized**.
+**V2.4.1 is now the only authorized implementation subdivision. V2.4.2+ remain unauthorized** until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized.

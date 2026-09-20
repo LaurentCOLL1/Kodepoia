@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-20 after V2.3.6 normalization PR `#515` merge; V2.4 docs-only planning started from exact `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
+Last synchronized: 2026-09-20 after V2.4 planning PR `#516` merge and post-merge planning normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -372,44 +372,44 @@ Qualification required two test-only corrections after the initial head: one ali
 
 ## Immediate execution order
 
-### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING CURRENT
+### V2.4.1 — Accelerator topology and provider truth — CURRENT
 
-Dedicated planning authority under qualification:
+V2.4 planning is **COMPLETE + NORMALIZED**.
 
-`docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`
+Planning evidence:
 
-Planning base:
+- planning PR: `#516 — docs: plan V2.4 Kaggle T4x2 multi-GPU qualification`;
+- exact final planning head: `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`;
+- exact-head qualification: **25/25 `completed/success`**;
+- selected successful runs: R0 `35535395734`, KodeStudio UI Smoke `35535395763`, Python Core `35535395830`, R13 Integrated Release Readiness `35535395854`, R17 Windows Installer `35535395721`;
+- protected merge: `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`;
+- initial head `7142659d00cea3ae6faf427ed100fb84ce28668e` exposed only historical V2.3.5 authority-compatibility assertions; the final corrective commit made V2.3.5/V2.3.6 forward-compatible and fixed a duplicated heading without weakening product or trust gates.
 
-`586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`
+Authorized V2.4.1 scope:
 
-Frozen planned subdivisions:
+- versioned topology/capability evidence rather than reinterpretation of historical scalar R15.8 reports;
+- actual CUDA device count and per-device descriptors;
+- separate per-device free/total VRAM;
+- deterministic topology digest;
+- requested Kaggle provider shape versus observed runtime topology;
+- fail-closed duplicate/missing/ambiguous devices;
+- explicit `single_gpu` selection after verified topology;
+- deterministic CI/acceptance with no live Kaggle/GPU/network/quota requirement.
 
-1. **V2.4.1 — Accelerator topology and provider truth**;
-2. **V2.4.2 — Strategy, effective-batch and resource planning contract**;
-3. **V2.4.3 — Governed explicit two-GPU execution**;
-4. **V2.4.4 — Distributed checkpoint, cancellation and recovery**;
-5. **V2.4.5 — Model Lab accelerator UX and live Kaggle qualification**;
-6. **V2.4.6 — Production hardening and integrated acceptance**.
+Still unauthorized:
 
-Planning truth:
+- `replicated_data_parallel` execution;
+- any multi-process training launch;
+- FSDP, DeepSpeed/ZeRO, tensor or pipeline parallelism;
+- TPU/XLA/JAX/PyTorch-XLA;
+- V2.4.2+;
+- V2.5+, release/TUF/updater mutation and R20 reopening.
 
-- official Kaggle provider metadata maps `NvidiaTeslaT4` to GPU T4 ×2, but Kodepoia must separately probe actual runtime topology;
-- the current R15.8 worker probes only `cuda:0` and current capability/run reports are single-device-oriented;
-- the current Kaggle kernel invokes one training worker and does not bind an explicit multi-GPU strategy;
-- two T4s remain two separate devices; no aggregate 32 GiB authorization is permitted;
-- `single_gpu` remains the baseline;
-- the only V2.4 multi-GPU intent reserved by the plan is explicit replicated data parallel across exactly two verified devices;
-- no FSDP/DeepSpeed/ZeRO/tensor/pipeline parallelism is authorized;
-- deterministic PR CI must require no live Kaggle, GPU, network or provider quota;
-- live provider production evidence is a distinct later requirement and may never be fabricated from fixtures;
-- TPU v5e-8 remains out of scope;
-- V2.5+, release/TUF/updater and R20 remain unauthorized.
-
-**No V2.4 implementation is authorized yet.** The planning head must first be fully exact-head qualified, merged with `expected_head_sha`, then post-merge normalized. Only that normalization may authorize V2.4.1.
+Definition of done: Kodepoia can prove the actually observed accelerator topology and independently reason about each required device budget without claiming pooled VRAM or launching distributed training.
 
 ## Later V2 order
 
-V2.4 planning is the current work. After the planning PR is exact-head qualified, merged and separately normalized, proceed only to **V2.4.1**. V2.4.2+, V2.5 orchestration and V2.6 release work remain unauthorized until their own authority gates are satisfied.
+V2.4.1 is the current authorized implementation subdivision. V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized. V2.5 orchestration and V2.6 release work remain later and unauthorized until their own authority gates are satisfied.
 
 ## Accelerator policy
 
@@ -425,4 +425,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.1, V2.2 et V2.3 sont COMPLETE + NORMALIZED. Le main de départ du planning V2.4 est 586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0. V2.4 est en planification docs-only; aucune implémentation V2.4 n'est autorisée avant qualification exact-head du plan, merge protégé puis normalisation. Le plan doit figer six subdivisions: V2.4.1 topologie/provider truth, V2.4.2 stratégie/effective batch/resources, V2.4.3 exécution explicite deux GPU, V2.4.4 checkpoint/cancel/recovery distribué, V2.4.5 UX Model Lab + qualification Kaggle live, V2.4.6 hardening intégré. Préserve deux T4 comme deux devices 16 GiB distincts, aucun pool 32 GiB, provider metadata != runtime proof, single_gpu baseline, replicated_data_parallel explicite seulement, aucun FSDP/DeepSpeed/TPU, aucun argv/env arbitraire, CI déterministe sans Kaggle/GPU live, preuve live séparée, Project Knowledge/data-only, release/TUF/updater/R20 interdits. Qualifie le planning exact-head, merge avec expected_head_sha, puis normalise avant V2.4.1.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.1, V2.2 et V2.3 sont COMPLETE + NORMALIZED. Le planning V2.4 est COMPLETE + NORMALIZED : PR #516 qualifiée 25/25 sur le head exact 8c78ff19cf05b3009a05e2e5337ce31303e9d8b7, puis fusionnée avec expected_head_sha en a14190f529a465e8e42ee0dd90a0248bc38e1b9c. La seule subdivision d'implémentation autorisée est V2.4.1 — Accelerator topology and provider truth. Re-fetch main et toutes les autorités avant mutation, vérifie qu'aucune branche/PR V2.4.1 concurrente n'existe, puis implémente uniquement un contrat de topologie versionné : device count CUDA réellement observé, descripteurs et VRAM free/total par device, topology digest, distinction provider request vs observed runtime, rejet fail-closed des devices dupliqués/manquants/ambigus et sélection single_gpu explicite. Aucun distributed launch ou replicated_data_parallel n'est encore autorisé. Aucun pool 32 GiB, FSDP/DeepSpeed/TPU, V2.4.2+, V2.5+, release/TUF/updater ou R20. Ajoute tests/acceptance déterministes sans Kaggle/GPU live, qualifie le head exact, merge protégé puis normalise avant V2.4.2.`

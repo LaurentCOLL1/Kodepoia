@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 docs-only planning in progress; V2.4 implementation unauthorized**  
+Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning COMPLETE + NORMALIZED; V2.4.1 authorized; V2.4.2+ unauthorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -219,17 +219,17 @@ V2.3.5 implementation PR `#512` was qualified **31/31** on exact final head `ed4
 
 V2.3.5 is therefore **COMPLETE + NORMALIZED**.
 
-V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. **V2.4 docs-only planning is now in progress** under `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`, based on exact normalized `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`. No V2.4 implementation is authorized until the planning head is qualified, merged and separately normalized. Project Knowledge/Research/context remains data-only; V2.5+ remain unauthorized.
+V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. **V2.4 planning is COMPLETE + NORMALIZED** under `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`: planning PR `#516`, exact final head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`, **25/25** workflows, protected merge `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`. **V2.4.1 — Accelerator topology and provider truth is the only authorized implementation subdivision.** V2.4.2+ and V2.5+ remain unauthorized. Project Knowledge/Research/context remains data-only.
 
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
 - V2.3 — Model Lab governed improvement UX — **COMPLETE + NORMALIZED through V2.3.6**.
-- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **docs-only planning in progress; implementation remains unauthorized pending exact-head planning qualification/merge/normalization**.
+- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **planning COMPLETE + NORMALIZED; V2.4.1 CURRENT; V2.4.2+ unauthorized**.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.
 
-### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING
+### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING COMPLETE + NORMALIZED; V2.4.1 CURRENT
 
 Normative planning contract under qualification:
 
@@ -238,6 +238,8 @@ Normative planning contract under qualification:
 Planning base:
 
 `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`
+
+Planning PR `#516` was qualified **25/25** on exact final head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7` and merged with `expected_head_sha` protection as `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`. The final planning head includes only docs plus historical V2.3 acceptance compatibility; no V2.4 product behavior was implemented.
 
 Frozen planned subdivisions:
 
@@ -261,9 +263,9 @@ Planning invariants include:
 - live Kaggle production evidence is separate and mandatory before a production claim;
 - V2.5+, release/TUF/updater and R20 remain unauthorized.
 
-This planning work is docs-only. **V2.4.1 is not authorized by this planning branch or by the planning PR merge alone.** Only a post-merge normalization after exact-head planning qualification may authorize V2.4.1.
+**This post-merge normalization authorizes V2.4.1 — Accelerator topology and provider truth only.** V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized.
 
-The dedicated V2.4 planning authority must be created and qualified before any production accelerator or explicit multi-GPU implementation begins.
+The dedicated V2.4 planning authority is qualified and normalized. V2.4.1 now establishes topology/provider truth only; explicit multi-GPU execution remains reserved for later normalized subdivisions.
 
 ## Accelerator authority
 

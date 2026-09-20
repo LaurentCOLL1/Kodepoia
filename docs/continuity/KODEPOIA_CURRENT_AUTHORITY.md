@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2; V2.1, V2.2 and V2.3 are COMPLETE + NORMALIZED. **V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU is in docs-only planning** from exact base `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`; no V2.4 implementation subdivision is authorized before exact-head planning qualification, protected merge and post-merge normalization.
+**Current development direction:** Roadmap V2; V2.1, V2.2 and V2.3 are COMPLETE + NORMALIZED. **V2.4 planning is COMPLETE + NORMALIZED** from planning PR `#516`, exact final head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`, qualified **25/25** and merged with `expected_head_sha` protection as `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`. **V2.4.1 — Accelerator topology and provider truth is the only authorized implementation subdivision.** V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -115,7 +115,7 @@ The two corrective commits after the initial hardening head aligned test asserti
 
 The V2.3.4 post-merge normalization historically made **V2.3.5 is now the only authorized implementation subdivision** while **V2.3.6+ remain unauthorized**. That historical boundary is retained for acceptance provenance and is superseded by the later V2.3 normalizations.
 
-V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. The dedicated V2.4 planning authority is now under qualification at `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`. Planning freezes six subdivisions covering topology truth, strategy/resource planning, explicit two-GPU execution, distributed recovery, Model Lab/live qualification and integrated hardening. **No V2.4 implementation is authorized by this planning branch or its merge alone**; only a later post-merge normalization may authorize V2.4.1. V2.5+, release/TUF/updater mutation and R20 reopening remain unauthorized.
+V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. V2.4 planning is **COMPLETE + NORMALIZED**. Planning PR `#516` was qualified **25/25** on exact final head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7` and merged with `expected_head_sha` protection as `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`. The initial planning head `7142659d00cea3ae6faf427ed100fb84ce28668e` exposed only two historical V2.3.5 authority-compatibility assertions; corrective commit `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7` made V2.3.5/V2.3.6 acceptance forward-compatible with V2.4 planning and fixed a duplicated NEXT heading without changing product code or weakening any gate. **This normalization authorizes V2.4.1 — Accelerator topology and provider truth only.** V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized. V2.5+, release/TUF/updater mutation and R20 reopening remain unauthorized.
 
 Existing security authority remains unchanged: immutable Research Pack provenance, ResearchGuard, KodeSecrets, WorkspaceBoundary and R16.7 MemoryStore integrity/quarantine/project-scope rules remain binding. Indexed, retrieved or context-selected data never gains instruction authority merely by being selected or scored.
 
@@ -133,13 +133,13 @@ Use the following documents in this order when interpreting current state:
 2. `docs/continuity/NEXT.md` for the next authorized direction and resume prompt;
 3. this file for the compact cross-phase/public-release/development summary;
 4. `docs/roadmap/KODEPOIA_ROADMAP_V2.md` for the active V2 development ordering;
-5. `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md` for the current V2.4 planning authority under qualification;
+5. `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md` for normalized V2.4 planning authority and the current V2.4.1 boundary;
 6. `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md` for completed normalized V2.3 authority through V2.3.6;
-6. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for completed V2.1 Research authority;
-7. `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` for completed normalized V2.2 authority;
-8. `docs/continuity/KODEPOIA_CONTINUITY_R20.md` for terminal R20 authority and historical post-R20 release operations;
-9. `docs/continuity/KODEPOIA_CONTINUITY_R19.md` for frozen R19 authority;
-10. `docs/continuity/KODEPOIA_CONTINUITY.md` for the large historical R1–R18 continuity archive;
+7. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for completed V2.1 Research authority;
+8. `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` for completed normalized V2.2 authority;
+9. `docs/continuity/KODEPOIA_CONTINUITY_R20.md` for terminal R20 authority and historical post-R20 release operations;
+10. `docs/continuity/KODEPOIA_CONTINUITY_R19.md` for frozen R19 authority;
+11. `docs/continuity/KODEPOIA_CONTINUITY.md` for the large historical R1–R18 continuity archive;
 11. phase plans and Git history for immutable phase-specific evidence.
 
 The large legacy continuity archives intentionally remain historical. Stale “current” wording inside old frozen sections is superseded by `STATE.md`, `NEXT.md`, this file and the explicit current-distribution section of the R20 continuity rather than by retroactive rewriting of historical phase evidence.

@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-20 after V2.3.2 implementation PR `#506` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.3 implementation PR `#508` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -570,7 +570,57 @@ Accepted V2.3.2 product truth:
 
 Two qualification-only corrections preceded the final accepted head: V2.3.1 localization acceptance was made forward-compatible without weakening its historical Model Lab assertion, and the V2.3.2 tamper fixture was corrected to actually diverge. No gate was weakened.
 
-This post-merge normalization authorizes **V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX only**. V2.3.4+ remain unauthorized until V2.3.3 is implemented, exact-head qualified, merged and post-merge normalized.
+This V2.3.2 post-merge normalization authorized **V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX only**.
+
+## V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — COMPLETE + NORMALIZED
+
+Implementation PR `#508` was qualified on exact final head:
+
+`e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`
+
+All **32/32** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35480915764`;
+- `KodeStudio UI Smoke` run `35480915669`;
+- `Python Core` run `35480915728`;
+- `R12 Tauri2 Acceptance` run `35480915657`;
+- `R13 Integrated Release Readiness` run `35480915772`;
+- `R15.6 KodeBench v2 Acceptance` run `35480915683`;
+- `R15.7 Gap Decision Acceptance` run `35480915716`;
+- `R15.10 Base Adapter Evaluation Acceptance` run `35480915666`;
+- `R15.15 CLI KodeStudio UX Acceptance` run `35480915765`;
+- `R17 Windows Installer` run `35480915745`;
+- `R18.11 Integrated Adversarial Release Update Acceptance` run `35480915748`.
+
+The deterministic V2.3.3 acceptance reported **16/16 PASS** on Ubuntu and Windows with identical evidence payload SHA-256:
+
+`8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`
+
+Accepted exact-head artifacts:
+
+- `v2-3-3-bench-decision-ubuntu-latest-e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7` — ID `10595259236`;
+- `v2-3-3-bench-decision-windows-latest-e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7` — ID `10596176144`.
+
+PR `#508` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`b2943239885b5fc4e3791d48dfacf5b6947851a2`
+
+Accepted V2.3.3 product truth:
+
+- KodeStudio now exposes a structured **Bench & Decision** workspace over the existing R15 KodeBench and gap-decision authority rather than a parallel benchmark/decision engine;
+- KodeBench evidence is projected by suite/task/domain with exact model identity, suite/config/report digests, task scores/categories and explicit digest-integrity/tamper state;
+- gap decisions expose the exact base model, benchmark binding, governed dataset identity/digest when present, target domains, acceptance targets, evidence digest, policy digest, blockers and reasons;
+- diagnostics distinguish tool, retrieval, router, context, prompt and product components, while the existing R15.7 `GapDecisionEngine` remains the deterministic decision authority;
+- `prompt` is represented through the existing typed `DiagnosticComponent` contract without changing the historical mandatory-probe set; a prompt defect remains `FIX_SYSTEM_FIRST`, not `TRAIN`;
+- persisted dispositions remain fail-closed and visible, including `TRAIN`, `NO_TRAIN`, `FIX_SYSTEM_FIRST`, `INSUFFICIENT_DATA`, `UNSUPPORTED`, `LICENSE_BLOCKED`, `BUDGET_BLOCKED` and `INCONCLUSIVE` as produced by accepted contracts;
+- benchmark status/run and gap diagnosis delegate to typed R15 UX actions with dry-run and explicit confirmation semantics; cross-project R15 binding is rejected;
+- V2.3.3 exposes no training launch/cancel/recovery, conversion/package, promotion or rollback mutation;
+- Project Knowledge, Research Packs and retrieved context remain data-only diagnostic references and never gain instruction authority or automatic training-data status;
+- FR/EN/qps-ploc and accessibility coverage include the new workspace.
+
+Qualification corrections before the final accepted head aligned the exact KodeBench scorer-digest projection, the historical pseudo-locale navigation count, the deterministic two-model baseline fixture and the historical V2.3.2 localization acceptance with the newly authorized V2.3.3 surface. No gate was weakened; all prior-SHA results were invalidated after each corrective commit.
+
+This post-merge normalization closes V2.3.3 and authorizes **V2.3.4 — Governed training plan, execution and recovery UX only**. V2.3.5+ remain unauthorized until V2.3.4 is implemented, exact-head qualified, merged and post-merge normalized.
 
 ## Accepted V2 capability truth
 
@@ -599,10 +649,10 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md`, completed `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` and normalized `V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`;
-2. verify V2.3.2 remains **COMPLETE + NORMALIZED** from PR `#506`, exact head `f419e125fa28f72bbb11dce855047a64dc3be574`, **28/28** workflows, **16/16 PASS** Ubuntu/Windows, evidence SHA-256 `fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af` and merge `cefcffbfa55fdd0de096ebe8f029a2123c735d08`;
-3. implement **V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX only**;
-4. reuse accepted R15 KodeBench, gap-diagnosis and decision contracts rather than creating a parallel benchmark or training-decision path;
-5. distinguish model capability gaps from tool, retrieval, routing, context, prompt and product defects, with evidence/reasons visible;
-6. keep training controls unavailable unless an accepted `TRAIN` decision is bound to an immutable governed dataset and exact base-model identity; V2.3.3 itself does not launch training;
-7. preserve Project Knowledge/Research/context as data-only diagnostic references and do not pull forward V2.3.4+, V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
-8. after V2.3.3 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.4.
+2. verify V2.3.3 remains **COMPLETE + NORMALIZED** from PR `#508`, exact head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`, **32/32** workflows, **16/16 PASS** Ubuntu/Windows, evidence SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064` and merge `b2943239885b5fc4e3791d48dfacf5b6947851a2`;
+3. implement **V2.3.4 — Governed training plan, execution and recovery UX only**;
+4. bind every training plan to the accepted `TRAIN` decision, exact base model/tokenizer and immutable governed dataset using existing R15 training contracts rather than a parallel runtime;
+5. expose capability/resource preflight, dry-run, explicit confirmation, bounded run status/progress/checkpoints and accepted cancel/recovery semantics;
+6. keep local/Kaggle backend truth explicit, require no live GPU/Kaggle account for mandatory CI, and do not add new accelerator or multi-GPU behavior;
+7. preserve Project Knowledge/Research/context as data-only references and do not pull forward V2.3.5+, V2.4+, V2.5 orchestration, release/TUF/updater work, R20 reopening or R20.7;
+8. after V2.3.4 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.5.

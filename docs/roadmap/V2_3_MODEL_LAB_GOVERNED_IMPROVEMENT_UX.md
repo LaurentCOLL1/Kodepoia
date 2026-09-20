@@ -1,6 +1,6 @@
 # V2.3 — Model Lab governed improvement UX
 
-Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1 and V2.3.2 COMPLETE + NORMALIZED — V2.3.3 is the only authorized implementation subdivision**  
+Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1, V2.3.2 and V2.3.3 COMPLETE + NORMALIZED — V2.3.4 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `b5ac64becc4b748aa77386121ba6a63e02cf88bd`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -26,7 +26,7 @@ PR `#502` merged from that unchanged exact head with `expected_head_sha` protect
 
 This post-merge normalization satisfies the planning definition of done and authorizes **V2.3.1 — Model Lab shell, inventory and lineage only**.
 
-V2.3.2 through V2.3.6 remain planned and unauthorized until each prior subdivision is implemented, exact-head qualified, merged and post-merge normalized.
+V2.3.1 through V2.3.3 are COMPLETE + NORMALIZED. V2.3.4 is now the only authorized implementation subdivision; V2.3.5+ remain planned and unauthorized until each prior subdivision is implemented, exact-head qualified, merged and post-merge normalized.
 
 ## 1. Authority and goal
 
@@ -250,7 +250,7 @@ Two qualification-only defects were corrected before the final accepted head: th
 
 This normalization closes V2.3.2 and authorizes **V2.3.3 only**.
 
-### V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — CURRENT
+### V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — COMPLETE + NORMALIZED
 
 Goal: make model-improvement decisions evidence-driven before training is offered.
 
@@ -265,6 +265,35 @@ Required scope:
 - training controls remain disabled unless an accepted `TRAIN` authorization can be bound to a valid immutable dataset and exact base model.
 
 Definition of done: the user can see why training is or is not justified and cannot launch training from an unsupported or inconclusive diagnosis.
+
+Accepted implementation evidence:
+
+The implementation was developed and qualified while the governing subdivision marker was exactly `V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — CURRENT`. That historical marker is retained here as immutable acceptance context only; it is superseded by the `COMPLETE + NORMALIZED` status above and does not re-authorize V2.3.3. The same historical acceptance boundary stated `V2.3.4+ remain unauthorized`; that quoted boundary is retained only so exact-head V2.3.3 evidence remains reproducible and is superseded by the V2.3.4 authorization below.
+
+- implementation PR `#508`;
+- exact final head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`;
+- **32/32** pull-request workflows `completed/success`;
+- merge `b2943239885b5fc4e3791d48dfacf5b6947851a2` with `expected_head_sha` protection;
+- deterministic **16/16 PASS** exact-head V2.3.3 acceptance on Ubuntu and Windows;
+- identical evidence payload SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`;
+- Ubuntu artifact `v2-3-3-bench-decision-ubuntu-latest-e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7` — ID `10595259236`;
+- Windows artifact `v2-3-3-bench-decision-windows-latest-e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7` — ID `10596176144`.
+
+Accepted product truth:
+
+- the **Bench & Decision** workspace is a structured KodeStudio projection over existing R15 KodeBench/GapDecision evidence and typed R15 UX actions, not a parallel benchmark or decision backend;
+- exact report/suite/config/model digests, suite/task/domain results, base-model identity, dataset binding, target domains and acceptance targets are inspectable with explicit integrity/tamper state;
+- diagnostic evidence distinguishes tool, retrieval, router, context, prompt and product defects before any training disposition;
+- the existing R15.7 `GapDecisionEngine` remains authoritative and fail closed; prompt defects produce `FIX_SYSTEM_FIRST`, while insufficient/unsupported/license/budget/inconclusive states remain visible rather than being coerced to `TRAIN`;
+- benchmark run remains a typed R15 mutation with dry-run and explicit confirmation; gap diagnosis remains a typed R15 inspect action;
+- cross-project R15 binding is rejected;
+- training launch/cancel/recovery, conversion/package and promotion/rollback are not exposed in V2.3.3;
+- Project Knowledge, Research Packs and retrieved context remain reference/data only, never instruction authority or automatic training data;
+- FR/EN/qps-ploc and accessibility coverage include the new workspace.
+
+Qualification corrections before the final accepted head aligned scorer-digest projection, pseudo-localized navigation, the deterministic KodeBench baseline fixture and historical V2.3.2 localization acceptance. No gate was weakened and no prior-head CI result was reused.
+
+This normalization closes V2.3.3 and authorizes **V2.3.4 only**.
 
 ### V2.3.4 — Governed training plan, execution and recovery UX
 
@@ -472,6 +501,8 @@ The V2.3 planning phase is complete because:
 - V2.3.1 implementation PR `#504` was qualified **28/28** on exact head `33d30747ebd915ab2bad56d3154f55a907830061`, passed deterministic **14/14** acceptance on Ubuntu and Windows with evidence SHA-256 `5063e101b899d2e7a409ab14d4e2ab684cb98b67f963980fdc8e9f990061b6cc`, and merged as `1a7454f52bcd78ac2b44c3db467f6faa39df3a62`;
 - the V2.3.1 post-merge normalization recorded V2.3.1 as **COMPLETE + NORMALIZED** and authorized **V2.3.2 only**;
 - V2.3.2 implementation PR `#506` was qualified **28/28** on exact head `f419e125fa28f72bbb11dce855047a64dc3be574`, passed deterministic **16/16** acceptance on Ubuntu and Windows with evidence SHA-256 `fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af`, and merged as `cefcffbfa55fdd0de096ebe8f029a2123c735d08`;
-- this post-merge continuity normalization records V2.3.2 as **COMPLETE + NORMALIZED** and authorizes **V2.3.3 only**.
+- the V2.3.2 post-merge continuity normalization recorded V2.3.2 as **COMPLETE + NORMALIZED** and authorized **V2.3.3 only**;
+- V2.3.3 implementation PR `#508` was qualified **32/32** on exact head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`, passed deterministic **16/16** acceptance on Ubuntu and Windows with evidence SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`, and merged as `b2943239885b5fc4e3791d48dfacf5b6947851a2`;
+- this post-merge continuity normalization records V2.3.3 as **COMPLETE + NORMALIZED** and authorizes **V2.3.4 only**.
 
-**V2.3.3 is now the only authorized implementation subdivision. V2.3.4+ remain unauthorized.**
+**V2.3.4 is now the only authorized implementation subdivision. V2.3.5+ remain unauthorized.**

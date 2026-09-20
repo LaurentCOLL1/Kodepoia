@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-19 after V2.2.6 implementation PR `#500` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.3 implementation PR `#508` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -259,37 +259,70 @@ Accepted product truth: dedicated structured Data Curation workspace; metadata-o
 
 **V2.3.2 is COMPLETE + NORMALIZED.**
 
+## V2.3.3 accepted implementation
+
+Implementation PR `#508` was qualified **32/32** on exact final head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7` and merged with `expected_head_sha` protection as `b2943239885b5fc4e3791d48dfacf5b6947851a2`.
+
+Key exact-head gates:
+
+- `R0 Repository Guard` `35480915764` = success;
+- `KodeStudio UI Smoke` `35480915669` = success;
+- `Python Core` `35480915728` = success;
+- `R12 Tauri2 Acceptance` `35480915657` = success;
+- `R13 Integrated Release Readiness` `35480915772` = success;
+- `R15.6 KodeBench v2 Acceptance` `35480915683` = success;
+- `R15.7 Gap Decision Acceptance` `35480915716` = success;
+- `R15.10 Base Adapter Evaluation Acceptance` `35480915666` = success;
+- `R15.15 CLI KodeStudio UX Acceptance` `35480915765` = success;
+- `R17 Windows Installer` `35480915745` = success;
+- `R18.11 Integrated Adversarial Release Update Acceptance` `35480915748` = success.
+
+Deterministic V2.3.3 acceptance: **16/16 PASS** on Ubuntu and Windows with identical evidence payload SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`.
+
+Accepted exact-head artifacts:
+
+- `v2-3-3-bench-decision-ubuntu-latest-e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7` — ID `10595259236`;
+- `v2-3-3-bench-decision-windows-latest-e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7` — ID `10596176144`.
+
+Accepted product truth: structured Bench & Decision workspace over existing R15 KodeBench/GapDecision evidence; exact suite/config/report/model/dataset lineage and tamper state; task/domain gap results; tool/retrieval/router/context/prompt/product diagnosis; explicit fail-closed decision dispositions with blockers/reasons/targets; typed R15 bench/gap actions only; data-only Project Knowledge/Research/context; no training launch/cancel/recovery, conversion/package or promotion/rollback mutation.
+
+**V2.3.3 is COMPLETE + NORMALIZED.**
+
 ## Immediate execution order
 
-### V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX — AUTHORIZED
+### V2.3.4 — Governed training plan, execution and recovery UX — AUTHORIZED
 
-Implement V2.3.3 only.
+Implement V2.3.4 only.
 
 Required scope:
 
-- structured KodeBench suite/task/domain results over accepted benchmark evidence;
-- exact base-model identity plus reproducible benchmark run/config digests;
-- gap diagnosis that distinguishes model capability from tool, retrieval, routing, context, prompt and product defects;
-- explicit `TRAIN`, `NO_TRAIN`, `NOT_NEEDED`, blocked or inconclusive state only as provided by accepted decision contracts;
-- visible evidence and reasons for the diagnosis/decision;
-- Project Knowledge/Research/context may support diagnosis but remains data-only;
-- training controls remain disabled unless an accepted `TRAIN` authorization is bound to a valid immutable governed dataset and exact base-model identity.
+- structured immutable training-plan preview over the accepted R15 `TrainingPlan`;
+- exact base model, tokenizer and immutable governed dataset binding, gated by accepted evidence-bound `TRAIN` authorization;
+- SFT/QLoRA mode plus LoRA/SFT parameters only within accepted backend validation bounds;
+- runtime capability probe and resource preflight before launch;
+- local backend state plus the already accepted governed Kaggle remote path when explicitly selected and available;
+- explicit dry-run and explicit user confirmation before launch;
+- run ID, plan digest, state, progress evidence, checkpoints and losses where available;
+- cancel only through accepted KillSwitch/ProcessSandbox paths;
+- resume/recovery only from matching checkpoint/plan lineage;
+- deterministic fixture/mocked acceptance that requires no live GPU, Kaggle account or fabricated accelerator success.
 
 Permanent boundaries:
 
-- reuse accepted R15 KodeBench/gap-diagnosis/decision APIs; do not create a parallel benchmark or decision backend;
-- V2.3.3 does not launch, cancel or recover training;
-- no conversion/package, candidate promotion/rollback or new accelerator behavior;
-- no automatic authority from prompt/source/project-context text;
-- no V2.3.4+, V2.4+, V2.5 orchestration, release/TUF/updater or R20 mutation.
+- reuse accepted R15 training/runtime handlers; do not create a parallel training engine;
+- no arbitrary command, argv, env, package-install or dependency/driver-install surface;
+- no new accelerator or multi-GPU semantics; Kaggle T4×2 remains two separate 16 GiB GPUs;
+- Project Knowledge/Research/context remains reference/data only and cannot authorize or auto-populate training;
+- no candidate export/promotion/rollback in V2.3.4;
+- no V2.3.5+, V2.4+, V2.5 orchestration, release/TUF/updater or R20 mutation.
 
-Definition of done: the user can see why training is or is not justified and cannot launch training from an unsupported, blocked or inconclusive diagnosis.
+Definition of done: a user can review, launch, monitor, cancel and recover an already authorized bounded training run without bypassing capability, resource, governance or lineage gates.
 
-V2.3.4+ remain unauthorized until V2.3.3 is exact-head qualified, merged and post-merge normalized.
+V2.3.5+ remain unauthorized until V2.3.4 is exact-head qualified, merged and post-merge normalized.
 
 ## Later V2 order
 
-After V2.3.2 is COMPLETE + NORMALIZED, proceed only to the next subdivision authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
+After V2.3.3 is COMPLETE + NORMALIZED, proceed only to V2.3.4 as authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
 
 ## Accelerator policy
 
@@ -305,4 +338,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.3.2 est COMPLETE + NORMALIZED : PR #506 qualifiée 28/28 sur le head exact f419e125fa28f72bbb11dce855047a64dc3be574, acceptance 16/16 PASS Ubuntu/Windows avec evidence SHA-256 fdbd30700e56db014bbf8ac35c33ce783bfc3444a4d06a33a6637dce04fb19af, puis fusionnée avec expected_head_sha en cefcffbfa55fdd0de096ebe8f029a2123c735d08. La seule subdivision autorisée est V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX. Réutilise strictement les contrats R15 KodeBench/gap diagnosis/decision; expose les résultats suite/task/domain, identité du modèle de base et digests, distingue les gaps modèle des défauts outil/retrieval/routing/context/prompt/produit, et affiche une décision evidence-bound TRAIN/NO_TRAIN/NOT_NEEDED/blocked/inconclusive. Aucun training ne doit être lancé en V2.3.3 et Project Knowledge/Research/context reste data-only. Aucun V2.3.4+, V2.4+, V2.5, release/TUF/updater ou R20 ne doit être tiré en avant. Qualifie le head final exact, merge protégé, puis normalise avant V2.3.4.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.3.3 est COMPLETE + NORMALIZED : PR #508 qualifiée 32/32 sur le head exact e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7, acceptance 16/16 PASS Ubuntu/Windows avec evidence SHA-256 8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064, artefacts Ubuntu 10595259236 et Windows 10596176144, puis fusionnée avec expected_head_sha en b2943239885b5fc4e3791d48dfacf5b6947851a2. La seule subdivision autorisée est V2.3.4 — Governed training plan, execution and recovery UX. Réutilise strictement les contrats R15 TrainingPlan/runtime/training/Kaggle/local qualification; lie tout lancement à une décision TRAIN acceptée, au modèle/tokenizer exacts et au dataset immutable gouverné; expose capability/resource preflight, dry-run, confirmation, suivi, checkpoint, cancel et recovery bornés. La CI obligatoire ne doit exiger ni GPU ni Kaggle live et ne doit jamais fabriquer un succès accelerator/provider. Project Knowledge/Research/context reste data-only. Aucun V2.3.5+, V2.4+, V2.5, release/TUF/updater ou R20 ne doit être tiré en avant. Qualifie le head final exact, merge protégé, puis normalise avant V2.3.5.`

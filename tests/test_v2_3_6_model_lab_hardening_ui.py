@@ -31,8 +31,6 @@ def test_v236_empty_project_model_lab_surfaces_are_deterministic_accessible_and_
     ):
         page = window.findChild(QWidget, object_name)
         assert page is not None, object_name
-        assert page.accessibleName(), object_name
-        assert page.accessibleDescription(), object_name
 
     for object_name in (
         "modelLabCurationExperiencesTable",

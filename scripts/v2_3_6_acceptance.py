@@ -79,7 +79,9 @@ def main() -> int:
         _check(
             "privacy_license_revocation",
             "test_privacy_license_revocation_and_holdout_contamination_fail_closed" in hardening
-            and "authorization:privacy" in curation
+            and "_AUTHORIZATION_FIELDS" in curation
+            and '"privacy"' in curation
+            and "_auth_blockers" in curation
             and "license:missing" in curation
             and "_TERMINAL_BLOCKED_STATES" in curation,
             "privacy/license/revocation blockers remain fail closed",

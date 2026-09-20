@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2; V2.1 and V2.2 are COMPLETE + NORMALIZED; V2.3 planning, V2.3.1 and V2.3.2 are COMPLETE + NORMALIZED. The only authorized implementation subdivision is V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX.
+**Current development direction:** Roadmap V2; V2.1 and V2.2 are COMPLETE + NORMALIZED; V2.3 planning, V2.3.1, V2.3.2 and V2.3.3 are COMPLETE + NORMALIZED. The only authorized implementation subdivision is V2.3.4 — Governed training plan, execution and recovery UX.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -95,7 +95,11 @@ Normalized V2.3 authority:
 
 It freezes six subdivisions and reuses accepted R15 backends rather than creating a parallel training stack. Project Knowledge/Research/context remain reference-only and do not become training data automatically; only the accepted R15 Experience governance -> dedup/contamination -> immutable dataset path can make examples training-eligible.
 
-V2.3.1 and V2.3.2 are **COMPLETE + NORMALIZED**. The only authorized implementation subdivision is **V2.3.3 — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX**. V2.3.4+ remain unauthorized until V2.3.3 is exact-head qualified, merged and post-merge normalized. V2.4+, V2.5 cross-workspace orchestration, release/TUF/updater mutation and R20 reopening remain unauthorized.
+V2.3.1, V2.3.2 and V2.3.3 are **COMPLETE + NORMALIZED**.
+
+V2.3.3 implementation PR `#508` was qualified **32/32** on exact head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`, passed deterministic **16/16 PASS** acceptance on Ubuntu and Windows with identical evidence SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`, and merged with `expected_head_sha` protection as `b2943239885b5fc4e3791d48dfacf5b6947851a2`. Accepted exact-head artifacts are Ubuntu ID `10595259236` and Windows ID `10596176144`.
+
+The only authorized implementation subdivision is **V2.3.4 — Governed training plan, execution and recovery UX**. V2.3.5+ remain unauthorized until V2.3.4 is exact-head qualified, merged and post-merge normalized. V2.4+, V2.5 cross-workspace orchestration, release/TUF/updater mutation and R20 reopening remain unauthorized.
 
 Existing security authority remains unchanged: immutable Research Pack provenance, ResearchGuard, KodeSecrets, WorkspaceBoundary and R16.7 MemoryStore integrity/quarantine/project-scope rules remain binding. Indexed, retrieved or context-selected data never gains instruction authority merely by being selected or scored.
 
@@ -113,7 +117,7 @@ Use the following documents in this order when interpreting current state:
 2. `docs/continuity/NEXT.md` for the next authorized direction and resume prompt;
 3. this file for the compact cross-phase/public-release/development summary;
 4. `docs/roadmap/KODEPOIA_ROADMAP_V2.md` for the active V2 development ordering;
-5. `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md` for normalized V2.3 authority, completed V2.3.1/V2.3.2 and current V2.3.3 authority;
+5. `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md` for normalized V2.3 authority, completed V2.3.1/V2.3.2/V2.3.3 and current V2.3.4 authority;
 6. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for completed V2.1 Research authority;
 7. `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` for completed normalized V2.2 authority;
 8. `docs/continuity/KODEPOIA_CONTINUITY_R20.md` for terminal R20 authority and historical post-R20 release operations;

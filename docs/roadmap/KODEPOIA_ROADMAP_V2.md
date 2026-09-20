@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning, V2.3.1 and V2.3.2 COMPLETE + NORMALIZED; V2.3.3 authorized**  
+Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning, V2.3.1, V2.3.2 and V2.3.3 COMPLETE + NORMALIZED; V2.3.4 authorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -20,6 +20,7 @@ Public Windows distribution baseline: `v1.1.0-rc8`
 - V2.2.4: PR `#496`, accepted head `c17e673d944dd0582f9c0e24368c0adf45dd3f40`, merge `ca27459ca04abbeba8275cc32ba7166e37acfd5a`, 27/27 successful; deterministic acceptance 13/13 PASS on Ubuntu and Windows.
 - V2.2.5: PR `#498`, accepted head `d29d10e5456623d1b7063bb37386693c1eec625a`, merge `11479e63dc48c45f2ec97f9950430cf35c986e8c`, 31/31 successful; deterministic acceptance 13/13 PASS on Ubuntu and Windows.
 - V2.2.6: PR `#500`, accepted head `add97a4889c68b7aed79125563917ddce8b70863`, merge `2c122c913b57c0034f73ba25c34f3fd32507fafa`, 26/26 successful; deterministic integrated acceptance 16/16 PASS on Ubuntu and Windows with evidence SHA-256 `646071eb27ecf8e08ae7dfde3bd74e0f7d32a9dbd6e3d284a85c9093c5b5cc6d`.
+- V2.3.3: PR `#508`, accepted head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`, merge `b2943239885b5fc4e3791d48dfacf5b6947851a2`, 32/32 successful; deterministic acceptance 16/16 PASS on Ubuntu and Windows with evidence SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`.
 
 
 V2 does not reopen R20, does not create `R20.7`, and does not turn post-rc8 source capabilities into public rc8 capabilities.
@@ -203,12 +204,16 @@ V2.3.2 implementation PR `#506` was qualified **28/28** on exact final head `f41
 
 V2.3.2 is therefore **COMPLETE + NORMALIZED**.
 
-The current authorized implementation subdivision is **V2.3.3 only — Bench, gap diagnosis and TRAIN/NO_TRAIN decision UX**. It must reuse accepted R15 KodeBench/gap-diagnosis/decision contracts, expose evidence-backed model-vs-system diagnosis and keep training launch unavailable in V2.3.3. Project Knowledge/Research/context remains data-only. V2.3.4+ remain unauthorized until V2.3.3 is COMPLETE + NORMALIZED.
+V2.3.3 implementation PR `#508` was qualified **32/32** on exact final head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`, with deterministic **16/16 PASS** acceptance on Ubuntu and Windows and identical evidence SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`, then merged with `expected_head_sha` protection as `b2943239885b5fc4e3791d48dfacf5b6947851a2`. Its accepted product truth is a structured Bench & Decision workspace over existing R15 KodeBench/GapDecision authority, with reproducible suite/task/domain/model/report lineage, explicit system-vs-model diagnostics and evidence-bound fail-closed decision states, while training launch/cancel/recovery, conversion/package and promotion/rollback remain outside V2.3.3.
+
+V2.3.3 is therefore **COMPLETE + NORMALIZED**.
+
+The current authorized implementation subdivision is **V2.3.4 only — Governed training plan, execution and recovery UX**. It must reuse accepted R15 training/runtime contracts, require accepted `TRAIN` evidence plus exact immutable dataset/model/tokenizer lineage, expose capability/resource preflight and explicit dry-run/confirmation, and keep new accelerator behavior plus candidate export/promotion/rollback outside scope. Project Knowledge/Research/context remains data-only. V2.3.5+ remain unauthorized until V2.3.4 is COMPLETE + NORMALIZED.
 
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
-- V2.3 — Model Lab governed improvement UX — **planning, V2.3.1 and V2.3.2 COMPLETE + NORMALIZED; V2.3.3 is the current authorized subdivision**.
+- V2.3 — Model Lab governed improvement UX — **planning, V2.3.1, V2.3.2 and V2.3.3 COMPLETE + NORMALIZED; V2.3.4 is the current authorized subdivision**.
 - V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.

@@ -213,7 +213,11 @@ def main() -> int:
             '"nav": "Data Curation"' in localization
             and '"nav": "Curation des données"' in localization
             and "mark_accessible" in panel
-            and "assert len(texts) == 16" in pseudo_test
+            and (
+                "assert len(texts) == 16" in pseudo_test
+                or "assert len(texts) == 17" in pseudo_test
+            )
+            and 'window.findChild(QPushButton, "modelLabCurationRefresh")' in pseudo_test
             and "test_curation_workspace_is_wired_structured_accessible_and_localized"
             in ui_test,
             "FR/EN/qps-ploc and central accessibility contracts include the new workspace",

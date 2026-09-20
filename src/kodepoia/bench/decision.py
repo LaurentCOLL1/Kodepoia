@@ -39,6 +39,7 @@ class DiagnosticComponent(StrEnum):
     RETRIEVAL = "retrieval"
     ROUTER = "router"
     CONTEXT = "context"
+    PROMPT = "prompt"
     PRODUCT = "product"
 
 
@@ -692,7 +693,7 @@ class GapDecisionEngine:
             return (
                 DecisionDisposition.FIX_SYSTEM_FIRST,
                 tuple(f"system_defect:{item}" for item in sorted(defects)),
-                ("A tool/retrieval/router/context/product defect explains a target gap.",),
+                ("A tool/retrieval/router/context/prompt/product defect explains a target gap.",),
             )
         if evidence.expected_impact is ExpectedImpact.LOW:
             return (

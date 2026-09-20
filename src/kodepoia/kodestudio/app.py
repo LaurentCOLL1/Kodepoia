@@ -28,6 +28,7 @@ def build_window(
     r15_service=None,
     model_lab_service=None,
     model_lab_curation_service=None,
+    model_lab_bench_service=None,
     workspace_context_session: ProjectWorkspaceContextSession | None = None,
 ):
     from PySide6.QtWidgets import (
@@ -340,7 +341,29 @@ def build_window(
             "model_lab_curation",
         )
 
+    def model_lab_bench_decision_page() -> QWidget:
+        from kodepoia.kodestudio.model_lab_bench import ModelLabBenchDecisionService
+        from kodepoia.kodestudio.model_lab_bench_panel import (
+            create_model_lab_bench_decision_page,
+        )
+
+        service = model_lab_bench_service
+        if service is None:
+            service = ModelLabBenchDecisionService(root, r15_service=r15_service)
+        return with_project_context(
+            create_model_lab_bench_decision_page(
+                root,
+                locale=locale,
+                service=service,
+                status_bar=status,
+            ),
+            "model_lab_bench_decision",
+        )
+
     from kodepoia.kodestudio.blender_localization import blender_nav_text
+    from kodepoia.kodestudio.model_lab_bench_localization import (
+        model_lab_bench_decision_nav_text,
+    )
     from kodepoia.kodestudio.model_lab_curation_localization import (
         model_lab_curation_nav_text,
     )
@@ -365,6 +388,7 @@ def build_window(
         (r15_nav_text(locale), r15_page),
         (model_lab_nav_text(locale), model_lab_page),
         (model_lab_curation_nav_text(locale), model_lab_curation_page),
+        (model_lab_bench_decision_nav_text(locale), model_lab_bench_decision_page),
         (tr.text("app.nav.security"), security_page),
         (tr.text("app.nav.audit"), None),
         (tr.text("app.nav.settings"), None),

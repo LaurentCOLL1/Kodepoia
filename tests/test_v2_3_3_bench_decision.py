@@ -132,7 +132,7 @@ def _project(tmp_path: Path) -> tuple[Path, str, str]:
     evidence_root.mkdir(parents=True)
 
     report = KodeBenchRunner(FakeBrain()).run(
-        ["base"],
+        ["base", "fixture-peer"],
         _suite(),
         config=RunConfig(repeats=2),
         identities={
@@ -141,7 +141,13 @@ def _project(tmp_path: Path) -> tuple[Path, str, str]:
                 _digest("base-model"),
                 runtime="fixture",
                 runtime_version="1",
-            )
+            ),
+            "fixture-peer": ModelIdentity(
+                "fixture-peer",
+                _digest("fixture-peer-model"),
+                runtime="fixture",
+                runtime_version="1",
+            ),
         },
     )
     report_path = evidence_root / "baseline.json"

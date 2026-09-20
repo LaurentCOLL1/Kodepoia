@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-20 after V2.3.5 implementation PR `#512` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.6 implementation PR `#514` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -719,6 +719,51 @@ No corrective implementation commit was required after the first V2.3.5 head; on
 
 This post-merge normalization closes V2.3.5 and authorizes **V2.3.6 — Model Lab hardening and integrated acceptance only**. V2.4+ remain unauthorized until V2.3.6 is implemented, exact-head qualified, merged and post-merge normalized.
 
+## V2.3.6 — Model Lab hardening and integrated acceptance — COMPLETE + NORMALIZED
+
+Implementation PR `#514` was qualified on exact final head:
+
+`cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e`
+
+All **26/26** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35525471455`;
+- `KodeStudio UI Smoke` run `35525471438`;
+- `Python Core` run `35525471317`;
+- `R12 Tauri2 Acceptance` run `35525471447`;
+- `R13 Integrated Release Readiness` run `35525471466`;
+- `R17 Windows Installer` run `35525471410`.
+
+The deterministic V2.3.6 exact-head acceptance reported **21/21 PASS** on Ubuntu and Windows with identical evidence payload SHA-256:
+
+`935e35c549571a9ae578515bf2acd5cf9353b264b90da5fefb644a62a6d0e8cd`
+
+Accepted exact-head artifacts:
+
+- `v2-3-6-model-lab-hardening-ubuntu-latest-cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e` — artifact ID `10609481837`;
+- `v2-3-6-model-lab-hardening-windows-latest-cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e` — artifact ID `10610285166`.
+
+PR `#514` merged from that exact head with `expected_head_sha` protection as:
+
+`d511c1ef081ddc02c3071892862e2f83ed5ba8c0`
+
+Accepted V2.3.6 product truth:
+
+- hardening is acceptance over existing V2.3/R15 services rather than a new evaluation/training/export/conversion/package/registry engine;
+- untrusted Project Knowledge, Research Packs, chat, memory and retrieved context remain reference/data only and cannot authorize training or promotion;
+- privacy/license/revocation/contamination and tampered/stale dataset/model/tokenizer/evidence states remain fail closed;
+- capability/resource/backend and checkpoint/plan lineage failures remain explicit and block unsupported execution/recovery;
+- paired base/candidate evidence remains exact and aggregate gain cannot mask a critical regression;
+- GGUF requantization/quality, Ollama package quality/provider truth and model-registry promotion/rollback integrity remain governed;
+- Ollama/Kaggle/runtime unavailability remains honest and deterministic empty/missing-evidence UI states remain accessible;
+- no public model-hub publishing, silent model/tokenizer/routing mutation, V2.4 accelerator behavior, release/TUF/updater mutation or R20 reopening was introduced.
+
+The initial V2.3.6 head exposed only test-contract issues. Two corrective commits aligned hardening assertions and ineligible-experience fixtures with already accepted live contracts; no product code or gate was weakened. Every new commit invalidated all CI evidence from the previous SHA.
+
+**V2.3 is now COMPLETE + NORMALIZED through V2.3.6.**
+
+The only authorized next work is **planning V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU**. V2.4 implementation remains unauthorized until a dedicated planning authority is exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
+
 ## Accepted V2 capability truth
 
 The runtime truth model distinguishes:
@@ -745,11 +790,11 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 
 For future work:
 
-1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md`, completed `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` and normalized `V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`;
-2. verify V2.3.5 remains **COMPLETE + NORMALIZED** from PR `#512`, exact head `ed4197780828e54068f0f6893d5f6d4274c57d3d`, **31/31** workflows, **18/18 PASS** Ubuntu/Windows, evidence SHA-256 `bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548` and merge `c13893edb82c350b623af4c0f486a525dce116f0`;
-3. implement **V2.3.6 — Model Lab hardening and integrated acceptance only**;
-4. adversarially exercise the accepted V2.3 chain against untrusted authority attempts, privacy/license/revocation/contamination failures, tampered or stale identities/evidence, capability/resource/backend failure, checkpoint/recovery mismatch, base/candidate mismatch, critical-regression and quantization/package quality vetoes, invalid promotion evidence and rollback corruption;
-5. preserve honest unavailable Ollama/Kaggle/runtime states, deterministic empty/missing-evidence UI behavior, exact-head Ubuntu/Windows backend acceptance and KodeStudio UI smoke;
-6. preserve ResearchGuard, KodeSecrets, WorkspaceBoundary, ProcessSandbox, KillSwitch, MemoryStore integrity/quarantine/project scope and immutable Research Pack/R15/V2.1/V2.2/V2.3 provenance without weakening gates;
-7. keep Project Knowledge/Research/chat/memory/retrieved context data-only and do not pull forward V2.4 accelerator qualification, V2.5 orchestration, V2.6 release work, release/TUF/updater mutation, R20 reopening or R20.7;
-8. after V2.3.6 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing any later phase.
+1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md` and `KODEPOIA_ROADMAP_V2.md`;
+2. verify V2.3 remains **COMPLETE + NORMALIZED** through V2.3.6 from PR `#514`, exact head `cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e`, **26/26** workflows, **21/21 PASS** Ubuntu/Windows, evidence SHA-256 `935e35c549571a9ae578515bf2acd5cf9353b264b90da5fefb644a62a6d0e8cd` and merge `d511c1ef081ddc02c3071892862e2f83ed5ba8c0`;
+3. perform **V2.4 planning only — Kaggle T4×2 production qualification and explicit multi-GPU**;
+4. create a dedicated planning authority that defines two-distinct-16-GiB-device truth, baseline/strategy candidates, resource budgets, distributed topology, failure/cancellation/recovery/lineage, trust boundaries, deterministic offline CI and separate live qualification criteria;
+5. do not implement V2.4 behavior until that planning authority is exact-head qualified, merged and post-merge normalized;
+6. keep TPU v5e-8 deferred unless a separate benchmark demonstrates material advantage;
+7. keep V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized;
+8. preserve the public distribution boundary `v1.1.0-rc8`.

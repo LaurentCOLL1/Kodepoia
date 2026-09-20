@@ -1,6 +1,6 @@
 # V2.3 — Model Lab governed improvement UX
 
-Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1 through V2.3.5 COMPLETE + NORMALIZED — V2.3.6 is the only authorized implementation subdivision**  
+Status: **COMPLETE + NORMALIZED through V2.3.6 — V2.3 is closed; V2.4 planning is outside this authority**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `b5ac64becc4b748aa77386121ba6a63e02cf88bd`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -26,7 +26,7 @@ PR `#502` merged from that unchanged exact head with `expected_head_sha` protect
 
 This post-merge normalization satisfies the planning definition of done and authorizes **V2.3.1 — Model Lab shell, inventory and lineage only**.
 
-V2.3.1 through V2.3.5 are COMPLETE + NORMALIZED. V2.3.6 is now the only authorized implementation subdivision; V2.4+ remain outside V2.3 and unauthorized until V2.3.6 is implemented, exact-head qualified, merged and post-merge normalized.
+V2.3.1 through V2.3.6 are COMPLETE + NORMALIZED. V2.3 is closed. The only authorized next work is V2.4 planning under the V2 roadmap; V2.4 implementation and V2.5+ remain outside this authority and unauthorized.
 
 ## 1. Authority and goal
 
@@ -396,7 +396,7 @@ No corrective implementation commit was required after the first V2.3.5 head. No
 
 This normalization closes V2.3.5 and authorizes **V2.3.6 only**.
 
-### V2.3.6 — Model Lab hardening and integrated acceptance
+### V2.3.6 — Model Lab hardening and integrated acceptance — COMPLETE + NORMALIZED
 
 Goal: adversarially prove the complete V2.3 UX and governance chain without weakening R15, V2.1 or V2.2.
 
@@ -425,6 +425,32 @@ Required acceptance coverage includes:
 - KodeStudio UI smoke/structured-state acceptance.
 
 Definition of done: Model Lab makes the accepted model-improvement chain usable without allowing ungoverned data ingestion, unsupported training, hidden authority promotion or unsafe model activation.
+
+Accepted implementation evidence:
+
+- implementation PR `#514`;
+- exact final head `cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e`;
+- **26/26** pull-request workflows `completed/success`;
+- merge `d511c1ef081ddc02c3071892862e2f83ed5ba8c0` with `expected_head_sha` protection;
+- deterministic **21/21 PASS** exact-head V2.3.6 acceptance on Ubuntu and Windows;
+- identical evidence payload SHA-256 `935e35c549571a9ae578515bf2acd5cf9353b264b90da5fefb644a62a6d0e8cd`;
+- Ubuntu artifact `v2-3-6-model-lab-hardening-ubuntu-latest-cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e` — ID `10609481837`;
+- Windows artifact `v2-3-6-model-lab-hardening-windows-latest-cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e` — ID `10610285166`.
+
+Accepted product truth:
+
+- V2.3.6 adds no replacement engine or product surface; it adversarially proves the accepted V2.3/R15 chain;
+- reference/project/research text cannot acquire training or promotion authority;
+- privacy/license/revocation/contamination, tampered/stale evidence and model/tokenizer identity failures remain fail closed;
+- capability/resource/backend and checkpoint/plan-lineage failures block unsupported execution or recovery;
+- exact paired evaluation and critical-regression veto remain authoritative despite aggregate gains;
+- GGUF/Ollama quality and provider truth plus registry promotion/rollback integrity remain binding;
+- unavailable runtime/provider states and empty/missing-evidence UI remain honest, deterministic and accessible;
+- V2.4 accelerator implementation, public publishing, release/TUF/updater mutation and R20 reopening were not pulled forward.
+
+The initial V2.3.6 head exposed only test-contract mismatches. Corrective commits `0cd9ca21edd2817ec01c3e837263b186da068939` and `cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e` aligned assertions/fixtures with existing accepted contracts. No product gate or trust boundary was weakened.
+
+This normalization closes **V2.3 entirely**. The V2 roadmap may now authorize V2.4 planning only; V2.4 implementation remains unauthorized until its planning authority is qualified, merged and normalized.
 
 ## 7. Backend reuse map
 
@@ -566,6 +592,10 @@ The V2.3 planning phase is complete because:
 - V2.3.4 implementation PR `#510` was qualified **31/31** on exact head `4f25fb6331ba76dfe51cd13c8a1560f66142a862`, passed deterministic **18/18** acceptance on Ubuntu and Windows with evidence SHA-256 `f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113`, and merged as `0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2`;
 - the V2.3.4 post-merge continuity normalization recorded V2.3.4 as **COMPLETE + NORMALIZED** and authorized **V2.3.5 only**;
 - V2.3.5 implementation PR `#512` was qualified **31/31** on exact head `ed4197780828e54068f0f6893d5f6d4274c57d3d`, passed deterministic **18/18** acceptance on Ubuntu and Windows with evidence SHA-256 `bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548`, and merged as `c13893edb82c350b623af4c0f486a525dce116f0`;
-- this post-merge continuity normalization records V2.3.5 as **COMPLETE + NORMALIZED** and authorizes **V2.3.6 only**.
+- the V2.3.5 post-merge continuity normalization recorded V2.3.5 as **COMPLETE + NORMALIZED** and authorized **V2.3.6 only**;
+- V2.3.6 implementation PR `#514` was qualified **26/26** on exact head `cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e`, passed deterministic **21/21** acceptance on Ubuntu and Windows with evidence SHA-256 `935e35c549571a9ae578515bf2acd5cf9353b264b90da5fefb644a62a6d0e8cd`, and merged as `d511c1ef081ddc02c3071892862e2f83ed5ba8c0`;
+- this post-merge continuity normalization records V2.3.6 as **COMPLETE + NORMALIZED** and closes V2.3.
 
-**V2.3.6 is now the only authorized implementation subdivision. V2.4+ remain unauthorized.**
+Historical acceptance context: the V2.3.5 normalization stated **V2.3.6 is now the only authorized implementation subdivision. V2.4+ remain unauthorized.** That boundary is preserved as historical provenance and is superseded by the V2 roadmap's V2.4-planning authorization.
+
+**V2.3 is COMPLETE + NORMALIZED through V2.3.6. V2.4 implementation remains unauthorized; V2.4 planning only is the next authorized work.**

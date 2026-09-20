@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1 and V2.2 COMPLETE + NORMALIZED; V2.3 planning and V2.3.1 through V2.3.5 COMPLETE + NORMALIZED; V2.3.6 authorized**  
+Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning authorized, V2.4 implementation unauthorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -23,6 +23,7 @@ Public Windows distribution baseline: `v1.1.0-rc8`
 - V2.3.3: PR `#508`, accepted head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`, merge `b2943239885b5fc4e3791d48dfacf5b6947851a2`, 32/32 successful; deterministic acceptance 16/16 PASS on Ubuntu and Windows with evidence SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`.
 - V2.3.4: PR `#510`, accepted head `4f25fb6331ba76dfe51cd13c8a1560f66142a862`, merge `0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2`, 31/31 successful; deterministic acceptance 18/18 PASS on Ubuntu and Windows with evidence SHA-256 `f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113`.
 - V2.3.5: PR `#512`, accepted head `ed4197780828e54068f0f6893d5f6d4274c57d3d`, merge `c13893edb82c350b623af4c0f486a525dce116f0`, 31/31 successful; deterministic acceptance 18/18 PASS on Ubuntu and Windows with evidence SHA-256 `bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548`.
+- V2.3.6: PR `#514`, accepted head `cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e`, merge `d511c1ef081ddc02c3071892862e2f83ed5ba8c0`, 26/26 successful; deterministic integrated acceptance 21/21 PASS on Ubuntu and Windows with evidence SHA-256 `935e35c549571a9ae578515bf2acd5cf9353b264b90da5fefb644a62a6d0e8cd`.
 
 
 V2 does not reopen R20, does not create `R20.7`, and does not turn post-rc8 source capabilities into public rc8 capabilities.
@@ -218,15 +219,17 @@ V2.3.5 implementation PR `#512` was qualified **31/31** on exact final head `ed4
 
 V2.3.5 is therefore **COMPLETE + NORMALIZED**.
 
-The current authorized implementation subdivision is **V2.3.6 only — Model Lab hardening and integrated acceptance**. It must adversarially prove the complete V2.3 UX/governance chain without weakening R15, V2.1 or V2.2, including untrusted authority attempts, privacy/license/contamination, tampered/stale evidence and identities, capability/resource/backend failures, checkpoint/recovery, critical regression/quantization/package quality, promotion/rollback integrity, unavailable runtimes and deterministic empty/missing-evidence UI states. Project Knowledge/Research/context remains data-only. V2.4+ remain unauthorized until V2.3.6 is COMPLETE + NORMALIZED.
+V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. The only authorized next work is **planning V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU**. V2.4 implementation remains unauthorized until a dedicated planning authority is exact-head qualified, merged and post-merge normalized. Project Knowledge/Research/context remains data-only; V2.5+ remain unauthorized.
 
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
-- V2.3 — Model Lab governed improvement UX — **planning and V2.3.1 through V2.3.5 COMPLETE + NORMALIZED; V2.3.6 is the current authorized subdivision**.
-- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU.
+- V2.3 — Model Lab governed improvement UX — **COMPLETE + NORMALIZED through V2.3.6**.
+- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **planning only is authorized; implementation remains unauthorized pending planning qualification/normalization**.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.
+
+The dedicated V2.4 planning authority must be created and qualified before any production accelerator or explicit multi-GPU implementation begins.
 
 ## Accelerator authority
 

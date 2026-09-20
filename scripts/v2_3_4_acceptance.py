@@ -212,6 +212,11 @@ def main() -> int:
                     in authority
                     and "V2.4+ remain unauthorized" in authority
                 )
+                or (
+                    v234_normalized
+                    and "V2.3 is COMPLETE + NORMALIZED through V2.3.6" in authority
+                    and "V2.4 implementation remains unauthorized" in authority
+                )
             ),
             "historical V2.3.4 acceptance keeps later implementation scope bounded before and after normalization",
         ),

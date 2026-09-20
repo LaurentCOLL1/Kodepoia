@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-20 after V2.3.5 implementation PR `#512` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.6 implementation PR `#514` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -344,49 +344,55 @@ Accepted product truth: structured Candidate lifecycle workspace over existing R
 
 **V2.3.5 is COMPLETE + NORMALIZED.**
 
+## V2.3.6 accepted implementation
+
+Implementation PR `#514` was qualified **26/26** on exact final head `cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e` and merged with `expected_head_sha` protection as `d511c1ef081ddc02c3071892862e2f83ed5ba8c0`.
+
+Key exact-head gates:
+
+- `R0 Repository Guard` `35525471455` = success;
+- `KodeStudio UI Smoke` `35525471438` = success;
+- `Python Core` `35525471317` = success;
+- `R12 Tauri2 Acceptance` `35525471447` = success;
+- `R13 Integrated Release Readiness` `35525471466` = success;
+- `R17 Windows Installer` `35525471410` = success.
+
+Deterministic V2.3.6 acceptance: **21/21 PASS** on Ubuntu and Windows with identical evidence payload SHA-256 `935e35c549571a9ae578515bf2acd5cf9353b264b90da5fefb644a62a6d0e8cd`.
+
+Accepted exact-head artifacts:
+
+- `v2-3-6-model-lab-hardening-ubuntu-latest-cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e` — ID `10609481837`;
+- `v2-3-6-model-lab-hardening-windows-latest-cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e` — ID `10610285166`.
+
+Accepted product truth: V2.3.6 hardens and adversarially proves the existing V2.3/R15 chain without adding a replacement engine or product page; untrusted project/research text stays data-only; privacy/license/revocation/contamination and tampered/stale evidence remain fail closed; capability/resource/backend and checkpoint lineage failures remain explicit; base/candidate comparison keeps exact pairing and critical-regression veto; GGUF/Ollama quality and registry promotion/rollback integrity remain binding; unavailable runtime states stay honest; empty/missing-evidence UI is deterministic and accessible; no V2.4 accelerator implementation, public publishing, silent model/tokenizer/routing mutation, release/TUF/updater mutation or R20 reopening was pulled forward.
+
+Qualification required two test-only corrections after the initial head: one aligned hardening assertions with the live accepted contracts, and one aligned ineligible-experience fixtures with valid contract states. Every new commit invalidated prior-head CI; only the final head above is accepted.
+
+**V2.3.6 is COMPLETE + NORMALIZED. V2.3 is closed.**
+
 ## Immediate execution order
 
-### V2.3.6 — Model Lab hardening and integrated acceptance — AUTHORIZED
+### V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — AUTHORIZED
 
-Implement V2.3.6 only.
+Plan V2.4 only. Do not implement V2.4 runtime behavior until a dedicated planning authority is exact-head qualified, merged and post-merge normalized.
 
-Required acceptance coverage:
+The V2.4 planning authority must at minimum define:
 
-- adversarial untrusted/project/research text attempting to authorize training or promotion;
-- secret-bearing or privacy-ineligible experience;
-- missing, ambiguous or revoked license;
-- exact and near-duplicate contamination against benchmark holdouts;
-- tampered dataset manifest/export digest;
-- stale or mismatched base model/tokenizer identity;
-- invalid capability report or insufficient RAM/VRAM/storage;
-- unsupported quantization/backend;
-- mismatched checkpoint/plan lineage, cancellation and recovery;
-- tampered run/evaluation/export/conversion/package evidence;
-- base/candidate report mismatch;
-- critical-domain regression despite aggregate gain;
-- quantization/package quality regression;
-- invalid promotion evidence and registry rollback integrity;
-- unavailable Ollama/Kaggle/runtime capability;
-- deterministic empty/missing-evidence UI states;
-- Project Knowledge remaining reference-only rather than training authority;
-- exact-head Ubuntu and Windows backend acceptance;
-- KodeStudio UI smoke/structured-state acceptance.
+- the production-qualification truth model for Kaggle `GPU T4 x2`, preserving two distinct 16 GiB devices and forbidding any fictitious 32 GiB pool;
+- the accepted single-GPU baseline and the explicit multi-GPU strategy candidates to evaluate before implementation;
+- model/adapter/dataset sizes, VRAM/RAM/storage budgets and deterministic capability probes;
+- distributed process topology, failure/cancellation/recovery semantics and exact plan/run/checkpoint lineage across workers;
+- ProcessSandbox, KillSwitch, KodeSecrets, WorkspaceBoundary and provider-auth/network/quota boundaries;
+- deterministic CI/fixture coverage that requires no live Kaggle/GPU while keeping live qualification claims separate and honest;
+- exact criteria for any live Kaggle production qualification and evidence retention;
+- explicit non-goals for TPU v5e-8 unless a separate benchmark demonstrates material advantage;
+- the subdivision plan and acceptance/normalization discipline for V2.4.
 
-Permanent boundaries:
+V2.4 implementation remains unauthorized until this planning authority is itself qualified, merged and normalized. V2.5+ remain unauthorized.
 
-- harden and integrate the accepted V2.3 chain; do not create replacement R15/V2.1/V2.2 engines;
-- do not weaken ResearchGuard, KodeSecrets, WorkspaceBoundary, ProcessSandbox, KillSwitch, MemoryStore or immutable provenance/evidence gates;
-- no public model-hub publishing, automatic training from reference context, arbitrary shell/argv/env/package installation or silent routing/model/tokenizer mutation;
-- no V2.4 accelerator production qualification or new multi-GPU semantics;
-- no V2.5 orchestration, V2.6 release work, release/TUF/updater mutation or R20 reopening.
+## Later V2 order## Later V2 order
 
-Definition of done: Model Lab makes the accepted model-improvement chain usable under adversarial and degraded conditions without allowing ungoverned data ingestion, unsupported training, hidden authority promotion or unsafe model activation.
-
-V2.4+ remain unauthorized until V2.3.6 is exact-head qualified, merged and post-merge normalized.
-
-## Later V2 order
-
-After V2.3.5 is COMPLETE + NORMALIZED, proceed only to V2.3.6 as authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
+After V2.3 is COMPLETE + NORMALIZED through V2.3.6, proceed only to **V2.4 planning**. V2.4 implementation, V2.5 orchestration and V2.6 release work remain later and unauthorized until their own authority gates are satisfied.
 
 ## Accelerator policy
 
@@ -402,4 +408,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.3.5 est COMPLETE + NORMALIZED : PR #512 qualifiée 31/31 sur le head exact ed4197780828e54068f0f6893d5f6d4274c57d3d, acceptance 18/18 PASS Ubuntu/Windows avec evidence SHA-256 bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548, artefacts Ubuntu 10604315201 et Windows 10603926113, puis fusionnée avec expected_head_sha en c13893edb82c350b623af4c0f486a525dce116f0. La seule subdivision autorisée est V2.3.6 — Model Lab hardening and integrated acceptance. Adversarialise et intègre la chaîne V2.3 existante sans réécrire R15/V2.1/V2.2 : texte non fiable tentant d’autoriser training/promotion, privacy/license/revocation/contamination, digests ou identités altérés/stales, capability/resource/backend indisponible, checkpoint/recovery, mismatch base/candidate, critical-regression veto, qualité GGUF/package, promotion/rollback, états Ollama/Kaggle indisponibles, empty/missing-evidence UI, exact-head Ubuntu/Windows et UI smoke. Aucun V2.4+, V2.5, V2.6 release, release/TUF/updater ou R20 ne doit être tiré en avant. Project Knowledge/Research/context reste data-only. Qualifie le head final exact, merge protégé, puis normalise avant toute phase suivante.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md et docs/roadmap/KODEPOIA_ROADMAP_V2.md. V2.3 est COMPLETE + NORMALIZED through V2.3.6 : PR #514 qualifiée 26/26 sur le head exact cf79702ca05fe56620fc7ce34b3f9803fa2b0b1e, acceptance 21/21 PASS Ubuntu/Windows avec evidence SHA-256 935e35c549571a9ae578515bf2acd5cf9353b264b90da5fefb644a62a6d0e8cd, artefacts Ubuntu 10609481837 et Windows 10610285166, puis fusionnée avec expected_head_sha en d511c1ef081ddc02c3071892862e2f83ed5ba8c0. La seule prochaine activité autorisée est la planification V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU. Re-fetch main et les autorités, vérifie qu'aucune planification V2.4 concurrente n'existe, puis crée une autorité de planning dédiée qui conserve les deux T4 comme deux GPU distincts de 16 GiB, définit baseline single-GPU, stratégies multi-GPU explicites, budgets/capability probes, process topology, cancellation/recovery/lineage, frontières ProcessSandbox/KillSwitch/KodeSecrets/WorkspaceBoundary/Kaggle auth-network-quota, CI déterministe sans GPU/Kaggle live et critères séparés de qualification live. Aucun comportement V2.4 ne doit être implémenté avant qualification, merge et normalisation de cette planification. V2.5+, release/TUF/updater et R20 restent interdits.`

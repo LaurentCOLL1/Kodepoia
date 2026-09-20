@@ -44,8 +44,16 @@ def main() -> int:
         and "V2.3.6+ remain unauthorized" in authority
     )
     v235_normalized = (
-        "V2.3.1 through V2.3.5 are **COMPLETE + NORMALIZED**" in authority
-        and "V2.3.6 — Model Lab hardening and integrated acceptance" in authority
+        (
+            "V2.3.1 through V2.3.5 are **COMPLETE + NORMALIZED**" in authority
+            and "V2.3.6 — Model Lab hardening and integrated acceptance" in authority
+        )
+        or (
+            "V2.3 planning and V2.3.1 through V2.3.6 are COMPLETE + NORMALIZED"
+            in authority
+            and "planning V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU"
+            in authority
+        )
     )
 
     checks = [
@@ -177,6 +185,12 @@ def main() -> int:
                     and "V2.4+ remain unauthorized" in authority
                     and "V2.4+ remain unauthorized" in state
                     and "V2.4+ remain unauthorized" in next_doc
+                )
+                or (
+                    v235_normalized
+                    and "V2.4 implementation remains unauthorized" in authority
+                    and "V2.4 implementation remains unauthorized" in state
+                    and "V2.4 implementation remains unauthorized" in next_doc
                 )
             ),
             "historical V2.3.5 acceptance keeps later implementation scope bounded before and after normalization",

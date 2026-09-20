@@ -39,6 +39,14 @@ def main() -> int:
     authority = read("docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md")
     state = read("docs/continuity/STATE.md")
     next_doc = read("docs/continuity/NEXT.md")
+    v235_current = (
+        "V2.3.5 — Candidate evaluation, export, promotion and rollback UX" in authority
+        and "V2.3.6+ remain unauthorized" in authority
+    )
+    v235_normalized = (
+        "V2.3.1 through V2.3.5 are **COMPLETE + NORMALIZED**" in authority
+        and "V2.3.6 — Model Lab hardening and integrated acceptance" in authority
+    )
 
     checks = [
         _check("exact_head", observed_sha == source_sha, "acceptance executes the exact requested SHA"),
@@ -150,15 +158,28 @@ def main() -> int:
         ),
         _check(
             "current_authority",
-            "V2.3.5" in authority and "V2.3.5" in state and "V2.3.5" in next_doc,
-            "V2.3.5 is the currently authorized implementation subdivision",
+            (v235_current or v235_normalized)
+            and "V2.3.5" in state
+            and "V2.3.5" in next_doc,
+            "V2.3.5 is current or retained as normalized historical context",
         ),
         _check(
             "later_scope_unauthorized",
-            "V2.3.6+ remain unauthorized" in authority
-            and "V2.3.6+ remain unauthorized" in state
-            and "V2.3.6+ remain unauthorized" in next_doc,
-            "V2.3.6+ remains outside the V2.3.5 implementation scope",
+            (
+                (
+                    "V2.3.6+ remain unauthorized" in authority
+                    and "V2.3.6+ remain unauthorized" in state
+                    and "V2.3.6+ remain unauthorized" in next_doc
+                )
+                or (
+                    v235_normalized
+                    and "V2.3.6 — Model Lab hardening and integrated acceptance" in authority
+                    and "V2.4+ remain unauthorized" in authority
+                    and "V2.4+ remain unauthorized" in state
+                    and "V2.4+ remain unauthorized" in next_doc
+                )
+            ),
+            "historical V2.3.5 acceptance keeps later implementation scope bounded before and after normalization",
         ),
     ]
     passed = all(item["status"] == "PASS" for item in checks)

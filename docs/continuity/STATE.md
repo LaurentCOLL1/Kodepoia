@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-20 after V2.3.4 implementation PR `#510` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.5 implementation PR `#512` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -670,6 +670,55 @@ Qualification corrections before the final accepted head fixed only integration/
 
 This post-merge normalization closes V2.3.4 and authorizes **V2.3.5 — Candidate evaluation, export, promotion and rollback UX only**. V2.3.6+ remain unauthorized until V2.3.5 is implemented, exact-head qualified, merged and post-merge normalized.
 
+## V2.3.5 — Candidate evaluation, export, promotion and rollback UX — COMPLETE + NORMALIZED
+
+Implementation PR `#512` was qualified on exact final head:
+
+`ed4197780828e54068f0f6893d5f6d4274c57d3d`
+
+All **31/31** pull-request workflows associated with that exact head completed with conclusion `success`, including:
+
+- `R0 Repository Guard` run `35506019032`;
+- `KodeStudio UI Smoke` run `35506019100`;
+- `Python Core` run `35506019089`;
+- `R12 Tauri2 Acceptance` run `35506019204`;
+- `R13 Integrated Release Readiness` run `35506019023`;
+- `R15.8 Training Runtime Acceptance` run `35506019092`;
+- `R15.9 QLoRA SFT Acceptance` run `35506019090`;
+- `R15.15 CLI KodeStudio UX Acceptance` run `35506019193`;
+- `R17 Windows Installer` run `35506019002`;
+- `R18.11 Integrated Adversarial Release Update Acceptance` run `35506019081`.
+
+The deterministic V2.3.5 exact-head acceptance reported **18/18 PASS** on Ubuntu and Windows with identical evidence payload SHA-256:
+
+`bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548`
+
+Accepted exact-head artifacts:
+
+- `v2-3-5-candidate-lifecycle-ubuntu-latest-ed4197780828e54068f0f6893d5f6d4274c57d3d` — artifact ID `10604315201`;
+- `v2-3-5-candidate-lifecycle-windows-latest-ed4197780828e54068f0f6893d5f6d4274c57d3d` — artifact ID `10603926113`.
+
+PR `#512` merged from that unchanged exact head with `expected_head_sha` protection as:
+
+`c13893edb82c350b623af4c0f486a525dce116f0`
+
+Accepted V2.3.5 product truth:
+
+- KodeStudio now exposes a structured **Candidate lifecycle** workspace over accepted R15.10-R15.14 evidence/runtime contracts rather than parallel evaluation/export/conversion/package/registry engines;
+- persisted paired base/candidate comparison evidence keeps exact suite/config/holdout identity, task/domain deltas and critical-regression vetoes visible;
+- training-loss, overfit and resource evidence is projected when present without becoming a new decision engine;
+- export, GGUF conversion/quantization and Ollama packaging expose exact identities, digests, lineage, quality/integrity state and honest unavailable/rejected/tampered outcomes;
+- the R15 UX facade was extended only for demonstrated typed gaps: governed export run/status, conversion run, Ollama package and exact registry role selection;
+- export/conversion/package/promotion/rollback preserve dry-run plus explicit confirmation before mutation;
+- promotion requires the exact accepted evaluation/export/conversion/package chain, immutable registry record, eligible role and exact artifact/current/proposed mapping;
+- rollback requires the exact immutable prior role mapping and fails closed when it is absent or stale;
+- Project Knowledge, Research Packs, chat, memory and retrieved context remain reference/data only and cannot authorize export, promotion or rollback;
+- no public model-hub publishing, arbitrary shell/argv/env/package install, silent base/tokenizer/routing replacement, new accelerator behavior or V2.4 work was pulled forward.
+
+No corrective implementation commit was required after the first V2.3.5 head; only the exact accepted head above is qualified.
+
+This post-merge normalization closes V2.3.5 and authorizes **V2.3.6 — Model Lab hardening and integrated acceptance only**. V2.4+ remain unauthorized until V2.3.6 is implemented, exact-head qualified, merged and post-merge normalized.
+
 ## Accepted V2 capability truth
 
 The runtime truth model distinguishes:
@@ -697,10 +746,10 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md`, completed `V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` and normalized `V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`;
-2. verify V2.3.4 remains **COMPLETE + NORMALIZED** from PR `#510`, exact head `4f25fb6331ba76dfe51cd13c8a1560f66142a862`, **31/31** workflows, **18/18 PASS** Ubuntu/Windows, evidence SHA-256 `f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113` and merge `0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2`;
-3. implement **V2.3.5 — Candidate evaluation, export, promotion and rollback UX only**;
-4. reuse accepted R15.10/R15.11/R15.12/R15.13/R15.14 evaluation/export/GGUF/Ollama packaging/model-registry contracts rather than parallel candidate or promotion backends;
-5. require paired base-vs-candidate evidence on matching suite/config/holdout identity and preserve critical-regression vetoes;
-6. keep export/conversion/package lineage explicit and require exact promotion evidence plus explicit role mapping/confirmation before registry mutation;
-7. preserve rollback to prior immutable mapping, keep Project Knowledge/Research/context data-only, and do not pull forward public model-hub publishing, V2.3.6+, V2.4+, V2.5, release/TUF/updater work, R20 reopening or R20.7;
-8. after V2.3.5 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing V2.3.6.
+2. verify V2.3.5 remains **COMPLETE + NORMALIZED** from PR `#512`, exact head `ed4197780828e54068f0f6893d5f6d4274c57d3d`, **31/31** workflows, **18/18 PASS** Ubuntu/Windows, evidence SHA-256 `bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548` and merge `c13893edb82c350b623af4c0f486a525dce116f0`;
+3. implement **V2.3.6 — Model Lab hardening and integrated acceptance only**;
+4. adversarially exercise the accepted V2.3 chain against untrusted authority attempts, privacy/license/revocation/contamination failures, tampered or stale identities/evidence, capability/resource/backend failure, checkpoint/recovery mismatch, base/candidate mismatch, critical-regression and quantization/package quality vetoes, invalid promotion evidence and rollback corruption;
+5. preserve honest unavailable Ollama/Kaggle/runtime states, deterministic empty/missing-evidence UI behavior, exact-head Ubuntu/Windows backend acceptance and KodeStudio UI smoke;
+6. preserve ResearchGuard, KodeSecrets, WorkspaceBoundary, ProcessSandbox, KillSwitch, MemoryStore integrity/quarantine/project scope and immutable Research Pack/R15/V2.1/V2.2/V2.3 provenance without weakening gates;
+7. keep Project Knowledge/Research/chat/memory/retrieved context data-only and do not pull forward V2.4 accelerator qualification, V2.5 orchestration, V2.6 release work, release/TUF/updater mutation, R20 reopening or R20.7;
+8. after V2.3.6 implementation, qualify the exact final head, merge with `expected_head_sha`, and normalize before authorizing any later phase.

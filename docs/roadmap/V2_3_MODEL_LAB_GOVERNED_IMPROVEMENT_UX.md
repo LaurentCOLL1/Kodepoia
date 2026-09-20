@@ -1,6 +1,6 @@
 # V2.3 — Model Lab governed improvement UX
 
-Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1 through V2.3.4 COMPLETE + NORMALIZED — V2.3.5 is the only authorized implementation subdivision**  
+Status: **PLANNING COMPLETE + NORMALIZED; V2.3.1 through V2.3.5 COMPLETE + NORMALIZED — V2.3.6 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `b5ac64becc4b748aa77386121ba6a63e02cf88bd`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -26,7 +26,7 @@ PR `#502` merged from that unchanged exact head with `expected_head_sha` protect
 
 This post-merge normalization satisfies the planning definition of done and authorizes **V2.3.1 — Model Lab shell, inventory and lineage only**.
 
-V2.3.1 through V2.3.4 are COMPLETE + NORMALIZED. V2.3.5 is now the only authorized implementation subdivision; V2.3.6 remains planned and unauthorized until V2.3.5 is implemented, exact-head qualified, merged and post-merge normalized.
+V2.3.1 through V2.3.5 are COMPLETE + NORMALIZED. V2.3.6 is now the only authorized implementation subdivision; V2.4+ remain outside V2.3 and unauthorized until V2.3.6 is implemented, exact-head qualified, merged and post-merge normalized.
 
 ## 1. Authority and goal
 
@@ -345,7 +345,7 @@ Qualification corrections before the exact final head fixed KodeStudio import or
 
 This normalization closes V2.3.4 and authorizes **V2.3.5 only**.
 
-### V2.3.5 — Candidate evaluation, export, promotion and rollback UX
+### V2.3.5 — Candidate evaluation, export, promotion and rollback UX — COMPLETE + NORMALIZED
 
 Goal: make candidate acceptance and activation an evidence-bound deliberate decision.
 
@@ -365,6 +365,36 @@ Required scope:
 - no silent replacement of base model, tokenizer or routing preferences.
 
 Definition of done: a user cannot promote a model without accepted comparison/export/package evidence and can trace or roll back the resulting role mapping.
+
+Accepted implementation evidence:
+
+The implementation was developed and qualified while V2.3.5 was the only authorized implementation subdivision. The historical V2.3.5 boundary that kept V2.3.6+ unauthorized is retained as immutable acceptance context only and is superseded by the V2.3.6 authorization below.
+
+- implementation PR `#512`;
+- exact final head `ed4197780828e54068f0f6893d5f6d4274c57d3d`;
+- **31/31** pull-request workflows `completed/success`;
+- merge `c13893edb82c350b623af4c0f486a525dce116f0` with `expected_head_sha` protection;
+- deterministic **18/18 PASS** exact-head V2.3.5 acceptance on Ubuntu and Windows;
+- identical evidence payload SHA-256 `bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548`;
+- Ubuntu artifact `v2-3-5-candidate-lifecycle-ubuntu-latest-ed4197780828e54068f0f6893d5f6d4274c57d3d` — ID `10604315201`;
+- Windows artifact `v2-3-5-candidate-lifecycle-windows-latest-ed4197780828e54068f0f6893d5f6d4274c57d3d` — ID `10603926113`.
+
+Accepted product truth:
+
+- the **Candidate lifecycle** workspace is a structured KodeStudio projection over accepted R15.10 paired evaluation plus R15.11 export, R15.12 GGUF, R15.13 Ollama packaging and R15.14 registry contracts rather than parallel engines;
+- paired base/candidate suite/config/holdout identity, task/domain deltas, critical-regression veto and optional training-loss/overfit/resource evidence remain visible;
+- persisted export/conversion/package identities, digests, quality/integrity/blocker states and exact registry lineage/variants/role eligibility are projected;
+- R15 UX was extended only for demonstrated typed gaps: governed export run/status, conversion run, Ollama package and exact role selection on registry promotion/rollback;
+- mutation paths retain dry-run plus explicit confirmation and configured accepted handlers;
+- promotion requires exact accepted evaluation/export/conversion/package evidence, an immutable matching registry record, eligible role and exact artifact/current/proposed mapping;
+- rollback requires the exact immutable prior mapping and fails closed on missing/stale evidence;
+- honest unavailable/rejected/tampered runtime/evidence states remain visible and no Ollama/provider success is fabricated;
+- Project Knowledge, Research Packs, chat, memory and retrieved context remain reference/data only and cannot authorize export, promotion or rollback;
+- no public model-hub publishing, arbitrary shell/argv/env/package install, silent base/tokenizer/routing replacement, V2.4 accelerator work or later-phase orchestration was pulled forward.
+
+No corrective implementation commit was required after the first V2.3.5 head. No gate was weakened, and only the exact final head above is accepted.
+
+This normalization closes V2.3.5 and authorizes **V2.3.6 only**.
 
 ### V2.3.6 — Model Lab hardening and integrated acceptance
 
@@ -534,6 +564,8 @@ The V2.3 planning phase is complete because:
 - V2.3.3 implementation PR `#508` was qualified **32/32** on exact head `e24a7d88af0f05e75b45bb1c173b0ea0d78c2ed7`, passed deterministic **16/16** acceptance on Ubuntu and Windows with evidence SHA-256 `8c1b92bdee6e6236f653afb749a5ea29b464b22d63ef95bd078b739a7684d064`, and merged as `b2943239885b5fc4e3791d48dfacf5b6947851a2`;
 - the V2.3.3 post-merge continuity normalization recorded V2.3.3 as **COMPLETE + NORMALIZED** and authorized **V2.3.4 only**;
 - V2.3.4 implementation PR `#510` was qualified **31/31** on exact head `4f25fb6331ba76dfe51cd13c8a1560f66142a862`, passed deterministic **18/18** acceptance on Ubuntu and Windows with evidence SHA-256 `f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113`, and merged as `0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2`;
-- this post-merge continuity normalization records V2.3.4 as **COMPLETE + NORMALIZED** and authorizes **V2.3.5 only**.
+- the V2.3.4 post-merge continuity normalization recorded V2.3.4 as **COMPLETE + NORMALIZED** and authorized **V2.3.5 only**;
+- V2.3.5 implementation PR `#512` was qualified **31/31** on exact head `ed4197780828e54068f0f6893d5f6d4274c57d3d`, passed deterministic **18/18** acceptance on Ubuntu and Windows with evidence SHA-256 `bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548`, and merged as `c13893edb82c350b623af4c0f486a525dce116f0`;
+- this post-merge continuity normalization records V2.3.5 as **COMPLETE + NORMALIZED** and authorizes **V2.3.6 only**.
 
-**V2.3.5 is now the only authorized implementation subdivision. V2.3.6+ remain unauthorized.**
+**V2.3.6 is now the only authorized implementation subdivision. V2.4+ remain unauthorized.**

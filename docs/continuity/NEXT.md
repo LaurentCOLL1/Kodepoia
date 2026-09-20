@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-20 after V2.3.4 implementation PR `#510` merge and post-merge normalization  
+Last synchronized: 2026-09-20 after V2.3.5 implementation PR `#512` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -316,40 +316,77 @@ Accepted product truth: structured Training workspace over existing R15 contract
 
 **V2.3.4 is COMPLETE + NORMALIZED.**
 
+## V2.3.5 accepted implementation
+
+Implementation PR `#512` was qualified **31/31** on exact final head `ed4197780828e54068f0f6893d5f6d4274c57d3d` and merged with `expected_head_sha` protection as `c13893edb82c350b623af4c0f486a525dce116f0`.
+
+Key exact-head gates:
+
+- `R0 Repository Guard` `35506019032` = success;
+- `KodeStudio UI Smoke` `35506019100` = success;
+- `Python Core` `35506019089` = success;
+- `R12 Tauri2 Acceptance` `35506019204` = success;
+- `R13 Integrated Release Readiness` `35506019023` = success;
+- `R15.8 Training Runtime Acceptance` `35506019092` = success;
+- `R15.9 QLoRA SFT Acceptance` `35506019090` = success;
+- `R15.15 CLI KodeStudio UX Acceptance` `35506019193` = success;
+- `R17 Windows Installer` `35506019002` = success;
+- `R18.11 Integrated Adversarial Release Update Acceptance` `35506019081` = success.
+
+Deterministic V2.3.5 acceptance: **18/18 PASS** on Ubuntu and Windows with identical evidence payload SHA-256 `bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548`.
+
+Accepted exact-head artifacts:
+
+- `v2-3-5-candidate-lifecycle-ubuntu-latest-ed4197780828e54068f0f6893d5f6d4274c57d3d` — ID `10604315201`;
+- `v2-3-5-candidate-lifecycle-windows-latest-ed4197780828e54068f0f6893d5f6d4274c57d3d` — ID `10603926113`.
+
+Accepted product truth: structured Candidate lifecycle workspace over existing R15.10-R15.14 contracts; paired base/candidate suite/config/holdout evidence with explicit critical-regression veto; task/domain deltas plus training-loss/overfit/resource evidence where present; exact export/GGUF/Ollama/registry lineage and integrity states; typed export/conversion/package actions plus exact registry role selection only where a real R15 UX gap existed; dry-run and explicit confirmation for mutation; evidence-bound promotion showing candidate/artifact/registry/role/current/proposed mapping; rollback tied to the immutable prior mapping; honest unavailable/tampered/rejected states; no parallel engines, public model-hub publishing, arbitrary shell/argv/env/package install or silent base/tokenizer/routing replacement; Project Knowledge/Research/chat/memory/retrieved context remains reference/data only.
+
+**V2.3.5 is COMPLETE + NORMALIZED.**
+
 ## Immediate execution order
 
-### V2.3.5 — Candidate evaluation, export, promotion and rollback UX — AUTHORIZED
+### V2.3.6 — Model Lab hardening and integrated acceptance — AUTHORIZED
 
-Implement V2.3.5 only.
+Implement V2.3.6 only.
 
-Required scope:
+Required acceptance coverage:
 
-- paired base-vs-candidate benchmark comparison on matching suite/config/holdout evidence;
-- task/domain deltas with explicit critical-regression veto;
-- training-loss, overfit and resource evidence where available;
-- explicit candidate disposition: reject, inconclusive or promotable/exportable;
-- export lineage through accepted R15.11 contracts;
-- GGUF conversion/quantization quality through accepted R15.12 contracts;
-- local Ollama packaging/import state through accepted R15.13 contracts;
-- specialized-model registry lineage/variants/role eligibility through accepted R15.14 contracts;
-- explicit promotion mutation with exact role mapping shown before confirmation;
-- explicit rollback to prior immutable mapping.
+- adversarial untrusted/project/research text attempting to authorize training or promotion;
+- secret-bearing or privacy-ineligible experience;
+- missing, ambiguous or revoked license;
+- exact and near-duplicate contamination against benchmark holdouts;
+- tampered dataset manifest/export digest;
+- stale or mismatched base model/tokenizer identity;
+- invalid capability report or insufficient RAM/VRAM/storage;
+- unsupported quantization/backend;
+- mismatched checkpoint/plan lineage, cancellation and recovery;
+- tampered run/evaluation/export/conversion/package evidence;
+- base/candidate report mismatch;
+- critical-domain regression despite aggregate gain;
+- quantization/package quality regression;
+- invalid promotion evidence and registry rollback integrity;
+- unavailable Ollama/Kaggle/runtime capability;
+- deterministic empty/missing-evidence UI states;
+- Project Knowledge remaining reference-only rather than training authority;
+- exact-head Ubuntu and Windows backend acceptance;
+- KodeStudio UI smoke/structured-state acceptance.
 
 Permanent boundaries:
 
-- reuse accepted R15 evaluation/export/GGUF/Ollama/model-registry handlers; do not create parallel backends;
-- no public model-hub publishing;
-- no silent base-model, tokenizer or routing-preference replacement;
-- Project Knowledge/Research/context remains reference/data only and cannot authorize promotion;
-- no V2.3.6+, V2.4+, V2.5 orchestration, release/TUF/updater or R20 mutation.
+- harden and integrate the accepted V2.3 chain; do not create replacement R15/V2.1/V2.2 engines;
+- do not weaken ResearchGuard, KodeSecrets, WorkspaceBoundary, ProcessSandbox, KillSwitch, MemoryStore or immutable provenance/evidence gates;
+- no public model-hub publishing, automatic training from reference context, arbitrary shell/argv/env/package installation or silent routing/model/tokenizer mutation;
+- no V2.4 accelerator production qualification or new multi-GPU semantics;
+- no V2.5 orchestration, V2.6 release work, release/TUF/updater mutation or R20 reopening.
 
-Definition of done: a user cannot promote a model without accepted comparison/export/package evidence, can inspect critical-regression vetoes and exact lineage, and can trace or roll back the resulting role mapping.
+Definition of done: Model Lab makes the accepted model-improvement chain usable under adversarial and degraded conditions without allowing ungoverned data ingestion, unsupported training, hidden authority promotion or unsafe model activation.
 
-V2.3.6+ remain unauthorized until V2.3.5 is exact-head qualified, merged and post-merge normalized.
+V2.4+ remain unauthorized until V2.3.6 is exact-head qualified, merged and post-merge normalized.
 
 ## Later V2 order
 
-After V2.3.4 is COMPLETE + NORMALIZED, proceed only to V2.3.5 as authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
+After V2.3.5 is COMPLETE + NORMALIZED, proceed only to V2.3.6 as authorized by the normalized V2.3 authority. V2.4, V2.5 and V2.6 remain later phases.
 
 ## Accelerator policy
 
@@ -365,4 +402,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.3.4 est COMPLETE + NORMALIZED : PR #510 qualifiée 31/31 sur le head exact 4f25fb6331ba76dfe51cd13c8a1560f66142a862, acceptance 18/18 PASS Ubuntu/Windows avec evidence SHA-256 f8be65eaffcc71080551c30c2fc7eff56b20509f7fed74b30ceeb0ccf29e8113, artefacts Ubuntu 10598522634 et Windows 10597613394, puis fusionnée avec expected_head_sha en 0e88eb5e5f4a2fc7f80038dc28e580c8e93332b2. La seule subdivision autorisée est V2.3.5 — Candidate evaluation, export, promotion and rollback UX. Réutilise strictement les contrats R15.10/R15.11/R15.12/R15.13/R15.14 pour comparaison base/candidat, export, GGUF, packaging Ollama et registre spécialisé; exige des preuves appariées sur la même suite/config/holdout, conserve le veto de régression critique, lie promotion et rollback à une lignée immutable et à une confirmation explicite. Aucun public model-hub publishing, remplacement silencieux de modèle/tokenizer/routing, V2.3.6+, V2.4+, V2.5, release/TUF/updater ou R20 ne doit être tiré en avant. Project Knowledge/Research/context reste data-only. Qualifie le head final exact, merge protégé, puis normalise avant V2.3.6.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md. V2.3.5 est COMPLETE + NORMALIZED : PR #512 qualifiée 31/31 sur le head exact ed4197780828e54068f0f6893d5f6d4274c57d3d, acceptance 18/18 PASS Ubuntu/Windows avec evidence SHA-256 bb2c17564a1efa5ef5b8011559c212f96a870ce5c311bfb439d6869dc42d2548, artefacts Ubuntu 10604315201 et Windows 10603926113, puis fusionnée avec expected_head_sha en c13893edb82c350b623af4c0f486a525dce116f0. La seule subdivision autorisée est V2.3.6 — Model Lab hardening and integrated acceptance. Adversarialise et intègre la chaîne V2.3 existante sans réécrire R15/V2.1/V2.2 : texte non fiable tentant d’autoriser training/promotion, privacy/license/revocation/contamination, digests ou identités altérés/stales, capability/resource/backend indisponible, checkpoint/recovery, mismatch base/candidate, critical-regression veto, qualité GGUF/package, promotion/rollback, états Ollama/Kaggle indisponibles, empty/missing-evidence UI, exact-head Ubuntu/Windows et UI smoke. Aucun V2.4+, V2.5, V2.6 release, release/TUF/updater ou R20 ne doit être tiré en avant. Project Knowledge/Research/context reste data-only. Qualifie le head final exact, merge protégé, puis normalise avant toute phase suivante.`

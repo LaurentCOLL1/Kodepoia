@@ -195,8 +195,16 @@ def main() -> int:
         ),
         _check(
             "later_scope_unauthorized",
-            "V2.3.5+ remain unauthorized" in authority,
-            "V2.3.5+ remains outside this subdivision",
+            (
+                "V2.3.5+ remain unauthorized" in authority
+                or (
+                    v234_normalized
+                    and "V2.3.5 is now the only authorized implementation subdivision"
+                    in authority
+                    and "V2.3.6+ remain unauthorized" in authority
+                )
+            ),
+            "historical V2.3.4 acceptance keeps later implementation scope bounded before and after normalization",
         ),
     ]
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 
 import pytest
@@ -154,9 +155,10 @@ def _project(tmp_path: Path) -> tuple[Path, TrainingPlan, TrainingReport]:
             ),
         },
     )
-    report.save(bench / "baseline.json")
+    report_path = bench / "baseline.json"
+    report.save(report_path)
     decision = GapDecisionEngine().evaluate(
-        report.to_dict(),
+        json.loads(report_path.read_text(encoding="utf-8")),
         base_model_ref="base",
         evidence=_decision_evidence(),
         dataset={

@@ -40,6 +40,7 @@ def test_catalog_covers_frozen_r15_workflow_families(tmp_path: Path) -> None:
         "training.run",
         "training.status",
         "training.cancel",
+        "training.resume",
         "conversion.doctor",
         "ollama.status",
         "registry.candidates",

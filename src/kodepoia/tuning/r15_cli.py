@@ -67,6 +67,8 @@ def _workflow(args: argparse.Namespace) -> int:
                     action=spec.action,
                     mode=mode,
                     identifier=getattr(args, "identifier", None),
+                    parent_identifier=getattr(args, "parent_identifier", None),
+                    backend=getattr(args, "backend", None),
                     confirmed=bool(getattr(args, "confirm", False)),
                 )
             )
@@ -90,6 +92,19 @@ def _wire_action(parser: argparse.ArgumentParser, spec: R15ActionSpec) -> None:
         )
     else:
         parser.add_argument("--id", dest="identifier")
+    if spec.domain == "training":
+        parser.add_argument(
+            "--backend",
+            choices=("local", "kaggle"),
+            help="bounded training backend selection; readiness still requires doctor/preflight",
+        )
+    if spec.key == "training.resume":
+        parser.add_argument(
+            "--parent-id",
+            dest="parent_identifier",
+            required=True,
+            help="immutable TrainingPlan digest that owns the checkpoint",
+        )
     if spec.mutation:
         parser.add_argument(
             "--apply",

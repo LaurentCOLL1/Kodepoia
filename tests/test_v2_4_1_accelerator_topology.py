@@ -256,9 +256,18 @@ def test_probe_worker_observes_every_device_but_legacy_scalars_remain_device_zer
     fake_torch.float32 = "float32"  # type: ignore[attr-defined]
     fake_torch.float16 = "float16"  # type: ignore[attr-defined]
     fake_torch.bfloat16 = "bfloat16"  # type: ignore[attr-defined]
-    fake_torch.manual_seed = lambda _seed: None  # type: ignore[attr-defined]
-    fake_torch.device = lambda value: value  # type: ignore[attr-defined]
-    fake_torch.ones = lambda *args, **kwargs: FakeTensor()  # type: ignore[attr-defined]
+    def fake_manual_seed(_seed: int) -> None:
+        return None
+
+    def fake_device(value: str) -> str:
+        return value
+
+    def fake_ones(*_args: object, **_kwargs: object) -> FakeTensor:
+        return FakeTensor()
+
+    fake_torch.manual_seed = fake_manual_seed  # type: ignore[attr-defined]
+    fake_torch.device = fake_device  # type: ignore[attr-defined]
+    fake_torch.ones = fake_ones  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "torch", fake_torch)
 
     result = _base_result()
@@ -284,6 +293,7 @@ def test_cpu_topology_probe_is_unavailable_without_spawning_worker(tmp_path: Pat
     runtime = TrainingRuntime(tmp_path, kill_switch=KillSwitch(), sandbox=sandbox)
     report = runtime.probe_topology(RuntimeRequest(backend=TrainingBackend.CPU))
     assert report.disposition is TopologyDisposition.UNAVAILABLE
+    assert report.backend is TrainingBackend.CPU
     assert report.blockers == ("accelerator_backend_required",)
     assert sandbox.calls == 0
 

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Mapping
 
 from .contracts import (
     ResourceRequest,
@@ -35,6 +35,14 @@ def _bounded_bytes(label: str, value: int | None) -> int | None:
     if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= _MAX_BYTES:
         raise TuningRuntimeError(f"{label} must be a non-negative bounded integer or null")
     return value
+
+
+def _worker_optional_bytes(label: str, value: object) -> int | None:
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise TuningRuntimeError(f"{label} must be an integer or null")
+    return _bounded_bytes(label, value)
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,8 +103,14 @@ class AcceleratorDevice:
         object.__setattr__(self, "backend_type", TrainingBackend(self.backend_type))
         if self.backend_type is TrainingBackend.CPU:
             raise TuningRuntimeError("accelerator device cannot use cpu backend")
-        if isinstance(self.index, bool) or not isinstance(self.index, int) or not 0 <= self.index < _MAX_DEVICES:
-            raise TuningRuntimeError(f"accelerator device index must be in [0, {_MAX_DEVICES - 1}]")
+        if (
+            isinstance(self.index, bool)
+            or not isinstance(self.index, int)
+            or not 0 <= self.index < _MAX_DEVICES
+        ):
+            raise TuningRuntimeError(
+                f"accelerator device index must be in [0, {_MAX_DEVICES - 1}]"
+            )
         name = self.name.strip()
         if not name or len(name) > 512:
             raise TuningRuntimeError("accelerator device name must be a non-empty bounded string")
@@ -297,13 +311,26 @@ def topology_from_worker_payload(
         }
         if set(raw) != expected:
             raise TuningRuntimeError("worker topology device has unsupported or missing fields")
+        backend_value = raw["backend_type"]
+        index_value = raw["index"]
+        name_value = raw["name"]
+        if not isinstance(backend_value, str):
+            raise TuningRuntimeError("worker topology device backend_type must be a string")
+        if isinstance(index_value, bool) or not isinstance(index_value, int):
+            raise TuningRuntimeError("worker topology device index must be an integer")
+        if not isinstance(name_value, str):
+            raise TuningRuntimeError("worker topology device name must be a string")
         devices.append(
             AcceleratorDevice(
-                backend_type=TrainingBackend(str(raw["backend_type"])),
-                index=int(raw["index"]),
-                name=str(raw["name"]),
-                vram_free_bytes=raw["vram_free_bytes"],  # type: ignore[arg-type]
-                vram_total_bytes=raw["vram_total_bytes"],  # type: ignore[arg-type]
+                backend_type=TrainingBackend(backend_value),
+                index=index_value,
+                name=name_value,
+                vram_free_bytes=_worker_optional_bytes(
+                    "vram_free_bytes", raw["vram_free_bytes"]
+                ),
+                vram_total_bytes=_worker_optional_bytes(
+                    "vram_total_bytes", raw["vram_total_bytes"]
+                ),
             )
         )
     return ObservedAcceleratorTopology(backend_type=backend, devices=tuple(devices))
@@ -324,7 +351,9 @@ def provider_request_blockers(
     ):
         blockers.append("provider_device_count_mismatch")
     marker = request.expected_name_contains
-    if marker is not None and any(marker.casefold() not in device.name.casefold() for device in observed.devices):
+    if marker is not None and any(
+        marker.casefold() not in device.name.casefold() for device in observed.devices
+    ):
         blockers.append("provider_device_name_mismatch")
     return tuple(sorted(blockers))
 

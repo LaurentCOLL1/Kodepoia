@@ -43,7 +43,10 @@ def main() -> int:
         _check("exact_head", source_sha == observed_sha, "acceptance executes the exact requested SHA"),
         _check(
             "current_authority",
-            "V2.4.1 — Accelerator topology and provider truth is the only authorized implementation subdivision"
+            (
+                "V2.4.1 — Accelerator topology and provider truth is the only "
+                "authorized implementation subdivision"
+            )
             in authority
             and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in state
             and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in next_doc,
@@ -206,7 +209,10 @@ def main() -> int:
     payload["evidence_sha256"] = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
+    output.write_text(
+        json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
     print(json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False))
     return 0 if passed else 1
 

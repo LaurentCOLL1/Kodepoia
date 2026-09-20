@@ -381,7 +381,7 @@ class TrainingRuntime:
             return AcceleratorTopologyReport(
                 disposition=TopologyDisposition.UNAVAILABLE,
                 request_digest=request.digest,
-                backend=TrainingBackend.CUDA,
+                backend=request.backend,
                 provider_request=provider_request,
                 observed=None,
                 blockers=("accelerator_backend_required",),

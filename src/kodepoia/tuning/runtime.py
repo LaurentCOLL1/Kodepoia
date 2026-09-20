@@ -172,7 +172,9 @@ def _safe_worker_evidence(payload: object) -> dict[str, object]:
                 raise ValueError("worker topology device evidence is invalid")
             sanitized = dict(raw_device)
             if "name" in sanitized:
-                sanitized["name"] = redact_runtime_text(str(sanitized["name"]))
+                if not isinstance(sanitized["name"], str):
+                    raise ValueError("worker topology device name must be a string")
+                sanitized["name"] = redact_runtime_text(sanitized["name"])
             sanitized_devices.append(sanitized)
         topology = {**topology, "devices": sanitized_devices}
         try:

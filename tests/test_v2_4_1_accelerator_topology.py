@@ -158,6 +158,16 @@ def test_provider_device_count_and_name_mismatch_fail_closed(tmp_path: Path) -> 
     assert report.blockers == ("provider_device_name_mismatch",)
 
 
+def test_invalid_worker_topology_types_fail_closed(tmp_path: Path) -> None:
+    invalid = _device(0)
+    invalid["name"] = 123
+    report = _runtime(tmp_path, [invalid]).probe_topology(
+        RuntimeRequest(backend=TrainingBackend.CUDA)
+    )
+    assert report.disposition is TopologyDisposition.FAILED
+    assert report.blockers == ("worker_failed",)
+
+
 def test_topology_contract_rejects_duplicate_missing_and_noncontiguous_devices() -> None:
     first = AcceleratorDevice(TrainingBackend.CUDA, 0, "T4", 8_000, 16_000)
     duplicate = AcceleratorDevice(TrainingBackend.CUDA, 0, "T4", 8_000, 16_000)

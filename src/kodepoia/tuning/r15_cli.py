@@ -69,6 +69,7 @@ def _workflow(args: argparse.Namespace) -> int:
                     identifier=getattr(args, "identifier", None),
                     parent_identifier=getattr(args, "parent_identifier", None),
                     backend=getattr(args, "backend", None),
+                    role=getattr(args, "role", None),
                     confirmed=bool(getattr(args, "confirm", False)),
                 )
             )
@@ -104,6 +105,12 @@ def _wire_action(parser: argparse.ArgumentParser, spec: R15ActionSpec) -> None:
             dest="parent_identifier",
             required=True,
             help="immutable TrainingPlan digest that owns the checkpoint",
+        )
+    if spec.key in {"registry.promote", "registry.rollback"}:
+        parser.add_argument(
+            "--role",
+            choices=("fast", "core", "coder", "embed", "vision"),
+            help="exact specialized-model role affected by the registry mutation",
         )
     if spec.mutation:
         parser.add_argument(

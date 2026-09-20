@@ -335,6 +335,10 @@ class ModelLabInventoryService:
                         "roles": sorted(role.value for role in record.role_eligibility),
                         "domain_tags": sorted(record.domain_tags),
                         "preferred_variant": record.preferred_variant.value,
+                        "variants": [
+                            variant.canonical()
+                            for variant in sorted(record.variants, key=lambda item: item.kind.value)
+                        ],
                         "record_digest": record.digest,
                         "lineage": [
                             {"key": key, "digest": lineage_digest}

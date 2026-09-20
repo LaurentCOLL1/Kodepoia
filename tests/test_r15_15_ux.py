@@ -22,6 +22,7 @@ def test_catalog_covers_frozen_r15_workflow_families(tmp_path: Path) -> None:
         "bench",
         "gap",
         "training",
+        "export",
         "conversion",
         "ollama",
         "registry",
@@ -41,8 +42,12 @@ def test_catalog_covers_frozen_r15_workflow_families(tmp_path: Path) -> None:
         "training.status",
         "training.cancel",
         "training.resume",
+        "export.status",
+        "export.run",
         "conversion.doctor",
+        "conversion.run",
         "ollama.status",
+        "ollama.package",
         "registry.candidates",
         "registry.promote",
         "registry.rollback",
@@ -143,3 +148,42 @@ def test_status_and_evidence_export_are_digest_bound_and_project_scoped(tmp_path
 
     with pytest.raises(R15UXPolicyError, match="inside the project root"):
         service.export_evidence(Path("../outside.json"))
+
+
+def test_candidate_lifecycle_actions_are_typed_and_role_is_bounded(tmp_path: Path) -> None:
+    service = R15UXService(tmp_path)
+    keys = {spec.key for spec in service.actions()}
+    assert {"export.run", "conversion.run", "ollama.package"} <= keys
+    for key in ("export.run", "conversion.run", "ollama.package"):
+        domain, action = key.split(".")
+        payload = service.execute(
+            R15WorkflowRequest(
+                domain=domain,
+                action=action,
+                mode=R15WorkflowMode.DRY_RUN,
+                identifier="candidate.1",
+            )
+        )
+        assert payload["status"] == "dry_run"
+        assert payload["would_mutate"] is True
+
+    with pytest.raises(R15UXPolicyError, match="role selection"):
+        service.execute(
+            R15WorkflowRequest(
+                domain="export",
+                action="run",
+                mode=R15WorkflowMode.DRY_RUN,
+                identifier="candidate.1",
+                role="core",
+            )
+        )
+    with pytest.raises(R15UXPolicyError, match="not recognized"):
+        service.execute(
+            R15WorkflowRequest(
+                domain="registry",
+                action="promote",
+                mode=R15WorkflowMode.DRY_RUN,
+                identifier="version.1",
+                role="arbitrary",
+            )
+        )

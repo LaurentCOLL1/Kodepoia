@@ -549,8 +549,9 @@ def evaluate_strategy_benchmark(
     baseline: StrategyBenchmarkMeasurement,
     candidate: StrategyBenchmarkMeasurement,
     *,
-    policy: StrategyBenchmarkPolicy = StrategyBenchmarkPolicy(),
+    policy: StrategyBenchmarkPolicy | None = None,
 ) -> StrategyBenchmarkReport:
+    policy = policy or StrategyBenchmarkPolicy()
     blockers: list[str] = []
     if baseline_plan.strategy is not StrategyKind.SINGLE_GPU:
         blockers.append("baseline_strategy_must_be_single_gpu")

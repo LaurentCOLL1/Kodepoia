@@ -12,7 +12,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Protocol
 
-from .contracts import QuantizationMode, ResourceRequest, SeedConfig
+from .contracts import QuantizationMode, ResourceRequest, SeedConfig, TrainingBackend
+from .topology import ProviderAcceleratorRequest
 from .training import (
     DatasetBinding,
     LoraTrainingConfig,
@@ -145,6 +146,23 @@ class KaggleRemoteConfig:
     @property
     def kernel_title(self) -> str:
         return self.kernel_slug.replace("-", " ")
+
+    def topology_request(self) -> ProviderAcceleratorRequest:
+        if self.accelerator is KaggleAccelerator.NVIDIA_T4:
+            return ProviderAcceleratorRequest(
+                provider="kaggle",
+                shape=self.accelerator.value,
+                expected_backend=TrainingBackend.CUDA,
+                expected_device_count=2,
+                expected_name_contains="T4",
+            )
+        return ProviderAcceleratorRequest(
+            provider="kaggle",
+            shape=self.accelerator.value,
+            expected_backend=TrainingBackend.CUDA,
+            expected_device_count=None,
+            expected_name_contains="L4",
+        )
 
     def to_dict(self) -> dict[str, object]:
         return {

@@ -163,12 +163,20 @@ def _load_json_dataset(path: Path) -> Any:
     return load_dataset("json", data_files=str(path), split="train")
 
 
-def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, object]:
+def _run_real(
+    config: dict[str, Any],
+    root: Path,
+    run_dir: Path,
+    *,
+    canonical_output: bool = True,
+    rank_seed_override: int | None = None,
+    trusted_local_rank: int | None = None,
+) -> dict[str, object]:
     """Execute optional SFT/QLoRA. Heavy packages are imported only in this worker."""
     started = time.monotonic()
     import torch
     from peft import LoraConfig, prepare_model_for_kbit_training
-    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, set_seed
     from trl import SFTConfig, SFTTrainer
 
     mode = str(config["mode"])
@@ -197,11 +205,18 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
             bnb_4bit_quant_type="nf4",
             bnb_4bit_compute_dtype=torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16,
         )
+    model_kwargs: dict[str, object] = {
+        "revision": model_cfg["model_revision"],
+        "quantization_config": quantization_config,
+        "trust_remote_code": False,
+    }
+    if mode == "qlora" and trusted_local_rank is not None:
+        if trusted_local_rank not in (0, 1):
+            raise ValueError("trusted_local_rank must be 0 or 1")
+        model_kwargs["device_map"] = {"": trusted_local_rank}
     model = AutoModelForCausalLM.from_pretrained(
         model_cfg["model_ref"],
-        revision=model_cfg["model_revision"],
-        quantization_config=quantization_config,
-        trust_remote_code=False,
+        **model_kwargs,
     )
     if mode == "qlora":
         model = prepare_model_for_kbit_training(
@@ -253,6 +268,8 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
         processing_class=tokenizer,
         peft_config=peft_config,
     )
+    if rank_seed_override is not None:
+        set_seed(rank_seed_override)
     resume = config.get("resume_checkpoint")
     result = trainer.train(
         resume_from_checkpoint=(
@@ -269,6 +286,21 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
     eval_metrics = trainer.evaluate()
     adapter_dir = run_dir / "adapter"
     trainer.save_model(str(adapter_dir))
+    trainer.accelerator.wait_for_everyone()
+    peak_vram = int(torch.cuda.max_memory_allocated()) if torch.cuda.is_available() else None
+    summary = {
+        "completed_steps": int(summary["completed_steps"]),
+        "eval_loss": float(summary["eval_loss"]),
+        "resource_maxima": {
+            "peak_ram_bytes": None,
+            "peak_vram_bytes": peak_vram,
+            "wall_seconds": time.monotonic() - started,
+        },
+        "train_loss": float(metrics.get("train_loss", 0.0)),
+    }
+    if not canonical_output:
+        return summary
+
     adapter_path = adapter_dir / "adapter_model.safetensors"
     if not adapter_path.is_file():
         raise ValueError("PEFT trainer did not produce adapter_model.safetensors")
@@ -316,12 +348,8 @@ def _run_real(config: dict[str, Any], root: Path, run_dir: Path) -> dict[str, ob
         },
         "optimized_splits": ["train"],
         "plan_digest": config["plan_digest"],
-        "resource_maxima": {
-            "peak_ram_bytes": None,
-            "peak_vram_bytes": int(torch.cuda.max_memory_allocated()) if torch.cuda.is_available() else None,
-            "wall_seconds": time.monotonic() - started,
-        },
-        "train_loss": float(metrics.get("train_loss", 0.0)),
+        "resource_maxima": dict(summary["resource_maxima"]),
+        "train_loss": float(summary["train_loss"]),
         "train_rows": int(dataset_cfg["train_rows"]),
         "validation_rows": int(dataset_cfg["validation_rows"]),
     }

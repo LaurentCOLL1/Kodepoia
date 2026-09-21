@@ -9,10 +9,12 @@ on:
       - 'tests/test_tuning_r15_8.py'
       - 'tests/test_tuning_r15_9.py'
       - 'tests/test_v2_4_2_strategy_planning.py'
+      - 'tests/test_v2_4_3_distributed_execution.py'
       - 'schemas/r15-8-training-runtime-capability.schema.json'
       - 'schemas/r15-9-training-run.schema.json'
       - 'schemas/v2-4-2-execution-strategy.schema.json'
       - 'schemas/v2-4-2-strategy-benchmark.schema.json'
+      - 'schemas/v2-4-3-distributed-training.schema.json'
       - 'pyproject.toml'
       - '.github/workflows/r15-8-training-runtime.yml'
       - '.github/workflows/r15-9-qlora-sft.yml'
@@ -43,13 +45,14 @@ jobs:
           cache: pip
       - name: Install core development dependencies only
         run: python -m pip install -e ".[dev]"
-      - name: R15.8, R15.9 and V2.4.2 focused tests without ML extras
+      - name: R15.8, R15.9 and V2.4 focused tests without ML extras
         run: >-
           python -m pytest -q
           tests/test_tuning_r15_8.py
           tests/test_tuning_r15_9.py
+          tests/test_v2_4_3_distributed_execution.py
           tests/test_v2_4_2_strategy_planning.py
-          tests/test_v2_4_2_strategy_planning.py
+          tests/test_v2_4_3_distributed_execution.py
       - name: Ruff R15.9-owned surface
         run: >-
           python -m ruff check
@@ -71,6 +74,7 @@ jobs:
               Path('schemas/r15-9-training-run.schema.json'),
               Path('schemas/v2-4-2-execution-strategy.schema.json'),
               Path('schemas/v2-4-2-strategy-benchmark.schema.json'),
+              Path('schemas/v2-4-3-distributed-training.schema.json'),
           ):
               schema = json.loads(path.read_text(encoding='utf-8'))
               Draft202012Validator.check_schema(schema)

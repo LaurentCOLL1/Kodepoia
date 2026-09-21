@@ -181,9 +181,10 @@ def main() -> int:
         ),
         _check(
             "no_sharded_or_tpu_scope",
-            "deepspeed" not in distributed.lower()
-            and "fsdp" not in distributed.lower()
-            and "tpu" not in distributed.lower()
+            "DeepSpeed" not in distributed
+            and "FullyShardedDataParallel" not in distributed
+            and "TpuV5E8" not in distributed
+            and "torch_xla" not in distributed.lower()
             and "pipeline_parallel" not in distributed.lower(),
             "V2.4.3 adds no sharded-memory, pipeline or TPU strategy",
         ),

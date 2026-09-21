@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/v2-4-2-execution-strategy.schema.json",
+  "title": "Kodepoia V2.4.2 execution strategy plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "device_budgets",
+    "device_ordinals",
+    "effective_global_batch_size",
+    "gradient_accumulation_steps",
+    "host_ram_required_bytes",
+    "host_storage_required_bytes",
+    "per_device_batch_size",
+    "rank_seed_policy",
+    "rank_seeds",
+    "schema",
+    "schema_version",
+    "strategy",
+    "strategy_plan_digest",
+    "topology_digest",
+    "topology_report_digest",
+    "training_plan_digest",
+    "world_size"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.v2.4.2.execution-strategy-plan"},
+    "schema_version": {"const": 1},
+    "strategy_plan_digest": {"$ref": "#/$defs/digest"},
+    "training_plan_digest": {"$ref": "#/$defs/digest"},
+    "topology_report_digest": {"$ref": "#/$defs/digest"},
+    "topology_digest": {"$ref": "#/$defs/digest"},
+    "strategy": {"enum": ["single_gpu", "replicated_data_parallel"]},
+    "world_size": {"type": "integer", "minimum": 1, "maximum": 64},
+    "device_ordinals": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {"type": "integer", "minimum": 0, "maximum": 63}
+    },
+    "device_budgets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/deviceBudget"}
+    },
+    "host_ram_required_bytes": {"type": "integer", "minimum": 0},
+    "host_storage_required_bytes": {"type": "integer", "minimum": 0},
+    "per_device_batch_size": {"type": "integer", "minimum": 1, "maximum": 65536},
+    "gradient_accumulation_steps": {"type": "integer", "minimum": 1, "maximum": 65536},
+    "effective_global_batch_size": {"type": "integer", "minimum": 1},
+    "rank_seed_policy": {"const": "offset_by_rank_v1"},
+    "rank_seeds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/rankSeed"}
+    }
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "deviceBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observed_free_vram_bytes",
+        "observed_total_vram_bytes",
+        "ordinal",
+        "required_free_vram_bytes"
+      ],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 0, "maximum": 63},
+        "required_free_vram_bytes": {"type": "integer", "minimum": 0},
+        "observed_free_vram_bytes": {"type": "integer", "minimum": 0},
+        "observed_total_vram_bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "rankSeed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data_seed", "rank", "seed"],
+      "properties": {
+        "rank": {"type": "integer", "minimum": 0, "maximum": 63},
+        "seed": {"type": "integer", "minimum": 0, "maximum": 2147483647},
+        "data_seed": {"type": "integer", "minimum": 0, "maximum": 2147483647}
+      }
+    }
+  }
+}

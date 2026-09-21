@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -29,6 +30,10 @@ def _write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def _rank_evidence(
     *,
     execution: dict[str, Any],
@@ -42,9 +47,11 @@ def _rank_evidence(
     peak_vram_bytes: int | None,
     canonical_output_digest: str | None,
     failure_type: str | None,
+    recovery: dict[str, Any] | None = None,
+    checkpoint_manifest: dict[str, Any] | None = None,
 ) -> dict[str, object]:
     seed = dict(execution["rank_seeds"][rank])
-    return {
+    record: dict[str, object] = {
         "canonical_output_digest": canonical_output_digest,
         "completed_steps": completed_steps,
         "data_seed": int(seed["data_seed"]),
@@ -64,6 +71,52 @@ def _rank_evidence(
         "training_plan_digest": str(execution["training_plan_digest"]),
         "world_size": int(execution["world_size"]),
     }
+    if recovery is not None and checkpoint_manifest is not None:
+        record.update(
+            {
+                "checkpoint_manifest_digest": str(recovery["checkpoint_manifest_digest"]),
+                "recovery_plan_digest": str(recovery["recovery_plan_digest"]),
+                "resumed_from_checkpoint_id": str(checkpoint_manifest["checkpoint_id"]),
+                "resumed_from_step": int(checkpoint_manifest["step"]),
+            }
+        )
+    return record
+
+
+def _validate_recovery_checkpoint(
+    root: Path,
+    worker: dict[str, Any],
+    recovery: dict[str, Any],
+    checkpoint_manifest: dict[str, Any],
+) -> None:
+    if recovery.get("schema") != "kodepoia.v2.4.4.distributed-recovery-plan":
+        raise ValueError("unsupported distributed recovery plan")
+    if recovery.get("resume_authorized") is not True:
+        raise ValueError("distributed recovery plan does not authorize resume")
+    if checkpoint_manifest.get("schema") != "kodepoia.v2.4.4.distributed-checkpoint-manifest":
+        raise ValueError("unsupported distributed checkpoint manifest")
+    if recovery.get("checkpoint_manifest_digest") != checkpoint_manifest.get("manifest_digest"):
+        raise ValueError("recovery checkpoint manifest digest mismatch")
+    resume = worker.get("resume_checkpoint")
+    if resume != checkpoint_manifest.get("checkpoint_metadata_path"):
+        raise ValueError("worker resume path does not match checkpoint manifest")
+    metadata = _inside(root, str(checkpoint_manifest["checkpoint_metadata_path"]))
+    artifact = _inside(root, str(checkpoint_manifest["checkpoint_artifact_path"]))
+    if not metadata.is_file() or _sha256(metadata) != checkpoint_manifest.get("checkpoint_metadata_digest"):
+        raise ValueError("checkpoint metadata digest mismatch")
+    if not artifact.is_file() or _sha256(artifact) != checkpoint_manifest.get("checkpoint_artifact_digest"):
+        raise ValueError("checkpoint artifact digest mismatch")
+    record = json.loads(metadata.read_text(encoding="utf-8"))
+    if record.get("checkpoint_id") != checkpoint_manifest.get("checkpoint_id"):
+        raise ValueError("checkpoint metadata identity mismatch")
+    if int(record.get("step", -1)) != int(checkpoint_manifest.get("step", -2)):
+        raise ValueError("checkpoint metadata step mismatch")
+    if record.get("plan_digest") != recovery.get("training_plan_digest"):
+        raise ValueError("checkpoint TrainingPlan lineage mismatch")
+    if record.get("artifact_path") != checkpoint_manifest.get("checkpoint_artifact_path"):
+        raise ValueError("checkpoint artifact path mismatch")
+    if record.get("artifact_digest") != checkpoint_manifest.get("checkpoint_artifact_digest"):
+        raise ValueError("checkpoint artifact lineage mismatch")
 
 
 def main() -> int:
@@ -79,18 +132,37 @@ def main() -> int:
     execution: dict[str, Any] | None = None
     try:
         config = json.loads(config_path.read_text(encoding="utf-8"))
-        if (
-            config.get("schema") != "kodepoia.v2.4.3.distributed-worker-config"
-            or config.get("schema_version") != 1
-        ):
-            raise ValueError("unsupported V2.4.3 distributed worker config")
+        schema = config.get("schema")
+        if config.get("schema_version") != 1 or schema not in {
+            "kodepoia.v2.4.3.distributed-worker-config",
+            "kodepoia.v2.4.4.distributed-recovery-worker-config",
+        }:
+            raise ValueError("unsupported distributed worker config")
+        is_recovery = schema == "kodepoia.v2.4.4.distributed-recovery-worker-config"
         execution = dict(config["execution_plan"])
         worker = dict(config["training_worker"])
+        recovery = dict(config["recovery_plan"]) if is_recovery else None
+        checkpoint_manifest = dict(config["checkpoint_manifest"]) if is_recovery else None
         if execution.get("schema") != "kodepoia.v2.4.3.distributed-execution-plan":
             raise ValueError("unsupported distributed execution plan")
         if execution.get("world_size") != 2:
             raise ValueError("distributed execution world_size must be 2")
-        if execution.get("resume_authorized") is not False or worker.get("resume_checkpoint") is not None:
+        if is_recovery:
+            assert recovery is not None and checkpoint_manifest is not None
+            if recovery.get("execution_plan_digest") != execution.get("execution_plan_digest"):
+                raise ValueError("recovery execution plan lineage mismatch")
+            for key in (
+                "training_plan_digest",
+                "strategy_plan_digest",
+                "benchmark_report_digest",
+                "topology_digest",
+            ):
+                if recovery.get(key) != execution.get(key):
+                    raise ValueError(f"recovery {key} mismatch")
+            if recovery.get("world_size") != 2 or recovery.get("device_ordinals") != execution.get("device_ordinals"):
+                raise ValueError("recovery topology/world-size identity mismatch")
+            _validate_recovery_checkpoint(root, worker, recovery, checkpoint_manifest)
+        elif execution.get("resume_authorized") is not False or worker.get("resume_checkpoint") is not None:
             raise ValueError("distributed resume remains unauthorized until V2.4.4")
 
         rank = _env_int("RANK")
@@ -173,6 +245,8 @@ def main() -> int:
             ),
             canonical_output_digest=canonical_digest,
             failure_type=None,
+            recovery=recovery,
+            checkpoint_manifest=checkpoint_manifest,
         )
         _write_json(evidence_path, record)
         print(json.dumps({"rank": rank, "state": "completed"}, sort_keys=True))
@@ -197,11 +271,16 @@ def main() -> int:
                         peak_vram_bytes=None,
                         canonical_output_digest=None,
                         failure_type=type(exc).__name__,
+                        recovery=recovery if "recovery" in locals() else None,
+                        checkpoint_manifest=(
+                            checkpoint_manifest if "checkpoint_manifest" in locals() else None
+                        ),
                     ),
                 )
             except Exception:
                 pass
-        print(f"V2.4.3 distributed worker failed: {type(exc).__name__}", file=sys.stderr)
+        label = "V2.4.4 distributed recovery worker" if "is_recovery" in locals() and is_recovery else "V2.4.3 distributed worker"
+        print(f"{label} failed: {type(exc).__name__}", file=sys.stderr)
         return 2
 
 

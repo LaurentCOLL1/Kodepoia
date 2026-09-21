@@ -27,6 +27,15 @@ from .distributed import (
     DistributedTrainingRunner,
     build_distributed_execution_plan,
 )
+from .distributed_recovery import (
+    DistributedCheckpointManifest,
+    DistributedRecoveryPlan,
+    DistributedRecoveryRankEvidence,
+    DistributedRecoveryReport,
+    DistributedRecoveryRunner,
+    build_distributed_checkpoint_manifest,
+    build_distributed_recovery_plan,
+)
 from .runtime import HostResourceProbe, TrainingRuntime, redact_runtime_text
 from .strategy import (
     DeviceStrategyBudget,
@@ -74,9 +83,14 @@ __all__ = [
     "DatasetBinding",
     "DistributedExecutionPlan",
     "DistributedExecutionState",
+    "DistributedCheckpointManifest",
     "DistributedRankEvidence",
     "DistributedRankSeed",
     "DistributedRankState",
+    "DistributedRecoveryPlan",
+    "DistributedRecoveryRankEvidence",
+    "DistributedRecoveryReport",
+    "DistributedRecoveryRunner",
     "DistributedTrainingReport",
     "DistributedTrainingRunner",
     "DeviceStrategyBudget",
@@ -110,7 +124,9 @@ __all__ = [
     "TrainingRunner",
     "TrainingRuntime",
     "TuningRuntimeError",
+    "build_distributed_checkpoint_manifest",
     "build_distributed_execution_plan",
+    "build_distributed_recovery_plan",
     "build_execution_strategy_plan",
     "evaluate_single_gpu_selection",
     "evaluate_strategy_benchmark",

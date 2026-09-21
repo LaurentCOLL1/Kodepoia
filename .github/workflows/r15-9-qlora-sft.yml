@@ -10,11 +10,14 @@ on:
       - 'tests/test_tuning_r15_9.py'
       - 'tests/test_v2_4_2_strategy_planning.py'
       - 'tests/test_v2_4_3_distributed_execution.py'
+      - 'tests/test_v2_4_4_distributed_recovery.py'
       - 'schemas/r15-8-training-runtime-capability.schema.json'
       - 'schemas/r15-9-training-run.schema.json'
       - 'schemas/v2-4-2-execution-strategy.schema.json'
       - 'schemas/v2-4-2-strategy-benchmark.schema.json'
       - 'schemas/v2-4-3-distributed-training.schema.json'
+      - 'schemas/v2-4-4-distributed-checkpoint.schema.json'
+      - 'schemas/v2-4-4-distributed-recovery.schema.json'
       - 'pyproject.toml'
       - '.github/workflows/r15-8-training-runtime.yml'
       - '.github/workflows/r15-9-qlora-sft.yml'
@@ -52,6 +55,7 @@ jobs:
           tests/test_tuning_r15_9.py
           tests/test_v2_4_2_strategy_planning.py
           tests/test_v2_4_3_distributed_execution.py
+          tests/test_v2_4_4_distributed_recovery.py
       - name: Ruff R15.9-owned surface
         run: >-
           python -m ruff check
@@ -59,6 +63,7 @@ jobs:
           tests/test_tuning_r15_8.py
           tests/test_tuning_r15_9.py
           tests/test_v2_4_3_distributed_execution.py
+          tests/test_v2_4_4_distributed_recovery.py
       - name: Compile tuning surface
         run: python -m compileall -q src/kodepoia/tuning
       - name: Validate R15.8 and R15.9 JSON schemas
@@ -75,6 +80,8 @@ jobs:
               Path('schemas/v2-4-2-execution-strategy.schema.json'),
               Path('schemas/v2-4-2-strategy-benchmark.schema.json'),
               Path('schemas/v2-4-3-distributed-training.schema.json'),
+              Path('schemas/v2-4-4-distributed-checkpoint.schema.json'),
+              Path('schemas/v2-4-4-distributed-recovery.schema.json'),
           ):
               schema = json.loads(path.read_text(encoding='utf-8'))
               Draft202012Validator.check_schema(schema)

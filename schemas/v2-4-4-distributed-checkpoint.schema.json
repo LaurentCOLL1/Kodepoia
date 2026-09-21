@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/v2-4-4-distributed-checkpoint.schema.json",
+  "title": "Kodepoia V2.4.4 distributed checkpoint manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "benchmark_report_digest",
+    "canonical_rank",
+    "canonical_training_report_digest",
+    "checkpoint_artifact_digest",
+    "checkpoint_artifact_path",
+    "checkpoint_id",
+    "checkpoint_metadata_digest",
+    "checkpoint_metadata_path",
+    "device_ordinals",
+    "execution_plan_digest",
+    "manifest_digest",
+    "rank_evidence_digests",
+    "schema",
+    "schema_version",
+    "source_report_digest",
+    "source_run_id",
+    "step",
+    "strategy_plan_digest",
+    "topology_digest",
+    "training_plan_digest",
+    "world_size"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.v2.4.4.distributed-checkpoint-manifest"},
+    "schema_version": {"const": 1},
+    "manifest_digest": {"$ref": "#/$defs/digest"},
+    "source_run_id": {"type": "string", "minLength": 1, "maxLength": 512},
+    "source_report_digest": {"$ref": "#/$defs/digest"},
+    "execution_plan_digest": {"$ref": "#/$defs/digest"},
+    "canonical_training_report_digest": {"$ref": "#/$defs/digest"},
+    "training_plan_digest": {"$ref": "#/$defs/digest"},
+    "strategy_plan_digest": {"$ref": "#/$defs/digest"},
+    "benchmark_report_digest": {"$ref": "#/$defs/digest"},
+    "topology_digest": {"$ref": "#/$defs/digest"},
+    "world_size": {"const": 2},
+    "device_ordinals": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {"type": "integer", "minimum": 0, "maximum": 63}
+    },
+    "checkpoint_id": {"type": "string", "minLength": 1, "maxLength": 512},
+    "step": {"type": "integer", "minimum": 1},
+    "checkpoint_metadata_path": {"type": "string", "minLength": 1, "maxLength": 512},
+    "checkpoint_metadata_digest": {"$ref": "#/$defs/digest"},
+    "checkpoint_artifact_path": {"type": "string", "minLength": 1, "maxLength": 512},
+    "checkpoint_artifact_digest": {"$ref": "#/$defs/digest"},
+    "rank_evidence_digests": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"$ref": "#/$defs/digest"}
+    },
+    "canonical_rank": {"const": 0}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

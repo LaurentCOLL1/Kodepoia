@@ -3,7 +3,6 @@ from __future__ import annotations
 import contextlib
 import json
 import math
-import platform
 import re
 import sys
 from collections.abc import Mapping

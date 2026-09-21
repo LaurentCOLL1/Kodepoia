@@ -50,7 +50,6 @@ jobs:
           python -m pytest -q
           tests/test_tuning_r15_8.py
           tests/test_tuning_r15_9.py
-          tests/test_v2_4_3_distributed_execution.py
           tests/test_v2_4_2_strategy_planning.py
           tests/test_v2_4_3_distributed_execution.py
       - name: Ruff R15.9-owned surface
@@ -59,6 +58,7 @@ jobs:
           src/kodepoia/tuning
           tests/test_tuning_r15_8.py
           tests/test_tuning_r15_9.py
+          tests/test_v2_4_3_distributed_execution.py
       - name: Compile tuning surface
         run: python -m compileall -q src/kodepoia/tuning
       - name: Validate R15.8 and R15.9 JSON schemas

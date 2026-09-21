@@ -80,6 +80,11 @@ def main() -> int:
         in state
         and "V2.4.3 — Governed explicit two-GPU execution — CURRENT" in next_doc
     )
+    v243_normalized = (
+        "V2.4.3 is COMPLETE + NORMALIZED" in authority
+        and "V2.4.3 — Governed explicit two-GPU execution — COMPLETE + NORMALIZED" in state
+        and "V2.4.4 — Distributed checkpoint, cancellation and recovery — CURRENT" in next_doc
+    )
     v236_normalized = (
         (
             "V2.3 planning and V2.3.1 through V2.3.6 are COMPLETE + NORMALIZED"
@@ -91,6 +96,7 @@ def main() -> int:
         or v24_planning_normalized
         or v241_normalized
         or v242_normalized
+        or v243_normalized
     )
 
     checks = [
@@ -140,6 +146,12 @@ def main() -> int:
                     and "V2.4.4+ remain unauthorized" in authority
                     and "V2.4.4+ remain unauthorized" in state
                     and "V2.4.4+ remain unauthorized" in next_doc
+                )
+                or (
+                    v243_normalized
+                    and "V2.4.5+ remain unauthorized" in authority
+                    and "V2.4.5+ remain unauthorized" in state
+                    and "V2.4.5+ remain unauthorized" in next_doc
                 )
             ),
             "historical V2.3.6 acceptance keeps V2.4 implementation bounded before and after normalization",

@@ -221,10 +221,17 @@ def test_strategy_rejects_non_ready_topology_and_missing_device() -> None:
     topology = _topology()
     with pytest.raises(ValueError, match="ready topology"):
         build_execution_strategy_plan(
+            training,
             replace(topology, disposition=TopologyDisposition.MISMATCH, blockers=("fixture",)),
-            training,  # type: ignore[arg-type]
             strategy=StrategyKind.SINGLE_GPU,
             device_ordinals=(0,),
+        )
+    with pytest.raises(ValueError, match="missing from topology"):
+        build_execution_strategy_plan(
+            training,
+            topology,
+            strategy=StrategyKind.SINGLE_GPU,
+            device_ordinals=(2,),
         )
 
 

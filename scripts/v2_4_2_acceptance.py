@@ -110,8 +110,8 @@ def main() -> int:
             "explicit_world_size_ordinals",
             "world_size" in strategy
             and "device_ordinals" in strategy
-            and "requires world_size=1" in strategy
-            and "requires world_size=2" in strategy,
+            and "expected_world_size = 1 if strategy is StrategyKind.SINGLE_GPU else 2" in strategy
+            and "len(ordinals) != expected_world_size" in strategy,
             "world size and exact device ordinals are immutable strategy fields",
         ),
         _check(

@@ -258,6 +258,7 @@ def main() -> int:
                 "V2.4.3+" in state
                 or (v242_normalized and "V2.4.4+" in state)
                 or (v242_normalized and "V2.4.5+" in state)
+                or (v242_normalized and "V2.4.6+" in state)
             )
             and "FSDP" in v24
             and "DeepSpeed" in v24

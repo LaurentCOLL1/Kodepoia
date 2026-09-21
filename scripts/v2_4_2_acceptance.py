@@ -52,7 +52,7 @@ def main() -> int:
         in next_doc
     )
     v242_normalized = (
-        "V2.4.2 are COMPLETE + NORMALIZED" in authority
+        "V2.4.2 is COMPLETE + NORMALIZED" in authority
         and "V2.4.2 — Strategy, effective-batch and resource planning contract — COMPLETE + NORMALIZED"
         in state
         and "V2.4.3 — Governed explicit two-GPU execution — CURRENT" in next_doc

@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-21 after V2.4.1 implementation PR `#518` merge and post-merge normalization  
+Last synchronized: 2026-09-21 after V2.4.2 implementation PR `#520` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -372,62 +372,62 @@ Qualification required two test-only corrections after the initial head: one ali
 
 ## Immediate execution order
 
-### V2.4.2 — Strategy, effective-batch and resource planning contract — CURRENT
+### V2.4.3 — Governed explicit two-GPU execution — CURRENT
 
-V2.4 planning and **V2.4.1 are COMPLETE + NORMALIZED**.
+V2.4 planning, V2.4.1 and **V2.4.2 are COMPLETE + NORMALIZED**.
 
-V2.4.1 accepted evidence:
+V2.4.2 accepted evidence:
 
-- implementation PR: `#518 — feat: implement V2.4.1 accelerator topology truth`;
-- exact final head: `544b7d172499594f32c464c46753bfc5fb378fe0`;
-- exact-head qualification: **30/30 `completed/success`**;
-- deterministic acceptance: **22/22 PASS Ubuntu + 22/22 PASS Windows**;
-- identical evidence SHA-256: `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d`;
-- Ubuntu artifact ID: `10614179278`;
-- Windows artifact ID: `10614546908`;
-- protected merge: `3ebed48b8aa113635ddc9516827d867ce346fe0f`.
+- implementation PR: `#520 — feat: implement V2.4.2 strategy planning contract`;
+- exact final head: `abf9d396ef4f2800c5e9de9bd62a9b680a2be758`;
+- exact-head qualification: **29/29 `completed/success`**;
+- deterministic acceptance: **23/23 PASS Ubuntu + 23/23 PASS Windows**;
+- identical evidence SHA-256: `f10a620c34ea3928ce6de4e44002485120654c031d6073bbf00f5f3bddf68ffa`;
+- Ubuntu artifact ID: `10620663114`;
+- Windows artifact ID: `10620827996`;
+- protected merge: `4d411df6b0923b1443017ff25f06b1c04453a7f6`.
 
-Accepted V2.4.1 truth to preserve:
+Accepted V2.4.2 truth to preserve:
 
-- R15.8 capability schema v1 remains historical and unchanged;
-- topology evidence is separate/versioned;
-- actual CUDA/ROCm devices are enumerated with per-device VRAM;
-- legacy scalar VRAM remains device-0 evidence only;
-- provider request is distinct from observed runtime topology;
-- Kaggle T4×2 metadata does not prove actual runtime devices;
-- topology/provider mismatches fail closed;
-- explicit `single_gpu` selection uses only one device budget and never pools VRAM;
-- no distributed launch exists yet.
+- exact TrainingPlan + topology report/topology digest binding;
+- only typed `single_gpu` and `replicated_data_parallel` planning intents;
+- exact world size and selected ordinals;
+- independent per-device VRAM budgets; no pooled 32 GiB semantics;
+- host RAM/storage remain independent host budgets;
+- explicit per-device batch, accumulation and effective global batch;
+- deterministic `offset_by_rank_v1` seed/data-seed policy;
+- paired same-work/config/plan/effective-batch benchmark evidence;
+- normative threshold **>=1.25x throughput** with **0.0 eval-loss regression**;
+- run/checkpoint/per-device-resource integrity gates;
+- `launch_authorized=false`: V2.4.2 itself launches nothing.
 
-Authorized V2.4.2 scope:
+Authorized V2.4.3 scope:
 
-- typed `single_gpu` and `replicated_data_parallel` strategy contracts only;
-- world size and selected ordinals bound to plan/strategy identity;
-- topology evidence digest binding;
-- per-device resource requirements;
-- explicit per-device batch, gradient accumulation and derived effective global batch;
-- deterministic seed/data-seed/rank policy;
-- deterministic strategy benchmark fixtures;
-- paired baseline-versus-replicated evidence;
-- normative measured performance threshold before V2.4.3 can authorize launchable replicated execution;
-- no arbitrary launcher args/env/rendezvous;
+- repository-owned fixed two-rank PyTorch/Accelerate execution only;
+- exact world size two for accepted replicated T4×2 strategy plans;
+- trusted rank/local-rank assignment;
+- no user/project/model-controlled launcher argv/env/rendezvous;
+- deterministic sampler/seed semantics bound to strategy evidence;
+- rank-zero canonical output plus integrity-bound subordinate per-rank evidence;
+- any rank failure/timeout/cancellation fails the whole run;
+- complete process-group coverage by ProcessSandbox/KillSwitch;
+- no sharded-memory semantics;
 - no live Kaggle/GPU requirement in mandatory PR CI.
 
 Still unauthorized:
 
-- actual multi-process training launch;
-- `torchrun`/Accelerate two-rank execution;
-- distributed checkpoint/recovery;
+- distributed checkpoint/recovery work reserved for V2.4.4;
+- Model Lab/live Kaggle qualification reserved for V2.4.5;
 - FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism;
 - TPU/XLA/JAX/PyTorch-XLA;
-- V2.4.3+;
+- V2.4.4+;
 - V2.5+, release/TUF/updater mutation and R20 reopening.
 
-Definition of done: an execution strategy is immutable, topology-bound, resource-explicit and benchmark-qualified before any multi-process execution path exists.
+Definition of done: both accepted devices can be deliberately used under one immutable accepted plan through a fixed repository-owned process-group boundary, with no hidden strategy changes, orphan workers, partial-success semantics or weakened lineage.
 
 ## Later V2 order
 
-V2.4.2 is the current authorized implementation subdivision. V2.4.3+ remain unauthorized until V2.4.2 is implemented, exact-head qualified, merged and post-merge normalized. V2.5 orchestration and V2.6 release work remain later and unauthorized until their own authority gates are satisfied.
+V2.4.3 is the current authorized implementation subdivision. V2.4.4+ remain unauthorized until V2.4.3 is implemented, exact-head qualified, merged and post-merge normalized. V2.5 orchestration and V2.6 release work remain later and unauthorized until their own authority gates are satisfied.
 
 ## Accelerator policy
 
@@ -443,4 +443,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.4 planning et V2.4.1 sont COMPLETE + NORMALIZED. V2.4.1 : PR #518, head exact 544b7d172499594f32c464c46753bfc5fb378fe0, 30/30 workflows success, acceptance 22/22 Ubuntu et 22/22 Windows, evidence SHA-256 3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d, merge protégé 3ebed48b8aa113635ddc9516827d867ce346fe0f. La seule subdivision autorisée est V2.4.2 — Strategy, effective-batch and resource planning contract. Re-fetch main et les autorités avant mutation, vérifie l'absence de branche/PR V2.4.2 concurrente, puis implémente uniquement le contrat typé single_gpu / replicated_data_parallel : world size, ordinals, topology digest, VRAM par device, host resources séparées, per-device batch, gradient accumulation, effective global batch, rank/data seed policy et benchmark pairé déterministe avec seuil de performance normatif. Aucun lancement distributed/torchrun/Accelerate deux-rank n'est encore autorisé. Aucun pool VRAM, FSDP/DeepSpeed/TPU, V2.4.3+, V2.5+, release/TUF/updater ou R20. Qualifie le head exact, merge avec expected_head_sha, puis normalise avant V2.4.3.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.4 planning, V2.4.1 et V2.4.2 sont COMPLETE + NORMALIZED. V2.4.2 : PR #520, head exact abf9d396ef4f2800c5e9de9bd62a9b680a2be758, 29/29 workflows success, acceptance 23/23 Ubuntu et 23/23 Windows, evidence SHA-256 f10a620c34ea3928ce6de4e44002485120654c031d6073bbf00f5f3bddf68ffa, merge protégé 4d411df6b0923b1443017ff25f06b1c04453a7f6. La seule subdivision autorisée est V2.4.3 — Governed explicit two-GPU execution. Re-fetch main et les autorités avant mutation, vérifie l'absence de branche/PR V2.4.3 concurrente, puis implémente uniquement un lancement deux-rank repository-owned à partir d'un strategy plan V2.4.2 accepté : world size 2 exact, rank/local-rank trusted, fixed PyTorch/Accelerate launch, aucun argv/env/rendezvous contrôlable, seed/sampler lié à la stratégie, rank-zero output canonique, per-rank evidence integrity-bound, rank failure/timeout/cancel terminal pour tout le groupe, ProcessSandbox/KillSwitch sur le groupe complet. Aucun checkpoint distribué V2.4.4, live Kaggle V2.4.5, pool VRAM, FSDP/DeepSpeed/TPU, V2.4.4+, V2.5+, release/TUF/updater ou R20. Qualifie le head exact, merge avec expected_head_sha, puis normalise avant V2.4.4.`

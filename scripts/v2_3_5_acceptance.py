@@ -61,6 +61,12 @@ def main() -> int:
         and "V2.4.1 — Accelerator topology and provider truth — COMPLETE + NORMALIZED" in state
         and "V2.4.2 — Strategy, effective-batch and resource planning contract — CURRENT" in next_doc
     )
+    v242_normalized = (
+        "V2.4.2 is COMPLETE + NORMALIZED" in authority
+        and "V2.4.2 — Strategy, effective-batch and resource planning contract — COMPLETE + NORMALIZED"
+        in state
+        and "V2.4.3 — Governed explicit two-GPU execution — CURRENT" in next_doc
+    )
     v235_normalized = (
         (
             "V2.3.1 through V2.3.5 are **COMPLETE + NORMALIZED**" in authority
@@ -75,6 +81,7 @@ def main() -> int:
         or v24_planning_current
         or v24_planning_normalized
         or v241_normalized
+        or v242_normalized
     )
 
     checks = [
@@ -230,6 +237,12 @@ def main() -> int:
                     and "V2.4.3+ remain unauthorized" in authority
                     and "V2.4.3+ remain unauthorized" in state
                     and "V2.4.3+ remain unauthorized" in next_doc
+                )
+                or (
+                    v242_normalized
+                    and "V2.4.4+ remain unauthorized" in authority
+                    and "V2.4.4+ remain unauthorized" in state
+                    and "V2.4.4+ remain unauthorized" in next_doc
                 )
             ),
             "historical V2.3.5 acceptance keeps later implementation scope bounded before and after normalization",

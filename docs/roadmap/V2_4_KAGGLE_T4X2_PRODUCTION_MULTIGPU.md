@@ -1,6 +1,6 @@
 # V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU
 
-Status: **PLANNING + V2.4.1 + V2.4.2 + V2.4.3 COMPLETE + NORMALIZED — V2.4.4 is the only authorized implementation subdivision; V2.4.5+ remain unauthorized**  
+Status: **PLANNING + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 COMPLETE + NORMALIZED — V2.4.5 is the only authorized implementation subdivision; V2.4.6+ remain unauthorized**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -180,6 +180,53 @@ Accepted V2.4.3 truth:
 - no pooled VRAM, sharded-memory strategy or TPU path was introduced.
 
 This normalization marks **V2.4.3 COMPLETE + NORMALIZED** and authorizes **V2.4.4 only**.
+
+## V2.4.4 qualification
+
+V2.4.4 implementation PR:
+
+`#524 — feat: implement V2.4.4 distributed checkpoint recovery`
+
+Exact final accepted head:
+
+`1abf4917566f065ac26b71a02e02d8fb3506fe1a`
+
+All **29/29** pull-request workflows associated with that exact final head completed with conclusion `success`.
+
+Deterministic exact-head acceptance:
+
+- Ubuntu: **25/25 PASS**;
+- Windows: **25/25 PASS**;
+- common evidence SHA-256: `09820473e95e03672b89c6d9d086b6a9aa8fada394be2e661a4085f1989410ed`;
+- Ubuntu artifact ID: `10654524114`;
+- Windows artifact ID: `10655573341`.
+
+Selected successful workflow runs include:
+
+- `R0 Repository Guard` — `35633506877`;
+- `R15.8 Training Runtime Acceptance` — `35633506917`;
+- `R15.9 QLoRA SFT Acceptance` — `35633506716`;
+- `Python Core` — `35633506815`;
+- `R15 Integrated Acceptance` — `35633506982`;
+- `R13 Integrated Release Readiness` — `35633506771`;
+- `R17 Windows Installer` — `35633506891`.
+
+PR `#524` merged from the unchanged exact final head with `expected_head_sha` protection as:
+
+`779a9c8282e153b7dba35fb22be89ec5c622e1d3`
+
+Accepted V2.4.4 truth:
+
+- exact rank-zero canonical checkpoint lineage plus both rank evidences;
+- independent checkpoint metadata/artifact digest validation;
+- immutable execution/TrainingPlan/strategy/benchmark/topology/world-size/device binding;
+- fixed one-node/two-rank recovery boundary and accepted R15.9 resume semantics;
+- both ranks required for successful recovery;
+- timeout/cancel/nonzero/missing/tampered/mismatched evidence is whole-group terminal;
+- historical V2.4.3 resume remains false; V2.4.4 recovery authority is separate and explicit;
+- no live-provider/Model Lab qualification is part of V2.4.4.
+
+This normalization marks **V2.4.4 COMPLETE + NORMALIZED** and authorizes **V2.4.5 only**.
 
 ## 1. Authority and goal
 
@@ -385,7 +432,7 @@ Required scope:
 
 Definition of done: both devices can be deliberately used under one accepted plan without hidden strategy changes, orphan processes or weakened R15 lineage.
 
-### V2.4.4 — Distributed checkpoint, cancellation and recovery — CURRENT
+### V2.4.4 — Distributed checkpoint, cancellation and recovery — COMPLETE + NORMALIZED
 
 Goal: preserve exact recovery semantics under a two-rank run.
 
@@ -402,7 +449,7 @@ Required scope:
 
 Definition of done: recovery cannot silently change topology/strategy or accept a partial/tampered distributed checkpoint.
 
-### V2.4.5 — Model Lab accelerator UX and live Kaggle qualification
+### V2.4.5 — Model Lab accelerator UX and live Kaggle qualification — CURRENT
 
 Goal: make accelerator truth inspectable and perform the real provider proof.
 
@@ -538,4 +585,4 @@ V2.4 planning is complete only when:
 - the planning PR is merged with `expected_head_sha`;
 - this post-merge normalization records planning as COMPLETE + NORMALIZED and authorizes **V2.4.1 only**.
 
-**V2.4.4 is now the only authorized implementation subdivision. V2.4.5+ remain unauthorized** until V2.4.4 is implemented, exact-head qualified, merged and post-merge normalized.
+**V2.4.5 is now the only authorized implementation subdivision. V2.4.6+ remain unauthorized** until V2.4.5 is implemented, exact-head qualified, merged and post-merge normalized.

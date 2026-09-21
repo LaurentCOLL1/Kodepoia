@@ -103,6 +103,11 @@ def main() -> int:
                 in authority
                 or "V2.4 planning, V2.4.1, V2.4.2 and **V2.4.3 are COMPLETE + NORMALIZED**"
                 in authority
+                or (
+                    "V2.4 planning, V2.4.1, V2.4.2, V2.4.3 and "
+                    "**V2.4.4 are COMPLETE + NORMALIZED**"
+                )
+                in authority
             )
             and "V2.4.2 — Strategy, effective-batch and resource planning contract — COMPLETE + NORMALIZED"
             in state,

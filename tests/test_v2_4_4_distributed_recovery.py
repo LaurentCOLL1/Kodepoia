@@ -21,8 +21,8 @@ from kodepoia.tuning import (
     ObservedAcceleratorTopology,
     QuantizationMode,
     ResourceRequest,
-    SFTTrainingConfig,
     SeedConfig,
+    SFTTrainingConfig,
     StrategyBenchmarkMeasurement,
     StrategyKind,
     TopologyDisposition,
@@ -445,7 +445,7 @@ def test_cancel_timeout_and_rank_failure_are_whole_group_terminal(tmp_path: Path
 
 
 def test_missing_or_tampered_rank_recovery_evidence_never_succeeds(tmp_path: Path) -> None:
-    for index, mode in enumerate(("missing", "tampered")):
+    for mode in ("missing", "tampered"):
         root = tmp_path / mode
         root.mkdir()
         training, strategy, benchmark, _source, manifest = _source_and_manifest(root)

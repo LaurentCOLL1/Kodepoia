@@ -39,26 +39,44 @@ def main() -> int:
     python_core = read(".github/workflows/python-core.yml")
     r158 = read(".github/workflows/r15-8-training-runtime.yml")
 
+    v241_current = (
+        "V2.4.1 — Accelerator topology and provider truth is the only authorized implementation subdivision"
+        in authority
+        and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in state
+        and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in next_doc
+    )
+    v241_normalized = (
+        "V2.4.1 are COMPLETE + NORMALIZED" in authority
+        and "V2.4.1 — Accelerator topology and provider truth — COMPLETE + NORMALIZED" in state
+        and "V2.4.2 — Strategy, effective-batch and resource planning contract — CURRENT" in next_doc
+    )
+
     checks = [
         _check("exact_head", source_sha == observed_sha, "acceptance executes the exact requested SHA"),
         _check(
             "current_authority",
-            (
-                "V2.4.1 — Accelerator topology and provider truth is the only "
-                "authorized implementation subdivision"
-            )
-            in authority
-            and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in state
-            and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in next_doc,
-            "V2.4.1 alone is authorized",
+            v241_current or v241_normalized,
+            "V2.4.1 is current or retained as normalized historical context",
         ),
         _check(
             "later_scope_unauthorized",
-            "V2.4.2+ remain unauthorized" in authority
-            and "V2.4.2+ remain unauthorized" in state
-            and "V2.4.2+ remain unauthorized" in next_doc
-            and "V2.4.2+ remain unauthorized" in v24,
-            "V2.4.2+ remains outside V2.4.1",
+            (
+                (
+                    v241_current
+                    and "V2.4.2+ remain unauthorized" in authority
+                    and "V2.4.2+ remain unauthorized" in state
+                    and "V2.4.2+ remain unauthorized" in next_doc
+                    and "V2.4.2+ remain unauthorized" in v24
+                )
+                or (
+                    v241_normalized
+                    and "V2.4.3+ remain unauthorized" in authority
+                    and "V2.4.3+ remain unauthorized" in state
+                    and "V2.4.3+ remain unauthorized" in next_doc
+                    and "V2.4.3+ remain unauthorized" in v24
+                )
+            ),
+            "historical V2.4.1 acceptance keeps later implementation scope bounded before and after normalization",
         ),
         _check(
             "legacy_capability_unchanged",

@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning COMPLETE + NORMALIZED; V2.4.1 authorized; V2.4.2+ unauthorized**  
+Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning + V2.4.1 COMPLETE + NORMALIZED; V2.4.2 authorized; V2.4.3+ unauthorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -219,17 +219,17 @@ V2.3.5 implementation PR `#512` was qualified **31/31** on exact final head `ed4
 
 V2.3.5 is therefore **COMPLETE + NORMALIZED**.
 
-V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. **V2.4 planning is COMPLETE + NORMALIZED** under `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`: planning PR `#516`, exact final head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`, **25/25** workflows, protected merge `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`. **V2.4.1 — Accelerator topology and provider truth is the only authorized implementation subdivision.** V2.4.2+ and V2.5+ remain unauthorized. Project Knowledge/Research/context remains data-only.
+V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. V2.4 planning and **V2.4.1 are COMPLETE + NORMALIZED**. V2.4.1 implementation PR `#518` was qualified **30/30** on exact final head `544b7d172499594f32c464c46753bfc5fb378fe0`, with **22/22 PASS Ubuntu + 22/22 PASS Windows** and common evidence SHA-256 `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d`, then merged as `3ebed48b8aa113635ddc9516827d867ce346fe0f`. **V2.4.2 — Strategy, effective-batch and resource planning contract is the only authorized implementation subdivision.** V2.4.3+ and V2.5+ remain unauthorized. Project Knowledge/Research/context remains data-only.
 
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
 - V2.3 — Model Lab governed improvement UX — **COMPLETE + NORMALIZED through V2.3.6**.
-- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **planning COMPLETE + NORMALIZED; V2.4.1 CURRENT; V2.4.2+ unauthorized**.
+- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **planning + V2.4.1 COMPLETE + NORMALIZED; V2.4.2 CURRENT; V2.4.3+ unauthorized**.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.
 
-### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING COMPLETE + NORMALIZED; V2.4.1 CURRENT
+### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING + V2.4.1 COMPLETE + NORMALIZED; V2.4.2 CURRENT
 
 Normative planning contract under qualification:
 
@@ -263,9 +263,9 @@ Planning invariants include:
 - live Kaggle production evidence is separate and mandatory before a production claim;
 - V2.5+, release/TUF/updater and R20 remain unauthorized.
 
-**This post-merge normalization authorizes V2.4.1 — Accelerator topology and provider truth only.** V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized.
+V2.4.1 implementation PR `#518` is qualified **30/30** on exact final head `544b7d172499594f32c464c46753bfc5fb378fe0`, with **22/22 PASS** on both Ubuntu and Windows and common evidence SHA-256 `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d`, then merged as `3ebed48b8aa113635ddc9516827d867ce346fe0f`. **This post-merge normalization marks V2.4.1 COMPLETE + NORMALIZED and authorizes V2.4.2 — Strategy, effective-batch and resource planning contract only.** V2.4.3+ remain unauthorized until V2.4.2 is implemented, exact-head qualified, merged and post-merge normalized.
 
-The dedicated V2.4 planning authority is qualified and normalized. V2.4.1 now establishes topology/provider truth only; explicit multi-GPU execution remains reserved for later normalized subdivisions.
+The V2.4 planning authority and V2.4.1 topology/provider truth are qualified and normalized. V2.4.2 may now define and benchmark explicit strategy/effective-batch/resource semantics; actual multi-process execution remains reserved for V2.4.3 after its own authorization.
 
 ## Accelerator authority
 

@@ -1,6 +1,6 @@
 # V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU
 
-Status: **PLANNING COMPLETE + NORMALIZED — V2.4.1 is the only authorized implementation subdivision; V2.4.2+ remain unauthorized**  
+Status: **PLANNING + V2.4.1 COMPLETE + NORMALIZED — V2.4.2 is the only authorized implementation subdivision; V2.4.3+ remain unauthorized**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -26,6 +26,55 @@ PR `#516` merged from that unchanged exact head with `expected_head_sha` protect
 The initial planning head `7142659d00cea3ae6faf427ed100fb84ce28668e` exposed only two historical V2.3.5 authority-compatibility assertions after the repository advanced to V2.4 planning. Corrective commit `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7` made the V2.3.5/V2.3.6 acceptance contracts forward-compatible with the new planning state and fixed a duplicated `NEXT.md` heading. It changed no V2.4 runtime/product code and weakened no product, security or trust gate.
 
 This post-merge normalization satisfies the planning definition of done and authorizes **V2.4.1 — Accelerator topology and provider truth only**. V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized.
+
+## V2.4.1 qualification
+
+V2.4.1 implementation PR:
+
+`#518 — feat: implement V2.4.1 accelerator topology truth`
+
+Exact final accepted head:
+
+`544b7d172499594f32c464c46753bfc5fb378fe0`
+
+All **30/30** pull-request workflows associated with that exact final head completed with conclusion `success`.
+
+Deterministic exact-head acceptance:
+
+- Ubuntu: **22/22 PASS**;
+- Windows: **22/22 PASS**;
+- common evidence SHA-256: `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d`;
+- Ubuntu artifact ID: `10614179278`;
+- Windows artifact ID: `10614546908`.
+
+Selected successful workflow runs include:
+
+- `R0 Repository Guard` — `35540624489`;
+- `R15.8 Training Runtime Acceptance` — `35540624402`;
+- `R15 Kaggle Remote Training Acceptance` — `35540624433`;
+- `R15.9 QLoRA SFT Acceptance` — `35540624448`;
+- `Python Core` — `35540624471`;
+- `R15 Integrated Acceptance` — `35540624649`;
+- `R13 Integrated Release Readiness` — `35540624507`;
+- `R17 Windows Installer` — `35540624572`.
+
+PR `#518` merged from the unchanged exact final head with `expected_head_sha` protection as:
+
+`3ebed48b8aa113635ddc9516827d867ce346fe0f`
+
+Accepted V2.4.1 truth:
+
+- historical R15.8 capability schema v1 remains intact;
+- topology evidence is separate and versioned;
+- actual CUDA/ROCm devices are enumerated with independent per-device VRAM;
+- legacy scalar device/VRAM evidence remains device-zero evidence;
+- provider request and observed topology have separate digests;
+- Kaggle `NvidiaTeslaT4` requests two T4-class CUDA devices but never proves runtime topology;
+- topology/provider mismatch, ambiguous identity and unknown selected-device VRAM fail closed;
+- `single_gpu` resource admission uses one selected device only and never pools VRAM;
+- no distributed training launch or replicated execution path exists yet.
+
+This normalization marks **V2.4.1 COMPLETE + NORMALIZED** and authorizes **V2.4.2 only**.
 
 ## 1. Authority and goal
 
@@ -175,7 +224,7 @@ Bit-identical adapter bytes across independent GPU executions are not assumed. E
 
 The list below is frozen by the accepted V2.4 planning authority. No subdivision may be silently added, removed, merged, split or renumbered.
 
-### V2.4.1 — Accelerator topology and provider truth — CURRENT
+### V2.4.1 — Accelerator topology and provider truth — COMPLETE + NORMALIZED
 
 Goal: replace single-device assumptions with versioned topology evidence while preserving historical R15.8 contracts.
 
@@ -192,7 +241,7 @@ Required scope:
 
 Definition of done: Kodepoia can prove whether the runtime actually exposes the expected two T4-class CUDA devices and can reason about each device's budget independently, without claiming pooled VRAM.
 
-### V2.4.2 — Strategy, effective-batch and resource planning contract
+### V2.4.2 — Strategy, effective-batch and resource planning contract — CURRENT
 
 Goal: make execution semantics immutable before any multi-process launch.
 
@@ -384,4 +433,4 @@ V2.4 planning is complete only when:
 - the planning PR is merged with `expected_head_sha`;
 - this post-merge normalization records planning as COMPLETE + NORMALIZED and authorizes **V2.4.1 only**.
 
-**V2.4.1 is now the only authorized implementation subdivision. V2.4.2+ remain unauthorized** until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized.
+**V2.4.2 is now the only authorized implementation subdivision. V2.4.3+ remain unauthorized** until V2.4.2 is implemented, exact-head qualified, merged and post-merge normalized.

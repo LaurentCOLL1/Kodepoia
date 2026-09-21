@@ -289,8 +289,8 @@ def _run_real(
     trainer.accelerator.wait_for_everyone()
     peak_vram = int(torch.cuda.max_memory_allocated()) if torch.cuda.is_available() else None
     summary = {
-        "completed_steps": int(summary["completed_steps"]),
-        "eval_loss": float(summary["eval_loss"]),
+        "completed_steps": int(trainer.state.global_step),
+        "eval_loss": float(eval_metrics.get("eval_loss", 0.0)),
         "resource_maxima": {
             "peak_ram_bytes": None,
             "peak_vram_bytes": peak_vram,

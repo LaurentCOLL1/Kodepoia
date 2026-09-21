@@ -1,6 +1,6 @@
 # V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU
 
-Status: **PLANNING + V2.4.1 + V2.4.2 COMPLETE + NORMALIZED — V2.4.3 is the only authorized implementation subdivision; V2.4.4+ remain unauthorized**  
+Status: **PLANNING + V2.4.1 + V2.4.2 + V2.4.3 COMPLETE + NORMALIZED — V2.4.4 is the only authorized implementation subdivision; V2.4.5+ remain unauthorized**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -127,6 +127,59 @@ Accepted V2.4.2 truth:
 - no distributed execution path exists in V2.4.2.
 
 This normalization marks **V2.4.2 COMPLETE + NORMALIZED** and authorizes **V2.4.3 only**.
+
+## V2.4.3 qualification
+
+V2.4.3 implementation PR:
+
+`#522 — feat: implement V2.4.3 governed two-GPU execution`
+
+Exact final accepted head:
+
+`81c5709ff457da375fd2f8f8ef13aad4b59aced0`
+
+All **30/30** pull-request workflows associated with that exact final head completed with conclusion `success`.
+
+Deterministic exact-head acceptance:
+
+- Ubuntu: **22/22 PASS**;
+- Windows: **22/22 PASS**;
+- common evidence SHA-256: `fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7`;
+- Ubuntu artifact ID: `10646496287`;
+- Windows artifact ID: `10646575915`.
+
+Selected successful workflow runs include:
+
+- `R0 Repository Guard` — `35614891252`;
+- `R15.8 Training Runtime Acceptance` — `35614891434`;
+- `R15.9 QLoRA SFT Acceptance` — `35614891273`;
+- `Python Core` — `35614891412`;
+- `R15 Integrated Acceptance` — `35614891265`;
+- `R13 Integrated Release Readiness` — `35614891015`;
+- `R13 Android Signing Acceptance` — `35614891044`;
+- `R17 Windows Installer` — `35614891251`.
+
+The Android Signing Windows job required one failed-job rerun on the unchanged exact SHA; Ubuntu remained successful and no source/workflow/acceptance criterion changed.
+
+PR `#522` merged from the unchanged exact final head with `expected_head_sha` protection as:
+
+`975d46a071f52a27a48de15227432d9d4911e142`
+
+Accepted V2.4.3 truth:
+
+- only governed TRAIN-authorized SFT/QLoRA plus exact qualified V2.4.2 strategy/benchmark evidence may enter distributed execution;
+- launch is fixed to one node, two ranks, zero restarts and the repository-owned distributed worker;
+- only accepted device visibility is injected; raw launcher argv/env/rendezvous are not exposed;
+- rank/local-rank/world-size/restart identity is trusted-launcher-derived and validated;
+- seed/sampler semantics are strategy-bound;
+- rank zero is the sole canonical output authority and subordinate rank evidence is integrity-bound;
+- rank failure, timeout, cancellation or missing/mismatched rank evidence fails the whole run;
+- ProcessSandbox/KillSwitch covers the complete managed process group;
+- the accepted R15.9 worker is reused;
+- distributed resume remains unauthorized in V2.4.3;
+- no pooled VRAM, sharded-memory strategy or TPU path was introduced.
+
+This normalization marks **V2.4.3 COMPLETE + NORMALIZED** and authorizes **V2.4.4 only**.
 
 ## 1. Authority and goal
 
@@ -313,7 +366,7 @@ Required scope:
 
 Definition of done: a user or backend cannot request an ambiguous multi-GPU run; the exact strategy and resource semantics are digest-bound and benchmark-justified.
 
-### V2.4.3 — Governed explicit two-GPU execution — CURRENT
+### V2.4.3 — Governed explicit two-GPU execution — COMPLETE + NORMALIZED
 
 Goal: execute the accepted replicated strategy through a repository-owned multi-process boundary.
 
@@ -332,7 +385,7 @@ Required scope:
 
 Definition of done: both devices can be deliberately used under one accepted plan without hidden strategy changes, orphan processes or weakened R15 lineage.
 
-### V2.4.4 — Distributed checkpoint, cancellation and recovery
+### V2.4.4 — Distributed checkpoint, cancellation and recovery — CURRENT
 
 Goal: preserve exact recovery semantics under a two-rank run.
 
@@ -485,4 +538,4 @@ V2.4 planning is complete only when:
 - the planning PR is merged with `expected_head_sha`;
 - this post-merge normalization records planning as COMPLETE + NORMALIZED and authorizes **V2.4.1 only**.
 
-**V2.4.3 is now the only authorized implementation subdivision. V2.4.4+ remain unauthorized** until V2.4.3 is implemented, exact-head qualified, merged and post-merge normalized.
+**V2.4.4 is now the only authorized implementation subdivision. V2.4.5+ remain unauthorized** until V2.4.4 is implemented, exact-head qualified, merged and post-merge normalized.

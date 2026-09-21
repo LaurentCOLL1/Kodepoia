@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-21 after V2.4.2 implementation PR `#520` merge and post-merge normalization  
+Last synchronized: 2026-09-21 after V2.4.3 implementation PR `#522` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -372,62 +372,61 @@ Qualification required two test-only corrections after the initial head: one ali
 
 ## Immediate execution order
 
-### V2.4.3 — Governed explicit two-GPU execution — CURRENT
+### V2.4.4 — Distributed checkpoint, cancellation and recovery — CURRENT
 
-V2.4 planning, V2.4.1 and **V2.4.2 are COMPLETE + NORMALIZED**.
+V2.4 planning, V2.4.1, V2.4.2 and **V2.4.3 are COMPLETE + NORMALIZED**.
 
-V2.4.2 accepted evidence:
+V2.4.3 accepted evidence:
 
-- implementation PR: `#520 — feat: implement V2.4.2 strategy planning contract`;
-- exact final head: `abf9d396ef4f2800c5e9de9bd62a9b680a2be758`;
-- exact-head qualification: **29/29 `completed/success`**;
-- deterministic acceptance: **23/23 PASS Ubuntu + 23/23 PASS Windows**;
-- identical evidence SHA-256: `f10a620c34ea3928ce6de4e44002485120654c031d6073bbf00f5f3bddf68ffa`;
-- Ubuntu artifact ID: `10620663114`;
-- Windows artifact ID: `10620827996`;
-- protected merge: `4d411df6b0923b1443017ff25f06b1c04453a7f6`.
+- implementation PR: `#522 — feat: implement V2.4.3 governed two-GPU execution`;
+- exact final head: `81c5709ff457da375fd2f8f8ef13aad4b59aced0`;
+- exact-head qualification: **30/30 `completed/success`**;
+- deterministic acceptance: **22/22 PASS Ubuntu + 22/22 PASS Windows**;
+- identical evidence SHA-256: `fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7`;
+- Ubuntu artifact ID: `10646496287`;
+- Windows artifact ID: `10646575915`;
+- protected merge: `975d46a071f52a27a48de15227432d9d4911e142`.
 
-Accepted V2.4.2 truth to preserve:
+Accepted V2.4.3 truth to preserve:
 
-- exact TrainingPlan + topology report/topology digest binding;
-- only typed `single_gpu` and `replicated_data_parallel` planning intents;
-- exact world size and selected ordinals;
-- independent per-device VRAM budgets; no pooled 32 GiB semantics;
-- host RAM/storage remain independent host budgets;
-- explicit per-device batch, accumulation and effective global batch;
-- deterministic `offset_by_rank_v1` seed/data-seed policy;
-- paired same-work/config/plan/effective-batch benchmark evidence;
-- normative threshold **>=1.25x throughput** with **0.0 eval-loss regression**;
-- run/checkpoint/per-device-resource integrity gates;
-- `launch_authorized=false`: V2.4.2 itself launches nothing.
+- exact qualified V2.4.2 strategy/benchmark lineage is mandatory;
+- fixed one-node/two-rank repository-owned launch with no caller launcher argv/env/rendezvous surface;
+- trusted launcher rank/local-rank/world-size validation;
+- accepted device visibility only, never pooled VRAM;
+- deterministic rank/data/sampler seed lineage;
+- rank-zero canonical output and integrity-bound subordinate per-rank evidence;
+- any rank failure/timeout/cancellation/missing/mismatched evidence is whole-run terminal;
+- ProcessSandbox/KillSwitch covers the managed process group;
+- accepted R15.9 real worker semantics are reused;
+- distributed resume remains unavailable until V2.4.4.
 
-Authorized V2.4.3 scope:
+Authorized V2.4.4 scope:
 
-- repository-owned fixed two-rank PyTorch/Accelerate execution only;
-- exact world size two for accepted replicated T4×2 strategy plans;
-- trusted rank/local-rank assignment;
-- no user/project/model-controlled launcher argv/env/rendezvous;
-- deterministic sampler/seed semantics bound to strategy evidence;
-- rank-zero canonical output plus integrity-bound subordinate per-rank evidence;
-- any rank failure/timeout/cancellation fails the whole run;
-- complete process-group coverage by ProcessSandbox/KillSwitch;
-- no sharded-memory semantics;
-- no live Kaggle/GPU requirement in mandatory PR CI.
+- strategy/topology/world-size/execution-plan bound checkpoint metadata;
+- rank-zero canonical checkpoint lineage;
+- explicit bounded per-rank state/evidence where required;
+- cancel/timeout/partial-rank failure evidence;
+- no successful result from an incomplete process group;
+- resume only from compatible exact plan/strategy/topology/world-size lineage;
+- fail closed on missing/tampered/mismatched rank/checkpoint evidence;
+- preserve dataset/model/tokenizer/capability bindings;
+- reuse accepted R15 checkpoint/recovery authority;
+- deterministic PR CI without live Kaggle/GPU/provider quota.
 
 Still unauthorized:
 
-- distributed checkpoint/recovery work reserved for V2.4.4;
-- Model Lab/live Kaggle qualification reserved for V2.4.5;
+- Model Lab accelerator UX/live Kaggle qualification reserved for V2.4.5;
+- production hardening/integrated acceptance reserved for V2.4.6;
 - FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism;
 - TPU/XLA/JAX/PyTorch-XLA;
-- V2.4.4+;
+- V2.4.5+;
 - V2.5+, release/TUF/updater mutation and R20 reopening.
 
-Definition of done: both accepted devices can be deliberately used under one immutable accepted plan through a fixed repository-owned process-group boundary, with no hidden strategy changes, orphan workers, partial-success semantics or weakened lineage.
+Definition of done: recovery cannot silently change topology/strategy/world size or accept a partial/tampered distributed checkpoint.
 
 ## Later V2 order
 
-V2.4.3 is the current authorized implementation subdivision. V2.4.4+ remain unauthorized until V2.4.3 is implemented, exact-head qualified, merged and post-merge normalized. V2.5 orchestration and V2.6 release work remain later and unauthorized until their own authority gates are satisfied.
+V2.4.4 is the current authorized implementation subdivision. V2.4.5+ remain unauthorized until V2.4.4 is implemented, exact-head qualified, merged and post-merge normalized. V2.5 orchestration and V2.6 release work remain later and unauthorized until their own authority gates are satisfied.
 
 ## Accelerator policy
 
@@ -443,4 +442,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.4 planning, V2.4.1 et V2.4.2 sont COMPLETE + NORMALIZED. V2.4.2 : PR #520, head exact abf9d396ef4f2800c5e9de9bd62a9b680a2be758, 29/29 workflows success, acceptance 23/23 Ubuntu et 23/23 Windows, evidence SHA-256 f10a620c34ea3928ce6de4e44002485120654c031d6073bbf00f5f3bddf68ffa, merge protégé 4d411df6b0923b1443017ff25f06b1c04453a7f6. La seule subdivision autorisée est V2.4.3 — Governed explicit two-GPU execution. Re-fetch main et les autorités avant mutation, vérifie l'absence de branche/PR V2.4.3 concurrente, puis implémente uniquement un lancement deux-rank repository-owned à partir d'un strategy plan V2.4.2 accepté : world size 2 exact, rank/local-rank trusted, fixed PyTorch/Accelerate launch, aucun argv/env/rendezvous contrôlable, seed/sampler lié à la stratégie, rank-zero output canonique, per-rank evidence integrity-bound, rank failure/timeout/cancel terminal pour tout le groupe, ProcessSandbox/KillSwitch sur le groupe complet. Aucun checkpoint distribué V2.4.4, live Kaggle V2.4.5, pool VRAM, FSDP/DeepSpeed/TPU, V2.4.4+, V2.5+, release/TUF/updater ou R20. Qualifie le head exact, merge avec expected_head_sha, puis normalise avant V2.4.4.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.4 planning, V2.4.1, V2.4.2 et V2.4.3 sont COMPLETE + NORMALIZED. V2.4.3 : PR #522, head exact 81c5709ff457da375fd2f8f8ef13aad4b59aced0, 30/30 workflows success, acceptance 22/22 Ubuntu et 22/22 Windows, evidence SHA-256 fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7, merge protégé 975d46a071f52a27a48de15227432d9d4911e142. La seule subdivision autorisée est V2.4.4 — Distributed checkpoint, cancellation and recovery. Re-fetch main et les autorités avant mutation, vérifie l'absence de branche/PR V2.4.4 concurrente, puis implémente uniquement le checkpoint/recovery distribué lié à l'exact TrainingPlan/strategy/topology/world-size/execution plan : rank-zero canonical checkpoint lineage, per-rank state borné si nécessaire, cancel/timeout/partial-rank evidence, aucun succès depuis un groupe incomplet, resume seulement sur lineage exacte compatible, rejet fail-closed des preuves rank/checkpoint manquantes/tampered/mismatched, préservation dataset/model/tokenizer/capability et ProcessSandbox/KillSwitch. Aucun Model Lab/live Kaggle V2.4.5, hardening V2.4.6, pool VRAM, FSDP/DeepSpeed/TPU, V2.4.5+, V2.5+, release/TUF/updater ou R20. Qualifie le head exact, merge avec expected_head_sha, puis normalise avant V2.4.5.`

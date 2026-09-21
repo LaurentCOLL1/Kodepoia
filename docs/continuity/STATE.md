@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-21 after V2.4.2 implementation PR `#520` merge and post-merge normalization  
+Last synchronized: 2026-09-21 after V2.4.3 implementation PR `#522` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -762,7 +762,7 @@ The initial V2.3.6 head exposed only test-contract issues. Two corrective commit
 
 **V2.3 is now COMPLETE + NORMALIZED through V2.3.6.**
 
-V2.4 planning, V2.4.1 and **V2.4.2 are COMPLETE + NORMALIZED**. V2.4.2 implementation PR `#520` was qualified **29/29** on exact final head `abf9d396ef4f2800c5e9de9bd62a9b680a2be758`, with deterministic acceptance **23/23 PASS on Ubuntu** and **23/23 PASS on Windows**, common evidence SHA-256 `f10a620c34ea3928ce6de4e44002485120654c031d6073bbf00f5f3bddf68ffa`, then merged as `4d411df6b0923b1443017ff25f06b1c04453a7f6`. The only authorized implementation work is **V2.4.3 — Governed explicit two-GPU execution**. V2.4.4+ remain unauthorized until V2.4.3 is implemented, exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
+V2.4 planning, V2.4.1, V2.4.2 and **V2.4.3 are COMPLETE + NORMALIZED**. V2.4.3 implementation PR `#522` was qualified **30/30** on exact final head `81c5709ff457da375fd2f8f8ef13aad4b59aced0`, with deterministic acceptance **22/22 PASS on Ubuntu** and **22/22 PASS on Windows**, common evidence SHA-256 `fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7`, then merged as `975d46a071f52a27a48de15227432d9d4911e142`. The only authorized implementation work is **V2.4.4 — Distributed checkpoint, cancellation and recovery**. V2.4.5+ remain unauthorized until V2.4.4 is implemented, exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
 
 ## V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — COMPLETE + NORMALIZED
 
@@ -905,34 +905,79 @@ Accepted product truth:
 
 This post-merge normalization marks **V2.4.2 COMPLETE + NORMALIZED**.
 
-## V2.4.3 — Governed explicit two-GPU execution — CURRENT
+## V2.4.3 — Governed explicit two-GPU execution — COMPLETE + NORMALIZED
 
-Authorized scope is strictly the repository-owned two-GPU execution boundary defined by the accepted V2.4 plan:
+Implementation PR:
 
-- reuse accepted R15.9 SFT/QLoRA worker semantics rather than create a parallel training engine;
-- consume only an accepted, digest-bound V2.4.2 `replicated_data_parallel` strategy plan;
-- fixed repository-owned PyTorch/Accelerate launch construction with exact world size two;
-- trusted rank/local-rank assignment only;
-- no caller-controlled launcher argv/env/rendezvous/package-install surface;
-- exact strategy/topology/training-plan lineage must remain bound to the run;
-- deterministic distributed sampler/seed semantics must match the accepted strategy evidence;
-- rank-zero remains the sole canonical run-output authority;
-- per-rank evidence must be subordinate and integrity-bound;
-- any rank failure, timeout or cancellation fails the whole run;
-- ProcessSandbox/KillSwitch coverage must encompass the complete accepted process group;
-- no pooled VRAM and no new sharded-memory semantics;
+`#522 — feat: implement V2.4.3 governed two-GPU execution`
+
+Exact final accepted head:
+
+`81c5709ff457da375fd2f8f8ef13aad4b59aced0`
+
+Base:
+
+`6d58881ee92b4b00b365847ca482e951dcdeee46`
+
+Qualification:
+
+- **30/30** pull-request workflows `completed/success` on the unchanged exact head;
+- deterministic acceptance **22/22 PASS Ubuntu**;
+- deterministic acceptance **22/22 PASS Windows**;
+- identical evidence payload SHA-256: `fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7`;
+- Ubuntu artifact: `v2-4-3-distributed-execution-ubuntu-latest-81c5709ff457da375fd2f8f8ef13aad4b59aced0`, artifact ID `10646496287`;
+- Windows artifact: `v2-4-3-distributed-execution-windows-latest-81c5709ff457da375fd2f8f8ef13aad4b59aced0`, artifact ID `10646575915`;
+- selected successful runs include R0 `35614891252`, R15.8 Training Runtime `35614891434`, R15.9 QLoRA SFT `35614891273`, Python Core `35614891412`, R15 Integrated `35614891265`, R13 Integrated Release Readiness `35614891015`, R13 Android Signing `35614891044` and R17 Windows Installer `35614891251`;
+- R13 Android Signing Windows required one failed-job rerun on the **same SHA**; Ubuntu remained successful, no source/workflow/criterion changed, and the rerun succeeded.
+
+Merge:
+
+`975d46a071f52a27a48de15227432d9d4911e142`
+
+Accepted product truth:
+
+- distributed execution requires governed `TRAIN` authorization, real SFT/QLoRA mode, explicit governed dataset paths, an accepted `replicated_data_parallel` strategy and exact qualified V2.4.2 benchmark evidence;
+- execution plan binds TrainingPlan, strategy plan, benchmark report, topology report and topology digests;
+- launch policy is fixed to one node, exactly two ranks, no restarts, and repository-owned `kodepoia.tuning.distributed_worker`;
+- only accepted `CUDA_VISIBLE_DEVICES` is injected; callers cannot provide launcher argv/env/rendezvous settings;
+- rank/local-rank/world-size/restart state is read from trusted launcher state and validated fail closed;
+- rank RNG/data seed and the shared sampler seed are bound to accepted strategy lineage;
+- only rank zero may emit canonical R15.9 output; per-rank evidence is subordinate and integrity-bound;
+- nonzero launcher exit, timeout, cancellation, missing rank or mismatched rank evidence prevents partial success;
+- ProcessSandbox registers a managed process group with KillSwitch and terminates the whole group on timeout/cancellation;
+- V2.4.3 reuses the accepted R15.9 real worker implementation rather than introducing a parallel training engine;
+- `resume_authorized=false`: distributed checkpoint/recovery remains outside V2.4.3;
+- no sharded-memory strategy, pooled VRAM or TPU path was introduced;
+- required CI remains deterministic and needs no live Kaggle/GPU/provider quota.
+
+This post-merge normalization marks **V2.4.3 COMPLETE + NORMALIZED**.
+
+## V2.4.4 — Distributed checkpoint, cancellation and recovery — CURRENT
+
+Authorized scope is strictly distributed checkpoint/cancel/recovery semantics over the accepted V2.4.3 two-rank execution path:
+
+- bind checkpoint metadata to exact TrainingPlan/strategy/topology/world-size/execution-plan lineage;
+- preserve rank-zero canonical checkpoint lineage;
+- record bounded subordinate per-rank checkpoint/state evidence only where required;
+- represent cancel/timeout/partial-rank failure evidence explicitly;
+- never accept a successful result from an incomplete process group;
+- allow resume only from a compatible exact plan/strategy/topology/world-size lineage;
+- fail closed on missing, tampered or mismatched rank/checkpoint evidence;
+- preserve existing dataset/model/tokenizer/capability bindings;
+- reuse the accepted R15 checkpoint/recovery authority rather than creating a parallel recovery engine;
+- keep process-group termination governed by ProcessSandbox/KillSwitch;
 - mandatory PR CI remains deterministic without live Kaggle/GPU requirements.
 
 Still unauthorized:
 
-- distributed checkpoint/recovery changes reserved for V2.4.4;
-- Model Lab/live Kaggle qualification reserved for V2.4.5;
+- Model Lab accelerator UX/live Kaggle qualification reserved for V2.4.5;
+- production hardening/integrated V2.4 acceptance reserved for V2.4.6;
 - FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism;
 - TPU/XLA;
-- V2.4.4+;
+- V2.4.5+;
 - V2.5+, release/TUF/updater mutation and R20 reopening.
 
-V2.4.4+ remain unauthorized until V2.4.3 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
+V2.4.5+ remain unauthorized until V2.4.4 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
 
 ## Accepted V2 capability truth
 
@@ -961,12 +1006,13 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`;
-2. verify V2.4.2 remains **COMPLETE + NORMALIZED** from PR `#520`, exact head `abf9d396ef4f2800c5e9de9bd62a9b680a2be758`, **29/29** workflows, acceptance 23/23 on both OS, evidence digest `f10a620c34ea3928ce6de4e44002485120654c031d6073bbf00f5f3bddf68ffa` and merge `4d411df6b0923b1443017ff25f06b1c04453a7f6`;
-3. implement **V2.4.3 — Governed explicit two-GPU execution only**;
-4. consume only accepted V2.4.2 strategy plans and preserve V2.4.1 per-device topology truth;
-5. use a repository-owned fixed two-rank PyTorch/Accelerate boundary with no caller argv/env/rendezvous escape;
-6. preserve rank-zero canonical output, per-rank subordinate evidence and whole-run failure semantics;
-7. provide deterministic exact-head tests/acceptance without live Kaggle/GPU requirements;
-8. merge only after all required workflows succeed on the unchanged exact head with `expected_head_sha`;
-9. post-merge normalize before authorizing V2.4.4;
-10. keep V2.4.4+, V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.
+2. verify V2.4.3 remains **COMPLETE + NORMALIZED** from PR `#522`, exact head `81c5709ff457da375fd2f8f8ef13aad4b59aced0`, **30/30** workflows, acceptance 22/22 on both OS, evidence digest `fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7` and merge `975d46a071f52a27a48de15227432d9d4911e142`;
+3. implement **V2.4.4 — Distributed checkpoint, cancellation and recovery only**;
+4. preserve exact V2.4.3 execution-plan/strategy/topology/world-size lineage;
+5. extend the accepted R15 checkpoint/recovery authority rather than introducing a parallel recovery engine;
+6. reject incomplete/tampered/mismatched rank or checkpoint evidence fail closed;
+7. preserve whole-process-group cancellation through ProcessSandbox/KillSwitch;
+8. provide deterministic exact-head tests/acceptance without live Kaggle/GPU requirements;
+9. merge only after all required workflows succeed on the unchanged exact head with `expected_head_sha`;
+10. post-merge normalize before authorizing V2.4.5;
+11. keep V2.4.5+, V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.

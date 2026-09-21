@@ -78,7 +78,13 @@ def main() -> int:
         ),
         _check(
             "v242_normalized_precondition",
-            "V2.4.2 is COMPLETE + NORMALIZED" in authority
+            (
+                "V2.4.2 is COMPLETE + NORMALIZED" in authority
+                or "V2.4 planning, V2.4.1 and V2.4.2 are COMPLETE + NORMALIZED"
+                in authority
+                or "V2.4 planning, V2.4.1, V2.4.2 and **V2.4.3 are COMPLETE + NORMALIZED**"
+                in authority
+            )
             and "V2.4.2 — Strategy, effective-batch and resource planning contract — COMPLETE + NORMALIZED"
             in state,
             "V2.4.3 builds only on normalized V2.4.2 authority",

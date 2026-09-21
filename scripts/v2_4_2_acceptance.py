@@ -52,10 +52,19 @@ def main() -> int:
         in next_doc
     )
     v242_normalized = (
-        "V2.4.2 is COMPLETE + NORMALIZED" in authority
-        and "V2.4.2 — Strategy, effective-batch and resource planning contract — COMPLETE + NORMALIZED"
+        "V2.4.2 — Strategy, effective-batch and resource planning contract — COMPLETE + NORMALIZED"
         in state
-        and "V2.4.3 — Governed explicit two-GPU execution — CURRENT" in next_doc
+        and (
+            (
+                "V2.4.2 is COMPLETE + NORMALIZED" in authority
+                and "V2.4.3 — Governed explicit two-GPU execution — CURRENT" in next_doc
+            )
+            or (
+                "V2.4.3 is COMPLETE + NORMALIZED" in authority
+                and "V2.4.4 — Distributed checkpoint, cancellation and recovery — CURRENT"
+                in next_doc
+            )
+        )
     )
 
     checks = [
@@ -77,10 +86,20 @@ def main() -> int:
                 )
                 or (
                     v242_normalized
-                    and "V2.4.4+ remain unauthorized" in authority
-                    and "V2.4.4+ remain unauthorized" in state
-                    and "V2.4.4+ remain unauthorized" in next_doc
-                    and "V2.4.4+ remain unauthorized" in v24
+                    and (
+                        (
+                            "V2.4.4+ remain unauthorized" in authority
+                            and "V2.4.4+ remain unauthorized" in state
+                            and "V2.4.4+ remain unauthorized" in next_doc
+                            and "V2.4.4+ remain unauthorized" in v24
+                        )
+                        or (
+                            "V2.4.5+ remain unauthorized" in authority
+                            and "V2.4.5+ remain unauthorized" in state
+                            and "V2.4.5+ remain unauthorized" in next_doc
+                            and "V2.4.5+ remain unauthorized" in v24
+                        )
+                    )
                 )
             ),
             "later V2.4 execution scope remains bounded",
@@ -227,6 +246,7 @@ def main() -> int:
             (
                 "V2.4.3+" in state
                 or (v242_normalized and "V2.4.4+" in state)
+                or (v242_normalized and "V2.4.5+" in state)
             )
             and "FSDP" in v24
             and "DeepSpeed" in v24

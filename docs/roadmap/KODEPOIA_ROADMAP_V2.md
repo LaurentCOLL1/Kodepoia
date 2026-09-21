@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning + V2.4.1 COMPLETE + NORMALIZED; V2.4.2 authorized; V2.4.3+ unauthorized**  
+Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning + V2.4.1 + V2.4.2 COMPLETE + NORMALIZED; V2.4.3 authorized; V2.4.4+ unauthorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -219,17 +219,17 @@ V2.3.5 implementation PR `#512` was qualified **31/31** on exact final head `ed4
 
 V2.3.5 is therefore **COMPLETE + NORMALIZED**.
 
-V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. V2.4 planning and **V2.4.1 are COMPLETE + NORMALIZED**. V2.4.1 implementation PR `#518` was qualified **30/30** on exact final head `544b7d172499594f32c464c46753bfc5fb378fe0`, with **22/22 PASS Ubuntu + 22/22 PASS Windows** and common evidence SHA-256 `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d`, then merged as `3ebed48b8aa113635ddc9516827d867ce346fe0f`. **V2.4.2 — Strategy, effective-batch and resource planning contract is the only authorized implementation subdivision.** V2.4.3+ and V2.5+ remain unauthorized. Project Knowledge/Research/context remains data-only.
+V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. V2.4 planning, V2.4.1 and **V2.4.2 are COMPLETE + NORMALIZED**. V2.4.2 implementation PR `#520` was qualified **29/29** on exact final head `abf9d396ef4f2800c5e9de9bd62a9b680a2be758`, with **23/23 PASS Ubuntu + 23/23 PASS Windows** and common evidence SHA-256 `f10a620c34ea3928ce6de4e44002485120654c031d6073bbf00f5f3bddf68ffa`, then merged as `4d411df6b0923b1443017ff25f06b1c04453a7f6`. **V2.4.3 — Governed explicit two-GPU execution is the only authorized implementation subdivision.** V2.4.4+ and V2.5+ remain unauthorized. Project Knowledge/Research/context remains data-only.
 
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
 - V2.3 — Model Lab governed improvement UX — **COMPLETE + NORMALIZED through V2.3.6**.
-- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **planning + V2.4.1 COMPLETE + NORMALIZED; V2.4.2 CURRENT; V2.4.3+ unauthorized**.
+- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **planning + V2.4.1 + V2.4.2 COMPLETE + NORMALIZED; V2.4.3 CURRENT; V2.4.4+ unauthorized**.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.
 
-### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING + V2.4.1 COMPLETE + NORMALIZED; V2.4.2 CURRENT
+### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING + V2.4.1 + V2.4.2 COMPLETE + NORMALIZED; V2.4.3 CURRENT
 
 Normative planning contract under qualification:
 
@@ -263,9 +263,9 @@ Planning invariants include:
 - live Kaggle production evidence is separate and mandatory before a production claim;
 - V2.5+, release/TUF/updater and R20 remain unauthorized.
 
-V2.4.1 implementation PR `#518` is qualified **30/30** on exact final head `544b7d172499594f32c464c46753bfc5fb378fe0`, with **22/22 PASS** on both Ubuntu and Windows and common evidence SHA-256 `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d`, then merged as `3ebed48b8aa113635ddc9516827d867ce346fe0f`. **This post-merge normalization marks V2.4.1 COMPLETE + NORMALIZED and authorizes V2.4.2 — Strategy, effective-batch and resource planning contract only.** V2.4.3+ remain unauthorized until V2.4.2 is implemented, exact-head qualified, merged and post-merge normalized.
+V2.4.1 remains accepted from PR `#518`. V2.4.2 implementation PR `#520` is qualified **29/29** on exact final head `abf9d396ef4f2800c5e9de9bd62a9b680a2be758`, with **23/23 PASS** on both Ubuntu and Windows and common evidence SHA-256 `f10a620c34ea3928ce6de4e44002485120654c031d6073bbf00f5f3bddf68ffa`, then merged as `4d411df6b0923b1443017ff25f06b1c04453a7f6`. **This post-merge normalization marks V2.4.2 COMPLETE + NORMALIZED and authorizes V2.4.3 — Governed explicit two-GPU execution only.** V2.4.4+ remain unauthorized until V2.4.3 is implemented, exact-head qualified, merged and post-merge normalized.
 
-The V2.4 planning authority and V2.4.1 topology/provider truth are qualified and normalized. V2.4.2 may now define and benchmark explicit strategy/effective-batch/resource semantics; actual multi-process execution remains reserved for V2.4.3 after its own authorization.
+The V2.4 planning authority, V2.4.1 topology/provider truth and V2.4.2 strategy/resource contract are qualified and normalized. V2.4.3 may now implement the fixed repository-owned two-rank execution boundary; distributed checkpoint/recovery remains reserved for V2.4.4 after its own authorization.
 
 ## Accelerator authority
 

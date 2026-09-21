@@ -52,7 +52,7 @@ def main() -> int:
         in next_doc
     )
     v242_normalized = (
-        "V2.4.2 are COMPLETE + NORMALIZED" in authority
+        "V2.4.2 is COMPLETE + NORMALIZED" in authority
         and "V2.4.2 — Strategy, effective-batch and resource planning contract — COMPLETE + NORMALIZED"
         in state
         and "V2.4.3 — Governed explicit two-GPU execution — CURRENT" in next_doc
@@ -224,7 +224,10 @@ def main() -> int:
         ),
         _check(
             "scope_boundaries",
-            "V2.4.3+" in state
+            (
+                "V2.4.3+" in state
+                or (v242_normalized and "V2.4.4+" in state)
+            )
             and "FSDP" in v24
             and "DeepSpeed" in v24
             and "TPU" in v24

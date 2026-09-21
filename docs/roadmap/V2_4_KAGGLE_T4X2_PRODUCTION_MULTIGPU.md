@@ -1,6 +1,6 @@
 # V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU
 
-Status: **PLANNING + V2.4.1 COMPLETE + NORMALIZED — V2.4.2 is the only authorized implementation subdivision; V2.4.3+ remain unauthorized**  
+Status: **PLANNING + V2.4.1 + V2.4.2 COMPLETE + NORMALIZED — V2.4.3 is the only authorized implementation subdivision; V2.4.4+ remain unauthorized**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -75,6 +75,58 @@ Accepted V2.4.1 truth:
 - no distributed training launch or replicated execution path exists yet.
 
 This normalization marks **V2.4.1 COMPLETE + NORMALIZED** and authorizes **V2.4.2 only**.
+
+## V2.4.2 qualification
+
+V2.4.2 implementation PR:
+
+`#520 — feat: implement V2.4.2 strategy planning contract`
+
+Exact final accepted head:
+
+`abf9d396ef4f2800c5e9de9bd62a9b680a2be758`
+
+All **29/29** pull-request workflows associated with that exact final head completed with conclusion `success`.
+
+Deterministic exact-head acceptance:
+
+- Ubuntu: **23/23 PASS**;
+- Windows: **23/23 PASS**;
+- common evidence SHA-256: `f10a620c34ea3928ce6de4e44002485120654c031d6073bbf00f5f3bddf68ffa`;
+- Ubuntu artifact ID: `10620663114`;
+- Windows artifact ID: `10620827996`.
+
+Selected successful workflow runs include:
+
+- `R0 Repository Guard` — `35557259551`;
+- `R15.8 Training Runtime Acceptance` — `35557259491`;
+- `R15.9 QLoRA SFT Acceptance` — `35557259534`;
+- `Python Core` — `35557259581`;
+- `R15 Integrated Acceptance` — `35557259570`;
+- `R13 Integrated Release Readiness` — `35557259591`;
+- `R17 Windows Installer` — `35557259506`.
+
+PR `#520` merged from the unchanged exact final head with `expected_head_sha` protection as:
+
+`4d411df6b0923b1443017ff25f06b1c04453a7f6`
+
+Accepted V2.4.2 truth:
+
+- immutable strategy plans bind exact TrainingPlan, topology report and topology digests;
+- only `single_gpu` and `replicated_data_parallel` strategy intents exist;
+- world size and selected device ordinals are exact and digest-bound;
+- VRAM is budgeted independently per selected device and is never pooled;
+- host RAM/storage remain independent host budgets;
+- per-device batch, gradient accumulation and effective global batch are explicit;
+- paired strategies preserve effective global batch exactly or fail closed;
+- rank/data seeds use deterministic `offset_by_rank_v1` semantics;
+- paired benchmark evidence binds same plan/topology/config/work/effective batch and per-device resource/integrity evidence;
+- normative threshold is **>=1.25x throughput** with **0.0 allowed eval-loss regression**;
+- missing quality evidence is inconclusive;
+- V2.4.2 evidence always has `launch_authorized=false`;
+- no distributed execution path exists in V2.4.2.
+
+This normalization marks **V2.4.2 COMPLETE + NORMALIZED** and authorizes **V2.4.3 only**.
 
 ## 1. Authority and goal
 
@@ -241,7 +293,7 @@ Required scope:
 
 Definition of done: Kodepoia can prove whether the runtime actually exposes the expected two T4-class CUDA devices and can reason about each device's budget independently, without claiming pooled VRAM.
 
-### V2.4.2 — Strategy, effective-batch and resource planning contract — CURRENT
+### V2.4.2 — Strategy, effective-batch and resource planning contract — COMPLETE + NORMALIZED
 
 Goal: make execution semantics immutable before any multi-process launch.
 
@@ -261,7 +313,7 @@ Required scope:
 
 Definition of done: a user or backend cannot request an ambiguous multi-GPU run; the exact strategy and resource semantics are digest-bound and benchmark-justified.
 
-### V2.4.3 — Governed explicit two-GPU execution
+### V2.4.3 — Governed explicit two-GPU execution — CURRENT
 
 Goal: execute the accepted replicated strategy through a repository-owned multi-process boundary.
 
@@ -433,4 +485,4 @@ V2.4 planning is complete only when:
 - the planning PR is merged with `expected_head_sha`;
 - this post-merge normalization records planning as COMPLETE + NORMALIZED and authorizes **V2.4.1 only**.
 
-**V2.4.2 is now the only authorized implementation subdivision. V2.4.3+ remain unauthorized** until V2.4.2 is implemented, exact-head qualified, merged and post-merge normalized.
+**V2.4.3 is now the only authorized implementation subdivision. V2.4.4+ remain unauthorized** until V2.4.3 is implemented, exact-head qualified, merged and post-merge normalized.

@@ -46,10 +46,15 @@ def main() -> int:
         and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in next_doc
     )
     v241_normalized = (
-        "V2.4.1 are COMPLETE + NORMALIZED" in authority
-        and "V2.4.1 — Accelerator topology and provider truth — COMPLETE + NORMALIZED" in state
-        and "V2.4.2 — Strategy, effective-batch and resource planning contract — CURRENT" in next_doc
-    )
+        (
+            "V2.4.1 are COMPLETE + NORMALIZED" in authority
+            and "V2.4.2 — Strategy, effective-batch and resource planning contract — CURRENT" in next_doc
+        )
+        or (
+            "V2.4.2 is COMPLETE + NORMALIZED" in authority
+            and "V2.4.3 — Governed explicit two-GPU execution — CURRENT" in next_doc
+        )
+    ) and "V2.4.1 — Accelerator topology and provider truth — COMPLETE + NORMALIZED" in state
 
     checks = [
         _check("exact_head", source_sha == observed_sha, "acceptance executes the exact requested SHA"),
@@ -70,10 +75,20 @@ def main() -> int:
                 )
                 or (
                     v241_normalized
-                    and "V2.4.3+ remain unauthorized" in authority
-                    and "V2.4.3+ remain unauthorized" in state
-                    and "V2.4.3+ remain unauthorized" in next_doc
-                    and "V2.4.3+ remain unauthorized" in v24
+                    and (
+                        (
+                            "V2.4.3+ remain unauthorized" in authority
+                            and "V2.4.3+ remain unauthorized" in state
+                            and "V2.4.3+ remain unauthorized" in next_doc
+                            and "V2.4.3+ remain unauthorized" in v24
+                        )
+                        or (
+                            "V2.4.4+ remain unauthorized" in authority
+                            and "V2.4.4+ remain unauthorized" in state
+                            and "V2.4.4+ remain unauthorized" in next_doc
+                            and "V2.4.4+ remain unauthorized" in v24
+                        )
+                    )
                 )
             ),
             "historical V2.4.1 acceptance keeps later implementation scope bounded before and after normalization",

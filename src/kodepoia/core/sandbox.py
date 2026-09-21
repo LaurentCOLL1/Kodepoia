@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import contextlib
 import os
+import signal
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -89,6 +91,48 @@ class ManagedProcess:
 
     def __exit__(self, _exc_type: object, _exc: object, _tb: object) -> None:
         self.close()
+
+
+class ManagedProcessGroup:
+    """Kill-switch handle for one launcher and every descendant in its OS process group."""
+
+    def __init__(self, process: subprocess.Popen[str]) -> None:
+        self.process = process
+
+    def poll(self) -> int | None:
+        return self.process.poll()
+
+    def terminate(self) -> None:
+        if self.process.poll() is not None:
+            return
+        try:
+            if os.name == "nt":
+                self.process.send_signal(getattr(signal, "CTRL_BREAK_EVENT"))
+            else:
+                os.killpg(self.process.pid, signal.SIGTERM)
+        except (OSError, ValueError):
+            with contextlib.suppress(OSError):
+                self.process.terminate()
+
+    def kill(self) -> None:
+        if self.process.poll() is not None:
+            return
+        if os.name == "nt":
+            try:
+                subprocess.run(
+                    ["taskkill", "/PID", str(self.process.pid), "/T", "/F"],
+                    check=False,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    shell=False,
+                )
+            except OSError:
+                with contextlib.suppress(OSError):
+                    self.process.kill()
+        else:
+            with contextlib.suppress(OSError):
+                os.killpg(self.process.pid, signal.SIGKILL)
 
 
 class ProcessSandbox:
@@ -186,6 +230,61 @@ class ProcessSandbox:
         )
         self.kill_switch.register(process)
         return ManagedProcess(process, self.kill_switch)
+
+    def run_process_group(
+        self,
+        argv: Sequence[str],
+        *,
+        cwd: Path | None = None,
+        timeout: float = 60.0,
+        env: Mapping[str, str] | None = None,
+    ) -> SandboxResult:
+        """Run one trusted launcher as a managed OS process group.
+
+        V2.4.3 uses this boundary for a fixed two-rank torchrun launch. The caller
+        still receives the same bounded stdout/stderr result, while timeout and the
+        shared KillSwitch target the complete launcher group rather than one PID.
+        """
+
+        workdir, clean_env = self._validate_launch(argv, cwd, env)
+        kwargs: dict[str, object] = {}
+        if os.name == "nt":
+            kwargs["creationflags"] = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+        else:
+            kwargs["start_new_session"] = True
+        process = subprocess.Popen(
+            list(argv),
+            cwd=workdir,
+            env=clean_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            shell=False,
+            **kwargs,
+        )
+        group = ManagedProcessGroup(process)
+        self.kill_switch.register(group)
+        timed_out = False
+        cancelled = False
+        try:
+            try:
+                stdout, stderr = process.communicate(timeout=None if timeout < 0 else timeout)
+            except subprocess.TimeoutExpired:
+                timed_out = True
+                self.kill_switch._stop_process(group)
+                stdout, stderr = process.communicate()
+            if self.kill_switch.triggered and not timed_out and process.returncode != 0:
+                cancelled = True
+        finally:
+            self.kill_switch.unregister(group)
+
+        return SandboxResult(
+            process.returncode if process.returncode is not None else -1,
+            stdout,
+            stderr,
+            timed_out=timed_out,
+            cancelled=cancelled,
+        )
 
     def run(
         self,

@@ -17,6 +17,16 @@ from .contracts import (
     TrainingBackend,
     TuningRuntimeError,
 )
+from .distributed import (
+    DistributedExecutionPlan,
+    DistributedExecutionState,
+    DistributedRankEvidence,
+    DistributedRankSeed,
+    DistributedRankState,
+    DistributedTrainingReport,
+    DistributedTrainingRunner,
+    build_distributed_execution_plan,
+)
 from .runtime import HostResourceProbe, TrainingRuntime, redact_runtime_text
 from .strategy import (
     DeviceStrategyBudget,
@@ -62,6 +72,13 @@ __all__ = [
     "CheckpointRecord",
     "DTypeName",
     "DatasetBinding",
+    "DistributedExecutionPlan",
+    "DistributedExecutionState",
+    "DistributedRankEvidence",
+    "DistributedRankSeed",
+    "DistributedRankState",
+    "DistributedTrainingReport",
+    "DistributedTrainingRunner",
     "DeviceStrategyBudget",
     "ExecutionStrategyPlan",
     "HostResourceProbe",
@@ -93,6 +110,7 @@ __all__ = [
     "TrainingRunner",
     "TrainingRuntime",
     "TuningRuntimeError",
+    "build_distributed_execution_plan",
     "build_execution_strategy_plan",
     "evaluate_single_gpu_selection",
     "evaluate_strategy_benchmark",

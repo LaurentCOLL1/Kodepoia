@@ -382,13 +382,14 @@ def test_manifest_rejects_tampered_checkpoint_or_source_lineage(tmp_path: Path) 
     fresh = tmp_path / "fresh"
     fresh.mkdir()
     training2, strategy2, benchmark2, source2, _manifest2 = _source_and_manifest(fresh)
+    bad_source = replace(source2, training_plan_digest=A)
     with pytest.raises(ValueError, match="source TrainingPlan lineage mismatch"):
         build_distributed_checkpoint_manifest(
             fresh,
-            replace(training2, capability_report_digest=A),
+            training2,
             strategy2,
             benchmark2,
-            source2,
+            bad_source,
             checkpoint_id="checkpoint-2",
         )
 

@@ -159,7 +159,10 @@ def main() -> int:
             ):
                 if recovery.get(key) != execution.get(key):
                     raise ValueError(f"recovery {key} mismatch")
-            if recovery.get("world_size") != 2 or recovery.get("device_ordinals") != execution.get("device_ordinals"):
+            if (
+                recovery.get("world_size") != 2
+                or recovery.get("device_ordinals") != execution.get("device_ordinals")
+            ):
                 raise ValueError("recovery topology/world-size identity mismatch")
             _validate_recovery_checkpoint(root, worker, recovery, checkpoint_manifest)
         elif execution.get("resume_authorized") is not False or worker.get("resume_checkpoint") is not None:
@@ -279,7 +282,11 @@ def main() -> int:
                 )
             except Exception:
                 pass
-        label = "V2.4.4 distributed recovery worker" if "is_recovery" in locals() and is_recovery else "V2.4.3 distributed worker"
+        label = (
+            "V2.4.4 distributed recovery worker"
+            if "is_recovery" in locals() and is_recovery
+            else "V2.4.3 distributed worker"
+        )
         print(f"{label} failed: {type(exc).__name__}", file=sys.stderr)
         return 2
 

@@ -8,8 +8,11 @@ on:
       - 'src/kodepoia/tuning/**'
       - 'tests/test_tuning_r15_8.py'
       - 'tests/test_v2_4_1_accelerator_topology.py'
+      - 'tests/test_v2_4_2_strategy_planning.py'
       - 'schemas/r15-8-training-runtime-capability.schema.json'
       - 'schemas/v2-4-1-accelerator-topology.schema.json'
+      - 'schemas/v2-4-2-execution-strategy.schema.json'
+      - 'schemas/v2-4-2-strategy-benchmark.schema.json'
       - 'pyproject.toml'
       - '.github/workflows/r15-8-training-runtime.yml'
       - 'docs/roadmap/R15_8_*'
@@ -39,8 +42,13 @@ jobs:
           cache: pip
       - name: Install core test dependencies only
         run: python -m pip install -e ".[dev]"
-      - name: R15.8 and V2.4.1 focused tests without ML extras
-        run: python -m pytest -q tests/test_tuning_r15_8.py tests/test_v2_4_1_accelerator_topology.py
+      - name: R15.8 and V2.4 strategy focused tests without ML extras
+        run: >-
+          python -m pytest -q
+          tests/test_tuning_r15_8.py
+          tests/test_v2_4_1_accelerator_topology.py
+          tests/test_v2_4_2_strategy_planning.py
+          tests/test_v2_4_2_strategy_planning.py
       - name: Ruff R15.8-owned surface
         run: >-
           python -m ruff check
@@ -62,6 +70,8 @@ jobs:
           for path in (
               'schemas/r15-8-training-runtime-capability.schema.json',
               'schemas/v2-4-1-accelerator-topology.schema.json',
+              'schemas/v2-4-2-execution-strategy.schema.json',
+              'schemas/v2-4-2-strategy-benchmark.schema.json',
           ):
               schema = json.loads(Path(path).read_text(encoding='utf-8'))
               Draft202012Validator.check_schema(schema)

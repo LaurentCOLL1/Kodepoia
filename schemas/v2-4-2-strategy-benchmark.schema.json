@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/v2-4-2-strategy-benchmark.schema.json",
+  "title": "Kodepoia V2.4.2 strategy benchmark report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "baseline",
+    "benchmark_config_digest",
+    "blockers",
+    "candidate",
+    "disposition",
+    "effective_global_batch_size",
+    "eval_loss_delta",
+    "launch_authorized",
+    "policy",
+    "report_digest",
+    "schema",
+    "schema_version",
+    "throughput_speedup_ratio",
+    "topology_digest",
+    "training_plan_digest"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.v2.4.2.strategy-benchmark"},
+    "schema_version": {"const": 1},
+    "report_digest": {"$ref": "#/$defs/digest"},
+    "training_plan_digest": {"$ref": "#/$defs/digest"},
+    "topology_digest": {"$ref": "#/$defs/digest"},
+    "benchmark_config_digest": {"$ref": "#/$defs/digest"},
+    "effective_global_batch_size": {"type": "integer", "minimum": 1},
+    "disposition": {"enum": ["qualified", "rejected", "inconclusive"]},
+    "blockers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_eval_loss_regression", "min_throughput_speedup_ratio"],
+      "properties": {
+        "max_eval_loss_regression": {"type": "number", "minimum": 0},
+        "min_throughput_speedup_ratio": {"type": "number", "minimum": 1}
+      }
+    },
+    "baseline": {"$ref": "#/$defs/measurement"},
+    "candidate": {"$ref": "#/$defs/measurement"},
+    "throughput_speedup_ratio": {"type": "number", "minimum": 0},
+    "eval_loss_delta": {"type": ["number", "null"]},
+    "launch_authorized": {"const": false}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "benchmark_config_digest",
+        "checkpoint_integrity",
+        "eval_loss",
+        "per_device_peak_vram_bytes",
+        "processed_samples",
+        "run_integrity",
+        "strategy_plan_digest",
+        "throughput_samples_per_second",
+        "train_loss",
+        "wall_seconds"
+      ],
+      "properties": {
+        "strategy_plan_digest": {"$ref": "#/$defs/digest"},
+        "benchmark_config_digest": {"$ref": "#/$defs/digest"},
+        "processed_samples": {"type": "integer", "minimum": 1},
+        "wall_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "throughput_samples_per_second": {"type": "number", "exclusiveMinimum": 0},
+        "eval_loss": {"type": ["number", "null"], "minimum": 0},
+        "train_loss": {"type": ["number", "null"], "minimum": 0},
+        "run_integrity": {"type": "boolean"},
+        "checkpoint_integrity": {"type": "boolean"},
+        "per_device_peak_vram_bytes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ordinal", "peak_vram_bytes"],
+            "properties": {
+              "ordinal": {"type": "integer", "minimum": 0, "maximum": 63},
+              "peak_vram_bytes": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-20 after V2.4 planning PR `#516` merge and post-merge planning normalization  
+Last synchronized: 2026-09-21 after V2.4.1 implementation PR `#518` merge and post-merge normalization  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
@@ -372,44 +372,62 @@ Qualification required two test-only corrections after the initial head: one ali
 
 ## Immediate execution order
 
-### V2.4.1 — Accelerator topology and provider truth — CURRENT
+### V2.4.2 — Strategy, effective-batch and resource planning contract — CURRENT
 
-V2.4 planning is **COMPLETE + NORMALIZED**.
+V2.4 planning and **V2.4.1 are COMPLETE + NORMALIZED**.
 
-Planning evidence:
+V2.4.1 accepted evidence:
 
-- planning PR: `#516 — docs: plan V2.4 Kaggle T4x2 multi-GPU qualification`;
-- exact final planning head: `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`;
-- exact-head qualification: **25/25 `completed/success`**;
-- selected successful runs: R0 `35535395734`, KodeStudio UI Smoke `35535395763`, Python Core `35535395830`, R13 Integrated Release Readiness `35535395854`, R17 Windows Installer `35535395721`;
-- protected merge: `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`;
-- initial head `7142659d00cea3ae6faf427ed100fb84ce28668e` exposed only historical V2.3.5 authority-compatibility assertions; the final corrective commit made V2.3.5/V2.3.6 forward-compatible and fixed a duplicated heading without weakening product or trust gates.
+- implementation PR: `#518 — feat: implement V2.4.1 accelerator topology truth`;
+- exact final head: `544b7d172499594f32c464c46753bfc5fb378fe0`;
+- exact-head qualification: **30/30 `completed/success`**;
+- deterministic acceptance: **22/22 PASS Ubuntu + 22/22 PASS Windows**;
+- identical evidence SHA-256: `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d`;
+- Ubuntu artifact ID: `10614179278`;
+- Windows artifact ID: `10614546908`;
+- protected merge: `3ebed48b8aa113635ddc9516827d867ce346fe0f`.
 
-Authorized V2.4.1 scope:
+Accepted V2.4.1 truth to preserve:
 
-- versioned topology/capability evidence rather than reinterpretation of historical scalar R15.8 reports;
-- actual CUDA device count and per-device descriptors;
-- separate per-device free/total VRAM;
-- deterministic topology digest;
-- requested Kaggle provider shape versus observed runtime topology;
-- fail-closed duplicate/missing/ambiguous devices;
-- explicit `single_gpu` selection after verified topology;
-- deterministic CI/acceptance with no live Kaggle/GPU/network/quota requirement.
+- R15.8 capability schema v1 remains historical and unchanged;
+- topology evidence is separate/versioned;
+- actual CUDA/ROCm devices are enumerated with per-device VRAM;
+- legacy scalar VRAM remains device-0 evidence only;
+- provider request is distinct from observed runtime topology;
+- Kaggle T4×2 metadata does not prove actual runtime devices;
+- topology/provider mismatches fail closed;
+- explicit `single_gpu` selection uses only one device budget and never pools VRAM;
+- no distributed launch exists yet.
+
+Authorized V2.4.2 scope:
+
+- typed `single_gpu` and `replicated_data_parallel` strategy contracts only;
+- world size and selected ordinals bound to plan/strategy identity;
+- topology evidence digest binding;
+- per-device resource requirements;
+- explicit per-device batch, gradient accumulation and derived effective global batch;
+- deterministic seed/data-seed/rank policy;
+- deterministic strategy benchmark fixtures;
+- paired baseline-versus-replicated evidence;
+- normative measured performance threshold before V2.4.3 can authorize launchable replicated execution;
+- no arbitrary launcher args/env/rendezvous;
+- no live Kaggle/GPU requirement in mandatory PR CI.
 
 Still unauthorized:
 
-- `replicated_data_parallel` execution;
-- any multi-process training launch;
-- FSDP, DeepSpeed/ZeRO, tensor or pipeline parallelism;
+- actual multi-process training launch;
+- `torchrun`/Accelerate two-rank execution;
+- distributed checkpoint/recovery;
+- FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism;
 - TPU/XLA/JAX/PyTorch-XLA;
-- V2.4.2+;
+- V2.4.3+;
 - V2.5+, release/TUF/updater mutation and R20 reopening.
 
-Definition of done: Kodepoia can prove the actually observed accelerator topology and independently reason about each required device budget without claiming pooled VRAM or launching distributed training.
+Definition of done: an execution strategy is immutable, topology-bound, resource-explicit and benchmark-qualified before any multi-process execution path exists.
 
 ## Later V2 order
 
-V2.4.1 is the current authorized implementation subdivision. V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized. V2.5 orchestration and V2.6 release work remain later and unauthorized until their own authority gates are satisfied.
+V2.4.2 is the current authorized implementation subdivision. V2.4.3+ remain unauthorized until V2.4.2 is implemented, exact-head qualified, merged and post-merge normalized. V2.5 orchestration and V2.6 release work remain later and unauthorized until their own authority gates are satisfied.
 
 ## Accelerator policy
 
@@ -425,4 +443,4 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.1, V2.2 et V2.3 sont COMPLETE + NORMALIZED. Le planning V2.4 est COMPLETE + NORMALIZED : PR #516 qualifiée 25/25 sur le head exact 8c78ff19cf05b3009a05e2e5337ce31303e9d8b7, puis fusionnée avec expected_head_sha en a14190f529a465e8e42ee0dd90a0248bc38e1b9c. La seule subdivision d'implémentation autorisée est V2.4.1 — Accelerator topology and provider truth. Re-fetch main et toutes les autorités avant mutation, vérifie qu'aucune branche/PR V2.4.1 concurrente n'existe, puis implémente uniquement un contrat de topologie versionné : device count CUDA réellement observé, descripteurs et VRAM free/total par device, topology digest, distinction provider request vs observed runtime, rejet fail-closed des devices dupliqués/manquants/ambigus et sélection single_gpu explicite. Aucun distributed launch ou replicated_data_parallel n'est encore autorisé. Aucun pool 32 GiB, FSDP/DeepSpeed/TPU, V2.4.2+, V2.5+, release/TUF/updater ou R20. Ajoute tests/acceptance déterministes sans Kaggle/GPU live, qualifie le head exact, merge protégé puis normalise avant V2.4.2.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.4 planning et V2.4.1 sont COMPLETE + NORMALIZED. V2.4.1 : PR #518, head exact 544b7d172499594f32c464c46753bfc5fb378fe0, 30/30 workflows success, acceptance 22/22 Ubuntu et 22/22 Windows, evidence SHA-256 3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d, merge protégé 3ebed48b8aa113635ddc9516827d867ce346fe0f. La seule subdivision autorisée est V2.4.2 — Strategy, effective-batch and resource planning contract. Re-fetch main et les autorités avant mutation, vérifie l'absence de branche/PR V2.4.2 concurrente, puis implémente uniquement le contrat typé single_gpu / replicated_data_parallel : world size, ordinals, topology digest, VRAM par device, host resources séparées, per-device batch, gradient accumulation, effective global batch, rank/data seed policy et benchmark pairé déterministe avec seuil de performance normatif. Aucun lancement distributed/torchrun/Accelerate deux-rank n'est encore autorisé. Aucun pool VRAM, FSDP/DeepSpeed/TPU, V2.4.3+, V2.5+, release/TUF/updater ou R20. Qualifie le head exact, merge avec expected_head_sha, puis normalise avant V2.4.3.`

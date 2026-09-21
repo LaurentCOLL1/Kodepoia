@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-20 after V2.4 planning PR `#516` merge and post-merge planning normalization  
+Last synchronized: 2026-09-21 after V2.4.1 implementation PR `#518` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -762,7 +762,7 @@ The initial V2.3.6 head exposed only test-contract issues. Two corrective commit
 
 **V2.3 is now COMPLETE + NORMALIZED through V2.3.6.**
 
-V2.4 planning is **COMPLETE + NORMALIZED** from PR `#516`, exact final head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`, qualified **25/25** and merged as `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`. The only authorized implementation work is **V2.4.1 — Accelerator topology and provider truth**. V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
+V2.4 planning and **V2.4.1 are COMPLETE + NORMALIZED**. V2.4.1 implementation PR `#518` was qualified **30/30** on exact final head `544b7d172499594f32c464c46753bfc5fb378fe0`, with V2.4.1 deterministic acceptance **22/22 PASS on Ubuntu** and **22/22 PASS on Windows**, common evidence SHA-256 `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d`, then merged as `3ebed48b8aa113635ddc9516827d867ce346fe0f`. The only authorized implementation work is **V2.4.2 — Strategy, effective-batch and resource planning contract**. V2.4.3+ remain unauthorized until V2.4.2 is implemented, exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
 
 ## V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — COMPLETE + NORMALIZED
 
@@ -811,22 +811,79 @@ The initial planning head `7142659d00cea3ae6faf427ed100fb84ce28668e` failed only
 
 This post-merge normalization records **V2.4 planning COMPLETE + NORMALIZED** and authorizes **V2.4.1 — Accelerator topology and provider truth only**. V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged and post-merge normalized.
 
-## V2.4.1 — Accelerator topology and provider truth — CURRENT
+## V2.4.1 — Accelerator topology and provider truth — COMPLETE + NORMALIZED
 
-Authorized scope is strictly topology/provider truth:
+Implementation PR:
 
-- introduce a versioned topology/capability contract without reinterpreting historical scalar R15.8 evidence;
-- probe actual CUDA device count and bounded per-device descriptors;
-- record separate per-device free/total VRAM and a deterministic topology digest;
-- distinguish requested Kaggle provider shape from observed runtime topology;
-- reject duplicate, missing or ambiguous device identity fail closed;
-- allow explicit `single_gpu` device selection only after verified topology;
-- preserve ProcessSandbox/KillSwitch/KodeSecrets/WorkspaceBoundary boundaries;
-- add deterministic Ubuntu/Windows acceptance without requiring live Kaggle, GPU, network or quota.
+`#518 — feat: implement V2.4.1 accelerator topology truth`
 
-Non-goals remain binding: no distributed training launch, no `replicated_data_parallel` execution yet, no FSDP/DeepSpeed/ZeRO/tensor/pipeline parallelism, no TPU/XLA, no release/TUF/updater mutation and no V2.5 work.
+Exact final accepted head:
 
-V2.4.2+ remain unauthorized until V2.4.1 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
+`544b7d172499594f32c464c46753bfc5fb378fe0`
+
+Base:
+
+`96c95116be0e863c364e94dc96a69c6880deb9cc`
+
+Qualification:
+
+- **30/30** pull-request workflows `completed/success` on the unchanged exact head;
+- V2.4.1 deterministic acceptance **22/22 PASS Ubuntu**;
+- V2.4.1 deterministic acceptance **22/22 PASS Windows**;
+- identical evidence payload SHA-256 on both OS: `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d`;
+- Ubuntu artifact: `v2-4-1-accelerator-topology-ubuntu-latest-544b7d172499594f32c464c46753bfc5fb378fe0`, artifact ID `10614179278`;
+- Windows artifact: `v2-4-1-accelerator-topology-windows-latest-544b7d172499594f32c464c46753bfc5fb378fe0`, artifact ID `10614546908`;
+- selected successful runs include R0 `35540624489`, R15.8 Training Runtime `35540624402`, R15 Kaggle Remote Training `35540624433`, R15.9 QLoRA SFT `35540624448`, Python Core `35540624471`, R15 Integrated `35540624649`, R13 Integrated Release Readiness `35540624507`, R17 Windows Installer `35540624572`.
+
+Merge:
+
+`3ebed48b8aa113635ddc9516827d867ce346fe0f`
+
+Accepted product truth:
+
+- historical R15.8 capability schema/version 1 remains intact;
+- a separate `kodepoia.v2.4.1.accelerator-topology` report owns topology evidence;
+- runtime probe enumerates actual CUDA/ROCm device count and bounded per-device ordinal/name/free/total VRAM;
+- legacy scalar `device` and VRAM fields remain bound to device 0 for historical compatibility;
+- Kaggle `NvidiaTeslaT4` is an explicit provider request for two CUDA T4-class devices, never runtime proof;
+- provider request digest and observed topology digest are separate;
+- duplicate/missing/non-contiguous device identity and provider/runtime count/name mismatches fail closed;
+- `single_gpu` selection binds one verified device and uses only that device's VRAM budget;
+- unknown selected-device VRAM blocks;
+- no aggregate/pseudo-32-GiB pool exists;
+- ProcessSandbox/fixed argv/empty-env probing remains authoritative;
+- no distributed launch, `replicated_data_parallel`, torchrun, DDP, FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism or TPU was introduced;
+- required CI remains deterministic and needs no live Kaggle/GPU/provider quota.
+
+This post-merge normalization marks **V2.4.1 COMPLETE + NORMALIZED**.
+
+## V2.4.2 — Strategy, effective-batch and resource planning contract — CURRENT
+
+Authorized scope is strictly strategy/resource planning, with **no production multi-process execution yet**:
+
+- typed `single_gpu` and `replicated_data_parallel` strategy intents only;
+- bind world size and selected device ordinals to immutable strategy/plan identity;
+- bind the exact V2.4.1 topology evidence digest;
+- define per-device VRAM requirements independently from host RAM/storage;
+- make per-device batch, gradient accumulation and derived effective global batch explicit;
+- define deterministic rank/data seed policy;
+- add deterministic strategy benchmark harness/fixtures and paired baseline-versus-replicated qualification evidence;
+- establish a normative measured performance threshold before V2.4.3 can make replicated execution launchable;
+- preserve fixed typed boundaries: no arbitrary launcher argv/env/rendezvous/package-install surface;
+- mandatory CI must remain offline/deterministic with no live Kaggle/GPU requirement.
+
+Still unauthorized:
+
+- actual multi-process/distributed training launch;
+- `torchrun`/Accelerate execution of two ranks;
+- checkpoint/recovery changes reserved for V2.4.4;
+- Model Lab live-provider qualification reserved for V2.4.5;
+- FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism;
+- TPU/XLA;
+- V2.4.3+;
+- V2.5+, release/TUF/updater mutation and R20 reopening.
+
+V2.4.3+ remain unauthorized until V2.4.2 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
 
 ## Accepted V2 capability truth
 
@@ -855,10 +912,11 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`;
-2. verify V2.4 planning remains **COMPLETE + NORMALIZED** from PR `#516`, exact head `8c78ff19cf05b3009a05e2e5337ce31303e9d8b7`, **25/25** workflows and merge `a14190f529a465e8e42ee0dd90a0248bc38e1b9c`;
-3. implement **V2.4.1 — Accelerator topology and provider truth only**;
-4. preserve provider-request versus observed-topology truth, separate per-device VRAM and no pooled-32-GiB semantics;
-5. provide deterministic exact-head tests/acceptance without live Kaggle/GPU requirements;
-6. merge only after all required workflows succeed on the unchanged exact head with `expected_head_sha`;
-7. post-merge normalize before authorizing V2.4.2;
-8. keep V2.4.2+, V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.
+2. verify V2.4.1 remains **COMPLETE + NORMALIZED** from PR `#518`, exact head `544b7d172499594f32c464c46753bfc5fb378fe0`, **30/30** workflows, acceptance 22/22 on both OS, evidence digest `3049f1d4fb07d8edb4d8722ffaf1a1d8e503186972eec2dfb000a5057f519c6d` and merge `3ebed48b8aa113635ddc9516827d867ce346fe0f`;
+3. implement **V2.4.2 — Strategy, effective-batch and resource planning contract only**;
+4. preserve the V2.4.1 topology/provider-truth contract and separate per-device VRAM semantics;
+5. do not launch distributed workers yet; V2.4.2 defines and benchmarks the strategy contract only;
+6. provide deterministic exact-head tests/acceptance without live Kaggle/GPU requirements;
+7. merge only after all required workflows succeed on the unchanged exact head with `expected_head_sha`;
+8. post-merge normalize before authorizing V2.4.3;
+9. keep V2.4.3+, V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.

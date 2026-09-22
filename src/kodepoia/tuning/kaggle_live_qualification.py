@@ -191,6 +191,12 @@ def build_private_probe_bundle(
         encoding="utf-8",
     )
     script = root / "probe_kaggle_t4x2.py"
+    embedded_request = json.dumps(
+        request.to_dict(),
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
     script.write_text(
         """from __future__ import annotations
 import json
@@ -199,10 +205,9 @@ from pathlib import Path
 
 import torch
 
-request = json.loads(
-    Path("probe-request.json").read_text(encoding="utf-8")
-)
-count = int(torch.cuda.device_count()) if torch.cuda.is_available() else 0
+"""
+        + f"request = json.loads({embedded_request!r})\n"
+        + """count = int(torch.cuda.device_count()) if torch.cuda.is_available() else 0
 devices = []
 for index in range(count):
     props = torch.cuda.get_device_properties(index)

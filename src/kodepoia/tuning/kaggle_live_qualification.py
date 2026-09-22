@@ -6,7 +6,7 @@ import re
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping
+from collections.abc import Mapping
 
 from .contracts import canonical_sha256
 from .kaggle_remote import CommandResult, CommandRunner, SubprocessCommandRunner
@@ -271,9 +271,7 @@ class KaggleLiveProbeClient:
         output.mkdir(parents=True, exist_ok=True)
         self._checked(
             [
-                self.kaggle_executable,
-                "kernels",
-                "output",
+                self.kaggle_executable, "kernels", "output",
                 request.kernel_id,
                 "--path",
                 str(output),

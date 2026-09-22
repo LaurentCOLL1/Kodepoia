@@ -330,6 +330,16 @@ class KaggleLiveProbeClient:
         payload = json.loads(matches[0].read_text(encoding="utf-8"))
         return _validate_probe_payload(request, payload)
 
+    def _checked(self, argv: list[str], *, timeout: float) -> CommandResult:
+        result = self.runner.run(argv, timeout=timeout)
+        if result.returncode != 0:
+            raise KaggleLiveQualificationError(
+                f"Kaggle CLI probe command failed ({result.returncode}): "
+                f"{result.stderr.strip()[:4096]}"
+            )
+        return result
+
+
 def _validate_probe_payload(
     request: KaggleLiveProbeRequest,
     payload: object,
@@ -386,15 +396,6 @@ def topology_report_from_probe(
         blockers=blockers,
     )
 
-
-    def _checked(self, argv: list[str], *, timeout: float) -> CommandResult:
-        result = self.runner.run(argv, timeout=timeout)
-        if result.returncode != 0:
-            raise KaggleLiveQualificationError(
-                f"Kaggle CLI probe command failed ({result.returncode}): "
-                f"{result.stderr.strip()[:4096]}"
-            )
-        return result
 
 
 def _run_blockers(

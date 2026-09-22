@@ -122,7 +122,7 @@ def test_strategy_selector_changes_projection_only_and_runtime_refresh_is_explic
     mapping = window.findChild(QTableWidget, "modelLabAcceleratorStrategyMapping")
     kaggle = window.findChild(QLabel, "modelLabKaggleState")
     assert selector is not None and mapping is not None and kaggle is not None
-    assert "not_checked" in kaggle.text()
+    assert "not checked" in kaggle.text()
     selector.setCurrentText("replicated_data_parallel")
     QApplication.processEvents()
     assert mapping.item(0, 0).text() == "replicated_data_parallel"

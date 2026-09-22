@@ -141,23 +141,56 @@ def build_private_probe_bundle(
     )
     script = root / "probe_kaggle_t4x2.py"
     script.write_text(
-        """from __future__ import annotations\n"
-        "import json, platform\n"
-        "from pathlib import Path\n"
-        "import torch\n"
-        "request=json.loads(Path('qualification-request.json').read_text(encoding='utf-8'))\n"
-        "count=int(torch.cuda.device_count()) if torch.cuda.is_available() else 0\n"
-        "devices=[]\n"
-        "for index in range(count):\n"
-        "    props=torch.cuda.get_device_properties(index)\n"
-        "    try:\n"
-        "        free,total=torch.cuda.mem_get_info(index)\n"
-        "    except Exception:\n"
-        "        free=total=None\n"
-        "    devices.append({'backend_type':'cuda','index':index,'name':str(props.name),'vram_free_bytes':free,'vram_total_bytes':total})\n"
-        "payload={'schema':'kodepoia.v2.4.5.kaggle-provider-probe','schema_version':1,'source_sha':request['source_sha'],'request_digest':request['request_digest'],'requested_shape':request['requested_shape'],'kernel_id':request['kernel_id'],'private_kernel':True,'backend_type':'cuda','device_count':count,'devices':devices,'framework_versions':{'python':platform.python_version(),'torch':str(torch.__version__),'cuda':str(torch.version.cuda)}}\n"
-        "Path('provider-probe.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\\\\n',encoding='utf-8')\n"
-        "print(json.dumps({'device_count':count,'source_sha':request['source_sha']}))\n""",
+        """from __future__ import annotations
+import json
+import platform
+from pathlib import Path
+
+import torch
+
+request = json.loads(
+    Path("qualification-request.json").read_text(encoding="utf-8")
+)
+count = int(torch.cuda.device_count()) if torch.cuda.is_available() else 0
+devices = []
+for index in range(count):
+    props = torch.cuda.get_device_properties(index)
+    try:
+        free, total = torch.cuda.mem_get_info(index)
+    except Exception:
+        free = total = None
+    devices.append(
+        {
+            "backend_type": "cuda",
+            "index": index,
+            "name": str(props.name),
+            "vram_free_bytes": free,
+            "vram_total_bytes": total,
+        }
+    )
+payload = {
+    "schema": "kodepoia.v2.4.5.kaggle-provider-probe",
+    "schema_version": 1,
+    "source_sha": request["source_sha"],
+    "request_digest": request["request_digest"],
+    "requested_shape": request["requested_shape"],
+    "kernel_id": request["kernel_id"],
+    "private_kernel": True,
+    "backend_type": "cuda",
+    "device_count": count,
+    "devices": devices,
+    "framework_versions": {
+        "python": platform.python_version(),
+        "torch": str(torch.__version__),
+        "cuda": str(torch.version.cuda),
+    },
+}
+Path("provider-probe.json").write_text(
+    json.dumps(payload, indent=2, sort_keys=True) + "\\n",
+    encoding="utf-8",
+)
+print(json.dumps({"device_count": count, "source_sha": request["source_sha"]}))
+""",
         encoding="utf-8",
     )
     metadata = {

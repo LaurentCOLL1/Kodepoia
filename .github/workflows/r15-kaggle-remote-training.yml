@@ -6,7 +6,10 @@ on:
       - 'src/kodepoia/tuning/kaggle_remote.py'
       - 'tests/test_tuning_kaggle_remote.py'
       - 'src/kodepoia/tuning/kaggle_live_qualification.py'
+      - 'src/kodepoia/tuning/kaggle_live_bootstrap.py'
+      - 'qualification/v2_4_5/live_workload.json'
       - 'tests/test_v2_4_5_model_lab_accelerator.py'
+      - 'tests/test_v2_4_5_live_bootstrap.py'
       - 'schemas/v2-4-5-kaggle-live-qualification.schema.json'
       - 'pyproject.toml'
       - '.github/workflows/r15-kaggle-remote-training.yml'
@@ -47,16 +50,21 @@ jobs:
           python -m compileall -q
           src/kodepoia/tuning/kaggle_remote.py
           src/kodepoia/tuning/kaggle_live_qualification.py
+          src/kodepoia/tuning/kaggle_live_bootstrap.py
           tests/test_tuning_kaggle_remote.py
           tests/test_v2_4_5_model_lab_accelerator.py
+          tests/test_v2_4_5_live_bootstrap.py
+          tests/test_v2_4_5_live_bootstrap.py
       - name: Ruff Kaggle integration
         run: >-
           python -m ruff check
           src/kodepoia/tuning/kaggle_remote.py
           src/kodepoia/tuning/kaggle_live_qualification.py
+          src/kodepoia/tuning/kaggle_live_bootstrap.py
           src/kodepoia/kodestudio/model_lab_accelerator.py
           tests/test_tuning_kaggle_remote.py
           tests/test_v2_4_5_model_lab_accelerator.py
+          tests/test_v2_4_5_live_bootstrap.py
       - name: Focused Kaggle tests
         run: >-
           python -m pytest -q

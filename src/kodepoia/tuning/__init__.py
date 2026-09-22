@@ -36,6 +36,13 @@ from .distributed_recovery import (
     build_distributed_checkpoint_manifest,
     build_distributed_recovery_plan,
 )
+from .kaggle_live_qualification import (
+    KaggleLiveQualificationError,
+    KaggleLiveQualificationRequest,
+    build_private_probe_bundle,
+    save_live_report,
+    validate_live_evidence,
+)
 from .runtime import HostResourceProbe, TrainingRuntime, redact_runtime_text
 from .strategy import (
     DeviceStrategyBudget,
@@ -96,6 +103,8 @@ __all__ = [
     "DeviceStrategyBudget",
     "ExecutionStrategyPlan",
     "HostResourceProbe",
+    "KaggleLiveQualificationError",
+    "KaggleLiveQualificationRequest",
     "LoraTrainingConfig",
     "ModelBinding",
     "ObservedAcceleratorTopology",
@@ -125,10 +134,13 @@ __all__ = [
     "TrainingRuntime",
     "TuningRuntimeError",
     "build_distributed_checkpoint_manifest",
+    "build_private_probe_bundle",
     "build_distributed_execution_plan",
     "build_distributed_recovery_plan",
     "build_execution_strategy_plan",
     "evaluate_single_gpu_selection",
     "evaluate_strategy_benchmark",
     "redact_runtime_text",
+    "save_live_report",
+    "validate_live_evidence",
 ]

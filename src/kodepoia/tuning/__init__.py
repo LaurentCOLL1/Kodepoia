@@ -38,10 +38,12 @@ from .distributed_recovery import (
 )
 from .kaggle_live_qualification import (
     KaggleLiveProbeClient,
+    KaggleLiveProbeRequest,
     KaggleLiveQualificationError,
     KaggleLiveQualificationRequest,
     build_private_probe_bundle,
     save_live_report,
+    topology_report_from_probe,
     validate_live_evidence,
 )
 from .runtime import HostResourceProbe, TrainingRuntime, redact_runtime_text
@@ -105,6 +107,7 @@ __all__ = [
     "ExecutionStrategyPlan",
     "HostResourceProbe",
     "KaggleLiveProbeClient",
+    "KaggleLiveProbeRequest",
     "KaggleLiveQualificationError",
     "KaggleLiveQualificationRequest",
     "LoraTrainingConfig",
@@ -144,5 +147,6 @@ __all__ = [
     "evaluate_strategy_benchmark",
     "redact_runtime_text",
     "save_live_report",
+    "topology_report_from_probe",
     "validate_live_evidence",
 ]

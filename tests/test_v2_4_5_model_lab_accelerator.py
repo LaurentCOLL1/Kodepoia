@@ -9,9 +9,11 @@ from jsonschema import Draft202012Validator
 from kodepoia.kodestudio.model_lab_accelerator import accelerator_projection
 from kodepoia.tuning.kaggle_live_qualification import (
     KaggleLiveProbeClient,
+    KaggleLiveProbeRequest,
     KaggleLiveQualificationError,
     KaggleLiveQualificationRequest,
     build_private_probe_bundle,
+    topology_report_from_probe,
     validate_live_evidence,
 )
 from kodepoia.tuning.kaggle_remote import CommandResult
@@ -35,6 +37,13 @@ class FakeRunner:
         self.calls.append(list(argv))
         return self.results.pop(0)
 
+
+
+def _probe_request() -> KaggleLiveProbeRequest:
+    return KaggleLiveProbeRequest(
+        source_sha=SOURCE,
+        kernel_id="fixture-user/kodepoia-v2-4-5-live",
+    )
 
 
 def _request() -> KaggleLiveQualificationRequest:
@@ -117,17 +126,21 @@ def _evidence(request: KaggleLiveQualificationRequest) -> dict[str, object]:
     }
 
 
-def test_private_probe_bundle_is_exact_source_private_and_secret_free(tmp_path: Path) -> None:
-    request = _request()
+def test_private_probe_bundle_bootstraps_before_final_lineage_and_is_secret_free(
+    tmp_path: Path,
+) -> None:
+    request = _probe_request()
     root = build_private_probe_bundle(request, tmp_path / "probe")
     metadata = json.loads((root / "kernel-metadata.json").read_text(encoding="utf-8"))
     manifest = json.loads((root / "bundle-manifest.json").read_text(encoding="utf-8"))
-    saved = json.loads((root / "qualification-request.json").read_text(encoding="utf-8"))
+    saved = json.loads((root / "probe-request.json").read_text(encoding="utf-8"))
     assert metadata["is_private"] is True
     assert metadata["machine_shape"] == "NvidiaTeslaT4"
     assert metadata["enable_internet"] is False
     assert manifest["source_sha"] == SOURCE
     assert saved["request_digest"] == request.digest
+    assert "topology_digest" not in saved
+    assert "training_plan_digest" not in saved
     serialized = json.dumps([metadata, manifest, saved]).lower()
     assert "kaggle_key" not in serialized
     assert "api_key" not in serialized
@@ -139,7 +152,7 @@ def test_private_probe_bundle_is_exact_source_private_and_secret_free(tmp_path: 
 def test_probe_client_uses_only_fixed_kaggle_argv_and_revalidates_download(
     tmp_path: Path,
 ) -> None:
-    request = _request()
+    request = _probe_request()
     bundle = build_private_probe_bundle(request, tmp_path / "bundle")
     output = tmp_path / "output"
     output.mkdir()
@@ -177,7 +190,7 @@ def test_probe_client_uses_only_fixed_kaggle_argv_and_revalidates_download(
 
 
 def test_probe_client_rejects_tampered_download(tmp_path: Path) -> None:
-    request = _request()
+    request = _probe_request()
     output = tmp_path / "output"
     output.mkdir()
     (output / "provider-probe.json").write_text(
@@ -198,6 +211,50 @@ def test_probe_client_rejects_tampered_download(tmp_path: Path) -> None:
     )
     with pytest.raises(KaggleLiveQualificationError, match="source SHA mismatch"):
         client.fetch_probe(request, output)
+
+
+def test_downloaded_probe_promotes_to_v241_topology_without_fabricating_devices() -> None:
+    request = _probe_request()
+    probe = {
+        "schema": "kodepoia.v2.4.5.kaggle-provider-probe",
+        "schema_version": 1,
+        "source_sha": request.source_sha,
+        "request_digest": request.digest,
+        "requested_shape": request.requested_shape,
+        "kernel_id": request.kernel_id,
+        "private_kernel": True,
+        "backend_type": "cuda",
+        "device_count": 2,
+        "devices": [
+            {
+                "backend_type": "cuda",
+                "index": 0,
+                "name": "NVIDIA Tesla T4",
+                "vram_free_bytes": 12 * 1024**3,
+                "vram_total_bytes": 16 * 1024**3,
+            },
+            {
+                "backend_type": "cuda",
+                "index": 1,
+                "name": "NVIDIA Tesla T4",
+                "vram_free_bytes": 11 * 1024**3,
+                "vram_total_bytes": 16 * 1024**3,
+            },
+        ],
+        "framework_versions": {"python": "3.12", "torch": "live", "cuda": "live"},
+    }
+    report = topology_report_from_probe(request, probe)
+    assert report.disposition.value == "ready"
+    assert report.request_digest == request.digest
+    assert report.provider_request is not None
+    assert report.provider_request.shape == "NvidiaTeslaT4"
+    assert report.topology_digest is not None
+    assert report.observed is not None
+    assert [item.index for item in report.observed.devices] == [0, 1]
+    assert [item.vram_total_bytes for item in report.observed.devices] == [
+        16 * 1024**3,
+        16 * 1024**3,
+    ]
 
 
 def test_complete_live_pair_is_qualified_only_after_download_revalidation() -> None:

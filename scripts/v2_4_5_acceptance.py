@@ -115,14 +115,17 @@ def main() -> int:
         ),
         _check(
             "private_probe_bundle",
-            '"is_private": True' in live
+            "class KaggleLiveProbeRequest" in live
+            and "probe-request.json" in live
+            and "topology_report_from_probe" in live
+            and '"is_private": True' in live
             and '"machine_shape": request.requested_shape' in live
             and '"enable_internet": False' in live
             and "provider-probe.json" in live
             and "KaggleLiveProbeClient" in live
             and '"kernels", "push"' in live
             and '"kernels", "output"' in live,
-            "provider probe is exact-source private and minimally networked",
+            "provider probe bootstraps exact-source private topology before final lineage",
         ),
         _check(
             "two_t4_runtime_truth",

@@ -82,7 +82,8 @@ QUALIFICATION_CONTROL_REF = "kodepoia/v245-qualification-control"
 QUALIFICATION_DATASET_LICENSE = "LicenseRef-Kodepoia-Internal-Qualification"
 QUALIFICATION_SHAPE = "NvidiaTeslaT4"
 
-_SHA = re.compile(r"^[0-9a-f]{64}$")
+_GIT_SHA = re.compile(r"^[0-9a-f]{40}$")
+_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
 _KAGGLE_ID = re.compile(
     r"^[A-Za-z0-9][A-Za-z0-9_-]{1,49}/[a-z0-9][a-z0-9-]{1,49}$"
@@ -161,9 +162,9 @@ class KaggleLiveBootstrapRequest:
 
     def __post_init__(self) -> None:
         source_sha = self.source_sha.strip().lower()
-        if _SHA.fullmatch(source_sha) is None:
+        if _GIT_SHA.fullmatch(source_sha) is None:
             raise KaggleLiveBootstrapError(
-                "source_sha must be 64 lowercase hexadecimal characters"
+                "source_sha must be 40 lowercase hexadecimal characters"
             )
         object.__setattr__(self, "source_sha", source_sha)
         for label in ("kaggle_dataset_id", "kernel_id"):
@@ -181,7 +182,7 @@ class KaggleLiveBootstrapRequest:
             "protection_manifest_digest",
             "dedup_policy_digest",
         ):
-            if _SHA.fullmatch(getattr(self, label)) is None:
+            if _SHA256.fullmatch(getattr(self, label)) is None:
                 raise KaggleLiveBootstrapError(
                     f"{label} must be 64 lowercase hexadecimal characters"
                 )
@@ -1342,7 +1343,7 @@ def _validate_downloaded_evidence(
     ):
         raise KaggleLiveBootstrapError("bootstrap model file checksum mismatch")
     for key in ("model_digest", "tokenizer_digest"):
-        if not isinstance(model.get(key), str) or _SHA.fullmatch(str(model[key])) is None:
+        if not isinstance(model.get(key), str) or _SHA256.fullmatch(str(model[key])) is None:
             raise KaggleLiveBootstrapError(f"bootstrap {key} is invalid")
     _verify_report_digest("benchmark", payload.get("benchmark"))
     _verify_report_digest("capability", payload.get("capability"))

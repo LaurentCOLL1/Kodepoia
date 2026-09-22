@@ -8,9 +8,16 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
-from .contracts import canonical_sha256
+from .contracts import TrainingBackend, canonical_sha256
 from .kaggle_remote import CommandResult, CommandRunner, SubprocessCommandRunner
 from .strategy import MIN_REPLICATED_THROUGHPUT_SPEEDUP_RATIO
+from .topology import (
+    AcceleratorTopologyReport,
+    ProviderAcceleratorRequest,
+    TopologyDisposition,
+    provider_request_blockers,
+    topology_from_worker_payload,
+)
 
 LIVE_REQUEST_SCHEMA = "kodepoia.v2.4.5.kaggle-live-qualification-request"
 LIVE_REPORT_SCHEMA = "kodepoia.v2.4.5.kaggle-live-qualification-report"
@@ -66,6 +73,43 @@ def _assert_no_secrets(value: object) -> None:
     elif isinstance(value, (list, tuple)):
         for item in value:
             _assert_no_secrets(item)
+
+
+@dataclass(frozen=True, slots=True)
+class KaggleLiveProbeRequest:
+    """Bootstrap-only provider request; it intentionally precedes V2.4.1 topology lineage."""
+
+    source_sha: str
+    kernel_id: str
+    requested_shape: str = "NvidiaTeslaT4"
+    expected_device_count: int = 2
+    schema: str = "kodepoia.v2.4.5.kaggle-live-probe-request"
+    schema_version: int = LIVE_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "source_sha", _source_sha(self.source_sha))
+        object.__setattr__(self, "kernel_id", _safe_id("kernel_id", self.kernel_id))
+        if self.requested_shape != "NvidiaTeslaT4":
+            raise KaggleLiveQualificationError("V2.4.5 live probe requires NvidiaTeslaT4")
+        if self.expected_device_count != 2:
+            raise KaggleLiveQualificationError("V2.4.5 live probe expects exactly two T4 devices")
+
+    def descriptor(self) -> dict[str, object]:
+        return {
+            "expected_device_count": self.expected_device_count,
+            "kernel_id": self.kernel_id,
+            "requested_shape": self.requested_shape,
+            "schema": self.schema,
+            "schema_version": self.schema_version,
+            "source_sha": self.source_sha,
+        }
+
+    @property
+    def digest(self) -> str:
+        return canonical_sha256(self.descriptor())
+
+    def to_dict(self) -> dict[str, object]:
+        return {**self.descriptor(), "request_digest": self.digest}
 
 
 @dataclass(frozen=True, slots=True)
@@ -131,12 +175,12 @@ class KaggleLiveQualificationRequest:
 
 
 def build_private_probe_bundle(
-    request: KaggleLiveQualificationRequest,
+    request: KaggleLiveProbeRequest,
     output_root: Path,
 ) -> Path:
     root = Path(output_root).resolve(strict=False)
     root.mkdir(parents=True, exist_ok=True)
-    request_path = root / "qualification-request.json"
+    request_path = root / "probe-request.json"
     request_path.write_text(
         json.dumps(request.to_dict(), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
@@ -151,7 +195,7 @@ from pathlib import Path
 import torch
 
 request = json.loads(
-    Path("qualification-request.json").read_text(encoding="utf-8")
+    Path("probe-request.json").read_text(encoding="utf-8")
 )
 count = int(torch.cuda.device_count()) if torch.cuda.is_available() else 0
 devices = []
@@ -256,7 +300,7 @@ class KaggleLiveProbeClient:
             timeout=300.0,
         )
 
-    def status(self, request: KaggleLiveQualificationRequest) -> CommandResult:
+    def status(self, request: KaggleLiveProbeRequest) -> CommandResult:
         return self._checked(
             [self.kaggle_executable, "kernels", "status", request.kernel_id],
             timeout=120.0,
@@ -264,7 +308,7 @@ class KaggleLiveProbeClient:
 
     def fetch_probe(
         self,
-        request: KaggleLiveQualificationRequest,
+        request: KaggleLiveProbeRequest,
         output_root: Path,
     ) -> dict[str, object]:
         output = Path(output_root).resolve(strict=False)
@@ -284,20 +328,64 @@ class KaggleLiveProbeClient:
                 "Kaggle output must contain exactly one provider-probe.json"
             )
         payload = json.loads(matches[0].read_text(encoding="utf-8"))
-        if not isinstance(payload, dict):
-            raise KaggleLiveQualificationError("provider probe root must be an object")
-        _assert_no_secrets(payload)
-        if payload.get("schema") != "kodepoia.v2.4.5.kaggle-provider-probe":
-            raise KaggleLiveQualificationError("provider probe schema mismatch")
-        if str(payload.get("source_sha", "")).lower() != request.source_sha:
-            raise KaggleLiveQualificationError("provider probe source SHA mismatch")
-        if payload.get("request_digest") != request.digest:
-            raise KaggleLiveQualificationError("provider probe request digest mismatch")
-        if payload.get("kernel_id") != request.kernel_id:
-            raise KaggleLiveQualificationError("provider probe kernel identity mismatch")
-        if payload.get("private_kernel") is not True:
-            raise KaggleLiveQualificationError("provider probe did not prove private kernel")
-        return payload
+        return _validate_probe_payload(request, payload)
+
+def _validate_probe_payload(
+    request: KaggleLiveProbeRequest,
+    payload: object,
+) -> dict[str, object]:
+    if not isinstance(payload, dict):
+        raise KaggleLiveQualificationError("provider probe root must be an object")
+    _assert_no_secrets(payload)
+    if payload.get("schema") != "kodepoia.v2.4.5.kaggle-provider-probe":
+        raise KaggleLiveQualificationError("provider probe schema mismatch")
+    if str(payload.get("source_sha", "")).lower() != request.source_sha:
+        raise KaggleLiveQualificationError("provider probe source SHA mismatch")
+    if payload.get("request_digest") != request.digest:
+        raise KaggleLiveQualificationError("provider probe request digest mismatch")
+    if payload.get("kernel_id") != request.kernel_id:
+        raise KaggleLiveQualificationError("provider probe kernel identity mismatch")
+    if payload.get("private_kernel") is not True:
+        raise KaggleLiveQualificationError("provider probe did not prove private kernel")
+    if payload.get("requested_shape") != request.requested_shape:
+        raise KaggleLiveQualificationError("provider probe requested shape mismatch")
+    return payload
+
+
+def topology_report_from_probe(
+    request: KaggleLiveProbeRequest,
+    payload: object,
+) -> AcceleratorTopologyReport:
+    """Promote downloaded live probe evidence into the accepted V2.4.1 topology contract."""
+
+    probe = _validate_probe_payload(request, payload)
+    topology_payload = {
+        "backend_type": probe.get("backend_type"),
+        "device_count": probe.get("device_count"),
+        "devices": probe.get("devices"),
+    }
+    observed = topology_from_worker_payload(
+        topology_payload,
+        expected_backend=TrainingBackend.CUDA,
+    )
+    provider = ProviderAcceleratorRequest(
+        provider="kaggle",
+        shape=request.requested_shape,
+        expected_backend=TrainingBackend.CUDA,
+        expected_device_count=request.expected_device_count,
+        expected_name_contains="T4",
+    )
+    blockers = provider_request_blockers(provider, observed)
+    disposition = TopologyDisposition.READY if not blockers else TopologyDisposition.MISMATCH
+    return AcceleratorTopologyReport(
+        disposition=disposition,
+        request_digest=request.digest,
+        backend=TrainingBackend.CUDA,
+        provider_request=provider,
+        observed=observed,
+        blockers=blockers,
+    )
+
 
     def _checked(self, argv: list[str], *, timeout: float) -> CommandResult:
         result = self.runner.run(argv, timeout=timeout)
@@ -486,12 +574,14 @@ def save_live_report(path: Path, report: Mapping[str, object]) -> Path:
 
 
 __all__ = [
+    "KaggleLiveProbeClient",
+    "KaggleLiveProbeRequest",
     "KaggleLiveQualificationError",
     "KaggleLiveQualificationRequest",
-    "KaggleLiveProbeClient",
     "LIVE_REPORT_SCHEMA",
     "LIVE_REQUEST_SCHEMA",
     "build_private_probe_bundle",
     "save_live_report",
+    "topology_report_from_probe",
     "validate_live_evidence",
 ]

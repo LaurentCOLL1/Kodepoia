@@ -89,6 +89,11 @@ class KaggleLiveProbeRequest:
     def __post_init__(self) -> None:
         object.__setattr__(self, "source_sha", _source_sha(self.source_sha))
         object.__setattr__(self, "kernel_id", _safe_id("kernel_id", self.kernel_id))
+        parts = self.kernel_id.split("/")
+        if len(parts) != 2 or not all(parts):
+            raise KaggleLiveQualificationError(
+                "kernel_id must be an exact Kaggle owner/kernel-slug reference"
+            )
         if self.requested_shape != "NvidiaTeslaT4":
             raise KaggleLiveQualificationError("V2.4.5 live probe requires NvidiaTeslaT4")
         if self.expected_device_count != 2:
@@ -252,7 +257,7 @@ print(json.dumps({"device_count": count, "source_sha": request["source_sha"]}))
         "language": "python",
         "machine_shape": request.requested_shape,
         "model_sources": [],
-        "title": "Kodepoia V2.4.5 exact-source provider probe",
+        "title": request.kernel_id.split("/", 1)[1],
     }
     _assert_no_secrets(metadata)
     (root / "kernel-metadata.json").write_text(

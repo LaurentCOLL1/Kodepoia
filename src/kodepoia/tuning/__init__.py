@@ -37,6 +37,7 @@ from .distributed_recovery import (
     build_distributed_recovery_plan,
 )
 from .kaggle_live_qualification import (
+    KaggleLiveProbeClient,
     KaggleLiveQualificationError,
     KaggleLiveQualificationRequest,
     build_private_probe_bundle,
@@ -103,6 +104,7 @@ __all__ = [
     "DeviceStrategyBudget",
     "ExecutionStrategyPlan",
     "HostResourceProbe",
+    "KaggleLiveProbeClient",
     "KaggleLiveQualificationError",
     "KaggleLiveQualificationRequest",
     "LoraTrainingConfig",

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Mapping
+from collections.abc import Mapping
 
 ACCELERATOR_PROJECTION_SCHEMA = "kodepoia.v2.4.5.model-lab-accelerator"
 _TOPOLOGY_SCHEMA = "kodepoia.v2.4.1.accelerator-topology"

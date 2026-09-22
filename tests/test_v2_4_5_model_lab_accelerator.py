@@ -125,6 +125,17 @@ def _evidence(request: KaggleLiveQualificationRequest) -> dict[str, object]:
     }
 
 
+def test_live_probe_rejects_non_exact_kernel_reference() -> None:
+    with pytest.raises(
+        KaggleLiveQualificationError,
+        match="exact Kaggle owner/kernel-slug reference",
+    ):
+        KaggleLiveProbeRequest(
+            source_sha=SOURCE,
+            kernel_id="kodepoia-v2-4-5-live",
+        )
+
+
 def test_private_probe_bundle_bootstraps_before_final_lineage_and_is_secret_free(
     tmp_path: Path,
 ) -> None:
@@ -134,6 +145,7 @@ def test_private_probe_bundle_bootstraps_before_final_lineage_and_is_secret_free
     manifest = json.loads((root / "bundle-manifest.json").read_text(encoding="utf-8"))
     saved = json.loads((root / "probe-request.json").read_text(encoding="utf-8"))
     assert metadata["is_private"] is True
+    assert metadata["title"] == "kodepoia-v2-4-5-live"
     assert metadata["machine_shape"] == "NvidiaTeslaT4"
     assert metadata["enable_internet"] is False
     assert manifest["source_sha"] == SOURCE

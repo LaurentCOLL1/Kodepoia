@@ -119,6 +119,8 @@ def main() -> int:
             and "kernel_id must be an exact Kaggle owner/kernel-slug reference" in live
             and '"title": request.kernel_id.split("/", 1)[1]' in live
             and "probe-request.json" in live
+            and "embedded_request = json.dumps(" in live
+            and 'Path("probe-request.json").read_text' not in live
             and "topology_report_from_probe" in live
             and '"is_private": True' in live
             and '"machine_shape": request.requested_shape' in live

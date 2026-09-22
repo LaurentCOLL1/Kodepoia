@@ -397,7 +397,6 @@ def topology_report_from_probe(
     )
 
 
-
 def _run_blockers(
     label: str,
     run: Mapping[str, object],

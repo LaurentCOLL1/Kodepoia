@@ -64,6 +64,11 @@ def main() -> int:
                 and "V2.4.4 — Distributed checkpoint, cancellation and recovery — CURRENT"
                 in next_doc
             )
+            or (
+                "V2.4.4 is COMPLETE + NORMALIZED" in authority
+                and "V2.4.5 — Model Lab accelerator UX and live Kaggle qualification — CURRENT"
+                in next_doc
+            )
         )
     )
 
@@ -98,6 +103,12 @@ def main() -> int:
                             and "V2.4.5+ remain unauthorized" in state
                             and "V2.4.5+ remain unauthorized" in next_doc
                             and "V2.4.5+ remain unauthorized" in v24
+                        )
+                        or (
+                            "V2.4.6+ remain unauthorized" in authority
+                            and "V2.4.6+ remain unauthorized" in state
+                            and "V2.4.6+ remain unauthorized" in next_doc
+                            and "V2.4.6+ remain unauthorized" in v24
                         )
                     )
                 )
@@ -247,6 +258,7 @@ def main() -> int:
                 "V2.4.3+" in state
                 or (v242_normalized and "V2.4.4+" in state)
                 or (v242_normalized and "V2.4.5+" in state)
+                or (v242_normalized and "V2.4.6+" in state)
             )
             and "FSDP" in v24
             and "DeepSpeed" in v24

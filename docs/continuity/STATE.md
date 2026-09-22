@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-21 after V2.4.3 implementation PR `#522` merge and post-merge normalization  
+Last synchronized: 2026-09-21 after V2.4.4 implementation PR `#524` merge and post-merge normalization  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -762,7 +762,7 @@ The initial V2.3.6 head exposed only test-contract issues. Two corrective commit
 
 **V2.3 is now COMPLETE + NORMALIZED through V2.3.6.**
 
-V2.4 planning, V2.4.1, V2.4.2 and **V2.4.3 are COMPLETE + NORMALIZED**. V2.4.3 implementation PR `#522` was qualified **30/30** on exact final head `81c5709ff457da375fd2f8f8ef13aad4b59aced0`, with deterministic acceptance **22/22 PASS on Ubuntu** and **22/22 PASS on Windows**, common evidence SHA-256 `fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7`, then merged as `975d46a071f52a27a48de15227432d9d4911e142`. The only authorized implementation work is **V2.4.4 — Distributed checkpoint, cancellation and recovery**. V2.4.5+ remain unauthorized until V2.4.4 is implemented, exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
+V2.4 planning, V2.4.1, V2.4.2, V2.4.3 and **V2.4.4 are COMPLETE + NORMALIZED**. V2.4.4 implementation PR `#524` was qualified **29/29** on exact final head `1abf4917566f065ac26b71a02e02d8fb3506fe1a`, with deterministic acceptance **25/25 PASS on Ubuntu** and **25/25 PASS on Windows**, common evidence SHA-256 `09820473e95e03672b89c6d9d086b6a9aa8fada394be2e661a4085f1989410ed`, then merged as `779a9c8282e153b7dba35fb22be89ec5c622e1d3`. The only authorized implementation work is **V2.4.5 — Model Lab accelerator UX and live Kaggle qualification**. V2.4.6+ remain unauthorized until V2.4.5 is implemented, exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
 
 ## V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — COMPLETE + NORMALIZED
 
@@ -952,32 +952,79 @@ Accepted product truth:
 
 This post-merge normalization marks **V2.4.3 COMPLETE + NORMALIZED**.
 
-## V2.4.4 — Distributed checkpoint, cancellation and recovery — CURRENT
+## V2.4.4 — Distributed checkpoint, cancellation and recovery — COMPLETE + NORMALIZED
 
-Authorized scope is strictly distributed checkpoint/cancel/recovery semantics over the accepted V2.4.3 two-rank execution path:
+Implementation PR:
 
-- bind checkpoint metadata to exact TrainingPlan/strategy/topology/world-size/execution-plan lineage;
-- preserve rank-zero canonical checkpoint lineage;
-- record bounded subordinate per-rank checkpoint/state evidence only where required;
-- represent cancel/timeout/partial-rank failure evidence explicitly;
-- never accept a successful result from an incomplete process group;
-- allow resume only from a compatible exact plan/strategy/topology/world-size lineage;
-- fail closed on missing, tampered or mismatched rank/checkpoint evidence;
-- preserve existing dataset/model/tokenizer/capability bindings;
-- reuse the accepted R15 checkpoint/recovery authority rather than creating a parallel recovery engine;
-- keep process-group termination governed by ProcessSandbox/KillSwitch;
-- mandatory PR CI remains deterministic without live Kaggle/GPU requirements.
+`#524 — feat: implement V2.4.4 distributed checkpoint recovery`
+
+Exact final accepted head:
+
+`1abf4917566f065ac26b71a02e02d8fb3506fe1a`
+
+Base:
+
+`fb3f3f5f18834183524f5a61c29b572cdb79b5db`
+
+Qualification:
+
+- **29/29** pull-request workflows `completed/success` on the unchanged exact head;
+- deterministic acceptance **25/25 PASS Ubuntu**;
+- deterministic acceptance **25/25 PASS Windows**;
+- identical evidence payload SHA-256: `09820473e95e03672b89c6d9d086b6a9aa8fada394be2e661a4085f1989410ed`;
+- Ubuntu artifact: `v2-4-4-distributed-recovery-ubuntu-latest-1abf4917566f065ac26b71a02e02d8fb3506fe1a`, artifact ID `10654524114`;
+- Windows artifact: `v2-4-4-distributed-recovery-windows-latest-1abf4917566f065ac26b71a02e02d8fb3506fe1a`, artifact ID `10655573341`;
+- selected successful runs include R0 `35633506877`, R15.8 Training Runtime `35633506917`, R15.9 QLoRA SFT `35633506716`, Python Core `35633506815`, R15 Integrated `35633506982`, R13 Integrated Release Readiness `35633506771`, and R17 Windows Installer `35633506891`.
+
+Merge:
+
+`779a9c8282e153b7dba35fb22be89ec5c622e1d3`
+
+Accepted product truth:
+
+- checkpoint manifests derive from a completed exact-lineage V2.4.3 distributed report, rank-zero canonical worker output and both rank evidences;
+- exact execution plan, TrainingPlan, strategy, qualified benchmark, topology, world size and device ordinals remain immutable recovery lineage;
+- checkpoint metadata and adapter artifact are independently digest-verified;
+- only checkpoints strictly before declared max steps are resumable;
+- recovery uses the same fixed one-node/two-rank repository-owned `torch.distributed.run` boundary and accepted R15.9 resume semantics;
+- recovery injects only accepted `CUDA_VISIBLE_DEVICES` and exposes no caller argv/env/rendezvous/package-install surface;
+- each resumed rank emits checkpoint-manifest/recovery-plan/resumed-step evidence;
+- completed recovery requires both rank evidences and every rank completed;
+- timeout, cancellation, nonzero exit, missing rank evidence, tampered checkpoint/manifest or changed topology/strategy/world-size lineage is terminal for the whole group;
+- historical V2.4.3 `resume_authorized=false` remains preserved; V2.4.4 uses a separate explicit recovery plan with `resume_authorized=true`;
+- no pooled VRAM, sharded-memory strategy, TPU or live Kaggle/Model Lab qualification was introduced;
+- mandatory CI remains deterministic and requires no live Kaggle/GPU/provider quota.
+
+This post-merge normalization marks **V2.4.4 COMPLETE + NORMALIZED**.
+
+## V2.4.5 — Model Lab accelerator UX and live Kaggle qualification — CURRENT
+
+Authorized scope is strictly accelerator UX plus exact-source live provider qualification:
+
+- structured Model Lab display of requested provider shape versus observed topology;
+- separate device rows and per-device VRAM, never a summed 32 GiB pool;
+- explicit strategy selector/status with `single_gpu` versus `replicated_data_parallel`;
+- effective batch, world size and exact device mapping visible before launch;
+- exact V2.4.1-V2.4.4 lineage and live-evidence status visible;
+- honest auth/network/quota/provider-unavailable states;
+- no automatic provider calls at application startup;
+- exact-source live Kaggle qualification workflow with private bundle/kernel and downloaded evidence revalidation;
+- paired single-vs-replicated live run evidence bound to the exact source;
+- FR/EN/qps-ploc and accessibility;
+- deterministic PR CI for all non-provider-dependent logic;
+- live qualification may require operator Kaggle credentials/quota; if so, stop in V2.4.5 and request only the exact bounded operator action.
 
 Still unauthorized:
 
-- Model Lab accelerator UX/live Kaggle qualification reserved for V2.4.5;
-- production hardening/integrated V2.4 acceptance reserved for V2.4.6;
+- V2.4.6 production hardening/integrated acceptance;
+- public provider/model-hub publishing;
+- pooled VRAM or hidden strategy changes;
 - FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism;
-- TPU/XLA;
-- V2.4.5+;
+- TPU/XLA/JAX/PyTorch-XLA;
+- V2.4.6+;
 - V2.5+, release/TUF/updater mutation and R20 reopening.
 
-V2.4.5+ remain unauthorized until V2.4.4 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
+V2.4.6+ remain unauthorized until V2.4.5 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
 
 ## Accepted V2 capability truth
 
@@ -1006,13 +1053,12 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`;
-2. verify V2.4.3 remains **COMPLETE + NORMALIZED** from PR `#522`, exact head `81c5709ff457da375fd2f8f8ef13aad4b59aced0`, **30/30** workflows, acceptance 22/22 on both OS, evidence digest `fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7` and merge `975d46a071f52a27a48de15227432d9d4911e142`;
-3. implement **V2.4.4 — Distributed checkpoint, cancellation and recovery only**;
-4. preserve exact V2.4.3 execution-plan/strategy/topology/world-size lineage;
-5. extend the accepted R15 checkpoint/recovery authority rather than introducing a parallel recovery engine;
-6. reject incomplete/tampered/mismatched rank or checkpoint evidence fail closed;
-7. preserve whole-process-group cancellation through ProcessSandbox/KillSwitch;
-8. provide deterministic exact-head tests/acceptance without live Kaggle/GPU requirements;
-9. merge only after all required workflows succeed on the unchanged exact head with `expected_head_sha`;
-10. post-merge normalize before authorizing V2.4.5;
-11. keep V2.4.5+, V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.
+2. verify V2.4.4 remains **COMPLETE + NORMALIZED** from PR `#524`, exact head `1abf4917566f065ac26b71a02e02d8fb3506fe1a`, **29/29** workflows, acceptance 25/25 on both OS, evidence digest `09820473e95e03672b89c6d9d086b6a9aa8fada394be2e661a4085f1989410ed` and merge `779a9c8282e153b7dba35fb22be89ec5c622e1d3`;
+3. implement **V2.4.5 — Model Lab accelerator UX and live Kaggle qualification only**;
+4. preserve exact V2.4.1-V2.4.4 topology/strategy/execution/recovery lineage and per-device VRAM truth;
+5. add deterministic UX/provider-state tests without live Kaggle/GPU requirements;
+6. prepare exact-source private Kaggle qualification with downloaded evidence revalidation and paired single-vs-replicated live evidence;
+7. if live Kaggle credentials/quota are required, stop only at V2.4.5 and request the exact bounded operator action;
+8. merge only after all required deterministic workflows succeed on the unchanged exact head and required live evidence is accepted;
+9. post-merge normalize before authorizing V2.4.6;
+10. keep V2.4.6+, V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.

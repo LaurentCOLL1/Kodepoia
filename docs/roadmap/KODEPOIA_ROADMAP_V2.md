@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning + V2.4.1 + V2.4.2 + V2.4.3 COMPLETE + NORMALIZED; V2.4.4 authorized; V2.4.5+ unauthorized**  
+Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 COMPLETE + NORMALIZED; V2.4.5 authorized; V2.4.6+ unauthorized**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -219,17 +219,17 @@ V2.3.5 implementation PR `#512` was qualified **31/31** on exact final head `ed4
 
 V2.3.5 is therefore **COMPLETE + NORMALIZED**.
 
-V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. V2.4 planning, V2.4.1, V2.4.2 and **V2.4.3 are COMPLETE + NORMALIZED**. V2.4.3 implementation PR `#522` was qualified **30/30** on exact final head `81c5709ff457da375fd2f8f8ef13aad4b59aced0`, with **22/22 PASS Ubuntu + 22/22 PASS Windows** and common evidence SHA-256 `fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7`, then merged as `975d46a071f52a27a48de15227432d9d4911e142`. **V2.4.4 — Distributed checkpoint, cancellation and recovery is the only authorized implementation subdivision.** V2.4.5+ and V2.5+ remain unauthorized. Project Knowledge/Research/context remains data-only.
+V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. V2.4 planning, V2.4.1, V2.4.2, V2.4.3 and **V2.4.4 are COMPLETE + NORMALIZED**. V2.4.4 implementation PR `#524` was qualified **29/29** on exact final head `1abf4917566f065ac26b71a02e02d8fb3506fe1a`, with **25/25 PASS Ubuntu + 25/25 PASS Windows** and common evidence SHA-256 `09820473e95e03672b89c6d9d086b6a9aa8fada394be2e661a4085f1989410ed`, then merged as `779a9c8282e153b7dba35fb22be89ec5c622e1d3`. **V2.4.5 — Model Lab accelerator UX and live Kaggle qualification is the only authorized implementation subdivision.** V2.4.6+ and V2.5+ remain unauthorized. Project Knowledge/Research/context remains data-only.
 
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
 - V2.3 — Model Lab governed improvement UX — **COMPLETE + NORMALIZED through V2.3.6**.
-- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **planning + V2.4.1 + V2.4.2 + V2.4.3 COMPLETE + NORMALIZED; V2.4.4 CURRENT; V2.4.5+ unauthorized**.
+- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **planning + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 COMPLETE + NORMALIZED; V2.4.5 CURRENT; V2.4.6+ unauthorized**.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.
 
-### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING + V2.4.1 + V2.4.2 + V2.4.3 COMPLETE + NORMALIZED; V2.4.4 CURRENT
+### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 COMPLETE + NORMALIZED; V2.4.5 CURRENT
 
 Normative planning contract under qualification:
 
@@ -263,9 +263,9 @@ Planning invariants include:
 - live Kaggle production evidence is separate and mandatory before a production claim;
 - V2.5+, release/TUF/updater and R20 remain unauthorized.
 
-V2.4.2 remains accepted from PR `#520`. V2.4.3 implementation PR `#522` is qualified **30/30** on exact final head `81c5709ff457da375fd2f8f8ef13aad4b59aced0`, with **22/22 PASS** on both Ubuntu and Windows and common evidence SHA-256 `fbcad387a86924c1ed7384b4408e2910c63c550f6dd9283e7c020b03b8ffbbc7`, then merged as `975d46a071f52a27a48de15227432d9d4911e142`. **This post-merge normalization marks V2.4.3 COMPLETE + NORMALIZED and authorizes V2.4.4 — Distributed checkpoint, cancellation and recovery only.** V2.4.5+ remain unauthorized until V2.4.4 is implemented, exact-head qualified, merged and post-merge normalized.
+V2.4.3 remains accepted from PR `#522`. V2.4.4 implementation PR `#524` is qualified **29/29** on exact final head `1abf4917566f065ac26b71a02e02d8fb3506fe1a`, with **25/25 PASS** on both Ubuntu and Windows and common evidence SHA-256 `09820473e95e03672b89c6d9d086b6a9aa8fada394be2e661a4085f1989410ed`, then merged as `779a9c8282e153b7dba35fb22be89ec5c622e1d3`. **This post-merge normalization marks V2.4.4 COMPLETE + NORMALIZED and authorizes V2.4.5 — Model Lab accelerator UX and live Kaggle qualification only.** V2.4.6+ remain unauthorized until V2.4.5 is implemented, exact-head qualified, merged and post-merge normalized.
 
-The V2.4 planning authority, V2.4.1 topology/provider truth, V2.4.2 strategy/resource contract and V2.4.3 governed two-rank execution are qualified and normalized. V2.4.4 may now extend exact distributed checkpoint/cancel/recovery lineage; Model Lab/live Kaggle qualification remains reserved for V2.4.5 after its own authorization.
+The V2.4 planning authority, V2.4.1 topology/provider truth, V2.4.2 strategy/resource contract, V2.4.3 governed two-rank execution and V2.4.4 distributed recovery are qualified and normalized. V2.4.5 may now expose accelerator truth in Model Lab and perform exact-source live Kaggle qualification; production hardening remains reserved for V2.4.6 after its own authorization.
 
 ## Accelerator authority
 

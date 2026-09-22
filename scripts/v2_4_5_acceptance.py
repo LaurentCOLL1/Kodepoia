@@ -28,6 +28,9 @@ def main() -> int:
     panel = read("src/kodepoia/kodestudio/model_lab_panel.py")
     localization = read("src/kodepoia/kodestudio/model_lab_localization.py")
     live = read("src/kodepoia/tuning/kaggle_live_qualification.py")
+    bootstrap = read("src/kodepoia/tuning/kaggle_live_bootstrap.py")
+    bootstrap_tests = read("tests/test_v2_4_5_live_bootstrap.py")
+    workload = read("qualification/v2_4_5/live_workload.json")
     tests = read("tests/test_v2_4_5_model_lab_accelerator.py")
     ui_tests = read("tests/test_v2_4_5_model_lab_accelerator_ui.py")
     schema = read("schemas/v2-4-5-kaggle-live-qualification.schema.json")
@@ -188,6 +191,29 @@ def main() -> int:
             and "tests/test_v2_4_5_model_lab_accelerator_ui.py" in ui_smoke
             and "Run V2.4.5 Model Lab accelerator exact-head acceptance" in python_core,
             "mandatory PR CI remains deterministic and includes backend/UI exact-head coverage",
+        ),
+        _check(
+            "governed_live_bootstrap",
+            "source_sha must be 40 lowercase hexadecimal characters" in bootstrap
+            and 'QUALIFICATION_MODEL_REF = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"' in bootstrap
+            and 'QUALIFICATION_MODEL_REVISION = (' in bootstrap
+            and "fe8a4ea1ffedaf415f4da2f062534de366a451e6" in bootstrap
+            and "build_live_qualification_dataset" in bootstrap
+            and '"datasets",' in bootstrap
+            and '"create",' in bootstrap
+            and '"kernels",' in bootstrap
+            and '"push",' in bootstrap
+            and '"output",' in bootstrap
+            and "GapDecisionEngine().evaluate" in bootstrap
+            and "if decision.disposition is DecisionDisposition.TRAIN" in bootstrap
+            and '"promotion_authorized": False' in bootstrap
+            and '"qualification_only": True' in bootstrap
+            and "--public" not in bootstrap
+            and '"schema": "kodepoia.v2.4.5.live-workload"' in workload
+            and "test_live_bootstrap_accepts_exact_git_sha" in bootstrap_tests
+            and "test_live_bootstrap_client_uses_fixed_kaggle_argv" in bootstrap_tests
+            and "test_finalize_live_bootstrap_does_not_force_train" in bootstrap_tests,
+            "governed bootstrap is exact-source, private, non-promotable and R15.7-gated",
         ),
         _check(
             "no_forbidden_scope",

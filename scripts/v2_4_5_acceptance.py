@@ -118,7 +118,10 @@ def main() -> int:
             '"is_private": True' in live
             and '"machine_shape": request.requested_shape' in live
             and '"enable_internet": False' in live
-            and "provider-probe.json" in live,
+            and "provider-probe.json" in live
+            and "KaggleLiveProbeClient" in live
+            and '"kernels", "push"' in live
+            and '"kernels", "output"' in live,
             "provider probe is exact-source private and minimally networked",
         ),
         _check(

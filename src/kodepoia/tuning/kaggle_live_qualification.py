@@ -3,11 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
 
 from .contracts import canonical_sha256
+from .kaggle_remote import CommandResult, CommandRunner, SubprocessCommandRunner
 from .strategy import MIN_REPLICATED_THROUGHPUT_SPEEDUP_RATIO
 
 LIVE_REQUEST_SCHEMA = "kodepoia.v2.4.5.kaggle-live-qualification-request"
@@ -232,6 +234,83 @@ print(json.dumps({"device_count": count, "source_sha": request["source_sha"]}))
     return root
 
 
+class KaggleLiveProbeClient:
+    """Fixed-argv provider probe lifecycle; never accepts caller shell/env arguments."""
+
+    def __init__(
+        self,
+        *,
+        runner: CommandRunner | None = None,
+        kaggle_executable: str | None = None,
+    ) -> None:
+        self.runner = runner or SubprocessCommandRunner()
+        self.kaggle_executable = kaggle_executable or shutil.which("kaggle") or "kaggle"
+
+    def push(self, bundle_root: Path) -> CommandResult:
+        root = Path(bundle_root).resolve(strict=True)
+        metadata = json.loads((root / "kernel-metadata.json").read_text(encoding="utf-8"))
+        if not isinstance(metadata, dict) or metadata.get("is_private") is not True:
+            raise KaggleLiveQualificationError("live probe kernel must be private")
+        return self._checked(
+            [self.kaggle_executable, "kernels", "push", "--path", str(root)],
+            timeout=300.0,
+        )
+
+    def status(self, request: KaggleLiveQualificationRequest) -> CommandResult:
+        return self._checked(
+            [self.kaggle_executable, "kernels", "status", request.kernel_id],
+            timeout=120.0,
+        )
+
+    def fetch_probe(
+        self,
+        request: KaggleLiveQualificationRequest,
+        output_root: Path,
+    ) -> dict[str, object]:
+        output = Path(output_root).resolve(strict=False)
+        output.mkdir(parents=True, exist_ok=True)
+        self._checked(
+            [
+                self.kaggle_executable,
+                "kernels",
+                "output",
+                request.kernel_id,
+                "--path",
+                str(output),
+            ],
+            timeout=3600.0,
+        )
+        matches = list(output.rglob("provider-probe.json"))
+        if len(matches) != 1:
+            raise KaggleLiveQualificationError(
+                "Kaggle output must contain exactly one provider-probe.json"
+            )
+        payload = json.loads(matches[0].read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            raise KaggleLiveQualificationError("provider probe root must be an object")
+        _assert_no_secrets(payload)
+        if payload.get("schema") != "kodepoia.v2.4.5.kaggle-provider-probe":
+            raise KaggleLiveQualificationError("provider probe schema mismatch")
+        if str(payload.get("source_sha", "")).lower() != request.source_sha:
+            raise KaggleLiveQualificationError("provider probe source SHA mismatch")
+        if payload.get("request_digest") != request.digest:
+            raise KaggleLiveQualificationError("provider probe request digest mismatch")
+        if payload.get("kernel_id") != request.kernel_id:
+            raise KaggleLiveQualificationError("provider probe kernel identity mismatch")
+        if payload.get("private_kernel") is not True:
+            raise KaggleLiveQualificationError("provider probe did not prove private kernel")
+        return payload
+
+    def _checked(self, argv: list[str], *, timeout: float) -> CommandResult:
+        result = self.runner.run(argv, timeout=timeout)
+        if result.returncode != 0:
+            raise KaggleLiveQualificationError(
+                f"Kaggle CLI probe command failed ({result.returncode}): "
+                f"{result.stderr.strip()[:4096]}"
+            )
+        return result
+
+
 def _run_blockers(
     label: str,
     run: Mapping[str, object],
@@ -411,6 +490,7 @@ def save_live_report(path: Path, report: Mapping[str, object]) -> Path:
 __all__ = [
     "KaggleLiveQualificationError",
     "KaggleLiveQualificationRequest",
+    "KaggleLiveProbeClient",
     "LIVE_REPORT_SCHEMA",
     "LIVE_REQUEST_SCHEMA",
     "build_private_probe_bundle",

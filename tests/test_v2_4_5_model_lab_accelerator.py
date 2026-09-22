@@ -3,14 +3,18 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from jsonschema import Draft202012Validator
 
 from kodepoia.kodestudio.model_lab_accelerator import accelerator_projection
 from kodepoia.tuning.kaggle_live_qualification import (
+    KaggleLiveProbeClient,
+    KaggleLiveQualificationError,
     KaggleLiveQualificationRequest,
     build_private_probe_bundle,
     validate_live_evidence,
 )
+from kodepoia.tuning.kaggle_remote import CommandResult
 
 A = "a" * 64
 B = "b" * 64
@@ -19,6 +23,18 @@ D = "d" * 64
 E = "e" * 64
 F = "f" * 64
 SOURCE = "1" * 40
+
+
+class FakeRunner:
+    def __init__(self, results: list[CommandResult]) -> None:
+        self.results = list(results)
+        self.calls: list[list[str]] = []
+
+    def run(self, argv: list[str], *, cwd=None, timeout: float = 120.0) -> CommandResult:
+        del cwd, timeout
+        self.calls.append(list(argv))
+        return self.results.pop(0)
+
 
 
 def _request() -> KaggleLiveQualificationRequest:
@@ -116,6 +132,72 @@ def test_private_probe_bundle_is_exact_source_private_and_secret_free(tmp_path: 
     assert "kaggle_key" not in serialized
     assert "api_key" not in serialized
     assert "password" not in serialized
+
+
+
+
+def test_probe_client_uses_only_fixed_kaggle_argv_and_revalidates_download(
+    tmp_path: Path,
+) -> None:
+    request = _request()
+    bundle = build_private_probe_bundle(request, tmp_path / "bundle")
+    output = tmp_path / "output"
+    output.mkdir()
+    probe = {
+        "schema": "kodepoia.v2.4.5.kaggle-provider-probe",
+        "schema_version": 1,
+        "source_sha": request.source_sha,
+        "request_digest": request.digest,
+        "requested_shape": request.requested_shape,
+        "kernel_id": request.kernel_id,
+        "private_kernel": True,
+        "backend_type": "cuda",
+        "device_count": 2,
+        "devices": [],
+        "framework_versions": {"python": "3.12", "torch": "fixture", "cuda": "fixture"},
+    }
+    (output / "provider-probe.json").write_text(json.dumps(probe), encoding="utf-8")
+    runner = FakeRunner(
+        [
+            CommandResult(0, "pushed", ""),
+            CommandResult(0, "complete", ""),
+            CommandResult(0, "downloaded", ""),
+        ]
+    )
+    client = KaggleLiveProbeClient(runner=runner, kaggle_executable="kaggle-test")
+    client.push(bundle)
+    client.status(request)
+    fetched = client.fetch_probe(request, output)
+    assert fetched["source_sha"] == request.source_sha
+    assert runner.calls == [
+        ["kaggle-test", "kernels", "push", "--path", str(bundle.resolve())],
+        ["kaggle-test", "kernels", "status", request.kernel_id],
+        ["kaggle-test", "kernels", "output", request.kernel_id, "--path", str(output.resolve())],
+    ]
+
+
+def test_probe_client_rejects_tampered_download(tmp_path: Path) -> None:
+    request = _request()
+    output = tmp_path / "output"
+    output.mkdir()
+    (output / "provider-probe.json").write_text(
+        json.dumps(
+            {
+                "schema": "kodepoia.v2.4.5.kaggle-provider-probe",
+                "source_sha": "2" * 40,
+                "request_digest": request.digest,
+                "kernel_id": request.kernel_id,
+                "private_kernel": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+    client = KaggleLiveProbeClient(
+        runner=FakeRunner([CommandResult(0, "downloaded", "")]),
+        kaggle_executable="kaggle-test",
+    )
+    with pytest.raises(KaggleLiveQualificationError, match="source SHA mismatch"):
+        client.fetch_probe(request, output)
 
 
 def test_complete_live_pair_is_qualified_only_after_download_revalidation() -> None:

@@ -116,6 +116,8 @@ def main() -> int:
         _check(
             "private_probe_bundle",
             "class KaggleLiveProbeRequest" in live
+            and "kernel_id must be an exact Kaggle owner/kernel-slug reference" in live
+            and '"title": request.kernel_id.split("/", 1)[1]' in live
             and "probe-request.json" in live
             and "topology_report_from_probe" in live
             and '"is_private": True' in live

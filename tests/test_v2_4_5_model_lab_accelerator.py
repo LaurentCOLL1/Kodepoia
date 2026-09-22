@@ -38,7 +38,6 @@ class FakeRunner:
         return self.results.pop(0)
 
 
-
 def _probe_request() -> KaggleLiveProbeRequest:
     return KaggleLiveProbeRequest(
         source_sha=SOURCE,
@@ -145,8 +144,6 @@ def test_private_probe_bundle_bootstraps_before_final_lineage_and_is_secret_free
     assert "kaggle_key" not in serialized
     assert "api_key" not in serialized
     assert "password" not in serialized
-
-
 
 
 def test_probe_client_uses_only_fixed_kaggle_argv_and_revalidates_download(

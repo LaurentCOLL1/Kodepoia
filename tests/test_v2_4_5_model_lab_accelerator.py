@@ -144,6 +144,7 @@ def test_private_probe_bundle_bootstraps_before_final_lineage_and_is_secret_free
     metadata = json.loads((root / "kernel-metadata.json").read_text(encoding="utf-8"))
     manifest = json.loads((root / "bundle-manifest.json").read_text(encoding="utf-8"))
     saved = json.loads((root / "probe-request.json").read_text(encoding="utf-8"))
+    script = (root / "probe_kaggle_t4x2.py").read_text(encoding="utf-8")
     assert metadata["is_private"] is True
     assert metadata["title"] == "kodepoia-v2-4-5-live"
     assert metadata["machine_shape"] == "NvidiaTeslaT4"
@@ -152,6 +153,9 @@ def test_private_probe_bundle_bootstraps_before_final_lineage_and_is_secret_free
     assert saved["request_digest"] == request.digest
     assert "topology_digest" not in saved
     assert "training_plan_digest" not in saved
+    assert request.source_sha in script
+    assert request.digest in script
+    assert 'Path("probe-request.json")' not in script
     serialized = json.dumps([metadata, manifest, saved]).lower()
     assert "kaggle_key" not in serialized
     assert "api_key" not in serialized

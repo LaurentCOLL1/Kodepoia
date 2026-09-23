@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -38,7 +39,7 @@ def _repository(tmp_path: Path) -> Path:
 
 def _bundle(tmp_path: Path):
     root = _repository(tmp_path)
-    wheel = root / "dist" / "kodepoia-test.whl"
+    wheel = root / "dist" / "kodepoia-1.1.0rc8-py3-none-any.whl"
     wheel.parent.mkdir(parents=True)
     wheel.write_bytes(b"deterministic-test-wheel")
     bundle = build_live_bootstrap_bundle(
@@ -132,6 +133,8 @@ def test_live_bootstrap_accepts_exact_git_sha_and_rejects_sha256_source(tmp_path
             contamination_digest=bundle.request.contamination_digest,
             protection_manifest_digest=bundle.request.protection_manifest_digest,
             dedup_policy_digest=bundle.request.dedup_policy_digest,
+            wheel_filename=bundle.request.wheel_filename,
+            wheel_sha256=bundle.request.wheel_sha256,
         )
 
 
@@ -169,6 +172,56 @@ def test_live_bootstrap_bundle_is_private_non_promotable_and_fixed_shape(tmp_pat
     assert metadata["dataset_sources"] == [DATASET_ID]
     assert dataset_metadata["id"] == DATASET_ID
     assert "public" not in dataset_metadata
+
+
+def test_live_bootstrap_preserves_exact_wheel_filename_and_hashes_it(
+    tmp_path: Path,
+) -> None:
+    _, bundle = _bundle(tmp_path)
+    wheel_filename = "kodepoia-1.1.0rc8-py3-none-any.whl"
+    expected_digest = hashlib.sha256(b"deterministic-test-wheel").hexdigest()
+    manifest = json.loads(
+        (bundle.kaggle_dataset_dir / "bootstrap-bundle-manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    script = (bundle.kernel_dir / "run_bootstrap.py").read_text(encoding="utf-8")
+
+    compile(script, "run_bootstrap.py", "exec")
+    assert bundle.request.wheel_filename == wheel_filename
+    assert bundle.request.wheel_sha256 == expected_digest
+    assert (bundle.kaggle_dataset_dir / wheel_filename).read_bytes() == (
+        b"deterministic-test-wheel"
+    )
+    assert not (bundle.kaggle_dataset_dir / "kodepoia.whl").exists()
+    assert manifest["wheel_filename"] == wheel_filename
+    assert manifest["wheel_sha256"] == expected_digest
+    assert manifest["files"][wheel_filename] == expected_digest
+    assert "wheel = work / wheel_filename" in script
+    assert (
+        '[sys.executable, "-m", "pip", "install", '
+        'f"{wheel}[tuning,tuning-bnb]"]'
+    ) in script
+
+
+def test_live_bootstrap_rejects_invalid_wheel_filename(tmp_path: Path) -> None:
+    root = _repository(tmp_path)
+    wheel = root / "dist" / "kodepoia.whl"
+    wheel.parent.mkdir(parents=True)
+    wheel.write_bytes(b"invalid-wheel-name")
+
+    with pytest.raises(
+        KaggleLiveBootstrapError,
+        match="preserve a valid wheel filename",
+    ):
+        build_live_bootstrap_bundle(
+            repository_root=root,
+            source_sha=SOURCE_SHA,
+            kaggle_dataset_id=DATASET_ID,
+            kernel_id=KERNEL_ID,
+            wheel_path=wheel,
+            output_root=root / ".kodepoia" / "live" / "invalid-wheel",
+        )
 
 
 def test_live_bootstrap_client_uses_fixed_kaggle_argv_and_revalidates_output(

@@ -198,7 +198,15 @@ def test_probe_client_uses_only_fixed_kaggle_argv_and_revalidates_download(
     assert runner.calls == [
         ["kaggle-test", "kernels", "push", "--path", str(bundle.resolve())],
         ["kaggle-test", "kernels", "status", request.kernel_id],
-        ["kaggle-test", "kernels", "output", request.kernel_id, "--path", str(output.resolve())],
+        [
+            "kaggle-test",
+            "kernels",
+            "output",
+            request.kernel_id,
+            "--path",
+            str(output.resolve()),
+            "--quiet",
+        ],
     ]
 
 

@@ -329,6 +329,7 @@ class KaggleLiveProbeClient:
                 request.kernel_id,
                 "--path",
                 str(output),
+                "--quiet",
             ],
             timeout=3600.0,
         )

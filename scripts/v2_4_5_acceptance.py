@@ -29,6 +29,7 @@ def main() -> int:
     localization = read("src/kodepoia/kodestudio/model_lab_localization.py")
     live = read("src/kodepoia/tuning/kaggle_live_qualification.py")
     bootstrap = read("src/kodepoia/tuning/kaggle_live_bootstrap.py")
+    kaggle_remote = read("src/kodepoia/tuning/kaggle_remote.py")
     bootstrap_tests = read("tests/test_v2_4_5_live_bootstrap.py")
     workload = read("qualification/v2_4_5/live_workload.json")
     tests = read("tests/test_v2_4_5_model_lab_accelerator.py")
@@ -214,6 +215,12 @@ def main() -> int:
             and '"push",' in bootstrap
             and '"output",' in bootstrap
             and '"--quiet",' in bootstrap
+            and 'child_env["PYTHONUTF8"] = "1"' in kaggle_remote
+            and 'child_env["PYTHONIOENCODING"] = "utf-8"' in kaggle_remote
+            and 'encoding="utf-8"' in kaggle_remote
+            and 'errors="strict"' in kaggle_remote
+            and "test_subprocess_runner_forces_utf8_for_kaggle_child"
+            in bootstrap_tests
             and "GapDecisionEngine().evaluate" in bootstrap
             and "if decision.disposition is DecisionDisposition.TRAIN" in bootstrap
             and '"promotion_authorized": False' in bootstrap
@@ -231,7 +238,7 @@ def main() -> int:
             and "test_finalize_live_bootstrap_does_not_force_train" in bootstrap_tests,
             (
                 "governed bootstrap preserves exact wheel identity, uses quiet "
-                "fixed output retrieval, stays private/non-promotable and is R15.7-gated"
+                "UTF-8-fixed output retrieval, stays private/non-promotable and is R15.7-gated"
             ),
         ),
         _check(

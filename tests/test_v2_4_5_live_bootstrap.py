@@ -258,6 +258,7 @@ def test_live_bootstrap_client_uses_fixed_kaggle_argv_and_revalidates_output(
         KERNEL_ID,
         "--path",
         str(bundle.output_dir),
+        "--quiet",
     ]
 
     bad = dict(payload)

@@ -198,6 +198,15 @@ def main() -> int:
             and 'QUALIFICATION_MODEL_REF = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"' in bootstrap
             and 'QUALIFICATION_MODEL_REVISION = "fe8a4ea1ffedaf415f4da2f062534de366a451e6"' in bootstrap
             and "build_live_qualification_dataset" in bootstrap
+            and "def _validated_wheel_filename" in bootstrap
+            and '"wheel_filename": self.wheel_filename' in bootstrap
+            and '"wheel_sha256": self.wheel_sha256' in bootstrap
+            and (
+                "shutil.copy2(wheel_path, dataset_dir / wheel_filename)"
+                in bootstrap
+            )
+            and "wheel = work / wheel_filename" in bootstrap
+            and '"kodepoia.whl"' not in bootstrap
             and '"datasets",' in bootstrap
             and '"create",' in bootstrap
             and '"kernels",' in bootstrap
@@ -211,8 +220,17 @@ def main() -> int:
             and '"schema": "kodepoia.v2.4.5.live-qualification-workload"' in workload
             and "test_live_bootstrap_accepts_exact_git_sha" in bootstrap_tests
             and "test_live_bootstrap_client_uses_fixed_kaggle_argv" in bootstrap_tests
+            and (
+                "test_live_bootstrap_preserves_exact_wheel_filename_and_hashes_it"
+                in bootstrap_tests
+            )
+            and "test_live_bootstrap_rejects_invalid_wheel_filename"
+            in bootstrap_tests
             and "test_finalize_live_bootstrap_does_not_force_train" in bootstrap_tests,
-            "governed bootstrap is exact-source, private, non-promotable and R15.7-gated",
+            (
+                "governed bootstrap preserves exact wheel identity, stays "
+                "private/non-promotable and is R15.7-gated"
+            ),
         ),
         _check(
             "no_forbidden_scope",

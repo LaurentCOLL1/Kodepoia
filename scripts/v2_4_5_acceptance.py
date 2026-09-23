@@ -196,8 +196,7 @@ def main() -> int:
             "governed_live_bootstrap",
             "source_sha must be 40 lowercase hexadecimal characters" in bootstrap
             and 'QUALIFICATION_MODEL_REF = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"' in bootstrap
-            and 'QUALIFICATION_MODEL_REVISION = (' in bootstrap
-            and "fe8a4ea1ffedaf415f4da2f062534de366a451e6" in bootstrap
+            and 'QUALIFICATION_MODEL_REVISION = "fe8a4ea1ffedaf415f4da2f062534de366a451e6"' in bootstrap
             and "build_live_qualification_dataset" in bootstrap
             and '"datasets",' in bootstrap
             and '"create",' in bootstrap
@@ -209,7 +208,7 @@ def main() -> int:
             and '"promotion_authorized": False' in bootstrap
             and '"qualification_only": True' in bootstrap
             and "--public" not in bootstrap
-            and '"schema": "kodepoia.v2.4.5.live-workload"' in workload
+            and '"schema": "kodepoia.v2.4.5.live-qualification-workload"' in workload
             and "test_live_bootstrap_accepts_exact_git_sha" in bootstrap_tests
             and "test_live_bootstrap_client_uses_fixed_kaggle_argv" in bootstrap_tests
             and "test_finalize_live_bootstrap_does_not_force_train" in bootstrap_tests,

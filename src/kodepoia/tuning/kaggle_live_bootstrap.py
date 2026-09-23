@@ -88,6 +88,10 @@ _SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
 _KAGGLE_ID = re.compile(
     r"^[A-Za-z0-9][A-Za-z0-9_-]{1,49}/[a-z0-9][a-z0-9-]{1,49}$"
 )
+_WHEEL_DISTRIBUTION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._]*$")
+_WHEEL_VERSION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._!+]*$")
+_WHEEL_BUILD = re.compile(r"^[0-9][A-Za-z0-9._]*$")
+_WHEEL_TAG = re.compile(r"^[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$")
 _SECRET_KEYS = {
     "access_token",
     "api_key",
@@ -159,6 +163,8 @@ class KaggleLiveBootstrapRequest:
     contamination_digest: str
     protection_manifest_digest: str
     dedup_policy_digest: str
+    wheel_filename: str
+    wheel_sha256: str
 
     def __post_init__(self) -> None:
         source_sha = self.source_sha.strip().lower()
@@ -186,6 +192,11 @@ class KaggleLiveBootstrapRequest:
                 raise KaggleLiveBootstrapError(
                     f"{label} must be 64 lowercase hexadecimal characters"
                 )
+        _validated_wheel_filename(self.wheel_filename)
+        if _SHA256.fullmatch(self.wheel_sha256) is None:
+            raise KaggleLiveBootstrapError(
+                "wheel_sha256 must be 64 lowercase hexadecimal characters"
+            )
 
     def descriptor(self) -> dict[str, object]:
         return {
@@ -208,6 +219,8 @@ class KaggleLiveBootstrapRequest:
             "source_sha": self.source_sha,
             "train_export_digest": self.train_export_digest,
             "validation_export_digest": self.validation_export_digest,
+            "wheel_filename": self.wheel_filename,
+            "wheel_sha256": self.wheel_sha256,
             "workload_digest": self.workload_digest,
         }
 
@@ -303,6 +316,41 @@ def _safe_id(label: str, value: object) -> str:
     if _SAFE_ID.fullmatch(text) is None:
         raise KaggleLiveBootstrapError(f"{label} must be a stable safe identifier")
     return text
+
+
+def _validated_wheel_filename(value: object) -> str:
+    if (
+        not isinstance(value, str)
+        or not value
+        or len(value) > 255
+        or "\x00" in value
+        or "/" in value
+        or "\\" in value
+        or not value.endswith(".whl")
+    ):
+        raise KaggleLiveBootstrapError(
+            "wheel_path must preserve a valid wheel filename"
+        )
+    parts = value[:-4].split("-")
+    if len(parts) not in (5, 6):
+        raise KaggleLiveBootstrapError(
+            "wheel_path must preserve a valid wheel filename"
+        )
+    distribution, version = parts[:2]
+    build = parts[2] if len(parts) == 6 else None
+    python_tag, abi_tag, platform_tag = parts[-3:]
+    if (
+        _WHEEL_DISTRIBUTION.fullmatch(distribution) is None
+        or _WHEEL_VERSION.fullmatch(version) is None
+        or (build is not None and _WHEEL_BUILD.fullmatch(build) is None)
+        or _WHEEL_TAG.fullmatch(python_tag) is None
+        or _WHEEL_TAG.fullmatch(abi_tag) is None
+        or _WHEEL_TAG.fullmatch(platform_tag) is None
+    ):
+        raise KaggleLiveBootstrapError(
+            "wheel_path must preserve a valid wheel filename"
+        )
+    return value
 
 
 def _load_workload(repository_root: Path) -> tuple[Path, dict[str, object], str]:
@@ -595,6 +643,7 @@ def _bootstrap_kernel_script() -> str:
 import gc
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -626,32 +675,95 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def validated_wheel_filename(value: object) -> str:
+    if (
+        not isinstance(value, str)
+        or not value
+        or len(value) > 255
+        or "\x00" in value
+        or "/" in value
+        or "\\" in value
+        or not value.endswith(".whl")
+    ):
+        raise SystemExit("Bootstrap wheel filename is invalid")
+    parts = value[:-4].split("-")
+    if len(parts) not in (5, 6):
+        raise SystemExit("Bootstrap wheel filename is invalid")
+    distribution, version = parts[:2]
+    build = parts[2] if len(parts) == 6 else None
+    python_tag, abi_tag, platform_tag = parts[-3:]
+    if (
+        re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._]*", distribution) is None
+        or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._!+]*", version) is None
+        or (
+            build is not None
+            and re.fullmatch(r"[0-9][A-Za-z0-9._]*", build) is None
+        )
+        or re.fullmatch(r"[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*", python_tag)
+        is None
+        or re.fullmatch(r"[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*", abi_tag)
+        is None
+        or re.fullmatch(r"[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*", platform_tag)
+        is None
+    ):
+        raise SystemExit("Bootstrap wheel filename is invalid")
+    return value
+
+
 input_root = Path("/kaggle/input")
 manifests = list(input_root.rglob("bootstrap-bundle-manifest.json"))
 if len(manifests) != 1:
     raise SystemExit(f"Expected one bootstrap manifest, found {len(manifests)}")
 source = manifests[0].parent
 manifest = json.loads(manifests[0].read_text(encoding="utf-8"))
-for name, expected in manifest["files"].items():
+if (
+    manifest.get("schema") != "kodepoia.v2.4.5.live-bootstrap-bundle"
+    or manifest.get("schema_version") != 1
+):
+    raise SystemExit("Bootstrap manifest schema is invalid")
+files = manifest.get("files")
+if not isinstance(files, dict):
+    raise SystemExit("Bootstrap manifest files are invalid")
+wheel_filename = validated_wheel_filename(manifest.get("wheel_filename"))
+expected_files = {
+    "bootstrap-request.json",
+    "contamination.json",
+    "holdouts.json",
+    "manifest.json",
+    "workload.json",
+    wheel_filename,
+}
+if set(files) != expected_files:
+    raise SystemExit("Bootstrap manifest file set is invalid")
+for name in sorted(expected_files):
+    expected = files.get(name)
     path = source / name
-    if not path.is_file() or sha256(path) != expected:
+    if (
+        not isinstance(expected, str)
+        or re.fullmatch(r"[0-9a-f]{64}", expected) is None
+        or not path.is_file()
+        or sha256(path) != expected
+    ):
         raise SystemExit(f"Bootstrap bundle integrity failure: {name}")
+
+request = json.loads((source / "bootstrap-request.json").read_text(encoding="utf-8"))
+if request.get("request_digest") != manifest.get("request_digest"):
+    raise SystemExit("Bootstrap request identity mismatch")
+if (
+    request.get("wheel_filename") != wheel_filename
+    or request.get("wheel_sha256") != manifest.get("wheel_sha256")
+    or manifest.get("wheel_sha256") != files[wheel_filename]
+):
+    raise SystemExit("Bootstrap wheel identity mismatch")
 
 work = Path("/kaggle/working/kodepoia-v245-bootstrap")
 if work.exists():
     shutil.rmtree(work)
 work.mkdir(parents=True)
-for name in (
-    "bootstrap-request.json",
-    "contamination.json",
-    "holdouts.json",
-    "kodepoia.whl",
-    "manifest.json",
-    "workload.json",
-):
+for name in sorted(expected_files):
     shutil.copy2(source / name, work / name)
 
-wheel = work / "kodepoia.whl"
+wheel = work / wheel_filename
 install = subprocess.run(
     [sys.executable, "-m", "pip", "install", f"{wheel}[tuning,tuning-bnb]"],
     cwd=work,
@@ -696,7 +808,6 @@ from kodepoia.tuning.contracts import (
 from kodepoia.tuning.runtime import TrainingRuntime
 
 
-request = json.loads((work / "bootstrap-request.json").read_text(encoding="utf-8"))
 workload = json.loads((work / "workload.json").read_text(encoding="utf-8"))
 if request["model_ref"] != MODEL_REF or request["model_revision"] != MODEL_REVISION:
     raise SystemExit("Bootstrap model identity is not repository-authorized")
@@ -991,6 +1102,9 @@ def build_live_bootstrap_bundle(
         raise KaggleLiveBootstrapError(
             f"live bootstrap bundle directory is not empty: {output_root}"
         )
+    wheel_path = wheel_path.resolve(strict=True)
+    wheel_filename = _validated_wheel_filename(wheel_path.name)
+    wheel_sha256 = _sha256_file(wheel_path)
     output_root.mkdir(parents=True, exist_ok=True)
     governed = build_live_qualification_dataset(
         repository_root,
@@ -1010,11 +1124,10 @@ def build_live_bootstrap_bundle(
         contamination_digest=governed.contamination_digest,
         protection_manifest_digest=governed.protection_manifest_digest,
         dedup_policy_digest=governed.dedup_policy_digest,
+        wheel_filename=wheel_filename,
+        wheel_sha256=wheel_sha256,
     )
 
-    wheel_path = wheel_path.resolve(strict=True)
-    if wheel_path.suffix.lower() != ".whl":
-        raise KaggleLiveBootstrapError("wheel_path must reference a built wheel")
     dataset_dir = output_root / "kaggle-dataset"
     kernel_dir = output_root / "kernel"
     result_dir = output_root / "output"
@@ -1030,16 +1143,16 @@ def build_live_bootstrap_bundle(
     }
     for name, source in copies.items():
         shutil.copy2(source, dataset_dir / name)
-    shutil.copy2(wheel_path, dataset_dir / "kodepoia.whl")
+    shutil.copy2(wheel_path, dataset_dir / wheel_filename)
     _write_json(dataset_dir / "bootstrap-request.json", request.to_dict())
 
     file_names = (
         "bootstrap-request.json",
         "contamination.json",
         "holdouts.json",
-        "kodepoia.whl",
         "manifest.json",
         "workload.json",
+        wheel_filename,
     )
     manifest = {
         "files": {
@@ -1049,6 +1162,8 @@ def build_live_bootstrap_bundle(
         "request_digest": request.digest,
         "schema": "kodepoia.v2.4.5.live-bootstrap-bundle",
         "schema_version": 1,
+        "wheel_filename": wheel_filename,
+        "wheel_sha256": wheel_sha256,
     }
     _assert_no_secret_fields(manifest)
     _write_json(dataset_dir / "bootstrap-bundle-manifest.json", manifest)
@@ -1121,6 +1236,8 @@ def _request_from_mapping(value: object) -> KaggleLiveBootstrapRequest:
         contamination_digest=str(value["contamination_digest"]),
         protection_manifest_digest=str(value["protection_manifest_digest"]),
         dedup_policy_digest=str(value["dedup_policy_digest"]),
+        wheel_filename=str(value["wheel_filename"]),
+        wheel_sha256=str(value["wheel_sha256"]),
     )
 
 
@@ -1130,6 +1247,34 @@ def load_live_bootstrap_bundle(root: Path) -> KaggleLiveBootstrapBundle:
     request = _request_from_mapping(bundle_raw["request"])
     if bundle_raw["request"].get("request_digest") != request.digest:
         raise KaggleLiveBootstrapError("saved bootstrap request digest mismatch")
+    dataset_dir = _inside(
+        root,
+        root / str(bundle_raw["kaggle_dataset_dir"]),
+        strict=True,
+    )
+    bundle_manifest = json.loads(
+        (dataset_dir / "bootstrap-bundle-manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    if (
+        bundle_manifest.get("request_digest") != request.digest
+        or bundle_manifest.get("wheel_filename") != request.wheel_filename
+        or bundle_manifest.get("wheel_sha256") != request.wheel_sha256
+    ):
+        raise KaggleLiveBootstrapError("saved bootstrap wheel identity mismatch")
+    bundle_files = bundle_manifest.get("files")
+    if (
+        not isinstance(bundle_files, dict)
+        or bundle_files.get(request.wheel_filename) != request.wheel_sha256
+    ):
+        raise KaggleLiveBootstrapError("saved bootstrap wheel manifest mismatch")
+    saved_wheel = dataset_dir / request.wheel_filename
+    if (
+        not saved_wheel.is_file()
+        or _sha256_file(saved_wheel) != request.wheel_sha256
+    ):
+        raise KaggleLiveBootstrapError("saved bootstrap wheel digest mismatch")
     governed_root = root / str(bundle_raw["governed_dataset_root"])
     manifest_raw = json.loads(
         (governed_root / "manifest.json").read_text(encoding="utf-8")
@@ -1175,7 +1320,7 @@ def load_live_bootstrap_bundle(root: Path) -> KaggleLiveBootstrapBundle:
     return KaggleLiveBootstrapBundle(
         root=root,
         governed_dataset=governed,
-        kaggle_dataset_dir=root / str(bundle_raw["kaggle_dataset_dir"]),
+        kaggle_dataset_dir=dataset_dir,
         kernel_dir=root / str(bundle_raw["kernel_dir"]),
         output_dir=root / str(bundle_raw["output_dir"]),
         request=request,

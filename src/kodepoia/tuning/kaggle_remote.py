@@ -79,15 +79,20 @@ class SubprocessCommandRunner:
         cwd: Path | None = None,
         timeout: float = 120.0,
     ) -> CommandResult:
+        child_env = os.environ.copy()
+        child_env["PYTHONUTF8"] = "1"
+        child_env["PYTHONIOENCODING"] = "utf-8"
         completed = subprocess.run(
             argv,
             cwd=cwd,
             check=False,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="strict",
             timeout=timeout,
             shell=False,
-            env=os.environ.copy(),
+            env=child_env,
         )
         return CommandResult(completed.returncode, completed.stdout, completed.stderr)
 

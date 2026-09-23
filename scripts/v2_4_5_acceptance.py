@@ -131,7 +131,8 @@ def main() -> int:
             and "provider-probe.json" in live
             and "KaggleLiveProbeClient" in live
             and '"kernels", "push"' in live
-            and '"kernels", "output"' in live,
+            and '"kernels", "output"' in live
+            and '"--quiet"' in live,
             "provider probe bootstraps exact-source private topology before final lineage",
         ),
         _check(
@@ -212,6 +213,7 @@ def main() -> int:
             and '"kernels",' in bootstrap
             and '"push",' in bootstrap
             and '"output",' in bootstrap
+            and '"--quiet",' in bootstrap
             and "GapDecisionEngine().evaluate" in bootstrap
             and "if decision.disposition is DecisionDisposition.TRAIN" in bootstrap
             and '"promotion_authorized": False' in bootstrap
@@ -228,8 +230,8 @@ def main() -> int:
             in bootstrap_tests
             and "test_finalize_live_bootstrap_does_not_force_train" in bootstrap_tests,
             (
-                "governed bootstrap preserves exact wheel identity, stays "
-                "private/non-promotable and is R15.7-gated"
+                "governed bootstrap preserves exact wheel identity, uses quiet "
+                "fixed output retrieval, stays private/non-promotable and is R15.7-gated"
             ),
         ),
         _check(

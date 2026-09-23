@@ -1415,6 +1415,7 @@ class KaggleLiveBootstrapClient:
                 bundle.request.kernel_id,
                 "--path",
                 str(bundle.output_dir),
+                "--quiet",
             ],
             timeout=3600.0,
         )

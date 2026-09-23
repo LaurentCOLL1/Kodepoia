@@ -10,12 +10,12 @@ from kodepoia.bench import DecisionDisposition
 from kodepoia.tuning.contracts import canonical_sha256
 from kodepoia.tuning.kaggle_live_bootstrap import (
     BOOTSTRAP_EVIDENCE_SCHEMA,
-    KaggleLiveBootstrapClient,
-    KaggleLiveBootstrapError,
     QUALIFICATION_MODEL_FILE_SHA256,
     QUALIFICATION_MODEL_LICENSE,
     QUALIFICATION_MODEL_REF,
     QUALIFICATION_MODEL_REVISION,
+    KaggleLiveBootstrapClient,
+    KaggleLiveBootstrapError,
     build_live_bootstrap_bundle,
     build_live_qualification_dataset,
     finalize_live_bootstrap,

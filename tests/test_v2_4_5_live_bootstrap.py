@@ -22,7 +22,6 @@ from kodepoia.tuning.kaggle_live_bootstrap import (
 )
 from kodepoia.tuning.kaggle_remote import CommandResult
 
-
 SOURCE_SHA = "a" * 40
 DATASET_ID = "fixture/kodepoia-v245-bootstrap-data"
 KERNEL_ID = "fixture/kodepoia-v245-bootstrap-kernel"

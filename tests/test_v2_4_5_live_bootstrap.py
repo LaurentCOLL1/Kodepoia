@@ -4,6 +4,7 @@ import hashlib
 import json
 import shutil
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -21,7 +22,7 @@ from kodepoia.tuning.kaggle_live_bootstrap import (
     build_live_qualification_dataset,
     finalize_live_bootstrap,
 )
-from kodepoia.tuning.kaggle_remote import CommandResult
+from kodepoia.tuning.kaggle_remote import CommandResult, SubprocessCommandRunner
 
 SOURCE_SHA = "a" * 40
 DATASET_ID = "fixture/kodepoia-v245-bootstrap-data"
@@ -222,6 +223,38 @@ def test_live_bootstrap_rejects_invalid_wheel_filename(tmp_path: Path) -> None:
             wheel_path=wheel,
             output_root=root / ".kodepoia" / "live" / "invalid-wheel",
         )
+
+
+def test_subprocess_runner_forces_utf8_for_kaggle_child(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_run(argv: list[str], **kwargs: object) -> SimpleNamespace:
+        captured["argv"] = list(argv)
+        captured.update(kwargs)
+        return SimpleNamespace(returncode=0, stdout="ok", stderr="")
+
+    monkeypatch.setattr(
+        "kodepoia.tuning.kaggle_remote.subprocess.run",
+        fake_run,
+    )
+
+    result = SubprocessCommandRunner().run(
+        ["kaggle", "kernels", "output", "owner/kernel"],
+        timeout=42.0,
+    )
+
+    env = captured["env"]
+    assert isinstance(env, dict)
+    assert env["PYTHONUTF8"] == "1"
+    assert env["PYTHONIOENCODING"] == "utf-8"
+    assert captured["encoding"] == "utf-8"
+    assert captured["errors"] == "strict"
+    assert captured["shell"] is False
+    assert captured["text"] is True
+    assert captured["timeout"] == 42.0
+    assert result == CommandResult(0, "ok", "")
 
 
 def test_live_bootstrap_client_uses_fixed_kaggle_argv_and_revalidates_output(

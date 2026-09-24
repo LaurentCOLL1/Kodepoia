@@ -286,7 +286,7 @@ def main() -> int:
             )
             and (
                 'QUALIFICATION_TRAINING_DATA_RELATIVE = '
-                '"qualification-runtime-data/v2_4_5"'
+                '"artifacts/v2_4_5/qualification-runtime-data"'
                 in bootstrap
             )
             and "def stage_training_exports(" in bootstrap

@@ -81,6 +81,15 @@ QUALIFICATION_MODEL_FILE_SHA256 = (
 QUALIFICATION_CONTROL_REF = "kodepoia/v245-qualification-control"
 QUALIFICATION_DATASET_LICENSE = "LicenseRef-Kodepoia-Internal-Qualification"
 QUALIFICATION_SHAPE = "NvidiaTeslaT4"
+QUALIFICATION_MODEL_REQUIRED_FILES = (
+    "config.json",
+    "model.safetensors",
+    "special_tokens_map.json",
+    "tokenizer.json",
+    "tokenizer.model",
+    "tokenizer_config.json",
+)
+QUALIFICATION_RUNTIME_MODEL_RELATIVE = "model-snapshot"
 
 _GIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -268,6 +277,63 @@ def _sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def stage_runtime_model_snapshot(
+    snapshot: Path,
+    runtime_root: Path,
+    expected_hashes: dict[str, str],
+) -> Path:
+    expected_names = set(QUALIFICATION_MODEL_REQUIRED_FILES)
+    if set(expected_hashes) != expected_names:
+        raise KaggleLiveBootstrapError(
+            "runtime snapshot hashes must cover exactly the authorized required files"
+        )
+
+    relative = Path(QUALIFICATION_RUNTIME_MODEL_RELATIVE)
+    if relative.is_absolute() or len(relative.parts) != 1 or ".." in relative.parts:
+        raise KaggleLiveBootstrapError("runtime snapshot relative identifier is unsafe")
+
+    snapshot = snapshot.resolve(strict=True)
+    runtime_root = runtime_root.resolve(strict=False)
+    runtime_root.mkdir(parents=True, exist_ok=True)
+    target_root = runtime_root / relative
+    if target_root.exists() or target_root.is_symlink():
+        raise KaggleLiveBootstrapError("runtime snapshot target already exists")
+    target_root.mkdir()
+
+    try:
+        for name in QUALIFICATION_MODEL_REQUIRED_FILES:
+            source = snapshot / name
+            if source.is_symlink() or not source.is_file():
+                raise KaggleLiveBootstrapError(
+                    f"runtime snapshot source is missing or unsafe: {name}"
+                )
+            if _sha256_file(source) != expected_hashes[name]:
+                raise KaggleLiveBootstrapError(
+                    f"runtime snapshot source hash mismatch: {name}"
+                )
+            target = target_root / name
+            shutil.copy2(source, target, follow_symlinks=False)
+            if target.is_symlink() or not target.is_file():
+                raise KaggleLiveBootstrapError(
+                    f"runtime snapshot staged file is unsafe: {name}"
+                )
+            if _sha256_file(target) != expected_hashes[name]:
+                raise KaggleLiveBootstrapError(
+                    f"runtime snapshot staged hash mismatch: {name}"
+                )
+
+        staged = tuple(sorted(path.name for path in target_root.iterdir()))
+        expected = tuple(sorted(QUALIFICATION_MODEL_REQUIRED_FILES))
+        if staged != expected:
+            raise KaggleLiveBootstrapError(
+                "runtime snapshot contains unexpected or missing files"
+            )
+        return target_root
+    except Exception:
+        shutil.rmtree(target_root, ignore_errors=True)
+        raise
 
 
 def _write_json(path: Path, payload: object) -> None:
@@ -805,6 +871,10 @@ from kodepoia.tuning.contracts import (
     TrainingBackend,
     canonical_sha256,
 )
+from kodepoia.tuning.kaggle_live_bootstrap import (
+    QUALIFICATION_RUNTIME_MODEL_RELATIVE,
+    stage_runtime_model_snapshot,
+)
 from kodepoia.tuning.runtime import TrainingRuntime
 
 
@@ -837,6 +907,15 @@ for name in REQUIRED_FILES:
     hashes[name] = sha256(path)
 if hashes["model.safetensors"] != MODEL_FILE_SHA256:
     raise SystemExit("Pinned model.safetensors SHA-256 mismatch")
+
+runtime_root = work / "runtime"
+runtime_model_dir = stage_runtime_model_snapshot(
+    snapshot,
+    runtime_root,
+    hashes,
+)
+if runtime_model_dir != runtime_root / QUALIFICATION_RUNTIME_MODEL_RELATIVE:
+    raise SystemExit("Runtime model snapshot binding mismatch")
 
 model_digest = canonical_sha256(
     {
@@ -1032,12 +1111,12 @@ runtime_request = RuntimeRequest(
         vram_headroom_bytes=512 * 1024**2,
     ),
     timeout_seconds=600.0,
-    model_ref=MODEL_REF,
-    model_revision=MODEL_REVISION,
-    tokenizer_ref=MODEL_REF,
+    model_ref=QUALIFICATION_RUNTIME_MODEL_RELATIVE,
+    model_revision=None,
+    tokenizer_ref=QUALIFICATION_RUNTIME_MODEL_RELATIVE,
     model_load_dry_run=True,
 )
-capability = TrainingRuntime(work / "runtime").probe(runtime_request)
+capability = TrainingRuntime(runtime_root).probe(runtime_request)
 
 evidence = {
     "benchmark": benchmark_payload,
@@ -1770,9 +1849,12 @@ __all__ = [
     "LiveQualificationDataset",
     "QUALIFICATION_MODEL_LICENSE",
     "QUALIFICATION_MODEL_REF",
+    "QUALIFICATION_MODEL_REQUIRED_FILES",
     "QUALIFICATION_MODEL_REVISION",
+    "QUALIFICATION_RUNTIME_MODEL_RELATIVE",
     "build_live_bootstrap_bundle",
     "build_live_qualification_dataset",
     "finalize_live_bootstrap",
     "load_live_bootstrap_bundle",
+    "stage_runtime_model_snapshot",
 ]

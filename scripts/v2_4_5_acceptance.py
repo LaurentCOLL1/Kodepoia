@@ -245,6 +245,8 @@ def main() -> int:
                 "Bounded V2.4.5 R15.8 local-snapshot model-load dry-run repair amendment"
                 in authority
             )
+            and 'download_root = work / "pinned-model"' in bootstrap
+            and "local_dir=download_root" in bootstrap
             and 'QUALIFICATION_RUNTIME_MODEL_RELATIVE = "model-snapshot"' in bootstrap
             and "def stage_runtime_model_snapshot(" in bootstrap
             and "runtime_model_dir = stage_runtime_model_snapshot(" in bootstrap

@@ -892,13 +892,19 @@ observed_license = getattr(card_data, "license", None) if card_data is not None 
 if str(observed_license).lower() != MODEL_LICENSE:
     raise SystemExit(f"Unexpected base-model licence: {observed_license!r}")
 
+download_root = work / "pinned-model"
+if download_root.exists() or download_root.is_symlink():
+    raise SystemExit("Pinned model download directory already exists")
 snapshot = Path(
     snapshot_download(
         repo_id=MODEL_REF,
         revision=MODEL_REVISION,
+        local_dir=download_root,
         allow_patterns=list(REQUIRED_FILES),
     )
 )
+if snapshot.resolve(strict=True) != download_root.resolve(strict=True):
+    raise SystemExit("Pinned model download directory mismatch")
 hashes = {}
 for name in REQUIRED_FILES:
     path = snapshot / name

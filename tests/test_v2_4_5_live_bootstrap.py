@@ -15,12 +15,15 @@ from kodepoia.tuning.kaggle_live_bootstrap import (
     QUALIFICATION_MODEL_FILE_SHA256,
     QUALIFICATION_MODEL_LICENSE,
     QUALIFICATION_MODEL_REF,
+    QUALIFICATION_MODEL_REQUIRED_FILES,
     QUALIFICATION_MODEL_REVISION,
+    QUALIFICATION_RUNTIME_MODEL_RELATIVE,
     KaggleLiveBootstrapClient,
     KaggleLiveBootstrapError,
     build_live_bootstrap_bundle,
     build_live_qualification_dataset,
     finalize_live_bootstrap,
+    stage_runtime_model_snapshot,
 )
 from kodepoia.tuning.kaggle_remote import CommandResult, SubprocessCommandRunner
 
@@ -36,6 +39,18 @@ def _repository(tmp_path: Path) -> Path:
     source = Path(__file__).resolve().parents[1] / "qualification" / "v2_4_5" / "live_workload.json"
     shutil.copy2(source, workload)
     return root
+
+
+def _model_snapshot(tmp_path: Path) -> tuple[Path, dict[str, str]]:
+    snapshot = tmp_path / "snapshot"
+    snapshot.mkdir()
+    hashes: dict[str, str] = {}
+    for name in QUALIFICATION_MODEL_REQUIRED_FILES:
+        payload = f"fixture:{name}".encode()
+        path = snapshot / name
+        path.write_bytes(payload)
+        hashes[name] = hashlib.sha256(payload).hexdigest()
+    return snapshot, hashes
 
 
 def _bundle(tmp_path: Path):
@@ -203,6 +218,73 @@ def test_live_bootstrap_preserves_exact_wheel_filename_and_hashes_it(
         '[sys.executable, "-m", "pip", "install", '
         'f"{wheel}[tuning,tuning-bnb]"]'
     ) in script
+    assert 'QUALIFICATION_RUNTIME_MODEL_RELATIVE' in script
+    assert 'stage_runtime_model_snapshot(' in script
+    assert 'model_ref=QUALIFICATION_RUNTIME_MODEL_RELATIVE' in script
+    assert 'model_revision=None' in script
+    assert 'tokenizer_ref=QUALIFICATION_RUNTIME_MODEL_RELATIVE' in script
+    assert 'local_files_only=True' in script
+    assert 'trust_remote_code=False' in script
+    for forbidden in (
+        "HF_HOME",
+        "HF_HUB_CACHE",
+        "HF_TOKEN",
+        "HUGGINGFACE_HUB_CACHE",
+    ):
+        assert forbidden not in script
+
+
+def test_stage_runtime_model_snapshot_copies_exact_verified_files(
+    tmp_path: Path,
+) -> None:
+    snapshot, hashes = _model_snapshot(tmp_path)
+    runtime_root = tmp_path / "runtime"
+
+    staged = stage_runtime_model_snapshot(snapshot, runtime_root, hashes)
+
+    assert staged == runtime_root.resolve() / QUALIFICATION_RUNTIME_MODEL_RELATIVE
+    assert not Path(QUALIFICATION_RUNTIME_MODEL_RELATIVE).is_absolute()
+    assert ".." not in Path(QUALIFICATION_RUNTIME_MODEL_RELATIVE).parts
+    assert Path(QUALIFICATION_RUNTIME_MODEL_RELATIVE).parts == (
+        QUALIFICATION_RUNTIME_MODEL_RELATIVE,
+    )
+    assert tuple(sorted(path.name for path in staged.iterdir())) == tuple(
+        sorted(QUALIFICATION_MODEL_REQUIRED_FILES)
+    )
+    for name in QUALIFICATION_MODEL_REQUIRED_FILES:
+        assert hashlib.sha256((staged / name).read_bytes()).hexdigest() == hashes[name]
+
+
+def test_stage_runtime_model_snapshot_rejects_incomplete_tampered_or_preexisting(
+    tmp_path: Path,
+) -> None:
+    snapshot, hashes = _model_snapshot(tmp_path)
+
+    incomplete = dict(hashes)
+    incomplete.pop(QUALIFICATION_MODEL_REQUIRED_FILES[-1])
+    with pytest.raises(
+        KaggleLiveBootstrapError,
+        match="must cover exactly",
+    ):
+        stage_runtime_model_snapshot(snapshot, tmp_path / "runtime-incomplete", incomplete)
+
+    tampered = dict(hashes)
+    tampered[QUALIFICATION_MODEL_REQUIRED_FILES[0]] = "0" * 64
+    with pytest.raises(
+        KaggleLiveBootstrapError,
+        match="source hash mismatch",
+    ):
+        stage_runtime_model_snapshot(snapshot, tmp_path / "runtime-tampered", tampered)
+
+    runtime_existing = tmp_path / "runtime-existing"
+    target = runtime_existing / QUALIFICATION_RUNTIME_MODEL_RELATIVE
+    target.mkdir(parents=True)
+    (target / "unexpected.txt").write_text("unexpected", encoding="utf-8")
+    with pytest.raises(
+        KaggleLiveBootstrapError,
+        match="target already exists",
+    ):
+        stage_runtime_model_snapshot(snapshot, runtime_existing, hashes)
 
 
 def test_live_bootstrap_rejects_invalid_wheel_filename(tmp_path: Path) -> None:

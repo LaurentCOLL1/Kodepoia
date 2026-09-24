@@ -18,12 +18,14 @@ from kodepoia.tuning.kaggle_live_bootstrap import (
     QUALIFICATION_MODEL_REQUIRED_FILES,
     QUALIFICATION_MODEL_REVISION,
     QUALIFICATION_RUNTIME_MODEL_RELATIVE,
+    QUALIFICATION_TRAINING_DATA_RELATIVE,
     KaggleLiveBootstrapClient,
     KaggleLiveBootstrapError,
     build_live_bootstrap_bundle,
     build_live_qualification_dataset,
     finalize_live_bootstrap,
     stage_runtime_model_snapshot,
+    stage_training_exports,
 )
 from kodepoia.tuning.kaggle_remote import CommandResult, SubprocessCommandRunner
 
@@ -105,6 +107,74 @@ def _evidence(bundle) -> dict[str, object]:
         "source_sha": request.source_sha,
         "workload_digest": request.workload_digest,
     }
+
+
+def _train_evidence(bundle) -> dict[str, object]:
+    payload = _evidence(bundle)
+    payload["benchmark"] = _report(
+        {
+            "config_digest": "3" * 64,
+            "model_identities": [
+                {
+                    "model_digest": "1" * 64,
+                    "model_ref": QUALIFICATION_MODEL_REF,
+                    "resolved": True,
+                    "runtime": "fixture",
+                    "runtime_version": "1",
+                }
+            ],
+            "outcomes": [
+                {
+                    "category": "wrong_answer",
+                    "critical": True,
+                    "domain": "v245-qualification",
+                    "error": None,
+                    "model_ref": QUALIFICATION_MODEL_REF,
+                    "passed": False,
+                    "repeat": repeat,
+                    "resources": {},
+                    "response_digest": "a" * 64,
+                    "scorer_digest": "b" * 64,
+                    "seed": 245 + repeat,
+                    "task_id": "holdout-fixture",
+                }
+                for repeat in (1, 2)
+            ],
+            "protection_manifest_digest": bundle.request.protection_manifest_digest,
+            "suite_digest": "6" * 64,
+        }
+    )
+    payload["capability"] = _report(
+        {
+            "backend": "cuda",
+            "backend_capability": "supported",
+            "blockers": [],
+            "device": {"backend_type": "cuda", "index": 0, "name": "Tesla T4"},
+            "disposition": "ready",
+            "dtype_supported": True,
+            "four_bit_supported": True,
+            "model_load": "supported",
+            "packages": {},
+            "python_version": "3.12.13",
+            "request_digest": "9" * 64,
+            "resources": {
+                "blockers": [],
+                "disk": {"free_bytes": 10 * 1024**3, "metric": "storage_mb"},
+                "ram": {"free_bytes": 10 * 1024**3, "metric": "ram_mb"},
+                "vram": {
+                    "free_bytes": 12 * 1024**3,
+                    "metric": "vram_mb",
+                    "total_bytes": 15 * 1024**3,
+                },
+            },
+            "schema": "kodepoia.r15.8.capability-report",
+            "schema_version": 1,
+            "seed_applied": True,
+            "stderr": "",
+            "torch_backend_version": "12.8",
+        }
+    )
+    return payload
 
 
 class _RecordingRunner:
@@ -287,6 +357,183 @@ def test_stage_runtime_model_snapshot_rejects_incomplete_tampered_or_preexisting
         match="target already exists",
     ):
         stage_runtime_model_snapshot(snapshot, runtime_existing, hashes)
+
+
+def test_stage_training_exports_copies_exact_verified_files(tmp_path: Path) -> None:
+    root, bundle = _bundle(tmp_path)
+
+    train_relative, validation_relative = stage_training_exports(
+        bundle.governed_dataset,
+        root,
+        bundle.request.train_export_digest,
+        bundle.request.validation_export_digest,
+    )
+
+    assert train_relative == f"{QUALIFICATION_TRAINING_DATA_RELATIVE}/train.jsonl"
+    assert validation_relative == f"{QUALIFICATION_TRAINING_DATA_RELATIVE}/validation.jsonl"
+    assert train_relative != validation_relative
+    assert not Path(train_relative).is_absolute()
+    assert ".." not in Path(train_relative).parts
+    assert not Path(validation_relative).is_absolute()
+    assert ".." not in Path(validation_relative).parts
+    train_path = root / train_relative
+    validation_path = root / validation_relative
+    assert hashlib.sha256(train_path.read_bytes()).hexdigest() == (
+        bundle.request.train_export_digest
+    )
+    assert hashlib.sha256(validation_path.read_bytes()).hexdigest() == (
+        bundle.request.validation_export_digest
+    )
+
+
+def test_stage_training_exports_rejects_unsafe_identifiers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import kodepoia.tuning.kaggle_live_bootstrap as bootstrap
+
+    root, bundle = _bundle(tmp_path)
+    absolute = Path(Path.cwd().anchor) / "kodepoia-v245-escape"
+    monkeypatch.setattr(
+        bootstrap,
+        "QUALIFICATION_TRAINING_DATA_RELATIVE",
+        absolute.as_posix(),
+    )
+    with pytest.raises(KaggleLiveBootstrapError, match="relative identifier is unsafe"):
+        bootstrap.stage_training_exports(
+            bundle.governed_dataset,
+            root,
+            bundle.request.train_export_digest,
+            bundle.request.validation_export_digest,
+        )
+
+    monkeypatch.setattr(
+        bootstrap,
+        "QUALIFICATION_TRAINING_DATA_RELATIVE",
+        "qualification-runtime-data/../escape",
+    )
+    with pytest.raises(KaggleLiveBootstrapError, match="relative identifier is unsafe"):
+        bootstrap.stage_training_exports(
+            bundle.governed_dataset,
+            root,
+            bundle.request.train_export_digest,
+            bundle.request.validation_export_digest,
+        )
+
+
+def test_stage_training_exports_rejects_tamper_preexisting_and_digest_divergence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import kodepoia.tuning.kaggle_live_bootstrap as bootstrap
+
+    tampered_root, tampered_bundle = _bundle(tmp_path / "tampered")
+    tampered_bundle.governed_dataset.train_path.write_bytes(b"tampered")
+    with pytest.raises(KaggleLiveBootstrapError, match="source digest mismatch"):
+        stage_training_exports(
+            tampered_bundle.governed_dataset,
+            tampered_root,
+            tampered_bundle.request.train_export_digest,
+            tampered_bundle.request.validation_export_digest,
+        )
+
+    existing_root, existing_bundle = _bundle(tmp_path / "existing")
+    existing_target = existing_root / QUALIFICATION_TRAINING_DATA_RELATIVE
+    existing_target.mkdir(parents=True)
+    (existing_target / "unexpected.txt").write_text("unexpected", encoding="utf-8")
+    with pytest.raises(KaggleLiveBootstrapError, match="target already exists"):
+        stage_training_exports(
+            existing_bundle.governed_dataset,
+            existing_root,
+            existing_bundle.request.train_export_digest,
+            existing_bundle.request.validation_export_digest,
+        )
+
+    divergent_root, divergent_bundle = _bundle(tmp_path / "divergent")
+    real_copy2 = bootstrap.shutil.copy2
+
+    def corrupt_copy2(
+        source: Path,
+        target: Path,
+        *,
+        follow_symlinks: bool = True,
+    ) -> str:
+        result = real_copy2(source, target, follow_symlinks=follow_symlinks)
+        if Path(target).name == "train.jsonl":
+            Path(target).write_bytes(Path(target).read_bytes() + b"tampered")
+        return str(result)
+
+    monkeypatch.setattr(bootstrap.shutil, "copy2", corrupt_copy2)
+    with pytest.raises(KaggleLiveBootstrapError, match="staged export digest mismatch"):
+        bootstrap.stage_training_exports(
+            divergent_bundle.governed_dataset,
+            divergent_root,
+            divergent_bundle.request.train_export_digest,
+            divergent_bundle.request.validation_export_digest,
+        )
+    assert not (divergent_root / QUALIFICATION_TRAINING_DATA_RELATIVE).exists()
+
+
+def test_stage_training_exports_rejects_symlink_escape(tmp_path: Path) -> None:
+    root, bundle = _bundle(tmp_path)
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    symlink_parent = root / "qualification-runtime-data"
+    try:
+        symlink_parent.symlink_to(outside, target_is_directory=True)
+    except OSError:
+        pytest.skip("platform does not permit test symlink creation")
+
+    with pytest.raises(KaggleLiveBootstrapError, match="path escapes repository root"):
+        stage_training_exports(
+            bundle.governed_dataset,
+            root,
+            bundle.request.train_export_digest,
+            bundle.request.validation_export_digest,
+        )
+
+
+def test_finalize_live_bootstrap_real_train_materializes_safe_training_plan(
+    tmp_path: Path,
+) -> None:
+    root, bundle = _bundle(tmp_path)
+    evidence = _train_evidence(bundle)
+
+    result = finalize_live_bootstrap(
+        repository_root=root,
+        bundle=bundle,
+        evidence=evidence,
+        output_root=root / ".kodepoia" / "finalized-train",
+    )
+
+    assert result.decision.disposition is DecisionDisposition.TRAIN
+    assert result.train_authorized is True
+    assert result.training_plan is not None
+    assert result.training_plan_path is not None
+    assert result.training_plan_path.is_file()
+    assert result.result_path.is_file()
+    plan = result.training_plan
+    assert plan.dataset.train_path == f"{QUALIFICATION_TRAINING_DATA_RELATIVE}/train.jsonl"
+    assert plan.dataset.validation_path == (
+        f"{QUALIFICATION_TRAINING_DATA_RELATIVE}/validation.jsonl"
+    )
+    assert plan.dataset.train_path != plan.dataset.validation_path
+    assert not plan.dataset.train_path.startswith(".")
+    assert not plan.dataset.validation_path.startswith(".")
+    assert hashlib.sha256((root / plan.dataset.train_path).read_bytes()).hexdigest() == (
+        bundle.request.train_export_digest
+    )
+    assert hashlib.sha256(
+        (root / plan.dataset.validation_path).read_bytes()
+    ).hexdigest() == bundle.request.validation_export_digest
+    saved_plan = json.loads(result.training_plan_path.read_text(encoding="utf-8"))
+    assert saved_plan["dataset_paths"]["train_path"] == plan.dataset.train_path
+    assert saved_plan["dataset_paths"]["validation_path"] == plan.dataset.validation_path
+    saved_result = json.loads(result.result_path.read_text(encoding="utf-8"))
+    assert saved_result["disposition"] == "train"
+    assert saved_result["qualification_only"] is True
+    assert saved_result["promotion_authorized"] is False
+    assert saved_result["training_plan_digest"] == plan.digest
 
 
 def test_live_bootstrap_rejects_invalid_wheel_filename(tmp_path: Path) -> None:

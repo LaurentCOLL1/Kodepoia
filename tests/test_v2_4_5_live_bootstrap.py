@@ -478,7 +478,7 @@ def test_stage_training_exports_rejects_symlink_escape(tmp_path: Path) -> None:
     root, bundle = _bundle(tmp_path)
     outside = tmp_path / "outside"
     outside.mkdir()
-    symlink_parent = root / "qualification-runtime-data"
+    symlink_parent = root / Path(QUALIFICATION_TRAINING_DATA_RELATIVE).parts[0]
     try:
         symlink_parent.symlink_to(outside, target_is_directory=True)
     except OSError:

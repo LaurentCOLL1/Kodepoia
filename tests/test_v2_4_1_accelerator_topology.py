@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
@@ -13,6 +14,7 @@ from kodepoia.core.sandbox import SandboxResult
 from kodepoia.tuning import ResourceRequest, RuntimeRequest, TrainingBackend, TrainingRuntime
 from kodepoia.tuning.kaggle_remote import KaggleRemoteConfig
 from kodepoia.tuning.probe_worker import _base_result, _torch_probe
+from kodepoia.tuning.runtime import _CUDA_RUNTIME_ENV_KEYS
 from kodepoia.tuning.topology import (
     AcceleratorDevice,
     AcceleratorTopologyReport,
@@ -38,7 +40,14 @@ class FakeSandbox:
     ) -> SandboxResult:
         del argv, timeout
         assert cwd is not None
-        assert env == {}
+        assert env is not None
+        expected_env = {
+            key: os.environ[key]
+            for key in _CUDA_RUNTIME_ENV_KEYS
+            if key in os.environ
+        }
+        assert env == expected_env
+        assert set(env).issubset(_CUDA_RUNTIME_ENV_KEYS)
         self.calls += 1
         return SandboxResult(0, json.dumps(self.payload), "")
 

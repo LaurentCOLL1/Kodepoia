@@ -90,7 +90,7 @@ QUALIFICATION_MODEL_REQUIRED_FILES = (
     "tokenizer_config.json",
 )
 QUALIFICATION_RUNTIME_MODEL_RELATIVE = "model-snapshot"
-QUALIFICATION_TRAINING_DATA_RELATIVE = "qualification-runtime-data/v2_4_5"
+QUALIFICATION_TRAINING_DATA_RELATIVE = "artifacts/v2_4_5/qualification-runtime-data"
 
 _GIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")

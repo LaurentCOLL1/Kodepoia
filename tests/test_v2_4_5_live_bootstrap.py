@@ -218,6 +218,8 @@ def test_live_bootstrap_preserves_exact_wheel_filename_and_hashes_it(
         '[sys.executable, "-m", "pip", "install", '
         'f"{wheel}[tuning,tuning-bnb]"]'
     ) in script
+    assert 'download_root = work / "pinned-model"' in script
+    assert 'local_dir=download_root' in script
     assert 'QUALIFICATION_RUNTIME_MODEL_RELATIVE' in script
     assert 'stage_runtime_model_snapshot(' in script
     assert 'model_ref=QUALIFICATION_RUNTIME_MODEL_RELATIVE' in script

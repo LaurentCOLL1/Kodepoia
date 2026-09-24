@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from kodepoia.core.kill_switch import KillSwitch
-from kodepoia.core.sandbox import SandboxResult, _BASE_ENVIRONMENT_KEYS
+from kodepoia.core.sandbox import _BASE_ENVIRONMENT_KEYS, SandboxResult
 from kodepoia.tuning import (
     CapabilityState,
     DTypeName,
@@ -21,8 +21,8 @@ from kodepoia.tuning import (
 )
 from kodepoia.tuning.contracts import TuningRuntimeError
 from kodepoia.tuning.runtime import (
-    HostResources,
     _CUDA_RUNTIME_ENV_KEYS,
+    HostResources,
     redact_runtime_text,
 )
 

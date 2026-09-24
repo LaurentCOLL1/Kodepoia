@@ -279,12 +279,38 @@ def main() -> int:
             )
             and "test_live_bootstrap_rejects_invalid_wheel_filename"
             in bootstrap_tests
-            and "test_finalize_live_bootstrap_does_not_force_train" in bootstrap_tests,
+            and "test_finalize_live_bootstrap_does_not_force_train" in bootstrap_tests
+            and (
+                "Bounded V2.4.5 TrainingPlan safe-path materialization repair amendment"
+                in authority
+            )
+            and (
+                'QUALIFICATION_TRAINING_DATA_RELATIVE = '
+                '"qualification-runtime-data/v2_4_5"'
+                in bootstrap
+            )
+            and "def stage_training_exports(" in bootstrap
+            and "qualification training-data target already exists" in bootstrap
+            and "qualification {label} export source digest mismatch" in bootstrap
+            and "qualification {label} staged export digest mismatch" in bootstrap
+            and "train_relative, validation_relative = stage_training_exports(" in bootstrap
+            and "test_stage_training_exports_copies_exact_verified_files" in bootstrap_tests
+            and "test_stage_training_exports_rejects_unsafe_identifiers" in bootstrap_tests
+            and (
+                "test_stage_training_exports_rejects_tamper_preexisting_and_digest_divergence"
+                in bootstrap_tests
+            )
+            and "test_stage_training_exports_rejects_symlink_escape" in bootstrap_tests
+            and (
+                "test_finalize_live_bootstrap_real_train_materializes_safe_training_plan"
+                in bootstrap_tests
+            ),
             (
                 "governed bootstrap preserves exact wheel identity, uses quiet "
                 "UTF-8-fixed output retrieval, keeps R15.8 CUDA env propagation bounded, "
-                "binds model dry-run to the verified local snapshot, stays private/"
-                "non-promotable and is R15.7-gated"
+                "binds model dry-run to the verified local snapshot, stages digest-identical "
+                "safe TrainingPlan exports without weakening R15.9, stays private/non-promotable "
+                "and is R15.7-gated"
             ),
         ),
         _check(

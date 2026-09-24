@@ -241,6 +241,28 @@ def main() -> int:
             in runtime_tests
             and "test_runtime_does_not_invent_absent_cuda_environment"
             in runtime_tests
+            and (
+                "Bounded V2.4.5 R15.8 local-snapshot model-load dry-run repair amendment"
+                in authority
+            )
+            and 'QUALIFICATION_RUNTIME_MODEL_RELATIVE = "model-snapshot"' in bootstrap
+            and "def stage_runtime_model_snapshot(" in bootstrap
+            and "runtime_model_dir = stage_runtime_model_snapshot(" in bootstrap
+            and "model_ref=QUALIFICATION_RUNTIME_MODEL_RELATIVE" in bootstrap
+            and "model_revision=None" in bootstrap
+            and "tokenizer_ref=QUALIFICATION_RUNTIME_MODEL_RELATIVE" in bootstrap
+            and "local_files_only=True" in bootstrap
+            and "trust_remote_code=False" in bootstrap
+            and "HF_HOME" not in bootstrap
+            and "HF_HUB_CACHE" not in bootstrap
+            and "HF_TOKEN" not in bootstrap
+            and "HUGGINGFACE_HUB_CACHE" not in bootstrap
+            and "test_stage_runtime_model_snapshot_copies_exact_verified_files"
+            in bootstrap_tests
+            and (
+                "test_stage_runtime_model_snapshot_rejects_incomplete_tampered_or_preexisting"
+                in bootstrap_tests
+            )
             and "GapDecisionEngine().evaluate" in bootstrap
             and "if decision.disposition is DecisionDisposition.TRAIN" in bootstrap
             and '"promotion_authorized": False' in bootstrap
@@ -259,7 +281,8 @@ def main() -> int:
             (
                 "governed bootstrap preserves exact wheel identity, uses quiet "
                 "UTF-8-fixed output retrieval, keeps R15.8 CUDA env propagation bounded, "
-                "stays private/non-promotable and is R15.7-gated"
+                "binds model dry-run to the verified local snapshot, stays private/"
+                "non-promotable and is R15.7-gated"
             ),
         ),
         _check(

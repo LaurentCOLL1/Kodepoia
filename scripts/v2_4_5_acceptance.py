@@ -30,7 +30,10 @@ def main() -> int:
     live = read("src/kodepoia/tuning/kaggle_live_qualification.py")
     bootstrap = read("src/kodepoia/tuning/kaggle_live_bootstrap.py")
     kaggle_remote = read("src/kodepoia/tuning/kaggle_remote.py")
+    runtime = read("src/kodepoia/tuning/runtime.py")
+    sandbox = read("src/kodepoia/core/sandbox.py")
     bootstrap_tests = read("tests/test_v2_4_5_live_bootstrap.py")
+    runtime_tests = read("tests/test_tuning_r15_8.py")
     workload = read("qualification/v2_4_5/live_workload.json")
     tests = read("tests/test_v2_4_5_model_lab_accelerator.py")
     ui_tests = read("tests/test_v2_4_5_model_lab_accelerator_ui.py")
@@ -221,6 +224,23 @@ def main() -> int:
             and 'errors="strict"' in kaggle_remote
             and "test_subprocess_runner_forces_utf8_for_kaggle_child"
             in bootstrap_tests
+            and (
+                "Bounded V2.4.5 R15.8 CUDA subprocess-environment repair amendment"
+                in authority
+            )
+            and '_CUDA_RUNTIME_ENV_KEYS = (' in runtime
+            and '"LD_LIBRARY_PATH",' in runtime
+            and '"CUDA_VISIBLE_DEVICES",' in runtime
+            and '"CUDA_DEVICE_ORDER",' in runtime
+            and '"NVIDIA_VISIBLE_DEVICES",' in runtime
+            and '"NVIDIA_DRIVER_CAPABILITIES",' in runtime
+            and "env=_runtime_worker_environment()" in runtime
+            and '"CUDA_VISIBLE_DEVICES"' not in sandbox
+            and '"NVIDIA_VISIBLE_DEVICES"' not in sandbox
+            and "test_runtime_forwards_only_fixed_cuda_parent_environment"
+            in runtime_tests
+            and "test_runtime_does_not_invent_absent_cuda_environment"
+            in runtime_tests
             and "GapDecisionEngine().evaluate" in bootstrap
             and "if decision.disposition is DecisionDisposition.TRAIN" in bootstrap
             and '"promotion_authorized": False' in bootstrap
@@ -238,7 +258,8 @@ def main() -> int:
             and "test_finalize_live_bootstrap_does_not_force_train" in bootstrap_tests,
             (
                 "governed bootstrap preserves exact wheel identity, uses quiet "
-                "UTF-8-fixed output retrieval, stays private/non-promotable and is R15.7-gated"
+                "UTF-8-fixed output retrieval, keeps R15.8 CUDA env propagation bounded, "
+                "stays private/non-promotable and is R15.7-gated"
             ),
         ),
         _check(

@@ -90,6 +90,7 @@ QUALIFICATION_MODEL_REQUIRED_FILES = (
     "tokenizer_config.json",
 )
 QUALIFICATION_RUNTIME_MODEL_RELATIVE = "model-snapshot"
+QUALIFICATION_TRAINING_DATA_RELATIVE = "qualification-runtime-data/v2_4_5"
 
 _GIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -331,6 +332,90 @@ def stage_runtime_model_snapshot(
                 "runtime snapshot contains unexpected or missing files"
             )
         return target_root
+    except Exception:
+        shutil.rmtree(target_root, ignore_errors=True)
+        raise
+
+
+def stage_training_exports(
+    dataset: LiveQualificationDataset,
+    repository_root: Path,
+    expected_train_digest: str,
+    expected_validation_digest: str,
+) -> tuple[str, str]:
+    relative_root = Path(QUALIFICATION_TRAINING_DATA_RELATIVE)
+    if (
+        relative_root.is_absolute()
+        or not relative_root.parts
+        or ".." in relative_root.parts
+        or relative_root.as_posix() != QUALIFICATION_TRAINING_DATA_RELATIVE
+        or not relative_root.parts[0][0].isalnum()
+    ):
+        raise KaggleLiveBootstrapError(
+            "qualification training-data relative identifier is unsafe"
+        )
+    for label, digest in (
+        ("train", expected_train_digest),
+        ("validation", expected_validation_digest),
+    ):
+        if _SHA256.fullmatch(digest) is None:
+            raise KaggleLiveBootstrapError(f"{label} export digest is invalid")
+
+    repository_root = repository_root.resolve(strict=True)
+    target_root = _inside(
+        repository_root,
+        repository_root / relative_root,
+        strict=False,
+    )
+    if target_root.exists() or target_root.is_symlink():
+        raise KaggleLiveBootstrapError(
+            "qualification training-data target already exists"
+        )
+
+    sources = (
+        ("train", dataset.train_path, expected_train_digest, "train.jsonl"),
+        (
+            "validation",
+            dataset.validation_path,
+            expected_validation_digest,
+            "validation.jsonl",
+        ),
+    )
+    checked_sources: list[tuple[str, Path, str, str]] = []
+    for label, raw_source, expected_digest, filename in sources:
+        if raw_source.is_symlink() or not raw_source.is_file():
+            raise KaggleLiveBootstrapError(
+                f"qualification {label} export source is missing or unsafe"
+            )
+        source = _inside(repository_root, raw_source, strict=True)
+        if _sha256_file(source) != expected_digest:
+            raise KaggleLiveBootstrapError(
+                f"qualification {label} export source digest mismatch"
+            )
+        checked_sources.append((label, source, expected_digest, filename))
+
+    target_root.mkdir(parents=True)
+    try:
+        relative_paths: list[str] = []
+        for label, source, expected_digest, filename in checked_sources:
+            target = target_root / filename
+            shutil.copy2(source, target, follow_symlinks=False)
+            if target.is_symlink() or not target.is_file():
+                raise KaggleLiveBootstrapError(
+                    f"qualification {label} staged export is unsafe"
+                )
+            if _sha256_file(target) != expected_digest:
+                raise KaggleLiveBootstrapError(
+                    f"qualification {label} staged export digest mismatch"
+                )
+            relative_paths.append(target.relative_to(repository_root).as_posix())
+
+        staged = tuple(sorted(path.name for path in target_root.iterdir()))
+        if staged != ("train.jsonl", "validation.jsonl"):
+            raise KaggleLiveBootstrapError(
+                "qualification training-data target contains unexpected files"
+            )
+        return relative_paths[0], relative_paths[1]
     except Exception:
         shutil.rmtree(target_root, ignore_errors=True)
         raise
@@ -1748,12 +1833,12 @@ def finalize_live_bootstrap(
     plan: TrainingPlan | None = None
     plan_path: Path | None = None
     if decision.disposition is DecisionDisposition.TRAIN:
-        train_relative = bundle.governed_dataset.train_path.relative_to(
-            repository_root
-        ).as_posix()
-        validation_relative = bundle.governed_dataset.validation_path.relative_to(
-            repository_root
-        ).as_posix()
+        train_relative, validation_relative = stage_training_exports(
+            bundle.governed_dataset,
+            repository_root,
+            bundle.request.train_export_digest,
+            bundle.request.validation_export_digest,
+        )
         split_stats = manifest["split_stats"]
         exports = manifest["export_digests"]
         plan = TrainingPlan(

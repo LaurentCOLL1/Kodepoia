@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from kodepoia.core.kill_switch import KillSwitch
-from kodepoia.core.sandbox import SandboxResult
+from kodepoia.core.sandbox import SandboxResult, _BASE_ENVIRONMENT_KEYS
 from kodepoia.tuning import (
     CapabilityState,
     DTypeName,
@@ -20,7 +20,11 @@ from kodepoia.tuning import (
     TrainingRuntime,
 )
 from kodepoia.tuning.contracts import TuningRuntimeError
-from kodepoia.tuning.runtime import HostResources, redact_runtime_text
+from kodepoia.tuning.runtime import (
+    HostResources,
+    _CUDA_RUNTIME_ENV_KEYS,
+    redact_runtime_text,
+)
 
 
 class FixedResources:
@@ -36,6 +40,7 @@ class FakeSandbox:
         self.probe_payload = probe
         self.model_payload = model or probe
         self.calls: list[tuple[list[str], dict[str, object]]] = []
+        self.envs: list[dict[str, str] | None] = []
         self.stderr = ""
         self.timed_out = False
         self.cancelled = False
@@ -52,6 +57,7 @@ class FakeSandbox:
         assert cwd is not None
         config = json.loads((cwd / argv[-1]).read_text(encoding="utf-8"))
         self.calls.append((list(argv), config))
+        self.envs.append(None if env is None else dict(env))
         payload = self.model_payload if config["action"] == "model_load" else self.probe_payload
         return SandboxResult(
             self.returncode,
@@ -107,6 +113,59 @@ def test_cpu_supported_and_deterministic(tmp_path: Path) -> None:
     assert first.backend_capability is CapabilityState.SUPPORTED
     assert first.digest == second.digest
     assert len(fake.calls) == 2
+
+
+def test_runtime_forwards_only_fixed_cuda_parent_environment(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    expected = {
+        "LD_LIBRARY_PATH": "/opt/cuda/lib64",
+        "CUDA_VISIBLE_DEVICES": "0,1",
+        "CUDA_DEVICE_ORDER": "PCI_BUS_ID",
+        "NVIDIA_VISIBLE_DEVICES": "all",
+        "NVIDIA_DRIVER_CAPABILITIES": "compute,utility",
+    }
+    for key, value in expected.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setenv("HF_TOKEN", "must-not-forward")
+    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "must-not-forward")
+    monkeypatch.setenv("UNRELATED_RUNTIME_FLAG", "must-not-forward")
+
+    fake = FakeSandbox(worker_payload())
+    report = TrainingRuntime(
+        tmp_path,
+        kill_switch=KillSwitch(),
+        sandbox=fake,
+        resource_probe=FixedResources(),
+    ).probe(RuntimeRequest())
+
+    assert report.disposition is RuntimeDisposition.READY
+    assert fake.envs == [expected]
+    assert tuple(expected) == _CUDA_RUNTIME_ENV_KEYS
+    assert set(_CUDA_RUNTIME_ENV_KEYS).isdisjoint(_BASE_ENVIRONMENT_KEYS)
+    assert "HF_TOKEN" not in fake.envs[0]
+    assert "AWS_SECRET_ACCESS_KEY" not in fake.envs[0]
+    assert "UNRELATED_RUNTIME_FLAG" not in fake.envs[0]
+
+
+def test_runtime_does_not_invent_absent_cuda_environment(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    for key in _CUDA_RUNTIME_ENV_KEYS:
+        monkeypatch.delenv(key, raising=False)
+
+    fake = FakeSandbox(worker_payload())
+    report = TrainingRuntime(
+        tmp_path,
+        kill_switch=KillSwitch(),
+        sandbox=fake,
+        resource_probe=FixedResources(),
+    ).probe(RuntimeRequest())
+
+    assert report.disposition is RuntimeDisposition.READY
+    assert fake.envs == [{}]
 
 
 def test_accelerator_vram_budget_blocks_before_model_load(tmp_path: Path) -> None:

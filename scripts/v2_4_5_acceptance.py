@@ -380,7 +380,9 @@ def main() -> int:
             and '"datasets",' in live_pair
             and '"create",' in live_pair
             and '"kernels", "push"' in live_pair
-            and '"kernels", "output"' in live_pair
+            and "def fetch_and_validate(" in live_pair
+            and '"kernels",' in live_pair
+            and '"output",' in live_pair
             and '"--quiet"' in live_pair
             and "--public" not in live_pair
             and "kaggle_secrets" not in live_pair

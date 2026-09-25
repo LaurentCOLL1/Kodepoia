@@ -5,6 +5,7 @@ import json
 import os
 import re
 import shutil
+import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -581,19 +582,6 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-kernel_manifest_path = Path(__file__).with_name("kernel-manifest.json")
-kernel_manifest = json.loads(kernel_manifest_path.read_text(encoding="utf-8"))
-if (
-    kernel_manifest.get("schema") != "kodepoia.v2.4.5.live-pair-kernel-bundle"
-    or kernel_manifest.get("schema_version") != 1
-    or kernel_manifest.get("source_sha") != SOURCE_SHA
-    or kernel_manifest.get("pair_request_digest") != PAIR_REQUEST_DIGEST
-):
-    raise SystemExit("Live-pair kernel manifest identity mismatch")
-script_sha = kernel_manifest.get("script_sha256")
-if not isinstance(script_sha, str) or sha256(Path(__file__)) != script_sha:
-    raise SystemExit("Live-pair kernel script digest mismatch")
-
 input_root = Path("/kaggle/input")
 manifests = list(input_root.rglob("live-pair-bundle-manifest.json"))
 if len(manifests) != 1:
@@ -605,6 +593,11 @@ if (
     or manifest.get("schema_version") != {LIVE_PAIR_SCHEMA_VERSION}
 ):
     raise SystemExit("Live-pair bundle manifest schema mismatch")
+if (
+    manifest.get("source_sha") != SOURCE_SHA
+    or manifest.get("pair_request_digest") != PAIR_REQUEST_DIGEST
+):
+    raise SystemExit("Live-pair exact-source request identity mismatch")
 files = manifest.get("files")
 if not isinstance(files, dict):
     raise SystemExit("Live-pair bundle file map is invalid")
@@ -805,7 +798,7 @@ class _FixedCudaSandbox:
         self.visible_devices = visible_devices
         self.base = ProcessSandbox(
             root,
-            allowed_executables={Path(os.sys.executable).name},
+            allowed_executables={Path(sys.executable).name},
         )
 
     def _environment(self) -> dict[str, str]:

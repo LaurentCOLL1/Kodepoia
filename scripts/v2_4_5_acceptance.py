@@ -28,6 +28,7 @@ def main() -> int:
     panel = read("src/kodepoia/kodestudio/model_lab_panel.py")
     localization = read("src/kodepoia/kodestudio/model_lab_localization.py")
     live = read("src/kodepoia/tuning/kaggle_live_qualification.py")
+    live_pair = read("src/kodepoia/tuning/kaggle_live_pair.py")
     bootstrap = read("src/kodepoia/tuning/kaggle_live_bootstrap.py")
     kaggle_remote = read("src/kodepoia/tuning/kaggle_remote.py")
     runtime = read("src/kodepoia/tuning/runtime.py")
@@ -37,6 +38,7 @@ def main() -> int:
     bootstrap_tests = read("tests/test_v2_4_5_live_bootstrap.py")
     runtime_tests = read("tests/test_tuning_r15_8.py")
     distributed_tests = read("tests/test_v2_4_3_distributed_execution.py")
+    live_pair_tests = read("tests/test_v2_4_5_live_pair.py")
     workload = read("qualification/v2_4_5/live_workload.json")
     tests = read("tests/test_v2_4_5_model_lab_accelerator.py")
     ui_tests = read("tests/test_v2_4_5_model_lab_accelerator_ui.py")
@@ -361,10 +363,58 @@ def main() -> int:
             ),
         ),
         _check(
+            "repository_owned_live_pair",
+            "class KaggleLivePairRequest" in live_pair
+            and "def build_live_pair_bundle(" in live_pair
+            and "def run_live_pair_kernel(" in live_pair
+            and "TrainingRunner(" in live_pair
+            and ".run_qualification_only(" in live_pair
+            and "evaluate_strategy_benchmark(" in live_pair
+            and "StrategyBenchmarkDisposition.QUALIFIED" in live_pair
+            and "build_distributed_execution_plan(" in live_pair
+            and "build_distributed_checkpoint_manifest(" in live_pair
+            and "build_distributed_recovery_plan(" in live_pair
+            and "BaseAdapterEvaluator().evaluate(" in live_pair
+            and '"is_private": True' in live_pair
+            and '"machine_shape": request.requested_shape' in live_pair
+            and '"datasets",' in live_pair
+            and '"create",' in live_pair
+            and '"kernels", "push"' in live_pair
+            and '"kernels", "output"' in live_pair
+            and '"--quiet"' in live_pair
+            and "--public" not in live_pair
+            and "kaggle_secrets" not in live_pair
+            and "token=False" in live_pair
+            and "local_files_only=True" in live_pair
+            and '"LD_LIBRARY_PATH",' in live_pair
+            and '"CUDA_VISIBLE_DEVICES",' in live_pair
+            and '"CUDA_DEVICE_ORDER",' in live_pair
+            and '"NVIDIA_VISIBLE_DEVICES",' in live_pair
+            and '"NVIDIA_DRIVER_CAPABILITIES",' in live_pair
+            and "qualification-only distributed execution" not in live_pair.lower()
+            and (
+                "test_repository_owned_live_pair_kernel_uses_existing_runners_and_real_gates"
+                in live_pair_tests
+            )
+            and "test_live_pair_client_uses_private_one_shot_kaggle_argv"
+            in live_pair_tests
+            and "test_live_pair_download_preserves_honest_benchmark_rejection"
+            in live_pair_tests,
+            (
+                "live pair is exact-source and private, reuses R15.9/V2.4.3 runners, "
+                "measures the qualification-only candidate before the real benchmark gate, "
+                "requires QUALIFIED before normal distributed launch, binds recovery and "
+                "critical-regression evidence, and keeps Kaggle argv/env bounded"
+            ),
+        ),
+        _check(
             "no_forbidden_scope",
             "DeepSpeed" not in live
+            and "DeepSpeed" not in live_pair
             and "FullyShardedDataParallel" not in live
+            and "FullyShardedDataParallel" not in live_pair
             and "torch_xla" not in live.lower()
+            and "torch_xla" not in live_pair.lower()
             and "V2.5+" in state
             and "v1.1.0-rc8" in authority,
             "V2.4.5 adds no V2.4.6/V2.5/sharded/TPU/release scope",

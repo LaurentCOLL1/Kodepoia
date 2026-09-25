@@ -1300,7 +1300,7 @@ class DistributedTrainingRunner:
         blockers: tuple[str, ...] = (),
         stderr: str = "",
         rank_evidence: tuple[DistributedRankEvidence, ...] = (),
-    ) -> DistributedTrainingReport:
+    ) -> DistributedTrainingReport | QualificationOnlyDistributedTrainingReport:
         if isinstance(execution, QualificationOnlyDistributedExecutionPlan):
             return QualificationOnlyDistributedTrainingReport(
                 source_sha=execution.permit.source_sha,

@@ -1095,6 +1095,8 @@ def run_live_pair_kernel(dataset_source: Path, work_root: Path) -> None:
     request = KaggleLivePairRequest.from_dict(_read_json(work_root / "live-pair-request.json"))
     if request.digest != manifest.get("pair_request_digest"):
         raise KaggleLivePairError("live-pair request/manifest digest mismatch")
+    if _sha256(work_root / "bootstrap-evidence.json") != request.bootstrap_evidence_sha256:
+        raise KaggleLivePairError("bootstrap evidence SHA-256 mismatch")
     plan = load_training_plan(work_root / "training-plan.json")
     topology = load_topology_report(work_root / "topology-report.json")
     bootstrap_evidence = _read_json(work_root / "bootstrap-evidence.json")
@@ -1283,7 +1285,16 @@ def run_live_pair_kernel(dataset_source: Path, work_root: Path) -> None:
         plan=plan,
     )
 
-    checkpoint_id = f"checkpoint-{plan.sft.checkpoint_steps:08d}"
+    checkpoint_matches = tuple(
+        item
+        for item in normal_canonical.checkpoints
+        if item.step == plan.sft.checkpoint_steps and item.step < plan.sft.max_steps
+    )
+    if len(checkpoint_matches) != 1:
+        raise KaggleLivePairError(
+            "qualified replicated run must contain exactly one validated recovery checkpoint"
+        )
+    checkpoint_id = checkpoint_matches[0].checkpoint_id
     checkpoint_manifest = build_distributed_checkpoint_manifest(
         work_root,
         plan,

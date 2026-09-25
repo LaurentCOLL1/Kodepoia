@@ -391,7 +391,7 @@ def main() -> int:
             and '"CUDA_DEVICE_ORDER",' in live_pair
             and '"NVIDIA_VISIBLE_DEVICES",' in live_pair
             and '"NVIDIA_DRIVER_CAPABILITIES",' in live_pair
-            and "qualification-only distributed execution" not in live_pair.lower()
+            and "torch.distributed.run" not in live_pair
             and (
                 "test_repository_owned_live_pair_kernel_uses_existing_runners_and_real_gates"
                 in live_pair_tests

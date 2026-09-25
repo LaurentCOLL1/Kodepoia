@@ -620,7 +620,7 @@ install = subprocess.run(
     check=False,
 )
 Path("/kaggle/working/live-pair-pip-install.log").write_text(
-    install.stdout + "\n" + install.stderr,
+    install.stdout + "\\n" + install.stderr,
     encoding="utf-8",
 )
 if install.returncode != 0:

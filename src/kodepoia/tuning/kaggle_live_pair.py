@@ -1144,11 +1144,21 @@ def run_live_pair_kernel(dataset_source: Path, work_root: Path) -> None:
         _read_json(qualification_output),
     )
     single_peak = _resource(single_report, "peak_vram_bytes")
-    if isinstance(single_peak, bool) or not isinstance(single_peak, (int, float)):
-        raise KaggleLivePairError("single_gpu peak VRAM is missing")
-    candidate_peaks = tuple(
-        (item.device_ordinal, int(item.peak_vram_bytes or 0))
+    if (
+        isinstance(single_peak, bool)
+        or not isinstance(single_peak, (int, float))
+        or single_peak <= 0
+    ):
+        raise KaggleLivePairError("single_gpu peak VRAM is missing or non-positive")
+    if any(
+        item.peak_vram_bytes is None or item.peak_vram_bytes <= 0
         for item in qualification_report.rank_evidence
+    ):
+        raise KaggleLivePairError("qualification replicated run lacks concrete per-rank VRAM")
+    candidate_peaks = tuple(
+        (item.device_ordinal, int(item.peak_vram_bytes))
+        for item in qualification_report.rank_evidence
+        if item.peak_vram_bytes is not None
     )
     baseline_measurement = _measurement(
         strategy_digest=single.digest,
@@ -1211,9 +1221,15 @@ def run_live_pair_kernel(dataset_source: Path, work_root: Path) -> None:
         plan,
         _read_json(normal_output),
     )
-    normal_peaks = tuple(
-        (item.device_ordinal, int(item.peak_vram_bytes or 0))
+    if any(
+        item.peak_vram_bytes is None or item.peak_vram_bytes <= 0
         for item in normal_report.rank_evidence
+    ):
+        raise KaggleLivePairError("qualified replicated run lacks concrete per-rank VRAM")
+    normal_peaks = tuple(
+        (item.device_ordinal, int(item.peak_vram_bytes))
+        for item in normal_report.rank_evidence
+        if item.peak_vram_bytes is not None
     )
     normal_measurement = _measurement(
         strategy_digest=replicated.digest,

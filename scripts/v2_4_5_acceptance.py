@@ -31,9 +31,12 @@ def main() -> int:
     bootstrap = read("src/kodepoia/tuning/kaggle_live_bootstrap.py")
     kaggle_remote = read("src/kodepoia/tuning/kaggle_remote.py")
     runtime = read("src/kodepoia/tuning/runtime.py")
+    distributed = read("src/kodepoia/tuning/distributed.py")
+    distributed_worker = read("src/kodepoia/tuning/distributed_worker.py")
     sandbox = read("src/kodepoia/core/sandbox.py")
     bootstrap_tests = read("tests/test_v2_4_5_live_bootstrap.py")
     runtime_tests = read("tests/test_tuning_r15_8.py")
+    distributed_tests = read("tests/test_v2_4_3_distributed_execution.py")
     workload = read("qualification/v2_4_5/live_workload.json")
     tests = read("tests/test_v2_4_5_model_lab_accelerator.py")
     ui_tests = read("tests/test_v2_4_5_model_lab_accelerator_ui.py")
@@ -311,6 +314,50 @@ def main() -> int:
                 "binds model dry-run to the verified local snapshot, stages digest-identical "
                 "safe TrainingPlan exports without weakening R15.9, stays private/non-promotable "
                 "and is R15.7-gated"
+            ),
+        ),
+        _check(
+            "qualification_only_live_pair_bootstrap",
+            (
+                "Bounded V2.4.5 qualification-only live-pair bootstrap amendment"
+                in authority
+            )
+            and "class QualificationOnlyLaunchPermit" in distributed
+            and "def build_qualification_only_launch_permit(" in distributed
+            and "class QualificationOnlyDistributedExecutionPlan" in distributed
+            and "def build_qualification_only_distributed_execution_plan(" in distributed
+            and "def run_qualification_only(" in distributed
+            and "StrategyBenchmarkDisposition.QUALIFIED" in distributed
+            and "replicated strategy requires qualified V2.4.2 benchmark evidence"
+            in distributed
+            and (
+                '"kodepoia.v2.4.5.qualification-only-distributed-execution-plan"'
+                in distributed_worker
+            )
+            and "qualification-only permit digest mismatch" in distributed_worker
+            and "qualification-only permit lineage mismatch" in distributed_worker
+            and "qualification_only: bool = True" in distributed
+            and "promotion_authorized: bool = False" in distributed
+            and "production_qualified: bool = False" in distributed
+            and (
+                "test_qualification_only_permit_binds_exact_live_lineage_without_benchmark"
+                in distributed_tests
+            )
+            and (
+                "test_qualification_only_runner_reuses_fixed_two_rank_boundary"
+                in distributed_tests
+            )
+            and (
+                "test_qualification_only_permit_fails_closed_on_scope_or_lineage_drift"
+                in distributed_tests
+            )
+            and 'assert "benchmark_report_digest" not in payload' in distributed_tests
+            and '"--nproc-per-node=2"' in distributed
+            and '"torch.distributed.run"' in distributed,
+            (
+                "typed qualification-only permit breaks the live benchmark cycle without "
+                "weakening the normal qualified-benchmark launch gate or introducing a "
+                "second distributed engine"
             ),
         ),
         _check(

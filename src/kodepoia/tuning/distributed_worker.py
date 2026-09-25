@@ -143,10 +143,56 @@ def main() -> int:
         worker = dict(config["training_worker"])
         recovery = dict(config["recovery_plan"]) if is_recovery else None
         checkpoint_manifest = dict(config["checkpoint_manifest"]) if is_recovery else None
-        if execution.get("schema") != "kodepoia.v2.4.3.distributed-execution-plan":
+        execution_schema = execution.get("schema")
+        qualification_schema = (
+            "kodepoia.v2.4.5.qualification-only-distributed-execution-plan"
+        )
+        if execution_schema not in {
+            "kodepoia.v2.4.3.distributed-execution-plan",
+            qualification_schema,
+        }:
             raise ValueError("unsupported distributed execution plan")
+        is_qualification_only = execution_schema == qualification_schema
         if execution.get("world_size") != 2:
             raise ValueError("distributed execution world_size must be 2")
+        if is_qualification_only:
+            if is_recovery:
+                raise ValueError("qualification-only distributed execution cannot recover")
+            if (
+                execution.get("qualification_only") is not True
+                or execution.get("promotion_authorized") is not False
+                or execution.get("production_qualified") is not False
+            ):
+                raise ValueError("qualification-only execution authority is invalid")
+            permit = dict(execution.get("qualification_permit") or {})
+            permit_digest = permit.pop("qualification_permit_digest", None)
+            if not isinstance(permit_digest, str) or len(permit_digest) != 64:
+                raise ValueError("qualification-only permit digest is invalid")
+            if canonical_sha256(permit) != permit_digest:
+                raise ValueError("qualification-only permit digest mismatch")
+            source_sha = permit.get("source_sha")
+            if (
+                not isinstance(source_sha, str)
+                or len(source_sha) != 40
+                or any(char not in "0123456789abcdef" for char in source_sha)
+            ):
+                raise ValueError("qualification-only source SHA is invalid")
+            if (
+                permit.get("training_plan_digest") != execution.get("training_plan_digest")
+                or permit.get("strategy_plan_digest") != execution.get("strategy_plan_digest")
+                or permit.get("topology_digest") != execution.get("topology_digest")
+                or permit.get("topology_report_digest")
+                != execution.get("topology_report_digest")
+            ):
+                raise ValueError("qualification-only permit lineage mismatch")
+            if (
+                permit.get("world_size") != 2
+                or permit.get("device_ordinals") != [0, 1]
+                or permit.get("qualification_only") is not True
+                or permit.get("promotion_authorized") is not False
+                or permit.get("production_qualified") is not False
+            ):
+                raise ValueError("qualification-only permit scope is invalid")
         if is_recovery:
             assert recovery is not None and checkpoint_manifest is not None
             if recovery.get("execution_plan_digest") != execution.get("execution_plan_digest"):

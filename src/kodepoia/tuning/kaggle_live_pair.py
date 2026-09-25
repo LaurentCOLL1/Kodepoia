@@ -67,7 +67,7 @@ from .topology import (
     ProviderAcceleratorRequest,
     TopologyDisposition,
 )
-from .training import TrainingPlan, TrainingRunState, TrainingRunner
+from .training import TrainingPlan, TrainingReport, TrainingRunner, TrainingRunState
 
 LIVE_PAIR_REQUEST_SCHEMA = "kodepoia.v2.4.5.live-pair-request"
 LIVE_PAIR_BUNDLE_SCHEMA = "kodepoia.v2.4.5.live-pair-bundle"
@@ -354,7 +354,7 @@ class KaggleLivePairRequest:
         return {**self.descriptor(), "pair_request_digest": self.digest}
 
     @classmethod
-    def from_dict(cls, raw: Mapping[str, object]) -> "KaggleLivePairRequest":
+    def from_dict(cls, raw: Mapping[str, object]) -> KaggleLivePairRequest:
         files = raw.get("model_snapshot_files")
         if not isinstance(files, Mapping):
             raise KaggleLivePairError("model_snapshot_files must be an object")
@@ -674,7 +674,11 @@ def build_live_pair_bundle(
         wheel_sha256=wheel_sha256,
         bootstrap_evidence_sha256=_sha256(bootstrap_evidence_path),
     )
-    train_path = _inside(repository_root, repository_root / str(training_plan.dataset.train_path), strict=True)
+    train_path = _inside(
+        repository_root,
+        repository_root / str(training_plan.dataset.train_path),
+        strict=True,
+    )
     validation_path = _inside(
         repository_root,
         repository_root / str(training_plan.dataset.validation_path),
@@ -840,13 +844,13 @@ class _FixedCudaSandbox:
         )
 
 
-def _resource(report: object, name: str) -> float | int | None:
-    resources = dict(getattr(report, "resource_maxima"))
+def _resource(report: TrainingReport, name: str) -> float | int | None:
+    resources = dict(report.resource_maxima)
     return resources.get(name)
 
 
-def _checkpoint_integrity(report: object, plan: TrainingPlan) -> bool:
-    checkpoints = tuple(getattr(report, "checkpoints"))
+def _checkpoint_integrity(report: TrainingReport, plan: TrainingPlan) -> bool:
+    checkpoints = tuple(report.checkpoints)
     return bool(checkpoints) and any(
         item.step == plan.sft.checkpoint_steps and item.step < plan.sft.max_steps
         for item in checkpoints
@@ -858,24 +862,24 @@ def _measurement(
     strategy_digest: str,
     benchmark_config_digest: str,
     processed_samples: int,
-    report: object,
+    report: TrainingReport,
     per_device_peak_vram_bytes: tuple[tuple[int, int], ...],
     plan: TrainingPlan,
 ) -> StrategyBenchmarkMeasurement:
     wall = _resource(report, "wall_seconds")
     if isinstance(wall, bool) or not isinstance(wall, (int, float)):
         raise KaggleLivePairError("training report is missing wall_seconds")
-    state = getattr(report, "state")
-    completed = state in {TrainingRunState.COMPLETED, DistributedExecutionState.COMPLETED}
+    state = report.state
+    completed = state is TrainingRunState.COMPLETED
     return StrategyBenchmarkMeasurement(
         strategy_plan_digest=strategy_digest,
         benchmark_config_digest=benchmark_config_digest,
         processed_samples=processed_samples,
         wall_seconds=float(wall),
-        eval_loss=getattr(report, "eval_loss"),
-        train_loss=getattr(report, "train_loss"),
+        eval_loss=report.eval_loss,
+        train_loss=report.train_loss,
         per_device_peak_vram_bytes=per_device_peak_vram_bytes,
-        run_integrity=bool(completed and not getattr(report, "blockers")),
+        run_integrity=bool(completed and not report.blockers),
         checkpoint_integrity=_checkpoint_integrity(report, plan),
     )
 
@@ -991,7 +995,7 @@ def _candidate_evaluation(
                 raise RuntimeError("unsupported candidate model")
             self._load()
             assert self.model is not None and self.tokenizer is not None
-            prompt = str(getattr(messages[-1], "content"))
+            prompt = str(messages[-1].content)
             options = dict(kwargs.get("options") or {})
             torch.manual_seed(int(options.get("seed", 245)))
             rendered = self.tokenizer.apply_chat_template(

@@ -548,9 +548,16 @@ def _context(
     return request, single, replicated, permit, qualification_execution
 
 
-def _kernel_script(wheel_filename: str, wheel_sha256: str) -> str:
+def _kernel_script(
+    wheel_filename: str,
+    wheel_sha256: str,
+    source_sha: str,
+    pair_request_digest: str,
+) -> str:
     embedded_name = json.dumps(wheel_filename)
     embedded_sha = json.dumps(wheel_sha256)
+    embedded_source = json.dumps(source_sha)
+    embedded_request = json.dumps(pair_request_digest)
     return f'''from __future__ import annotations
 
 import hashlib
@@ -561,6 +568,8 @@ from pathlib import Path
 
 WHEEL_FILENAME = {embedded_name}
 WHEEL_SHA256 = {embedded_sha}
+SOURCE_SHA = {embedded_source}
+PAIR_REQUEST_DIGEST = {embedded_request}
 
 
 def sha256(path: Path) -> str:
@@ -570,6 +579,19 @@ def sha256(path: Path) -> str:
             digest.update(chunk)
     return digest.hexdigest()
 
+
+kernel_manifest_path = Path(__file__).with_name("kernel-manifest.json")
+kernel_manifest = json.loads(kernel_manifest_path.read_text(encoding="utf-8"))
+if (
+    kernel_manifest.get("schema") != "kodepoia.v2.4.5.live-pair-kernel-bundle"
+    or kernel_manifest.get("schema_version") != 1
+    or kernel_manifest.get("source_sha") != SOURCE_SHA
+    or kernel_manifest.get("pair_request_digest") != PAIR_REQUEST_DIGEST
+):
+    raise SystemExit("Live-pair kernel manifest identity mismatch")
+script_sha = kernel_manifest.get("script_sha256")
+if not isinstance(script_sha, str) or sha256(Path(__file__)) != script_sha:
+    raise SystemExit("Live-pair kernel script digest mismatch")
 
 input_root = Path("/kaggle/input")
 manifests = list(input_root.rglob("live-pair-bundle-manifest.json"))
@@ -727,7 +749,27 @@ def build_live_pair_bundle(
         encoding="utf-8",
     )
     script = kernel_dir / "run_live_pair.py"
-    script.write_text(_kernel_script(request.wheel_filename, request.wheel_sha256), encoding="utf-8")
+    script.write_text(
+        _kernel_script(
+            request.wheel_filename,
+            request.wheel_sha256,
+            source_sha,
+            request.digest,
+        ),
+        encoding="utf-8",
+    )
+    kernel_manifest = {
+        "pair_request_digest": request.digest,
+        "schema": "kodepoia.v2.4.5.live-pair-kernel-bundle",
+        "schema_version": LIVE_PAIR_SCHEMA_VERSION,
+        "script_sha256": _sha256(script),
+        "source_sha": source_sha,
+    }
+    _assert_no_secrets(kernel_manifest)
+    (kernel_dir / "kernel-manifest.json").write_text(
+        json.dumps(kernel_manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     kernel_metadata = {
         "code_file": script.name,
         "competition_sources": [],
@@ -1395,8 +1437,18 @@ class KaggleLivePairClient:
 
     def push(self, bundle: KaggleLivePairBundle) -> CommandResult:
         metadata = _read_json(bundle.kernel_dir / "kernel-metadata.json")
+        manifest = _read_json(bundle.kernel_dir / "kernel-manifest.json")
+        script = bundle.kernel_dir / str(metadata.get("code_file", ""))
         if metadata.get("is_private") is not True:
             raise KaggleLivePairError("live-pair kernel must be private")
+        if (
+            manifest.get("source_sha") != bundle.request.source_sha
+            or manifest.get("pair_request_digest") != bundle.request.digest
+            or not script.is_file()
+            or script.is_symlink()
+            or manifest.get("script_sha256") != _sha256(script)
+        ):
+            raise KaggleLivePairError("live-pair kernel manifest integrity mismatch")
         return self._checked(
             [self.kaggle_executable, "kernels", "push", "--path", str(bundle.kernel_dir)],
             timeout=300.0,

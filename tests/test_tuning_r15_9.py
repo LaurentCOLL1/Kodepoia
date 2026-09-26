@@ -9,8 +9,8 @@ from pathlib import Path
 import pytest
 
 from kodepoia.core.sandbox import SandboxResult
-from kodepoia.tuning.contracts import QuantizationMode, ResourceRequest
 from kodepoia.tuning import train_worker
+from kodepoia.tuning.contracts import QuantizationMode, ResourceRequest
 from kodepoia.tuning.runtime import HostResources
 from kodepoia.tuning.training import (
     DatasetBinding,

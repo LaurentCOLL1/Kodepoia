@@ -18,6 +18,7 @@ from kodepoia.tuning import (
     DistributedTrainingRunner,
     ModelBinding,
     ObservedAcceleratorTopology,
+    QualificationOnlyDistributedTrainingReport,
     QuantizationMode,
     ResourceRequest,
     SeedConfig,
@@ -31,6 +32,8 @@ from kodepoia.tuning import (
     TrainingPlan,
     build_distributed_execution_plan,
     build_execution_strategy_plan,
+    build_qualification_only_distributed_execution_plan,
+    build_qualification_only_launch_permit,
     evaluate_strategy_benchmark,
 )
 from kodepoia.tuning.runtime import HostResources
@@ -147,6 +150,26 @@ def _strategy_and_benchmark(root: Path):
         measurement(replicated, 70.0),
     )
     return training, replicated, benchmark
+
+
+def _qualification_context(root: Path):
+    training = _training_plan(root)
+    topology = _topology()
+    strategy = build_execution_strategy_plan(
+        training,
+        topology,
+        strategy=StrategyKind.REPLICATED_DATA_PARALLEL,
+        device_ordinals=(0, 1),
+    )
+    permit = build_qualification_only_launch_permit(
+        source_sha="1" * 40,
+        training_plan=training,
+        topology_report=topology,
+        strategy_plan=strategy,
+        gap_decision_digest=A,
+        bootstrap_result_digest=B,
+    )
+    return training, topology, strategy, permit
 
 
 class FixedResources:
@@ -274,6 +297,141 @@ def test_execution_plan_rejects_unqualified_or_wrong_candidate_strategy(tmp_path
     )
     with pytest.raises(ValueError, match="candidate strategy lineage"):
         build_distributed_execution_plan(training, strategy, wrong)
+
+
+def test_qualification_only_permit_binds_exact_live_lineage_without_benchmark(
+    tmp_path: Path,
+) -> None:
+    training, topology, strategy, permit = _qualification_context(tmp_path)
+    assert permit.source_sha == "1" * 40
+    assert permit.training_plan_digest == training.digest
+    assert permit.capability_report_digest == training.capability_report_digest
+    assert permit.topology_report_digest == topology.digest
+    assert permit.topology_digest == topology.topology_digest
+    assert permit.strategy_plan_digest == strategy.digest
+    assert permit.world_size == 2
+    assert permit.device_ordinals == (0, 1)
+    assert permit.qualification_only is True
+    assert permit.promotion_authorized is False
+    assert permit.production_qualified is False
+
+    execution = build_qualification_only_distributed_execution_plan(
+        training,
+        strategy,
+        permit,
+    )
+    payload = execution.to_dict()
+    assert payload["qualification_only"] is True
+    assert payload["promotion_authorized"] is False
+    assert payload["production_qualified"] is False
+    assert payload["qualification_permit"]["qualification_permit_digest"] == permit.digest
+    assert "benchmark_report_digest" not in payload
+
+
+def test_qualification_only_runner_reuses_fixed_two_rank_boundary(
+    tmp_path: Path,
+) -> None:
+    training, _topology_report, strategy, permit = _qualification_context(tmp_path)
+    sandbox = FakeDistributedSandbox(tmp_path)
+    report = DistributedTrainingRunner(
+        tmp_path,
+        sandbox=sandbox,
+        resource_probe=FixedResources(),
+    ).run_qualification_only(training, strategy, permit)
+
+    assert isinstance(report, QualificationOnlyDistributedTrainingReport)
+    assert report.state is DistributedExecutionState.COMPLETED
+    assert report.source_sha == "1" * 40
+    assert report.qualification_permit_digest == permit.digest
+    assert report.qualification_only is True
+    assert report.promotion_authorized is False
+    assert report.production_qualified is False
+    assert [item.rank for item in report.rank_evidence] == [0, 1]
+    payload = report.to_dict()
+    assert "benchmark_report_digest" not in payload
+
+    argv, env = sandbox.calls[0]
+    assert argv[:3] == [sys.executable, "-m", "torch.distributed.run"]
+    assert "--standalone" in argv
+    assert "--nnodes=1" in argv
+    assert "--nproc-per-node=2" in argv
+    assert "--max-restarts=0" in argv
+    assert "--module" in argv
+    assert "kodepoia.tuning.distributed_worker" in argv
+    assert env == {"CUDA_VISIBLE_DEVICES": "0,1"}
+
+
+def test_qualification_only_permit_fails_closed_on_scope_or_lineage_drift(
+    tmp_path: Path,
+) -> None:
+    training, topology, strategy, permit = _qualification_context(tmp_path)
+
+    not_ready = replace(topology, disposition="mismatch", blockers=("fixture",))
+    with pytest.raises(ValueError, match="requires ready topology"):
+        build_qualification_only_launch_permit(
+            source_sha="1" * 40,
+            training_plan=training,
+            topology_report=not_ready,
+            strategy_plan=strategy,
+            gap_decision_digest=A,
+            bootstrap_result_digest=B,
+        )
+
+    assert topology.observed is not None
+    wrong_devices = tuple(
+        replace(device, name="NVIDIA V100")
+        for device in topology.observed.devices
+    )
+    wrong_topology = replace(
+        topology,
+        observed=replace(topology.observed, devices=wrong_devices),
+    )
+    with pytest.raises(ValueError, match="two observed T4 CUDA devices"):
+        build_qualification_only_launch_permit(
+            source_sha="1" * 40,
+            training_plan=training,
+            topology_report=wrong_topology,
+            strategy_plan=strategy,
+            gap_decision_digest=A,
+            bootstrap_result_digest=B,
+        )
+
+    single = build_execution_strategy_plan(
+        training,
+        topology,
+        strategy=StrategyKind.SINGLE_GPU,
+        device_ordinals=(0,),
+    )
+    with pytest.raises(ValueError, match="replicated_data_parallel"):
+        build_qualification_only_launch_permit(
+            source_sha="1" * 40,
+            training_plan=training,
+            topology_report=topology,
+            strategy_plan=single,
+            gap_decision_digest=A,
+            bootstrap_result_digest=B,
+        )
+
+    with pytest.raises(ValueError, match="cannot authorize promotion"):
+        replace(permit, promotion_authorized=True)
+
+    mismatched = replace(permit, strategy_plan_digest=A)
+    with pytest.raises(ValueError, match="permit strategy lineage mismatch"):
+        build_qualification_only_distributed_execution_plan(
+            training,
+            strategy,
+            mismatched,
+        )
+
+    with pytest.raises(ValueError, match="source_sha"):
+        build_qualification_only_launch_permit(
+            source_sha="not-a-git-sha",
+            training_plan=training,
+            topology_report=topology,
+            strategy_plan=strategy,
+            gap_decision_digest=A,
+            bootstrap_result_digest=B,
+        )
 
 
 def test_runner_uses_fixed_two_rank_torchrun_boundary_and_bounded_env(tmp_path: Path) -> None:

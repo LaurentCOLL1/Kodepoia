@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from kodepoia.core.sandbox import SandboxResult
+from kodepoia.tuning import train_worker
 from kodepoia.tuning.contracts import QuantizationMode, ResourceRequest
 from kodepoia.tuning.runtime import HostResources
 from kodepoia.tuning.training import (
@@ -243,6 +244,44 @@ def test_timeout_and_cancel_are_terminal_without_adapter(tmp_path: Path) -> None
     report = TrainingRunner(tmp_path, sandbox=cancelled, resource_probe=FixedResources()).run(_plan())
     assert report.state is TrainingRunState.CANCELLED
     assert report.adapter_digest is None
+
+
+def test_training_worker_stdout_remains_strict_json_when_trainer_is_noisy(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    config_path = tmp_path / "config.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "mode": "fixture_sft",
+                "run_dir": "run",
+                "schema": "kodepoia.r15.9.training-run",
+                "schema_version": 1,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    def noisy_fixture(
+        _config: dict[str, object],
+        _root: Path,
+        _run_dir: Path,
+    ) -> dict[str, object]:
+        print("trainer progress: 100%")
+        print({"loss": 0.123})
+        return {"result": "ok"}
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(sys, "argv", ["train_worker.py", config_path.name])
+    monkeypatch.setattr(train_worker, "_run_fixture", noisy_fixture)
+
+    assert train_worker.main() == 0
+    captured = capsys.readouterr()
+    assert json.loads(captured.out) == {"result": "ok"}
+    assert "trainer progress: 100%" in captured.err
+    assert "'loss': 0.123" in captured.err
 
 
 def test_worker_argv_never_contains_model_tokenizer_or_dataset_identifiers(tmp_path: Path) -> None:

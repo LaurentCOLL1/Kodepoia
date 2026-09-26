@@ -35,6 +35,13 @@ from .topology import (
 )
 
 _MAX_CAPTURE_CHARS = 8192
+_CUDA_RUNTIME_ENV_KEYS = (
+    "LD_LIBRARY_PATH",
+    "CUDA_VISIBLE_DEVICES",
+    "CUDA_DEVICE_ORDER",
+    "NVIDIA_VISIBLE_DEVICES",
+    "NVIDIA_DRIVER_CAPABILITIES",
+)
 _SECRET_PATTERNS = (
     re.compile(
         r"(?i)(?P<prefix>\b(?:api[_-]?key|access[_-]?token|auth[_-]?token|password|secret)"
@@ -48,6 +55,14 @@ _SECRET_PATTERNS = (
     re.compile(r"(?i)\b[A-Z]:\\(?:[^\\\r\n]+\\)*[^\\\r\n]*"),
     re.compile(r"(?<![A-Za-z0-9])/(?:home|Users)/[^\s'\"`]+"),
 )
+
+
+def _runtime_worker_environment() -> dict[str, str]:
+    return {
+        key: os.environ[key]
+        for key in _CUDA_RUNTIME_ENV_KEYS
+        if key in os.environ
+    }
 
 
 class SandboxRunner(Protocol):
@@ -475,7 +490,7 @@ class TrainingRuntime:
                     argv,
                     cwd=self.root,
                     timeout=float(request.timeout_seconds),
-                    env={},
+                    env=_runtime_worker_environment(),
                 )
             except RuntimeError as exc:
                 stderr = redact_runtime_text(str(exc))

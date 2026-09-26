@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import importlib.metadata
 import json
@@ -366,10 +367,15 @@ def main() -> int:
             raise ValueError("unsupported R15.9 training worker schema")
         run_dir = _inside(root, str(config["run_dir"]))
         run_dir.mkdir(parents=True, exist_ok=True)
-        if config.get("mode") == "fixture_sft":
-            output = _run_fixture(config, root, run_dir)
-        else:
-            output = _run_real(config, root, run_dir)
+        # Keep stdout as a strict machine-readable channel for TrainingRunner.
+        # Third-party trainers may emit progress/metrics to stdout, so redirect
+        # all worker execution chatter to stderr and print only the final JSON
+        # payload on stdout.
+        with contextlib.redirect_stdout(sys.stderr):
+            if config.get("mode") == "fixture_sft":
+                output = _run_fixture(config, root, run_dir)
+            else:
+                output = _run_real(config, root, run_dir)
         print(json.dumps(output, ensure_ascii=False, separators=(",", ":"), sort_keys=True))
         return 0
     except Exception as exc:  # worker boundary intentionally converts failures to one redacted parent path

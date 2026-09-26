@@ -14,7 +14,7 @@ from typing import Protocol
 from kodepoia.core.kill_switch import GLOBAL_KILL_SWITCH, KillSwitch
 from kodepoia.core.sandbox import ProcessSandbox, SandboxResult
 
-from .contracts import TuningRuntimeError, canonical_sha256
+from .contracts import TrainingBackend, TuningRuntimeError, canonical_sha256
 from .runtime import HostResourceProbe, redact_runtime_text
 from .strategy import (
     ExecutionStrategyPlan,
@@ -22,6 +22,7 @@ from .strategy import (
     StrategyBenchmarkReport,
     StrategyKind,
 )
+from .topology import AcceleratorTopologyReport, TopologyDisposition
 from .training import (
     TrainingAuthorization,
     TrainingMode,
@@ -37,7 +38,14 @@ DISTRIBUTED_REPORT_SCHEMA_VERSION = 1
 DISTRIBUTED_WORKER_CONFIG_SCHEMA = "kodepoia.v2.4.3.distributed-worker-config"
 DISTRIBUTED_WORKER_CONFIG_SCHEMA_VERSION = 1
 DISTRIBUTED_LAUNCH_POLICY = "torchrun-standalone-two-rank-v1"
+QUALIFICATION_ONLY_PERMIT_SCHEMA = "kodepoia.v2.4.5.qualification-only-distributed-launch-permit"
+QUALIFICATION_ONLY_PERMIT_SCHEMA_VERSION = 1
+QUALIFICATION_ONLY_EXECUTION_SCHEMA = "kodepoia.v2.4.5.qualification-only-distributed-execution-plan"
+QUALIFICATION_ONLY_EXECUTION_SCHEMA_VERSION = 1
+QUALIFICATION_ONLY_REPORT_SCHEMA = "kodepoia.v2.4.5.qualification-only-distributed-training-report"
+QUALIFICATION_ONLY_REPORT_SCHEMA_VERSION = 1
 
+_HEX40 = re.compile(r"^[0-9a-f]{40}$")
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
 _SAFE_REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/+@-]{0,511}$")
 _MAX_CAPTURE_CHARS = 8192
@@ -100,6 +108,156 @@ class DistributedRankSeed:
 
     def to_dict(self) -> dict[str, int]:
         return {"data_seed": self.data_seed, "rank": self.rank, "seed": self.seed}
+
+
+@dataclass(frozen=True, slots=True)
+class QualificationOnlyLaunchPermit:
+    source_sha: str
+    training_plan_digest: str
+    capability_report_digest: str
+    gap_decision_digest: str
+    bootstrap_result_digest: str
+    topology_report_digest: str
+    topology_digest: str
+    strategy_plan_digest: str
+    world_size: int
+    device_ordinals: tuple[int, int]
+    qualification_only: bool = True
+    promotion_authorized: bool = False
+    production_qualified: bool = False
+    schema: str = QUALIFICATION_ONLY_PERMIT_SCHEMA
+    schema_version: int = QUALIFICATION_ONLY_PERMIT_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if _HEX40.fullmatch(self.source_sha) is None:
+            raise TuningRuntimeError("qualification source_sha must be 40 lowercase hex characters")
+        for label in (
+            "training_plan_digest",
+            "capability_report_digest",
+            "gap_decision_digest",
+            "bootstrap_result_digest",
+            "topology_report_digest",
+            "topology_digest",
+            "strategy_plan_digest",
+        ):
+            _require_digest(label, getattr(self, label))
+        if self.world_size != 2:
+            raise TuningRuntimeError("qualification-only replicated launch requires world_size=2")
+        ordinals = tuple(self.device_ordinals)
+        object.__setattr__(self, "device_ordinals", ordinals)
+        if ordinals != (0, 1):
+            raise TuningRuntimeError(
+                "qualification-only replicated launch requires device ordinals (0, 1)"
+            )
+        if self.qualification_only is not True:
+            raise TuningRuntimeError("qualification-only launch permit must remain qualification-only")
+        if self.promotion_authorized is not False:
+            raise TuningRuntimeError("qualification-only launch permit cannot authorize promotion")
+        if self.production_qualified is not False:
+            raise TuningRuntimeError(
+                "qualification-only launch permit cannot claim production qualification"
+            )
+        if self.schema != QUALIFICATION_ONLY_PERMIT_SCHEMA:
+            raise TuningRuntimeError("unsupported qualification-only launch permit schema")
+        if self.schema_version != QUALIFICATION_ONLY_PERMIT_SCHEMA_VERSION:
+            raise TuningRuntimeError("unsupported qualification-only launch permit schema version")
+
+    def descriptor(self) -> dict[str, object]:
+        return {
+            "bootstrap_result_digest": self.bootstrap_result_digest,
+            "capability_report_digest": self.capability_report_digest,
+            "device_ordinals": list(self.device_ordinals),
+            "gap_decision_digest": self.gap_decision_digest,
+            "production_qualified": self.production_qualified,
+            "promotion_authorized": self.promotion_authorized,
+            "qualification_only": self.qualification_only,
+            "schema": self.schema,
+            "schema_version": self.schema_version,
+            "source_sha": self.source_sha,
+            "strategy_plan_digest": self.strategy_plan_digest,
+            "topology_digest": self.topology_digest,
+            "topology_report_digest": self.topology_report_digest,
+            "training_plan_digest": self.training_plan_digest,
+            "world_size": self.world_size,
+        }
+
+    @property
+    def digest(self) -> str:
+        return canonical_sha256(self.descriptor())
+
+    def to_dict(self) -> dict[str, object]:
+        return {**self.descriptor(), "qualification_permit_digest": self.digest}
+
+
+def build_qualification_only_launch_permit(
+    *,
+    source_sha: str,
+    training_plan: TrainingPlan,
+    topology_report: AcceleratorTopologyReport,
+    strategy_plan: ExecutionStrategyPlan,
+    gap_decision_digest: str,
+    bootstrap_result_digest: str,
+) -> QualificationOnlyLaunchPermit:
+    if training_plan.authorization is not TrainingAuthorization.TRAIN:
+        raise TuningRuntimeError(
+            "qualification-only launch requires governed TRAIN authorization"
+        )
+    if training_plan.mode not in {TrainingMode.SFT, TrainingMode.QLORA}:
+        raise TuningRuntimeError("qualification-only launch accepts only real SFT or QLoRA")
+    if training_plan.capability_report_digest is None:
+        raise TuningRuntimeError(
+            "qualification-only launch requires accepted R15.8 capability evidence"
+        )
+    if training_plan.dataset.train_path is None or training_plan.dataset.validation_path is None:
+        raise TuningRuntimeError(
+            "qualification-only launch requires materialized governed dataset paths"
+        )
+    if topology_report.disposition is not TopologyDisposition.READY:
+        raise TuningRuntimeError("qualification-only launch requires ready topology")
+    if topology_report.blockers:
+        raise TuningRuntimeError("qualification-only launch topology must not contain blockers")
+    if topology_report.backend is not TrainingBackend.CUDA or topology_report.observed is None:
+        raise TuningRuntimeError("qualification-only launch requires observed CUDA topology")
+    devices = topology_report.observed.devices
+    if (
+        len(devices) != 2
+        or tuple(device.index for device in devices) != (0, 1)
+        or any(device.backend_type is not TrainingBackend.CUDA for device in devices)
+        or any("T4" not in device.name for device in devices)
+    ):
+        raise TuningRuntimeError(
+            "qualification-only launch requires exactly two observed T4 CUDA devices (0, 1)"
+        )
+    if strategy_plan.strategy is not StrategyKind.REPLICATED_DATA_PARALLEL:
+        raise TuningRuntimeError(
+            "qualification-only launch requires replicated_data_parallel strategy"
+        )
+    if strategy_plan.world_size != 2 or tuple(strategy_plan.device_ordinals) != (0, 1):
+        raise TuningRuntimeError(
+            "qualification-only launch requires strategy world_size=2 on ordinals (0, 1)"
+        )
+    if strategy_plan.training_plan_digest != training_plan.digest:
+        raise TuningRuntimeError("qualification-only strategy TrainingPlan lineage mismatch")
+    if strategy_plan.topology_report_digest != topology_report.digest:
+        raise TuningRuntimeError("qualification-only topology report lineage mismatch")
+    if (
+        topology_report.topology_digest is None
+        or strategy_plan.topology_digest != topology_report.topology_digest
+    ):
+        raise TuningRuntimeError("qualification-only topology digest lineage mismatch")
+
+    return QualificationOnlyLaunchPermit(
+        source_sha=source_sha,
+        training_plan_digest=training_plan.digest,
+        capability_report_digest=training_plan.capability_report_digest,
+        gap_decision_digest=gap_decision_digest,
+        bootstrap_result_digest=bootstrap_result_digest,
+        topology_report_digest=topology_report.digest,
+        topology_digest=topology_report.topology_digest,
+        strategy_plan_digest=strategy_plan.digest,
+        world_size=2,
+        device_ordinals=(0, 1),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -269,6 +427,219 @@ def build_distributed_execution_plan(
         topology_digest=strategy_plan.topology_digest,
         world_size=2,
         device_ordinals=(strategy_plan.device_ordinals[0], strategy_plan.device_ordinals[1]),
+        device_vram_limits=(
+            (
+                strategy_plan.device_budgets[0].ordinal,
+                strategy_plan.device_budgets[0].observed_total_vram_bytes,
+            ),
+            (
+                strategy_plan.device_budgets[1].ordinal,
+                strategy_plan.device_budgets[1].observed_total_vram_bytes,
+            ),
+        ),
+        host_ram_required_bytes=strategy_plan.host_ram_required_bytes,
+        host_storage_required_bytes=strategy_plan.host_storage_required_bytes,
+        per_device_batch_size=strategy_plan.per_device_batch_size,
+        gradient_accumulation_steps=strategy_plan.gradient_accumulation_steps,
+        effective_global_batch_size=strategy_plan.effective_global_batch_size,
+        rank_seeds=expected_seeds,  # type: ignore[arg-type]
+        shared_sampler_seed=training_plan.seeds.data_seed,
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class QualificationOnlyDistributedExecutionPlan:
+    permit: QualificationOnlyLaunchPermit
+    training_plan_digest: str
+    strategy_plan_digest: str
+    topology_report_digest: str
+    topology_digest: str
+    world_size: int
+    device_ordinals: tuple[int, int]
+    device_vram_limits: tuple[tuple[int, int], tuple[int, int]]
+    host_ram_required_bytes: int
+    host_storage_required_bytes: int
+    per_device_batch_size: int
+    gradient_accumulation_steps: int
+    effective_global_batch_size: int
+    rank_seeds: tuple[DistributedRankSeed, DistributedRankSeed]
+    shared_sampler_seed: int
+    canonical_rank: int = 0
+    launcher_policy: str = DISTRIBUTED_LAUNCH_POLICY
+    resume_authorized: bool = False
+    qualification_only: bool = True
+    promotion_authorized: bool = False
+    production_qualified: bool = False
+    schema: str = QUALIFICATION_ONLY_EXECUTION_SCHEMA
+    schema_version: int = QUALIFICATION_ONLY_EXECUTION_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        for label in (
+            "training_plan_digest",
+            "strategy_plan_digest",
+            "topology_report_digest",
+            "topology_digest",
+        ):
+            _require_digest(label, getattr(self, label))
+        if self.permit.training_plan_digest != self.training_plan_digest:
+            raise TuningRuntimeError("qualification permit TrainingPlan lineage mismatch")
+        if self.permit.strategy_plan_digest != self.strategy_plan_digest:
+            raise TuningRuntimeError("qualification permit strategy lineage mismatch")
+        if self.permit.topology_report_digest != self.topology_report_digest:
+            raise TuningRuntimeError("qualification permit topology-report lineage mismatch")
+        if self.permit.topology_digest != self.topology_digest:
+            raise TuningRuntimeError("qualification permit topology lineage mismatch")
+        if self.world_size != 2 or self.permit.world_size != 2:
+            raise TuningRuntimeError("qualification execution requires world_size=2")
+        ordinals = tuple(self.device_ordinals)
+        object.__setattr__(self, "device_ordinals", ordinals)
+        if ordinals != (0, 1) or self.permit.device_ordinals != ordinals:
+            raise TuningRuntimeError(
+                "qualification execution requires exact device ordinals (0, 1)"
+            )
+        limits = tuple(self.device_vram_limits)
+        object.__setattr__(self, "device_vram_limits", limits)
+        if tuple(item[0] for item in limits) != ordinals:
+            raise TuningRuntimeError("qualification device VRAM limits must match ordinals")
+        for ordinal, value in limits:
+            _bounded_int("device ordinal", ordinal, minimum=0, maximum=63)
+            _bounded_int("device VRAM limit", value, minimum=1, maximum=_MAX_BYTES)
+        for label in ("host_ram_required_bytes", "host_storage_required_bytes"):
+            _bounded_int(label, getattr(self, label), minimum=0, maximum=_MAX_BYTES)
+        _bounded_int("per_device_batch_size", self.per_device_batch_size, minimum=1, maximum=65536)
+        _bounded_int(
+            "gradient_accumulation_steps",
+            self.gradient_accumulation_steps,
+            minimum=1,
+            maximum=65536,
+        )
+        expected_batch = (
+            self.per_device_batch_size
+            * self.gradient_accumulation_steps
+            * self.world_size
+        )
+        if self.effective_global_batch_size != expected_batch:
+            raise TuningRuntimeError("qualification effective global batch identity is invalid")
+        seeds = tuple(self.rank_seeds)
+        object.__setattr__(self, "rank_seeds", seeds)
+        if tuple(item.rank for item in seeds) != (0, 1):
+            raise TuningRuntimeError("qualification rank seeds must cover ranks 0 and 1")
+        _bounded_int(
+            "shared_sampler_seed",
+            self.shared_sampler_seed,
+            minimum=0,
+            maximum=2**31 - 1,
+        )
+        if self.canonical_rank != 0:
+            raise TuningRuntimeError("qualification canonical rank must be zero")
+        if self.launcher_policy != DISTRIBUTED_LAUNCH_POLICY:
+            raise TuningRuntimeError("unsupported qualification distributed launcher policy")
+        if self.resume_authorized is not False:
+            raise TuningRuntimeError("qualification-only launch cannot resume")
+        if self.qualification_only is not True:
+            raise TuningRuntimeError("qualification execution must remain qualification-only")
+        if self.promotion_authorized is not False or self.production_qualified is not False:
+            raise TuningRuntimeError(
+                "qualification execution cannot authorize promotion or production qualification"
+            )
+
+    @property
+    def qualification_permit_digest(self) -> str:
+        return self.permit.digest
+
+    def descriptor(self) -> dict[str, object]:
+        return {
+            "canonical_rank": self.canonical_rank,
+            "device_ordinals": list(self.device_ordinals),
+            "device_vram_limits": [
+                {"ordinal": ordinal, "total_vram_bytes": value}
+                for ordinal, value in self.device_vram_limits
+            ],
+            "effective_global_batch_size": self.effective_global_batch_size,
+            "gradient_accumulation_steps": self.gradient_accumulation_steps,
+            "host_ram_required_bytes": self.host_ram_required_bytes,
+            "host_storage_required_bytes": self.host_storage_required_bytes,
+            "launcher_policy": self.launcher_policy,
+            "per_device_batch_size": self.per_device_batch_size,
+            "production_qualified": self.production_qualified,
+            "promotion_authorized": self.promotion_authorized,
+            "qualification_only": self.qualification_only,
+            "qualification_permit": self.permit.to_dict(),
+            "rank_seeds": [item.to_dict() for item in self.rank_seeds],
+            "resume_authorized": self.resume_authorized,
+            "schema": self.schema,
+            "schema_version": self.schema_version,
+            "shared_sampler_seed": self.shared_sampler_seed,
+            "strategy_plan_digest": self.strategy_plan_digest,
+            "topology_digest": self.topology_digest,
+            "topology_report_digest": self.topology_report_digest,
+            "training_plan_digest": self.training_plan_digest,
+            "world_size": self.world_size,
+        }
+
+    @property
+    def digest(self) -> str:
+        return canonical_sha256(self.descriptor())
+
+    @property
+    def run_id(self) -> str:
+        return f"qual-dist-{self.digest[:20]}"
+
+    def to_dict(self) -> dict[str, object]:
+        return {**self.descriptor(), "execution_plan_digest": self.digest}
+
+
+def build_qualification_only_distributed_execution_plan(
+    training_plan: TrainingPlan,
+    strategy_plan: ExecutionStrategyPlan,
+    permit: QualificationOnlyLaunchPermit,
+) -> QualificationOnlyDistributedExecutionPlan:
+    if training_plan.authorization is not TrainingAuthorization.TRAIN:
+        raise TuningRuntimeError("qualification execution requires governed TRAIN authorization")
+    if training_plan.mode not in {TrainingMode.SFT, TrainingMode.QLORA}:
+        raise TuningRuntimeError("qualification execution accepts only real SFT or QLoRA")
+    if training_plan.capability_report_digest != permit.capability_report_digest:
+        raise TuningRuntimeError("qualification capability lineage mismatch")
+    if training_plan.dataset.train_path is None or training_plan.dataset.validation_path is None:
+        raise TuningRuntimeError("qualification execution requires governed dataset paths")
+    if strategy_plan.strategy is not StrategyKind.REPLICATED_DATA_PARALLEL:
+        raise TuningRuntimeError("qualification execution requires replicated_data_parallel")
+    if strategy_plan.world_size != 2 or tuple(strategy_plan.device_ordinals) != (0, 1):
+        raise TuningRuntimeError("qualification execution requires ordinals (0, 1)")
+    if strategy_plan.training_plan_digest != training_plan.digest:
+        raise TuningRuntimeError("qualification strategy TrainingPlan lineage mismatch")
+    if permit.training_plan_digest != training_plan.digest:
+        raise TuningRuntimeError("qualification permit TrainingPlan lineage mismatch")
+    if permit.strategy_plan_digest != strategy_plan.digest:
+        raise TuningRuntimeError("qualification permit strategy lineage mismatch")
+    if permit.topology_report_digest != strategy_plan.topology_report_digest:
+        raise TuningRuntimeError("qualification permit topology-report lineage mismatch")
+    if permit.topology_digest != strategy_plan.topology_digest:
+        raise TuningRuntimeError("qualification permit topology lineage mismatch")
+
+    expected_seeds = tuple(
+        DistributedRankSeed(
+            rank=rank,
+            seed=training_plan.seeds.seed + rank,
+            data_seed=training_plan.seeds.data_seed + rank,
+        )
+        for rank in range(2)
+    )
+    observed_seeds = tuple(
+        DistributedRankSeed(rank=item.rank, seed=item.seed, data_seed=item.data_seed)
+        for item in strategy_plan.rank_seeds
+    )
+    if observed_seeds != expected_seeds:
+        raise TuningRuntimeError("qualification strategy rank/data seed lineage mismatch")
+
+    return QualificationOnlyDistributedExecutionPlan(
+        permit=permit,
+        training_plan_digest=training_plan.digest,
+        strategy_plan_digest=strategy_plan.digest,
+        topology_report_digest=strategy_plan.topology_report_digest,
+        topology_digest=strategy_plan.topology_digest,
+        world_size=2,
+        device_ordinals=(0, 1),
         device_vram_limits=(
             (
                 strategy_plan.device_budgets[0].ordinal,
@@ -503,6 +874,130 @@ class DistributedTrainingReport:
         path.write_text(json.dumps(self.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+@dataclass(frozen=True, slots=True)
+class QualificationOnlyDistributedTrainingReport:
+    source_sha: str
+    execution_plan_digest: str
+    training_plan_digest: str
+    strategy_plan_digest: str
+    qualification_permit_digest: str
+    topology_digest: str
+    run_id: str
+    state: DistributedExecutionState
+    world_size: int
+    device_ordinals: tuple[int, int]
+    canonical_rank: int
+    rank_evidence: tuple[DistributedRankEvidence, ...]
+    canonical_training_report_digest: str | None
+    adapter_path: str | None
+    adapter_digest: str | None
+    completed_steps: int
+    train_loss: float | None
+    eval_loss: float | None
+    blockers: tuple[str, ...] = ()
+    stderr: str = ""
+    process_group_managed: bool = True
+    resume_authorized: bool = False
+    qualification_only: bool = True
+    promotion_authorized: bool = False
+    production_qualified: bool = False
+    schema: str = QUALIFICATION_ONLY_REPORT_SCHEMA
+    schema_version: int = QUALIFICATION_ONLY_REPORT_SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if _HEX40.fullmatch(self.source_sha) is None:
+            raise TuningRuntimeError("qualification report source_sha must be 40 lowercase hex")
+        for label in (
+            "execution_plan_digest",
+            "training_plan_digest",
+            "strategy_plan_digest",
+            "qualification_permit_digest",
+            "topology_digest",
+        ):
+            _require_digest(label, getattr(self, label))
+        object.__setattr__(self, "run_id", _safe_ref("run_id", self.run_id))
+        object.__setattr__(self, "state", DistributedExecutionState(self.state))
+        if self.world_size != 2 or tuple(self.device_ordinals) != (0, 1):
+            raise TuningRuntimeError("qualification report requires world_size=2 on ordinals (0, 1)")
+        if self.canonical_rank != 0:
+            raise TuningRuntimeError("qualification report canonical rank must be zero")
+        ranks = tuple(self.rank_evidence)
+        object.__setattr__(self, "rank_evidence", ranks)
+        if self.canonical_training_report_digest is not None:
+            _require_digest(
+                "canonical_training_report_digest",
+                self.canonical_training_report_digest,
+            )
+        if self.adapter_path is not None:
+            object.__setattr__(self, "adapter_path", _safe_ref("adapter_path", self.adapter_path))
+        if self.adapter_digest is not None:
+            _require_digest("adapter_digest", self.adapter_digest)
+        _bounded_int("completed_steps", self.completed_steps, minimum=0, maximum=10_000_000)
+        object.__setattr__(self, "train_loss", _bounded_float_or_none("train_loss", self.train_loss))
+        object.__setattr__(self, "eval_loss", _bounded_float_or_none("eval_loss", self.eval_loss))
+        blockers = tuple(sorted(set(self.blockers)))
+        object.__setattr__(self, "blockers", blockers)
+        if self.process_group_managed is not True:
+            raise TuningRuntimeError("qualification report requires managed process group")
+        if self.resume_authorized is not False:
+            raise TuningRuntimeError("qualification-only report cannot authorize resume")
+        if self.qualification_only is not True:
+            raise TuningRuntimeError("qualification report must remain qualification-only")
+        if self.promotion_authorized is not False or self.production_qualified is not False:
+            raise TuningRuntimeError(
+                "qualification report cannot authorize promotion or production qualification"
+            )
+        if self.state is DistributedExecutionState.COMPLETED:
+            if tuple(item.rank for item in ranks) != (0, 1):
+                raise TuningRuntimeError("completed qualification report requires two ranks")
+            if any(item.state is not DistributedRankState.COMPLETED for item in ranks):
+                raise TuningRuntimeError("completed qualification report requires completed ranks")
+            if self.canonical_training_report_digest is None or self.adapter_digest is None:
+                raise TuningRuntimeError(
+                    "completed qualification report requires canonical training evidence"
+                )
+            if blockers:
+                raise TuningRuntimeError("completed qualification report cannot contain blockers")
+
+    def descriptor(self) -> dict[str, object]:
+        return {
+            "adapter_digest": self.adapter_digest,
+            "adapter_path": self.adapter_path,
+            "blockers": list(self.blockers),
+            "canonical_rank": self.canonical_rank,
+            "canonical_training_report_digest": self.canonical_training_report_digest,
+            "completed_steps": self.completed_steps,
+            "device_ordinals": list(self.device_ordinals),
+            "eval_loss": self.eval_loss,
+            "execution_plan_digest": self.execution_plan_digest,
+            "process_group_managed": self.process_group_managed,
+            "production_qualified": self.production_qualified,
+            "promotion_authorized": self.promotion_authorized,
+            "qualification_only": self.qualification_only,
+            "qualification_permit_digest": self.qualification_permit_digest,
+            "rank_evidence": [item.to_dict() for item in self.rank_evidence],
+            "resume_authorized": self.resume_authorized,
+            "run_id": self.run_id,
+            "schema": self.schema,
+            "schema_version": self.schema_version,
+            "source_sha": self.source_sha,
+            "state": self.state.value,
+            "stderr": self.stderr,
+            "strategy_plan_digest": self.strategy_plan_digest,
+            "topology_digest": self.topology_digest,
+            "train_loss": self.train_loss,
+            "training_plan_digest": self.training_plan_digest,
+            "world_size": self.world_size,
+        }
+
+    @property
+    def digest(self) -> str:
+        return canonical_sha256(self.descriptor())
+
+    def to_dict(self) -> dict[str, object]:
+        return {**self.descriptor(), "report_digest": self.digest}
+
+
 class DistributedSandbox(Protocol):
     def run_process_group(
         self,
@@ -551,6 +1046,33 @@ class DistributedTrainingRunner:
             strategy_plan,
             benchmark_report,
         )
+        report = self._run_execution(training_plan, strategy_plan, execution)
+        if not isinstance(report, DistributedTrainingReport):
+            raise TuningRuntimeError("normal distributed launch produced qualification-only report")
+        return report
+
+    def run_qualification_only(
+        self,
+        training_plan: TrainingPlan,
+        strategy_plan: ExecutionStrategyPlan,
+        permit: QualificationOnlyLaunchPermit,
+    ) -> QualificationOnlyDistributedTrainingReport:
+        execution = build_qualification_only_distributed_execution_plan(
+            training_plan,
+            strategy_plan,
+            permit,
+        )
+        report = self._run_execution(training_plan, strategy_plan, execution)
+        if not isinstance(report, QualificationOnlyDistributedTrainingReport):
+            raise TuningRuntimeError("qualification-only launch produced normal distributed report")
+        return report
+
+    def _run_execution(
+        self,
+        training_plan: TrainingPlan,
+        strategy_plan: ExecutionStrategyPlan,
+        execution: DistributedExecutionPlan | QualificationOnlyDistributedExecutionPlan,
+    ) -> DistributedTrainingReport | QualificationOnlyDistributedTrainingReport:
         blockers = self._budget_blockers(execution)
         if blockers:
             return self._terminal(execution, DistributedExecutionState.BUDGET_BLOCKED, blockers=blockers)
@@ -649,11 +1171,32 @@ class DistributedTrainingRunner:
                 kill_switch=self.kill_switch,
                 resource_probe=self.resource_probe,
             ).validate(training_plan, output, stderr)
+            if isinstance(execution, QualificationOnlyDistributedExecutionPlan):
+                return QualificationOnlyDistributedTrainingReport(
+                    source_sha=execution.permit.source_sha,
+                    execution_plan_digest=execution.digest,
+                    training_plan_digest=training_plan.digest,
+                    strategy_plan_digest=strategy_plan.digest,
+                    qualification_permit_digest=execution.qualification_permit_digest,
+                    topology_digest=execution.topology_digest,
+                    run_id=execution.run_id,
+                    state=DistributedExecutionState.COMPLETED,
+                    world_size=2,
+                    device_ordinals=execution.device_ordinals,
+                    canonical_rank=0,
+                    rank_evidence=ranks,
+                    canonical_training_report_digest=canonical.digest,
+                    adapter_path=canonical.adapter_path,
+                    adapter_digest=canonical.adapter_digest,
+                    completed_steps=canonical.completed_steps,
+                    train_loss=canonical.train_loss,
+                    eval_loss=canonical.eval_loss,
+                )
             return DistributedTrainingReport(
                 execution_plan_digest=execution.digest,
                 training_plan_digest=training_plan.digest,
                 strategy_plan_digest=strategy_plan.digest,
-                benchmark_report_digest=benchmark_report.digest,
+                benchmark_report_digest=execution.benchmark_report_digest,
                 topology_digest=execution.topology_digest,
                 run_id=execution.run_id,
                 state=DistributedExecutionState.COMPLETED,
@@ -677,7 +1220,10 @@ class DistributedTrainingRunner:
                 rank_evidence=self._read_available_rank_evidence(execution, evidence_dir),
             )
 
-    def _budget_blockers(self, plan: DistributedExecutionPlan) -> tuple[str, ...]:
+    def _budget_blockers(
+        self,
+        plan: DistributedExecutionPlan | QualificationOnlyDistributedExecutionPlan,
+    ) -> tuple[str, ...]:
         host = self.resource_probe.sample(self.root)
         blockers: list[str] = []
         if plan.host_storage_required_bytes > 0:
@@ -694,7 +1240,7 @@ class DistributedTrainingRunner:
 
     def _read_available_rank_evidence(
         self,
-        execution: DistributedExecutionPlan,
+        execution: DistributedExecutionPlan | QualificationOnlyDistributedExecutionPlan,
         evidence_dir: Path,
     ) -> tuple[DistributedRankEvidence, ...]:
         records: list[DistributedRankEvidence] = []
@@ -714,7 +1260,7 @@ class DistributedTrainingRunner:
 
     def _validate_rank_evidence(
         self,
-        execution: DistributedExecutionPlan,
+        execution: DistributedExecutionPlan | QualificationOnlyDistributedExecutionPlan,
         strategy: ExecutionStrategyPlan,
         evidence_dir: Path,
     ) -> tuple[DistributedRankEvidence, DistributedRankEvidence]:
@@ -748,13 +1294,36 @@ class DistributedTrainingRunner:
 
     def _terminal(
         self,
-        execution: DistributedExecutionPlan,
+        execution: DistributedExecutionPlan | QualificationOnlyDistributedExecutionPlan,
         state: DistributedExecutionState,
         *,
         blockers: tuple[str, ...] = (),
         stderr: str = "",
         rank_evidence: tuple[DistributedRankEvidence, ...] = (),
-    ) -> DistributedTrainingReport:
+    ) -> DistributedTrainingReport | QualificationOnlyDistributedTrainingReport:
+        if isinstance(execution, QualificationOnlyDistributedExecutionPlan):
+            return QualificationOnlyDistributedTrainingReport(
+                source_sha=execution.permit.source_sha,
+                execution_plan_digest=execution.digest,
+                training_plan_digest=execution.training_plan_digest,
+                strategy_plan_digest=execution.strategy_plan_digest,
+                qualification_permit_digest=execution.qualification_permit_digest,
+                topology_digest=execution.topology_digest,
+                run_id=execution.run_id,
+                state=state,
+                world_size=2,
+                device_ordinals=execution.device_ordinals,
+                canonical_rank=0,
+                rank_evidence=rank_evidence,
+                canonical_training_report_digest=None,
+                adapter_path=None,
+                adapter_digest=None,
+                completed_steps=0,
+                train_loss=None,
+                eval_loss=None,
+                blockers=blockers or (state.value,),
+                stderr=stderr,
+            )
         return DistributedTrainingReport(
             execution_plan_digest=execution.digest,
             training_plan_digest=execution.training_plan_digest,

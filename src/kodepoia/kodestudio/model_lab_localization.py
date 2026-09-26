@@ -23,6 +23,16 @@ _EN = {
     "capabilities": "Training dependency capability",
     "lineage": "Lineage",
     "diagnostics": "Diagnostics JSON",
+    "accelerator": "Accelerator truth",
+    "provider_request": "Requested provider",
+    "observed_topology": "Observed topology",
+    "devices": "Accelerator devices",
+    "strategy": "Strategy inspection",
+    "strategy_mapping": "Strategy mapping",
+    "live_qualification": "Live Kaggle qualification",
+    "live_missing": "Live qualification missing",
+    "live_qualified": "Live production qualification accepted",
+    "live_blocked": "Live qualification blocked",
     "read_only": (
         "Read-only: dataset build, training, conversion, promotion and rollback "
         "are disabled in V2.3.1."
@@ -52,6 +62,16 @@ _FR = {
     "capabilities": "Capacités des dépendances d’entraînement",
     "lineage": "Lignage",
     "diagnostics": "JSON de diagnostic",
+    "accelerator": "Vérité de l’accélérateur",
+    "provider_request": "Provider demandé",
+    "observed_topology": "Topologie observée",
+    "devices": "Accélérateurs",
+    "strategy": "Inspection de stratégie",
+    "strategy_mapping": "Mapping de stratégie",
+    "live_qualification": "Qualification Kaggle live",
+    "live_missing": "Qualification live absente",
+    "live_qualified": "Qualification production live acceptée",
+    "live_blocked": "Qualification live bloquée",
     "read_only": (
         "Lecture seule : construction de dataset, entraînement, conversion, promotion "
         "et rollback sont désactivés en V2.3.1."

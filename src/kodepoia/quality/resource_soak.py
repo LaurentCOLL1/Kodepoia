@@ -42,6 +42,19 @@ def canonical_json(value: Any) -> str:
     )
 
 
+def _remove_tree_bounded(root: Path, *, attempts: int = 5, delay_seconds: float = 0.05) -> None:
+    """Remove a temporary tree with a bounded retry for transient Windows locks."""
+
+    for attempt in range(attempts):
+        try:
+            shutil.rmtree(root, ignore_errors=False)
+            return
+        except PermissionError:
+            if attempt + 1 >= attempts:
+                raise
+            time.sleep(delay_seconds)
+
+
 def canonical_sha256(value: Any) -> str:
     return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
 
@@ -309,7 +322,7 @@ def _exercise_profile(root: Path, profile: Mapping[str, Any]) -> dict[str, Any]:
         if remaining_bytes or remaining_files:
             raise ResourceSoakGovernanceError("representative profile left temporary artifacts")
     finally:
-        shutil.rmtree(root, ignore_errors=False)
+        _remove_tree_bounded(root)
     return {
         "id": profile_id,
         "cycles": int(profile["cycles"]),
@@ -401,7 +414,7 @@ def _run_repetition(root: Path, fixture: Mapping[str, Any]) -> RepetitionMetrics
         )
     finally:
         tracemalloc.stop()
-        shutil.rmtree(root, ignore_errors=False)
+        _remove_tree_bounded(root)
 
 
 def _run_cancellation_race(root: Path, workers: int, timeout: float) -> dict[str, Any]:
@@ -453,7 +466,7 @@ def _run_cancellation_race(root: Path, workers: int, timeout: float) -> dict[str
     except threading.BrokenBarrierError as exc:
         raise ResourceSoakGovernanceError("concurrency cancellation barrier failed") from exc
     finally:
-        shutil.rmtree(root, ignore_errors=False)
+        _remove_tree_bounded(root)
 
 
 def _run_process_cleanup(root: Path, children: int) -> dict[str, Any]:
@@ -488,7 +501,7 @@ def _run_process_cleanup(root: Path, children: int) -> dict[str, Any]:
             process.close()
         if kill_switch.active_count == 0 and kill_switch.triggered:
             kill_switch.reset()
-        shutil.rmtree(root, ignore_errors=False)
+        _remove_tree_bounded(root)
 
 
 def _availability(rss_probe: str) -> dict[str, dict[str, Any]]:

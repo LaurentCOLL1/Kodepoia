@@ -47,7 +47,7 @@ def _remove_tree_bounded(root: Path, *, attempts: int = 5, delay_seconds: float 
 
     for attempt in range(attempts):
         try:
-            _remove_tree_bounded(root)
+            shutil.rmtree(root, ignore_errors=False)
             return
         except PermissionError:
             if attempt + 1 >= attempts:

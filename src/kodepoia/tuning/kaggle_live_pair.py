@@ -947,6 +947,7 @@ def _canonical_adapter_eval_loss(
     trainer = SFTTrainer(
         model=model,
         args=args,
+        train_dataset=eval_dataset,
         eval_dataset=eval_dataset,
         processing_class=tokenizer,
     )

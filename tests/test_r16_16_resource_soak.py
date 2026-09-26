@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from kodepoia.quality import resource_soak as resource_soak_module
 from kodepoia.quality.resource_soak import (
     ResourceSoakGovernanceError,
     build_resource_soak_report,
@@ -135,6 +136,30 @@ def test_diagnostics_redact_sensitive_values_and_paths() -> None:
     assert str(ROOT.resolve()) not in rendered
     assert "<redacted>" in rendered
     assert "<redacted-path>" in rendered
+
+
+def test_bounded_cleanup_retries_transient_permission_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = tmp_path / "locked-tree"
+    root.mkdir()
+    (root / "payload.txt").write_text("bounded", encoding="utf-8")
+    real_rmtree = resource_soak_module.shutil.rmtree
+    attempts = 0
+
+    def flaky_rmtree(path: Path, *, ignore_errors: bool = False) -> None:
+        nonlocal attempts
+        attempts += 1
+        if attempts < 3:
+            raise PermissionError("transient Windows-style lock")
+        real_rmtree(path, ignore_errors=ignore_errors)
+
+    monkeypatch.setattr(resource_soak_module.shutil, "rmtree", flaky_rmtree)
+    resource_soak_module._remove_tree_bounded(root, attempts=3, delay_seconds=0.0)
+
+    assert attempts == 3
+    assert not root.exists()
 
 
 def test_full_bounded_resource_soak_acceptance() -> None:

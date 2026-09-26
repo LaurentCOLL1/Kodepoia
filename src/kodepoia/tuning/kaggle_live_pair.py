@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import shutil
@@ -490,6 +491,7 @@ def _context(
         "dataset_digest": training_plan.dataset.dataset_digest,
         "dataset_manifest_digest": training_plan.dataset.manifest_digest,
         "effective_global_batch_size": single.effective_global_batch_size,
+        "eval_loss_measurement": "canonical_single_gpu_adapter_v1",
         "eval_steps": training_plan.sft.eval_steps,
         "max_steps": training_plan.sft.max_steps,
         "model_digest": training_plan.model.model_digest,
@@ -857,12 +859,118 @@ def _checkpoint_integrity(report: TrainingReport, plan: TrainingPlan) -> bool:
     )
 
 
+def _canonical_adapter_eval_loss(
+    *,
+    root: Path,
+    plan: TrainingPlan,
+    model_root: Path,
+    adapter_path: Path,
+    label: str,
+) -> float:
+    """Evaluate a finished adapter through one canonical single-GPU path."""
+
+    import gc
+
+    import torch
+    from datasets import load_dataset
+    from peft import PeftModel
+    from transformers import (
+        AutoModelForCausalLM,
+        AutoTokenizer,
+        BitsAndBytesConfig,
+        set_seed,
+    )
+    from trl import SFTConfig, SFTTrainer
+
+    model_root = model_root.resolve(strict=True)
+    adapter_file = adapter_path.resolve(strict=True)
+    if adapter_file.name != "adapter_model.safetensors":
+        raise KaggleLivePairError("canonical evaluation requires adapter_model.safetensors")
+    adapter_dir = adapter_file.parent
+    validation_path = _inside(
+        root,
+        root / str(plan.dataset.validation_path),
+        strict=True,
+    )
+    output_dir = _inside(
+        root,
+        root / "canonical-eval" / label,
+        strict=False,
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    torch.cuda.set_device(0)
+    torch.cuda.empty_cache()
+    set_seed(plan.seeds.seed)
+
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_root,
+        trust_remote_code=False,
+        local_files_only=True,
+    )
+    quantization_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=(
+            torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        ),
+    )
+    base_model = AutoModelForCausalLM.from_pretrained(
+        model_root,
+        quantization_config=quantization_config,
+        trust_remote_code=False,
+        local_files_only=True,
+        device_map={"": 0},
+    )
+    model = PeftModel.from_pretrained(
+        base_model,
+        adapter_dir,
+        is_trainable=False,
+    )
+    eval_dataset = load_dataset(
+        "json",
+        data_files=str(validation_path),
+        split="train",
+    )
+    args = SFTConfig(
+        output_dir=str(output_dir),
+        per_device_eval_batch_size=plan.sft.eval_batch_size,
+        max_length=plan.sft.context_length,
+        completion_only_loss=plan.sft.completion_only_loss,
+        assistant_only_loss=plan.sft.assistant_only_loss,
+        full_determinism=True,
+        seed=plan.seeds.seed,
+        data_seed=plan.seeds.data_seed,
+        report_to="none",
+        push_to_hub=False,
+    )
+    trainer = SFTTrainer(
+        model=model,
+        args=args,
+        eval_dataset=eval_dataset,
+        processing_class=tokenizer,
+    )
+    metrics = trainer.evaluate()
+    value = metrics.get("eval_loss")
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise KaggleLivePairError("canonical evaluation did not produce eval_loss")
+    result = float(value)
+    if not math.isfinite(result) or result < 0.0:
+        raise KaggleLivePairError("canonical evaluation produced invalid eval_loss")
+
+    del trainer, model, base_model, tokenizer, eval_dataset
+    gc.collect()
+    torch.cuda.empty_cache()
+    return result
+
+
 def _measurement(
     *,
     strategy_digest: str,
     benchmark_config_digest: str,
     processed_samples: int,
     report: TrainingReport,
+    eval_loss: float | None,
     per_device_peak_vram_bytes: tuple[tuple[int, int], ...],
     plan: TrainingPlan,
 ) -> StrategyBenchmarkMeasurement:
@@ -876,7 +984,7 @@ def _measurement(
         benchmark_config_digest=benchmark_config_digest,
         processed_samples=processed_samples,
         wall_seconds=float(wall),
-        eval_loss=report.eval_loss,
+        eval_loss=eval_loss,
         train_loss=report.train_loss,
         per_device_peak_vram_bytes=per_device_peak_vram_bytes,
         run_integrity=bool(completed and not report.blockers),
@@ -1202,11 +1310,68 @@ def run_live_pair_kernel(dataset_source: Path, work_root: Path) -> None:
         for item in qualification_report.rank_evidence
         if item.peak_vram_bytes is not None
     )
+    if single_report.adapter_path is None or single_report.adapter_digest is None:
+        raise KaggleLivePairError("single_gpu run lacks adapter evidence")
+    if (
+        qualification_canonical.adapter_path is None
+        or qualification_canonical.adapter_digest is None
+    ):
+        raise KaggleLivePairError("qualification replicated run lacks adapter evidence")
+
+    single_adapter = _inside(
+        work_root,
+        work_root / single_report.adapter_path,
+        strict=True,
+    )
+    candidate_adapter = _inside(
+        work_root,
+        work_root / qualification_canonical.adapter_path,
+        strict=True,
+    )
+    if _sha256(single_adapter) != single_report.adapter_digest:
+        raise KaggleLivePairError("single_gpu adapter digest mismatch")
+    if _sha256(candidate_adapter) != qualification_canonical.adapter_digest:
+        raise KaggleLivePairError("qualification adapter digest mismatch")
+
+    single_eval_loss = _canonical_adapter_eval_loss(
+        root=work_root,
+        plan=plan,
+        model_root=local_model,
+        adapter_path=single_adapter,
+        label="single-gpu",
+    )
+    candidate_eval_loss = _canonical_adapter_eval_loss(
+        root=work_root,
+        plan=plan,
+        model_root=local_model,
+        adapter_path=candidate_adapter,
+        label="replicated-data-parallel",
+    )
+    (work_root / "canonical-eval-loss.json").write_text(
+        json.dumps(
+            {
+                "benchmark_config_digest": request.benchmark_config_digest,
+                "candidate_adapter_digest": qualification_canonical.adapter_digest,
+                "candidate_eval_loss": candidate_eval_loss,
+                "evaluation_mode": "canonical_single_gpu_adapter_v1",
+                "schema": "kodepoia.v2.4.5.canonical-eval-loss",
+                "schema_version": 1,
+                "single_adapter_digest": single_report.adapter_digest,
+                "single_eval_loss": single_eval_loss,
+                "source_sha": request.source_sha,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     baseline_measurement = _measurement(
         strategy_digest=single.digest,
         benchmark_config_digest=request.benchmark_config_digest,
         processed_samples=request.processed_samples,
         report=single_report,
+        eval_loss=single_eval_loss,
         per_device_peak_vram_bytes=((0, int(single_peak)),),
         plan=plan,
     )
@@ -1215,6 +1380,7 @@ def run_live_pair_kernel(dataset_source: Path, work_root: Path) -> None:
         benchmark_config_digest=request.benchmark_config_digest,
         processed_samples=request.processed_samples,
         report=qualification_canonical,
+        eval_loss=candidate_eval_loss,
         per_device_peak_vram_bytes=candidate_peaks,
         plan=plan,
     )
@@ -1278,6 +1444,7 @@ def run_live_pair_kernel(dataset_source: Path, work_root: Path) -> None:
         benchmark_config_digest=request.benchmark_config_digest,
         processed_samples=request.processed_samples,
         report=normal_canonical,
+        eval_loss=normal_canonical.eval_loss,
         per_device_peak_vram_bytes=normal_peaks,
         plan=plan,
     )

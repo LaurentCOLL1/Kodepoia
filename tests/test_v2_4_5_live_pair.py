@@ -199,6 +199,7 @@ def test_repository_owned_live_pair_kernel_uses_existing_runners_and_real_gates(
         "build_distributed_recovery_plan(",
         "BaseAdapterEvaluator().evaluate(",
         "_canonical_adapter_eval_loss(",
+        "train_dataset=eval_dataset",
         '"eval_loss_measurement": "canonical_single_gpu_adapter_v1"',
         '"canonical-eval-loss.json"',
         'snapshot_download(',

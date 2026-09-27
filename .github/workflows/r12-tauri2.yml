@@ -69,6 +69,17 @@ jobs:
         run: |
           $manifest = ".kodepoia/fixtures/tauri2/Cargo.toml"
           cargo generate-lockfile --manifest-path $manifest
+          $pins = @(
+            @{ Package = "tauri-codegen"; Version = "2.6.3" }
+            @{ Package = "tauri-macros"; Version = "2.6.3" }
+            @{ Package = "tauri-runtime"; Version = "2.11.3" }
+            @{ Package = "tauri-runtime-wry"; Version = "2.11.4" }
+            @{ Package = "tauri-utils"; Version = "2.9.3" }
+          )
+          foreach ($pin in $pins) {
+            cargo update -p $pin.Package --precise $pin.Version --manifest-path $manifest
+            if ($LASTEXITCODE -ne 0) { throw "Failed to pin $($pin.Package) $($pin.Version)" }
+          }
           cargo fetch --locked --manifest-path $manifest
           if (-not (Test-Path ".kodepoia/fixtures/tauri2/Cargo.lock")) { throw "Cargo.lock missing after CI preload" }
       - name: Build offline and runtime-probe Tauri WebView2 fixture

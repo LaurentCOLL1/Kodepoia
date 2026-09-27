@@ -70,10 +70,10 @@ jobs:
           $manifest = ".kodepoia/fixtures/tauri2/Cargo.toml"
           cargo generate-lockfile --manifest-path $manifest
           $pins = @(
-            @{ Package = "tauri-codegen"; Version = "2.6.3" }
             @{ Package = "tauri-macros"; Version = "2.6.3" }
-            @{ Package = "tauri-runtime"; Version = "2.11.3" }
+            @{ Package = "tauri-codegen"; Version = "2.6.3" }
             @{ Package = "tauri-runtime-wry"; Version = "2.11.4" }
+            @{ Package = "tauri-runtime"; Version = "2.11.3" }
             @{ Package = "tauri-utils"; Version = "2.9.3" }
           )
           foreach ($pin in $pins) {

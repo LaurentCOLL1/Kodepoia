@@ -938,11 +938,28 @@ def _canonical_adapter_eval_loss(
         max_length=plan.sft.context_length,
         completion_only_loss=plan.sft.completion_only_loss,
         assistant_only_loss=plan.sft.assistant_only_loss,
+        do_train=False,
+        do_eval=True,
+        eval_strategy="no",
+        gradient_checkpointing=False,
+        prediction_loss_only=True,
+        dataloader_num_workers=0,
+        dataloader_pin_memory=False,
         full_determinism=True,
         seed=plan.seeds.seed,
         data_seed=plan.seeds.data_seed,
         report_to="none",
         push_to_hub=False,
+    )
+    print(
+        json.dumps(
+            {
+                "label": label,
+                "phase": "canonical_eval_trainer_init",
+            },
+            sort_keys=True,
+        ),
+        flush=True,
     )
     trainer = SFTTrainer(
         model=model,
@@ -951,7 +968,27 @@ def _canonical_adapter_eval_loss(
         eval_dataset=eval_dataset,
         processing_class=tokenizer,
     )
+    print(
+        json.dumps(
+            {
+                "label": label,
+                "phase": "canonical_eval_evaluate_start",
+            },
+            sort_keys=True,
+        ),
+        flush=True,
+    )
     metrics = trainer.evaluate()
+    print(
+        json.dumps(
+            {
+                "label": label,
+                "phase": "canonical_eval_evaluate_complete",
+            },
+            sort_keys=True,
+        ),
+        flush=True,
+    )
     value = metrics.get("eval_loss")
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise KaggleLivePairError("canonical evaluation did not produce eval_loss")

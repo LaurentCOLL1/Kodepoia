@@ -945,7 +945,12 @@ def _canonical_adapter_eval_loss(
         prediction_loss_only=True,
         dataloader_num_workers=0,
         dataloader_pin_memory=False,
-        full_determinism=True,
+        # This path performs deterministic inference only. The live c204ca11
+        # evidence proved that Trainer.evaluate() can hang after
+        # enable_full_determinism() enables CUDA launch blocking. Keep the
+        # fixed seed and canonical preprocessing, but do not mutate CUDA's
+        # global deterministic runtime settings for this bounded evaluation.
+        full_determinism=False,
         seed=plan.seeds.seed,
         data_seed=plan.seeds.data_seed,
         report_to="none",
@@ -972,31 +977,113 @@ def _canonical_adapter_eval_loss(
         json.dumps(
             {
                 "label": label,
-                "phase": "canonical_eval_evaluate_start",
+                "phase": "canonical_eval_dataloader_start",
             },
             sort_keys=True,
         ),
         flush=True,
     )
-    metrics = trainer.evaluate()
+    dataloader = trainer.get_eval_dataloader()
     print(
         json.dumps(
             {
                 "label": label,
-                "phase": "canonical_eval_evaluate_complete",
+                "phase": "canonical_eval_dataloader_complete",
             },
             sort_keys=True,
         ),
         flush=True,
     )
-    value = metrics.get("eval_loss")
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise KaggleLivePairError("canonical evaluation did not produce eval_loss")
-    result = float(value)
+
+    weighted_loss = 0.0
+    evaluated_examples = 0
+    model.eval()
+    print(
+        json.dumps(
+            {
+                "expected_examples": plan.dataset.validation_rows,
+                "label": label,
+                "phase": "canonical_eval_loop_start",
+            },
+            sort_keys=True,
+        ),
+        flush=True,
+    )
+    with torch.no_grad():
+        for batch_index, batch in enumerate(dataloader):
+            if not isinstance(batch, Mapping):
+                raise KaggleLivePairError("canonical evaluation batch is not a mapping")
+            prepared: dict[str, object] = {}
+            batch_size: int | None = None
+            for key, value in batch.items():
+                if torch.is_tensor(value):
+                    if batch_size is None and value.ndim > 0:
+                        batch_size = int(value.shape[0])
+                    prepared[str(key)] = value.to("cuda:0", non_blocking=False)
+                else:
+                    prepared[str(key)] = value
+            if batch_size is None or batch_size < 1:
+                raise KaggleLivePairError("canonical evaluation batch size is invalid")
+            print(
+                json.dumps(
+                    {
+                        "batch_index": batch_index,
+                        "batch_size": batch_size,
+                        "label": label,
+                        "phase": "canonical_eval_batch_start",
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+            outputs = model(**prepared, use_cache=False)
+            loss = getattr(outputs, "loss", None)
+            if loss is None or not torch.is_tensor(loss) or loss.numel() != 1:
+                raise KaggleLivePairError("canonical evaluation batch did not produce scalar loss")
+            value = float(loss.detach().float().cpu().item())
+            if not math.isfinite(value) or value < 0.0:
+                raise KaggleLivePairError("canonical evaluation produced invalid batch loss")
+            torch.cuda.synchronize(0)
+            weighted_loss += value * batch_size
+            evaluated_examples += batch_size
+            print(
+                json.dumps(
+                    {
+                        "batch_index": batch_index,
+                        "batch_size": batch_size,
+                        "evaluated_examples": evaluated_examples,
+                        "label": label,
+                        "loss": value,
+                        "phase": "canonical_eval_batch_complete",
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+
+    if evaluated_examples != plan.dataset.validation_rows:
+        raise KaggleLivePairError(
+            "canonical evaluation row count does not match the governed validation split"
+        )
+    if evaluated_examples < 1:
+        raise KaggleLivePairError("canonical evaluation processed no validation examples")
+    result = weighted_loss / evaluated_examples
     if not math.isfinite(result) or result < 0.0:
         raise KaggleLivePairError("canonical evaluation produced invalid eval_loss")
+    print(
+        json.dumps(
+            {
+                "evaluated_examples": evaluated_examples,
+                "eval_loss": result,
+                "label": label,
+                "phase": "canonical_eval_loop_complete",
+            },
+            sort_keys=True,
+        ),
+        flush=True,
+    )
 
-    del trainer, model, base_model, tokenizer, eval_dataset
+    del dataloader, trainer, model, base_model, tokenizer, eval_dataset
     gc.collect()
     torch.cuda.empty_cache()
     return result

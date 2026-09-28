@@ -468,9 +468,20 @@ def _context(
         topology,
         strategy=StrategyKind.REPLICATED_DATA_PARALLEL,
         device_ordinals=(0, 1),
+        per_device_batch_size=1,
     )
     if single.effective_global_batch_size != replicated.effective_global_batch_size:
         raise KaggleLivePairError("live-pair effective global batch is not preserved")
+    if (
+        single.per_device_batch_size != 2
+        or single.gradient_accumulation_steps != 1
+        or replicated.per_device_batch_size != 1
+        or replicated.gradient_accumulation_steps != 1
+        or single.effective_global_batch_size != 2
+    ):
+        raise KaggleLivePairError(
+            "live-pair qualification optimizer-step factorization drifted"
+        )
 
     permit = build_qualification_only_launch_permit(
         source_sha=source_sha,
@@ -499,7 +510,11 @@ def _context(
         "model_revision": training_plan.model.model_revision,
         "processed_samples": processed_samples,
         "quantization": training_plan.quantization.value,
+        "replicated_gradient_accumulation_steps": replicated.gradient_accumulation_steps,
+        "replicated_per_device_batch_size": replicated.per_device_batch_size,
         "replicated_strategy_plan_digest": replicated.digest,
+        "single_gradient_accumulation_steps": single.gradient_accumulation_steps,
+        "single_per_device_batch_size": single.per_device_batch_size,
         "schema": "kodepoia.v2.4.5.live-pair-benchmark-config",
         "schema_version": 1,
         "single_strategy_plan_digest": single.digest,

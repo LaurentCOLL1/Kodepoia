@@ -359,6 +359,13 @@ class DistributedRecoveryPlan:
     def to_dict(self) -> dict[str, object]:
         return {**self.descriptor(), "recovery_plan_digest": self.digest}
 
+    def save(self, path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(self.to_dict(), indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+
 
 def build_distributed_recovery_plan(
     training_plan: TrainingPlan,

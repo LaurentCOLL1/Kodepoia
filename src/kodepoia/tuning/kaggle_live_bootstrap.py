@@ -1873,9 +1873,13 @@ def finalize_live_bootstrap(
             ),
             sft=SFTTrainingConfig(
                 max_steps=8,
-                train_batch_size=1,
+                # Keep the qualification effective global batch at 2 while
+                # avoiding a gradient-accumulation confound in the paired
+                # single-vs-RDP benchmark. The replicated strategy derives
+                # per-device batch 1 over world size 2.
+                train_batch_size=2,
                 eval_batch_size=1,
-                gradient_accumulation_steps=2,
+                gradient_accumulation_steps=1,
                 context_length=128,
                 learning_rate=2e-4,
                 checkpoint_steps=4,

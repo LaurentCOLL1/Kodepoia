@@ -513,6 +513,9 @@ def test_finalize_live_bootstrap_real_train_materializes_safe_training_plan(
     assert result.training_plan_path.is_file()
     assert result.result_path.is_file()
     plan = result.training_plan
+    assert plan.sft.train_batch_size == 2
+    assert plan.sft.gradient_accumulation_steps == 1
+    assert plan.sft.train_batch_size * plan.sft.gradient_accumulation_steps == 2
     assert plan.dataset.train_path == f"{QUALIFICATION_TRAINING_DATA_RELATIVE}/train.jsonl"
     assert plan.dataset.validation_path == (
         f"{QUALIFICATION_TRAINING_DATA_RELATIVE}/validation.jsonl"

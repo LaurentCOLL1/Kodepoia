@@ -202,9 +202,18 @@ def test_repository_owned_live_pair_kernel_uses_existing_runners_and_real_gates(
         "train_dataset=eval_dataset",
         "gradient_checkpointing=False",
         "prediction_loss_only=True",
+        "full_determinism=False",
+        "trainer.get_eval_dataloader()",
+        "with torch.no_grad():",
+        'outputs = model(**prepared, use_cache=False)',
+        "torch.cuda.synchronize(0)",
         '"phase": "canonical_eval_trainer_init"',
-        '"phase": "canonical_eval_evaluate_start"',
-        '"phase": "canonical_eval_evaluate_complete"',
+        '"phase": "canonical_eval_dataloader_start"',
+        '"phase": "canonical_eval_dataloader_complete"',
+        '"phase": "canonical_eval_loop_start"',
+        '"phase": "canonical_eval_batch_start"',
+        '"phase": "canonical_eval_batch_complete"',
+        '"phase": "canonical_eval_loop_complete"',
         '"eval_loss_measurement": "canonical_single_gpu_adapter_v1"',
         '"canonical-eval-loss.json"',
         'snapshot_download(',
@@ -213,6 +222,11 @@ def test_repository_owned_live_pair_kernel_uses_existing_runners_and_real_gates(
     ):
         assert required in module_source
 
+    assert "trainer.evaluate()" not in module_source
+    assert "full_determinism=True" not in module_source[
+        module_source.index("def _canonical_adapter_eval_loss"):
+        module_source.index("def _measurement")
+    ]
     assert '"CUDA_VISIBLE_DEVICES"] = self.visible_devices' in module_source
     assert '"0,1"' in module_source
     assert "FSDP" not in module_source

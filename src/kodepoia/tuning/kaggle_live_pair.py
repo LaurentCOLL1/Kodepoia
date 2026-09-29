@@ -79,6 +79,7 @@ LIVE_PAIR_SCHEMA_VERSION = 1
 _MODEL_REF = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 _MODEL_REVISION = "fe8a4ea1ffedaf415f4da2f062534de366a451e6"
 _MODEL_FILE_SHA256 = "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+_CONTROL_REF = "kodepoia/v245-qualification-control"
 _REQUIRED_MODEL_FILES = (
     "config.json",
     "model.safetensors",
@@ -1172,21 +1173,25 @@ def _candidate_evaluation(
     dedup_policy = DedupPolicy(near_threshold=1.0, lowercase_comparison=False)
     registry = ProtectedHoldoutRegistry(dedup_policy.digest)
     tasks: list[BenchmarkTaskSpec] = []
+    control_answers: dict[str, str] = {}
     for raw in workload["benchmark_tasks"]:  # type: ignore[index]
         if not isinstance(raw, Mapping):
             raise KaggleLivePairError("benchmark task is invalid")
         holdout_id = f"v245-{raw['task_id']}"
-        registry.register(ProtectedHoldout.from_text(holdout_id, str(raw["prompt"]), dedup_policy))
+        prompt = str(raw["prompt"])
+        expected = str(raw["expected"])
+        registry.register(ProtectedHoldout.from_text(holdout_id, prompt, dedup_policy))
+        control_answers[prompt] = expected
         tasks.append(
             BenchmarkTaskSpec(
                 task_id=str(raw["task_id"]),
                 domain=str(workload["domain"]),
                 critical=True,
-                prompt=str(raw["prompt"]),
+                prompt=prompt,
                 scorer=ScorerSpec.create(
                     ScorerKind.EXACT,
                     version="v245-1",
-                    config={"expected": raw["expected"]},
+                    config={"expected": expected},
                 ),
                 protected_holdout_id=holdout_id,
             )
@@ -1224,6 +1229,8 @@ def _candidate_evaluation(
             self.model.eval()
 
         def preload(self, model: str, **_kwargs: object) -> dict[str, object]:
+            if model == _CONTROL_REF:
+                return {"done_reason": "control"}
             if model != candidate_ref:
                 raise RuntimeError("unsupported candidate model")
             started = time.perf_counter()
@@ -1239,11 +1246,21 @@ def _candidate_evaluation(
             messages: list[object],
             **kwargs: object,
         ) -> BrainResponse:
+            prompt = str(messages[-1].content)
+            if model == _CONTROL_REF:
+                answer = control_answers[prompt]
+                return BrainResponse(
+                    content=answer,
+                    model=model,
+                    metrics={
+                        "eval_count": len(answer.split()),
+                        "eval_duration": 1_000_000,
+                    },
+                )
             if model != candidate_ref:
                 raise RuntimeError("unsupported candidate model")
             self._load()
             assert self.model is not None and self.tokenizer is not None
-            prompt = str(messages[-1].content)
             options = dict(kwargs.get("options") or {})
             torch.manual_seed(int(options.get("seed", 245)))
             rendered = self.tokenizer.apply_chat_template(
@@ -1280,8 +1297,9 @@ def _candidate_evaluation(
             gc.collect()
             torch.cuda.empty_cache()
 
+    control_digest = canonical_sha256({"answers": control_answers, "version": 1})
     report = KodeBenchRunner(CandidateClient()).run(
-        [candidate_ref],
+        [candidate_ref, _CONTROL_REF],
         suite,
         config=RunConfig(repeats=2, seed_base=245, temperature=0.0, num_predict=32),
         identities={
@@ -1290,7 +1308,13 @@ def _candidate_evaluation(
                 model_digest=candidate_digest,
                 runtime="transformers-peft",
                 runtime_version="v245-1",
-            )
+            ),
+            _CONTROL_REF: ModelIdentity(
+                model_ref=_CONTROL_REF,
+                model_digest=control_digest,
+                runtime="kodepoia-control",
+                runtime_version="v245-1",
+            ),
         },
         holdout_registry=registry,
     )

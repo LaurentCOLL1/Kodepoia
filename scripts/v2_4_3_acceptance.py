@@ -158,7 +158,15 @@ def main() -> int:
             "strategy_seed_sampler_binding",
             "strategy rank/data seed lineage mismatch" in distributed
             and "shared_sampler_seed" in distributed
-            and 'seeds["seed"] = int(seed["seed"])' in worker
+            and (
+                'seeds["seed"] = int(seed["seed"])' in worker
+                or (
+                    'seeds["seed"] = int(seed["seed"])' not in worker
+                    and 'rank_seed_override=int(seed["seed"])' in worker
+                    and 'set_seed(int(seeds["seed"]))' in training_worker
+                    and "set_seed(rank_seed_override)" in training_worker
+                )
+            )
             and 'seeds["data_seed"] = int(execution["shared_sampler_seed"])' in worker,
             "rank RNG and shared distributed sampler seed are strategy-bound",
         ),

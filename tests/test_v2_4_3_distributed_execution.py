@@ -10,6 +10,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from kodepoia.core.sandbox import ProcessSandbox, SandboxResult
+from kodepoia.tuning import distributed_worker
 from kodepoia.tuning import (
     AcceleratorDevice,
     AcceleratorTopologyReport,
@@ -432,6 +433,15 @@ def test_qualification_only_permit_fails_closed_on_scope_or_lineage_drift(
             gap_decision_digest=A,
             bootstrap_result_digest=B,
         )
+
+
+def test_distributed_worker_preserves_shared_init_seed_and_rank_runtime_seed() -> None:
+    source = Path(distributed_worker.__file__).read_text(encoding="utf-8")
+
+    assert 'seeds = dict(worker["seeds"])' in source
+    assert 'seeds["seed"] = int(seed["seed"])' not in source
+    assert 'seeds["data_seed"] = int(execution["shared_sampler_seed"])' in source
+    assert 'rank_seed_override=int(seed["seed"])' in source
 
 
 def test_runner_uses_fixed_two_rank_torchrun_boundary_and_bounded_env(tmp_path: Path) -> None:

@@ -246,6 +246,20 @@ def test_timeout_and_cancel_are_terminal_without_adapter(tmp_path: Path) -> None
     assert report.adapter_digest is None
 
 
+def test_real_worker_seeds_before_peft_and_keeps_rank_override_after_trainer() -> None:
+    source = Path(train_worker.__file__).read_text(encoding="utf-8")
+    start = source.index("def _run_real(")
+    end = source.index("\ndef main()", start)
+    body = source[start:end]
+
+    early_seed = 'set_seed(int(seeds["seed"]))'
+    trainer_init = "trainer = SFTTrainer("
+    rank_override = "set_seed(rank_seed_override)"
+
+    assert body.index(early_seed) < body.index(trainer_init)
+    assert body.index(trainer_init) < body.index(rank_override)
+
+
 def test_training_worker_stdout_remains_strict_json_when_trainer_is_noisy(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

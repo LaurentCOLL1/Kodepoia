@@ -187,6 +187,13 @@ def _run_real(
     sft_cfg = dict(config["sft"])
     seeds = dict(config["seeds"])
 
+    # TRL 0.29.1 creates the PEFT adapter before Transformers Trainer.__init__
+    # applies its TrainingArguments seed. Seed explicitly here so base-model
+    # preparation and LoRA initialization are deterministic and match the
+    # single-GPU initialization boundary. Distributed workers may still apply
+    # their governed rank-specific runtime seed immediately before train().
+    set_seed(int(seeds["seed"]))
+
     train_path = _inside(root, str(dataset_cfg["train_path"]))
     validation_path = _inside(root, str(dataset_cfg["validation_path"]))
     if _sha256(train_path) != dataset_cfg["train_export_digest"]:

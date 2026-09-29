@@ -225,6 +225,11 @@ def test_repository_owned_live_pair_kernel_uses_existing_runners_and_real_gates(
         'snapshot_download(',
         'token=False',
         'local_files_only=True',
+        '_CONTROL_REF = "kodepoia/v245-qualification-control"',
+        'control_answers: dict[str, str] = {}',
+        'if model == _CONTROL_REF:',
+        '[candidate_ref, _CONTROL_REF]',
+        'runtime="kodepoia-control"',
     ):
         assert required in module_source
 

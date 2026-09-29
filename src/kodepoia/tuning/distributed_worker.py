@@ -250,7 +250,9 @@ def main() -> int:
         worker["sft"] = sft
         seed = dict(execution["rank_seeds"][rank])
         seeds = dict(worker["seeds"])
-        seeds["seed"] = int(seed["seed"])
+        # Preserve the TrainingPlan seed for deterministic model/PEFT
+        # initialization on every rank. The governed rank-specific seed is
+        # applied later through rank_seed_override immediately before train().
         seeds["data_seed"] = int(execution["shared_sampler_seed"])
         worker["seeds"] = seeds
 

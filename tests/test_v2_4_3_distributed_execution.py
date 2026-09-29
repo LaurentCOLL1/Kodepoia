@@ -10,7 +10,6 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from kodepoia.core.sandbox import ProcessSandbox, SandboxResult
-from kodepoia.tuning import distributed_worker
 from kodepoia.tuning import (
     AcceleratorDevice,
     AcceleratorTopologyReport,
@@ -35,6 +34,7 @@ from kodepoia.tuning import (
     build_execution_strategy_plan,
     build_qualification_only_distributed_execution_plan,
     build_qualification_only_launch_permit,
+    distributed_worker,
     evaluate_strategy_benchmark,
 )
 from kodepoia.tuning.runtime import HostResources

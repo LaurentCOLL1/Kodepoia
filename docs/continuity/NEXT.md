@@ -520,7 +520,7 @@ Definition of done: the user can see what Kaggle actually provided, what strateg
 
 V2.4.6 is now the only authorized V2.4 implementation subdivision. It must adversarially prove the already accepted topology/strategy/execution/recovery/live-evidence chain, including provider/runtime mismatch, device/VRAM inconsistency, worker-group failure/cancellation/orphan handling, tampered lineage, incompatible recovery, provider auth/network/quota degradation, deterministic provider-independent CI, exact-head Ubuntu/Windows acceptance, and KodeStudio degraded/missing-live-evidence states.
 
-V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 remain unauthorized.
+V2.5+ remain unauthorized. Public publishing, release/TUF/updater mutation, R20 reopening and R20.7 also remain unauthorized.
 
 ## Later V2 order
 

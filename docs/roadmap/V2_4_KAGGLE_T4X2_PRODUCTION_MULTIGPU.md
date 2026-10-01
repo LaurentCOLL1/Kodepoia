@@ -1,6 +1,6 @@
 # V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU
 
-Status: **PLANNING + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 + V2.4.5 COMPLETE + NORMALIZED — V2.4.6 is the only authorized implementation subdivision**  
+Status: **COMPLETE + NORMALIZED — planning and V2.4.1 through V2.4.6 complete; V2.5+ unauthorized pending separate explicit authority**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
 Public distribution boundary: `v1.1.0-rc8`

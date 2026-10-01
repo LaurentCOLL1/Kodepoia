@@ -516,15 +516,15 @@ Bounded V2.4.5 qualification-only live-pair bootstrap amendment (authorized 2026
 
 Definition of done: the user can see what Kaggle actually provided, what strategy will run, and whether live production qualification exists for the exact source. This definition is satisfied by the accepted exact-source V2.4.5 live evidence above.
 
-### V2.4.6 — Production hardening and integrated acceptance — CURRENT
+### V2.4.6 — Production hardening and integrated acceptance — COMPLETE + NORMALIZED
 
-V2.4.6 is now the only authorized V2.4 implementation subdivision. It must adversarially prove the already accepted topology/strategy/execution/recovery/live-evidence chain, including provider/runtime mismatch, device/VRAM inconsistency, worker-group failure/cancellation/orphan handling, tampered lineage, incompatible recovery, provider auth/network/quota degradation, deterministic provider-independent CI, exact-head Ubuntu/Windows acceptance, and KodeStudio degraded/missing-live-evidence states.
+V2.4.6 is complete and normalized. PR `#535` was qualified **26/26** on exact head `b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce` and merged as `3799e51d21e64cb6fe90d73968d243fe2161d693`; its acceptance adversarially proves the accepted topology/strategy/execution/recovery/live-evidence chain without redefining V2.4 truth.
 
-V2.5+ remain unauthorized. Public publishing, release/TUF/updater mutation, R20 reopening and R20.7 also remain unauthorized.
+V2.5+ remain unauthorized pending separate explicit authority. Public publishing, release/TUF/updater mutation, R20 reopening and R20.7 also remain unauthorized.
 
 ## Later V2 order
 
-V2.4.6 is the current authorized implementation subdivision. V2.5 orchestration and V2.6 release work remain later and unauthorized until their own authority gates are satisfied.
+V2.4 is complete through V2.4.6. No V2.5 planning or implementation is authorized yet; V2.5 orchestration and V2.6 release work remain later authority gates.
 
 ## Accelerator policy
 
@@ -540,4 +540,28 @@ For every subdivision: re-fetch live `main`, branch from the exact SHA, implemen
 
 ## Resume prompt
 
-`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.4 planning et V2.4.1 à V2.4.5 sont COMPLETE + NORMALIZED. V2.4.5 : PR #529, head exact 71e6a989db0426e0b33ac27c203bf3f812e4ed71, 32/32 workflows success, acceptance 22/22 Ubuntu et 22/22 Windows, evidence SHA-256 fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366, live Kaggle T4x2 production_qualified=true, live report digest 1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8, merge protégé a105794b1b890c4c704f0bc05f084d6ec5671628. La seule subdivision autorisée est V2.4.6 — Production hardening and integrated acceptance. Re-fetch main et les autorités avant mutation. V2.5+, release/TUF/updater, R20 reopening et R20.7 restent non autorisés.`
+`@Recherche sur le Web Reprends Kodepoia depuis docs/continuity/STATE.md, docs/continuity/NEXT.md, docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md, docs/roadmap/KODEPOIA_ROADMAP_V2.md et docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md. V2.4 planning et V2.4.1 à V2.4.6 sont COMPLETE + NORMALIZED. V2.4.6 : PR #535, head exact b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce, 26/26 workflows success, acceptance déterministe Ubuntu/Windows, merge protégé 3799e51d21e64cb6fe90d73968d243fe2161d693. Re-fetch main et les autorités avant mutation. V2.5+, public publishing, release/TUF/updater, R20 reopening et R20.7 restent non autorisés tant qu'une autorité explicite distincte ne les autorise pas.`
+
+
+## V2.4.6 — Production hardening and integrated acceptance — COMPLETE + NORMALIZED
+
+Implementation PR `#535` was qualified on exact final head:
+
+`b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`
+
+All **26/26** pull-request workflows associated with that exact head completed with conclusion `success`, including `Python Core`, `KodeStudio UI Smoke`, `R0 Repository Guard`, `R17 Windows Installer` and the retained cross-platform acceptance set.
+
+The deterministic V2.4.6 acceptance completed on Ubuntu and Windows. Exact-head artifacts are:
+
+- `v2-4-6-production-hardening-ubuntu-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`;
+- `v2-4-6-production-hardening-windows-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`.
+
+Accepted V2.4.6 truth is adversarial proof of the already accepted V2.4 topology/strategy/execution/recovery/live-evidence chain: provider/runtime mismatch, duplicate or inconsistent device/VRAM state, no pooled VRAM, strategy/world-size/device binding, fixed non-shell launcher trust boundary, whole-rank-group crash/timeout/cancellation behavior, orphan-process containment, rank evidence disagreement, tampered lineage, incompatible recovery, provider degradation, honest KodeStudio missing/blocked-live-evidence states, deterministic provider-independent CI, and exact-source live-evidence separation.
+
+PR `#535` merged from the unchanged exact head with `expected_head_sha` protection as:
+
+`3799e51d21e64cb6fe90d73968d243fe2161d693`
+
+V2.4 planning and V2.4.1 through V2.4.6 are therefore **COMPLETE + NORMALIZED**.
+
+This normalization does **not** authorize V2.5 planning or implementation. V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 remain unauthorized pending separate explicit authority.

@@ -1,6 +1,6 @@
 # V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU
 
-Status: **PLANNING + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 COMPLETE + NORMALIZED — V2.4.5 is the only authorized implementation subdivision; V2.4.6+ remain unauthorized**  
+Status: **PLANNING + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 + V2.4.5 COMPLETE + NORMALIZED — V2.4.6 is the only authorized implementation subdivision**  
 Roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`  
 Planning base: normalized `main` `586d55a3cbccaadbb2a868c5fd5e0ed0123bf8b0`  
 Public distribution boundary: `v1.1.0-rc8`
@@ -471,7 +471,7 @@ Required scope:
 
 Definition of done: recovery cannot silently change topology/strategy or accept a partial/tampered distributed checkpoint.
 
-### V2.4.5 — Model Lab accelerator UX and live Kaggle qualification — CURRENT
+### V2.4.5 — Model Lab accelerator UX and live Kaggle qualification — COMPLETE + NORMALIZED
 
 Goal: make accelerator truth inspectable and perform the real provider proof.
 
@@ -657,7 +657,15 @@ Bounded V2.4.5 candidate NF4 reload compatibility repair amendment (authorized 2
 
 Definition of done: the user can see what Kaggle actually provided, what strategy will run, and whether live production qualification exists for the exact source.
 
-### V2.4.6 — Production hardening and integrated acceptance
+### V2.4.5 exact-head qualification and normalization
+
+V2.4.5 implementation PR `#529` completed **32/32** exact-head workflows on final head `71e6a989db0426e0b33ac27c203bf3f812e4ed71`. Deterministic acceptance was **22/22 PASS** on Ubuntu and Windows with common evidence SHA-256 `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`.
+
+The final exact-source private Kaggle T4×2 evidence returned `production_qualified=true`, blockers `[]`, throughput speedup `2.6390424987850745x`, single canonical eval loss `2.34194073677063`, replicated canonical eval loss `2.3352763652801514`, eval-loss delta `-0.0066643714904786044`, and live report digest `1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8`. Critical-regression, secret-scan and downloaded-evidence revalidation gates all passed. PR `#529` merged with `expected_head_sha` protection as `a105794b1b890c4c704f0bc05f084d6ec5671628`.
+
+This post-merge normalization marks **V2.4.5 COMPLETE + NORMALIZED** and authorizes **V2.4.6 only**. The qualification-only path did not authorize candidate promotion, registry mutation or public publishing.
+
+### V2.4.6 — Production hardening and integrated acceptance — CURRENT
 
 Goal: adversarially prove the entire V2.4 topology/strategy/execution/recovery/live-evidence chain.
 
@@ -774,4 +782,4 @@ V2.4 planning is complete only when:
 - the planning PR is merged with `expected_head_sha`;
 - this post-merge normalization records planning as COMPLETE + NORMALIZED and authorizes **V2.4.1 only**.
 
-**V2.4.5 is now the only authorized implementation subdivision. V2.4.6+ remain unauthorized** until V2.4.5 is implemented, exact-head qualified, merged and post-merge normalized.
+**V2.4.6 — Production hardening and integrated acceptance is now the only authorized implementation subdivision. V2.5+ remain unauthorized.**

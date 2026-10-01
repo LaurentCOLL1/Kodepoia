@@ -69,6 +69,11 @@ def main() -> int:
                 and "V2.4.5 — Model Lab accelerator UX and live Kaggle qualification — CURRENT"
                 in next_doc
             )
+            or (
+                "V2.4.5 is COMPLETE + NORMALIZED" in authority
+                and "V2.4.6 — Production hardening and integrated acceptance — CURRENT"
+                in next_doc
+            )
         )
     )
 
@@ -109,6 +114,12 @@ def main() -> int:
                             and "V2.4.6+ remain unauthorized" in state
                             and "V2.4.6+ remain unauthorized" in next_doc
                             and "V2.4.6+ remain unauthorized" in v24
+                        )
+                        or (
+                            "V2.5+ remain unauthorized" in authority
+                            and "V2.5+ remain unauthorized" in state
+                            and "V2.5+ remain unauthorized" in next_doc
+                            and "V2.5+ remain unauthorized" in v24
                         )
                     )
                 )
@@ -259,6 +270,7 @@ def main() -> int:
                 or (v242_normalized and "V2.4.4+" in state)
                 or (v242_normalized and "V2.4.5+" in state)
                 or (v242_normalized and "V2.4.6+" in state)
+                or (v242_normalized and "V2.5+" in state)
             )
             and "FSDP" in v24
             and "DeepSpeed" in v24

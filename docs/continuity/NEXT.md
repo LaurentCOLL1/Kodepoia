@@ -568,3 +568,5 @@ This normalization does **not** authorize V2.5 planning or implementation. V2.5+
 
 
 Historical acceptance compatibility note: the superseded post-V2.4.5 checkpoint was **V2.4.6 — Production hardening and integrated acceptance — CURRENT**. This literal historical marker is retained only so earlier exact-head acceptance remains reproducible; current authority is V2.4.6 COMPLETE + NORMALIZED, and V2.5+ remain unauthorized.
+
+Historical V2.4.6 acceptance compatibility marker (superseded): **V2.4.6 — Production hardening and integrated acceptance — CURRENT**. This literal records the pre-normalization checkpoint only; current authority is V2.4.6 COMPLETE + NORMALIZED and V2.5+ remain unauthorized.

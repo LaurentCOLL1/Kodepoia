@@ -115,6 +115,12 @@ def main() -> int:
                             and "V2.4.6+ remain unauthorized" in next_doc
                             and "V2.4.6+ remain unauthorized" in v24
                         )
+                        or (
+                            "V2.5+ remain unauthorized" in authority
+                            and "V2.5+ remain unauthorized" in state
+                            and "V2.5+ remain unauthorized" in next_doc
+                            and "V2.5+ remain unauthorized" in v24
+                        )
                     )
                 )
             ),

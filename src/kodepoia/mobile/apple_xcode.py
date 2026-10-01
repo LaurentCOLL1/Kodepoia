@@ -151,17 +151,18 @@ class AppleXcodePolicySnapshot:
 
 def current_apple_xcode_policy_snapshot() -> AppleXcodePolicySnapshot:
     return AppleXcodePolicySnapshot(
-        snapshot_id="apple-xcode-policy-2026-08-26",
-        retrieved_on="2026-08-26",
-        expires_on="2026-09-30",
+        snapshot_id="apple-xcode-policy-2026-10-01",
+        retrieved_on="2026-10-01",
+        expires_on="2026-11-05",
         production_effective_on="2026-04-28",
         production_min_xcode_major=26,
         production_min_sdk_major=26,
         stable_xcode_major=26,
         testflight_beta_xcode_major=27,
         sources=(
-            "https://developer.apple.com/news/upcoming-requirements/",
+            "https://developer.apple.com/news/upcoming-requirements/?id=04282026a",
             "https://developer.apple.com/help/app-store-connect/release-notes/",
+            "https://developer.apple.com/news/releases/",
         ),
     )
 

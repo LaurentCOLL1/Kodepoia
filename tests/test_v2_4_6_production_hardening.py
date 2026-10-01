@@ -263,7 +263,7 @@ def test_v246_launcher_and_security_boundaries_have_no_text_driven_escape_surfac
     runtime = (root / "src/kodepoia/tuning/runtime.py").read_text(encoding="utf-8")
 
     assert '"torch.distributed.run"' in distributed
-    assert "--nproc_per_node" in distributed
+    assert "--nproc-per-node=2" in distributed
     assert "shell=False" in sandbox
     assert "ManagedProcessGroup" in sandbox
     assert "TORCHELASTIC_RESTART_COUNT" in worker

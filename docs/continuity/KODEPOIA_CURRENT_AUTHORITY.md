@@ -265,3 +265,6 @@ PR `#535` merged from the unchanged exact head with `expected_head_sha` protecti
 V2.4 planning and V2.4.1 through V2.4.6 are therefore **COMPLETE + NORMALIZED**.
 
 This normalization does **not** authorize V2.5 planning or implementation. V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 remain unauthorized pending separate explicit authority.
+
+
+Historical acceptance compatibility note: **V2.4.5 is COMPLETE + NORMALIZED**. This sentence preserves the exact pre-V2.4.6 normalized checkpoint wording for deterministic historical acceptance only; it does not supersede the current V2.4.6 COMPLETE + NORMALIZED authority above.

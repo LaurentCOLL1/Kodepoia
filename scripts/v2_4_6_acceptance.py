@@ -54,12 +54,19 @@ def main() -> int:
     }
 
     current = (
-        "V2.4.6 — Production hardening and integrated acceptance is the only authorized implementation subdivision"
+        (
+            "V2.4.6 — Production hardening and integrated acceptance "
+            "is the only authorized implementation subdivision"
+        )
         in authority
         and "V2.4.6 — Production hardening and integrated acceptance — CURRENT" in state
         and "V2.4.6 — Production hardening and integrated acceptance — CURRENT" in next_doc
         and "V2.4.6 CURRENT" in roadmap
-        and "V2.4.6 — Production hardening and integrated acceptance is now the only authorized implementation subdivision" in v24
+        and (
+            "V2.4.6 — Production hardening and integrated acceptance is now the only "
+            "authorized implementation subdivision"
+        )
+        in v24
     )
 
     checks = [
@@ -235,7 +242,16 @@ def main() -> int:
         ),
         _check(
             "security_authority",
-            all(name in v24 for name in ("ResearchGuard", "KodeSecrets", "WorkspaceBoundary", "ProcessSandbox", "KillSwitch"))
+            all(
+                name in v24
+                for name in (
+                    "ResearchGuard",
+                    "KodeSecrets",
+                    "WorkspaceBoundary",
+                    "ProcessSandbox",
+                    "KillSwitch",
+                )
+            )
             and "Prompt/source/model text can never become distributed launcher argv" in v24,
             "existing trust boundaries remain authoritative",
         ),

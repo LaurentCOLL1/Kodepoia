@@ -1167,7 +1167,7 @@ def _candidate_evaluation(
 
     import torch
     from peft import PeftModel
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
     local_model = root / request.model_ref
     dedup_policy = DedupPolicy(near_threshold=1.0, lowercase_comparison=False)
@@ -1218,14 +1218,27 @@ def _candidate_evaluation(
                 local_files_only=True,
                 trust_remote_code=False,
             )
+            torch.cuda.set_device(0)
+            torch.cuda.empty_cache()
+            quantization_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=(
+                    torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+                ),
+            )
             base = AutoModelForCausalLM.from_pretrained(
                 local_model,
+                quantization_config=quantization_config,
                 local_files_only=True,
                 trust_remote_code=False,
-                torch_dtype=torch.float16,
                 device_map={"": 0},
             )
-            self.model = PeftModel.from_pretrained(base, adapter_path.parent, is_trainable=False)
+            self.model = PeftModel.from_pretrained(
+                base,
+                adapter_path.parent,
+                is_trainable=False,
+            )
             self.model.eval()
 
         def preload(self, model: str, **_kwargs: object) -> dict[str, object]:

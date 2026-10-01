@@ -69,6 +69,11 @@ def main() -> int:
                 and "V2.4.5 — Model Lab accelerator UX and live Kaggle qualification — CURRENT"
                 in next_doc
             )
+            or (
+                "V2.4.5 is COMPLETE + NORMALIZED" in authority
+                and "V2.4.6 — Production hardening and integrated acceptance — CURRENT"
+                in next_doc
+            )
         )
     )
 

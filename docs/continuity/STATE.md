@@ -762,7 +762,7 @@ The initial V2.3.6 head exposed only test-contract issues. Two corrective commit
 
 **V2.3 is now COMPLETE + NORMALIZED through V2.3.6.**
 
-V2.4 planning, V2.4.1, V2.4.2, V2.4.3 and **V2.4.4 are COMPLETE + NORMALIZED**. V2.4.4 implementation PR `#524` was qualified **29/29** on exact final head `1abf4917566f065ac26b71a02e02d8fb3506fe1a`, with deterministic acceptance **25/25 PASS on Ubuntu** and **25/25 PASS on Windows**, common evidence SHA-256 `09820473e95e03672b89c6d9d086b6a9aa8fada394be2e661a4085f1989410ed`, then merged as `779a9c8282e153b7dba35fb22be89ec5c622e1d3`. The only authorized implementation work is **V2.4.5 — Model Lab accelerator UX and live Kaggle qualification**. V2.4.6+ remain unauthorized until V2.4.5 is implemented, exact-head qualified, merged and post-merge normalized. V2.5+ remain unauthorized.
+V2.4 planning and V2.4.1 through **V2.4.5 are COMPLETE + NORMALIZED**. V2.4.5 implementation PR `#529` was qualified **32/32** on exact final head `71e6a989db0426e0b33ac27c203bf3f812e4ed71`, with deterministic acceptance **22/22 PASS on Ubuntu** and **22/22 PASS on Windows**, common evidence SHA-256 `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`, accepted exact-source private Kaggle T4×2 live qualification `production_qualified=true`, and merge `a105794b1b890c4c704f0bc05f084d6ec5671628`. The only authorized implementation work is **V2.4.6 — Production hardening and integrated acceptance**. V2.5+ remain unauthorized.
 
 ## V2.4 planning — Kaggle T4×2 production qualification and explicit multi-GPU — COMPLETE + NORMALIZED
 
@@ -997,9 +997,36 @@ Accepted product truth:
 
 This post-merge normalization marks **V2.4.4 COMPLETE + NORMALIZED**.
 
-## V2.4.5 — Model Lab accelerator UX and live Kaggle qualification — CURRENT
+## V2.4.5 — Model Lab accelerator UX and live Kaggle qualification — COMPLETE + NORMALIZED
 
-Authorized scope is strictly accelerator UX plus exact-source live provider qualification:
+Implementation PR:
+
+`#529 — feat: resume V2.4.5 with bounded R15.8 CUDA env repair`
+
+Exact final accepted head:
+
+`71e6a989db0426e0b33ac27c203bf3f812e4ed71`
+
+Qualification:
+
+- **32/32** pull-request workflows `completed/success` on the unchanged exact head;
+- deterministic acceptance **22/22 PASS Ubuntu**;
+- deterministic acceptance **22/22 PASS Windows**;
+- common evidence SHA-256: `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`;
+- Ubuntu artifact ID: `11176194128`;
+- Windows artifact ID: `11176294725`;
+- exact-source private Kaggle T4×2 live report: `production_qualified=true`, blockers `[]`, live report digest `1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8`;
+- live throughput speedup: `2.6390424987850745x`;
+- canonical single-GPU eval loss: `2.34194073677063`;
+- canonical replicated eval loss: `2.3352763652801514`;
+- canonical eval-loss delta: `-0.0066643714904786044`;
+- critical-regression, downloaded-evidence revalidation and secret-scan gates all passed.
+
+Merge:
+
+`a105794b1b890c4c704f0bc05f084d6ec5671628`
+
+Accepted scope and product truth:
 
 - structured Model Lab display of requested provider shape versus observed topology;
 - separate device rows and per-device VRAM, never a summed 32 GiB pool;
@@ -1106,17 +1133,36 @@ Bounded V2.4.5 qualification-only live-pair bootstrap amendment (authorized 2026
 - no dataset/kernel from `7d0fe50f` may be modified, versioned or rerun; new exact-head IDs are mandatory;
 - always forbidden: forced TRAIN, fixture/fabricated live benchmark, pooled VRAM, FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism, TPU/XLA, arbitrary shell/argv/env/rendezvous/package-install surfaces, public publishing, ModelRouter/registry/Ollama mutation, release/TUF/updater mutation, V2.4.6+, V2.5+, R20 reopening or R20.7.
 
+This post-merge normalization marks **V2.4.5 COMPLETE + NORMALIZED**.
+
+## V2.4.6 — Production hardening and integrated acceptance — CURRENT
+
+V2.4.6 is now the only authorized V2.4 implementation subdivision. It must adversarially prove the already accepted topology/strategy/execution/recovery/live-evidence chain without weakening or redefining V2.4.1-V2.4.5 truth.
+
+Required scope includes:
+
+- provider says T4 ×2 but runtime exposes zero, one or unexpected devices;
+- duplicate ordinals/device identities and inconsistent or unknown per-device VRAM;
+- one device insufficient while aggregate VRAM would misleadingly appear sufficient;
+- strategy/world-size/device mapping mismatch;
+- malicious text attempting to inject launcher argv, environment, rendezvous or package-install surface;
+- rank crash, hang, timeout, cancellation and orphan-process handling;
+- rank-zero/per-rank evidence disagreement and tampered topology/strategy/run/checkpoint evidence;
+- recovery attempts with changed world size, device set or strategy;
+- provider auth/network/quota unavailable states;
+- deterministic provider-independent CI and exact-head Ubuntu/Windows acceptance;
+- KodeStudio degraded, empty and missing-live-evidence states;
+- exact-source live production evidence remains separate from fixtures and historical evidence.
+
 Still unauthorized:
 
-- V2.4.6 production hardening/integrated acceptance;
 - public provider/model-hub publishing;
 - pooled VRAM or hidden strategy changes;
 - FSDP, DeepSpeed/ZeRO, tensor/pipeline parallelism;
 - TPU/XLA/JAX/PyTorch-XLA;
-- V2.4.6+;
 - V2.5+, release/TUF/updater mutation and R20 reopening.
 
-V2.4.6+ remain unauthorized until V2.4.5 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
+V2.5+ remain unauthorized until V2.4.6 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
 
 ## Accepted V2 capability truth
 
@@ -1145,12 +1191,12 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`;
-2. verify V2.4.4 remains **COMPLETE + NORMALIZED** from PR `#524`, exact head `1abf4917566f065ac26b71a02e02d8fb3506fe1a`, **29/29** workflows, acceptance 25/25 on both OS, evidence digest `09820473e95e03672b89c6d9d086b6a9aa8fada394be2e661a4085f1989410ed` and merge `779a9c8282e153b7dba35fb22be89ec5c622e1d3`;
-3. implement **V2.4.5 — Model Lab accelerator UX and live Kaggle qualification only**;
-4. preserve exact V2.4.1-V2.4.4 topology/strategy/execution/recovery lineage and per-device VRAM truth;
-5. add deterministic UX/provider-state tests without live Kaggle/GPU requirements;
-6. prepare exact-source private Kaggle qualification with downloaded evidence revalidation and paired single-vs-replicated live evidence;
-7. if live Kaggle credentials/quota are required, stop only at V2.4.5 and request the exact bounded operator action;
-8. merge only after all required deterministic workflows succeed on the unchanged exact head and required live evidence is accepted;
-9. post-merge normalize before authorizing V2.4.6;
-10. keep V2.4.6+, V2.5+, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.
+2. verify V2.4.5 remains **COMPLETE + NORMALIZED** from PR `#529`, exact head `71e6a989db0426e0b33ac27c203bf3f812e4ed71`, **32/32** workflows, acceptance 22/22 on both OS, common evidence digest `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`, live report digest `1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8`, `production_qualified=true` and merge `a105794b1b890c4c704f0bc05f084d6ec5671628`;
+3. implement **V2.4.6 — Production hardening and integrated acceptance only**;
+4. preserve exact V2.4.1-V2.4.5 topology/strategy/execution/recovery/live-evidence lineage, separate per-device VRAM truth, >=1.25x throughput threshold, zero eval-loss regression allowance and critical-regression veto;
+5. add deterministic adversarial coverage for provider/runtime mismatch, device/VRAM inconsistency, launcher injection, rank failure/cancellation/orphans, tampered lineage, incompatible recovery and degraded provider/UI states;
+6. keep deterministic CI provider-independent and require fresh exact-source live evidence wherever V2.4.6 acceptance explicitly requires it;
+7. if live Kaggle credentials/quota are required, stop only at V2.4.6 and request the exact bounded operator action;
+8. merge only after all required deterministic workflows succeed on the unchanged exact head and every required live-evidence gate is accepted;
+9. post-merge normalize before authorizing V2.5;
+10. keep V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.

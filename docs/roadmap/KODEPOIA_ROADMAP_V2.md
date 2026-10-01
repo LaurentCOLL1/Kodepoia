@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 + V2.4.5 COMPLETE + NORMALIZED; V2.4.6 CURRENT**  
+Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 COMPLETE + NORMALIZED through V2.4.6; V2.5+ unauthorized pending separate explicit authority**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -265,7 +265,7 @@ Planning invariants include:
 
 V2.4.3 and V2.4.4 remain accepted and normalized. V2.4.5 implementation PR `#529` is qualified **32/32** on exact final head `71e6a989db0426e0b33ac27c203bf3f812e4ed71`, with **22/22 PASS** on both Ubuntu and Windows and common evidence SHA-256 `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`. Its exact-source private Kaggle T4×2 qualification returned `production_qualified=true`, blockers `[]`, throughput speedup `2.6390424987850745x`, canonical eval-loss delta `-0.0066643714904786044`, and live report digest `1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8`; PR `#529` then merged with `expected_head_sha` protection as `a105794b1b890c4c704f0bc05f084d6ec5671628`. **This post-merge normalization marks V2.4.5 COMPLETE + NORMALIZED and authorizes V2.4.6 — Production hardening and integrated acceptance only.** V2.5+ remain unauthorized.
 
-The V2.4 planning authority and V2.4.1 through V2.4.5 are qualified and normalized. V2.4.6 may now harden the accepted topology/strategy/execution/recovery/live-evidence chain without changing its thresholds, strategy semantics or release boundary.
+The V2.4 planning authority and V2.4.1 through V2.4.6 are qualified and normalized. The accepted topology/strategy/execution/recovery/live-evidence chain remains frozen unless a later explicit authority changes scope; V2.5 remains unauthorized.
 
 Bounded V2.4.5 live-qualification workload bootstrap amendment (authorized 2026-09-22):
 

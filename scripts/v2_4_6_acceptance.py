@@ -215,7 +215,8 @@ def main() -> int:
             "deterministic_provider_independent",
             "kaggle kernels push" not in hardening.lower()
             and "torch.cuda" not in hardening
-            and "KaggleLiveProbeClient(" not in hardening\n            and "KaggleLivePairClient(" not in hardening,
+            and "KaggleLiveProbeClient(" not in hardening
+            and "KaggleLivePairClient(" not in hardening,
             "mandatory V2.4.6 tests require no live Kaggle/GPU provider",
         ),
         _check(

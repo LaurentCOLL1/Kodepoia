@@ -233,6 +233,21 @@ def test_repository_owned_live_pair_kernel_uses_existing_runners_and_real_gates(
     ):
         assert required in module_source
 
+    candidate_section = module_source[
+        module_source.index("def _candidate_evaluation"):
+        module_source.index("def run_live_pair_kernel")
+    ]
+    for required in (
+        "BitsAndBytesConfig",
+        "load_in_4bit=True",
+        'bnb_4bit_quant_type="nf4"',
+        "bnb_4bit_compute_dtype=(",
+        "quantization_config=quantization_config",
+        "torch.cuda.set_device(0)",
+    ):
+        assert required in candidate_section
+    assert "torch_dtype=torch.float16" not in candidate_section
+
     assert "trainer.evaluate()" not in module_source
     assert "full_determinism=True" not in module_source[
         module_source.index("def _canonical_adapter_eval_loss"):

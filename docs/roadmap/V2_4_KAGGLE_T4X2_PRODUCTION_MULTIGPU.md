@@ -665,7 +665,7 @@ The final exact-source private Kaggle T4×2 evidence returned `production_qualif
 
 This post-merge normalization marks **V2.4.5 COMPLETE + NORMALIZED** and authorizes **V2.4.6 only**. The qualification-only path did not authorize candidate promotion, registry mutation or public publishing.
 
-### V2.4.6 — Production hardening and integrated acceptance — CURRENT
+### V2.4.6 — Production hardening and integrated acceptance — COMPLETE + NORMALIZED
 
 Goal: adversarially prove the entire V2.4 topology/strategy/execution/recovery/live-evidence chain.
 
@@ -782,4 +782,28 @@ V2.4 planning is complete only when:
 - the planning PR is merged with `expected_head_sha`;
 - this post-merge normalization records planning as COMPLETE + NORMALIZED and authorizes **V2.4.1 only**.
 
-**V2.4.6 — Production hardening and integrated acceptance is now the only authorized implementation subdivision. V2.5+ remain unauthorized.**
+**V2.4.6 is COMPLETE + NORMALIZED from PR #535, exact head `b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`, 26/26 exact-head workflows and merge `3799e51d21e64cb6fe90d73968d243fe2161d693`. V2.4 is COMPLETE + NORMALIZED through V2.4.6. V2.5+ remain unauthorized pending separate explicit authority.**
+
+
+## V2.4.6 — Production hardening and integrated acceptance — COMPLETE + NORMALIZED
+
+Implementation PR `#535` was qualified on exact final head:
+
+`b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`
+
+All **26/26** pull-request workflows associated with that exact head completed with conclusion `success`, including `Python Core`, `KodeStudio UI Smoke`, `R0 Repository Guard`, `R17 Windows Installer` and the retained cross-platform acceptance set.
+
+The deterministic V2.4.6 acceptance completed on Ubuntu and Windows. Exact-head artifacts are:
+
+- `v2-4-6-production-hardening-ubuntu-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`;
+- `v2-4-6-production-hardening-windows-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`.
+
+Accepted V2.4.6 truth is adversarial proof of the already accepted V2.4 topology/strategy/execution/recovery/live-evidence chain: provider/runtime mismatch, duplicate or inconsistent device/VRAM state, no pooled VRAM, strategy/world-size/device binding, fixed non-shell launcher trust boundary, whole-rank-group crash/timeout/cancellation behavior, orphan-process containment, rank evidence disagreement, tampered lineage, incompatible recovery, provider degradation, honest KodeStudio missing/blocked-live-evidence states, deterministic provider-independent CI, and exact-source live-evidence separation.
+
+PR `#535` merged from the unchanged exact head with `expected_head_sha` protection as:
+
+`3799e51d21e64cb6fe90d73968d243fe2161d693`
+
+V2.4 planning and V2.4.1 through V2.4.6 are therefore **COMPLETE + NORMALIZED**.
+
+This normalization does **not** authorize V2.5 planning or implementation. V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 remain unauthorized pending separate explicit authority.

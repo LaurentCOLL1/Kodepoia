@@ -59,7 +59,7 @@ def main() -> int:
         and "V2.4.6 — Production hardening and integrated acceptance — CURRENT" in state
         and "V2.4.6 — Production hardening and integrated acceptance — CURRENT" in next_doc
         and "V2.4.6 CURRENT" in roadmap
-        and "V2.4.6 is the only authorized implementation subdivision" in v24
+        and "V2.4.6 — Production hardening and integrated acceptance is now the only authorized implementation subdivision" in v24
     )
 
     checks = [
@@ -126,7 +126,7 @@ def main() -> int:
         _check(
             "launcher_injection_boundary",
             '"torch.distributed.run"' in distributed
-            and "--nproc_per_node" in distributed
+            and "--nproc-per-node=2" in distributed
             and "shell=False" in sandbox
             and "test_v246_launcher_and_security_boundaries_have_no_text_driven_escape_surface"
             in hardening,
@@ -165,7 +165,7 @@ def main() -> int:
             in historical["recovery"]
             and "test_missing_or_tampered_rank_recovery_evidence_never_succeeds"
             in historical["recovery"]
-            and "source report digest mismatch" in recovery,
+            and "checkpoint source topology lineage mismatch" in recovery,
             "tampered run/checkpoint/recovery lineage remains rejected",
         ),
         _check(
@@ -215,7 +215,7 @@ def main() -> int:
             "deterministic_provider_independent",
             "kaggle kernels push" not in hardening.lower()
             and "torch.cuda" not in hardening
-            and "Fake" not in live or True,
+            and "KaggleLiveProbeClient(" not in hardening\n            and "KaggleLivePairClient(" not in hardening,
             "mandatory V2.4.6 tests require no live Kaggle/GPU provider",
         ),
         _check(

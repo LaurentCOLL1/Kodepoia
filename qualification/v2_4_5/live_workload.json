@@ -1,0 +1,155 @@
+{
+  "schema": "kodepoia.v2.4.5.live-qualification-workload",
+  "schema_version": 1,
+  "domain": "v245-qualification",
+  "task": "format-recall",
+  "license_expression": "LicenseRef-Kodepoia-Internal-Qualification",
+  "training_examples": [
+    {
+      "id": "train-01",
+      "prompt": "V245 code 01",
+      "completion": "KODEPOIA-01-READY"
+    },
+    {
+      "id": "train-02",
+      "prompt": "V245 code 02",
+      "completion": "KODEPOIA-02-READY"
+    },
+    {
+      "id": "train-03",
+      "prompt": "V245 code 03",
+      "completion": "KODEPOIA-03-READY"
+    },
+    {
+      "id": "train-04",
+      "prompt": "V245 code 04",
+      "completion": "KODEPOIA-04-READY"
+    },
+    {
+      "id": "train-05",
+      "prompt": "V245 code 05",
+      "completion": "KODEPOIA-05-READY"
+    },
+    {
+      "id": "train-06",
+      "prompt": "V245 code 06",
+      "completion": "KODEPOIA-06-READY"
+    },
+    {
+      "id": "train-07",
+      "prompt": "V245 code 07",
+      "completion": "KODEPOIA-07-READY"
+    },
+    {
+      "id": "train-08",
+      "prompt": "V245 code 08",
+      "completion": "KODEPOIA-08-READY"
+    },
+    {
+      "id": "train-09",
+      "prompt": "V245 code 09",
+      "completion": "KODEPOIA-09-READY"
+    },
+    {
+      "id": "train-10",
+      "prompt": "V245 code 10",
+      "completion": "KODEPOIA-10-READY"
+    },
+    {
+      "id": "train-11",
+      "prompt": "V245 code 11",
+      "completion": "KODEPOIA-11-READY"
+    },
+    {
+      "id": "train-12",
+      "prompt": "V245 code 12",
+      "completion": "KODEPOIA-12-READY"
+    },
+    {
+      "id": "train-13",
+      "prompt": "V245 code 13",
+      "completion": "KODEPOIA-13-READY"
+    },
+    {
+      "id": "train-14",
+      "prompt": "V245 code 14",
+      "completion": "KODEPOIA-14-READY"
+    },
+    {
+      "id": "train-15",
+      "prompt": "V245 code 15",
+      "completion": "KODEPOIA-15-READY"
+    },
+    {
+      "id": "train-16",
+      "prompt": "V245 code 16",
+      "completion": "KODEPOIA-16-READY"
+    },
+    {
+      "id": "train-17",
+      "prompt": "V245 code 17",
+      "completion": "KODEPOIA-17-READY"
+    },
+    {
+      "id": "train-18",
+      "prompt": "V245 code 18",
+      "completion": "KODEPOIA-18-READY"
+    },
+    {
+      "id": "train-19",
+      "prompt": "V245 code 19",
+      "completion": "KODEPOIA-19-READY"
+    },
+    {
+      "id": "train-20",
+      "prompt": "V245 code 20",
+      "completion": "KODEPOIA-20-READY"
+    },
+    {
+      "id": "train-21",
+      "prompt": "V245 code 21",
+      "completion": "KODEPOIA-21-READY"
+    },
+    {
+      "id": "train-22",
+      "prompt": "V245 code 22",
+      "completion": "KODEPOIA-22-READY"
+    },
+    {
+      "id": "train-23",
+      "prompt": "V245 code 23",
+      "completion": "KODEPOIA-23-READY"
+    },
+    {
+      "id": "train-24",
+      "prompt": "V245 code 24",
+      "completion": "KODEPOIA-24-READY"
+    }
+  ],
+  "benchmark_tasks": [
+    {
+      "task_id": "holdout-91",
+      "prompt": "V245 code 91",
+      "expected": "KODEPOIA-91-READY",
+      "critical": true
+    },
+    {
+      "task_id": "holdout-92",
+      "prompt": "V245 code 92",
+      "expected": "KODEPOIA-92-READY",
+      "critical": true
+    },
+    {
+      "task_id": "holdout-93",
+      "prompt": "V245 code 93",
+      "expected": "KODEPOIA-93-READY",
+      "critical": true
+    },
+    {
+      "task_id": "holdout-94",
+      "prompt": "V245 code 94",
+      "expected": "KODEPOIA-94-READY",
+      "critical": true
+    }
+  ]
+}

@@ -5,6 +5,10 @@ import importlib.util
 import json
 from collections.abc import Callable, Mapping
 from pathlib import Path
+from kodepoia.kodestudio.model_lab_accelerator import (
+    accelerator_projection,
+    provider_runtime_projection,
+)
 from kodepoia.kodestudio.model_manager import (
     OllamaModelManager,
     saved_model_roles,
@@ -419,6 +423,7 @@ class ModelLabInventoryService:
                             }
                         )
 
+        accelerator = accelerator_projection(self.root)
         return {
             "schema": self.schema,
             "status": "ok",
@@ -447,6 +452,7 @@ class ModelLabInventoryService:
                 "quota": None,
                 "detail": "Kaggle state is refreshed only on explicit request",
             },
+            "accelerator": accelerator,
             "capabilities": self._dependency_capabilities(),
             "lineage": sorted(
                 lineage,
@@ -533,17 +539,22 @@ class ModelLabInventoryService:
             else:
                 kaggle_detail = f"quota: {exc}"
 
+        kaggle = {
+            "state": kaggle_state,
+            "doctor": doctor,
+            "quota": quota,
+            "detail": kaggle_detail,
+        }
         return {
             "schema": self.schema,
             "status": "ok",
             "read_only": True,
             "ollama": ollama,
-            "kaggle": {
-                "state": kaggle_state,
-                "doctor": doctor,
-                "quota": quota,
-                "detail": kaggle_detail,
-            },
+            "kaggle": kaggle,
+            "accelerator": provider_runtime_projection(
+                accelerator_projection(self.root),
+                kaggle,
+            ),
         }
 
 

@@ -19,6 +19,7 @@ def create_model_lab_page(
     from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
     from PySide6.QtWidgets import (
         QAbstractItemView,
+        QComboBox,
         QGroupBox,
         QHBoxLayout,
         QLabel,
@@ -161,6 +162,44 @@ def create_model_lab_page(
     capabilities_layout.addWidget(capabilities)
     body_layout.addWidget(capabilities_group)
 
+    accelerator_group = QGroupBox(tr.text("accelerator"))
+    accelerator_layout = QVBoxLayout(accelerator_group)
+    accelerator_provider = QLabel()
+    accelerator_provider.setObjectName("modelLabAcceleratorProvider")
+    accelerator_provider.setWordWrap(True)
+    accelerator_layout.addWidget(accelerator_provider)
+    accelerator_topology = QLabel()
+    accelerator_topology.setObjectName("modelLabAcceleratorTopology")
+    accelerator_topology.setWordWrap(True)
+    accelerator_layout.addWidget(accelerator_topology)
+    accelerator_devices = table(
+        "modelLabAcceleratorDevices",
+        ["Ordinal", "Device", "Backend", "Free VRAM", "Total VRAM"],
+        tr.text("devices"),
+    )
+    accelerator_layout.addWidget(accelerator_devices)
+    accelerator_strategy = QComboBox()
+    mark_accessible(
+        accelerator_strategy,
+        object_name="modelLabAcceleratorStrategy",
+        name=tr.text("strategy"),
+        description=tr.text("strategy"),
+        description_required=True,
+    )
+    accelerator_layout.addWidget(accelerator_strategy)
+    accelerator_mapping = table(
+        "modelLabAcceleratorStrategyMapping",
+        ["Strategy", "World size", "Devices", "Per-device batch", "Accumulation", "Effective batch"],
+        tr.text("strategy_mapping"),
+    )
+    accelerator_layout.addWidget(accelerator_mapping)
+    accelerator_live = QLabel(tr.text("live_missing"))
+    accelerator_live.setObjectName("modelLabAcceleratorLiveQualification")
+    accelerator_live.setWordWrap(True)
+    accelerator_live.setAccessibleName(tr.text("live_qualification"))
+    accelerator_layout.addWidget(accelerator_live)
+    body_layout.addWidget(accelerator_group)
+
     lineage_group = QGroupBox(tr.text("lineage"))
     lineage_layout = QVBoxLayout(lineage_group)
     lineage = table(
@@ -202,6 +241,69 @@ def create_model_lab_page(
 
     latest_snapshot: dict[str, object] = {}
     latest_runtime: dict[str, object] | None = None
+    latest_accelerator: dict[str, object] = {}
+
+    def render_accelerator(payload: dict[str, object]) -> None:
+        nonlocal latest_accelerator
+        latest_accelerator = payload
+        provider = payload.get("provider_request")
+        provider_map = provider if isinstance(provider, dict) else {}
+        accelerator_provider.setText(
+            f"{tr.text('provider_request')}: "
+            f"{provider_map.get('provider', '—')} / {provider_map.get('shape', '—')}"
+        )
+        accelerator_topology.setText(
+            f"{tr.text('observed_topology')}: {payload.get('topology_state', 'missing')} "
+            f"— {payload.get('topology_digest') or ''}".strip()
+        )
+        device_rows: list[list[str]] = []
+        for item in payload.get("devices", []):
+            if isinstance(item, dict):
+                device_rows.append([
+                    str(item.get("ordinal", "")),
+                    str(item.get("name", "")),
+                    str(item.get("backend", "")),
+                    str(item.get("vram_free_bytes", "")),
+                    str(item.get("vram_total_bytes", "")),
+                ])
+        set_rows(accelerator_devices, device_rows)
+        strategies = [
+            item for item in payload.get("strategies", []) if isinstance(item, dict)
+        ]
+        selected = accelerator_strategy.currentText()
+        names = [str(item.get("strategy", "")) for item in strategies]
+        accelerator_strategy.blockSignals(True)
+        accelerator_strategy.clear()
+        accelerator_strategy.addItems(names)
+        if selected in names:
+            accelerator_strategy.setCurrentText(selected)
+        accelerator_strategy.blockSignals(False)
+        chosen = accelerator_strategy.currentText()
+        mapping_rows: list[list[str]] = []
+        for item in strategies:
+            if str(item.get("strategy", "")) == chosen:
+                ordinals = item.get("device_ordinals", [])
+                mapping_rows.append([
+                    chosen,
+                    str(item.get("world_size", "")),
+                    ", ".join(str(value) for value in ordinals),
+                    str(item.get("per_device_batch_size", "")),
+                    str(item.get("gradient_accumulation_steps", "")),
+                    str(item.get("effective_global_batch_size", "")),
+                ])
+                break
+        set_rows(accelerator_mapping, mapping_rows)
+        live = payload.get("live_qualification")
+        live_map = live if isinstance(live, dict) else {}
+        live_state = str(live_map.get("state", "missing"))
+        if live_map.get("production_qualified") is True:
+            live_text = tr.text("live_qualified")
+        elif live_state == "missing":
+            live_text = tr.text("live_missing")
+        else:
+            blockers = ", ".join(str(item) for item in live_map.get("blockers", []))
+            live_text = f"{tr.text('live_blocked')}: {blockers or live_state}"
+        accelerator_live.setText(live_text)
 
     def render_snapshot(payload: dict[str, object]) -> None:
         nonlocal latest_snapshot
@@ -316,6 +418,9 @@ def create_model_lab_page(
                 ]
             )
         set_rows(lineage, lineage_rows)
+        accelerator_payload = payload.get("accelerator")
+        if isinstance(accelerator_payload, dict):
+            render_accelerator(accelerator_payload)
         render_diagnostics()
 
     def render_runtime(payload: dict[str, object]) -> None:
@@ -348,6 +453,9 @@ def create_model_lab_page(
                 suffix = "" if model_text in runtime_models else " (configured; not reported installed)"
                 model_rows.append([model_text + suffix, ", ".join(preferred)])
             set_rows(models, model_rows)
+        accelerator_payload = payload.get("accelerator")
+        if isinstance(accelerator_payload, dict):
+            render_accelerator(accelerator_payload)
         kaggle = payload.get("kaggle")
         if isinstance(kaggle, dict):
             doctor = kaggle.get("doctor")
@@ -438,6 +546,9 @@ def create_model_lab_page(
         task.signals.error.connect(failed)
         pool.start(task)
 
+    accelerator_strategy.currentTextChanged.connect(
+        lambda _value: render_accelerator(latest_accelerator)
+    )
     refresh_inventory.clicked.connect(refresh_inventory_now)
     refresh_runtime.clicked.connect(refresh_runtime_now)
     refresh_inventory_now()

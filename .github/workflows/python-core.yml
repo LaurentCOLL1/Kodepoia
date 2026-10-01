@@ -263,6 +263,15 @@ jobs:
           path: artifacts/v2_4_4/distributed-recovery.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run V2.4.5 Model Lab accelerator exact-head acceptance
+        run: python scripts/v2_4_5_acceptance.py --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}" --output artifacts/v2_4_5/model-lab-accelerator.json
+      - name: Upload V2.4.5 exact-head evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-4-5-model-lab-accelerator-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: artifacts/v2_4_5/model-lab-accelerator.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Validate PowerShell acceptance runner syntax
         if: runner.os == 'Windows'
         shell: pwsh

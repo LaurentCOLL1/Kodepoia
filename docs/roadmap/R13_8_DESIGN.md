@@ -12,10 +12,12 @@ The implementation extends the R13.1 mobile authority instead of adding a parall
 
 ## External baseline as versioned evidence
 
-The snapshot dated 2026-08-26 records only mutable compatibility evidence:
+The policy snapshot refreshed on 2026-10-01 records only mutable compatibility evidence:
 
-- Apple production uploads require Xcode 26+ with the iOS/iPadOS 26 SDK+ since 2026-04-28.
-- Apple App Store Connect release notes dated 2026-08-25 accept Xcode 27 beta 6 / iOS 27 beta 6 SDK builds for internal and external TestFlight testing.
+- Apple production uploads still require Xcode 26+ with the iOS/iPadOS 26 SDK+ since 2026-04-28.
+- Apple released Xcode 27 on 2026-09-14 and App Store Connect accepts Xcode 27 / SDK 27 builds for the App Store and TestFlight.
+- Apple App Store Connect release notes dated 2026-09-28 also accept Xcode 27.2 beta 2 / SDK 27.2 beta 2 builds for internal and external TestFlight testing.
+- The frozen R13.8 canonical hosted acceptance remains the macOS 26 / Xcode 26 production-capable probe because Xcode 26 remains above Apple's current production minimum; this bounded snapshot refresh does not broaden the historical major-only channel classifier to make new Xcode 27 production claims.
 - A beta/TestFlight-capable toolchain must never manufacture a stable production-upload claim.
 - GitHub-hosted macOS runner-image documentation is advisory discovery evidence only. Exact capability is derived from runtime probes on the exact source head.
 
@@ -76,7 +78,7 @@ Kodepoia runtime still does not silently install Xcode or execute arbitrary proj
 
 ## Stable versus beta fail-closed rule
 
-The 2026-08-26 policy snapshot recognizes stable major 26 and TestFlight beta major 27. A future/unrecognized Xcode major is `UNVERIFIED` and blocks release-readiness until the policy evidence is explicitly refreshed. This deliberately favors false-negative capability over a fabricated production claim.
+The 2026-10-01 policy snapshot preserves the frozen canonical classifier used by hosted acceptance: stable major 26 and TestFlight beta major 27. Apple now also ships Xcode 27 final, but this maintenance refresh deliberately does not reinterpret the historical major-only classifier or manufacture a new Xcode 27 production claim inside V2.4.5. The canonical macOS 26 runner remains valid because Apple still permits Xcode 26+ for production uploads. A future/unrecognized toolchain blocks release-readiness until the dedicated Apple policy model is explicitly revised. This deliberately favors false-negative capability over a fabricated production claim.
 
 ## Simulator and physical-device partitioning
 

@@ -31,6 +31,7 @@ from kodepoia.tuning import (
     TrainingMode,
     TrainingPlan,
     build_distributed_checkpoint_manifest,
+    build_distributed_recovery_plan,
     build_execution_strategy_plan,
     evaluate_strategy_benchmark,
 )
@@ -392,6 +393,26 @@ def test_manifest_rejects_tampered_checkpoint_or_source_lineage(tmp_path: Path) 
             bad_source,
             checkpoint_id="checkpoint-2",
         )
+
+
+def test_recovery_plan_persists_exact_digest_bound_json(tmp_path: Path) -> None:
+    training, strategy, benchmark, source, manifest = _source_and_manifest(tmp_path)
+    plan = build_distributed_recovery_plan(
+        training,
+        strategy,
+        benchmark,
+        manifest,
+    )
+
+    path = tmp_path / "evidence" / "distributed-recovery-plan.json"
+    plan.save(path)
+
+    saved = json.loads(path.read_text(encoding="utf-8"))
+    assert saved == plan.to_dict()
+    assert saved["recovery_plan_digest"] == plan.digest
+    assert saved["source_report_digest"] == source.digest
+    assert saved["checkpoint_manifest_digest"] == manifest.digest
+    assert saved["resume_authorized"] is True
 
 
 def test_recovery_uses_same_fixed_two_rank_launcher_and_exact_resume_path(tmp_path: Path) -> None:

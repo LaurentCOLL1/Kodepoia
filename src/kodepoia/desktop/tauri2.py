@@ -224,6 +224,11 @@ class Tauri2Adapter:
     ADAPTER_ID = "adapter.tauri2"
     TAURI_VERSION = "2.11.5"
     TAURI_BUILD_VERSION = "2.6.3"
+    TAURI_CODEGEN_VERSION = "2.6.3"
+    TAURI_MACROS_VERSION = "2.6.3"
+    TAURI_RUNTIME_VERSION = "2.11.3"
+    TAURI_RUNTIME_WRY_VERSION = "2.11.4"
+    TAURI_UTILS_VERSION = "2.9.3"
     RUST_MINIMUM = (1, 77, 2)
     SENTINEL = "KODEPOIA_TAURI2_RUNTIME_PASS"
 
@@ -501,6 +506,11 @@ class Tauri2Adapter:
         for package, version in (
             ("tauri", self.TAURI_VERSION),
             ("tauri-build", self.TAURI_BUILD_VERSION),
+            ("tauri-codegen", self.TAURI_CODEGEN_VERSION),
+            ("tauri-macros", self.TAURI_MACROS_VERSION),
+            ("tauri-runtime", self.TAURI_RUNTIME_VERSION),
+            ("tauri-runtime-wry", self.TAURI_RUNTIME_WRY_VERSION),
+            ("tauri-utils", self.TAURI_UTILS_VERSION),
         ):
             pattern = rf'name = "{re.escape(package)}"\nversion = "{re.escape(version)}"'
             if re.search(pattern, text) is None:

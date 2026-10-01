@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kodepoia.local/schemas/v2-4-5-kaggle-live-qualification.schema.json",
+  "title": "Kodepoia V2.4.5 Kaggle live qualification report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "blockers",
+    "lineage",
+    "production_qualified",
+    "provider",
+    "report_digest",
+    "request_digest",
+    "schema",
+    "schema_version",
+    "source_sha",
+    "status",
+    "throughput_speedup_ratio",
+    "topology"
+  ],
+  "properties": {
+    "schema": {"const": "kodepoia.v2.4.5.kaggle-live-qualification-report"},
+    "schema_version": {"const": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "request_digest": {"$ref": "#/$defs/digest"},
+    "report_digest": {"$ref": "#/$defs/digest"},
+    "status": {"enum": ["qualified", "blocked"]},
+    "production_qualified": {"type": "boolean"},
+    "blockers": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "throughput_speedup_ratio": {"type": "number", "minimum": 0},
+    "provider": {"type": "object"},
+    "topology": {"type": "object"},
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "benchmark_report_digest",
+        "execution_plan_digest",
+        "recovery_plan_digest",
+        "replicated_strategy_plan_digest",
+        "single_strategy_plan_digest",
+        "topology_digest",
+        "topology_report_digest",
+        "training_plan_digest"
+      ],
+      "properties": {
+        "benchmark_report_digest": {"$ref": "#/$defs/digest"},
+        "execution_plan_digest": {"$ref": "#/$defs/digest"},
+        "recovery_plan_digest": {"$ref": "#/$defs/digest"},
+        "replicated_strategy_plan_digest": {"$ref": "#/$defs/digest"},
+        "single_strategy_plan_digest": {"$ref": "#/$defs/digest"},
+        "topology_digest": {"$ref": "#/$defs/digest"},
+        "topology_report_digest": {"$ref": "#/$defs/digest"},
+        "training_plan_digest": {"$ref": "#/$defs/digest"}
+      }
+    }
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

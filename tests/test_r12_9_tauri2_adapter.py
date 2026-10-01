@@ -143,11 +143,22 @@ def test_tauri_lockfile_requires_exact_runtime_and_build_versions(tmp_path: Path
     lock.write_text(
         "version = 4\n\n"
         "[[package]]\nname = \"tauri\"\nversion = \"2.11.5\"\n\n"
-        "[[package]]\nname = \"tauri-build\"\nversion = \"2.6.3\"\n",
+        "[[package]]\nname = \"tauri-build\"\nversion = \"2.6.3\"\n\n"
+        "[[package]]\nname = \"tauri-codegen\"\nversion = \"2.6.3\"\n\n"
+        "[[package]]\nname = \"tauri-macros\"\nversion = \"2.6.3\"\n\n"
+        "[[package]]\nname = \"tauri-runtime\"\nversion = \"2.11.3\"\n\n"
+        "[[package]]\nname = \"tauri-runtime-wry\"\nversion = \"2.11.4\"\n\n"
+        "[[package]]\nname = \"tauri-utils\"\nversion = \"2.9.3\"\n",
         encoding="utf-8",
     )
     assert adapter._validate_lockfile(root)[1] == adapter._sha(lock)
-    lock.write_text(lock.read_text(encoding="utf-8").replace("2.11.5", "2.11.4"), encoding="utf-8")
+    lock.write_text(
+        lock.read_text(encoding="utf-8").replace(
+            'name = "tauri-runtime-wry"\nversion = "2.11.4"',
+            'name = "tauri-runtime-wry"\nversion = "2.12.0"',
+        ),
+        encoding="utf-8",
+    )
     with pytest.raises(ValueError):
         adapter._validate_lockfile(root)
 

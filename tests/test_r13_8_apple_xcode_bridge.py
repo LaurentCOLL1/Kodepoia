@@ -80,7 +80,7 @@ def _runtimes():
 def _evaluate(**overrides):
     args = {
         "source_sha": SOURCE,
-        "probed_on": "2026-08-26",
+        "probed_on": "2026-10-01",
         "policy": current_apple_xcode_policy_snapshot(),
         "xcode_version": "26.6",
         "xcode_build": "17G86",
@@ -94,6 +94,16 @@ def _evaluate(**overrides):
     }
     args.update(overrides)
     return evaluate_apple_xcode_capability(**args)
+
+
+def test_r13_8_current_policy_snapshot_is_fresh_on_refresh_day() -> None:
+    policy = current_apple_xcode_policy_snapshot()
+    assert policy.snapshot_id == "apple-xcode-policy-2026-10-01"
+    assert policy.retrieved_on == "2026-10-01"
+    assert policy.expires_on == "2026-11-05"
+    assert policy.freshness_on("2026-10-01") is ApplePolicyFreshness.CURRENT
+    assert policy.production_min_xcode_major == 26
+    assert policy.production_min_sdk_major == 26
 
 
 def test_r13_8_parses_public_xcode_and_sdk_identity() -> None:
@@ -171,7 +181,7 @@ def test_r13_8_unverified_future_xcode_fails_closed_until_policy_updates() -> No
 
 
 def test_r13_8_stale_policy_cannot_claim_production_or_testflight() -> None:
-    report = _evaluate(probed_on="2026-10-01")
+    report = _evaluate(probed_on="2026-11-06")
     assert report.policy_freshness is ApplePolicyFreshness.STALE
     assert report.readiness is AppleToolchainReadiness.BLOCKED
     assert "policy_snapshot_stale" in report.blockers

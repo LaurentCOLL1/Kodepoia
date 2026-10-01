@@ -45,6 +45,11 @@ def main() -> int:
         and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in state
         and "V2.4.1 — Accelerator topology and provider truth — CURRENT" in next_doc
     )
+    cuda_env_repair_authorized = (
+        "Bounded V2.4.5 R15.8 CUDA subprocess-environment repair amendment"
+        in authority
+    )
+
     v241_normalized = (
         (
             "V2.4.1 are COMPLETE + NORMALIZED" in authority
@@ -206,9 +211,24 @@ def main() -> int:
         _check(
             "fixed_process_boundary",
             'argv = [sys.executable, "-m", "kodepoia.tuning.probe_worker", config_path.name]' in runtime
-            and "env={}" in runtime
-            and "ProcessSandbox" in runtime,
-            "topology probing reuses fixed sandboxed argv and empty environment",
+            and "ProcessSandbox" in runtime
+            and (
+                "env={}" in runtime
+                or (
+                    cuda_env_repair_authorized
+                    and "env=_runtime_worker_environment()" in runtime
+                    and '_CUDA_RUNTIME_ENV_KEYS = (' in runtime
+                    and '"LD_LIBRARY_PATH",' in runtime
+                    and '"CUDA_VISIBLE_DEVICES",' in runtime
+                    and '"CUDA_DEVICE_ORDER",' in runtime
+                    and '"NVIDIA_VISIBLE_DEVICES",' in runtime
+                    and '"NVIDIA_DRIVER_CAPABILITIES",' in runtime
+                )
+            ),
+            (
+                "topology probing reuses fixed sandboxed argv with the historical empty "
+                "environment or the explicitly authorized bounded CUDA parent projection"
+            ),
         ),
         _check(
             "no_distributed_launch",

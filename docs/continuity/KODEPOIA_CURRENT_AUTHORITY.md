@@ -225,7 +225,7 @@ Use the following documents in this order when interpreting current state:
 2. `docs/continuity/NEXT.md` for the next authorized direction and resume prompt;
 3. this file for the compact cross-phase/public-release/development summary;
 4. `docs/roadmap/KODEPOIA_ROADMAP_V2.md` for the active V2 development ordering;
-5. `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md` for normalized V2.4 planning/V2.4.1/V2.4.2/V2.4.3/V2.4.4 authority and the current V2.4.5 boundary;
+5. `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md` for completed normalized V2.4 planning and V2.4.1 through V2.4.6 authority;
 6. `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md` for completed normalized V2.3 authority through V2.3.6;
 7. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for completed V2.1 Research authority;
 8. `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` for completed normalized V2.2 authority;

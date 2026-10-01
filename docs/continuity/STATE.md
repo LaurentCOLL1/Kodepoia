@@ -1135,9 +1135,9 @@ Bounded V2.4.5 qualification-only live-pair bootstrap amendment (authorized 2026
 
 This post-merge normalization marks **V2.4.5 COMPLETE + NORMALIZED**.
 
-## V2.4.6 — Production hardening and integrated acceptance — CURRENT
+## V2.4.6 — Production hardening and integrated acceptance — COMPLETE + NORMALIZED
 
-V2.4.6 is now the only authorized V2.4 implementation subdivision. It must adversarially prove the already accepted topology/strategy/execution/recovery/live-evidence chain without weakening or redefining V2.4.1-V2.4.5 truth.
+V2.4.6 implementation is complete. PR `#535` was qualified **26/26** on exact head `b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce` and merged with exact-head protection as `3799e51d21e64cb6fe90d73968d243fe2161d693`. The accepted adversarial proof preserves the already normalized V2.4.1-V2.4.5 topology/strategy/execution/recovery/live-evidence truth.
 
 Required scope includes:
 
@@ -1162,7 +1162,7 @@ Still unauthorized:
 - TPU/XLA/JAX/PyTorch-XLA;
 - V2.5+, release/TUF/updater mutation and R20 reopening.
 
-V2.5+ remain unauthorized until V2.4.6 is implemented, exact-head qualified, merged with `expected_head_sha` protection and post-merge normalized.
+V2.5+ remain unauthorized after V2.4.6 normalization until separate explicit authority is established.
 
 ## Accepted V2 capability truth
 
@@ -1191,12 +1191,31 @@ All accepted fail-closed invariants remain in force: exact source/artifact bindi
 For future work:
 
 1. re-fetch live `main`, `STATE.md`, `NEXT.md`, `KODEPOIA_CURRENT_AUTHORITY.md`, `KODEPOIA_ROADMAP_V2.md` and `V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md`;
-2. verify V2.4.5 remains **COMPLETE + NORMALIZED** from PR `#529`, exact head `71e6a989db0426e0b33ac27c203bf3f812e4ed71`, **32/32** workflows, acceptance 22/22 on both OS, common evidence digest `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`, live report digest `1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8`, `production_qualified=true` and merge `a105794b1b890c4c704f0bc05f084d6ec5671628`;
-3. implement **V2.4.6 — Production hardening and integrated acceptance only**;
-4. preserve exact V2.4.1-V2.4.5 topology/strategy/execution/recovery/live-evidence lineage, separate per-device VRAM truth, >=1.25x throughput threshold, zero eval-loss regression allowance and critical-regression veto;
-5. add deterministic adversarial coverage for provider/runtime mismatch, device/VRAM inconsistency, launcher injection, rank failure/cancellation/orphans, tampered lineage, incompatible recovery and degraded provider/UI states;
-6. keep deterministic CI provider-independent and require fresh exact-source live evidence wherever V2.4.6 acceptance explicitly requires it;
-7. if live Kaggle credentials/quota are required, stop only at V2.4.6 and request the exact bounded operator action;
-8. merge only after all required deterministic workflows succeed on the unchanged exact head and every required live-evidence gate is accepted;
-9. post-merge normalize before authorizing V2.5;
-10. keep V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.
+2. verify V2.4.6 remains **COMPLETE + NORMALIZED** from PR `#535`, exact head `b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`, **26/26** workflows and merge `3799e51d21e64cb6fe90d73968d243fe2161d693`;
+3. preserve V2.4.1-V2.4.6 topology/strategy/execution/recovery/live-evidence truth and the accepted V2.4.5 exact-source Kaggle production evidence;
+4. do not begin V2.5 planning or implementation without a separate explicit authority;
+5. keep public publishing, release/TUF/updater mutation, R20 reopening and R20.7 unauthorized.
+
+
+## V2.4.6 — Production hardening and integrated acceptance — COMPLETE + NORMALIZED
+
+Implementation PR `#535` was qualified on exact final head:
+
+`b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`
+
+All **26/26** pull-request workflows associated with that exact head completed with conclusion `success`, including `Python Core`, `KodeStudio UI Smoke`, `R0 Repository Guard`, `R17 Windows Installer` and the retained cross-platform acceptance set.
+
+The deterministic V2.4.6 acceptance completed on Ubuntu and Windows. Exact-head artifacts are:
+
+- `v2-4-6-production-hardening-ubuntu-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`;
+- `v2-4-6-production-hardening-windows-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`.
+
+Accepted V2.4.6 truth is adversarial proof of the already accepted V2.4 topology/strategy/execution/recovery/live-evidence chain: provider/runtime mismatch, duplicate or inconsistent device/VRAM state, no pooled VRAM, strategy/world-size/device binding, fixed non-shell launcher trust boundary, whole-rank-group crash/timeout/cancellation behavior, orphan-process containment, rank evidence disagreement, tampered lineage, incompatible recovery, provider degradation, honest KodeStudio missing/blocked-live-evidence states, deterministic provider-independent CI, and exact-source live-evidence separation.
+
+PR `#535` merged from the unchanged exact head with `expected_head_sha` protection as:
+
+`3799e51d21e64cb6fe90d73968d243fe2161d693`
+
+V2.4 planning and V2.4.1 through V2.4.6 are therefore **COMPLETE + NORMALIZED**.
+
+This normalization does **not** authorize V2.5 planning or implementation. V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 remain unauthorized pending separate explicit authority.

@@ -597,3 +597,14 @@ Resume sequence:
 7. keep V2.6/release work unauthorized until V2.5.6 completes and normalizes.
 
 Historical compatibility note: earlier wording that **V2.5+ remain unauthorized pending separate explicit authority** remains historical evidence; the explicit authority now covers V2.5 planning only, not implementation or V2.6.
+
+
+## Current next action — V2.5.1 only
+
+V2.5 planning is **COMPLETE + NORMALIZED** from PR `#537`, exact head `8ff8555acdb1f089da8fd497f9eee1daee4336cd`, **25/25** successful workflows and merge `9c8d53b724e1c887ee795fba4b497b469e97a44a`.
+
+Implement **V2.5.1 — Workspace registry, identity and relationship graph** only.
+
+Required scope: bounded selected-workspace registry; stable workspace identity/project-scope binding; explicit relationship graph; duplicate/path-alias/symlink/cross-scope rejection; read-only KodeStudio workspace inventory. Do not implement task orchestration, context handoff execution, destination mutation or any later V2.5 subdivision yet.
+
+V2.5.2+, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own gates are satisfied.

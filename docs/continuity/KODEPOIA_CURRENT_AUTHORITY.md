@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2; V2.1, V2.2 and V2.3 are COMPLETE + NORMALIZED. V2.4 planning and V2.4.1 through V2.4.5 are COMPLETE + NORMALIZED. **V2.4.5 is COMPLETE + NORMALIZED.** Implementation PR `#529` was qualified **32/32** on exact final head `71e6a989db0426e0b33ac27c203bf3f812e4ed71`, with deterministic V2.4.5 acceptance **22/22 PASS on Ubuntu and 22/22 PASS on Windows**, common evidence SHA-256 `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`, and exact-source private Kaggle T4×2 live report `production_qualified=true` / blockers `[]` / report digest `1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8`; PR `#529` then merged with `expected_head_sha` protection as `a105794b1b890c4c704f0bc05f084d6ec5671628`. **V2.4.6 — Production hardening and integrated acceptance is the only authorized implementation subdivision.** V2.5+ remain unauthorized.
+**Current development direction:** Roadmap V2; V2.1, V2.2 and V2.3 are COMPLETE + NORMALIZED. V2.4 planning and V2.4.1 through V2.4.6 are **COMPLETE + NORMALIZED**. V2.4.6 implementation PR `#535` was qualified **26/26** on exact final head `b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`, with deterministic Ubuntu/Windows production-hardening acceptance, and merged with `expected_head_sha` protection as `3799e51d21e64cb6fe90d73968d243fe2161d693`. V2.5+ remain unauthorized pending separate explicit authority.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -225,7 +225,7 @@ Use the following documents in this order when interpreting current state:
 2. `docs/continuity/NEXT.md` for the next authorized direction and resume prompt;
 3. this file for the compact cross-phase/public-release/development summary;
 4. `docs/roadmap/KODEPOIA_ROADMAP_V2.md` for the active V2 development ordering;
-5. `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md` for normalized V2.4 planning/V2.4.1/V2.4.2/V2.4.3/V2.4.4 authority and the current V2.4.5 boundary;
+5. `docs/roadmap/V2_4_KAGGLE_T4X2_PRODUCTION_MULTIGPU.md` for completed normalized V2.4 planning and V2.4.1 through V2.4.6 authority;
 6. `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md` for completed normalized V2.3 authority through V2.3.6;
 7. `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md` for completed V2.1 Research authority;
 8. `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md` for completed normalized V2.2 authority;
@@ -241,3 +241,32 @@ The large legacy continuity archives intentionally remain historical. Stale “c
 R20 is **COMPLETE + NORMALIZED**. Post-R20 releases and updater/TUF operations are release operations built on the completed R20 machinery. They do **not** create R20.7 or reopen R20.
 
 The rc7 corrective release, rc8 validation-only release, rc8 TUF authorization, public release verification, real Windows rc7 -> rc8 E2E and continuity closure are complete. No additional rc8 corrective release or TUF mutation is required by this incident. V2 work proceeds as a new roadmap while preserving all existing fail-closed trust invariants.
+
+
+## V2.4.6 — Production hardening and integrated acceptance — COMPLETE + NORMALIZED
+
+Implementation PR `#535` was qualified on exact final head:
+
+`b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`
+
+All **26/26** pull-request workflows associated with that exact head completed with conclusion `success`, including `Python Core`, `KodeStudio UI Smoke`, `R0 Repository Guard`, `R17 Windows Installer` and the retained cross-platform acceptance set.
+
+The deterministic V2.4.6 acceptance completed on Ubuntu and Windows. Exact-head artifacts are:
+
+- `v2-4-6-production-hardening-ubuntu-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`;
+- `v2-4-6-production-hardening-windows-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`.
+
+Accepted V2.4.6 truth is adversarial proof of the already accepted V2.4 topology/strategy/execution/recovery/live-evidence chain: provider/runtime mismatch, duplicate or inconsistent device/VRAM state, no pooled VRAM, strategy/world-size/device binding, fixed non-shell launcher trust boundary, whole-rank-group crash/timeout/cancellation behavior, orphan-process containment, rank evidence disagreement, tampered lineage, incompatible recovery, provider degradation, honest KodeStudio missing/blocked-live-evidence states, deterministic provider-independent CI, and exact-source live-evidence separation.
+
+PR `#535` merged from the unchanged exact head with `expected_head_sha` protection as:
+
+`3799e51d21e64cb6fe90d73968d243fe2161d693`
+
+V2.4 planning and V2.4.1 through V2.4.6 are therefore **COMPLETE + NORMALIZED**.
+
+This normalization does **not** authorize V2.5 planning or implementation. V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 remain unauthorized pending separate explicit authority.
+
+
+Historical acceptance compatibility note: **V2.4.5 is COMPLETE + NORMALIZED**. This sentence preserves the exact pre-V2.4.6 normalized checkpoint wording for deterministic historical acceptance only; it does not supersede the current V2.4.6 COMPLETE + NORMALIZED authority above.
+
+Historical V2.4.6 acceptance compatibility marker (superseded): **V2.4.6 — Production hardening and integrated acceptance is the only authorized implementation subdivision**. This literal records the pre-normalization checkpoint only; current authority is V2.4.6 COMPLETE + NORMALIZED and V2.5+ remain unauthorized.

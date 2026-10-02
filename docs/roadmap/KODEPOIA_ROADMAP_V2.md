@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 planning + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 + V2.4.5 COMPLETE + NORMALIZED; V2.4.6 CURRENT**  
+Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 COMPLETE + NORMALIZED through V2.4.6; V2.5+ unauthorized pending separate explicit authority**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -219,17 +219,17 @@ V2.3.5 implementation PR `#512` was qualified **31/31** on exact final head `ed4
 
 V2.3.5 is therefore **COMPLETE + NORMALIZED**.
 
-V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. V2.4 planning and V2.4.1 through **V2.4.5 are COMPLETE + NORMALIZED**. V2.4.5 implementation PR `#529` was qualified **32/32** on exact final head `71e6a989db0426e0b33ac27c203bf3f812e4ed71`, with **22/22 PASS Ubuntu + 22/22 PASS Windows**, common evidence SHA-256 `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`, accepted exact-source Kaggle T4×2 `production_qualified=true`, live report digest `1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8`, and merge `a105794b1b890c4c704f0bc05f084d6ec5671628`. **V2.4.6 — Production hardening and integrated acceptance is the only authorized implementation subdivision.** V2.5+ remain unauthorized. Project Knowledge/Research/context remains data-only.
+V2.3 is **COMPLETE + NORMALIZED** through V2.3.6. V2.4 planning and V2.4.1 through **V2.4.6 are COMPLETE + NORMALIZED**. V2.4.5 implementation PR `#529` was qualified **32/32** on exact final head `71e6a989db0426e0b33ac27c203bf3f812e4ed71`, with **22/22 PASS Ubuntu + 22/22 PASS Windows**, common evidence SHA-256 `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`, accepted exact-source Kaggle T4×2 `production_qualified=true`, live report digest `1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8`, and merge `a105794b1b890c4c704f0bc05f084d6ec5671628`. V2.4.6 implementation PR `#535` was qualified **26/26** on exact final head `b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce` and merged with exact-head protection as `3799e51d21e64cb6fe90d73968d243fe2161d693`. **V2.4 is COMPLETE + NORMALIZED through V2.4.6.** V2.5+ remain unauthorized pending separate explicit authority. Project Knowledge/Research/context remains data-only.
 
 ## Remaining V2 sequence
 
 - V2.2 — Project Knowledge, Context Builder and Memory integration — **COMPLETE + NORMALIZED through V2.2.6**.
 - V2.3 — Model Lab governed improvement UX — **COMPLETE + NORMALIZED through V2.3.6**.
-- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **planning + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 + V2.4.5 COMPLETE + NORMALIZED; V2.4.6 CURRENT**.
+- V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — **COMPLETE + NORMALIZED through V2.4.6**.
 - V2.5 — Cross-workspace orchestration.
 - V2.6 — V2 hardening and next public Windows release.
 
-### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — PLANNING + V2.4.1 + V2.4.2 + V2.4.3 + V2.4.4 + V2.4.5 COMPLETE + NORMALIZED; V2.4.6 CURRENT
+### V2.4 — Kaggle T4×2 production qualification and explicit multi-GPU — COMPLETE + NORMALIZED THROUGH V2.4.6
 
 Normative planning contract under qualification:
 
@@ -265,7 +265,7 @@ Planning invariants include:
 
 V2.4.3 and V2.4.4 remain accepted and normalized. V2.4.5 implementation PR `#529` is qualified **32/32** on exact final head `71e6a989db0426e0b33ac27c203bf3f812e4ed71`, with **22/22 PASS** on both Ubuntu and Windows and common evidence SHA-256 `fa4a45de78a46ac43df74a92628d32794d2bb04e96be1654705c809436011366`. Its exact-source private Kaggle T4×2 qualification returned `production_qualified=true`, blockers `[]`, throughput speedup `2.6390424987850745x`, canonical eval-loss delta `-0.0066643714904786044`, and live report digest `1faae30d6bbdd73c6fdda00a570c7332e2d55901ee4e243bc2333711568246c8`; PR `#529` then merged with `expected_head_sha` protection as `a105794b1b890c4c704f0bc05f084d6ec5671628`. **This post-merge normalization marks V2.4.5 COMPLETE + NORMALIZED and authorizes V2.4.6 — Production hardening and integrated acceptance only.** V2.5+ remain unauthorized.
 
-The V2.4 planning authority and V2.4.1 through V2.4.5 are qualified and normalized. V2.4.6 may now harden the accepted topology/strategy/execution/recovery/live-evidence chain without changing its thresholds, strategy semantics or release boundary.
+The V2.4 planning authority and V2.4.1 through V2.4.6 are qualified and normalized. The accepted topology/strategy/execution/recovery/live-evidence chain remains frozen unless a later explicit authority changes scope; V2.5 remains unauthorized.
 
 Bounded V2.4.5 live-qualification workload bootstrap amendment (authorized 2026-09-22):
 
@@ -379,3 +379,29 @@ For every subdivision:
 8. stop only for a genuine manual intervention that cannot be performed through connected tooling.
 
 No V2 step by itself authorizes release/TUF/updater mutation. The public reference remains `v1.1.0-rc8` until a future release is separately scoped and qualified.
+
+
+## V2.4.6 — Production hardening and integrated acceptance — COMPLETE + NORMALIZED
+
+Implementation PR `#535` was qualified on exact final head:
+
+`b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`
+
+All **26/26** pull-request workflows associated with that exact head completed with conclusion `success`, including `Python Core`, `KodeStudio UI Smoke`, `R0 Repository Guard`, `R17 Windows Installer` and the retained cross-platform acceptance set.
+
+The deterministic V2.4.6 acceptance completed on Ubuntu and Windows. Exact-head artifacts are:
+
+- `v2-4-6-production-hardening-ubuntu-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`;
+- `v2-4-6-production-hardening-windows-latest-b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`.
+
+Accepted V2.4.6 truth is adversarial proof of the already accepted V2.4 topology/strategy/execution/recovery/live-evidence chain: provider/runtime mismatch, duplicate or inconsistent device/VRAM state, no pooled VRAM, strategy/world-size/device binding, fixed non-shell launcher trust boundary, whole-rank-group crash/timeout/cancellation behavior, orphan-process containment, rank evidence disagreement, tampered lineage, incompatible recovery, provider degradation, honest KodeStudio missing/blocked-live-evidence states, deterministic provider-independent CI, and exact-source live-evidence separation.
+
+PR `#535` merged from the unchanged exact head with `expected_head_sha` protection as:
+
+`3799e51d21e64cb6fe90d73968d243fe2161d693`
+
+V2.4 planning and V2.4.1 through V2.4.6 are therefore **COMPLETE + NORMALIZED**.
+
+This normalization does **not** authorize V2.5 planning or implementation. V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 remain unauthorized pending separate explicit authority.
+
+Historical V2.4.6 acceptance compatibility marker (superseded): **V2.4.6 CURRENT**. This literal records the pre-normalization checkpoint only; current roadmap authority is V2.4 COMPLETE + NORMALIZED through V2.4.6 and V2.5+ remain unauthorized.

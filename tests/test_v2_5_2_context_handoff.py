@@ -81,7 +81,11 @@ def test_handoff_binds_source_destination_snapshot_and_data_only_authority(tmp_p
     assert handoff.authority == DATA_ONLY_AUTHORITY
     assert handoff.global_memory_promotion_allowed is False
     assert handoff.verify_integrity()
-    assert handoff.sources[0].citation_ids == ("c1", "c2")
+    first_content = _sha("first")
+    first_source = next(
+        item for item in handoff.sources if item.content_sha256 == first_content
+    )
+    assert first_source.citation_ids == ("c1", "c2")
 
 
 def test_handoff_include_exclude_is_explicit_and_bounded(tmp_path: Path) -> None:

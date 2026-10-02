@@ -1,6 +1,6 @@
 # Kodepoia — Roadmap V2
 
-Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 COMPLETE + NORMALIZED through V2.4.6; V2.5+ unauthorized pending separate explicit authority**  
+Status: **ACTIVE — V2.1, V2.2 and V2.3 COMPLETE + NORMALIZED; V2.4 COMPLETE + NORMALIZED through V2.4.6; V2.5 CROSS-WORKSPACE ORCHESTRATION PLANNING CURRENT**  
 Created: 2026-09-15  
 Public Windows distribution baseline: `v1.1.0-rc8`
 
@@ -405,3 +405,38 @@ V2.4 planning and V2.4.1 through V2.4.6 are therefore **COMPLETE + NORMALIZED**.
 This normalization does **not** authorize V2.5 planning or implementation. V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 remain unauthorized pending separate explicit authority.
 
 Historical V2.4.6 acceptance compatibility marker (superseded): **V2.4.6 CURRENT**. This literal records the pre-normalization checkpoint only; current roadmap authority is V2.4 COMPLETE + NORMALIZED through V2.4.6 and V2.5+ remain unauthorized.
+
+
+### V2.5 — Cross-workspace orchestration — PLANNING CURRENT
+
+Normative planning contract under qualification:
+
+`docs/roadmap/V2_5_CROSS_WORKSPACE_ORCHESTRATION.md`
+
+Planning base:
+
+`4e049eb10b9781c14eb3e81a2c027575c26dbaf1`
+
+The user explicitly authorized progression from completed V2.4 into V2.5 and required that the next public release wait until V2 is completely finished. Therefore this authority permits **V2.5 planning only**. No V2.5 implementation subdivision is authorized until the planning PR is exact-head qualified, merged with `expected_head_sha`, and post-merge normalized.
+
+Frozen proposed subdivisions under qualification:
+
+- **V2.5.1 — Workspace registry, identity and relationship graph**;
+- **V2.5.2 — Cross-workspace context handoff and provenance**;
+- **V2.5.3 — Orchestration plan, dependency DAG and routing**;
+- **V2.5.4 — Governed execution, approval, cancellation and recovery**;
+- **V2.5.5 — KodeStudio orchestration workspace and operational history**;
+- **V2.5.6 — Cross-workspace hardening and integrated acceptance**.
+
+Planning invariants:
+
+- reuse existing project sessions, Project DNA, Project Knowledge/Context, KodeCode tool policy, WorkspaceBoundary, ProcessSandbox and KillSwitch;
+- cross-workspace context remains data-only and cannot grant destination mutation authority;
+- no hidden global/shared memory or arbitrary disk project discovery;
+- destination mutations require destination-owned preflight and explicit user confirmation;
+- model/source text cannot become shell/argv/env/package/rendezvous/credential authority;
+- deterministic CI remains provider-independent;
+- **V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until V2.5 is COMPLETE + NORMALIZED**;
+- R20 remains terminal and no R20.7 is authorized.
+
+Historical compatibility note: the pre-V2.5 checkpoint text **V2.5+ remain unauthorized pending separate explicit authority** is retained elsewhere in this document as superseded historical acceptance context. Current authority is V2.5 planning only.

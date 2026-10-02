@@ -1,7 +1,7 @@
 # Kodepoia — Current Authority
 
 **Current public state:** R1–R20 COMPLETE + NORMALIZED; R20 terminal; no R20.7 authorized. The updater corrective/validation sequence ending with rc8 is complete and the exercised updater incident is **CLOSED**.  
-**Current development direction:** Roadmap V2; V2.1, V2.2 and V2.3 are COMPLETE + NORMALIZED. V2.4 planning and V2.4.1 through V2.4.6 are **COMPLETE + NORMALIZED**. V2.4.6 implementation PR `#535` was qualified **26/26** on exact final head `b3fa9914cfaa6f1f0b40b64ab06bb5c2cc17a7ce`, with deterministic Ubuntu/Windows production-hardening acceptance, and merged with `expected_head_sha` protection as `3799e51d21e64cb6fe90d73968d243fe2161d693`. V2.5+ remain unauthorized pending separate explicit authority.
+**Current development direction:** Roadmap V2; V2.1, V2.2 and V2.3 are COMPLETE + NORMALIZED. V2.4 planning and V2.4.1 through V2.4.6 are **COMPLETE + NORMALIZED**. User authority on 2026-10-02 now authorizes **V2.5 — Cross-workspace orchestration planning only** from exact base `4e049eb10b9781c14eb3e81a2c027575c26dbaf1`. No V2.5 implementation subdivision is authorized until that planning authority is qualified, merged and normalized. V2.6 and release/tag/installer/TUF/updater mutation remain unauthorized; the user requires the next public release only after V2 is completely finished.
 
 This compact file summarizes the current cross-phase/public-release and development authority. It does not replace immutable historical phase evidence. For any future mutation, read it together with `docs/continuity/STATE.md` and `docs/continuity/NEXT.md`, then re-fetch the live GitHub state rather than assuming a previously recorded `main` SHA is still HEAD.
 
@@ -270,3 +270,14 @@ This normalization does **not** authorize V2.5 planning or implementation. V2.5+
 Historical acceptance compatibility note: **V2.4.5 is COMPLETE + NORMALIZED**. This sentence preserves the exact pre-V2.4.6 normalized checkpoint wording for deterministic historical acceptance only; it does not supersede the current V2.4.6 COMPLETE + NORMALIZED authority above.
 
 Historical V2.4.6 acceptance compatibility marker (superseded): **V2.4.6 — Production hardening and integrated acceptance is the only authorized implementation subdivision**. This literal records the pre-normalization checkpoint only; current authority is V2.4.6 COMPLETE + NORMALIZED and V2.5+ remain unauthorized.
+
+
+## Current V2.5 planning authority
+
+Normative planning contract under qualification: `docs/roadmap/V2_5_CROSS_WORKSPACE_ORCHESTRATION.md`.
+
+V2.5 planning may define workspace identity/relationships, governed cross-workspace handoffs, task DAG/routing, destination-owned approvals/execution/recovery, KodeStudio orchestration UX and hardening acceptance. It must reuse existing Kodepoia project/context/tool/process boundaries and cannot compose permissions across workspaces.
+
+No release is authorized by V2.5. The public baseline remains `v1.1.0-rc8`. V2.6 remains the later V2 hardening/next-public-Windows-release phase and may start only after V2.5.6 is COMPLETE + NORMALIZED.
+
+Historical compatibility note: prior statements that **V2.5+ remain unauthorized pending separate explicit authority** are retained as historical pre-authorization truth. Current explicit authority covers V2.5 planning only.

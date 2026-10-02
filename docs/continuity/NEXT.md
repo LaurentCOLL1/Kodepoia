@@ -570,3 +570,30 @@ This normalization does **not** authorize V2.5 planning or implementation. V2.5+
 Historical acceptance compatibility note: the superseded post-V2.4.5 checkpoint was **V2.4.6 — Production hardening and integrated acceptance — CURRENT**. This literal historical marker is retained only so earlier exact-head acceptance remains reproducible; current authority is V2.4.6 COMPLETE + NORMALIZED, and V2.5+ remain unauthorized.
 
 Historical V2.4.6 acceptance compatibility marker (superseded): **V2.4.6 — Production hardening and integrated acceptance — CURRENT**. This literal records the pre-normalization checkpoint only; current authority is V2.4.6 COMPLETE + NORMALIZED and V2.5+ remain unauthorized.
+
+
+## Current next action — V2.5 planning only
+
+The user explicitly authorized progression into **V2.5 — Cross-workspace orchestration** and required the next public release to wait until V2 is fully complete.
+
+Immediate work is limited to qualifying the planning contract at:
+
+`docs/roadmap/V2_5_CROSS_WORKSPACE_ORCHESTRATION.md`
+
+Planning branch base: `4e049eb10b9781c14eb3e81a2c027575c26dbaf1`.
+
+Do not implement V2.5.1 until the planning PR is exact-head qualified, merged with `expected_head_sha`, and post-merge normalized. After normalization, authorize **V2.5.1 only** and continue subdivision by subdivision through V2.5.6.
+
+Do not start V2.6 or any release/tag/installer/TUF/updater mutation during V2.5. The user's release boundary is explicit: **release only after V2 is completely finished**. The public reference remains `v1.1.0-rc8`.
+
+Resume sequence:
+
+1. re-fetch live `main` and all current authorities;
+2. verify V2.4 remains COMPLETE + NORMALIZED;
+3. re-fetch the V2.5 planning branch/PR and exact head;
+4. qualify all required workflows on that exact head;
+5. merge only with unchanged-head protection;
+6. normalize planning and authorize V2.5.1 only;
+7. keep V2.6/release work unauthorized until V2.5.6 completes and normalizes.
+
+Historical compatibility note: earlier wording that **V2.5+ remain unauthorized pending separate explicit authority** remains historical evidence; the explicit authority now covers V2.5 planning only, not implementation or V2.6.

@@ -429,3 +429,14 @@ V2.5 planning is complete only when:
 - post-merge normalization authorizes **V2.5.1 only**.
 
 Until that normalization is complete, no V2.5 implementation subdivision is authorized.
+
+
+## 19. Planning qualification and current implementation authority
+
+Planning PR `#537` completed **25/25** exact-head pull-request workflows with conclusion `success` on `8ff8555acdb1f089da8fd497f9eee1daee4336cd` and merged with `expected_head_sha` protection as `9c8d53b724e1c887ee795fba4b497b469e97a44a`.
+
+V2.5 planning is therefore **COMPLETE + NORMALIZED**.
+
+**V2.5.1 — Workspace registry, identity and relationship graph is the only authorized implementation subdivision.** V2.5.2 through V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
+
+The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.

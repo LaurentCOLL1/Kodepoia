@@ -440,3 +440,10 @@ Planning invariants:
 - R20 remains terminal and no R20.7 is authorized.
 
 Historical compatibility note: the pre-V2.5 checkpoint text **V2.5+ remain unauthorized pending separate explicit authority** is retained elsewhere in this document as superseded historical acceptance context. Current authority is V2.5 planning only.
+
+
+### V2.5 planning — COMPLETE + NORMALIZED; V2.5.1 CURRENT
+
+Planning PR `#537` was qualified **25/25** on exact final head `8ff8555acdb1f089da8fd497f9eee1daee4336cd` and merged with exact-head protection as `9c8d53b724e1c887ee795fba4b497b469e97a44a`.
+
+The six frozen V2.5 subdivisions in `docs/roadmap/V2_5_CROSS_WORKSPACE_ORCHESTRATION.md` are now normative. **V2.5.1 only** is authorized for implementation. V2.5.2+, V2.6 and release/TUF/updater work remain unauthorized.

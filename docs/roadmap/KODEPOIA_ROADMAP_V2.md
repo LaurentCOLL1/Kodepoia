@@ -447,3 +447,10 @@ Historical compatibility note: the pre-V2.5 checkpoint text **V2.5+ remain unaut
 Planning PR `#537` was qualified **25/25** on exact final head `8ff8555acdb1f089da8fd497f9eee1daee4336cd` and merged with exact-head protection as `9c8d53b724e1c887ee795fba4b497b469e97a44a`.
 
 The six frozen V2.5 subdivisions in `docs/roadmap/V2_5_CROSS_WORKSPACE_ORCHESTRATION.md` are now normative. **V2.5.1 only** is authorized for implementation. V2.5.2+, V2.6 and release/TUF/updater work remain unauthorized.
+
+
+### V2.5.1 — COMPLETE + NORMALIZED; V2.5.2 CURRENT
+
+Implementation PR `#539` was qualified **30/30** on exact final head `f6a8f2c47ce876db1abcab7ab18c523243f917c8` and merged with exact-head protection as `414c680e901fbc4dd25c0aa714bc242c39f72ba9`.
+
+Accepted V2.5.1 provides validated deterministic workspace identity, a bounded selected-workspace registry, explicit relationship edges and a read-only KodeStudio inventory while preserving project isolation. **V2.5.2 only** is now authorized for implementation. V2.5.3+, V2.6 and release/TUF/updater work remain unauthorized.

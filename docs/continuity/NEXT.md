@@ -608,3 +608,14 @@ Implement **V2.5.1 — Workspace registry, identity and relationship graph** onl
 Required scope: bounded selected-workspace registry; stable workspace identity/project-scope binding; explicit relationship graph; duplicate/path-alias/symlink/cross-scope rejection; read-only KodeStudio workspace inventory. Do not implement task orchestration, context handoff execution, destination mutation or any later V2.5 subdivision yet.
 
 V2.5.2+, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own gates are satisfied.
+
+
+## Current next action — V2.5.2 only
+
+V2.5.1 is **COMPLETE + NORMALIZED** from PR `#539`, exact head `f6a8f2c47ce876db1abcab7ab18c523243f917c8`, **30/30** successful workflows and merge `414c680e901fbc4dd25c0aa714bc242c39f72ba9`.
+
+Implement **V2.5.2 — Cross-workspace context handoff and provenance** only.
+
+Required scope: source/destination workspace binding; governed Project Workspace context snapshot reuse; citations/trust/freshness/version visibility; immutable packet digest/tamper rejection; explicit include/exclude selection; data-only authority marker; no global/shared-memory promotion and no mutating task execution.
+
+V2.5.3+, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own sequential qualification and normalization gates are satisfied.

@@ -231,8 +231,21 @@ def _projects_page(
     recent.itemDoubleClicked.connect(lambda *_: open_recent())
     populate()
 
+    from kodepoia.kodestudio.workspace_inventory import create_workspace_inventory_widget
+
+    inventory_roots = []
+    if is_kodepoia_project(project_root):
+        inventory_roots.append(project_root)
+    inventory_roots.extend(recent_project_roots(preferences, include_missing=True))
+    workspace_inventory = create_workspace_inventory_widget(
+        inventory_roots,
+        locale=locale,
+    )
+    layout.addWidget(workspace_inventory)
+
     page._kodepoia_recent_projects = recent
     page._kodepoia_refresh_recent_projects = populate
+    page._kodepoia_workspace_inventory = workspace_inventory
     return page
 
 

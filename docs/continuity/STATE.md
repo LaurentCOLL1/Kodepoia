@@ -1221,3 +1221,26 @@ V2.4 planning and V2.4.1 through V2.4.6 are therefore **COMPLETE + NORMALIZED**.
 This normalization does **not** authorize V2.5 planning or implementation. V2.5+, public publishing, release/TUF/updater mutation, R20 reopening and R20.7 remain unauthorized pending separate explicit authority.
 
 Historical V2.4.6 acceptance compatibility marker (superseded): **V2.4.6 — Production hardening and integrated acceptance — CURRENT**. This literal records the pre-normalization checkpoint only; current authority is V2.4.6 COMPLETE + NORMALIZED and V2.5+ remain unauthorized.
+
+
+## V2.5 — Cross-workspace orchestration — PLANNING CURRENT
+
+User authority on 2026-10-02 explicitly directs Kodepoia to continue from completed V2.4 into V2.5 and to defer the next public release until V2 is completely finished.
+
+Planning base is exact live `main`:
+
+`4e049eb10b9781c14eb3e81a2c027575c26dbaf1`
+
+Normative planning contract under qualification:
+
+`docs/roadmap/V2_5_CROSS_WORKSPACE_ORCHESTRATION.md`
+
+V2.4 remains **COMPLETE + NORMALIZED**. V2.5 planning is now the only authorized new work. No V2.5 implementation subdivision is authorized before planning qualification, merge and post-merge normalization.
+
+The V2.5 planning scope freezes six intended subdivisions: workspace identity/relationships, cross-workspace context handoff, orchestration DAG/routing, governed execution/recovery, KodeStudio orchestration UX/history, and adversarial integrated acceptance.
+
+Critical boundaries remain: project isolation, data-only transferred context, destination-owned mutation authority, explicit user confirmation for cross-workspace mutation, no raw shell/argv/env/package surface, no hidden shared memory, deterministic CI, no release/TUF/updater mutation, R20 terminal and no R20.7.
+
+**Release sequencing authority:** the next public release is deferred to V2.6 after V2.5.6 is implemented, qualified, merged and normalized. `v1.1.0-rc8` remains the public distribution baseline throughout V2.5.
+
+Historical compatibility note: earlier V2.4-normalization statements saying **V2.5+ remain unauthorized pending separate explicit authority** are superseded by this explicit V2.5-planning authority but remain immutable historical acceptance text. V2.5 implementation and V2.6+ remain unauthorized at this planning stage.

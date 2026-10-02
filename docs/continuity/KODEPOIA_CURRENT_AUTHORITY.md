@@ -281,3 +281,12 @@ V2.5 planning may define workspace identity/relationships, governed cross-worksp
 No release is authorized by V2.5. The public baseline remains `v1.1.0-rc8`. V2.6 remains the later V2 hardening/next-public-Windows-release phase and may start only after V2.5.6 is COMPLETE + NORMALIZED.
 
 Historical compatibility note: prior statements that **V2.5+ remain unauthorized pending separate explicit authority** are retained as historical pre-authorization truth. Current explicit authority covers V2.5 planning only.
+
+
+## V2.5 planning normalized authority
+
+V2.5 planning PR `#537` qualified **25/25** on exact head `8ff8555acdb1f089da8fd497f9eee1daee4336cd` and merged with `expected_head_sha` protection as `9c8d53b724e1c887ee795fba4b497b469e97a44a`.
+
+The planning contract is now **COMPLETE + NORMALIZED**. The only authorized implementation subdivision is **V2.5.1 — Workspace registry, identity and relationship graph**. V2.5.2+ and V2.6 remain unauthorized.
+
+The next public release remains deferred until V2 is completely finished; no V2.5 authority permits release/tag/installer/TUF/updater mutation.

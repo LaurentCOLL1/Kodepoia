@@ -453,3 +453,16 @@ Accepted V2.5.1 boundaries are frozen: canonical validated project roots, determ
 **V2.5.2 — Cross-workspace context handoff and provenance is the only authorized implementation subdivision.** V2.5.3 through V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
 
 The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.
+
+
+## 21. V2.5.2 qualification and current implementation authority
+
+V2.5.2 implementation PR `#541` completed **27/27** exact-head pull-request workflows with conclusion `success` on `9aca5d635d2d3fdee3a17cf729fae0b3ad709c08` and merged with `expected_head_sha` protection as `37b27bd469c435ed2464650a08cdd80c03bca908`.
+
+V2.5.2 is therefore **COMPLETE + NORMALIZED**.
+
+Accepted V2.5.2 boundaries are frozen: explicit source/destination workspace/project-scope binding, reuse of governed Project Workspace context snapshot lineage, immutable data-only authority, citation/trust/freshness/version provenance, explicit include/exclude selection, deterministic packet digest/tamper detection, no global/shared-memory promotion and read-only inspection. It introduced no task DAG, service routing, protected destination mutation, process launcher or release mutation.
+
+**V2.5.3 — Orchestration plan, dependency DAG and routing is the only authorized implementation subdivision.** V2.5.4 through V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
+
+The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.

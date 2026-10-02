@@ -454,3 +454,10 @@ The six frozen V2.5 subdivisions in `docs/roadmap/V2_5_CROSS_WORKSPACE_ORCHESTRA
 Implementation PR `#539` was qualified **30/30** on exact final head `f6a8f2c47ce876db1abcab7ab18c523243f917c8` and merged with exact-head protection as `414c680e901fbc4dd25c0aa714bc242c39f72ba9`.
 
 Accepted V2.5.1 provides validated deterministic workspace identity, a bounded selected-workspace registry, explicit relationship edges and a read-only KodeStudio inventory while preserving project isolation. **V2.5.2 only** is now authorized for implementation. V2.5.3+, V2.6 and release/TUF/updater work remain unauthorized.
+
+
+### V2.5.2 — COMPLETE + NORMALIZED; V2.5.3 CURRENT
+
+Implementation PR `#541` was qualified **27/27** on exact final head `9aca5d635d2d3fdee3a17cf729fae0b3ad709c08` and merged with exact-head protection as `37b27bd469c435ed2464650a08cdd80c03bca908`.
+
+Accepted V2.5.2 provides immutable data-only cross-workspace handoff over existing governed Project Workspace snapshots, explicit provenance/selection and integrity verification without authority promotion or execution. **V2.5.3 only** is now authorized for implementation. V2.5.4+, V2.6 and release/TUF/updater work remain unauthorized.

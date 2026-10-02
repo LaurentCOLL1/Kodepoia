@@ -1244,3 +1244,14 @@ Critical boundaries remain: project isolation, data-only transferred context, de
 **Release sequencing authority:** the next public release is deferred to V2.6 after V2.5.6 is implemented, qualified, merged and normalized. `v1.1.0-rc8` remains the public distribution baseline throughout V2.5.
 
 Historical compatibility note: earlier V2.4-normalization statements saying **V2.5+ remain unauthorized pending separate explicit authority** are superseded by this explicit V2.5-planning authority but remain immutable historical acceptance text. V2.5 implementation and V2.6+ remain unauthorized at this planning stage.
+
+
+## V2.5 planning — COMPLETE + NORMALIZED; V2.5.1 CURRENT
+
+Planning PR `#537` was qualified with **25/25** pull-request workflows on exact final head `8ff8555acdb1f089da8fd497f9eee1daee4336cd` and merged with exact-head protection as `9c8d53b724e1c887ee795fba4b497b469e97a44a`.
+
+The normative V2.5 planning contract is `docs/roadmap/V2_5_CROSS_WORKSPACE_ORCHESTRATION.md`. Its six subdivisions and boundaries are frozen.
+
+**V2.5.1 — Workspace registry, identity and relationship graph is now the only authorized V2.5 implementation subdivision.** V2.5.2+ and V2.6 remain unauthorized.
+
+Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished; `v1.1.0-rc8` remains the public baseline.

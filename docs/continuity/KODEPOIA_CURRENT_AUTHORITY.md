@@ -290,3 +290,12 @@ V2.5 planning PR `#537` qualified **25/25** on exact head `8ff8555acdb1f089da8fd
 The planning contract is now **COMPLETE + NORMALIZED**. The only authorized implementation subdivision is **V2.5.1 — Workspace registry, identity and relationship graph**. V2.5.2+ and V2.6 remain unauthorized.
 
 The next public release remains deferred until V2 is completely finished; no V2.5 authority permits release/tag/installer/TUF/updater mutation.
+
+
+## V2.5.1 normalized authority
+
+V2.5.1 implementation PR `#539` qualified **30/30** on exact head `f6a8f2c47ce876db1abcab7ab18c523243f917c8` and merged with `expected_head_sha` protection as `414c680e901fbc4dd25c0aa714bc242c39f72ba9`.
+
+V2.5.1 is **COMPLETE + NORMALIZED**. Its accepted product truth is a bounded explicit workspace registry/identity/relationship layer over validated Kodepoia projects, with duplicate/path-alias/symlink rejection and a read-only KodeStudio inventory.
+
+The only authorized next implementation subdivision is **V2.5.2 — Cross-workspace context handoff and provenance**. V2.5.3+ and V2.6 remain unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.

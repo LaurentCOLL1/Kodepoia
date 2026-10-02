@@ -440,3 +440,16 @@ V2.5 planning is therefore **COMPLETE + NORMALIZED**.
 **V2.5.1 — Workspace registry, identity and relationship graph is the only authorized implementation subdivision.** V2.5.2 through V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
 
 The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.
+
+
+## 20. V2.5.1 qualification and current implementation authority
+
+V2.5.1 implementation PR `#539` completed **30/30** exact-head pull-request workflows with conclusion `success` on `f6a8f2c47ce876db1abcab7ab18c523243f917c8` and merged with `expected_head_sha` protection as `414c680e901fbc4dd25c0aa714bc242c39f72ba9`.
+
+V2.5.1 is therefore **COMPLETE + NORMALIZED**.
+
+Accepted V2.5.1 boundaries are frozen: canonical validated project roots, deterministic project-scoped workspace identity, bounded selected-workspace registry, explicit relationship graph, duplicate/path-alias/symlink rejection, deterministic serialization and read-only KodeStudio inventory. It introduced no cross-workspace context handoff, task DAG, destination mutation, process launcher or release mutation.
+
+**V2.5.2 — Cross-workspace context handoff and provenance is the only authorized implementation subdivision.** V2.5.3 through V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
+
+The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.

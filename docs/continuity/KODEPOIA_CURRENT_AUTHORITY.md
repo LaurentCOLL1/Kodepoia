@@ -299,3 +299,12 @@ V2.5.1 implementation PR `#539` qualified **30/30** on exact head `f6a8f2c47ce87
 V2.5.1 is **COMPLETE + NORMALIZED**. Its accepted product truth is a bounded explicit workspace registry/identity/relationship layer over validated Kodepoia projects, with duplicate/path-alias/symlink rejection and a read-only KodeStudio inventory.
 
 The only authorized next implementation subdivision is **V2.5.2 — Cross-workspace context handoff and provenance**. V2.5.3+ and V2.6 remain unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.
+
+
+## V2.5.2 normalized authority
+
+V2.5.2 implementation PR `#541` qualified **27/27** on exact head `9aca5d635d2d3fdee3a17cf729fae0b3ad709c08` and merged with `expected_head_sha` protection as `37b27bd469c435ed2464650a08cdd80c03bca908`.
+
+V2.5.2 is **COMPLETE + NORMALIZED**. Its accepted truth is immutable data-only cross-workspace context handoff bound to explicit workspace identity and existing Project Workspace context lineage, with visible provenance, bounded include/exclude and tamper detection, without task execution or authority promotion.
+
+The only authorized next implementation subdivision is **V2.5.3 — Orchestration plan, dependency DAG and routing**. V2.5.4+ and V2.6 remain unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.

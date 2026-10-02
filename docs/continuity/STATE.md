@@ -1266,3 +1266,14 @@ Accepted V2.5.1 truth: validated canonical project-root identities, deterministi
 **V2.5.2 — Cross-workspace context handoff and provenance is now the only authorized V2.5 implementation subdivision.** V2.5.3+ and V2.6 remain unauthorized.
 
 Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.
+
+
+## V2.5.2 — Cross-workspace context handoff and provenance — COMPLETE + NORMALIZED; V2.5.3 CURRENT
+
+Implementation PR `#541` was qualified with **27/27** pull-request workflows on exact final head `9aca5d635d2d3fdee3a17cf729fae0b3ad709c08` and merged with exact-head protection as `37b27bd469c435ed2464650a08cdd80c03bca908`.
+
+Accepted V2.5.2 truth: immutable data-only handoff packets bind explicit source/destination workspaces and project scopes; reuse governed `ProjectWorkspaceContextSnapshot` lineage; preserve citations, trust, freshness and version metadata; support explicit include/exclude; reject out-of-snapshot selection; expose deterministic digest/integrity verification; forbid global-memory promotion; and provide a read-only KodeStudio handoff inspector. No task DAG, routing, destination mutation or process execution was added.
+
+**V2.5.3 — Orchestration plan, dependency DAG and routing is now the only authorized V2.5 implementation subdivision.** V2.5.4+ and V2.6 remain unauthorized.
+
+Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.

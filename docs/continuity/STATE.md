@@ -1255,3 +1255,14 @@ The normative V2.5 planning contract is `docs/roadmap/V2_5_CROSS_WORKSPACE_ORCHE
 **V2.5.1 — Workspace registry, identity and relationship graph is now the only authorized V2.5 implementation subdivision.** V2.5.2+ and V2.6 remain unauthorized.
 
 Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished; `v1.1.0-rc8` remains the public baseline.
+
+
+## V2.5.1 — Workspace registry, identity and relationship graph — COMPLETE + NORMALIZED; V2.5.2 CURRENT
+
+Implementation PR `#539` was qualified with **30/30** pull-request workflows on exact final head `f6a8f2c47ce876db1abcab7ab18c523243f917c8` and merged with exact-head protection as `414c680e901fbc4dd25c0aa714bc242c39f72ba9`.
+
+Accepted V2.5.1 truth: validated canonical project-root identities, deterministic project-scoped workspace IDs, bounded selected-workspace registry, duplicate/path-alias/symlink rejection, explicit typed relationship graph, deterministic serialization and a read-only KodeStudio workspace inventory. No context handoff, task DAG, destination mutation or process orchestration was added.
+
+**V2.5.2 — Cross-workspace context handoff and provenance is now the only authorized V2.5 implementation subdivision.** V2.5.3+ and V2.6 remain unauthorized.
+
+Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.

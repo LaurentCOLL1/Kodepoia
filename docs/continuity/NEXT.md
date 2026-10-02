@@ -619,3 +619,14 @@ Implement **V2.5.2 — Cross-workspace context handoff and provenance** only.
 Required scope: source/destination workspace binding; governed Project Workspace context snapshot reuse; citations/trust/freshness/version visibility; immutable packet digest/tamper rejection; explicit include/exclude selection; data-only authority marker; no global/shared-memory promotion and no mutating task execution.
 
 V2.5.3+, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own sequential qualification and normalization gates are satisfied.
+
+
+## Current next action — V2.5.3 only
+
+V2.5.2 is **COMPLETE + NORMALIZED** from PR `#541`, exact head `9aca5d635d2d3fdee3a17cf729fae0b3ad709c08`, **27/27** successful workflows and merge `37b27bd469c435ed2464650a08cdd80c03bca908`.
+
+Implement **V2.5.3 — Orchestration plan, dependency DAG and routing** only.
+
+Required scope: deterministic typed task DAG; workspace ownership; explicit dependencies; fixed existing-service/specialist routing catalog; capability/effect visibility; dependency/blocker propagation; cycle rejection; immutable plan digest/preview. Do not implement protected destination mutation, approval execution, concurrency, cancellation or recovery yet.
+
+V2.5.4+, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own sequential qualification and normalization gates are satisfied.

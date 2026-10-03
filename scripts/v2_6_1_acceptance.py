@@ -234,7 +234,7 @@ def main() -> int:
         ),
         _check(
             "runtime_identity_candidate_phase",
-            CURRENT_RELEASE == target
+            target == CURRENT_RELEASE
             and '"channel": "stable"' in read("src/kodepoia/release/release_identity.json")
             and '"stage": "final"' in read("src/kodepoia/release/release_identity.json")
             and '"serial": 0' in read("src/kodepoia/release/release_identity.json")

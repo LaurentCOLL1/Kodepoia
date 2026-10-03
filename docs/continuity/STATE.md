@@ -1310,3 +1310,21 @@ Accepted V2.5.5 truth: a dedicated KodeStudio Orchestration workspace composes t
 **V2.5.6 — Cross-workspace hardening and integrated acceptance is now the only authorized V2.5 implementation subdivision.** V2.6 remains unauthorized.
 
 Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.
+
+## V2.5.6 — Cross-workspace hardening and integrated acceptance — COMPLETE + NORMALIZED; V2.5 COMPLETE
+
+Implementation PR `#549` was qualified with **27/27** pull-request workflows on exact final head `b05d77d2b37976dcef71543e718cde245026a7e4` and merged with `expected_head_sha` protection as `cd62836229466607672ec8aaae47d9871443c0d0`.
+
+The deterministic V2.5.6 exact-head acceptance reported **20/20 PASS** on both Ubuntu and Windows. Accepted exact-head artifacts are:
+
+- `v2-5-6-cross-workspace-hardening-ubuntu-latest-b05d77d2b37976dcef71543e718cde245026a7e4`;
+- `v2-5-6-cross-workspace-hardening-windows-latest-b05d77d2b37976dcef71543e718cde245026a7e4`.
+
+One R13 Apple Xcode acceptance attempt timed out while querying `xcrun simctl list runtimes --json` after its focused tests had already passed. A targeted rerun of that same workflow/job succeeded on the unchanged exact source SHA; no repository mutation was used to bypass the failure.
+
+Accepted V2.5.6 truth: execution-time workspace identity is revalidated; stale/revoked/quarantined/tampered or missing handoffs fail closed; fixed routing and exact task-scoped mutation approval remain authoritative; same-workspace write conflicts are blocked; cancellation cannot become partial success; incompatible recovery and moved/deleted projects fail closed; secret-tainted adapter output is sanitized before durable evidence; corrupted operational history remains visible and disables mutating controls; deterministic degraded UI and provider-independent CI are covered. No new V2 product capability or release authority was introduced.
+
+V2.5 planning and V2.5.1 through V2.5.6 are therefore **COMPLETE + NORMALIZED**. The frozen V2.5 sequence is closed; no V2.5.7 is authorized.
+
+**V2.6 remains unauthorized pending separate explicit authority.** No release/tag/installer/TUF/updater mutation is authorized by this normalization. The public distribution baseline remains `v1.1.0-rc8`.
+

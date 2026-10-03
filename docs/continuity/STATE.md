@@ -1359,4 +1359,15 @@ The normative V2.6 contract is `docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_
 V2.6.1 may freeze the successor version/channel/build type/tag, exact-source release identity, installed rc8 upgrade baseline, Windows installer/update identity, Authenticode posture, release-note contract and WinGet in/out decision. It may not publish or create a public release/tag/asset, mutate production TUF/update metadata, or perform live updater activation.
 
 The public distribution baseline remains `v1.1.0-rc8` until the governed V2.6.6 publication succeeds.
+## V2.6.1 — Terminal V2 scope, release identity and compatibility freeze — COMPLETE + NORMALIZED; V2.6.2 CURRENT
+
+Implementation PR `#553` was qualified with **33/33** pull-request workflows on exact final head `272f72d3dabf3ee6219dc847d1afaf78e23c6ca6` and merged with `expected_head_sha` protection as `75fa3f38ec4039cfa6972e1adf930423d16320b3`.
+
+Accepted V2.6.1 truth is frozen by `docs/release/V2_6_1_TERMINAL_RELEASE_FREEZE.md` and `src/kodepoia/release/terminal_release_freeze.json`: terminal public identity is `Kodepoia 1.1.0` / stable / release / `v1.1.0`; the current public/runtime baseline remains `v1.1.0-rc8`; the exact candidate source remains deliberately unset until V2.6.3; production Authenticode signing is not verified; WinGet publication is OUT for `v1.1.0`; and the observed expired production TUF snapshot/timestamp metadata remains a real fail-closed limitation assigned to V2.6.4 rather than repaired or bypassed here.
+
+The V2 terminal **no-new-feature freeze is now effective**. Remaining authorized changes are limited to bug fixes, security hardening, regression fixes, release packaging, release evidence and release documentation. No V2.7 or R20.7 is authorized.
+
+**V2.6.2 — Full V2 integrated regression and adversarial hardening is now the only authorized implementation subdivision.** V2.6.3 through V2.6.6 remain unauthorized until sequential qualification and normalization.
+
+No public release/tag/asset, production TUF mutation, live updater activation or WinGet submission is authorized in V2.6.2. Public release effects remain reserved to V2.6.6 after V2.6.1 through V2.6.5 are each COMPLETE + NORMALIZED.
 

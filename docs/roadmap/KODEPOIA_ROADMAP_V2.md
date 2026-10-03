@@ -493,3 +493,30 @@ V2.5 planning and V2.5.1 through V2.5.6 are now **COMPLETE + NORMALIZED**. The s
 
 V2.6 remains the listed next roadmap phase, but **V2.6 planning and implementation are not authorized by this normalization**. A separate explicit authority and planning contract are required before V2.6 work begins. Release/tag/installer/TUF/updater mutation remains unauthorized; `v1.1.0-rc8` remains the public baseline.
 
+### V2.6 — V2 hardening and next public Windows release — PLANNING CURRENT
+
+V2.5 planning and V2.5.1 through V2.5.6 are **COMPLETE + NORMALIZED**. The user explicitly authorized continuation into V2.6 on 2026-10-03.
+
+Normative V2.6 planning contract under qualification:
+
+`docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_RELEASE.md`
+
+Planning base:
+
+`65ef3ac66494b4b801274b81141d136a4830d7be`
+
+This authority permits **V2.6 planning only**. No implementation or live release effect is authorized before planning qualification and post-merge normalization.
+
+Frozen proposed subdivisions under qualification:
+
+- **V2.6.1 — Terminal V2 scope, release identity and compatibility freeze**;
+- **V2.6.2 — Full V2 integrated regression and adversarial hardening**;
+- **V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth**;
+- **V2.6.4 — Production TUF transition and updater compatibility staging**;
+- **V2.6.5 — Installed Windows release rehearsal and pre-publication go/no-go**;
+- **V2.6.6 — Governed public Windows release, updater activation and terminal V2 closure**.
+
+Release sequencing is explicit: no public release/TUF/updater mutation in planning or V2.6.1-V2.6.5. V2.6.6 may perform live publication only after the preceding V2.6 subdivisions are COMPLETE + NORMALIZED on the frozen candidate.
+
+The current public baseline remains `v1.1.0-rc8`; successor version/channel and Authenticode posture are deliberately deferred to V2.6.1 rather than guessed during planning. R20 remains terminal and no R20.7 or V2.7 is authorized.
+

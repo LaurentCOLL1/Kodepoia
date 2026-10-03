@@ -80,6 +80,25 @@ The terminal release preserves the accepted installer compatibility identity:
 
 Changing these compatibility identities after V2.6.1 invalidates downstream release evidence.
 
+## Production TUF repository freshness observation
+
+V2.6.1 records, but does not repair, the repository-carried production TUF freshness state
+observed from the normalized planning base `6402041e6c86b21260c9b0fd7176141fff53a0ee`:
+
+- root v2 expires `2027-09-08T14:59:19Z`;
+- targets v8 expires `2027-09-12T20:49:31Z`;
+- snapshot v10 expired `2026-09-17T19:48:41Z`;
+- timestamp v10 expired `2026-09-16T19:48:41Z`.
+
+Therefore the repository-carried online metadata is **not fresh** at V2.6.1. This observation does
+not weaken verification: expired metadata remains rejected by the updater and by R20.5 operations
+health. It also does not authorize a production refresh or signing operation in this subdivision.
+
+The production transition/freshness resolution is assigned explicitly to **V2.6.4**, after the exact
+candidate exists. R19.5 remains a historical release replay: it verifies current metadata
+cryptographic signatures, generations and cross-bindings, but reports current calendar freshness as
+an operational observation rather than making historical replay depend forever on wall-clock time.
+
 ## Authenticode posture
 
 No production Authenticode signing capability is currently verified.

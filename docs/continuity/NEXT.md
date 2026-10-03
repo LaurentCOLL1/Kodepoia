@@ -663,3 +663,14 @@ Implement **V2.5.6 — Cross-workspace hardening and integrated acceptance** onl
 Required scope: adversarially prove the full V2.5 chain against path/symlink/identity confusion, authority spoofing, stale/revoked/tampered handoffs, dependency cycles/missing evidence, malicious routing/service/tool text, unauthorized destination writes, concurrent write conflicts, cancellation/orphan/partial-success handling, incompatible recovery, project deletion/move between planning and execution, secret leakage and deterministic degraded UI states; add exact-head Ubuntu/Windows integrated acceptance. Do not add new product capability or begin V2.6/release work.
 
 V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until V2.5.6 itself is qualified, merged and post-merge normalized.
+
+## Current next action — V2.5 closed; V2.6 requires separate explicit authority
+
+V2.5.6 is **COMPLETE + NORMALIZED** from implementation PR `#549`, exact final head `b05d77d2b37976dcef71543e718cde245026a7e4`, **27/27** successful pull-request workflows and merge `cd62836229466607672ec8aaae47d9871443c0d0`.
+
+The V2.5 sequence is terminal: planning plus V2.5.1 through V2.5.6 are **COMPLETE + NORMALIZED**. The V2.5.6 deterministic exact-head acceptance reported **20/20 PASS** on Ubuntu and Windows and the integrated KodeStudio UI smoke passed on the same exact source.
+
+Do not create a V2.5.7 subdivision. Do not begin V2.6 planning or implementation, and do not mutate release/tag/installer/TUF/updater state, until a separate explicit V2.6 authority is established.
+
+When such authority is explicitly granted, first re-fetch live `main` and all current continuity/roadmap authorities, then create a dedicated V2.6 planning contract before implementation. The public distribution reference remains `v1.1.0-rc8`.
+

@@ -16,7 +16,7 @@ def _read(path: str) -> str:
 def test_v263_source_identity_matches_frozen_successor_while_public_baseline_stays_rc8() -> None:
     freeze = TERMINAL_RELEASE_FREEZE
 
-    assert CURRENT_RELEASE == freeze.successor_identity
+    assert freeze.successor_identity == CURRENT_RELEASE
     assert CURRENT_RELEASE.public_version == "1.1.0"
     assert CURRENT_RELEASE.pep440_version == "1.1.0"
     assert CURRENT_RELEASE.channel == "stable"

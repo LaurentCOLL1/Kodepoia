@@ -44,7 +44,7 @@ def _toolchain() -> AndroidBuildToolchainEvidence:
         evidence_id="android.build.hosted-stable.2026-08-25",
         android_gradle_plugin="9.3.1",
         gradle_version="9.5.0",
-        kotlin_version="2.3.21",
+        kotlin_version="2.3.20",
         compose_bom="2026.06.00",
         compile_sdk=36,
         build_tools_version="36.0.0",

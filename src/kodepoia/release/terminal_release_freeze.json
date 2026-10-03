@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "product": "Kodepoia",
+  "package": "kodepoia",
+  "terminal_scope_base_sha": "6402041e6c86b21260c9b0fd7176141fff53a0ee",
+  "public_baseline": {
+    "public_version": "1.1.0-rc8",
+    "pep440_version": "1.1.0rc8",
+    "tag": "v1.1.0-rc8",
+    "channel": "beta",
+    "build_type": "prerelease",
+    "source_sha": "fa787ab7ef76f2556b56ac1f058916a1425455af",
+    "installer_filename": "KodepoiaSetup.exe",
+    "installer_bytes": 37730750,
+    "installer_sha256": "6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422",
+    "production_signed": false,
+    "tuf_authenticode_policy": "allow-unsigned"
+  },
+  "successor": {
+    "public_version": "1.1.0",
+    "pep440_version": "1.1.0",
+    "installer_version": "1.1.0",
+    "tag": "v1.1.0",
+    "channel": "stable",
+    "build_type": "release",
+    "source_binding": "exact-head",
+    "version": {
+      "major": 1,
+      "minor": 1,
+      "patch": 0,
+      "stage": "final",
+      "serial": 0
+    },
+    "candidate_source_freeze_phase": "V2.6.3",
+    "candidate_source_sha": null
+  },
+  "transition": {
+    "from_public_version": "1.1.0-rc8",
+    "to_public_version": "1.1.0",
+    "monotonic": true,
+    "supported_installed_upgrade_baselines": [
+      "1.1.0-rc8"
+    ],
+    "clean_install_supported": true,
+    "stable_channel_behavior": "stable-final-releases-only",
+    "beta_channel_behavior": "prerelease-feed-no-implicit-cross-channel-promotion",
+    "rc8_to_stable_rehearsal_channel": "stable"
+  },
+  "windows_installer": {
+    "filename": "KodepoiaSetup.exe",
+    "app_name": "Kodepoia",
+    "app_id": "{A67EEAB5-46C2-4B21-A169-7E17275DE2F0}",
+    "executable": "KodepoiaStudio.exe",
+    "install_scope": "per-user",
+    "default_directory": "{localappdata}\\Programs\\Kodepoia",
+    "use_previous_app_dir": true,
+    "custom_install_directory_preserved": true,
+    "update_argument": "/KODEPOIAUPDATE=1",
+    "platform": "windows-x86_64",
+    "target_path_template": "channels/stable/windows-x86_64/1.1.0/{source_sha}/KodepoiaSetup.exe"
+  },
+  "authenticode": {
+    "production_signing_verified": false,
+    "production_signing_capability": "not-verified",
+    "production_signing_secret_provisioning_authorized": false,
+    "candidate_truth_rule": "report-exact-observed-signing-state",
+    "unsigned_publication_allowed_if_v2_6_3_remains_unsigned": true,
+    "unsigned_tuf_policy": "allow-unsigned",
+    "unsigned_policy_scope": "exact-target-only",
+    "broken_invalid_untrusted_signature_action": "reject"
+  },
+  "winget": {
+    "decision": "out",
+    "reason": "Production Authenticode signing is not currently verified and the accepted WinGet publication contract requires verified production signing.",
+    "preview_generation_allowed": true,
+    "public_submission_authorized": false
+  },
+  "release_notes": {
+    "required_sections": [
+      "release-identity",
+      "summary",
+      "validation-evidence",
+      "known-limitations",
+      "distribution-status"
+    ],
+    "required_known_limitations": [
+      "Authenticode production signing truth must be stated exactly; SmartScreen or reputation warnings may occur if the terminal installer remains unsigned.",
+      "Installed v1.1.0-rc8 upgrade rehearsal selects the stable channel explicitly; beta is not silently promoted across channels.",
+      "WinGet publication is out of scope for v1.1.0."
+    ]
+  },
+  "terminal_v2_change_inventory": {
+    "complete_normalized_phases": [
+      "V2.0",
+      "V2.1",
+      "V2.2",
+      "V2.3",
+      "V2.4",
+      "V2.5"
+    ],
+    "remaining_release_hardening_subdivisions": [
+      "V2.6.2",
+      "V2.6.3",
+      "V2.6.4",
+      "V2.6.5",
+      "V2.6.6"
+    ]
+  },
+  "no_new_feature_freeze": {
+    "effective_after_v2_6_1_normalization": true,
+    "allowed_change_classes": [
+      "bug-fix",
+      "security-hardening",
+      "regression-fix",
+      "release-packaging",
+      "release-evidence",
+      "release-documentation"
+    ],
+    "new_product_capability_allowed": false,
+    "v2_7_authorized": false,
+    "r20_7_authorized": false
+  },
+  "effects": {
+    "public_release_publish": false,
+    "public_tag_create_or_repoint": false,
+    "public_asset_upload": false,
+    "production_tuf_mutation": false,
+    "live_updater_activation": false,
+    "winget_submission": false,
+    "signing_secret_provisioning": false
+  },
+  "production_tuf_repository_observation": {
+    "observed_from_source_sha": "6402041e6c86b21260c9b0fd7176141fff53a0ee",
+    "root_expires": "2027-09-08T14:59:19Z",
+    "targets_expires": "2027-09-12T20:49:31Z",
+    "snapshot_expires": "2026-09-17T19:48:41Z",
+    "timestamp_expires": "2026-09-16T19:48:41Z",
+    "expired_roles_at_v2_6_1": [
+      "snapshot",
+      "timestamp"
+    ],
+    "repository_metadata_fresh": false,
+    "expired_metadata_accepted_by_updater": false,
+    "production_metadata_mutation_authorized": false,
+    "resolution_phase": "V2.6.4"
+  }
+}

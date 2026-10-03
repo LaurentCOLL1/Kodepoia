@@ -31,6 +31,8 @@ env:
 
 jobs:
   corrective-rc-contract:
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     strategy:
       fail-fast: false
       matrix:

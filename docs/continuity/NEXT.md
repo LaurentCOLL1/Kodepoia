@@ -641,3 +641,14 @@ Implement **V2.5.4 — Governed execution, approval, cancellation and recovery**
 Required scope: explicit mutation preview/confirmation; destination-owned tool/service policy enforcement; bounded conflict control/concurrency; KillSwitch-compatible cancellation; downstream blocking on failure/cancel; lineage-safe recovery tied to the accepted plan/task/workspace/handoff digests. No raw shell/argv/env/package surface, no hidden authority composition and no release mutation.
 
 V2.5.5+, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own sequential qualification and normalization gates are satisfied.
+
+
+## Current next action — V2.5.5 only
+
+V2.5.4 is **COMPLETE + NORMALIZED** from PR `#545`, exact head `044ea9147fcb6e534af46254f54993a7a3e6e0a8`, **26/26** successful workflows and merge `5db682ca11ba89e2fb1857961f2b15d601844598`.
+
+Implement **V2.5.5 — KodeStudio orchestration workspace and operational history** only.
+
+Required scope: workspace/relationship management; task DAG/status display; handoff inspection; explicit approval controls for mutation-proposed tasks; evidence/output timeline; cancellation/recovery controls; persistent operational history over accepted V2.5.1-V2.5.4 contracts; EN/FR/qps-ploc and accessibility; honest empty/degraded states. Do not add new orchestration semantics, weaken approvals, or perform V2.5.6 hardening yet.
+
+V2.5.6, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own sequential qualification and normalization gates are satisfied.

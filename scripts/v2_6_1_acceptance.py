@@ -39,6 +39,12 @@ def main() -> int:
     iss = read("packaging/windows/Kodepoia.iss")
     targets = read("update-repository/metadata/targets.json")
     authenticode_policy = read("docs/release/UPDATER_AUTHENTICODE_POLICY.md")
+    r19_5_acceptance = read("scripts/r19_5_corrective_rc_acceptance.py")
+    r20_5_tests = read("tests/test_r20_5_operations_health.py")
+    root_metadata = json.loads(read("update-repository/metadata/root.json"))
+    targets_metadata = json.loads(read("update-repository/metadata/targets.json"))
+    snapshot_metadata = json.loads(read("update-repository/metadata/snapshot.json"))
+    timestamp_metadata = json.loads(read("update-repository/metadata/timestamp.json"))
     python_core = read(".github/workflows/python-core.yml")
 
     freeze = TERMINAL_RELEASE_FREEZE
@@ -147,6 +153,33 @@ def main() -> int:
             and freeze.authenticode["unsigned_policy_scope"] == "exact-target-only"
             and 'authenticode_policy: "allow-unsigned"' in authenticode_policy,
             "production signing is not fabricated and unsigned policy remains exact-target-scoped",
+        ),
+        _check(
+            "production_tuf_freshness_observed",
+            freeze.production_tuf_repository_observation["repository_metadata_fresh"] is False
+            and freeze.production_tuf_repository_observation[
+                "expired_roles_at_v2_6_1"
+            ]
+            == ["snapshot", "timestamp"]
+            and freeze.production_tuf_repository_observation[
+                "production_metadata_mutation_authorized"
+            ]
+            is False
+            and freeze.production_tuf_repository_observation["resolution_phase"]
+            == "V2.6.4"
+            and root_metadata["signed"]["expires"]
+            == freeze.production_tuf_repository_observation["root_expires"]
+            and targets_metadata["signed"]["expires"]
+            == freeze.production_tuf_repository_observation["targets_expires"]
+            and snapshot_metadata["signed"]["expires"]
+            == freeze.production_tuf_repository_observation["snapshot_expires"]
+            and timestamp_metadata["signed"]["expires"]
+            == freeze.production_tuf_repository_observation["timestamp_expires"]
+            and "current_metadata_not_expired" not in r19_5_acceptance
+            and "current_metadata_freshness" in r19_5_acceptance
+            and "test_expired_or_unverifiable_metadata_is_critical_and_never_accepted"
+            in r20_5_tests,
+            "expired repository metadata is observed without weakening updater rejection or authorizing a live refresh",
         ),
         _check(
             "winget_out",

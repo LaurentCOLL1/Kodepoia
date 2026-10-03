@@ -323,3 +323,19 @@ The six subdivisions and their effect boundaries are frozen. In particular, live
 
 V2.6.1 must establish release identity and compatibility truth only. It must not publish or mutate production release/update state. The public baseline remains `v1.1.0-rc8`.
 
+## 14. V2.6.1 qualification and current implementation authority
+
+V2.6.1 implementation PR `#553` completed **33/33** exact-head pull-request workflows with conclusion `success` on `272f72d3dabf3ee6219dc847d1afaf78e23c6ca6` and merged with `expected_head_sha` protection as `75fa3f38ec4039cfa6972e1adf930423d16320b3`.
+
+V2.6.1 is therefore **COMPLETE + NORMALIZED**.
+
+Its accepted freeze establishes the terminal target as Kodepoia `1.1.0` / stable / release / `v1.1.0`, preserves `v1.1.0-rc8` as the current public/runtime baseline, keeps `candidate_source_sha = null` until V2.6.3, records production Authenticode signing as unverified, places WinGet publication OUT for `v1.1.0`, and preserves fail-closed rejection of the observed expired production TUF snapshot/timestamp metadata until the governed V2.6.4 transition stage.
+
+The no-new-feature freeze is effective from this normalization. Remaining V2 changes are restricted to bug fixes, security hardening, regression fixes, release packaging, release evidence and release documentation.
+
+**V2.6.2 — Full V2 integrated regression and adversarial hardening is the only authorized implementation subdivision.** V2.6.3 through V2.6.6 remain unauthorized until sequential qualification and normalization.
+
+V2.6.2 must prove the terminal codebase with integrated V2.0-V2.5 regression, adversarial security/privacy/secrets/tools/workspaces/memory/research/Model Lab/orchestration coverage, packaged Windows/project durability, cancellation/recovery/resource-soak and updater local-availability invariants, critical-veto aggregation, and deterministic exact-head Ubuntu/Windows evidence.
+
+V2.6.2 must not create public release effects and must not repair or mutate production TUF metadata. Public release/tag/asset/TUF/updater/WinGet effects remain reserved to V2.6.6.
+

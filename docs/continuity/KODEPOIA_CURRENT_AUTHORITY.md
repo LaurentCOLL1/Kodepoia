@@ -374,3 +374,15 @@ The only authorized implementation subdivision is **V2.6.1 — Terminal V2 scope
 
 V2.6.1 is a release-identity/scope freeze, not a publication authorization. No public release/tag/asset, production TUF/update mutation, live updater activation or WinGet submission is authorized. The current public distribution authority remains `v1.1.0-rc8`.
 
+## V2.6.1 normalized authority
+
+V2.6.1 implementation PR `#553` qualified **33/33** pull-request workflows on exact final head `272f72d3dabf3ee6219dc847d1afaf78e23c6ca6` and merged with `expected_head_sha` protection as `75fa3f38ec4039cfa6972e1adf930423d16320b3`.
+
+V2.6.1 is **COMPLETE + NORMALIZED**. The terminal public target is frozen as Kodepoia `1.1.0`, channel `stable`, build type `release`, tag `v1.1.0`, with exact-source candidate binding deferred to V2.6.3. The current public/runtime baseline remains `v1.1.0-rc8`.
+
+Production Authenticode signing remains unverified; no signing secret is authorized. WinGet publication is OUT for `v1.1.0`. The production TUF repository observation remains fail-closed with expired snapshot/timestamp metadata, and live transition/freshness resolution remains assigned to V2.6.4.
+
+The terminal no-new-feature freeze is effective. The only authorized implementation subdivision is **V2.6.2 — Full V2 integrated regression and adversarial hardening**. V2.6.3 through V2.6.6 remain unauthorized.
+
+V2.6.2 may perform only bug-fix/security-hardening/regression/evidence work needed to prove the terminal V2 codebase. It may not publish a release/tag/asset, mutate production TUF/update state, activate the live updater or submit WinGet. Public release effects remain reserved to V2.6.6.
+

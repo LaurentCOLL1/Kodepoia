@@ -310,3 +310,16 @@ V2.6 planning is complete only when:
 - post-merge normalization authorizes **V2.6.1 only**.
 
 Until that normalization is complete, no V2.6 implementation subdivision and no public-release mutation is authorized.
+
+## 13. Planning qualification and current implementation authority
+
+Planning PR `#551` completed **25/25** exact-head pull-request workflows with conclusion `success` on `f6f6cb80092af2ee790bc3e81e1f7c620fe2d751` and merged with `expected_head_sha` protection as `b7af0d3024ac3bcdbf75835941873aabcb0be345`.
+
+V2.6 planning is therefore **COMPLETE + NORMALIZED**.
+
+The six subdivisions and their effect boundaries are frozen. In particular, live public release/tag/asset/TUF/updater/WinGet effects remain reserved to V2.6.6 after V2.6.1 through V2.6.5 have each completed and normalized.
+
+**V2.6.1 — Terminal V2 scope, release identity and compatibility freeze is the only authorized implementation subdivision.** V2.6.2 through V2.6.6 remain unauthorized until sequential qualification and normalization.
+
+V2.6.1 must establish release identity and compatibility truth only. It must not publish or mutate production release/update state. The public baseline remains `v1.1.0-rc8`.
+

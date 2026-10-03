@@ -674,3 +674,21 @@ Do not create a V2.5.7 subdivision. Do not begin V2.6 planning or implementation
 
 When such authority is explicitly granted, first re-fetch live `main` and all current continuity/roadmap authorities, then create a dedicated V2.6 planning contract before implementation. The public distribution reference remains `v1.1.0-rc8`.
 
+## Current next action — V2.6 planning only
+
+The user explicitly authorized progression beyond completed V2.5 by instructing Kodepoia to continue.
+
+V2.5 planning and V2.5.1 through V2.5.6 are **COMPLETE + NORMALIZED**. Exact live planning base:
+
+`65ef3ac66494b4b801274b81141d136a4830d7be`
+
+Qualify the dedicated V2.6 planning contract:
+
+`docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_RELEASE.md`
+
+Do not implement V2.6.1 until the planning PR is exact-head qualified, merged with `expected_head_sha`, and post-merge normalized. After that normalization, authorize **V2.6.1 only**.
+
+Do not publish a release, create/repoint a release tag, upload public release assets, mutate live production TUF/update metadata, or submit WinGet during planning. The public baseline remains `v1.1.0-rc8`.
+
+The next public Windows release is sequenced only after terminal V2 hardening: live publication is reserved to the final V2.6.6 subdivision after V2.6.1-V2.6.5 complete and normalize sequentially.
+

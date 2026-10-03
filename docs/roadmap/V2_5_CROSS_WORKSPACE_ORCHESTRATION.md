@@ -466,3 +466,16 @@ Accepted V2.5.2 boundaries are frozen: explicit source/destination workspace/pro
 **V2.5.3 — Orchestration plan, dependency DAG and routing is the only authorized implementation subdivision.** V2.5.4 through V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
 
 The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.
+
+
+## 22. V2.5.3 qualification and current implementation authority
+
+V2.5.3 implementation PR `#543` completed **27/27** exact-head pull-request workflows with conclusion `success` on `e93bbf97ae536457bfe33b918d78987c25ab79af` and merged with `expected_head_sha` protection as `8956116e5c90e630b4d35982484f7c52ad688054`.
+
+V2.5.3 is therefore **COMPLETE + NORMALIZED**.
+
+Accepted V2.5.3 boundaries are frozen: deterministic typed task DAG, explicit workspace ownership, fixed route catalog over existing Kodepoia services, capability/effect visibility, cycle/missing-dependency rejection, dependency blocker propagation, immutable plan/task digests and read-only plan preview. It introduced no protected mutation execution, approval engine, concurrency scheduler, cancellation/recovery runtime or release mutation.
+
+**V2.5.4 — Governed execution, approval, cancellation and recovery is the only authorized implementation subdivision.** V2.5.5, V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
+
+The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.

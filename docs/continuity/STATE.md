@@ -1328,3 +1328,23 @@ V2.5 planning and V2.5.1 through V2.5.6 are therefore **COMPLETE + NORMALIZED**.
 
 **V2.6 remains unauthorized pending separate explicit authority.** No release/tag/installer/TUF/updater mutation is authorized by this normalization. The public distribution baseline remains `v1.1.0-rc8`.
 
+## V2.6 — V2 hardening and next public Windows release — PLANNING CURRENT
+
+User authority on 2026-10-03 explicitly directs Kodepoia to continue after V2.5 terminal normalization. This authority permits **V2.6 planning only** until the planning contract is exact-head qualified, merged and post-merge normalized.
+
+Planning base is exact live `main`:
+
+`65ef3ac66494b4b801274b81141d136a4830d7be`
+
+Normative planning contract under qualification:
+
+`docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_RELEASE.md`
+
+V2.5 remains **COMPLETE + NORMALIZED**. V2.6 planning is now the only authorized new work. No V2.6 implementation subdivision is authorized before planning qualification, merge and post-merge normalization.
+
+The frozen proposed V2.6 sequence is: terminal release identity/scope freeze; full V2 integrated hardening; exact-source Windows release candidate/SBOM/provenance/signing truth; production TUF/updater transition staging; installed Windows pre-publication rehearsal; governed public Windows release/updater activation/terminal V2 closure.
+
+Critical boundary: the next public release remains deferred until V2 product/hardening work is complete. No public release/tag/asset/TUF/updater/WinGet mutation is authorized during planning or V2.6.1-V2.6.5. Live publication belongs only to V2.6.6 after all prior V2.6 subdivisions are COMPLETE + NORMALIZED.
+
+The current public distribution baseline remains `v1.1.0-rc8`. Planning does not guess the successor version; V2.6.1 must freeze it explicitly from the accepted release identity rules and observed release/signing capability truth.
+

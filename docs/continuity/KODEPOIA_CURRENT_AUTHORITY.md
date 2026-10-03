@@ -386,3 +386,16 @@ The terminal no-new-feature freeze is effective. The only authorized implementat
 
 V2.6.2 may perform only bug-fix/security-hardening/regression/evidence work needed to prove the terminal V2 codebase. It may not publish a release/tag/asset, mutate production TUF/update state, activate the live updater or submit WinGet. Public release effects remain reserved to V2.6.6.
 
+## V2.6.2 normalized authority
+
+V2.6.2 implementation PR `#555` qualified **33/33** pull-request workflows on exact final head `5badcfb68b5593432f24ef4cf53eafd596d109cd` and merged with `expected_head_sha` protection as `2453c5122c096d807e5b49840d33a61e1bcc5e92`.
+
+V2.6.2 is **COMPLETE + NORMALIZED**. Its terminal hardening evidence reported **12/12 PASS on Ubuntu** and **12/12 PASS on Windows**, `critical_veto=false`, with common evidence SHA-256 `91031f1462e46d9c24d17cc10fde5811d948c75a91597432861d0a211a16bfe0`. Full Python regression completed successfully before the terminal evidence was emitted.
+
+Accepted V2.6.2 truth is integrated adversarial proof over the frozen terminal codebase, including security/privacy/secrets, ResearchGuard, Project Knowledge, memory, Model Lab and accelerator lineage, cross-workspace orchestration, packaged Windows/project durability, cancellation/recovery/resource-soak, updater fail-closed behavior and release-freeze invariants.
+
+The release freeze remains unchanged: current public/runtime baseline `v1.1.0-rc8`; terminal target `1.1.0` stable/release/`v1.1.0`; exact candidate source still unset until V2.6.3; production Authenticode signing still unverified; WinGet OUT; production TUF snapshot/timestamp metadata stale/expired and rejected pending V2.6.4. No public release effect was performed by V2.6.2.
+
+The only authorized implementation subdivision is **V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth**. V2.6.4 through V2.6.6 remain unauthorized.
+
+V2.6.3 may create and qualify exact-source candidate artifacts and immutable staged release evidence only. It may not publish the release/tag/assets or mutate production TUF/update state.

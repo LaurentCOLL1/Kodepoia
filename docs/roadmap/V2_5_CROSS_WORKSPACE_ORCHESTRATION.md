@@ -505,3 +505,21 @@ Accepted V2.5.5 boundaries are frozen: dedicated KodeStudio orchestration worksp
 **V2.5.6 — Cross-workspace hardening and integrated acceptance is the only authorized implementation subdivision.** V2.6 remains unauthorized until V2.5.6 is qualified, merged and post-merge normalized.
 
 The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.
+
+## 25. V2.5.6 qualification and V2.5 terminal normalization
+
+V2.5.6 implementation PR `#549` completed **27/27** exact-head pull-request workflows with conclusion `success` on `b05d77d2b37976dcef71543e718cde245026a7e4` and merged with `expected_head_sha` protection as `cd62836229466607672ec8aaae47d9871443c0d0`.
+
+The deterministic V2.5.6 acceptance reported **20/20 PASS** on both Ubuntu and Windows. Accepted exact-head artifacts are:
+
+- `v2-5-6-cross-workspace-hardening-ubuntu-latest-b05d77d2b37976dcef71543e718cde245026a7e4`;
+- `v2-5-6-cross-workspace-hardening-windows-latest-b05d77d2b37976dcef71543e718cde245026a7e4`.
+
+V2.5.6 is therefore **COMPLETE + NORMALIZED**.
+
+Accepted V2.5.6 boundaries are frozen: execution revalidates destination workspace identity; stale/revoked/quarantined/tampered or missing cross-workspace handoff evidence fails closed; fixed route/service selection cannot be escaped through task text; destination mutation remains bound to exact task approval; same-workspace concurrent writes are blocked; cancellation cannot manufacture partial success; incompatible recovery and moved/deleted project identity fail closed; secret-tainted destination output is sanitized before durable evidence; hash-chained operational-history corruption remains explicit and disables mutating UI actions; mandatory acceptance remains deterministic and provider-independent.
+
+V2.5 planning and V2.5.1 through V2.5.6 are **COMPLETE + NORMALIZED**. The frozen six-subdivision sequence is closed and no V2.5.7 is authorized.
+
+**V2.6 remains unauthorized pending separate explicit authority.** No public release, tag, installer, TUF or updater mutation is authorized by this normalization. The public distribution baseline remains `v1.1.0-rc8`.
+

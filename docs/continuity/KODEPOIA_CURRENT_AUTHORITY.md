@@ -335,3 +335,14 @@ V2.5.5 implementation PR `#547` qualified **30/30** on exact head `05cb36f5fed08
 V2.5.5 is **COMPLETE + NORMALIZED**. Its accepted truth is the integrated KodeStudio orchestration workspace and persistent operational history over V2.5.1-V2.5.4, with explicit mutation approval, visible evidence/timeline, cancellation/recovery controls, localization/accessibility and honest degraded states.
 
 The only authorized next implementation subdivision is **V2.5.6 — Cross-workspace hardening and integrated acceptance**. V2.6 remains unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.
+
+## V2.5.6 normalized authority and V2.5 closure
+
+V2.5.6 implementation PR `#549` qualified **27/27** on exact final head `b05d77d2b37976dcef71543e718cde245026a7e4` and merged with `expected_head_sha` protection as `cd62836229466607672ec8aaae47d9871443c0d0`.
+
+V2.5.6 is **COMPLETE + NORMALIZED**. Its accepted truth is adversarial integrated proof of the full V2.5 chain: workspace identity/path drift fails closed; cross-workspace handoffs remain data-only, provenance-bound and freshness/integrity checked; missing handoff evidence blocks execution; routing stays fixed and typed; destination writes remain exact-approval-bound; write conflicts, cancellation, partial-success, recovery drift, project move/delete and secret-leakage boundaries fail closed; operational-history corruption remains visible and non-authorizing; and deterministic Ubuntu/Windows plus KodeStudio UI acceptance is mandatory.
+
+V2.5 planning and V2.5.1 through V2.5.6 are **COMPLETE + NORMALIZED**. The V2.5 sequence is closed and no V2.5.7 is authorized.
+
+**V2.6 remains unauthorized pending separate explicit authority.** No release/tag/installer/TUF/updater mutation is authorized by V2.5 completion. The current public distribution authority remains `v1.1.0-rc8`.
+

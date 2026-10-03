@@ -346,3 +346,21 @@ V2.5 planning and V2.5.1 through V2.5.6 are **COMPLETE + NORMALIZED**. The V2.5 
 
 **V2.6 remains unauthorized pending separate explicit authority.** No release/tag/installer/TUF/updater mutation is authorized by V2.5 completion. The current public distribution authority remains `v1.1.0-rc8`.
 
+## V2.6 planning authority
+
+The user explicitly authorized continuation into V2.6 on 2026-10-03 after V2.5 terminal normalization.
+
+Current exact planning base:
+
+`65ef3ac66494b4b801274b81141d136a4830d7be`
+
+The only authorized new work is **V2.6 planning** under:
+
+`docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_RELEASE.md`
+
+No V2.6 implementation subdivision is authorized until that planning contract is exact-head qualified, merged with unchanged-head protection and post-merge normalized.
+
+The planning contract freezes six intended subdivisions: release identity/scope freeze; full integrated V2 hardening; exact-source Windows release candidate with SBOM/provenance/signing truth; staged production TUF/updater transition; installed Windows pre-publication rehearsal; and governed public release/updater activation/terminal V2 closure.
+
+No public release/tag/asset/TUF/updater/WinGet mutation is authorized by planning. `v1.1.0-rc8` remains the current public distribution authority. Planning does not preselect the successor version or falsely claim production signing capability.
+

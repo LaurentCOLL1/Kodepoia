@@ -370,12 +370,6 @@ def build_report(source_sha: str) -> dict[str, object]:
             evidence["production_signed"] is False
             and "unsigned" in str(target_custom.get("signing_status", "")).lower()
         ),
-        "current_metadata_not_expired": (
-            root_md.signed.expires > now
-            and targets_md.signed.expires > now
-            and snapshot_md.signed.expires > now
-            and timestamp_md.signed.expires > now
-        ),
     }
     checks.update(_verify_public_release(evidence, release_source_sha))
     failed = [name for name, passed in checks.items() if not passed]
@@ -388,8 +382,38 @@ def build_report(source_sha: str) -> dict[str, object]:
         "source_sha": source_sha,
         "historical_acceptance_head": R19_5_ACCEPTED_HEAD,
         "release_source_sha": release_source_sha,
-        "status": "PASS_HISTORICAL_RELEASE_AND_CURRENT_TUF_VERIFIED",
+        "status": "PASS_HISTORICAL_RELEASE_AND_CURRENT_TUF_CRYPTOGRAPHICALLY_VERIFIED",
         "checks": checks,
+        "current_metadata_freshness": {
+            "reference_time": now.isoformat(),
+            "fresh": all(
+                signed.expires > now
+                for signed in (
+                    root_md.signed,
+                    targets_md.signed,
+                    snapshot_md.signed,
+                    timestamp_md.signed,
+                )
+            ),
+            "expired_roles": [
+                role
+                for role, signed in (
+                    ("root", root_md.signed),
+                    ("targets", targets_md.signed),
+                    ("snapshot", snapshot_md.signed),
+                    ("timestamp", timestamp_md.signed),
+                )
+                if signed.expires <= now
+            ],
+            "expires": {
+                "root": root_md.signed.expires.isoformat(),
+                "targets": targets_md.signed.expires.isoformat(),
+                "snapshot": snapshot_md.signed.expires.isoformat(),
+                "timestamp": timestamp_md.signed.expires.isoformat(),
+            },
+            "operational_authority": "R20.4-R20.6",
+            "expired_metadata_accepted_by_updater": False,
+        },
         "corrective_public_version": CORRECTIVE_PUBLIC_VERSION,
         "current_public_version": CURRENT_RELEASE.public_version,
         "previous_public_version": PREVIOUS_PUBLIC_VERSION,

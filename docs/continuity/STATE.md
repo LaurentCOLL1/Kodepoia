@@ -1277,3 +1277,14 @@ Accepted V2.5.2 truth: immutable data-only handoff packets bind explicit source/
 **V2.5.3 — Orchestration plan, dependency DAG and routing is now the only authorized V2.5 implementation subdivision.** V2.5.4+ and V2.6 remain unauthorized.
 
 Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.
+
+
+## V2.5.3 — Orchestration plan, dependency DAG and routing — COMPLETE + NORMALIZED; V2.5.4 CURRENT
+
+Implementation PR `#543` was qualified with **27/27** pull-request workflows on exact final head `e93bbf97ae536457bfe33b918d78987c25ab79af` and merged with exact-head protection as `8956116e5c90e630b4d35982484f7c52ad688054`.
+
+Accepted V2.5.3 truth: typed deterministic orchestration tasks/plans, explicit workspace ownership, fixed routing catalog over existing surfaces, explicit `read_only` versus `mutation_proposed` effects, cycle/missing-dependency rejection, blocker propagation, immutable plan/task digests and a read-only KodeStudio plan preview. No protected mutation execution, approval, concurrency, cancellation or recovery was added.
+
+**V2.5.4 — Governed execution, approval, cancellation and recovery is now the only authorized V2.5 implementation subdivision.** V2.5.5+ and V2.6 remain unauthorized.
+
+Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.

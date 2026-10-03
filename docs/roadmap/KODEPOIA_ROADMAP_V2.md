@@ -461,3 +461,10 @@ Accepted V2.5.1 provides validated deterministic workspace identity, a bounded s
 Implementation PR `#541` was qualified **27/27** on exact final head `9aca5d635d2d3fdee3a17cf729fae0b3ad709c08` and merged with exact-head protection as `37b27bd469c435ed2464650a08cdd80c03bca908`.
 
 Accepted V2.5.2 provides immutable data-only cross-workspace handoff over existing governed Project Workspace snapshots, explicit provenance/selection and integrity verification without authority promotion or execution. **V2.5.3 only** is now authorized for implementation. V2.5.4+, V2.6 and release/TUF/updater work remain unauthorized.
+
+
+### V2.5.3 — COMPLETE + NORMALIZED; V2.5.4 CURRENT
+
+Implementation PR `#543` was qualified **27/27** on exact final head `e93bbf97ae536457bfe33b918d78987c25ab79af` and merged with exact-head protection as `8956116e5c90e630b4d35982484f7c52ad688054`.
+
+Accepted V2.5.3 provides deterministic typed orchestration plans, workspace-owned tasks, fixed routing and visible effects/blockers without protected execution. **V2.5.4 only** is now authorized for implementation. V2.5.5+, V2.6 and release/TUF/updater work remain unauthorized.

@@ -192,7 +192,10 @@ def main() -> int:
             and "current_metadata_freshness" in r19_5_acceptance
             and "test_expired_or_unverifiable_metadata_is_critical_and_never_accepted"
             in r20_5_tests,
-            "expired repository metadata is observed without weakening updater rejection or authorizing a live refresh",
+            (
+                "expired repository metadata is observed without weakening updater "
+                "rejection or authorizing a live refresh"
+            ),
         ),
         _check(
             "winget_out",

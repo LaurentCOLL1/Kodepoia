@@ -93,8 +93,8 @@ def test_v263_candidate_workflow_reuses_r17_r18_contracts() -> None:
 
     assert "--mode unsigned" in workflow
     assert "synthetic-offline" in workflow
-    assert '"tag_exists": False' in workflow
-    assert '"release_exists": False' in workflow
+    assert "tag_exists = $false" in workflow
+    assert "release_exists = $false" in workflow
 
 
 def test_v263_python_core_emits_cross_platform_synthetic_evidence() -> None:

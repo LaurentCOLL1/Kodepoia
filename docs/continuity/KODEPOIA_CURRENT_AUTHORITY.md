@@ -317,3 +317,12 @@ V2.5.3 implementation PR `#543` qualified **27/27** on exact head `e93bbf97ae536
 V2.5.3 is **COMPLETE + NORMALIZED**. Its accepted truth is a deterministic typed task DAG and fixed routing catalog with explicit capability/effect visibility, blocker propagation and immutable plan preview, without protected execution.
 
 The only authorized next implementation subdivision is **V2.5.4 — Governed execution, approval, cancellation and recovery**. V2.5.5+ and V2.6 remain unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.
+
+
+## V2.5.4 normalized authority
+
+V2.5.4 implementation PR `#545` qualified **26/26** on exact head `044ea9147fcb6e534af46254f54993a7a3e6e0a8` and merged with `expected_head_sha` protection as `5db682ca11ba89e2fb1857961f2b15d601844598`.
+
+V2.5.4 is **COMPLETE + NORMALIZED**. Its accepted truth is governed execution over the V2.5.3 DAG with exact lineage-bound mutation approval, destination-owned service routing, bounded concurrency/conflict control, KillSwitch-compatible cancellation, downstream blocking and lineage-safe recovery.
+
+The only authorized next implementation subdivision is **V2.5.5 — KodeStudio orchestration workspace and operational history**. V2.5.6 and V2.6 remain unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.

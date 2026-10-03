@@ -468,3 +468,10 @@ Accepted V2.5.2 provides immutable data-only cross-workspace handoff over existi
 Implementation PR `#543` was qualified **27/27** on exact final head `e93bbf97ae536457bfe33b918d78987c25ab79af` and merged with exact-head protection as `8956116e5c90e630b4d35982484f7c52ad688054`.
 
 Accepted V2.5.3 provides deterministic typed orchestration plans, workspace-owned tasks, fixed routing and visible effects/blockers without protected execution. **V2.5.4 only** is now authorized for implementation. V2.5.5+, V2.6 and release/TUF/updater work remain unauthorized.
+
+
+### V2.5.4 — COMPLETE + NORMALIZED; V2.5.5 CURRENT
+
+Implementation PR `#545` was qualified **26/26** on exact final head `044ea9147fcb6e534af46254f54993a7a3e6e0a8` and merged with exact-head protection as `5db682ca11ba89e2fb1857961f2b15d601844598`.
+
+Accepted V2.5.4 provides exact lineage-bound mutation approval, destination-owned execution routing, bounded conflict control/concurrency, KillSwitch cancellation, downstream blocking and lineage-safe recovery. **V2.5.5 only** is now authorized for implementation. V2.5.6, V2.6 and release/TUF/updater work remain unauthorized.

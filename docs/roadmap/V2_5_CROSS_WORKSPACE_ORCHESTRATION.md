@@ -479,3 +479,16 @@ Accepted V2.5.3 boundaries are frozen: deterministic typed task DAG, explicit wo
 **V2.5.4 — Governed execution, approval, cancellation and recovery is the only authorized implementation subdivision.** V2.5.5, V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
 
 The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.
+
+
+## 23. V2.5.4 qualification and current implementation authority
+
+V2.5.4 implementation PR `#545` completed **26/26** exact-head pull-request workflows with conclusion `success` on `044ea9147fcb6e534af46254f54993a7a3e6e0a8` and merged with `expected_head_sha` protection as `5db682ca11ba89e2fb1857961f2b15d601844598`.
+
+V2.5.4 is therefore **COMPLETE + NORMALIZED**.
+
+Accepted V2.5.4 boundaries are frozen: exact mutation approval lineage, fixed destination-service delegation, bounded concurrency and workspace conflict control, KillSwitch-compatible cancellation, downstream blocking after incomplete/failed prerequisites, lineage-safe recovery and deterministic execution evidence. It introduced no new orchestration semantics, no raw process-launch authority, no V2.5.5 operational-history UX and no release mutation.
+
+**V2.5.5 — KodeStudio orchestration workspace and operational history is the only authorized implementation subdivision.** V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
+
+The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.

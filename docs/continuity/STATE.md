@@ -1288,3 +1288,14 @@ Accepted V2.5.3 truth: typed deterministic orchestration tasks/plans, explicit w
 **V2.5.4 — Governed execution, approval, cancellation and recovery is now the only authorized V2.5 implementation subdivision.** V2.5.5+ and V2.6 remain unauthorized.
 
 Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.
+
+
+## V2.5.4 — Governed execution, approval, cancellation and recovery — COMPLETE + NORMALIZED; V2.5.5 CURRENT
+
+Implementation PR `#545` was qualified with **26/26** pull-request workflows on exact final head `044ea9147fcb6e534af46254f54993a7a3e6e0a8` and merged with exact-head protection as `5db682ca11ba89e2fb1857961f2b15d601844598`.
+
+Accepted V2.5.4 truth: mutation approvals bind exact plan/task/workspace/handoff lineage; execution delegates only through fixed destination-owned route adapters; concurrency is bounded with same-workspace conflict blocking; cancellation is KillSwitch-compatible; downstream tasks require completed dependency evidence; recovery fails closed on lineage mismatch; and execution evidence is deterministic. No V2.5.5 operational-history UX, V2.5.6 hardening, or release mutation was added.
+
+**V2.5.5 — KodeStudio orchestration workspace and operational history is now the only authorized V2.5 implementation subdivision.** V2.5.6 and V2.6 remain unauthorized.
+
+Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.

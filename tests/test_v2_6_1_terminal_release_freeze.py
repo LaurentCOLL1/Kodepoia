@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from kodepoia.release import CURRENT_RELEASE
+from kodepoia.release import CURRENT_RELEASE, ReleaseIdentity
 from kodepoia.release.terminal_freeze import (
     TERMINAL_RELEASE_FREEZE,
     TerminalReleaseFreeze,
@@ -20,18 +20,31 @@ def test_terminal_successor_is_stable_1_1_0_and_monotonic_from_rc8() -> None:
     freeze = TERMINAL_RELEASE_FREEZE
     target = freeze.successor_identity
 
-    assert CURRENT_RELEASE.public_version == "1.1.0-rc8"
-    assert CURRENT_RELEASE.channel == "beta"
+    baseline = ReleaseIdentity(
+        schema_version=1,
+        product="Kodepoia",
+        package="kodepoia",
+        channel="beta",
+        build_type="prerelease",
+        source_binding="exact-head",
+        major=1,
+        minor=1,
+        patch=0,
+        stage="rc",
+        serial=8,
+    )
+
+    assert baseline.public_version == "1.1.0-rc8"
     assert target.public_version == "1.1.0"
     assert target.pep440_version == "1.1.0"
     assert target.channel == "stable"
     assert target.build_type == "release"
     assert freeze.successor["tag"] == "v1.1.0"
-    freeze.assert_transition_from(CURRENT_RELEASE)
-    assert target.is_newer_than(CURRENT_RELEASE)
+    freeze.assert_transition_from(baseline)
+    assert target.is_newer_than(baseline)
 
 
-def test_v261_does_not_promote_runtime_identity_before_candidate_phase() -> None:
+def test_v261_candidate_phase_promotion_matches_frozen_successor() -> None:
     freeze = TERMINAL_RELEASE_FREEZE
     assert freeze.successor["candidate_source_freeze_phase"] == "V2.6.3"
     assert freeze.successor["candidate_source_sha"] is None
@@ -40,9 +53,11 @@ def test_v261_does_not_promote_runtime_identity_before_candidate_phase() -> None
     runtime_payload = json.loads(
         (ROOT / "src/kodepoia/release/release_identity.json").read_text(encoding="utf-8")
     )
-    assert runtime_payload["channel"] == "beta"
-    assert runtime_payload["version"]["stage"] == "rc"
-    assert runtime_payload["version"]["serial"] == 8
+    assert runtime_payload["channel"] == "stable"
+    assert runtime_payload["build_type"] == "release"
+    assert runtime_payload["version"]["stage"] == "final"
+    assert runtime_payload["version"]["serial"] == 0
+    assert CURRENT_RELEASE == freeze.successor_identity
 
 
 def test_windows_installer_and_update_identity_are_frozen_to_existing_contract() -> None:

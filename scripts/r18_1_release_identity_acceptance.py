@@ -133,12 +133,8 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
             "serial": CURRENT_RELEASE.serial,
         },
     }
-    expected_pep440 = (
-        f"{CURRENT_RELEASE.base_version}{CURRENT_RELEASE.stage}{CURRENT_RELEASE.serial}"
-    )
-    expected_public = (
-        f"{CURRENT_RELEASE.base_version}-{CURRENT_RELEASE.stage}{CURRENT_RELEASE.serial}"
-    )
+    expected_pep440 = CURRENT_RELEASE.pep440_version
+    expected_public = CURRENT_RELEASE.public_version
 
     checks = {
         "exact_source_bound": _git_head(root) == exact_source,
@@ -148,8 +144,8 @@ def build_acceptance(*, root: Path, source_sha: str) -> dict[str, Any]:
         "bound_source_sha_exact": bound_identity.source_sha == exact_source,
         "identity_cli_matches_bound_identity": identity_cli_payload == bound_identity.to_dict(),
         "canonical_package_name": CURRENT_RELEASE.package == "kodepoia",
-        "canonical_channel_beta": CURRENT_RELEASE.channel == "beta",
-        "canonical_build_type": CURRENT_RELEASE.build_type == "prerelease",
+        "canonical_channel_stable": CURRENT_RELEASE.channel == "stable",
+        "canonical_build_type": CURRENT_RELEASE.build_type == "release",
         "canonical_pep440_version": CURRENT_RELEASE.pep440_version == expected_pep440,
         "canonical_public_version": CURRENT_RELEASE.public_version == expected_public,
         "canonical_installer_version": CURRENT_RELEASE.installer_version == expected_public,

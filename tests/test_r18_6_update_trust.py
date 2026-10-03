@@ -37,10 +37,9 @@ def _target(*, channel: str | None = None) -> UpdateTargetSpec:
 
 def test_target_path_binds_channel_platform_release_identity_and_source() -> None:
     target = _target()
-    assert CURRENT_RELEASE.channel == "beta"
     assert target.path == (
-        f"channels/beta/windows-x86_64/{CURRENT_RELEASE.public_version}/"
-        f"{SOURCE_SHA}/KodepoiaSetup.exe"
+        f"channels/{CURRENT_RELEASE.channel}/windows-x86_64/"
+        f"{CURRENT_RELEASE.public_version}/{SOURCE_SHA}/KodepoiaSetup.exe"
     )
 
 
@@ -82,17 +81,18 @@ def test_compromised_mirror_target_is_refused_and_last_verified_candidate_surviv
 
 
 def test_wrong_channel_target_is_refused(tmp_path) -> None:
-    beta_target = _target()
-    stable_target = _target(channel="stable")
+    canonical_target = _target()
+    wrong_channel = "beta" if CURRENT_RELEASE.channel == "stable" else "stable"
+    other_target = _target(channel=wrong_channel)
     builder = SyntheticUpdateRepositoryBuilder()
-    repository = builder.build(beta_target, INSTALLER)
+    repository = builder.build(canonical_target, INSTALLER)
     client = UpdateClient(
         tmp_path,
         root_pin=PackagedRootPin.from_root(repository.root),
         reference_time=REFERENCE_TIME,
     )
 
-    result = client.check(MemoryUpdateTransport.from_repository(repository), stable_target)
+    result = client.check(MemoryUpdateTransport.from_repository(repository), other_target)
     assert result.status == "verification-failed"
     assert result.candidate is None
     assert "does not expose target" in result.detail

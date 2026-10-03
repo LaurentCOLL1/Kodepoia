@@ -1,5 +1,15 @@
 """KodeOrchestrator runtime."""
 
+from kodepoia.orchestrator.execution import (
+    EXECUTION_SCHEMA_VERSION,
+    DestinationServiceRegistry,
+    ExecutionEvidence,
+    ExecutionState,
+    GovernedExecutionCoordinator,
+    MutationApproval,
+    RecoveryBinding,
+)
+
 from kodepoia.orchestrator.handoff import (
     DATA_ONLY_AUTHORITY,
     WORKSPACE_HANDOFF_SCHEMA_VERSION,
@@ -28,6 +38,13 @@ from kodepoia.orchestrator.workspaces import (
 )
 
 __all__ = [
+    "EXECUTION_SCHEMA_VERSION",
+    "DestinationServiceRegistry",
+    "ExecutionEvidence",
+    "ExecutionState",
+    "GovernedExecutionCoordinator",
+    "MutationApproval",
+    "RecoveryBinding",
     "DATA_ONLY_AUTHORITY",
     "WORKSPACE_HANDOFF_SCHEMA_VERSION",
     "WorkspaceContextHandoff",

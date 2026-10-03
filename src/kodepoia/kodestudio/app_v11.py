@@ -468,6 +468,34 @@ def build_window(
         ),
     )
 
+    from kodepoia.kodestudio.orchestration_workspace import (
+        create_orchestration_workspace,
+        orchestration_nav_text,
+    )
+    from kodepoia.orchestrator.workspaces import WorkspaceRegistry
+
+    orchestration_registry = WorkspaceRegistry()
+    orchestration_roots = []
+    if is_kodepoia_project(root):
+        orchestration_roots.append(root)
+    orchestration_roots.extend(
+        recent_project_roots(preferences, include_missing=False)
+    )
+    for orchestration_root in orchestration_roots:
+        try:
+            orchestration_registry.register(orchestration_root)
+        except ValueError:
+            continue
+    orchestration_page = create_orchestration_workspace(
+        root,
+        locale=chosen_locale,
+        registry=orchestration_registry,
+    )
+    orchestration_index = nav.count() - 3
+    nav.insertItem(orchestration_index, orchestration_nav_text(chosen_locale))
+    pages.insertWidget(orchestration_index, orchestration_page)
+    window._kodepoia_orchestration_workspace = orchestration_page
+
     # R19.3 injects a packaged trusted service. Construction is deliberately
     # network-free, so update discovery can never become a startup dependency.
     settings_index = nav.count() - 1

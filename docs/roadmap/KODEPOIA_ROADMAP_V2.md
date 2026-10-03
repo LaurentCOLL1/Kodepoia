@@ -540,3 +540,12 @@ The terminal no-new-feature freeze is now effective. **V2.6.2 — Full V2 integr
 
 No public release/tag/asset/TUF/updater/WinGet mutation is authorized in V2.6.2. Live publication remains reserved to V2.6.6 after V2.6.1 through V2.6.5 are COMPLETE + NORMALIZED.
 
+### V2.6.2 — COMPLETE + NORMALIZED; V2.6.3 CURRENT
+
+Implementation PR `#555` was qualified **33/33** on exact final head `5badcfb68b5593432f24ef4cf53eafd596d109cd` and merged with exact-head protection as `2453c5122c096d807e5b49840d33a61e1bcc5e92`.
+
+The deterministic terminal hardening gate passed **12/12 on Ubuntu** and **12/12 on Windows**, with `critical_veto=false` and common evidence SHA-256 `91031f1462e46d9c24d17cc10fde5811d948c75a91597432861d0a211a16bfe0`. Full `pytest` completed before evidence emission on both systems.
+
+The V2.6.1 release freeze remains unchanged and no publication effect occurred. **V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth only** is now authorized. V2.6.4 through V2.6.6 remain unauthorized until sequential exact-head qualification, merge and post-merge normalization.
+
+V2.6.3 is candidate construction and qualification, not publication. It may build exact-source Windows artifacts, release bundle/manifest, SBOM/provenance, attestation and truthful signing evidence, exercise clean install/packaged smoke/uninstall, perform required two-build determinism checks and stage immutable release-description evidence. It must not publish a GitHub Release/tag/assets or mutate production TUF/update state.

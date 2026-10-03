@@ -308,3 +308,12 @@ V2.5.2 implementation PR `#541` qualified **27/27** on exact head `9aca5d635d2d3
 V2.5.2 is **COMPLETE + NORMALIZED**. Its accepted truth is immutable data-only cross-workspace context handoff bound to explicit workspace identity and existing Project Workspace context lineage, with visible provenance, bounded include/exclude and tamper detection, without task execution or authority promotion.
 
 The only authorized next implementation subdivision is **V2.5.3 — Orchestration plan, dependency DAG and routing**. V2.5.4+ and V2.6 remain unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.
+
+
+## V2.5.3 normalized authority
+
+V2.5.3 implementation PR `#543` qualified **27/27** on exact head `e93bbf97ae536457bfe33b918d78987c25ab79af` and merged with `expected_head_sha` protection as `8956116e5c90e630b4d35982484f7c52ad688054`.
+
+V2.5.3 is **COMPLETE + NORMALIZED**. Its accepted truth is a deterministic typed task DAG and fixed routing catalog with explicit capability/effect visibility, blocker propagation and immutable plan preview, without protected execution.
+
+The only authorized next implementation subdivision is **V2.5.4 — Governed execution, approval, cancellation and recovery**. V2.5.5+ and V2.6 remain unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.

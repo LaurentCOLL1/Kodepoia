@@ -47,8 +47,9 @@ def test_corrective_rc2_contract_remains_historical_while_current_identity_advan
     assert rc2.public_version == CORRECTIVE_PUBLIC_VERSION
     assert rc2.pep440_version == "1.1.0rc2"
     assert CURRENT_RELEASE.pep440_version == rc2.pep440_version or CURRENT_RELEASE.is_newer_than(rc2)
-    assert CURRENT_RELEASE.channel == "beta"
-    assert CURRENT_RELEASE.build_type == "prerelease"
+    assert CURRENT_RELEASE.public_version == "1.1.0"
+    assert CURRENT_RELEASE.channel == "stable"
+    assert CURRENT_RELEASE.build_type == "release"
     assert CURRENT_RELEASE.source_binding == "exact-head"
 
 

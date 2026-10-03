@@ -138,7 +138,7 @@ def main() -> int:
         ),
         _check(
             "candidate_identity",
-            CURRENT_RELEASE == target
+            target == CURRENT_RELEASE
             and CURRENT_RELEASE.public_version == "1.1.0"
             and CURRENT_RELEASE.pep440_version == "1.1.0"
             and CURRENT_RELEASE.channel == "stable"

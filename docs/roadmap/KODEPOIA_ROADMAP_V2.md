@@ -475,3 +475,10 @@ Accepted V2.5.3 provides deterministic typed orchestration plans, workspace-owne
 Implementation PR `#545` was qualified **26/26** on exact final head `044ea9147fcb6e534af46254f54993a7a3e6e0a8` and merged with exact-head protection as `5db682ca11ba89e2fb1857961f2b15d601844598`.
 
 Accepted V2.5.4 provides exact lineage-bound mutation approval, destination-owned execution routing, bounded conflict control/concurrency, KillSwitch cancellation, downstream blocking and lineage-safe recovery. **V2.5.5 only** is now authorized for implementation. V2.5.6, V2.6 and release/TUF/updater work remain unauthorized.
+
+
+### V2.5.5 — COMPLETE + NORMALIZED; V2.5.6 CURRENT
+
+Implementation PR `#547` was qualified **30/30** on exact final head `05cb36f5fed085838644d22a7aaa1225574ff023` and merged with exact-head protection as `5f1f27ef7a8001f5b9c649a84b67e9360c1a5ce4`.
+
+Accepted V2.5.5 provides the integrated KodeStudio orchestration workspace, explicit approval/execution/cancel/recovery controls over accepted V2.5 contracts, persistent hash-chained operational history, localization/accessibility and honest degraded states without new orchestration semantics. **V2.5.6 only** is now authorized. V2.6 and release/TUF/updater work remain unauthorized.

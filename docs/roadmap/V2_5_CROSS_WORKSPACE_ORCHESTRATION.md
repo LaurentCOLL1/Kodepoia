@@ -492,3 +492,16 @@ Accepted V2.5.4 boundaries are frozen: exact mutation approval lineage, fixed de
 **V2.5.5 — KodeStudio orchestration workspace and operational history is the only authorized implementation subdivision.** V2.5.6 and V2.6 remain unauthorized until sequential qualification and normalization.
 
 The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.
+
+
+## 24. V2.5.5 qualification and current implementation authority
+
+V2.5.5 implementation PR `#547` completed **30/30** exact-head pull-request workflows with conclusion `success` on `05cb36f5fed085838644d22a7aaa1225574ff023` and merged with `expected_head_sha` protection as `5f1f27ef7a8001f5b9c649a84b67e9360c1a5ce4`.
+
+V2.5.5 is therefore **COMPLETE + NORMALIZED**.
+
+Accepted V2.5.5 boundaries are frozen: dedicated KodeStudio orchestration workspace, explicit workspace/relationship management, handoff and plan inspection, explicit mutation approval UI, execution/cancellation/recovery controls that delegate to V2.5.4, persistent atomic hash-chained operational history, EN/FR/qps-ploc and accessibility, and honest empty/degraded states. It introduced no new orchestration semantics and no release mutation.
+
+**V2.5.6 — Cross-workspace hardening and integrated acceptance is the only authorized implementation subdivision.** V2.6 remains unauthorized until V2.5.6 is qualified, merged and post-merge normalized.
+
+The release boundary remains unchanged: no public release, tag, installer, TUF or updater mutation is authorized during V2.5.

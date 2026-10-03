@@ -652,3 +652,14 @@ Implement **V2.5.5 — KodeStudio orchestration workspace and operational histor
 Required scope: workspace/relationship management; task DAG/status display; handoff inspection; explicit approval controls for mutation-proposed tasks; evidence/output timeline; cancellation/recovery controls; persistent operational history over accepted V2.5.1-V2.5.4 contracts; EN/FR/qps-ploc and accessibility; honest empty/degraded states. Do not add new orchestration semantics, weaken approvals, or perform V2.5.6 hardening yet.
 
 V2.5.6, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own sequential qualification and normalization gates are satisfied.
+
+
+## Current next action — V2.5.6 only
+
+V2.5.5 is **COMPLETE + NORMALIZED** from PR `#547`, exact head `05cb36f5fed085838644d22a7aaa1225574ff023`, **30/30** successful workflows and merge `5f1f27ef7a8001f5b9c649a84b67e9360c1a5ce4`.
+
+Implement **V2.5.6 — Cross-workspace hardening and integrated acceptance** only.
+
+Required scope: adversarially prove the full V2.5 chain against path/symlink/identity confusion, authority spoofing, stale/revoked/tampered handoffs, dependency cycles/missing evidence, malicious routing/service/tool text, unauthorized destination writes, concurrent write conflicts, cancellation/orphan/partial-success handling, incompatible recovery, project deletion/move between planning and execution, secret leakage and deterministic degraded UI states; add exact-head Ubuntu/Windows integrated acceptance. Do not add new product capability or begin V2.6/release work.
+
+V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until V2.5.6 itself is qualified, merged and post-merge normalized.

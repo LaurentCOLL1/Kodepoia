@@ -1299,3 +1299,14 @@ Accepted V2.5.4 truth: mutation approvals bind exact plan/task/workspace/handoff
 **V2.5.5 — KodeStudio orchestration workspace and operational history is now the only authorized V2.5 implementation subdivision.** V2.5.6 and V2.6 remain unauthorized.
 
 Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.
+
+
+## V2.5.5 — KodeStudio orchestration workspace and operational history — COMPLETE + NORMALIZED; V2.5.6 CURRENT
+
+Implementation PR `#547` was qualified with **30/30** pull-request workflows on exact final head `05cb36f5fed085838644d22a7aaa1225574ff023` and merged with exact-head protection as `5f1f27ef7a8001f5b9c649a84b67e9360c1a5ce4`.
+
+Accepted V2.5.5 truth: a dedicated KodeStudio Orchestration workspace composes the accepted V2.5.1 workspace registry/relationships, V2.5.2 handoff inspection, V2.5.3 DAG preview and V2.5.4 governed execution controls; mutation approval remains explicit; cancellation/recovery delegate to the accepted coordinator; operational history is persistent, atomic and hash-chained; EN/FR/qps-ploc/accessibility and honest empty/degraded states are covered. No new orchestration semantics or release mutation was added.
+
+**V2.5.6 — Cross-workspace hardening and integrated acceptance is now the only authorized V2.5 implementation subdivision.** V2.6 remains unauthorized.
+
+Release sequencing remains unchanged: no release/tag/installer/TUF/updater mutation during V2.5. The next public release waits until V2 is completely finished.

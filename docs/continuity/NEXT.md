@@ -718,3 +718,18 @@ Do not publish a release, create/repoint a public release tag, upload public rel
 
 V2.6.3 through V2.6.6 remain unauthorized until their own sequential qualification and post-merge normalization gates are satisfied.
 
+## Current next action — V2.6.3 only
+
+V2.6.2 is **COMPLETE + NORMALIZED** from implementation PR `#555`, exact final head `5badcfb68b5593432f24ef4cf53eafd596d109cd`, **33/33** successful pull-request workflows and merge `2453c5122c096d807e5b49840d33a61e1bcc5e92`.
+
+Its deterministic terminal hardening evidence reported **12/12 PASS on Ubuntu** and **12/12 PASS on Windows**, `critical_veto=false`, with common evidence SHA-256 `91031f1462e46d9c24d17cc10fde5811d948c75a91597432861d0a211a16bfe0`. Full `pytest` passed before evidence emission on both operating systems.
+
+Implement **V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth** only.
+
+Required scope: freeze the exact candidate source from the qualified V2.6.3 head; build the R17 Windows installer; generate the release bundle/manifest; record installer SHA-256 and byte length; generate/validate SBOM and provenance; verify artifact attestation where available; record truthful Authenticode status without inventing production signing capability; perform clean install, packaged smoke and uninstall; perform deterministic/two-build comparison where required by the accepted R18 contract; and stage an immutable GitHub-release description bound to exact evidence.
+
+Preserve all V2.6.1/V2.6.2 release boundaries. The current public/runtime baseline remains `v1.1.0-rc8`; target identity remains `1.1.0` stable/release/`v1.1.0`; production signing remains unverified unless exact V2.6.3 evidence proves otherwise; WinGet remains OUT; expired production TUF metadata remains fail-closed and belongs to V2.6.4.
+
+Do not publish a GitHub Release, create or repoint the public `v1.1.0` tag, upload public release assets, mutate production TUF/update metadata, activate a live updater target, provision secrets, or submit WinGet.
+
+V2.6.4 through V2.6.6 remain unauthorized until their own sequential qualification and post-merge normalization gates are satisfied.

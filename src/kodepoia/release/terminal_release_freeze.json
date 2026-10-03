@@ -128,5 +128,20 @@
     "live_updater_activation": false,
     "winget_submission": false,
     "signing_secret_provisioning": false
+  },
+  "production_tuf_repository_observation": {
+    "observed_from_source_sha": "6402041e6c86b21260c9b0fd7176141fff53a0ee",
+    "root_expires": "2027-09-08T14:59:19Z",
+    "targets_expires": "2027-09-12T20:49:31Z",
+    "snapshot_expires": "2026-09-17T19:48:41Z",
+    "timestamp_expires": "2026-09-16T19:48:41Z",
+    "expired_roles_at_v2_6_1": [
+      "snapshot",
+      "timestamp"
+    ],
+    "repository_metadata_fresh": false,
+    "expired_metadata_accepted_by_updater": false,
+    "production_metadata_mutation_authorized": false,
+    "resolution_phase": "V2.6.4"
   }
 }

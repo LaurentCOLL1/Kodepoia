@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from kodepoia.orchestrator.execution import (
@@ -250,13 +251,20 @@ def create_orchestration_workspace(
             for column, value in enumerate(values):
                 relationship_table.setItem(row, column, QTableWidgetItem(value))
 
-    def refresh_history() -> None:
+    history_valid = True
+
+    def refresh_history() -> bool:
+        nonlocal history_valid
         try:
             records = history_store.records()
         except (OSError, ValueError, json.JSONDecodeError) as exc:
+            history_valid = False
             state.setText(ui(f"Historique invalide : {exc}", f"Invalid history: {exc}"))
             history_table.setRowCount(0)
-            return
+            for control in (approve, execute, cancel, recover):
+                control.setEnabled(False)
+            return False
+        history_valid = True
         history_table.setRowCount(len(records))
         for row, record in enumerate(records):
             values = (
@@ -269,6 +277,7 @@ def create_orchestration_workspace(
             )
             for column, value in enumerate(values):
                 history_table.setItem(row, column, QTableWidgetItem(value))
+        return True
 
     def add_relationship() -> None:
         source = str(relation_source.currentData() or "")
@@ -398,9 +407,11 @@ def create_orchestration_workspace(
     recover.clicked.connect(recover_task)
 
     refresh_workspaces()
-    refresh_history()
+    history_ok = refresh_history()
 
-    if plan is None and handoff is None:
+    if not history_ok:
+        pass
+    elif plan is None and handoff is None:
         state.setText(
             ui(
                 "Aucun plan ni transfert chargé. Les espaces et l’historique restent consultables.",

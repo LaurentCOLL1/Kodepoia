@@ -102,7 +102,7 @@ def test_cancel_plan_uses_kill_switch_and_blocks_new_work(tmp_path: Path) -> Non
 
 def test_recovery_is_lineage_bound(tmp_path: Path) -> None:
     workspace = WorkspaceIdentity.from_project_root(_project(tmp_path / "alpha", "Alpha"))
-    task = _task(workspace, "read", handoffs=("a" * 64,))
+    task = _task(workspace, "read")
     plan = OrchestrationPlan(plan_id="p", tasks=(task,))
     binding = RecoveryBinding.for_task(plan, task)
 
@@ -112,7 +112,13 @@ def test_recovery_is_lineage_bound(tmp_path: Path) -> None:
     completed = coordinator.recover(plan, "read", binding)
     assert completed.state is ExecutionState.COMPLETED
 
-    changed_task = _task(workspace, "read", handoffs=("b" * 64,))
+    changed_task = OrchestrationTask.for_workspace(
+        task_id="read",
+        workspace=workspace,
+        goal="changed recovery lineage",
+        route=OrchestrationRoute.KODECODE,
+        effect=OrchestrationEffect.READ_ONLY,
+    )
     changed_plan = OrchestrationPlan(plan_id="p", tasks=(changed_task,))
     with pytest.raises(ValueError, match="incompatible"):
         binding.assert_compatible(changed_plan, changed_task)

@@ -197,6 +197,18 @@ class WorkspaceRegistry:
         except KeyError as exc:
             raise KeyError(f"Unknown workspace: {workspace_id}") from exc
 
+    def assert_current(self, workspace_id: str) -> WorkspaceIdentity:
+        registered = self.workspace(workspace_id)
+        try:
+            observed = WorkspaceIdentity.from_project_root(registered.canonical_root)
+        except (OSError, ValueError) as exc:
+            raise ValueError("Workspace project is missing or invalid") from exc
+        if observed.workspace_id != registered.workspace_id:
+            raise ValueError("Workspace identity changed since registration")
+        if observed.digest_sha256 != registered.digest_sha256:
+            raise ValueError("Workspace project identity drift detected")
+        return registered
+
     def workspaces(self) -> tuple[WorkspaceIdentity, ...]:
         return tuple(
             sorted(

@@ -9,12 +9,16 @@ from enum import StrEnum
 from typing import Any
 
 from kodepoia.core.kill_switch import KillSwitch
+from kodepoia.core.secret_guard import SecretTaintGuard
+from kodepoia.core.secrets import KodeSecrets, MemorySecretBackend
+from kodepoia.orchestrator.handoff import WorkspaceContextHandoff
 from kodepoia.orchestrator.plan import (
     OrchestrationEffect,
     OrchestrationPlan,
     OrchestrationRoute,
     OrchestrationTask,
 )
+from kodepoia.orchestrator.workspaces import WorkspaceRegistry
 
 EXECUTION_SCHEMA_VERSION = 1
 
@@ -177,11 +181,19 @@ class GovernedExecutionCoordinator:
         *,
         max_concurrency: int = 2,
         kill_switch: KillSwitch | None = None,
+        workspace_registry: WorkspaceRegistry | None = None,
+        handoffs: Mapping[str, WorkspaceContextHandoff] | None = None,
+        secret_guard: SecretTaintGuard | None = None,
     ) -> None:
         if max_concurrency < 1:
             raise ValueError("max_concurrency must be positive")
         self.services = services
         self.kill_switch = kill_switch or KillSwitch()
+        self.workspace_registry = workspace_registry
+        self.handoffs = dict(handoffs or {})
+        self.secret_guard = secret_guard or SecretTaintGuard(
+            KodeSecrets(MemorySecretBackend())
+        )
         self._slots = threading.BoundedSemaphore(max_concurrency)
         self._lock = threading.RLock()
         self._workspace_locks: set[str] = set()
@@ -206,6 +218,30 @@ class GovernedExecutionCoordinator:
         expected = MutationApproval.for_task(plan, task)
         return approval.digest_sha256 == expected.digest_sha256
 
+    def _preflight_error(self, task: OrchestrationTask) -> str:
+        if self.workspace_registry is not None:
+            try:
+                self.workspace_registry.assert_current(task.workspace_id)
+            except (KeyError, ValueError):
+                return "WorkspaceIdentityDrift"
+        for digest in task.input_handoff_digests:
+            handoff = self.handoffs.get(digest)
+            if handoff is None:
+                return "MissingHandoffEvidence"
+            if handoff.digest_sha256 != digest:
+                return "HandoffDigestMismatch"
+            try:
+                handoff.assert_usable_for(
+                    task.workspace_id,
+                    source_workspace_ids=task.source_workspace_ids,
+                )
+            except ValueError:
+                return "InvalidHandoffEvidence"
+        return ""
+
+    def _sanitize_output(self, output: Any) -> Any:
+        return self.secret_guard.sanitize_payload(output)
+
     def cancel_plan(self, plan: OrchestrationPlan) -> int:
         with self._lock:
             self._cancelled_plans.add(plan.digest_sha256)
@@ -219,6 +255,17 @@ class GovernedExecutionCoordinator:
         approval: MutationApproval | None = None,
     ) -> ExecutionEvidence:
         task = self._task(plan, task_id)
+
+        preflight_error = self._preflight_error(task)
+        if preflight_error:
+            evidence = self._make_evidence(
+                plan,
+                task,
+                ExecutionState.BLOCKED,
+                error_type=preflight_error,
+            )
+            self._evidence[task.task_id] = evidence
+            return evidence
 
         if plan.digest_sha256 in self._cancelled_plans or self.kill_switch.triggered:
             evidence = self._make_evidence(plan, task, ExecutionState.CANCELLED)
@@ -266,7 +313,12 @@ class GovernedExecutionCoordinator:
                             if self.kill_switch.triggered
                             else ExecutionState.COMPLETED
                         )
-                        evidence = self._make_evidence(plan, task, state, output=output)
+                        evidence = self._make_evidence(
+                            plan,
+                            task,
+                            state,
+                            output=self._sanitize_output(output),
+                        )
             finally:
                 with self._lock:
                     self._workspace_locks.discard(task.workspace_id)

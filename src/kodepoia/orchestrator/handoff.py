@@ -13,6 +13,7 @@ from kodepoia.orchestrator.workspaces import WorkspaceIdentity
 
 WORKSPACE_HANDOFF_SCHEMA_VERSION = 1
 DATA_ONLY_AUTHORITY = "data_only"
+UNUSABLE_FRESHNESS_STATES = frozenset({"stale", "revoked", "quarantined", "expired", "missing"})
 
 
 def _canonical_json(payload: Any) -> str:
@@ -231,9 +232,37 @@ class WorkspaceContextHandoff:
     def verify_integrity(self) -> bool:
         return self.digest_sha256 == _sha256_payload(self._payload_without_digest())
 
+    def assert_usable_for(
+        self,
+        destination_workspace_id: str,
+        *,
+        source_workspace_ids: tuple[str, ...] = (),
+    ) -> None:
+        if not self.verify_integrity():
+            raise ValueError("Cross-workspace handoff integrity check failed")
+        if self.authority != DATA_ONLY_AUTHORITY or self.global_memory_promotion_allowed:
+            raise ValueError("Cross-workspace handoff authority is not data-only")
+        if self.destination_workspace_id != destination_workspace_id:
+            raise ValueError("Cross-workspace handoff destination mismatch")
+        if source_workspace_ids and self.source_workspace_id not in set(source_workspace_ids):
+            raise ValueError("Cross-workspace handoff source is not authorized by the task")
+        unusable = sorted(
+            {
+                source.freshness.strip().casefold()
+                for source in self.sources
+                if source.freshness.strip().casefold() in UNUSABLE_FRESHNESS_STATES
+            }
+        )
+        if unusable:
+            raise ValueError(
+                "Cross-workspace handoff contains unusable source freshness: "
+                + ", ".join(unusable)
+            )
+
 
 __all__ = [
     "DATA_ONLY_AUTHORITY",
+    "UNUSABLE_FRESHNESS_STATES",
     "WORKSPACE_HANDOFF_SCHEMA_VERSION",
     "WorkspaceContextHandoff",
     "WorkspaceHandoffSource",

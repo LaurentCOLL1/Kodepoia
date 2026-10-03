@@ -322,6 +322,7 @@ The six subdivisions and their effect boundaries are frozen. In particular, live
 **V2.6.1 — Terminal V2 scope, release identity and compatibility freeze is the only authorized implementation subdivision.** V2.6.2 through V2.6.6 remain unauthorized until sequential qualification and normalization.
 
 V2.6.1 must establish release identity and compatibility truth only. It must not publish or mutate production release/update state. The public baseline remains `v1.1.0-rc8`.
+
 ## 14. V2.6.1 qualification and current implementation authority
 
 V2.6.1 implementation PR `#553` completed **33/33** exact-head pull-request workflows with conclusion `success` on `272f72d3dabf3ee6219dc847d1afaf78e23c6ca6` and merged with `expected_head_sha` protection as `75fa3f38ec4039cfa6972e1adf930423d16320b3`.

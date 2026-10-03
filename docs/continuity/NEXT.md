@@ -703,6 +703,7 @@ Required scope: freeze the exact successor release version/channel/build type/ta
 Do not publish a release, create/repoint a public release tag, upload public release assets, mutate live production TUF/update metadata, provision or expose signing secrets, or submit WinGet in V2.6.1.
 
 V2.6.2 through V2.6.6 remain unauthorized until their own sequential qualification and normalization gates are satisfied.
+
 ## Current next action — V2.6.2 only
 
 V2.6.1 is **COMPLETE + NORMALIZED** from implementation PR `#553`, exact final head `272f72d3dabf3ee6219dc847d1afaf78e23c6ca6`, **33/33** successful pull-request workflows and merge `75fa3f38ec4039cfa6972e1adf930423d16320b3`.

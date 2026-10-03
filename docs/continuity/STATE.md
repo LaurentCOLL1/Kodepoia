@@ -1348,3 +1348,15 @@ Critical boundary: the next public release remains deferred until V2 product/har
 
 The current public distribution baseline remains `v1.1.0-rc8`. Planning does not guess the successor version; V2.6.1 must freeze it explicitly from the accepted release identity rules and observed release/signing capability truth.
 
+## V2.6 planning — COMPLETE + NORMALIZED; V2.6.1 CURRENT
+
+Planning PR `#551` was qualified with **25/25** pull-request workflows on exact final head `f6f6cb80092af2ee790bc3e81e1f7c620fe2d751` and merged with `expected_head_sha` protection as `b7af0d3024ac3bcdbf75835941873aabcb0be345`.
+
+The normative V2.6 contract is `docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_RELEASE.md`. Its six subdivisions and publication boundaries are frozen.
+
+**V2.6.1 — Terminal V2 scope, release identity and compatibility freeze is now the only authorized V2.6 implementation subdivision.** V2.6.2 through V2.6.6 remain unauthorized until sequential qualification and normalization.
+
+V2.6.1 may freeze the successor version/channel/build type/tag, exact-source release identity, installed rc8 upgrade baseline, Windows installer/update identity, Authenticode posture, release-note contract and WinGet in/out decision. It may not publish or create a public release/tag/asset, mutate production TUF/update metadata, or perform live updater activation.
+
+The public distribution baseline remains `v1.1.0-rc8` until the governed V2.6.6 publication succeeds.
+

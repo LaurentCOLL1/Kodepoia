@@ -520,3 +520,13 @@ Release sequencing is explicit: no public release/TUF/updater mutation in planni
 
 The current public baseline remains `v1.1.0-rc8`; successor version/channel and Authenticode posture are deliberately deferred to V2.6.1 rather than guessed during planning. R20 remains terminal and no R20.7 or V2.7 is authorized.
 
+### V2.6 planning — COMPLETE + NORMALIZED; V2.6.1 CURRENT
+
+Planning PR `#551` was qualified **25/25** on exact final head `f6f6cb80092af2ee790bc3e81e1f7c620fe2d751` and merged with exact-head protection as `b7af0d3024ac3bcdbf75835941873aabcb0be345`.
+
+The six frozen V2.6 subdivisions in `docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_RELEASE.md` are now normative.
+
+**V2.6.1 only** is authorized for implementation. V2.6.2 through V2.6.6 remain unauthorized until sequential qualification and post-merge normalization.
+
+The public release boundary remains unchanged: no public release/tag/asset/TUF/updater/WinGet mutation is authorized in V2.6.1. The current public baseline remains `v1.1.0-rc8`.
+

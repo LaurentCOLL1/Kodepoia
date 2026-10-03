@@ -692,3 +692,15 @@ Do not publish a release, create/repoint a release tag, upload public release as
 
 The next public Windows release is sequenced only after terminal V2 hardening: live publication is reserved to the final V2.6.6 subdivision after V2.6.1-V2.6.5 complete and normalize sequentially.
 
+## Current next action — V2.6.1 only
+
+V2.6 planning is **COMPLETE + NORMALIZED** from PR `#551`, exact head `f6f6cb80092af2ee790bc3e81e1f7c620fe2d751`, **25/25** successful workflows and merge `b7af0d3024ac3bcdbf75835941873aabcb0be345`.
+
+Implement **V2.6.1 — Terminal V2 scope, release identity and compatibility freeze** only.
+
+Required scope: freeze the exact successor release version/channel/build type/tag and release identity; validate monotonic transition from the installed/public `v1.1.0-rc8` baseline; freeze Windows installer and update-target identity; record truthful Authenticode posture without inventing production signing capability; freeze release-note/known-limitation contract; freeze supported installed-upgrade baseline; explicitly decide whether WinGet publication is in or out of the terminal release; and establish a no-new-feature freeze after identity acceptance.
+
+Do not publish a release, create/repoint a public release tag, upload public release assets, mutate live production TUF/update metadata, provision or expose signing secrets, or submit WinGet in V2.6.1.
+
+V2.6.2 through V2.6.6 remain unauthorized until their own sequential qualification and normalization gates are satisfied.
+

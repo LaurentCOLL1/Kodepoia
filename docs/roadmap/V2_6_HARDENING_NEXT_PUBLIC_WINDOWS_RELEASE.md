@@ -339,3 +339,18 @@ V2.6.2 must prove the terminal codebase with integrated V2.0-V2.5 regression, ad
 
 V2.6.2 must not create public release effects and must not repair or mutate production TUF metadata. Public release/tag/asset/TUF/updater/WinGet effects remain reserved to V2.6.6.
 
+## 15. V2.6.2 qualification and current implementation authority
+
+V2.6.2 implementation PR `#555` completed **33/33** exact-head pull-request workflows with conclusion `success` on `5badcfb68b5593432f24ef4cf53eafd596d109cd` and merged with `expected_head_sha` protection as `2453c5122c096d807e5b49840d33a61e1bcc5e92`.
+
+V2.6.2 is therefore **COMPLETE + NORMALIZED**.
+
+Its deterministic terminal hardening evidence passed **12/12 on Ubuntu** and **12/12 on Windows**, with `critical_veto=false` and common evidence SHA-256 `91031f1462e46d9c24d17cc10fde5811d948c75a91597432861d0a211a16bfe0`. The complete Python regression suite passed before the evidence step on both operating systems.
+
+The accepted result preserves the V2.6.1 terminal release freeze exactly and introduces no new product capability or public release effect.
+
+**V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth is the only authorized implementation subdivision.** V2.6.4 through V2.6.6 remain unauthorized until sequential qualification and normalization.
+
+V2.6.3 must create the frozen candidate from its exact qualified source and prove the existing R17/R18 release-artifact contracts: Windows installer, release bundle/manifest, exact SHA-256 and byte length, SBOM/provenance, artifact attestation where available, truthful Authenticode evidence, clean install/packaged smoke/uninstall, required deterministic two-build comparison, and immutable staged GitHub-release description bound to exact evidence.
+
+V2.6.3 must not publish the GitHub Release, create/repoint the public `v1.1.0` tag, publish public assets or mutate production TUF/update metadata. Live publication remains reserved to V2.6.6 after V2.6.1 through V2.6.5 are each COMPLETE + NORMALIZED.

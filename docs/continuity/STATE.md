@@ -1372,3 +1372,16 @@ The V2 terminal **no-new-feature freeze is now effective**. Remaining authorized
 
 No public release/tag/asset, production TUF mutation, live updater activation or WinGet submission is authorized in V2.6.2. Public release effects remain reserved to V2.6.6 after V2.6.1 through V2.6.5 are each COMPLETE + NORMALIZED.
 
+## V2.6.2 — Full V2 integrated regression and adversarial hardening — COMPLETE + NORMALIZED; V2.6.3 CURRENT
+
+Implementation PR `#555` was qualified with **33/33** pull-request workflows on exact final head `5badcfb68b5593432f24ef4cf53eafd596d109cd` and merged with `expected_head_sha` protection as `2453c5122c096d807e5b49840d33a61e1bcc5e92`.
+
+The deterministic V2.6.2 terminal hardening gate reported **12/12 PASS on Ubuntu** and **12/12 PASS on Windows**, with `critical_veto=false` and common evidence SHA-256 `91031f1462e46d9c24d17cc10fde5811d948c75a91597432861d0a211a16bfe0`. The complete `pytest` suite passed before V2.6.2 evidence was emitted on both operating systems.
+
+Accepted V2.6.2 truth preserves the terminal no-new-feature freeze and proves the integrated V2.0-V2.5 codebase across security/privacy/secrets, ResearchGuard, Project Knowledge, memory, Model Lab, multi-GPU lineage, cross-workspace orchestration, packaged Windows durability, KillSwitch/recovery/resource-soak, updater offline/freshness/rollback/tamper behavior and release-freeze invariants.
+
+No public release/tag/asset, production TUF mutation, live updater activation, signing-secret provisioning or WinGet submission occurred. The public/runtime baseline remains `v1.1.0-rc8`; the frozen terminal target remains `1.1.0` stable/release/`v1.1.0`; `candidate_source_sha` remains unset until V2.6.3; production Authenticode signing remains unverified; WinGet remains OUT; and production TUF snapshot/timestamp expiry remains fail-closed pending V2.6.4.
+
+**V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth is now the only authorized implementation subdivision.** V2.6.4 through V2.6.6 remain unauthorized until sequential qualification and normalization.
+
+V2.6.3 may create and qualify the exact-source Windows release candidate, release bundle/manifest, installer SHA-256 and byte length, SBOM/provenance, artifact-attestation evidence where available, truthful Authenticode evidence, clean install/packaged smoke/uninstall proof, deterministic two-build comparison where required, and immutable staged GitHub-release description bound to exact evidence. It must not publish a GitHub Release, create/repoint a public tag, publish public assets, or mutate production TUF/update state.

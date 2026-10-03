@@ -102,3 +102,28 @@ def test_empty_workspace_is_honest_and_does_not_claim_execution(tmp_path: Path) 
     assert "No plan or handoff loaded" in state.text()
     widget.close()
     app.processEvents()
+
+
+def test_app_v11_integrates_orchestration_workspace_before_security(tmp_path: Path) -> None:
+    from PySide6.QtWidgets import QApplication, QListWidget, QWidget
+
+    from kodepoia.kodestudio.app_v11 import build_window
+
+    app = QApplication.instance() or QApplication([])
+    project = _project(tmp_path / "alpha", "Alpha")
+    window = build_window(locale="en", project_root=project)
+    nav = window.findChild(QListWidget, "mainNavigation")
+    workspace = window.findChild(QWidget, "orchestrationWorkspace")
+
+    assert nav is not None
+    texts = [nav.item(index).text() for index in range(nav.count())]
+    assert "Orchestration" in texts
+    orchestration_index = texts.index("Orchestration")
+    security_index = next(
+        index for index, text in enumerate(texts)
+        if text in {"Security", "Sécurité"}
+    )
+    assert orchestration_index < security_index
+    assert workspace is not None
+    window.close()
+    app.processEvents()

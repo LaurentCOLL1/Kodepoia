@@ -169,7 +169,7 @@ class DestinationServiceRegistry:
 
 
 class GovernedExecutionCoordinator:
-    """Coordinate approved plan tasks without exposing raw shell/argv/env surfaces."""
+    """Coordinate approved plan tasks without exposing raw process-launch configuration."""
 
     def __init__(
         self,

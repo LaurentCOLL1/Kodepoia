@@ -1359,6 +1359,7 @@ The normative V2.6 contract is `docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_
 V2.6.1 may freeze the successor version/channel/build type/tag, exact-source release identity, installed rc8 upgrade baseline, Windows installer/update identity, Authenticode posture, release-note contract and WinGet in/out decision. It may not publish or create a public release/tag/asset, mutate production TUF/update metadata, or perform live updater activation.
 
 The public distribution baseline remains `v1.1.0-rc8` until the governed V2.6.6 publication succeeds.
+
 ## V2.6.1 — Terminal V2 scope, release identity and compatibility freeze — COMPLETE + NORMALIZED; V2.6.2 CURRENT
 
 Implementation PR `#553` was qualified with **33/33** pull-request workflows on exact final head `272f72d3dabf3ee6219dc847d1afaf78e23c6ca6` and merged with `expected_head_sha` protection as `75fa3f38ec4039cfa6972e1adf930423d16320b3`.

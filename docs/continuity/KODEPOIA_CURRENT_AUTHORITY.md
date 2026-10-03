@@ -364,3 +364,13 @@ The planning contract freezes six intended subdivisions: release identity/scope 
 
 No public release/tag/asset/TUF/updater/WinGet mutation is authorized by planning. `v1.1.0-rc8` remains the current public distribution authority. Planning does not preselect the successor version or falsely claim production signing capability.
 
+## V2.6 planning normalized authority
+
+V2.6 planning PR `#551` qualified **25/25** pull-request workflows on exact final head `f6f6cb80092af2ee790bc3e81e1f7c620fe2d751` and merged with `expected_head_sha` protection as `b7af0d3024ac3bcdbf75835941873aabcb0be345`.
+
+V2.6 planning is **COMPLETE + NORMALIZED**. The six-subdivision terminal V2 contract and its effect boundaries are frozen under `docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_RELEASE.md`.
+
+The only authorized implementation subdivision is **V2.6.1 — Terminal V2 scope, release identity and compatibility freeze**. V2.6.2 through V2.6.6 remain unauthorized.
+
+V2.6.1 is a release-identity/scope freeze, not a publication authorization. No public release/tag/asset, production TUF/update mutation, live updater activation or WinGet submission is authorized. The current public distribution authority remains `v1.1.0-rc8`.
+

@@ -2,14 +2,14 @@
   "schema_version": 1,
   "product": "Kodepoia",
   "package": "kodepoia",
-  "channel": "beta",
-  "build_type": "prerelease",
+  "channel": "stable",
+  "build_type": "release",
   "source_binding": "exact-head",
   "version": {
     "major": 1,
     "minor": 1,
     "patch": 0,
-    "stage": "rc",
-    "serial": 8
+    "stage": "final",
+    "serial": 0
   }
 }

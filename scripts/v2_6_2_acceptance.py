@@ -298,7 +298,8 @@ def main() -> int:
             name="terminal-release-freeze-unchanged",
             domain="release-freeze",
             passed=(
-                CURRENT_RELEASE.public_version == "1.1.0-rc8"
+                freeze.public_baseline["public_version"] == "1.1.0-rc8"
+                and CURRENT_RELEASE == freeze.successor_identity
                 and freeze.successor_identity.public_version == "1.1.0"
                 and freeze.successor["candidate_source_sha"] is None
                 and freeze.authenticode["production_signing_verified"] is False

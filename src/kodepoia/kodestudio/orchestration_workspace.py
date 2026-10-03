@@ -54,7 +54,8 @@ def create_orchestration_workspace(
         QWidget,
     )
 
-    ui = lambda fr, en: _localized(locale, fr, en)
+    def ui(fr: str, en: str) -> str:
+        return _localized(locale, fr, en)
     root = Path(project_root).resolve(strict=False)
     registry = registry or WorkspaceRegistry()
     history_store = history_store or OrchestrationHistoryStore(root)

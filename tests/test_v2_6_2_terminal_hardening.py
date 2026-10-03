@@ -117,7 +117,7 @@ def test_v262_full_v2_acceptance_chain_is_wired_before_terminal_evidence() -> No
     for script in expected:
         assert f"python scripts/{script}" in workflow, script
 
-    full_pytest = "      - name: Test\\n        run: pytest"
+    full_pytest = "      - name: Test\n        run: pytest"
     terminal_acceptance = (
         "      - name: Run V2.6.2 terminal integrated hardening exact-head acceptance"
     )

@@ -482,3 +482,14 @@ Accepted V2.5.4 provides exact lineage-bound mutation approval, destination-owne
 Implementation PR `#547` was qualified **30/30** on exact final head `05cb36f5fed085838644d22a7aaa1225574ff023` and merged with exact-head protection as `5f1f27ef7a8001f5b9c649a84b67e9360c1a5ce4`.
 
 Accepted V2.5.5 provides the integrated KodeStudio orchestration workspace, explicit approval/execution/cancel/recovery controls over accepted V2.5 contracts, persistent hash-chained operational history, localization/accessibility and honest degraded states without new orchestration semantics. **V2.5.6 only** is now authorized. V2.6 and release/TUF/updater work remain unauthorized.
+
+### V2.5.6 — COMPLETE + NORMALIZED; V2.5 COMPLETE
+
+Implementation PR `#549` was qualified **27/27** on exact final head `b05d77d2b37976dcef71543e718cde245026a7e4` and merged with exact-head protection as `cd62836229466607672ec8aaae47d9871443c0d0`.
+
+The deterministic V2.5.6 exact-head acceptance reported **20/20 PASS** on Ubuntu and Windows. Accepted V2.5.6 provides adversarial proof and fail-closed hardening across workspace identity, cross-workspace handoff freshness/integrity, missing evidence, fixed routing, destination mutation approval, concurrent write conflicts, cancellation/partial-success, lineage-safe recovery, project move/delete, secret sanitization, hash-chained history corruption and degraded KodeStudio states.
+
+V2.5 planning and V2.5.1 through V2.5.6 are now **COMPLETE + NORMALIZED**. The six-subdivision V2.5 sequence is closed; no V2.5.7 is authorized.
+
+V2.6 remains the listed next roadmap phase, but **V2.6 planning and implementation are not authorized by this normalization**. A separate explicit authority and planning contract are required before V2.6 work begins. Release/tag/installer/TUF/updater mutation remains unauthorized; `v1.1.0-rc8` remains the public baseline.
+

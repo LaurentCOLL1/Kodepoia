@@ -116,3 +116,20 @@ def test_invalid_freeze_cannot_claim_production_signing_or_winget() -> None:
     payload["winget"]["decision"] = "in"
     with pytest.raises(TerminalReleaseFreezeError, match="WinGet"):
         TerminalReleaseFreeze.from_mapping(payload)
+
+
+def test_repository_tuf_freshness_truth_is_observed_without_authorizing_mutation() -> None:
+    observation = TERMINAL_RELEASE_FREEZE.production_tuf_repository_observation
+
+    assert observation["observed_from_source_sha"] == (
+        "6402041e6c86b21260c9b0fd7176141fff53a0ee"
+    )
+    assert observation["root_expires"] == "2027-09-08T14:59:19Z"
+    assert observation["targets_expires"] == "2027-09-12T20:49:31Z"
+    assert observation["snapshot_expires"] == "2026-09-17T19:48:41Z"
+    assert observation["timestamp_expires"] == "2026-09-16T19:48:41Z"
+    assert observation["expired_roles_at_v2_6_1"] == ["snapshot", "timestamp"]
+    assert observation["repository_metadata_fresh"] is False
+    assert observation["expired_metadata_accepted_by_updater"] is False
+    assert observation["production_metadata_mutation_authorized"] is False
+    assert observation["resolution_phase"] == "V2.6.4"

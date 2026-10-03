@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 from pathlib import Path
@@ -342,6 +343,14 @@ def main() -> int:
             "signing_secret_provisioned": False,
         }
     )
+    payload.pop("evidence_sha256", None)
+    canonical = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    payload["evidence_sha256"] = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)

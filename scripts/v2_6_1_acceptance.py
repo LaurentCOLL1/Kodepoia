@@ -6,7 +6,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from kodepoia.release import CURRENT_RELEASE
+from kodepoia.release import CURRENT_RELEASE, ReleaseIdentity
 from kodepoia.release.terminal_freeze import TERMINAL_RELEASE_FREEZE
 from kodepoia.release.winget import WinGetInstallerEvidence, build_winget_bundle
 
@@ -49,7 +49,20 @@ def main() -> int:
 
     freeze = TERMINAL_RELEASE_FREEZE
     target = freeze.successor_identity
-    freeze.assert_transition_from(CURRENT_RELEASE)
+    baseline = ReleaseIdentity(
+        schema_version=1,
+        product="Kodepoia",
+        package="kodepoia",
+        channel="beta",
+        build_type="prerelease",
+        source_binding="exact-head",
+        major=1,
+        minor=1,
+        patch=0,
+        stage="rc",
+        serial=8,
+    )
+    freeze.assert_transition_from(baseline)
 
     preview = build_winget_bundle(
         WinGetInstallerEvidence(
@@ -87,7 +100,7 @@ def main() -> int:
         ),
         _check(
             "public_baseline_rc8",
-            CURRENT_RELEASE.public_version == "1.1.0-rc8"
+            baseline.public_version == "1.1.0-rc8"
             and freeze.public_baseline["public_version"] == "1.1.0-rc8"
             and freeze.public_baseline["source_sha"]
             == "fa787ab7ef76f2556b56ac1f058916a1425455af"
@@ -107,8 +120,8 @@ def main() -> int:
         ),
         _check(
             "monotonic_transition",
-            target.is_newer_than(CURRENT_RELEASE)
-            and CURRENT_RELEASE.can_transition_to(target)
+            target.is_newer_than(baseline)
+            and baseline.can_transition_to(target)
             and freeze.transition["monotonic"] is True,
             "1.1.0 final is a valid monotonic transition from 1.1.0-rc8",
         ),
@@ -213,16 +226,17 @@ def main() -> int:
         _check(
             "no_public_effects",
             all(value is False for value in freeze.effects.values())
-            and "channels/stable/windows-x86_64/1.1.0/" not in targets
-            and CURRENT_RELEASE.public_version == "1.1.0-rc8",
+            and "channels/stable/windows-x86_64/1.1.0/" not in targets,
             "V2.6.1 performs no public release/tag/TUF/updater/WinGet effect",
         ),
         _check(
-            "runtime_identity_not_promoted",
-            '"stage": "rc"' in read("src/kodepoia/release/release_identity.json")
-            and '"serial": 8' in read("src/kodepoia/release/release_identity.json")
-            and 'version = "1.1.0rc8"' in read("pyproject.toml"),
-            "runtime canonical identity remains rc8 until exact candidate construction",
+            "runtime_identity_candidate_phase",
+            CURRENT_RELEASE == target
+            and '"channel": "stable"' in read("src/kodepoia/release/release_identity.json")
+            and '"stage": "final"' in read("src/kodepoia/release/release_identity.json")
+            and '"serial": 0' in read("src/kodepoia/release/release_identity.json")
+            and 'version = "1.1.0"' in read("pyproject.toml"),
+            "runtime canonical identity matches the frozen successor in the V2.6.3 candidate phase",
         ),
         _check(
             "ci_exact_head",

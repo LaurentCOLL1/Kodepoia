@@ -703,4 +703,17 @@ Required scope: freeze the exact successor release version/channel/build type/ta
 Do not publish a release, create/repoint a public release tag, upload public release assets, mutate live production TUF/update metadata, provision or expose signing secrets, or submit WinGet in V2.6.1.
 
 V2.6.2 through V2.6.6 remain unauthorized until their own sequential qualification and normalization gates are satisfied.
+## Current next action — V2.6.2 only
+
+V2.6.1 is **COMPLETE + NORMALIZED** from implementation PR `#553`, exact final head `272f72d3dabf3ee6219dc847d1afaf78e23c6ca6`, **33/33** successful pull-request workflows and merge `75fa3f38ec4039cfa6972e1adf930423d16320b3`.
+
+Implement **V2.6.2 — Full V2 integrated regression and adversarial hardening** only, under the terminal no-new-feature freeze.
+
+Required scope: integrated V2.0 through V2.5 regression; security/privacy/secrets/tools/workspaces/memory/research/Model Lab/orchestration adversarial coverage; packaged Windows UI and project-durability checks; cancellation/recovery/resource-soak checks; updater local-availability and fail-closed invariants; critical-veto aggregation; and deterministic exact-head Ubuntu/Windows evidence.
+
+Preserve the V2.6.1 release freeze exactly: target identity remains `1.1.0` stable/release/`v1.1.0`; current public/runtime baseline remains `v1.1.0-rc8`; candidate source SHA remains unset until V2.6.3; production Authenticode signing remains unverified; WinGet stays OUT; and expired production TUF snapshot/timestamp metadata must continue to fail closed and must not be repaired live in V2.6.2.
+
+Do not publish a release, create/repoint a public release tag, upload public release assets, mutate production TUF/update metadata, activate a live updater target, provision signing secrets or submit WinGet.
+
+V2.6.3 through V2.6.6 remain unauthorized until their own sequential qualification and post-merge normalization gates are satisfied.
 

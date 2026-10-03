@@ -371,6 +371,7 @@ def build_window(
     from kodepoia.kodestudio.project_sessions import (
         active_project_root,
         is_kodepoia_project,
+        recent_project_roots,
         remember_project,
     )
     from kodepoia.kodestudio.vision_assistant import VisionAssistant

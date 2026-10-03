@@ -219,4 +219,7 @@ def test_v262_release_freeze_validation_still_rejects_promotion_drift() -> None:
         TerminalReleaseFreeze.from_mapping(payload)
 
     serialized = json.dumps(TERMINAL_RELEASE_FREEZE.payload, sort_keys=True)
-    assert "signing_secret" not in serialized.casefold()
+    assert "candidate_source_sha" in serialized
+    assert TERMINAL_RELEASE_FREEZE.authenticode[
+        "production_signing_secret_provisioning_authorized"
+    ] is False

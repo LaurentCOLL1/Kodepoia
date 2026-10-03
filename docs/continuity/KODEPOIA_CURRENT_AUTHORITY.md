@@ -326,3 +326,12 @@ V2.5.4 implementation PR `#545` qualified **26/26** on exact head `044ea9147fcb6
 V2.5.4 is **COMPLETE + NORMALIZED**. Its accepted truth is governed execution over the V2.5.3 DAG with exact lineage-bound mutation approval, destination-owned service routing, bounded concurrency/conflict control, KillSwitch-compatible cancellation, downstream blocking and lineage-safe recovery.
 
 The only authorized next implementation subdivision is **V2.5.5 — KodeStudio orchestration workspace and operational history**. V2.5.6 and V2.6 remain unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.
+
+
+## V2.5.5 normalized authority
+
+V2.5.5 implementation PR `#547` qualified **30/30** on exact head `05cb36f5fed085838644d22a7aaa1225574ff023` and merged with `expected_head_sha` protection as `5f1f27ef7a8001f5b9c649a84b67e9360c1a5ce4`.
+
+V2.5.5 is **COMPLETE + NORMALIZED**. Its accepted truth is the integrated KodeStudio orchestration workspace and persistent operational history over V2.5.1-V2.5.4, with explicit mutation approval, visible evidence/timeline, cancellation/recovery controls, localization/accessibility and honest degraded states.
+
+The only authorized next implementation subdivision is **V2.5.6 — Cross-workspace hardening and integrated acceptance**. V2.6 remains unauthorized. No release/tag/installer/TUF/updater mutation is authorized during V2.5.

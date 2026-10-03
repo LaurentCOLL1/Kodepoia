@@ -371,6 +371,15 @@ jobs:
           }
       - name: Test
         run: pytest
+      - name: Run V2.6.2 terminal integrated hardening exact-head acceptance
+        run: python scripts/v2_6_2_acceptance.py --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}" --output artifacts/v2_6_2/terminal-hardening.json
+      - name: Upload V2.6.2 exact-head evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-6-2-terminal-hardening-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: artifacts/v2_6_2/terminal-hardening.json
+          if-no-files-found: error
+          retention-days: 30
 
   ui-smoke:
     name: kodestudio-ui-windows

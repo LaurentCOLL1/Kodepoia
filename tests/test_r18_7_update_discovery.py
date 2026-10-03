@@ -103,7 +103,7 @@ def test_same_version_is_up_to_date(tmp_path) -> None:
     repository = SyntheticUpdateRepositoryBuilder().build(target, INSTALLER)
     service, _ = _service(tmp_path, repository, installed_release=CURRENT_RELEASE)
 
-    result = service.check("beta")
+    result = service.check(CURRENT_RELEASE.channel)
 
     assert result.status == "up-to-date"
     assert result.candidate is not None

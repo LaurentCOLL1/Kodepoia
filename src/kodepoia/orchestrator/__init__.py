@@ -10,6 +10,13 @@ from kodepoia.orchestrator.execution import (
     RecoveryBinding,
 )
 
+from kodepoia.orchestrator.history import (
+    GENESIS_DIGEST,
+    ORCHESTRATION_HISTORY_SCHEMA_VERSION,
+    OrchestrationHistoryRecord,
+    OrchestrationHistoryStore,
+)
+
 from kodepoia.orchestrator.handoff import (
     DATA_ONLY_AUTHORITY,
     WORKSPACE_HANDOFF_SCHEMA_VERSION,
@@ -45,6 +52,10 @@ __all__ = [
     "GovernedExecutionCoordinator",
     "MutationApproval",
     "RecoveryBinding",
+    "GENESIS_DIGEST",
+    "ORCHESTRATION_HISTORY_SCHEMA_VERSION",
+    "OrchestrationHistoryRecord",
+    "OrchestrationHistoryStore",
     "DATA_ONLY_AUTHORITY",
     "WORKSPACE_HANDOFF_SCHEMA_VERSION",
     "WorkspaceContextHandoff",

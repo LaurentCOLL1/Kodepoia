@@ -529,6 +529,7 @@ The six frozen V2.6 subdivisions in `docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WIN
 **V2.6.1 only** is authorized for implementation. V2.6.2 through V2.6.6 remain unauthorized until sequential qualification and post-merge normalization.
 
 The public release boundary remains unchanged: no public release/tag/asset/TUF/updater/WinGet mutation is authorized in V2.6.1. The current public baseline remains `v1.1.0-rc8`.
+
 ### V2.6.1 — COMPLETE + NORMALIZED; V2.6.2 CURRENT
 
 Implementation PR `#553` was qualified **33/33** on exact final head `272f72d3dabf3ee6219dc847d1afaf78e23c6ca6` and merged with exact-head protection as `75fa3f38ec4039cfa6972e1adf930423d16320b3`.

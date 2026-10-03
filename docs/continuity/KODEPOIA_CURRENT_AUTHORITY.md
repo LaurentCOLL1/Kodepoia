@@ -373,6 +373,7 @@ V2.6 planning is **COMPLETE + NORMALIZED**. The six-subdivision terminal V2 cont
 The only authorized implementation subdivision is **V2.6.1 — Terminal V2 scope, release identity and compatibility freeze**. V2.6.2 through V2.6.6 remain unauthorized.
 
 V2.6.1 is a release-identity/scope freeze, not a publication authorization. No public release/tag/asset, production TUF/update mutation, live updater activation or WinGet submission is authorized. The current public distribution authority remains `v1.1.0-rc8`.
+
 ## V2.6.1 normalized authority
 
 V2.6.1 implementation PR `#553` qualified **33/33** pull-request workflows on exact final head `272f72d3dabf3ee6219dc847d1afaf78e23c6ca6` and merged with `expected_head_sha` protection as `75fa3f38ec4039cfa6972e1adf930423d16320b3`.

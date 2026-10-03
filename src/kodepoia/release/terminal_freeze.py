@@ -68,6 +68,10 @@ class TerminalReleaseFreeze:
         return self._mapping("winget")
 
     @property
+    def production_tuf_repository_observation(self) -> Mapping[str, Any]:
+        return self._mapping("production_tuf_repository_observation")
+
+    @property
     def no_new_feature_freeze(self) -> Mapping[str, Any]:
         return self._mapping("no_new_feature_freeze")
 
@@ -158,6 +162,20 @@ class TerminalReleaseFreeze:
         winget = self.winget
         if winget.get("decision") != "out" or winget.get("public_submission_authorized") is not False:
             raise TerminalReleaseFreezeError("WinGet must be explicitly out for v1.1.0")
+
+        tuf_observation = self.production_tuf_repository_observation
+        if tuf_observation.get("observed_from_source_sha") != self.terminal_scope_base_sha:
+            raise TerminalReleaseFreezeError("TUF freshness observation source mismatch")
+        if tuf_observation.get("expired_roles_at_v2_6_1") != ["snapshot", "timestamp"]:
+            raise TerminalReleaseFreezeError("TUF expired-role observation mismatch")
+        if tuf_observation.get("repository_metadata_fresh") is not False:
+            raise TerminalReleaseFreezeError("V2.6.1 must preserve observed stale TUF truth")
+        if tuf_observation.get("expired_metadata_accepted_by_updater") is not False:
+            raise TerminalReleaseFreezeError("expired TUF metadata cannot be accepted")
+        if tuf_observation.get("production_metadata_mutation_authorized") is not False:
+            raise TerminalReleaseFreezeError("V2.6.1 cannot authorize production TUF mutation")
+        if tuf_observation.get("resolution_phase") != "V2.6.4":
+            raise TerminalReleaseFreezeError("TUF freshness resolution belongs to V2.6.4")
 
         freeze = self.no_new_feature_freeze
         if freeze.get("effective_after_v2_6_1_normalization") is not True:

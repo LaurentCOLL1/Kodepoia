@@ -97,12 +97,18 @@ def main() -> int:
             name="current-authority",
             domain="release-freeze",
             passed=(
-                "V2.6.2 — Full V2 integrated regression and adversarial hardening is now the only authorized implementation subdivision"
+                (
+                    "V2.6.2 — Full V2 integrated regression and adversarial hardening "
+                    "is now the only authorized implementation subdivision"
+                )
                 in state
                 and "Current next action — V2.6.2 only" in next_doc
                 and "The only authorized implementation subdivision is **V2.6.2" in authority
                 and "V2.6.2 CURRENT" in roadmap
-                and "V2.6.2 — Full V2 integrated regression and adversarial hardening is the only authorized implementation subdivision"
+                and (
+                    "V2.6.2 — Full V2 integrated regression and adversarial hardening "
+                    "is the only authorized implementation subdivision"
+                )
                 in v26
             ),
             detail="V2.6.1 is normalized and V2.6.2 alone is authorized",
@@ -115,7 +121,10 @@ def main() -> int:
                 for script in expected_acceptance_scripts
             )
             and full_suite_before_evidence,
-            detail="all accepted V2.0-V2.6.1 exact-head acceptances and complete pytest precede V2.6.2 evidence",
+            detail=(
+                "all accepted V2.0-V2.6.1 exact-head acceptances and complete pytest "
+                "precede V2.6.2 evidence"
+            ),
         ),
         TerminalHardeningCheck(
             name="security-privacy-adversarial",
@@ -187,7 +196,10 @@ def main() -> int:
                 and _contains_all(
                     model_lab["production"],
                     (
-                        "test_v246_live_evidence_fails_closed_for_provider_topology_lineage_and_integrity_drift",
+                        (
+                            "test_v246_live_evidence_fails_closed_for_provider_topology_"
+                            "lineage_and_integrity_drift"
+                        ),
                         "test_v246_launcher_and_security_boundaries_have_no_text_driven_escape_surface",
                     ),
                 )
@@ -207,7 +219,10 @@ def main() -> int:
                     "test_v256_secret_tainted_service_output_is_sanitized_before_evidence",
                 ),
             ),
-            detail="cross-workspace handoff, approval, cancellation, recovery and evidence boundaries remain enforced",
+            detail=(
+                "cross-workspace handoff, approval, cancellation, recovery and evidence "
+                "boundaries remain enforced"
+            ),
         ),
         TerminalHardeningCheck(
             name="packaged-windows-durability",
@@ -223,7 +238,10 @@ def main() -> int:
                 and "--smoke-test" in windows_installer
                 and "test_r16_15_full_project_durability_report" in resilience["durability"]
             ),
-            detail="Windows package/UI/custom-directory/uninstall and project durability coverage remains mandatory",
+            detail=(
+                "Windows package/UI/custom-directory/uninstall and project durability "
+                "coverage remains mandatory"
+            ),
         ),
         TerminalHardeningCheck(
             name="cancellation-recovery-resource-soak",
@@ -270,7 +288,10 @@ def main() -> int:
                 ]
                 is False
             ),
-            detail="offline state stays explicit while expiry, rollback and tampering remain verification failures",
+            detail=(
+                "offline state stays explicit while expiry, rollback and tampering remain "
+                "verification failures"
+            ),
         ),
         TerminalHardeningCheck(
             name="terminal-release-freeze-unchanged",
@@ -300,7 +321,10 @@ def main() -> int:
                 and "provider-independent" in hardening_doc
                 and "No public release effect is authorized by V2.6.2." in hardening_doc
             ),
-            detail="Ubuntu/Windows evidence is exact-head, post-pytest, deterministic and provider-independent",
+            detail=(
+                "Ubuntu/Windows evidence is exact-head, post-pytest, deterministic and "
+                "provider-independent"
+            ),
         ),
     ]
 

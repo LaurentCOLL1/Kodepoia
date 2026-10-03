@@ -630,3 +630,14 @@ Implement **V2.5.3 — Orchestration plan, dependency DAG and routing** only.
 Required scope: deterministic typed task DAG; workspace ownership; explicit dependencies; fixed existing-service/specialist routing catalog; capability/effect visibility; dependency/blocker propagation; cycle rejection; immutable plan digest/preview. Do not implement protected destination mutation, approval execution, concurrency, cancellation or recovery yet.
 
 V2.5.4+, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own sequential qualification and normalization gates are satisfied.
+
+
+## Current next action — V2.5.4 only
+
+V2.5.3 is **COMPLETE + NORMALIZED** from PR `#543`, exact head `e93bbf97ae536457bfe33b918d78987c25ab79af`, **27/27** successful workflows and merge `8956116e5c90e630b4d35982484f7c52ad688054`.
+
+Implement **V2.5.4 — Governed execution, approval, cancellation and recovery** only.
+
+Required scope: explicit mutation preview/confirmation; destination-owned tool/service policy enforcement; bounded conflict control/concurrency; KillSwitch-compatible cancellation; downstream blocking on failure/cancel; lineage-safe recovery tied to the accepted plan/task/workspace/handoff digests. No raw shell/argv/env/package surface, no hidden authority composition and no release mutation.
+
+V2.5.5+, V2.6 and all release/tag/installer/TUF/updater mutation remain unauthorized until their own sequential qualification and normalization gates are satisfied.

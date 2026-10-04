@@ -21,6 +21,7 @@ jobs:
       contents: read
     env:
       BASE_SHA: ${{ github.sha }}
+      GH_TOKEN: ${{ github.token }}
       TUF_SNAPSHOT_ED25519_SEED_B64: ${{ secrets.TUF_SNAPSHOT_ED25519_SEED_B64 }}
       TUF_TIMESTAMP_ED25519_SEED_B64: ${{ secrets.TUF_TIMESTAMP_ED25519_SEED_B64 }}
     steps:

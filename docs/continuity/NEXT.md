@@ -733,3 +733,25 @@ Preserve all V2.6.1/V2.6.2 release boundaries. The current public/runtime baseli
 Do not publish a GitHub Release, create or repoint the public `v1.1.0` tag, upload public release assets, mutate production TUF/update metadata, activate a live updater target, provision secrets, or submit WinGet.
 
 V2.6.4 through V2.6.6 remain unauthorized until their own sequential qualification and post-merge normalization gates are satisfied.
+
+## Current next action — V2.6.4 only
+
+V2.6.3 is **COMPLETE + NORMALIZED** from implementation PR `#557`, exact final head `46ed800888b4f19da9e984232dd1ad6cdb639cc1`, **56/56** successful pull-request workflows and merge `9c709ad02273a388cddc66e0c00d2f3397d20af3`.
+
+The accepted actual-Windows candidate reported **17/17 PASS**. Freeze these V2.6.3 inputs for the next subdivision:
+
+- candidate source SHA: `46ed800888b4f19da9e984232dd1ad6cdb639cc1`;
+- candidate identity: `1.1.0` / stable / release / `v1.1.0`;
+- `KodepoiaSetup.exe`: 38,834,833 bytes, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- Authenticode truth: unsigned, no production trust claim;
+- public/runtime baseline: `v1.1.0-rc8`;
+- production Snapshot/Timestamp freshness remains fail-closed and unresolved.
+
+Implement **V2.6.4 — Production TUF transition and updater compatibility staging** only.
+
+Required scope: verify production Root continuity and packaged-root pinning; prepare the exact stable target path/version/source/hash/length binding for the frozen candidate; exercise rollback/freeze/expiry/threshold/root-continuity and historical-target preservation/revocation rules; prove `rc8 -> 1.1.0` discovery and verification against isolated staged transport; preserve explicit target-scoped Authenticode-policy truth; exercise updater cache/offline behavior; and emit a deterministic metadata-transition request/evidence package suitable for the later governed live signing/publication stage.
+
+The expired production online metadata must remain visibly fail-closed until a valid staged successor is produced. Do not weaken expiry checks, fabricate freshness, substitute synthetic keys for production authority, or mutate live production metadata.
+
+Do **not** publish the GitHub Release or tag, upload public assets, mutate the live update repository, activate a live updater target, provision/expose production signing secrets, or submit WinGet. V2.6.5 and V2.6.6 remain unauthorized until V2.6.4 itself is exact-head qualified, merged and post-merge normalized.
+

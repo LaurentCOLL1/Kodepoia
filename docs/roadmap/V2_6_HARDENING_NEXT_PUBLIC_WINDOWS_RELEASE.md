@@ -354,3 +354,29 @@ The accepted result preserves the V2.6.1 terminal release freeze exactly and int
 V2.6.3 must create the frozen candidate from its exact qualified source and prove the existing R17/R18 release-artifact contracts: Windows installer, release bundle/manifest, exact SHA-256 and byte length, SBOM/provenance, artifact attestation where available, truthful Authenticode evidence, clean install/packaged smoke/uninstall, required deterministic two-build comparison, and immutable staged GitHub-release description bound to exact evidence.
 
 V2.6.3 must not publish the GitHub Release, create/repoint the public `v1.1.0` tag, publish public assets or mutate production TUF/update metadata. Live publication remains reserved to V2.6.6 after V2.6.1 through V2.6.5 are each COMPLETE + NORMALIZED.
+
+## 16. V2.6.3 qualification and current implementation authority
+
+V2.6.3 implementation PR `#557` completed **56/56** exact-head pull-request workflows with conclusion `success` on `46ed800888b4f19da9e984232dd1ad6cdb639cc1` and merged with `expected_head_sha` protection as `9c709ad02273a388cddc66e0c00d2f3397d20af3`.
+
+V2.6.3 is therefore **COMPLETE + NORMALIZED**.
+
+The dedicated actual-Windows candidate gate reported **17/17 PASS** with evidence SHA-256 `80192b517ebd6a607536f52892e5b23d05448138e63d7d222c30c7f4444dc3d8`. The frozen exact-source candidate is Kodepoia `1.1.0` stable/release/`v1.1.0` from source SHA `46ed800888b4f19da9e984232dd1ad6cdb639cc1`.
+
+Accepted V2.6.3 artifact truth:
+
+- `KodepoiaSetup.exe`: 38,834,833 bytes, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- first staged bundle: 38,288,706 bytes, SHA-256 `c6959b403a76b5157c9dc94a3d2d246ff12dca574b9c91a3fb1862d17de26501`;
+- SPDX 2.3 SBOM SHA-256 `e4abfbf0e6a3807bfbd7d875d5d810998a81b999d38260fdf50958e2fadc33a8`;
+- release provenance SHA-256 `f1c00896c40c764942dcc4cee5d8230c15faca2b9222106d02fab64e32a165ab`;
+- signing mode `unsigned`, no production signing or public trust claim;
+- staged release state only for `v1.1.0`, with `publication_triggered=false`;
+- two-build semantic equivalence `true`, semantic SHA-256 `41ec11ff7a483b79ea4240e376b7ac7bb24bc5baddeb0a1d943b74cdf2991793`, while binary installer/archive equality remains explicitly false;
+- clean install, packaged smoke and uninstall passed.
+
+No public release/tag/asset, production TUF mutation, live updater activation, production signing-secret provisioning or WinGet submission occurred. The public/runtime baseline remains `v1.1.0-rc8`, and the observed production Snapshot/Timestamp expiry remains fail-closed.
+
+**V2.6.4 — Production TUF transition and updater compatibility staging is the only authorized implementation subdivision.** V2.6.5 and V2.6.6 remain unauthorized until sequential qualification and normalization.
+
+V2.6.4 must bind the staged transition to the exact V2.6.3 candidate source and installer digest above, preserve production Root continuity and packaged-root pinning, exercise rollback/freeze/expiry/threshold and historical-target rules, verify `rc8 -> 1.1.0` discovery/install eligibility through isolated staged transport, preserve target-scoped Authenticode-policy truth, and emit evidence suitable for later governed live signing. It must not mutate the live update repository. Live publication remains reserved to V2.6.6.
+

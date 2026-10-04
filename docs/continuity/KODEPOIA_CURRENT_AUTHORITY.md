@@ -399,3 +399,20 @@ The release freeze remains unchanged: current public/runtime baseline `v1.1.0-rc
 The only authorized implementation subdivision is **V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth**. V2.6.4 through V2.6.6 remain unauthorized.
 
 V2.6.3 may create and qualify exact-source candidate artifacts and immutable staged release evidence only. It may not publish the release/tag/assets or mutate production TUF/update state.
+
+## V2.6.3 normalized authority
+
+V2.6.3 implementation PR `#557` qualified **56/56** pull-request workflows on exact final head `46ed800888b4f19da9e984232dd1ad6cdb639cc1` and merged with `expected_head_sha` protection as `9c709ad02273a388cddc66e0c00d2f3397d20af3`.
+
+V2.6.3 is **COMPLETE + NORMALIZED**. Its actual-Windows candidate acceptance reported **17/17 PASS** with evidence SHA-256 `80192b517ebd6a607536f52892e5b23d05448138e63d7d222c30c7f4444dc3d8`.
+
+The frozen candidate source is `46ed800888b4f19da9e984232dd1ad6cdb639cc1` for Kodepoia `1.1.0` stable/release/`v1.1.0`. The accepted candidate installer is `KodepoiaSetup.exe`, 38,834,833 bytes, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`. The first staged bundle SHA-256 is `c6959b403a76b5157c9dc94a3d2d246ff12dca574b9c91a3fb1862d17de26501`; SBOM SHA-256 is `e4abfbf0e6a3807bfbd7d875d5d810998a81b999d38260fdf50958e2fadc33a8`; provenance SHA-256 is `f1c00896c40c764942dcc4cee5d8230c15faca2b9222106d02fab64e32a165ab`.
+
+Signing truth remains explicit: the candidate is unsigned, `production_signed=false`, and no public trust claim or signing-secret provisioning occurred. The release description is staged/draft-only for `v1.1.0`; no release/tag/asset publication was performed. The R18 two-build comparison proved semantic equivalence with semantic SHA-256 `41ec11ff7a483b79ea4240e376b7ac7bb24bc5baddeb0a1d943b74cdf2991793` while explicitly reporting non-equal installer/archive bytes. Clean install, packaged smoke and uninstall passed.
+
+The public/runtime baseline remains `v1.1.0-rc8`. Production Snapshot/Timestamp expiry remains fail-closed and unresolved; V2.6.3 did not mutate the live TUF repository.
+
+The only authorized implementation subdivision is **V2.6.4 — Production TUF transition and updater compatibility staging**. V2.6.5 and V2.6.6 remain unauthorized.
+
+V2.6.4 must operate against the frozen V2.6.3 candidate identity and artifact digest, prepare/verify the transition in isolated staged transport, and preserve production Root continuity, expiry/rollback/threshold/source/hash/length and target-scoped Authenticode-policy truth. It may not mutate live production TUF/update state or perform public release effects.
+

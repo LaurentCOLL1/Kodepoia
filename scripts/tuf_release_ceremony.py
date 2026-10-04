@@ -626,12 +626,19 @@ def _atomic_apply(metadata_dir: Path, staged: dict[str, bytes], report: Report) 
 def _summary_text(status: str, report: Report, generation: dict[str, object] | None) -> str:
     lines = [f"TUF CEREMONY: {status}"]
     if generation:
-        lines.append(
-            "Generation: "
-            f"Targets v{generation['targets_version']}, "
-            f"Snapshot v{generation['snapshot_version']}, "
-            f"Timestamp v{generation['timestamp_version']}"
-        )
+        if generation.get("offline_targets_only") is True:
+            lines.append(
+                "Generation: "
+                f"Targets v{generation['targets_version']} "
+                "(offline-only; Snapshot/Timestamp unchanged)"
+            )
+        else:
+            lines.append(
+                "Generation: "
+                f"Targets v{generation['targets_version']}, "
+                f"Snapshot v{generation['snapshot_version']}, "
+                f"Timestamp v{generation['timestamp_version']}"
+            )
     if report.fixes:
         lines.append("Corrections automatiques effectuées:")
         for item in report.fixes:
@@ -658,6 +665,14 @@ def main() -> int:
     parser.add_argument("--source-sha", required=True, help="Exact qualified 40-character source commit")
     parser.add_argument("--asset", type=Path, required=True, help="Exact installer to authorize")
     parser.add_argument("--offline-key-dir", type=Path, required=True, help="Local offline custody directory")
+    parser.add_argument(
+        "--offline-targets-only",
+        action="store_true",
+        help=(
+            "Sign and stage Targets only with offline custody. Do not resolve Snapshot/Timestamp "
+            "online signers and do not mutate repository metadata."
+        ),
+    )
     parser.add_argument(
         "--metadata-dir",
         type=Path,
@@ -711,6 +726,8 @@ def main() -> int:
         help="Atomically replace repository Targets/Snapshot/Timestamp after successful staging verification.",
     )
     args = parser.parse_args()
+    if args.offline_targets_only and args.apply:
+        parser.error("--offline-targets-only cannot be combined with --apply")
 
     report = Report()
     generation: dict[str, object] | None = None
@@ -796,6 +813,53 @@ def main() -> int:
             report=report,
         )
         new_targets_md = _parse(new_targets_bytes, Targets, "new targets.json")
+
+        if args.offline_targets_only:
+            _verify_role(root, "targets", new_targets_md)
+            _safe_stage(staging_dir, {"targets.json": new_targets_bytes}, report)
+            generation = {
+                "root_version": root.version,
+                "root_sha256": _sha256(current["root.json"]),
+                "targets_previous_version": targets_md.signed.version,
+                "targets_version": new_targets_md.signed.version,
+                "targets_sha256": _sha256(new_targets_bytes),
+                "targets_length": len(new_targets_bytes),
+                "target_path": target_path,
+                "asset_name": asset.name,
+                "asset_size": size,
+                "asset_sha256": digest,
+                "source_sha": args.source_sha.lower(),
+                "public_version": args.public_version,
+                "payload_url": payload_url,
+                "authenticode_policy": args.authenticode_policy,
+                "offline_targets_only": True,
+                "online_metadata_generated": False,
+                "applied": False,
+            }
+            status = "SUCCESS_WITH_RECOVERY" if report.fixes else "SUCCESS"
+            result = {
+                "format": FORMAT,
+                "schema_version": SCHEMA_VERSION,
+                "status": status,
+                "reference_time": _iso(now),
+                "generation": generation,
+                "checks": report.checks,
+                "errors_encountered": report.issues,
+                "automatic_fixes": report.fixes,
+                "private_material_in_report": False,
+                "private_key_paths_in_report": False,
+                "secret_values_emitted": False,
+            }
+            _write_report(report_path, result)
+            summary_path.parent.mkdir(parents=True, exist_ok=True)
+            summary_path.write_text(
+                _summary_text(status, report, generation),
+                encoding="utf-8",
+            )
+            print(_summary_text(status, report, generation), end="")
+            print(f"Rapport: {report_path}")
+            print(f"Résumé: {summary_path}")
+            return 0
 
         if targets_changed:
             snapshot_signer, timestamp_signer = _resolve_online_signers(

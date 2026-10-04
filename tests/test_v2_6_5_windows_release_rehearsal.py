@@ -176,6 +176,13 @@ def test_v265_workflow_is_exact_head_read_only_and_windows_real() -> None:
     assert "gh release download v1.1.0-rc8" in workflow
     assert "DisplayVersion" in workflow
     assert ".VersionInfo.ProductVersion" not in workflow
+    assert "$update.WaitForExit()" in workflow
+    assert (
+        '$update = Start-Process -FilePath $staged -ArgumentList @("/SP-","/SILENT",'
+        '"/NORESTART","/CLOSEAPPLICATIONS","/NORESTARTAPPLICATIONS",'
+        '"/KODEPOIAUPDATE=1") -Wait -PassThru'
+        not in workflow
+    )
     assert "gh release create" not in workflow
     assert "git tag" not in workflow
     assert "tuf_release_ceremony" not in workflow

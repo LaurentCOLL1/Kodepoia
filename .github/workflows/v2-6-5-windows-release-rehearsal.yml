@@ -312,6 +312,108 @@ jobs:
             production_tuf_mutation = $false
           } | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 "artifacts/v2_6_5/windows-evidence.json"
 
+      - name: Clean install exact candidate and uninstall rehearsal
+        shell: pwsh
+        run: |
+          $staged = (Resolve-Path $env:V265_STAGED_CANDIDATE).Path
+          $cleanDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v265-clean-candidate"
+          $smokeDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v265-clean-smoke"
+          $smokeReport = Join-Path $env:RUNNER_TEMP "kodepoia-v265-clean-smoke.txt"
+          Remove-Item $cleanDir -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $smokeDir -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $smokeReport -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $smokeDir | Out-Null
+
+          $hash = (Get-FileHash $staged -Algorithm SHA256).Hash.ToLowerInvariant()
+          $size = (Get-Item $staged).Length
+          if ($hash -ne $env:CANDIDATE_INSTALLER_SHA256) {
+            throw "Clean-install candidate hash drift"
+          }
+          if ($size -ne [int64]$env:CANDIDATE_INSTALLER_BYTES) {
+            throw "Clean-install candidate length drift"
+          }
+
+          $install = Start-Process -FilePath $staged -ArgumentList @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/MERGETASKS=!desktopicon",
+            "/DIR=$cleanDir"
+          ) -Wait -PassThru
+          if ($install.ExitCode -ne 0) {
+            throw "Exact candidate clean install failed: $($install.ExitCode)"
+          }
+
+          $exe = Join-Path $cleanDir "KodepoiaStudio.exe"
+          $uninstaller = Join-Path $cleanDir "unins000.exe"
+          if (-not (Test-Path $exe -PathType Leaf)) {
+            throw "Exact candidate clean-install executable missing"
+          }
+          $version = ([string](Get-Item $exe).VersionInfo.ProductVersion).Trim()
+          if ($version -ne "1.1.0") {
+            throw "Exact candidate clean-install ProductVersion mismatch: $version"
+          }
+
+          $originalPath = $env:PATH
+          $originalPythonHome = $env:PYTHONHOME
+          $originalPythonPath = $env:PYTHONPATH
+          $env:PATH = @(
+            (Join-Path $env:SystemRoot "System32"),
+            $env:SystemRoot,
+            (Join-Path $env:SystemRoot "System32\Wbem")
+          ) -join ";"
+          $env:PYTHONHOME = $null
+          $env:PYTHONPATH = $null
+          try {
+            if (Get-Command python.exe -ErrorAction SilentlyContinue) {
+              throw "Developer Python is visible during clean candidate smoke"
+            }
+            if (Get-Command pip.exe -ErrorAction SilentlyContinue) {
+              throw "Developer pip is visible during clean candidate smoke"
+            }
+            $smoke = Start-Process -FilePath $exe -ArgumentList @(
+              "--smoke-test",
+              "--smoke-report=$smokeReport"
+            ) -WorkingDirectory $smokeDir -Wait -PassThru
+            if ($smoke.ExitCode -ne 0) {
+              if (Test-Path $smokeReport) { Get-Content $smokeReport }
+              throw "Exact candidate clean-install smoke failed: $($smoke.ExitCode)"
+            }
+          }
+          finally {
+            $env:PATH = $originalPath
+            $env:PYTHONHOME = $originalPythonHome
+            $env:PYTHONPATH = $originalPythonPath
+          }
+
+          if (-not (Test-Path $uninstaller -PathType Leaf)) {
+            throw "Exact candidate clean-install uninstaller missing"
+          }
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART"
+          ) -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) {
+            throw "Exact candidate clean uninstall failed: $($uninstall.ExitCode)"
+          }
+          for ($attempt = 0; $attempt -lt 60 -and (Test-Path $exe); $attempt++) {
+            Start-Sleep -Milliseconds 500
+          }
+          $removed = -not (Test-Path $exe)
+          if (-not $removed) {
+            throw "Exact candidate executable remains after clean uninstall"
+          }
+
+          $evidencePath = "artifacts/v2_6_5/windows-evidence.json"
+          $evidence = Get-Content $evidencePath -Raw | ConvertFrom-Json
+          $evidence | Add-Member -NotePropertyName candidate_clean_install_exit_code -NotePropertyValue ([int]$install.ExitCode)
+          $evidence | Add-Member -NotePropertyName candidate_clean_installed_version -NotePropertyValue $version
+          $evidence | Add-Member -NotePropertyName candidate_clean_install_smoke -NotePropertyValue $true
+          $evidence | Add-Member -NotePropertyName candidate_clean_uninstall_exit_code -NotePropertyValue ([int]$uninstall.ExitCode)
+          $evidence | Add-Member -NotePropertyName candidate_clean_executable_removed -NotePropertyValue ([bool]$removed)
+          $evidence | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 $evidencePath
+
       - name: Run final V2.6.5 go/no-go acceptance
         shell: pwsh
         run: |

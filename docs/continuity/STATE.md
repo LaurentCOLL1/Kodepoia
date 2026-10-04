@@ -1385,3 +1385,29 @@ No public release/tag/asset, production TUF mutation, live updater activation, s
 **V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth is now the only authorized implementation subdivision.** V2.6.4 through V2.6.6 remain unauthorized until sequential qualification and normalization.
 
 V2.6.3 may create and qualify the exact-source Windows release candidate, release bundle/manifest, installer SHA-256 and byte length, SBOM/provenance, artifact-attestation evidence where available, truthful Authenticode evidence, clean install/packaged smoke/uninstall proof, deterministic two-build comparison where required, and immutable staged GitHub-release description bound to exact evidence. It must not publish a GitHub Release, create/repoint a public tag, publish public assets, or mutate production TUF/update state.
+
+## V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth — COMPLETE + NORMALIZED; V2.6.4 CURRENT
+
+Implementation PR `#557` was qualified with **56/56** pull-request workflows on exact final head `46ed800888b4f19da9e984232dd1ad6cdb639cc1` and merged with `expected_head_sha` protection as `9c709ad02273a388cddc66e0c00d2f3397d20af3`.
+
+The dedicated actual-Windows candidate acceptance reported **17/17 PASS** with evidence SHA-256 `80192b517ebd6a607536f52892e5b23d05448138e63d7d222c30c7f4444dc3d8`. The exact candidate source is now frozen as `46ed800888b4f19da9e984232dd1ad6cdb639cc1` for the `1.1.0` stable/release/`v1.1.0` terminal identity.
+
+Accepted candidate evidence includes:
+
+- candidate installer `KodepoiaSetup.exe`: **38,834,833 bytes**, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- first staged release bundle `Kodepoia-1.1.0-windows.zip`: **38,288,706 bytes**, SHA-256 `c6959b403a76b5157c9dc94a3d2d246ff12dca574b9c91a3fb1862d17de26501`;
+- SPDX 2.3 SBOM SHA-256 `e4abfbf0e6a3807bfbd7d875d5d810998a81b999d38260fdf50958e2fadc33a8`;
+- release provenance SHA-256 `f1c00896c40c764942dcc4cee5d8230c15faca2b9222106d02fab64e32a165ab`;
+- Authenticode truth: `unsigned`, `production_signed=false`, no public trust claim;
+- staged GitHub-release state: `staged`, tag `v1.1.0`, stage digest `ce331698ee580380530feeeaae21cead338ab941e438e5fc774b562be58cb971`, with no publication effect;
+- two-build R18 comparison: `semantic_equivalent=true` with common semantic SHA-256 `41ec11ff7a483b79ea4240e376b7ac7bb24bc5baddeb0a1d943b74cdf2991793`; binary installer/archive equality is explicitly false and is not misrepresented as deterministic byte identity;
+- clean install, packaged smoke and uninstall passed for the exact candidate.
+
+No public GitHub Release, public tag creation/repointing, public asset upload, production TUF mutation, live updater activation, signing-secret provisioning or WinGet submission occurred. The public/runtime baseline remains `v1.1.0-rc8`.
+
+The observed production Snapshot/Timestamp expiry remains a real fail-closed condition and was not repaired or bypassed by V2.6.3. Its governed staging and compatibility treatment belongs to V2.6.4.
+
+**V2.6.4 — Production TUF transition and updater compatibility staging is now the only authorized implementation subdivision.** V2.6.5 and V2.6.6 remain unauthorized until sequential qualification and post-merge normalization.
+
+V2.6.4 may prepare and adversarially verify the exact TUF/updater transition for candidate source `46ed800888b4f19da9e984232dd1ad6cdb639cc1` and installer SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`, but it must not mutate the live update repository. Live public effects remain reserved to V2.6.6.
+

@@ -350,6 +350,7 @@ def build_windows_preflight(
         "discovered_target": candidate.target.to_dict(),
         "staged_artifact": staged.to_dict(),
         "authenticode_policy": AUTHENTICODE_POLICY_ALLOW_UNSIGNED,
+        "status": "PASS",
         "public_release_triggered": False,
         "public_tag_triggered": False,
         "public_asset_upload_triggered": False,

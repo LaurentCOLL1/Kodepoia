@@ -755,3 +755,27 @@ The expired production online metadata must remain visibly fail-closed until a v
 
 Do **not** publish the GitHub Release or tag, upload public assets, mutate the live update repository, activate a live updater target, provision/expose production signing secrets, or submit WinGet. V2.6.5 and V2.6.6 remain unauthorized until V2.6.4 itself is exact-head qualified, merged and post-merge normalized.
 
+
+## Current next action — V2.6.5 only
+
+V2.6.4 is **COMPLETE + NORMALIZED** from implementation PR `#559`, exact final head `addbaf43b286f825ce42a11176c6647d15748845`, **52/52** successful pull-request workflows and merge `96375fb4105366b0e69eae320b0071738c59c89e`.
+
+The dedicated transition-staging gate reported **14/14 PASS on Ubuntu** and **14/14 PASS on Windows** with common evidence SHA-256 `9620238de4344883fd43cffed621ea027d0bde4e4ed4cee051c9c32053809008`. The reviewed transition-request digest is `a44914e80fb2fafb6b03f2a9847a78805b1ccb2a87fafedae9199f66c88bacea`.
+
+Preserve these frozen inputs:
+
+- release candidate source SHA `46ed800888b4f19da9e984232dd1ad6cdb639cc1`;
+- `KodepoiaSetup.exe`: 38,834,833 bytes, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- target identity `1.1.0` / stable / `channels/stable/windows-x86_64/1.1.0/46ed800888b4f19da9e984232dd1ad6cdb639cc1/KodepoiaSetup.exe`;
+- current public/runtime baseline `v1.1.0-rc8`;
+- production Root continuity v1 packaged -> v2 public, threshold 2-of-3;
+- current production Targets v8 / Snapshot v10 / Timestamp v10, with Snapshot/Timestamp still expired and fail-closed;
+- future staged transition intent Root v2 / Targets v9 / Snapshot v11 / Timestamp v11, preserving historical targets and exact-target `allow-unsigned` truth.
+
+Implement **V2.6.5 — Installed Windows release rehearsal and pre-publication go/no-go** only.
+
+Required scope: clean install of the exact candidate; installed `v1.1.0-rc8 -> 1.1.0` upgrade rehearsal through isolated staged verified update material; packaged restart and installed-version confirmation; subsequent staged update check; custom installation directory preservation; project/settings/user-data preservation; uninstall behavior; incident rollback/recovery rehearsal; final critical-veto report; and freeze of exact publication inputs for the later governed live release.
+
+Do **not** publish the GitHub Release or `v1.1.0` tag, upload public assets, mutate/sign live production TUF metadata, activate the live updater, provision/expose production signing secrets, or submit WinGet.
+
+V2.6.6 remains unauthorized until V2.6.5 is exact-head qualified, merged with unchanged-head protection and post-merge normalized.

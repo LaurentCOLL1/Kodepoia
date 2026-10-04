@@ -174,6 +174,8 @@ def test_v265_workflow_is_exact_head_read_only_and_windows_real() -> None:
     assert "run-id: 37151521725" in workflow
     assert V263_ARTIFACT_NAME in workflow
     assert "gh release download v1.1.0-rc8" in workflow
+    assert "DisplayVersion" in workflow
+    assert ".VersionInfo.ProductVersion" not in workflow
     assert "gh release create" not in workflow
     assert "git tag" not in workflow
     assert "tuf_release_ceremony" not in workflow

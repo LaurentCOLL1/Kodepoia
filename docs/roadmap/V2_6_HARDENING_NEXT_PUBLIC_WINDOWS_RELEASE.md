@@ -410,3 +410,34 @@ Accepted V2.6.4 transition truth:
 V2.6.5 must use the exact frozen V2.6.3 candidate and the accepted V2.6.4 transition intent to prove the final pre-publication Windows path: clean install; installed `v1.1.0-rc8 -> 1.1.0` staged verified upgrade; restart/version confirmation; post-upgrade staged update check; custom install-path preservation; project/settings/user-data preservation; uninstall; incident rollback/recovery; final critical-veto aggregation; and freeze of exact candidate/publication inputs.
 
 V2.6.5 must not publish a GitHub Release/tag/asset, mutate or sign live production TUF metadata, activate the live updater or submit WinGet. Live publication and updater activation remain reserved exclusively to V2.6.6.
+
+
+## 18. V2.6.5 qualification and terminal publication authority
+
+V2.6.5 implementation PR `#561` completed **53/53** exact-head pull-request workflows with conclusion `success` on `d12eebe6f2e837de2617b3ef196fb26fc74ab2a6` and merged with `expected_head_sha` protection as `1db22c30ca36cd17de7ce27f4ee05361708d552d`.
+
+V2.6.5 is therefore **COMPLETE + NORMALIZED**.
+
+The dedicated actual-Windows pre-publication gate reported **13/13 PASS**, `critical_veto=false`, `go_no_go=GO`, evidence SHA-256 `b9eba6470e0d57e1384ef28d4e35caf512fa669a3771293555c69cdb64c18f9b`, and frozen publication-input digest `7c0085dcce704fe19c54f4f175b28518ec86c38888f0b87c063add908c53d416`.
+
+Accepted V2.6.5 pre-publication truth:
+
+- public installed baseline: `v1.1.0-rc8`, exact source `fa787ab7ef76f2556b56ac1f058916a1425455af`, installer 37,730,750 bytes, SHA-256 `6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422`;
+- frozen release candidate: Kodepoia `1.1.0`, stable/release/`v1.1.0`, source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`;
+- frozen candidate installer: 38,834,833 bytes, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- stable target path: `channels/stable/windows-x86_64/1.1.0/46ed800888b4f19da9e984232dd1ad6cdb639cc1/KodepoiaSetup.exe`;
+- target-scoped Authenticode truth: `allow-unsigned`, without production signing claim;
+- exact V2.6.3 evidence SHA-256: `80192b517ebd6a607536f52892e5b23d05448138e63d7d222c30c7f4444dc3d8`;
+- exact V2.6.4 transition request digest: `a44914e80fb2fafb6b03f2a9847a78805b1ccb2a87fafedae9199f66c88bacea`;
+- installed rc8 -> frozen candidate upgrade succeeded from staged verified bytes and the installer-driven relaunch was observed;
+- upgraded installed version is `1.1.0` and the staged post-upgrade check is `up-to-date`;
+- custom installation path, project data, settings and user data were preserved through upgrade/uninstall;
+- exact candidate clean install, packaged smoke and uninstall passed;
+- incident/recovery rehearsal passed with zero critical bypasses and last-known-good recovery verdict `RECOVER`;
+- no live/public effect occurred in V2.6.5.
+
+**V2.6.6 — Governed public release, production TUF transition and live updater activation is the only authorized implementation subdivision.**
+
+V2.6.6 is the terminal live-release step. It must first revalidate the unchanged frozen candidate and current public/TUF state. It may then execute only the governed sequence required to make `1.1.0` public and update-eligible: valid production TUF transition/freshness restoration preserving Root/history/rollback guarantees; immutable `v1.1.0` tag/release/public asset publication bound to the exact candidate; public re-fetch and hash/length/source verification; live installed rc8 -> stable 1.1.0 updater proof; post-upgrade stable-current proof; and final release-closure evidence.
+
+V2.6.6 must not rebuild/substitute the candidate, weaken TUF expiry/rollback/threshold/Root continuity, invent Authenticode trust, expose credentials, repoint an existing conflicting tag, overwrite conflicting public assets, or submit WinGet. If any required live signing authority or exact immutable input is unavailable, the subdivision must stop at that boundary and remain incomplete rather than fabricating success.

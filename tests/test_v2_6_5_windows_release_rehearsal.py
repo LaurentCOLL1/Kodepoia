@@ -164,6 +164,7 @@ def test_v265_workflow_is_exact_head_read_only_and_windows_real() -> None:
         "Install public rc8 in custom directory and prove baseline",
         "Upgrade rc8 to the frozen candidate from staged verified bytes",
         "Run post-upgrade smoke, preservation checks and uninstall",
+        "Clean install exact candidate and uninstall rehearsal",
         "Run final V2.6.5 go/no-go acceptance",
         "Upload V2.6.5 exact-head evidence",
     ):

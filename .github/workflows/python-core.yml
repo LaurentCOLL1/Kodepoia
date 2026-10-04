@@ -402,6 +402,17 @@ jobs:
           path: artifacts/v2_6_4/tuf-transition-staging.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run V2.6.5 Windows release rehearsal contract tests
+        run: pytest tests/test_v2_6_5_windows_release_rehearsal.py
+      - name: Run V2.6.5 cross-platform contract exact-head acceptance
+        run: python scripts/v2_6_5_acceptance.py --mode contract --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}" --output artifacts/v2_6_5/contract.json
+      - name: Upload V2.6.5 contract evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-6-5-contract-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: artifacts/v2_6_5/contract.json
+          if-no-files-found: error
+          retention-days: 30
 
   ui-smoke:
     name: kodestudio-ui-windows

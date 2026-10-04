@@ -221,7 +221,11 @@ jobs:
           if ($stagedHash -ne $env:CANDIDATE_INSTALLER_SHA256) { throw "Staged candidate hash drift before install" }
           if ($stagedSize -ne [int64]$env:CANDIDATE_INSTALLER_BYTES) { throw "Staged candidate length drift before install" }
           Get-Process -Name KodepoiaStudio -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-          $update = Start-Process -FilePath $staged -ArgumentList @("/SP-","/SILENT","/NORESTART","/CLOSEAPPLICATIONS","/NORESTARTAPPLICATIONS","/KODEPOIAUPDATE=1") -Wait -PassThru
+          $update = Start-Process -FilePath $staged -ArgumentList @("/SP-","/SILENT","/NORESTART","/CLOSEAPPLICATIONS","/NORESTARTAPPLICATIONS","/KODEPOIAUPDATE=1") -PassThru
+          # Wait only for the Inno Setup process. PowerShell Start-Process -Wait can
+          # remain blocked by the KodepoiaStudio child intentionally relaunched by
+          # /KODEPOIAUPDATE=1, which would turn a successful update into a CI timeout.
+          $update.WaitForExit()
           if ($update.ExitCode -ne 0) { throw "Frozen candidate update failed: $($update.ExitCode)" }
           $relaunchObserved = $false
           for ($attempt = 0; $attempt -lt 60; $attempt++) {

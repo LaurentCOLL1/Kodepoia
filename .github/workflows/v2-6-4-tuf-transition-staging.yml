@@ -1,0 +1,121 @@
+name: V2.6.4 Production TUF Transition Staging
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/v2-6-4-tuf-transition-staging.yml
+      - .github/workflows/python-core.yml
+      - scripts/v2_6_4_acceptance.py
+      - src/kodepoia/release/tuf_transition_staging.py
+      - src/kodepoia/update/**
+      - update-repository/metadata/**
+      - tests/test_v2_6_4_tuf_transition_staging.py
+      - docs/release/V2_6_4_TUF_TRANSITION_STAGING.md
+      - docs/continuity/STATE.md
+      - docs/continuity/NEXT.md
+      - docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md
+      - docs/roadmap/KODEPOIA_ROADMAP_V2.md
+      - docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_RELEASE.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2-6-4-tuf-transition-staging-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  staged-transition:
+    name: staged-transition-${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact evidence source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        run: python -c "import os,subprocess; assert subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip().lower() == os.environ['EVIDENCE_SHA'].lower()"
+
+      - name: Install deterministic acceptance dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile V2.6.4 surfaces
+        run: >-
+          python -m compileall -q
+          src/kodepoia/release/tuf_transition_staging.py
+          scripts/v2_6_4_acceptance.py
+          tests/test_v2_6_4_tuf_transition_staging.py
+
+      - name: Ruff V2.6.4 surfaces
+        run: >-
+          python -m ruff check
+          src/kodepoia/release/tuf_transition_staging.py
+          scripts/v2_6_4_acceptance.py
+          tests/test_v2_6_4_tuf_transition_staging.py
+
+      - name: Run inherited updater and V2.6.4 focused tests
+        run: >-
+          python -m pytest -q
+          tests/test_r18_6_update_trust.py
+          tests/test_r18_7_update_discovery.py
+          tests/test_r19_2_update_repository_bootstrap.py
+          tests/test_r19_3_network_update_transport.py
+          tests/test_r19_4_seamless_windows_update.py
+          tests/test_updater_powershell_authenticode_policy.py
+          tests/test_v2_6_4_tuf_transition_staging.py
+
+      - name: Emit exact-head V2.6.4 transition evidence
+        run: >-
+          python scripts/v2_6_4_acceptance.py
+          --source-sha "${{ env.EVIDENCE_SHA }}"
+          --output artifacts/v2_6_4/tuf-transition-staging.json
+
+      - name: Require staged-only PASS
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          report = json.loads(
+              Path("artifacts/v2_6_4/tuf-transition-staging.json").read_text(encoding="utf-8")
+          )
+          if report["status"] != "PASS":
+              raise SystemExit("V2.6.4 transition staging did not pass")
+          forbidden = (
+              "production_tuf_mutation_triggered",
+              "public_release_triggered",
+              "public_tag_triggered",
+              "public_asset_upload_triggered",
+              "live_updater_activation_triggered",
+              "signing_secret_provisioned",
+              "winget_submission_triggered",
+          )
+          if any(report[name] for name in forbidden):
+              raise SystemExit("V2.6.4 performed a forbidden live/public effect")
+          if report["isolated_updater_rehearsal"]["production_proof"] is not False:
+              raise SystemExit("isolated rehearsal was mislabeled as production proof")
+
+      - name: Upload exact-head V2.6.4 evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-6-4-tuf-transition-staging-${{ matrix.os }}-${{ env.EVIDENCE_SHA }}
+          path: artifacts/v2_6_4/tuf-transition-staging.json
+          if-no-files-found: error
+          retention-days: 30

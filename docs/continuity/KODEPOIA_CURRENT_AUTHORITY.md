@@ -416,3 +416,19 @@ The only authorized implementation subdivision is **V2.6.4 — Production TUF tr
 
 V2.6.4 must operate against the frozen V2.6.3 candidate identity and artifact digest, prepare/verify the transition in isolated staged transport, and preserve production Root continuity, expiry/rollback/threshold/source/hash/length and target-scoped Authenticode-policy truth. It may not mutate live production TUF/update state or perform public release effects.
 
+
+## V2.6.4 normalized authority
+
+V2.6.4 implementation PR `#559` qualified **52/52** pull-request workflows on exact final head `addbaf43b286f825ce42a11176c6647d15748845` and merged with `expected_head_sha` protection as `96375fb4105366b0e69eae320b0071738c59c89e`.
+
+V2.6.4 is **COMPLETE + NORMALIZED**. Its dedicated production-TUF transition staging acceptance reported **14/14 PASS on Ubuntu** and **14/14 PASS on Windows**, with common evidence SHA-256 `9620238de4344883fd43cffed621ea027d0bde4e4ed4cee051c9c32053809008`. The deterministic reviewed transition request has digest `a44914e80fb2fafb6b03f2a9847a78805b1ccb2a87fafedae9199f66c88bacea`.
+
+The frozen candidate remains Kodepoia `1.1.0` stable/release/`v1.1.0` from source SHA `46ed800888b4f19da9e984232dd1ad6cdb639cc1`, with installer size 38,834,833 bytes and SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`.
+
+Accepted TUF/updater truth: packaged production Root v1 -> public Root v2 sequential continuity verifies; Root remains 2-of-3; current production role versions are Root v2 / Targets v8 / Snapshot v10 / Timestamp v10; Snapshot/Timestamp remain expired and rejected; the staged future request proposes Targets v9 / Snapshot v11 / Timestamp v11 while leaving Root v2 unchanged, preserving all historical targets and requesting no revocation; the exact stable target is source/hash/length bound and carries the existing exact-target `allow-unsigned` policy.
+
+The isolated updater rehearsal proved rc8-to-stable discovery, target validation, offline cache and adversarial fail-closed cases. It remains fixture-only and explicitly not production proof. V2.6.4 performed no live TUF mutation, public release/tag/asset publication, live updater activation, production signing-secret provisioning, production signing claim or WinGet submission.
+
+The only authorized implementation subdivision is **V2.6.5 — Installed Windows release rehearsal and pre-publication go/no-go**. V2.6.6 remains unauthorized.
+
+V2.6.5 may exercise the exact frozen candidate and staged verified updater material on Windows, prove upgrade/restart/data-preservation/uninstall/recovery behavior, aggregate final critical-veto evidence and freeze publication inputs. It may not perform the public GitHub release/tag/assets, live production TUF transition/signing, live updater activation or WinGet submission. Those live effects remain reserved to V2.6.6 after V2.6.5 completes and normalizes.

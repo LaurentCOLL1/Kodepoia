@@ -97,7 +97,8 @@
       ".github/workflows/r20-5-expiry-monitoring-acceptance.yml",
       ".github/workflows/r20-6-continuous-operations-acceptance.yml",
       ".github/workflows/v2-6-3-terminal-candidate.yml",
-      ".github/workflows/v2-6-4-tuf-transition-staging.yml"
+      ".github/workflows/v2-6-4-tuf-transition-staging.yml",
+      ".github/workflows/v2-6-5-windows-release-rehearsal.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

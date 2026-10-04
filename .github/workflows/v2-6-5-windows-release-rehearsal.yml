@@ -1,0 +1,443 @@
+name: V2.6.5 Windows Release Rehearsal
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/v2-6-5-windows-release-rehearsal.yml
+      - .github/workflows/python-core.yml
+      - configs/r16_supply_chain_policy.json
+      - scripts/v2_6_5_acceptance.py
+      - src/kodepoia/release/windows_release_rehearsal.py
+      - src/kodepoia/release/tuf_transition_staging.py
+      - src/kodepoia/update/**
+      - tests/test_v2_6_5_windows_release_rehearsal.py
+      - tests/test_supply_chain_r16_9.py
+      - docs/release/V2_6_5_WINDOWS_RELEASE_REHEARSAL.md
+      - docs/continuity/STATE.md
+      - docs/continuity/NEXT.md
+      - docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md
+      - docs/roadmap/V2_6_HARDENING_NEXT_PUBLIC_WINDOWS_RELEASE.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: v2-6-5-windows-release-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-release-rehearsal:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      GH_TOKEN: ${{ github.token }}
+      KODEPOIA_LOCALE: fr
+      QT_QPA_PLATFORM: offscreen
+      RC8_PUBLIC_VERSION: 1.1.0-rc8
+      RC8_SOURCE_SHA: fa787ab7ef76f2556b56ac1f058916a1425455af
+      RC8_INSTALLER_BYTES: "37730750"
+      RC8_INSTALLER_SHA256: 6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422
+      CANDIDATE_SOURCE_SHA: 46ed800888b4f19da9e984232dd1ad6cdb639cc1
+      CANDIDATE_INSTALLER_BYTES: "38834833"
+      CANDIDATE_INSTALLER_SHA256: 8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef
+    steps:
+      - name: Checkout exact V2.6.5 evidence source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert exact checkout provenance
+        shell: pwsh
+        run: |
+          $expected = ([string]$env:EVIDENCE_SHA).Trim().ToLowerInvariant()
+          $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
+          if ($actual -ne $expected) { throw "Expected exact V2.6.5 evidence source $expected, got $actual" }
+
+      - name: Install focused acceptance dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile and Ruff V2.6.5 surfaces
+        shell: pwsh
+        run: |
+          python -m compileall -q src/kodepoia/release/windows_release_rehearsal.py scripts/v2_6_5_acceptance.py tests/test_v2_6_5_windows_release_rehearsal.py
+          python -m ruff check src/kodepoia/release/windows_release_rehearsal.py scripts/v2_6_5_acceptance.py tests/test_v2_6_5_windows_release_rehearsal.py tests/test_supply_chain_r16_9.py
+
+      - name: Run focused V2.6.5 and inherited updater tests
+        shell: pwsh
+        run: |
+          python -m pytest -q tests/test_v2_6_5_windows_release_rehearsal.py tests/test_v2_6_4_tuf_transition_staging.py tests/test_r18_7_update_discovery.py tests/test_r18_8_verified_delivery.py tests/test_r18_10_incident_drills.py tests/test_r19_4_seamless_windows_update.py tests/test_updater_powershell_authenticode_policy.py tests/test_supply_chain_r16_9.py
+
+      - name: Emit cross-platform V2.6.5 contract evidence
+        shell: pwsh
+        run: |
+          $args = @("scripts/v2_6_5_acceptance.py","--mode","contract","--source-sha",$env:EVIDENCE_SHA,"--output","artifacts/v2_6_5/contract.json")
+          python @args
+
+      - name: Download frozen V2.6.3 accepted candidate artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: v2-6-3-windows-candidate-46ed800888b4f19da9e984232dd1ad6cdb639cc1
+          path: artifacts/v2_6_5/v263
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 37151521725
+
+      - name: Assert frozen V2.6.3 artifact authority
+        shell: pwsh
+        run: |
+          $meta = gh api "repos/$env:GITHUB_REPOSITORY/actions/artifacts/11284279492" | ConvertFrom-Json
+          if ([int64]$meta.id -ne 11284279492) { throw "V2.6.3 artifact ID drift" }
+          if ([string]$meta.name -ne "v2-6-3-windows-candidate-$env:CANDIDATE_SOURCE_SHA") { throw "V2.6.3 artifact name drift" }
+          if ([bool]$meta.expired) { throw "V2.6.3 accepted artifact has expired" }
+          if ([string]$meta.workflow_run.head_sha -ne $env:CANDIDATE_SOURCE_SHA) { throw "V2.6.3 artifact source SHA drift" }
+          $candidate = "artifacts/v2_6_5/v263/build1/KodepoiaSetup.exe"
+          $evidence = "artifacts/v2_6_5/v263/V2_6_3_WINDOWS_CANDIDATE.json"
+          if (-not (Test-Path $candidate -PathType Leaf)) { throw "Frozen V2.6.3 candidate installer is missing" }
+          if (-not (Test-Path $evidence -PathType Leaf)) { throw "Frozen V2.6.3 acceptance evidence is missing" }
+
+      - name: Observe and download exact public rc8 baseline
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "artifacts/v2_6_5/rc8-public" | Out-Null
+          $release = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/v1.1.0-rc8" | ConvertFrom-Json
+          if ([bool]$release.draft) { throw "rc8 public baseline unexpectedly became draft" }
+          if (-not [bool]$release.prerelease) { throw "rc8 public baseline is not a prerelease" }
+          $asset = @($release.assets | Where-Object { $_.name -eq "KodepoiaSetup.exe" })
+          if ($asset.Count -ne 1) { throw "Expected exactly one rc8 KodepoiaSetup.exe asset" }
+          if ([int64]$asset[0].size -ne [int64]$env:RC8_INSTALLER_BYTES) { throw "rc8 release asset length drift" }
+          if ([string]$asset[0].state -ne "uploaded") { throw "rc8 release asset is not uploaded" }
+          $tagRef = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/v1.1.0-rc8" | ConvertFrom-Json
+          $targetSha = [string]$tagRef.object.sha
+          if ([string]$tagRef.object.type -eq "tag") {
+            $tag = gh api "repos/$env:GITHUB_REPOSITORY/git/tags/$targetSha" | ConvertFrom-Json
+            if ([string]$tag.object.type -ne "commit") { throw "rc8 annotated tag does not target a commit" }
+            $targetSha = [string]$tag.object.sha
+          }
+          if ($targetSha -ne $env:RC8_SOURCE_SHA) { throw "rc8 tag source SHA drift" }
+          gh release download v1.1.0-rc8 --repo "$env:GITHUB_REPOSITORY" --pattern "KodepoiaSetup.exe" --dir "artifacts/v2_6_5/rc8-public" --clobber
+          if ($LASTEXITCODE -ne 0) { throw "Failed to download public rc8 installer" }
+          $rc8 = "artifacts/v2_6_5/rc8-public/KodepoiaSetup.exe"
+          $item = Get-Item $rc8
+          $hash = (Get-FileHash $rc8 -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($item.Length -ne [int64]$env:RC8_INSTALLER_BYTES) { throw "Downloaded rc8 installer length mismatch" }
+          if ($hash -ne $env:RC8_INSTALLER_SHA256) { throw "Downloaded rc8 installer SHA-256 mismatch" }
+
+      - name: Run Windows V2.6.5 verified staging preflight
+        shell: pwsh
+        run: |
+          $args = @("scripts/v2_6_5_acceptance.py","--mode","preflight","--source-sha",$env:EVIDENCE_SHA,"--rc8-installer","artifacts/v2_6_5/rc8-public/KodepoiaSetup.exe","--candidate-installer","artifacts/v2_6_5/v263/build1/KodepoiaSetup.exe","--v263-evidence","artifacts/v2_6_5/v263/V2_6_3_WINDOWS_CANDIDATE.json","--stage-dir","artifacts/v2_6_5/stage","--output","artifacts/v2_6_5/preflight.json")
+          python @args
+          $report = Get-Content "artifacts/v2_6_5/preflight.json" -Raw | ConvertFrom-Json
+          if ($report.discovery_status -ne "update-available") { throw "V2.6.5 preflight did not discover the stable candidate" }
+          if ($report.production_proof) { throw "V2.6.5 isolated staging was mislabeled as production proof" }
+          $staged = [string]$report.staged_artifact.path
+          if (-not (Test-Path $staged -PathType Leaf)) { throw "V2.6.5 staged verified candidate is missing" }
+          $resolved = (Resolve-Path $staged).Path
+          "V265_STAGED_CANDIDATE=$resolved" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Install public rc8 in custom directory and prove baseline
+        shell: pwsh
+        run: |
+          $rc8 = (Resolve-Path "artifacts/v2_6_5/rc8-public/KodepoiaSetup.exe").Path
+          $installDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v265-custom"
+          $defaultDir = Join-Path $env:LOCALAPPDATA "Programs\Kodepoia"
+          $smokeDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v265-rc8-smoke"
+          $smokeReport = Join-Path $env:RUNNER_TEMP "kodepoia-v265-rc8-smoke.txt"
+          Remove-Item $installDir -Recurse -Force -ErrorAction SilentlyContinue
+          if ($defaultDir -ne $installDir) { Remove-Item $defaultDir -Recurse -Force -ErrorAction SilentlyContinue }
+          Remove-Item $smokeDir -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $smokeReport -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $smokeDir | Out-Null
+          $install = Start-Process -FilePath $rc8 -ArgumentList @("/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/MERGETASKS=!desktopicon","/DIR=$installDir") -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "rc8 install failed: $($install.ExitCode)" }
+          $exe = Join-Path $installDir "KodepoiaStudio.exe"
+          if (-not (Test-Path $exe -PathType Leaf)) { throw "Installed rc8 executable missing" }
+          $uninstallKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{A67EEAB5-46C2-4B21-A169-7E17275DE2F0}_is1"
+          $version = ([string](Get-ItemProperty -Path $uninstallKey -Name DisplayVersion -ErrorAction Stop).DisplayVersion).Trim()
+          if ($version -ne $env:RC8_PUBLIC_VERSION) { throw "Installed rc8 DisplayVersion mismatch: $version" }
+          $originalPath = $env:PATH
+          $originalPythonHome = $env:PYTHONHOME
+          $originalPythonPath = $env:PYTHONPATH
+          $env:PATH = @((Join-Path $env:SystemRoot "System32"),$env:SystemRoot,(Join-Path $env:SystemRoot "System32\Wbem")) -join ";"
+          $env:PYTHONHOME = $null
+          $env:PYTHONPATH = $null
+          try {
+            if (Get-Command python.exe -ErrorAction SilentlyContinue) { throw "Developer Python is visible during rc8 packaged smoke" }
+            if (Get-Command pip.exe -ErrorAction SilentlyContinue) { throw "Developer pip is visible during rc8 packaged smoke" }
+            $smoke = Start-Process -FilePath $exe -ArgumentList @("--smoke-test","--smoke-report=$smokeReport") -WorkingDirectory $smokeDir -Wait -PassThru
+            if ($smoke.ExitCode -ne 0) {
+              if (Test-Path $smokeReport) { Get-Content $smokeReport }
+              throw "rc8 packaged smoke failed: $($smoke.ExitCode)"
+            }
+          } finally {
+            $env:PATH = $originalPath
+            $env:PYTHONHOME = $originalPythonHome
+            $env:PYTHONPATH = $originalPythonPath
+          }
+          $projectDir = Join-Path ([Environment]::GetFolderPath("MyDocuments")) "KodepoiaV265Project"
+          $projectFile = Join-Path $projectDir "project-sentinel.txt"
+          $userDataDir = Join-Path $env:USERPROFILE ".kodepoia"
+          $userDataFile = Join-Path $userDataDir "v265-user-data-sentinel.txt"
+          New-Item -ItemType Directory -Force -Path $projectDir | Out-Null
+          New-Item -ItemType Directory -Force -Path $userDataDir | Out-Null
+          "v265-project-preserve" | Set-Content -Encoding UTF8 $projectFile
+          "v265-user-data-preserve" | Set-Content -Encoding UTF8 $userDataFile
+          $settingsPath = "HKCU:\Software\Kodepoia\KodeStudio"
+          New-Item -Path $settingsPath -Force | Out-Null
+          New-ItemProperty -Path $settingsPath -Name "v265_rehearsal_sentinel" -Value "preserve-me" -PropertyType String -Force | Out-Null
+          @{
+            rc8_install_exit_code = [int]$install.ExitCode
+            rc8_installed_version = $version
+            rc8_packaged_smoke = $true
+            install_dir = $installDir
+            default_dir = $defaultDir
+            project_file = $projectFile
+            user_data_file = $userDataFile
+            settings_path = $settingsPath
+            uninstall_key = $uninstallKey
+          } | ConvertTo-Json -Depth 5 | Set-Content -Encoding UTF8 "artifacts/v2_6_5/windows-baseline.json"
+
+      - name: Upgrade rc8 to the frozen candidate from staged verified bytes
+        shell: pwsh
+        run: |
+          $baseline = Get-Content "artifacts/v2_6_5/windows-baseline.json" -Raw | ConvertFrom-Json
+          $installDir = [string]$baseline.install_dir
+          $defaultDir = [string]$baseline.default_dir
+          $staged = (Resolve-Path $env:V265_STAGED_CANDIDATE).Path
+          $stagedHash = (Get-FileHash $staged -Algorithm SHA256).Hash.ToLowerInvariant()
+          $stagedSize = (Get-Item $staged).Length
+          if ($stagedHash -ne $env:CANDIDATE_INSTALLER_SHA256) { throw "Staged candidate hash drift before install" }
+          if ($stagedSize -ne [int64]$env:CANDIDATE_INSTALLER_BYTES) { throw "Staged candidate length drift before install" }
+          Get-Process -Name KodepoiaStudio -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+          $update = Start-Process -FilePath $staged -ArgumentList @("/SP-","/SILENT","/NORESTART","/CLOSEAPPLICATIONS","/NORESTARTAPPLICATIONS","/KODEPOIAUPDATE=1") -PassThru
+          # Wait only for the Inno Setup process. PowerShell Start-Process -Wait can
+          # remain blocked by the KodepoiaStudio child intentionally relaunched by
+          # /KODEPOIAUPDATE=1, which would turn a successful update into a CI timeout.
+          $update.WaitForExit()
+          if ($update.ExitCode -ne 0) { throw "Frozen candidate update failed: $($update.ExitCode)" }
+          $relaunchObserved = $false
+          for ($attempt = 0; $attempt -lt 60; $attempt++) {
+            $process = Get-Process -Name KodepoiaStudio -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($process) { $relaunchObserved = $true; break }
+            Start-Sleep -Seconds 1
+          }
+          if (-not $relaunchObserved) { throw "Installer update did not relaunch KodepoiaStudio" }
+          Get-Process -Name KodepoiaStudio -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+          $exe = Join-Path $installDir "KodepoiaStudio.exe"
+          if (-not (Test-Path $exe -PathType Leaf)) { throw "Candidate upgrade left no executable in the custom install directory" }
+          $version = ([string](Get-ItemProperty -Path ([string]$baseline.uninstall_key) -Name DisplayVersion -ErrorAction Stop).DisplayVersion).Trim()
+          if ($version -ne "1.1.0") { throw "Upgraded DisplayVersion mismatch: $version" }
+          $defaultExe = Join-Path $defaultDir "KodepoiaStudio.exe"
+          $defaultUnused = -not (Test-Path $defaultExe)
+          if (-not $defaultUnused) { throw "Candidate update escaped into the default installation directory" }
+          @{
+            candidate_update_exit_code = [int]$update.ExitCode
+            candidate_relaunch_observed = [bool]$relaunchObserved
+            upgraded_version = $version
+            custom_install_directory_preserved = $true
+            default_install_directory_unused = [bool]$defaultUnused
+          } | ConvertTo-Json -Depth 5 | Set-Content -Encoding UTF8 "artifacts/v2_6_5/windows-upgrade.json"
+
+      - name: Run post-upgrade smoke, preservation checks and uninstall
+        shell: pwsh
+        run: |
+          $baseline = Get-Content "artifacts/v2_6_5/windows-baseline.json" -Raw | ConvertFrom-Json
+          $upgrade = Get-Content "artifacts/v2_6_5/windows-upgrade.json" -Raw | ConvertFrom-Json
+          $installDir = [string]$baseline.install_dir
+          $exe = Join-Path $installDir "KodepoiaStudio.exe"
+          $uninstaller = Join-Path $installDir "unins000.exe"
+          $smokeDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v265-candidate-smoke"
+          $smokeReport = Join-Path $env:RUNNER_TEMP "kodepoia-v265-candidate-smoke.txt"
+          Remove-Item $smokeDir -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $smokeReport -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $smokeDir | Out-Null
+          $originalPath = $env:PATH
+          $originalPythonHome = $env:PYTHONHOME
+          $originalPythonPath = $env:PYTHONPATH
+          $env:PATH = @((Join-Path $env:SystemRoot "System32"),$env:SystemRoot,(Join-Path $env:SystemRoot "System32\Wbem")) -join ";"
+          $env:PYTHONHOME = $null
+          $env:PYTHONPATH = $null
+          try {
+            if (Get-Command python.exe -ErrorAction SilentlyContinue) { throw "Developer Python is visible during candidate packaged smoke" }
+            if (Get-Command pip.exe -ErrorAction SilentlyContinue) { throw "Developer pip is visible during candidate packaged smoke" }
+            $smoke = Start-Process -FilePath $exe -ArgumentList @("--smoke-test","--smoke-report=$smokeReport") -WorkingDirectory $smokeDir -Wait -PassThru
+            if ($smoke.ExitCode -ne 0) {
+              if (Test-Path $smokeReport) { Get-Content $smokeReport }
+              throw "Candidate packaged smoke failed: $($smoke.ExitCode)"
+            }
+          } finally {
+            $env:PATH = $originalPath
+            $env:PYTHONHOME = $originalPythonHome
+            $env:PYTHONPATH = $originalPythonPath
+          }
+          $projectPreserved = ((Test-Path ([string]$baseline.project_file) -PathType Leaf) -and ((Get-Content ([string]$baseline.project_file) -Raw).Trim() -eq "v265-project-preserve"))
+          $userDataPreserved = ((Test-Path ([string]$baseline.user_data_file) -PathType Leaf) -and ((Get-Content ([string]$baseline.user_data_file) -Raw).Trim() -eq "v265-user-data-preserve"))
+          $settingsPreserved = ((Get-ItemProperty -Path ([string]$baseline.settings_path) -Name "v265_rehearsal_sentinel" -ErrorAction Stop).v265_rehearsal_sentinel -eq "preserve-me")
+          if (-not ($projectPreserved -and $userDataPreserved -and $settingsPreserved)) { throw "Candidate upgrade did not preserve project/settings/user data" }
+          if (-not (Test-Path $uninstaller -PathType Leaf)) { throw "Candidate uninstaller missing after upgrade" }
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList @("/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART") -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "Candidate uninstall failed: $($uninstall.ExitCode)" }
+          for ($attempt = 0; $attempt -lt 60 -and (Test-Path $exe); $attempt++) { Start-Sleep -Milliseconds 500 }
+          $removed = -not (Test-Path $exe)
+          if (-not $removed) { throw "Candidate executable remains after uninstall" }
+          $projectAfter = ((Test-Path ([string]$baseline.project_file) -PathType Leaf) -and ((Get-Content ([string]$baseline.project_file) -Raw).Trim() -eq "v265-project-preserve"))
+          $userDataAfter = ((Test-Path ([string]$baseline.user_data_file) -PathType Leaf) -and ((Get-Content ([string]$baseline.user_data_file) -Raw).Trim() -eq "v265-user-data-preserve"))
+          $settingsAfter = ((Get-ItemProperty -Path ([string]$baseline.settings_path) -Name "v265_rehearsal_sentinel" -ErrorAction Stop).v265_rehearsal_sentinel -eq "preserve-me")
+          if (-not ($projectAfter -and $userDataAfter -and $settingsAfter)) { throw "Uninstall removed project/settings/user data" }
+          @{
+            rc8_install_exit_code = [int]$baseline.rc8_install_exit_code
+            rc8_installed_version = [string]$baseline.rc8_installed_version
+            rc8_packaged_smoke = [bool]$baseline.rc8_packaged_smoke
+            candidate_update_exit_code = [int]$upgrade.candidate_update_exit_code
+            candidate_relaunch_observed = [bool]$upgrade.candidate_relaunch_observed
+            upgraded_version = [string]$upgrade.upgraded_version
+            candidate_packaged_smoke = $true
+            custom_install_directory_preserved = [bool]$upgrade.custom_install_directory_preserved
+            default_install_directory_unused = [bool]$upgrade.default_install_directory_unused
+            project_sentinel_preserved_after_upgrade = [bool]$projectPreserved
+            user_data_sentinel_preserved_after_upgrade = [bool]$userDataPreserved
+            settings_sentinel_preserved_after_upgrade = [bool]$settingsPreserved
+            uninstall_exit_code = [int]$uninstall.ExitCode
+            installed_executable_removed = [bool]$removed
+            project_sentinel_preserved_after_uninstall = [bool]$projectAfter
+            user_data_sentinel_preserved_after_uninstall = [bool]$userDataAfter
+            settings_sentinel_preserved_after_uninstall = [bool]$settingsAfter
+            public_release_effect = $false
+            production_tuf_mutation = $false
+          } | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 "artifacts/v2_6_5/windows-evidence.json"
+
+      - name: Clean install exact candidate and uninstall rehearsal
+        shell: pwsh
+        run: |
+          $staged = (Resolve-Path $env:V265_STAGED_CANDIDATE).Path
+          $cleanDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v265-clean-candidate"
+          $smokeDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v265-clean-smoke"
+          $smokeReport = Join-Path $env:RUNNER_TEMP "kodepoia-v265-clean-smoke.txt"
+          Remove-Item $cleanDir -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $smokeDir -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $smokeReport -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $smokeDir | Out-Null
+
+          $hash = (Get-FileHash $staged -Algorithm SHA256).Hash.ToLowerInvariant()
+          $size = (Get-Item $staged).Length
+          if ($hash -ne $env:CANDIDATE_INSTALLER_SHA256) {
+            throw "Clean-install candidate hash drift"
+          }
+          if ($size -ne [int64]$env:CANDIDATE_INSTALLER_BYTES) {
+            throw "Clean-install candidate length drift"
+          }
+
+          $install = Start-Process -FilePath $staged -ArgumentList @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/MERGETASKS=!desktopicon",
+            "/DIR=$cleanDir"
+          ) -Wait -PassThru
+          if ($install.ExitCode -ne 0) {
+            throw "Exact candidate clean install failed: $($install.ExitCode)"
+          }
+
+          $exe = Join-Path $cleanDir "KodepoiaStudio.exe"
+          $uninstaller = Join-Path $cleanDir "unins000.exe"
+          $uninstallKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{A67EEAB5-46C2-4B21-A169-7E17275DE2F0}_is1"
+          if (-not (Test-Path $exe -PathType Leaf)) {
+            throw "Exact candidate clean-install executable missing"
+          }
+          $version = ([string](Get-ItemProperty -Path $uninstallKey -Name DisplayVersion -ErrorAction Stop).DisplayVersion).Trim()
+          if ($version -ne "1.1.0") {
+            throw "Exact candidate clean-install DisplayVersion mismatch: $version"
+          }
+
+          $originalPath = $env:PATH
+          $originalPythonHome = $env:PYTHONHOME
+          $originalPythonPath = $env:PYTHONPATH
+          $env:PATH = @(
+            (Join-Path $env:SystemRoot "System32"),
+            $env:SystemRoot,
+            (Join-Path $env:SystemRoot "System32\Wbem")
+          ) -join ";"
+          $env:PYTHONHOME = $null
+          $env:PYTHONPATH = $null
+          try {
+            if (Get-Command python.exe -ErrorAction SilentlyContinue) {
+              throw "Developer Python is visible during clean candidate smoke"
+            }
+            if (Get-Command pip.exe -ErrorAction SilentlyContinue) {
+              throw "Developer pip is visible during clean candidate smoke"
+            }
+            $smoke = Start-Process -FilePath $exe -ArgumentList @(
+              "--smoke-test",
+              "--smoke-report=$smokeReport"
+            ) -WorkingDirectory $smokeDir -Wait -PassThru
+            if ($smoke.ExitCode -ne 0) {
+              if (Test-Path $smokeReport) { Get-Content $smokeReport }
+              throw "Exact candidate clean-install smoke failed: $($smoke.ExitCode)"
+            }
+          }
+          finally {
+            $env:PATH = $originalPath
+            $env:PYTHONHOME = $originalPythonHome
+            $env:PYTHONPATH = $originalPythonPath
+          }
+
+          if (-not (Test-Path $uninstaller -PathType Leaf)) {
+            throw "Exact candidate clean-install uninstaller missing"
+          }
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART"
+          ) -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) {
+            throw "Exact candidate clean uninstall failed: $($uninstall.ExitCode)"
+          }
+          for ($attempt = 0; $attempt -lt 60 -and (Test-Path $exe); $attempt++) {
+            Start-Sleep -Milliseconds 500
+          }
+          $removed = -not (Test-Path $exe)
+          if (-not $removed) {
+            throw "Exact candidate executable remains after clean uninstall"
+          }
+
+          $evidencePath = "artifacts/v2_6_5/windows-evidence.json"
+          $evidence = Get-Content $evidencePath -Raw | ConvertFrom-Json
+          $evidence | Add-Member -NotePropertyName candidate_clean_install_exit_code -NotePropertyValue ([int]$install.ExitCode)
+          $evidence | Add-Member -NotePropertyName candidate_clean_installed_version -NotePropertyValue $version
+          $evidence | Add-Member -NotePropertyName candidate_clean_install_smoke -NotePropertyValue $true
+          $evidence | Add-Member -NotePropertyName candidate_clean_uninstall_exit_code -NotePropertyValue ([int]$uninstall.ExitCode)
+          $evidence | Add-Member -NotePropertyName candidate_clean_executable_removed -NotePropertyValue ([bool]$removed)
+          $evidence | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 $evidencePath
+
+      - name: Run final V2.6.5 go/no-go acceptance
+        shell: pwsh
+        run: |
+          $args = @("scripts/v2_6_5_acceptance.py","--mode","final","--source-sha",$env:EVIDENCE_SHA,"--preflight","artifacts/v2_6_5/preflight.json","--windows-evidence","artifacts/v2_6_5/windows-evidence.json","--candidate-installer",$env:V265_STAGED_CANDIDATE,"--output","artifacts/v2_6_5/V2_6_5_WINDOWS_RELEASE_REHEARSAL.json")
+          python @args
+          $report = Get-Content "artifacts/v2_6_5/V2_6_5_WINDOWS_RELEASE_REHEARSAL.json" -Raw | ConvertFrom-Json
+          if ($report.status -ne "PASS") { throw "V2.6.5 final status is not PASS" }
+          if ($report.go_no_go -ne "GO") { throw "V2.6.5 final decision is not GO" }
+          if ($report.critical_veto) { throw "V2.6.5 critical veto is active" }
+          if ($report.public_release_triggered -or $report.public_tag_triggered -or $report.public_asset_upload_triggered -or $report.production_tuf_mutation_triggered -or $report.live_updater_activation_triggered -or $report.signing_secret_provisioned -or $report.winget_submission_triggered) {
+            throw "V2.6.5 unexpectedly performed a forbidden live/public effect"
+          }
+
+      - name: Upload V2.6.5 exact-head evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-6-5-windows-release-rehearsal-${{ env.EVIDENCE_SHA }}
+          path: artifacts/v2_6_5
+          if-no-files-found: error
+          retention-days: 30

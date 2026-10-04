@@ -124,6 +124,10 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
         in policy.immutable_authority_workflows
     )
     assert (
+        ".github/workflows/v2-6-4-tuf-transition-staging.yml"
+        in policy.immutable_authority_workflows
+    )
+    assert (
         ".github/workflows/r18-1-release-identity-acceptance.yml"
         in policy.immutable_authority_workflows
     )

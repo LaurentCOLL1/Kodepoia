@@ -18,12 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: tuf-production-signing
     permissions:
-      actions: read
-      contents: write
-      pull-requests: write
+      contents: read
     env:
       BASE_SHA: ${{ github.sha }}
-      GH_TOKEN: ${{ github.token }}
       TUF_SNAPSHOT_ED25519_SEED_B64: ${{ secrets.TUF_SNAPSHOT_ED25519_SEED_B64 }}
       TUF_TIMESTAMP_ED25519_SEED_B64: ${{ secrets.TUF_TIMESTAMP_ED25519_SEED_B64 }}
     steps:
@@ -93,43 +90,6 @@ jobs:
           assert report["public_release_created"] is False
           assert report["secret_values_emitted"] is False
 
-      - name: Commit coherent production metadata on isolated branch
-        id: commit
-        shell: bash
-        run: |
-          set -euo pipefail
-          branch="release/v2-6-6-production-metadata-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          git switch -c "$branch"
-          cp artifacts/v2_6_6/production-metadata/targets.json update-repository/metadata/targets.json
-          cp artifacts/v2_6_6/production-metadata/snapshot.json update-repository/metadata/snapshot.json
-          cp artifacts/v2_6_6/production-metadata/timestamp.json update-repository/metadata/timestamp.json
-          changed="$(git diff --name-only)"
-          expected=$'update-repository/metadata/snapshot.json\nupdate-repository/metadata/targets.json\nupdate-repository/metadata/timestamp.json'
-          if [[ "$changed" != "$expected" ]]; then
-            printf 'unexpected metadata diff:\n%s\n' "$changed" >&2
-            exit 1
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add update-repository/metadata/targets.json update-repository/metadata/snapshot.json update-repository/metadata/timestamp.json
-          git diff --cached --check
-          git commit -m "release: stage V2.6.6 production TUF v9/v11/v11"
-          sha="$(git rev-parse HEAD)"
-          git push origin "HEAD:refs/heads/$branch"
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
-          echo "sha=$sha" >> "$GITHUB_OUTPUT"
-
-      - name: Open protected production metadata pull request
-        id: pr
-        shell: bash
-        env:
-          METADATA_BRANCH: ${{ steps.commit.outputs.branch }}
-          METADATA_SHA: ${{ steps.commit.outputs.sha }}
-        run: |
-          set -euo pipefail
-          number="$(gh api --method POST "repos/$GITHUB_REPOSITORY/pulls"             -f title="release: stage V2.6.6 production TUF v9/v11/v11"             -f head="$METADATA_BRANCH"             -f base="main"             -f body="V2.6.6 coherent production TUF generation. Exact source main: $BASE_SHA. Metadata head: $METADATA_SHA. Targets v9 is the operator-signed Phase-A output; Snapshot/Timestamp v11 are signed only in tuf-production-signing. No public Release/tag/asset is created by this workflow."             --jq '.number')"
-          echo "number=$number" >> "$GITHUB_OUTPUT"
-
       - name: Upload V2.6.6 online signing evidence
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -138,7 +98,3 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Remove one-shot trigger branch
-        if: success()
-        shell: bash
-        run: gh api --method DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/automation/v2-6-6-online-signing-trigger"

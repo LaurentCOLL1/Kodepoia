@@ -59,7 +59,7 @@ The dedicated Windows gate performs this sequence:
 
 1. fetch and verify the public rc8 release/tag/installer read-only;
 2. install the exact public rc8 installer into a non-default custom directory;
-3. confirm rc8 ProductVersion and execute packaged smoke with developer Python/pip hidden;
+3. confirm rc8 Inno uninstall-registry DisplayVersion and execute packaged smoke with developer Python/pip hidden;
 4. create independent project, user-data and QSettings sentinels;
 5. reconstruct and verify the exact accepted V2.6.4 transition request;
 6. use an isolated synthetic TUF repository to discover the exact stable target from the rc8
@@ -68,7 +68,7 @@ The dedicated Windows gate performs this sequence:
    target-scoped `allow-unsigned` verification path;
 8. launch only those staged verified bytes with the existing fixed Inno update arguments;
 9. require installer-driven KodeStudio relaunch;
-10. verify installed ProductVersion `1.1.0` in the original custom directory and verify that the
+10. verify installed Inno DisplayVersion `1.1.0` in the original custom directory and verify that the
     default installation directory was not silently used;
 11. run packaged smoke again;
 12. verify project/settings/user-data preservation after upgrade;
@@ -76,7 +76,7 @@ The dedicated Windows gate performs this sequence:
 14. uninstall the upgraded installation and verify the installed executable is removed;
 15. verify project/settings/user-data sentinels remain after uninstall;
 16. clean-install the same exact staged candidate bytes into a second custom directory;
-17. confirm ProductVersion `1.1.0`, run packaged smoke, uninstall and confirm clean removal;
+17. confirm Inno DisplayVersion `1.1.0`, run packaged smoke, uninstall and confirm clean removal;
 18. run the existing R18.10 incident/recovery drill and require the last-known-good recovery
     scenario to remain `RECOVER`;
 19. aggregate all results into the final V2.6.5 critical-veto report.

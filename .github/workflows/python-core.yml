@@ -391,6 +391,17 @@ jobs:
           path: artifacts/v2_6_3/terminal-candidate.json
           if-no-files-found: error
           retention-days: 30
+      - name: Run V2.6.4 production TUF transition focused tests
+        run: pytest tests/test_v2_6_4_tuf_transition_staging.py
+      - name: Run V2.6.4 staged production TUF transition exact-head acceptance
+        run: python scripts/v2_6_4_acceptance.py --source-sha "${{ env.KODEPOIA_SOURCE_SHA }}" --output artifacts/v2_6_4/tuf-transition-staging.json
+      - name: Upload V2.6.4 exact-head evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-6-4-tuf-transition-staging-${{ matrix.os }}-${{ env.KODEPOIA_SOURCE_SHA }}
+          path: artifacts/v2_6_4/tuf-transition-staging.json
+          if-no-files-found: error
+          retention-days: 30
 
   ui-smoke:
     name: kodestudio-ui-windows

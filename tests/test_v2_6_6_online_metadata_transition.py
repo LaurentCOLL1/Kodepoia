@@ -60,7 +60,6 @@ def test_v266_online_transition_workflow_is_post_merge_one_shot() -> None:
     assert "pull-requests: write" not in source
     assert "gh release create" not in source
     assert "git tag" not in source
-    assert "production-metadata/targets.json" in source
-    assert "production-metadata/snapshot.json" in source
-    assert "production-metadata/timestamp.json" in source
+    assert "--output-dir artifacts/v2_6_6/production-metadata" in source
+    assert "path: artifacts/v2_6_6" in source
     assert "Open protected production metadata pull request" not in source

@@ -88,7 +88,8 @@ def test_v262_preserves_terminal_release_freeze_and_no_public_effects() -> None:
     freeze = TERMINAL_RELEASE_FREEZE
     target = freeze.successor_identity
 
-    assert CURRENT_RELEASE.public_version == "1.1.0-rc8"
+    assert TERMINAL_RELEASE_FREEZE.public_baseline["public_version"] == "1.1.0-rc8"
+    assert target == CURRENT_RELEASE
     assert target.public_version == "1.1.0"
     assert target.channel == "stable"
     assert freeze.successor["candidate_source_freeze_phase"] == "V2.6.3"

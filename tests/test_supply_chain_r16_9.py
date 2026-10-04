@@ -101,7 +101,7 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     )
     assert len(policy.digest_sha256) == 64
     assert policy.required_contents_permission == "read"
-    assert len(policy.immutable_authority_workflows) == 47
+    assert len(policy.immutable_authority_workflows) == 48
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
         in policy.immutable_authority_workflows
@@ -119,6 +119,10 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
         in policy.immutable_authority_workflows
     )
     assert ".github/workflows/windows-installer.yml" in policy.immutable_authority_workflows
+    assert (
+        ".github/workflows/v2-6-3-terminal-candidate.yml"
+        in policy.immutable_authority_workflows
+    )
     assert (
         ".github/workflows/r18-1-release-identity-acceptance.yml"
         in policy.immutable_authority_workflows

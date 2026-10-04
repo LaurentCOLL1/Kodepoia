@@ -206,16 +206,17 @@ def _compromised_mirror(source_sha: str) -> None:
 
 def _wrong_channel(source_sha: str) -> None:
     with tempfile.TemporaryDirectory() as temp:
-        beta_target = _target(source_sha)
-        stable_target = _target(source_sha, channel="stable")
+        canonical_target = _target(source_sha)
+        wrong_channel = "beta" if CURRENT_RELEASE.channel == "stable" else "stable"
+        other_target = _target(source_sha, channel=wrong_channel)
         builder = SyntheticUpdateRepositoryBuilder()
-        repository = builder.build(beta_target, _INSTALLER_V1)
+        repository = builder.build(canonical_target, _INSTALLER_V1)
         client = UpdateClient(
             temp,
             root_pin=PackagedRootPin.from_root(repository.root),
             reference_time=REFERENCE_TIME,
         )
-        client.verify_refresh(MemoryUpdateTransport.from_repository(repository), stable_target)
+        client.verify_refresh(MemoryUpdateTransport.from_repository(repository), other_target)
 
 
 def _root_rotation(source_sha: str) -> None:

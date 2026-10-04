@@ -41,7 +41,7 @@ PRIVATE_MARKERS = (
     b"PASSPHRASE",
     b"PASSWORD",
 )
-PUBLIC_VERSION_RE = re.compile(r"^(?P<base>\d+\.\d+\.\d+)-rc(?P<rc>\d+)$")
+PUBLIC_VERSION_RE = re.compile(r"^(?P<base>\d+\.\d+\.\d+)(?:-rc(?P<rc>\d+))?$")
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
@@ -182,9 +182,10 @@ def _verify_source_identity(source_sha: str, public_version: str, report: Report
         raise CeremonyError(
             "INVALID_PUBLIC_VERSION",
             f"unsupported public version format: {public_version}",
-            resolution="Use the canonical form such as 1.1.0-rc6.",
+            resolution="Use a canonical final or RC form such as 1.1.0 or 1.1.0-rc6.",
         )
-    expected_pep440 = f"{match.group('base')}rc{match.group('rc')}"
+    rc = match.group("rc")
+    expected_pep440 = match.group("base") if rc is None else f"{match.group('base')}rc{rc}"
     version_line = f'version = "{expected_pep440}"'
     if version_line not in pyproject:
         raise CeremonyError(

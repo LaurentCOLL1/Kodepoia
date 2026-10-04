@@ -116,8 +116,12 @@ def _verify_current_successor_state() -> dict[str, object]:
         raise ValueError("current Root v2 is expired")
     if targets.signed.is_expired(now):
         raise ValueError("current Targets is expired")
-    if snapshot.signed.is_expired(now) or timestamp.signed.is_expired(now):
-        raise ValueError("current online metadata is expired")
+
+    expired_online_roles: list[str] = []
+    if snapshot.signed.is_expired(now):
+        expired_online_roles.append("snapshot")
+    if timestamp.signed.is_expired(now):
+        expired_online_roles.append("timestamp")
 
     return {
         "root_version": root.signed.version,
@@ -130,7 +134,12 @@ def _verify_current_successor_state() -> dict[str, object]:
         "timestamp_sha256": _sha256(timestamp_bytes),
         "metadata_chain_verified": True,
         "monotonic_from_r20_3": True,
-        "online_roles_not_expired": True,
+        "online_roles_not_expired": not expired_online_roles,
+        "expired_online_roles": expired_online_roles,
+        "fail_closed": bool(expired_online_roles),
+        "status": (
+            "blocked-expired-online-metadata" if expired_online_roles else "ready"
+        ),
     }
 
 
@@ -301,6 +310,8 @@ def verify_full_transition() -> dict[str, object]:
         "historical_expiry_extended": False,
         "private_material_detected": False,
         "current_successor": current,
+        "current_online_metadata_ready": current["status"] == "ready",
+        "current_online_metadata_fail_closed": current["fail_closed"],
         "status": "pass",
     }
 

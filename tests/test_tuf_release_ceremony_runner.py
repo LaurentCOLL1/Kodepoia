@@ -81,6 +81,7 @@ def test_python_ceremony_runner_compiles_and_exposes_help(tmp_path: Path) -> Non
     assert completed.returncode == 0, completed.stderr
     assert "fail-closed" in completed.stdout
     assert "--offline-key-dir" in completed.stdout
+    assert "--offline-targets-only" in completed.stdout
     assert "--expected-root-sha256" in completed.stdout
     assert "--authenticode-policy" in completed.stdout
     assert "require-valid" in completed.stdout
@@ -320,3 +321,163 @@ def test_synthetic_ceremony_signs_policy_verifies_and_applies_atomically(
     final_timestamp.signed.snapshot_meta.verify_length_and_hashes(
         (metadata_dir / "snapshot.json").read_bytes()
     )
+
+
+def test_offline_targets_only_stages_public_targets_without_online_secrets(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    monkeypatch.chdir(REPOSITORY_ROOT)
+    module = _load_runner_module()
+    now = datetime.now(UTC).replace(microsecond=0)
+    public_version = _current_public_version()
+
+    root_private = Ed25519PrivateKey.generate()
+    targets_private = Ed25519PrivateKey.generate()
+    snapshot_private = Ed25519PrivateKey.generate()
+    timestamp_private = Ed25519PrivateKey.generate()
+    root_signer = CryptoSigner(root_private)
+    targets_signer = CryptoSigner(targets_private)
+    snapshot_signer = CryptoSigner(snapshot_private)
+    timestamp_signer = CryptoSigner(timestamp_private)
+
+    keys = {
+        signer.public_key.keyid: signer.public_key.to_dict()
+        for signer in (root_signer, targets_signer, snapshot_signer, timestamp_signer)
+    }
+    root_payload: dict[str, object] = {
+        "_type": "root",
+        "consistent_snapshot": False,
+        "expires": (now + timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "keys": keys,
+        "roles": {
+            "root": {"keyids": [root_signer.public_key.keyid], "threshold": 1},
+            "targets": {"keyids": [targets_signer.public_key.keyid], "threshold": 1},
+            "snapshot": {"keyids": [snapshot_signer.public_key.keyid], "threshold": 1},
+            "timestamp": {"keyids": [timestamp_signer.public_key.keyid], "threshold": 1},
+        },
+        "spec_version": "1.0.31",
+        "version": 1,
+    }
+    root_bytes = _signed_bytes(root_payload, root_signer)
+    targets_payload: dict[str, object] = {
+        "_type": "targets",
+        "expires": (now + timedelta(days=20)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "spec_version": "1.0.31",
+        "targets": {},
+        "version": 1,
+    }
+    targets_bytes = _signed_bytes(targets_payload, targets_signer)
+    snapshot_payload: dict[str, object] = {
+        "_type": "snapshot",
+        "expires": (now + timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "meta": {
+            "targets.json": {
+                "hashes": {"sha256": _sha256(targets_bytes)},
+                "length": len(targets_bytes),
+                "version": 1,
+            }
+        },
+        "spec_version": "1.0.31",
+        "version": 1,
+    }
+    snapshot_bytes = _signed_bytes(snapshot_payload, snapshot_signer)
+    timestamp_payload: dict[str, object] = {
+        "_type": "timestamp",
+        "expires": (now + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "meta": {
+            "snapshot.json": {
+                "hashes": {"sha256": _sha256(snapshot_bytes)},
+                "length": len(snapshot_bytes),
+                "version": 1,
+            }
+        },
+        "spec_version": "1.0.31",
+        "version": 1,
+    }
+    timestamp_bytes = _signed_bytes(timestamp_payload, timestamp_signer)
+
+    metadata_dir = tmp_path / "metadata"
+    metadata_dir.mkdir()
+    originals = {
+        "root.json": root_bytes,
+        "targets.json": targets_bytes,
+        "snapshot.json": snapshot_bytes,
+        "timestamp.json": timestamp_bytes,
+    }
+    for name, data in originals.items():
+        (metadata_dir / name).write_bytes(data)
+
+    custody_dir = tmp_path / "private-custody"
+    custody_dir.mkdir()
+    passphrase = b"synthetic-offline-targets-passphrase"
+    (custody_dir / "targets-authority.pem").write_bytes(
+        targets_private.private_bytes(
+            Encoding.PEM,
+            PrivateFormat.PKCS8,
+            BestAvailableEncryption(passphrase),
+        )
+    )
+
+    asset = tmp_path / "KodepoiaSetup.exe"
+    asset.write_bytes(b"synthetic offline-only target payload\n")
+    source_sha = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=REPOSITORY_ROOT, text=True
+    ).strip()
+
+    monkeypatch.delenv("TUF_SNAPSHOT_ED25519_SEED_B64", raising=False)
+    monkeypatch.delenv("TUF_TIMESTAMP_ED25519_SEED_B64", raising=False)
+    monkeypatch.setattr(module.getpass, "getpass", lambda _prompt: passphrase.decode("ascii"))
+
+    report_path = tmp_path / "ceremony-report.json"
+    summary_path = tmp_path / "ceremony-summary.txt"
+    staging_dir = tmp_path / "staged"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            str(PYTHON_RUNNER),
+            "--public-version",
+            public_version,
+            "--source-sha",
+            source_sha,
+            "--asset",
+            str(asset),
+            "--offline-key-dir",
+            str(custody_dir),
+            "--metadata-dir",
+            str(metadata_dir),
+            "--expected-root-sha256",
+            _sha256(root_bytes),
+            "--authenticode-policy",
+            "allow-unsigned",
+            "--offline-targets-only",
+            "--staging-dir",
+            str(staging_dir),
+            "--report",
+            str(report_path),
+            "--summary",
+            str(summary_path),
+        ],
+    )
+
+    assert module.main() == 0
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["status"] == "SUCCESS"
+    assert report["errors_encountered"] == []
+    assert report["generation"]["offline_targets_only"] is True
+    assert report["generation"]["online_metadata_generated"] is False
+    assert report["generation"]["targets_version"] == 2
+    assert set(path.name for path in staging_dir.iterdir()) == {"targets.json"}
+    staged_targets = Metadata.from_bytes((staging_dir / "targets.json").read_bytes())
+    assert isinstance(staged_targets.signed, Targets)
+    expected_target = (
+        f"channels/beta/windows-x86_64/{public_version}/{source_sha}/KodepoiaSetup.exe"
+    )
+    assert expected_target in staged_targets.signed.targets
+    assert staged_targets.signed.targets[expected_target].custom["authenticode_policy"] == (
+        "allow-unsigned"
+    )
+    for name, data in originals.items():
+        assert (metadata_dir / name).read_bytes() == data
+    assert "Snapshot/Timestamp unchanged" in summary_path.read_text(encoding="utf-8")

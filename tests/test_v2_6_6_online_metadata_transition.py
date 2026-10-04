@@ -55,8 +55,10 @@ def test_v266_operator_targets_v9_is_exact_and_authorized() -> None:
 
 def test_v266_online_transition_workflow_is_post_merge_one_shot() -> None:
     source = WORKFLOW.read_text(encoding="utf-8")
-    assert "automation/v2-6-6-online-signing-trigger" in source
+    assert "create:" in source
+    assert "automation/v2-6-6-online-signing-create-trigger" in source
     assert "environment: tuf-production-signing" in source
+    assert "push:" not in source
     assert "pull_request:" not in source
     assert "workflow_dispatch:" not in source
     assert "TUF_SNAPSHOT_ED25519_SEED_B64" in source

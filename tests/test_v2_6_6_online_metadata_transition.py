@@ -56,10 +56,11 @@ def test_v266_online_transition_workflow_is_post_merge_one_shot() -> None:
     assert "workflow_dispatch:" not in source
     assert "TUF_SNAPSHOT_ED25519_SEED_B64" in source
     assert "TUF_TIMESTAMP_ED25519_SEED_B64" in source
-    assert "contents: write" in source
-    assert "pull-requests: write" in source
+    assert "contents: write" not in source
+    assert "pull-requests: write" not in source
     assert "gh release create" not in source
     assert "git tag" not in source
     assert "production-metadata/targets.json" in source
     assert "production-metadata/snapshot.json" in source
     assert "production-metadata/timestamp.json" in source
+    assert "Open protected production metadata pull request" not in source

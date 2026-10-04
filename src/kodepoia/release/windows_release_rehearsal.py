@@ -430,6 +430,13 @@ def build_final_report(
             and windows.get("upgraded_version") == CANDIDATE_PUBLIC_VERSION
             and windows.get("candidate_packaged_smoke") is True
         ),
+        "candidate_clean_install": (
+            windows.get("candidate_clean_install_exit_code") == 0
+            and windows.get("candidate_clean_installed_version") == CANDIDATE_PUBLIC_VERSION
+            and windows.get("candidate_clean_install_smoke") is True
+            and windows.get("candidate_clean_uninstall_exit_code") == 0
+            and windows.get("candidate_clean_executable_removed") is True
+        ),
         "post_upgrade_update_check": (
             post_status == "up-to-date"
             and post_candidate is not None

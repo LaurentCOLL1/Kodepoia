@@ -23,6 +23,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: v2-6-5-windows-release-rehearsal-${{ github.ref }}

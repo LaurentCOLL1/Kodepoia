@@ -73,11 +73,13 @@ The dedicated Windows gate performs this sequence:
 11. run packaged smoke again;
 12. verify project/settings/user-data preservation after upgrade;
 13. verify a subsequent isolated staged check reports `up-to-date` for installed `1.1.0`;
-14. uninstall and verify the installed executable is removed;
+14. uninstall the upgraded installation and verify the installed executable is removed;
 15. verify project/settings/user-data sentinels remain after uninstall;
-16. run the existing R18.10 incident/recovery drill and require the last-known-good recovery
+16. clean-install the same exact staged candidate bytes into a second custom directory;
+17. confirm ProductVersion `1.1.0`, run packaged smoke, uninstall and confirm clean removal;
+18. run the existing R18.10 incident/recovery drill and require the last-known-good recovery
     scenario to remain `RECOVER`;
-17. aggregate all results into the final V2.6.5 critical-veto report.
+19. aggregate all results into the final V2.6.5 critical-veto report.
 
 The synthetic TUF repository is deliberately labeled `fixture_only` and
 `production_proof=false`. Its purpose is to exercise the updater against the exact frozen
@@ -95,6 +97,7 @@ Any mismatch or failure is a critical veto, including:
 - failure to discover or stage the exact candidate;
 - candidate verification failure;
 - clean rc8 installation or packaged smoke failure;
+- exact-candidate clean installation, smoke or clean-uninstall failure;
 - custom-directory loss;
 - missing installer-driven relaunch;
 - wrong installed version after upgrade;

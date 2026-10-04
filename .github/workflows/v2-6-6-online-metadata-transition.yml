@@ -1,0 +1,144 @@
+name: V2.6.6 Online Metadata Transition
+
+on:
+  push:
+    branches:
+      - automation/v2-6-6-online-signing-trigger
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v2-6-6-online-metadata-transition
+  cancel-in-progress: false
+
+jobs:
+  sign-online-metadata:
+    if: github.ref == 'refs/heads/automation/v2-6-6-online-signing-trigger'
+    runs-on: ubuntu-latest
+    environment: tuf-production-signing
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+    env:
+      BASE_SHA: ${{ github.sha }}
+      GH_TOKEN: ${{ github.token }}
+      TUF_SNAPSHOT_ED25519_SEED_B64: ${{ secrets.TUF_SNAPSHOT_ED25519_SEED_B64 }}
+      TUF_TIMESTAMP_ED25519_SEED_B64: ${{ secrets.TUF_TIMESTAMP_ED25519_SEED_B64 }}
+    steps:
+      - name: Checkout exact trigger source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.BASE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Require trigger to equal unchanged main
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          if [[ "$current_main" != "$BASE_SHA" ]]; then
+            echo "main advanced from trigger source $BASE_SHA to $current_main" >&2
+            exit 1
+          fi
+
+      - name: Require v1.1.0 tag and Release to remain absent before metadata staging
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v1.1.0" >/dev/null 2>&1; then
+            echo "v1.1.0 tag already exists; refusing stale/conflicting transition" >&2
+            exit 1
+          fi
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/v1.1.0" >/dev/null 2>&1; then
+            echo "v1.1.0 Release already exists; refusing stale/conflicting transition" >&2
+            exit 1
+          fi
+
+      - name: Install focused dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Restore exact tracked source
+        shell: bash
+        run: |
+          git reset --hard "$BASE_SHA"
+          test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Generate signed Snapshot/Timestamp v11 around accepted Targets v9
+        run: >-
+          python scripts/v2_6_6_online_metadata_transition.py
+          --source-sha "$BASE_SHA"
+          --staged-targets docs/release/evidence/V2_6_6_TARGETS_V9.json
+          --output-dir artifacts/v2_6_6/production-metadata
+          --report artifacts/v2_6_6/online-transition-report.json
+
+      - name: Require coherent v9/v11/v11 output and no live mutation
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          report = json.loads(Path("artifacts/v2_6_6/online-transition-report.json").read_text())
+          assert report["status"] == "PASS"
+          assert report["targets_version"] == 9
+          assert report["snapshot_version"] == 11
+          assert report["timestamp_version"] == 11
+          assert report["production_metadata_mutated"] is False
+          assert report["public_release_created"] is False
+          assert report["secret_values_emitted"] is False
+
+      - name: Commit coherent production metadata on isolated branch
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="release/v2-6-6-production-metadata-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          git switch -c "$branch"
+          cp artifacts/v2_6_6/production-metadata/targets.json update-repository/metadata/targets.json
+          cp artifacts/v2_6_6/production-metadata/snapshot.json update-repository/metadata/snapshot.json
+          cp artifacts/v2_6_6/production-metadata/timestamp.json update-repository/metadata/timestamp.json
+          changed="$(git diff --name-only)"
+          expected=$'update-repository/metadata/snapshot.json\nupdate-repository/metadata/targets.json\nupdate-repository/metadata/timestamp.json'
+          if [[ "$changed" != "$expected" ]]; then
+            printf 'unexpected metadata diff:\n%s\n' "$changed" >&2
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add update-repository/metadata/targets.json update-repository/metadata/snapshot.json update-repository/metadata/timestamp.json
+          git diff --cached --check
+          git commit -m "release: stage V2.6.6 production TUF v9/v11/v11"
+          sha="$(git rev-parse HEAD)"
+          git push origin "HEAD:refs/heads/$branch"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Open protected production metadata pull request
+        id: pr
+        shell: bash
+        env:
+          METADATA_BRANCH: ${{ steps.commit.outputs.branch }}
+          METADATA_SHA: ${{ steps.commit.outputs.sha }}
+        run: |
+          set -euo pipefail
+          number="$(gh api --method POST "repos/$GITHUB_REPOSITORY/pulls"             -f title="release: stage V2.6.6 production TUF v9/v11/v11"             -f head="$METADATA_BRANCH"             -f base="main"             -f body="V2.6.6 coherent production TUF generation. Exact source main: $BASE_SHA. Metadata head: $METADATA_SHA. Targets v9 is the operator-signed Phase-A output; Snapshot/Timestamp v11 are signed only in tuf-production-signing. No public Release/tag/asset is created by this workflow."             --jq '.number')"
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+      - name: Upload V2.6.6 online signing evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-6-6-online-metadata-${{ env.BASE_SHA }}
+          path: artifacts/v2_6_6
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Remove one-shot trigger branch
+        if: success()
+        shell: bash
+        run: gh api --method DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/automation/v2-6-6-online-signing-trigger"

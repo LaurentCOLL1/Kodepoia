@@ -380,3 +380,33 @@ No public release/tag/asset, production TUF mutation, live updater activation, p
 
 V2.6.4 must bind the staged transition to the exact V2.6.3 candidate source and installer digest above, preserve production Root continuity and packaged-root pinning, exercise rollback/freeze/expiry/threshold and historical-target rules, verify `rc8 -> 1.1.0` discovery/install eligibility through isolated staged transport, preserve target-scoped Authenticode-policy truth, and emit evidence suitable for later governed live signing. It must not mutate the live update repository. Live publication remains reserved to V2.6.6.
 
+
+## 17. V2.6.4 qualification and current implementation authority
+
+V2.6.4 implementation PR `#559` completed **52/52** exact-head pull-request workflows with conclusion `success` on `addbaf43b286f825ce42a11176c6647d15748845` and merged with `expected_head_sha` protection as `96375fb4105366b0e69eae320b0071738c59c89e`.
+
+V2.6.4 is therefore **COMPLETE + NORMALIZED**.
+
+The dedicated transition-staging gate reported **14/14 PASS on Ubuntu** and **14/14 PASS on Windows** with common evidence SHA-256 `9620238de4344883fd43cffed621ea027d0bde4e4ed4cee051c9c32053809008`. The deterministic transition-request digest is `a44914e80fb2fafb6b03f2a9847a78805b1ccb2a87fafedae9199f66c88bacea`.
+
+Accepted V2.6.4 transition truth:
+
+- frozen candidate source: `46ed800888b4f19da9e984232dd1ad6cdb639cc1`;
+- frozen installer: `KodepoiaSetup.exe`, 38,834,833 bytes, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- packaged production Root v1 -> public Root v2 sequential continuity verified, with Root threshold 2-of-3;
+- observed live repository generations remain Root v2 / Targets v8 / Snapshot v10 / Timestamp v10;
+- Snapshot/Timestamp remain expired at the qualification reference time and are rejected rather than treated as fresh;
+- staged future transition request keeps Root v2 and requests Targets v9 / Snapshot v11 / Timestamp v11;
+- all historical target paths are preserved and no revocation is requested;
+- exact stable target path/source/hash/length is bound to the frozen candidate with exact-target `authenticode_policy=allow-unsigned`;
+- isolated `rc8 -> stable 1.1.0` rehearsal reports `update-available` only after TUF/target verification;
+- tampered target, expired metadata, timestamp rollback, corrupt metadata and wrong Root are fail-closed;
+- offline verified cache remains available;
+- synthetic/isolated evidence remains explicitly `production_proof=false`;
+- no live production signing key or secret was resolved and no live/public effect occurred.
+
+**V2.6.5 — Installed Windows release rehearsal and pre-publication go/no-go is the only authorized implementation subdivision.** V2.6.6 remains unauthorized until V2.6.5 is qualified and normalized.
+
+V2.6.5 must use the exact frozen V2.6.3 candidate and the accepted V2.6.4 transition intent to prove the final pre-publication Windows path: clean install; installed `v1.1.0-rc8 -> 1.1.0` staged verified upgrade; restart/version confirmation; post-upgrade staged update check; custom install-path preservation; project/settings/user-data preservation; uninstall; incident rollback/recovery; final critical-veto aggregation; and freeze of exact candidate/publication inputs.
+
+V2.6.5 must not publish a GitHub Release/tag/asset, mutate or sign live production TUF metadata, activate the live updater or submit WinGet. Live publication and updater activation remain reserved exclusively to V2.6.6.

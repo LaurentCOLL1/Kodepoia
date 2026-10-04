@@ -1411,3 +1411,29 @@ The observed production Snapshot/Timestamp expiry remains a real fail-closed con
 
 V2.6.4 may prepare and adversarially verify the exact TUF/updater transition for candidate source `46ed800888b4f19da9e984232dd1ad6cdb639cc1` and installer SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`, but it must not mutate the live update repository. Live public effects remain reserved to V2.6.6.
 
+
+## V2.6.4 — Production TUF transition and updater compatibility staging — COMPLETE + NORMALIZED; V2.6.5 CURRENT
+
+Implementation PR `#559` was qualified with **52/52** pull-request workflows on exact final head `addbaf43b286f825ce42a11176c6647d15748845` and merged with `expected_head_sha` protection as `96375fb4105366b0e69eae320b0071738c59c89e`.
+
+The dedicated V2.6.4 gate reported **14/14 PASS on Ubuntu** and **14/14 PASS on Windows** with identical evidence SHA-256 `9620238de4344883fd43cffed621ea027d0bde4e4ed4cee051c9c32053809008`. The deterministic transition request digest is `a44914e80fb2fafb6b03f2a9847a78805b1ccb2a87fafedae9199f66c88bacea`.
+
+Accepted V2.6.4 truth:
+
+- the frozen release candidate remains source SHA `46ed800888b4f19da9e984232dd1ad6cdb639cc1`, Kodepoia `1.1.0` stable/release/`v1.1.0`;
+- the accepted `KodepoiaSetup.exe` remains 38,834,833 bytes with SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- packaged production Root v1 continuity to public production Root v2 is verified as the single sequential successor, with the active Root threshold still 2-of-3;
+- the observed production role versions remain Root v2, Targets v8, Snapshot v10 and Timestamp v10; Snapshot/Timestamp remain expired at the V2.6.4 reference time and continue to fail closed;
+- the staged transition request preserves all historical targets, requests no revocation and proposes Root v2 / Targets v9 / Snapshot v11 / Timestamp v11;
+- the requested stable target is exactly `channels/stable/windows-x86_64/1.1.0/46ed800888b4f19da9e984232dd1ad6cdb639cc1/KodepoiaSetup.exe`, bound to the accepted source/hash/length and target-scoped `allow-unsigned` policy;
+- isolated updater rehearsal proved `rc8 -> stable 1.1.0` discovery as `update-available`, target validation before eligibility, offline verified-cache behavior, and fail-closed rejection of tampered target, expired metadata, timestamp rollback, corrupt metadata and wrong Root;
+- isolated fixtures were explicitly recorded as `production_proof=false` and do not substitute for later production signing/publication evidence;
+- no production TUF metadata mutation, public release/tag/asset publication, live updater activation, production signing-secret provisioning, production signing claim or WinGet submission occurred.
+
+V2.6.4 is therefore **COMPLETE + NORMALIZED**.
+
+**V2.6.5 — Installed Windows release rehearsal and pre-publication go/no-go is now the only authorized implementation subdivision.** V2.6.6 remains unauthorized until V2.6.5 is exact-head qualified, merged and post-merge normalized.
+
+V2.6.5 must rehearse the exact frozen candidate on Windows: clean install, installed `v1.1.0-rc8 -> 1.1.0` upgrade through staged verified update material, restart/version confirmation, post-upgrade staged update check, custom install-directory preservation, project/settings/user-data preservation, uninstall, incident rollback/recovery and final critical-veto/go-no-go evidence. It must freeze the exact candidate digest and later publication inputs without performing public release or live production TUF/updater effects.
+
+Public release/tag/asset publication, live production TUF mutation/signing, live updater activation and WinGet submission remain reserved to V2.6.6.

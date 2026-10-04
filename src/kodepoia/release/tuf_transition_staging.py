@@ -73,11 +73,21 @@ def production_observation(
     timestamp_md = _parse(metadata["timestamp.json"], Timestamp, "timestamp")
 
     packaged = load_production_packaged_root()
-    packaged.pin.verify(metadata["root.json"])
-    if metadata["root.json"] != packaged.root_bytes:
-        raise ValueError("repository Root no longer matches the packaged production Root pin")
+    packaged.pin.verify(packaged.root_bytes)
+    packaged_root_md = _parse(packaged.root_bytes, Root, "packaged root")
+    packaged_root = packaged_root_md.signed
 
     root = root_md.signed
+    if root.version == packaged_root.version:
+        if metadata["root.json"] != packaged.root_bytes:
+            raise ValueError("public Root changed without a version increment")
+        root_continuity = "exact-packaged-root"
+    elif root.version == packaged_root.version + 1:
+        packaged_root.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
+        root_continuity = "verified-sequential-successor"
+    else:
+        raise ValueError("public Root is not the packaged Root or its next sequential successor")
+
     root.verify_delegate("root", root_md.signed_bytes, root_md.signatures)
     root.verify_delegate("targets", targets_md.signed_bytes, targets_md.signatures)
     root.verify_delegate("snapshot", snapshot_md.signed_bytes, snapshot_md.signatures)
@@ -114,6 +124,11 @@ def production_observation(
             "sha256": packaged.pin.sha256,
             "production_trust_claim": packaged.production_trust_claim,
             "private_keys_persisted": packaged.private_keys_persisted,
+        },
+        "public_root": {
+            "version": root.version,
+            "sha256": hashlib.sha256(metadata["root.json"]).hexdigest(),
+            "continuity": root_continuity,
         },
         "root_threshold": root.roles["root"].threshold,
         "root_key_count": len(root.roles["root"].keyids),
@@ -431,6 +446,8 @@ def build_v2_6_4_report(
         "production_root_packaged_pin": (
             dict(observation["packaged_root"])["production_trust_claim"] is True
             and dict(observation["packaged_root"])["private_keys_persisted"] is False
+            and dict(observation["public_root"])["continuity"]
+            in {"exact-packaged-root", "verified-sequential-successor"}
         ),
         "production_root_threshold": (
             observation["root_threshold"] == 2 and observation["root_key_count"] == 3

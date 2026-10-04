@@ -779,3 +779,29 @@ Required scope: clean install of the exact candidate; installed `v1.1.0-rc8 -> 1
 Do **not** publish the GitHub Release or `v1.1.0` tag, upload public assets, mutate/sign live production TUF metadata, activate the live updater, provision/expose production signing secrets, or submit WinGet.
 
 V2.6.6 remains unauthorized until V2.6.5 is exact-head qualified, merged with unchanged-head protection and post-merge normalized.
+
+
+## Current next action — V2.6.6 only
+
+V2.6.5 is **COMPLETE + NORMALIZED** from implementation PR `#561`, exact final head `d12eebe6f2e837de2617b3ef196fb26fc74ab2a6`, **53/53** successful pull-request workflows and merge `1db22c30ca36cd17de7ce27f4ee05361708d552d`.
+
+The dedicated actual-Windows release rehearsal reported **13/13 PASS**, `critical_veto=false`, `go_no_go=GO`, evidence SHA-256 `b9eba6470e0d57e1384ef28d4e35caf512fa669a3771293555c69cdb64c18f9b`, and publication-input digest `7c0085dcce704fe19c54f4f175b28518ec86c38888f0b87c063add908c53d416`.
+
+Freeze these terminal publication inputs:
+
+- public installed baseline: `v1.1.0-rc8`, source `fa787ab7ef76f2556b56ac1f058916a1425455af`, installer 37,730,750 bytes, SHA-256 `6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422`;
+- release candidate: `1.1.0` / stable / release / tag `v1.1.0`;
+- candidate source SHA: `46ed800888b4f19da9e984232dd1ad6cdb639cc1`;
+- candidate `KodepoiaSetup.exe`: 38,834,833 bytes, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- stable target path: `channels/stable/windows-x86_64/1.1.0/46ed800888b4f19da9e984232dd1ad6cdb639cc1/KodepoiaSetup.exe`;
+- exact-target Authenticode policy: `allow-unsigned`;
+- V2.6.3 evidence SHA-256: `80192b517ebd6a607536f52892e5b23d05448138e63d7d222c30c7f4444dc3d8`;
+- V2.6.4 transition request digest: `a44914e80fb2fafb6b03f2a9847a78805b1ccb2a87fafedae9199f66c88bacea`;
+- V2.6.5 publication-input digest: `7c0085dcce704fe19c54f4f175b28518ec86c38888f0b87c063add908c53d416`;
+- WinGet decision: OUT.
+
+Implement **V2.6.6 — Governed public release, production TUF transition and live updater activation** only.
+
+Required sequence: re-fetch `main`, public `v1.1.0` tag/release state, exact V2.6.3 candidate artifact, production TUF metadata and required live signing authority; refuse if any frozen input drift exists; perform only the authorized production metadata transition with fresh Snapshot/Timestamp and preserved history; publish the immutable GitHub `v1.1.0` release/tag/assets exactly once from the frozen candidate; re-fetch and verify all public release assets; then prove the live installed `v1.1.0-rc8 -> 1.1.0` stable updater path and post-upgrade `up-to-date` state without bypassing TUF/hash/length/identity/consent checks.
+
+Do not rebuild/substitute the candidate, weaken expiry/rollback/Root/signature checks, invent Authenticode trust, expose signing secrets, repoint an existing `v1.1.0` tag, overwrite a conflicting public asset, or submit WinGet. If required production signing material or any other live authority is unavailable, stop at the exact manual/operator boundary rather than fabricating success.

@@ -1437,3 +1437,36 @@ V2.6.4 is therefore **COMPLETE + NORMALIZED**.
 V2.6.5 must rehearse the exact frozen candidate on Windows: clean install, installed `v1.1.0-rc8 -> 1.1.0` upgrade through staged verified update material, restart/version confirmation, post-upgrade staged update check, custom install-directory preservation, project/settings/user-data preservation, uninstall, incident rollback/recovery and final critical-veto/go-no-go evidence. It must freeze the exact candidate digest and later publication inputs without performing public release or live production TUF/updater effects.
 
 Public release/tag/asset publication, live production TUF mutation/signing, live updater activation and WinGet submission remain reserved to V2.6.6.
+
+
+## V2.6.5 — Installed Windows release rehearsal and pre-publication go/no-go — COMPLETE + NORMALIZED; V2.6.6 CURRENT
+
+Implementation PR `#561` was qualified with **53/53** pull-request workflows on exact final head `d12eebe6f2e837de2617b3ef196fb26fc74ab2a6` and merged with `expected_head_sha` protection as `1db22c30ca36cd17de7ce27f4ee05361708d552d`.
+
+The dedicated actual-Windows V2.6.5 release rehearsal reported **13/13 PASS**, `critical_veto=false`, `go_no_go=GO`, evidence SHA-256 `b9eba6470e0d57e1384ef28d4e35caf512fa669a3771293555c69cdb64c18f9b`, and publication-input digest `7c0085dcce704fe19c54f4f175b28518ec86c38888f0b87c063add908c53d416`.
+
+Accepted V2.6.5 truth:
+
+- public installed baseline remains `v1.1.0-rc8`, source `fa787ab7ef76f2556b56ac1f058916a1425455af`, installer 37,730,750 bytes, SHA-256 `6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422`;
+- terminal release candidate remains `1.1.0` stable/release/`v1.1.0`, source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`, installer 38,834,833 bytes, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- exact V2.6.3 evidence SHA-256 remains `80192b517ebd6a607536f52892e5b23d05448138e63d7d222c30c7f4444dc3d8`;
+- accepted V2.6.4 transition request digest remains `a44914e80fb2fafb6b03f2a9847a78805b1ccb2a87fafedae9199f66c88bacea`;
+- installed public rc8 -> exact frozen candidate upgrade succeeded from staged verified bytes;
+- installer-driven relaunch was observed and installed version became `1.1.0`;
+- post-upgrade staged update discovery reported `up-to-date`;
+- custom installation directory remained in use and the default installation directory remained unused;
+- project, settings and user-data sentinels survived the upgrade and uninstall;
+- exact candidate clean install, packaged smoke and uninstall also succeeded;
+- R18.10 incident/recovery rehearsal passed with zero critical bypasses and `RECOVERY-LAST-KNOWN-GOOD-01=RECOVER`;
+- isolated TUF staging remained explicitly `production_proof=false`;
+- no public GitHub Release/tag/asset publication, live production TUF mutation, live updater activation, production signing-secret provisioning, production signing claim or WinGet submission occurred.
+
+V2.6.5 is therefore **COMPLETE + NORMALIZED**.
+
+**V2.6.6 — Governed public release, production TUF transition and live updater activation is now the only authorized implementation subdivision.**
+
+V2.6.6 must consume the frozen publication inputs without rebuilding or substituting the candidate: source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`, installer SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`, installer length 38,834,833, tag `v1.1.0`, target path `channels/stable/windows-x86_64/1.1.0/46ed800888b4f19da9e984232dd1ad6cdb639cc1/KodepoiaSetup.exe`, exact-target `allow-unsigned` policy, accepted V2.6.4 transition-request digest and accepted V2.6.5 publication-input digest.
+
+V2.6.6 may perform only the governed live effects needed for the terminal release: revalidate all exact inputs and current public state; perform the production TUF transition with valid authorized production signing material and fresh metadata; publish the immutable GitHub release/tag/assets exactly once; verify public asset/source/hash/length identity; verify the live stable updater from an installed rc8 baseline without bypass; prove the post-upgrade stable current state; preserve rollback/withdraw/recovery controls; and close the release with exact live evidence.
+
+Production Authenticode remains unsigned unless exact live evidence proves otherwise; no false trust claim is allowed. WinGet remains OUT for `v1.1.0` and must not be submitted.

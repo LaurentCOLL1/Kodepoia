@@ -432,3 +432,20 @@ The isolated updater rehearsal proved rc8-to-stable discovery, target validation
 The only authorized implementation subdivision is **V2.6.5 — Installed Windows release rehearsal and pre-publication go/no-go**. V2.6.6 remains unauthorized.
 
 V2.6.5 may exercise the exact frozen candidate and staged verified updater material on Windows, prove upgrade/restart/data-preservation/uninstall/recovery behavior, aggregate final critical-veto evidence and freeze publication inputs. It may not perform the public GitHub release/tag/assets, live production TUF transition/signing, live updater activation or WinGet submission. Those live effects remain reserved to V2.6.6 after V2.6.5 completes and normalizes.
+
+
+## V2.6.5 normalized authority
+
+V2.6.5 implementation PR `#561` qualified **53/53** pull-request workflows on exact final head `d12eebe6f2e837de2617b3ef196fb26fc74ab2a6` and merged with `expected_head_sha` protection as `1db22c30ca36cd17de7ce27f4ee05361708d552d`.
+
+V2.6.5 is **COMPLETE + NORMALIZED**. Its actual-Windows release rehearsal reported **13/13 PASS**, `critical_veto=false`, `go_no_go=GO`, evidence SHA-256 `b9eba6470e0d57e1384ef28d4e35caf512fa669a3771293555c69cdb64c18f9b`, and publication-input digest `7c0085dcce704fe19c54f4f175b28518ec86c38888f0b87c063add908c53d416`.
+
+The accepted terminal candidate remains Kodepoia `1.1.0` stable/release/`v1.1.0` from exact source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`; `KodepoiaSetup.exe` remains 38,834,833 bytes with SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`. Public installed baseline remains `v1.1.0-rc8`, source `fa787ab7ef76f2556b56ac1f058916a1425455af`, installer SHA-256 `6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422`.
+
+The actual Windows rehearsal proved the staged verified rc8 -> 1.1.0 upgrade, installer relaunch, installed-version confirmation, post-upgrade `up-to-date`, custom install-directory preservation, project/settings/user-data preservation, uninstall behavior, exact-candidate clean install/smoke/uninstall and incident recovery with zero critical bypasses. Synthetic TUF material remained isolated and explicitly not production proof.
+
+No public GitHub Release/tag/asset, live production TUF mutation, live updater activation, production signing-secret provisioning, production signing claim or WinGet submission occurred.
+
+The only authorized implementation subdivision is **V2.6.6 — Governed public release, production TUF transition and live updater activation**.
+
+V2.6.6 is bound to the exact candidate/source/hash/length, stable target path, exact-target `allow-unsigned` policy, V2.6.3 evidence digest, V2.6.4 transition-request digest and V2.6.5 publication-input digest already accepted. It may perform the governed live TUF/publication/updater activation sequence only after exact live revalidation. It may not rebuild or substitute the candidate, repoint a conflicting public tag, weaken trust/freshness checks, fabricate production signing or Authenticode trust, expose credentials, or submit WinGet.

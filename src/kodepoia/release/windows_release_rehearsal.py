@@ -3,10 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 import tempfile
-from dataclasses import asdict
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 from kodepoia.release.identity import ReleaseIdentity
 from kodepoia.release.incident import run_synthetic_incident_drills
@@ -213,6 +211,68 @@ def _policy_candidate(candidate: UpdateDiscoveryCandidate) -> PolicyUpdateDiscov
         withdrawn=candidate.withdrawn,
         authenticode_policy=AUTHENTICODE_POLICY_ALLOW_UNSIGNED,
     )
+
+
+def build_contract_report(
+    development_sha: str,
+    *,
+    repository_root: Path,
+) -> dict[str, object]:
+    request = reconstruct_v264_request(repository_root)
+    fixture = b"v2.6.5 cross-platform contract fixture\n"
+    with tempfile.TemporaryDirectory(prefix="kodepoia-v265-contract-rc8-") as temp:
+        rc8_status, rc8_candidate = synthetic_transition_status(
+            installer=fixture,
+            installed_public_version=RC8_PUBLIC_VERSION,
+            state_dir=Path(temp),
+        )
+    with tempfile.TemporaryDirectory(prefix="kodepoia-v265-contract-stable-") as temp:
+        stable_status, stable_candidate = synthetic_transition_status(
+            installer=fixture,
+            installed_public_version=CANDIDATE_PUBLIC_VERSION,
+            state_dir=Path(temp),
+        )
+    checks = {
+        "v264_request_digest_exact": request["request_sha256"] == V264_REQUEST_SHA256,
+        "candidate_target_exact": dict(request["requested_target"])["path"] == TARGET_PATH,
+        "candidate_hash_exact": (
+            dict(request["requested_target"])["sha256"] == CANDIDATE_INSTALLER_SHA256
+        ),
+        "candidate_length_exact": (
+            dict(request["requested_target"])["length"] == CANDIDATE_INSTALLER_BYTES
+        ),
+        "rc8_to_stable_contract": (
+            rc8_status == "update-available"
+            and rc8_candidate is not None
+            and rc8_candidate.target.path == TARGET_PATH
+        ),
+        "stable_post_upgrade_contract": (
+            stable_status == "up-to-date"
+            and stable_candidate is not None
+            and stable_candidate.target.path == TARGET_PATH
+        ),
+        "synthetic_fixture_not_production_proof": True,
+        "live_effects_forbidden": True,
+    }
+    failed = [name for name, passed in checks.items() if not passed]
+    report: dict[str, object] = {
+        "schema_version": 1,
+        "subdivision": "V2.6.5",
+        "mode": "contract",
+        "development_source_sha": development_sha.lower(),
+        "release_candidate_source_sha": CANDIDATE_SOURCE_SHA,
+        "v264_request_sha256": request["request_sha256"],
+        "checks": checks,
+        "summary": {"passed": len(checks) - len(failed), "total": len(checks), "failed": failed},
+        "status": "PASS" if not failed else "FAIL",
+        "fixture_only": True,
+        "production_proof": False,
+        "public_release_triggered": False,
+        "production_tuf_mutation_triggered": False,
+        "live_updater_activation_triggered": False,
+    }
+    report["evidence_sha256"] = _canonical_digest(report)
+    return report
 
 
 def build_windows_preflight(
@@ -472,6 +532,7 @@ __all__ = [
     "V263_ARTIFACT_RUN_ID",
     "V264_ACCEPTED_HEAD",
     "V264_REQUEST_SHA256",
+    "build_contract_report",
     "build_final_report",
     "build_windows_preflight",
     "candidate_target",

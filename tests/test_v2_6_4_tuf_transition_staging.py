@@ -35,6 +35,9 @@ def test_production_observation_is_read_only_and_fail_closed() -> None:
     assert before == after
     assert observation["root_threshold"] == 2
     assert observation["root_key_count"] == 3
+    assert dict(observation["packaged_root"])["version"] == 1
+    assert dict(observation["public_root"])["version"] == 2
+    assert dict(observation["public_root"])["continuity"] == "verified-sequential-successor"
     assert set(observation["expired_roles"]) == {"snapshot", "timestamp"}
     assert observation["fail_closed_required"] is True
     assert observation["rc8_target_present"] is True

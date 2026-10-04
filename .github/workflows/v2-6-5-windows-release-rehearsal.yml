@@ -164,8 +164,9 @@ jobs:
           if ($install.ExitCode -ne 0) { throw "rc8 install failed: $($install.ExitCode)" }
           $exe = Join-Path $installDir "KodepoiaStudio.exe"
           if (-not (Test-Path $exe -PathType Leaf)) { throw "Installed rc8 executable missing" }
-          $version = ([string](Get-Item $exe).VersionInfo.ProductVersion).Trim()
-          if ($version -ne $env:RC8_PUBLIC_VERSION) { throw "Installed rc8 ProductVersion mismatch: $version" }
+          $uninstallKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{A67EEAB5-46C2-4B21-A169-7E17275DE2F0}_is1"
+          $version = ([string](Get-ItemProperty -Path $uninstallKey -Name DisplayVersion -ErrorAction Stop).DisplayVersion).Trim()
+          if ($version -ne $env:RC8_PUBLIC_VERSION) { throw "Installed rc8 DisplayVersion mismatch: $version" }
           $originalPath = $env:PATH
           $originalPythonHome = $env:PYTHONHOME
           $originalPythonPath = $env:PYTHONPATH
@@ -205,6 +206,7 @@ jobs:
             project_file = $projectFile
             user_data_file = $userDataFile
             settings_path = $settingsPath
+            uninstall_key = $uninstallKey
           } | ConvertTo-Json -Depth 5 | Set-Content -Encoding UTF8 "artifacts/v2_6_5/windows-baseline.json"
 
       - name: Upgrade rc8 to the frozen candidate from staged verified bytes
@@ -231,8 +233,8 @@ jobs:
           Get-Process -Name KodepoiaStudio -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
           $exe = Join-Path $installDir "KodepoiaStudio.exe"
           if (-not (Test-Path $exe -PathType Leaf)) { throw "Candidate upgrade left no executable in the custom install directory" }
-          $version = ([string](Get-Item $exe).VersionInfo.ProductVersion).Trim()
-          if ($version -ne "1.1.0") { throw "Upgraded ProductVersion mismatch: $version" }
+          $version = ([string](Get-ItemProperty -Path ([string]$baseline.uninstall_key) -Name DisplayVersion -ErrorAction Stop).DisplayVersion).Trim()
+          if ($version -ne "1.1.0") { throw "Upgraded DisplayVersion mismatch: $version" }
           $defaultExe = Join-Path $defaultDir "KodepoiaStudio.exe"
           $defaultUnused = -not (Test-Path $defaultExe)
           if (-not $defaultUnused) { throw "Candidate update escaped into the default installation directory" }
@@ -346,12 +348,13 @@ jobs:
 
           $exe = Join-Path $cleanDir "KodepoiaStudio.exe"
           $uninstaller = Join-Path $cleanDir "unins000.exe"
+          $uninstallKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{A67EEAB5-46C2-4B21-A169-7E17275DE2F0}_is1"
           if (-not (Test-Path $exe -PathType Leaf)) {
             throw "Exact candidate clean-install executable missing"
           }
-          $version = ([string](Get-Item $exe).VersionInfo.ProductVersion).Trim()
+          $version = ([string](Get-ItemProperty -Path $uninstallKey -Name DisplayVersion -ErrorAction Stop).DisplayVersion).Trim()
           if ($version -ne "1.1.0") {
-            throw "Exact candidate clean-install ProductVersion mismatch: $version"
+            throw "Exact candidate clean-install DisplayVersion mismatch: $version"
           }
 
           $originalPath = $env:PATH

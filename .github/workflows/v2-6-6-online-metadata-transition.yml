@@ -1,9 +1,7 @@
 name: V2.6.6 Online Metadata Transition
 
 on:
-  push:
-    branches:
-      - automation/v2-6-6-online-signing-trigger
+  create:
 
 permissions:
   contents: read
@@ -14,7 +12,9 @@ concurrency:
 
 jobs:
   sign-online-metadata:
-    if: github.ref == 'refs/heads/automation/v2-6-6-online-signing-trigger'
+    if: >-
+      github.event.ref_type == 'branch' &&
+      github.event.ref == 'automation/v2-6-6-online-signing-create-trigger'
     runs-on: ubuntu-latest
     environment: tuf-production-signing
     permissions:

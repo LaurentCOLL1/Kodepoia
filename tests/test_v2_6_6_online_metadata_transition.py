@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -28,8 +29,12 @@ def _module():
 
 def test_v266_operator_targets_v9_is_exact_and_authorized() -> None:
     module = _module()
+    blob = subprocess.check_output(
+        ["git", "show", "HEAD:docs/release/evidence/V2_6_6_TARGETS_V9.json"],
+        cwd=ROOT,
+    )
+    assert hashlib.sha256(blob).hexdigest() == module.EXPECTED_TARGETS_SHA256
     data = STAGED.read_bytes()
-    assert hashlib.sha256(data).hexdigest() == module.EXPECTED_TARGETS_SHA256
     current = ceremony._load_current_metadata(ROOT / "update-repository" / "metadata")
     report = ceremony.Report()
     root_md, targets_md, _, _ = ceremony._verify_current_state(

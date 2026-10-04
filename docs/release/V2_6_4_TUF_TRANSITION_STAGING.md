@@ -24,8 +24,10 @@ The public/runtime baseline remains `v1.1.0-rc8` until the later publication sub
 ## Production observation boundary
 
 V2.6.4 reads the repository-carried production TUF metadata and packaged production Root without
-modifying either. The production Root pin must match exactly, the Root threshold remains 2-of-3,
-and all top-level role signatures and snapshot/targets cross-bindings must verify.
+modifying either. The packaged production Root pin is verified first; the repository Root must
+then be either that exact Root or its single sequential successor, with the required old/new Root
+continuity verification. The active Root threshold remains 2-of-3 and all top-level role signatures
+and snapshot/targets cross-bindings must verify.
 
 At the deterministic V2.6.4 reference time (`2026-10-04T00:00:00Z`), Snapshot v10 and Timestamp
 v10 are expired. That condition is an expected production observation and remains fail-closed.

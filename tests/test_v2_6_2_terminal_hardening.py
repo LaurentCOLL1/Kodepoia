@@ -104,7 +104,7 @@ def test_v262_preserves_terminal_release_freeze_and_no_public_effects() -> None:
     assert freeze.production_tuf_repository_observation["resolution_phase"] == "V2.6.4"
     assert all(value is False for value in freeze.effects.values())
 
-    targets = (ROOT / "update-repository/metadata/targets.json").read_text(encoding="utf-8")
+    targets = (\n        ROOT / "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA/targets.json"\n    ).read_text(encoding="utf-8")
     assert "channels/stable/windows-x86_64/1.1.0/" not in targets
 
 

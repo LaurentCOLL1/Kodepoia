@@ -67,7 +67,7 @@ def main() -> int:
         "tuf": read("tests/test_r18_6_tuf_security.py"),
         "discovery": read("tests/test_r18_7_update_discovery.py"),
     }
-    targets = read("update-repository/metadata/targets.json")
+    targets = read("docs/release/evidence/V2_6_4_PRETRANSITION_METADATA/targets.json")
 
     expected_acceptance_scripts = ["v2_0_acceptance.py"]
     for phase in range(1, 6):

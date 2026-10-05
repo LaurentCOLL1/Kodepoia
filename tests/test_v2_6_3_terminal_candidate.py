@@ -112,7 +112,7 @@ def test_v263_python_core_emits_cross_platform_synthetic_evidence() -> None:
 
 def test_v263_signing_winget_and_tuf_boundaries_remain_fail_closed() -> None:
     freeze = TERMINAL_RELEASE_FREEZE
-    targets = _read("update-repository/metadata/targets.json")
+    targets = _read("docs/release/evidence/V2_6_4_PRETRANSITION_METADATA/targets.json")
 
     assert freeze.authenticode["production_signing_verified"] is False
     assert freeze.authenticode["production_signing_secret_provisioning_authorized"] is False

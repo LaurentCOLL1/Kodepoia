@@ -148,3 +148,22 @@ def test_repository_tuf_freshness_truth_is_observed_without_authorizing_mutation
     assert observation["expired_metadata_accepted_by_updater"] is False
     assert observation["production_metadata_mutation_authorized"] is False
     assert observation["resolution_phase"] == "V2.6.4"
+
+def test_v261_acceptance_uses_frozen_pretransition_metadata() -> None:
+    source = (ROOT / "scripts/v2_6_1_acceptance.py").read_text(encoding="utf-8")
+
+    assert "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA" in source
+    for live_path in (
+        'read("update-repository/metadata/root.json")',
+        'read("update-repository/metadata/targets.json")',
+        'read("update-repository/metadata/snapshot.json")',
+        'read("update-repository/metadata/timestamp.json")',
+    ):
+        assert live_path not in source
+
+    historical = ROOT / "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA"
+    assert json.loads((historical / "root.json").read_text(encoding="utf-8"))["signed"]["version"] == 2
+    assert json.loads((historical / "targets.json").read_text(encoding="utf-8"))["signed"]["version"] == 8
+    assert json.loads((historical / "snapshot.json").read_text(encoding="utf-8"))["signed"]["version"] == 10
+    assert json.loads((historical / "timestamp.json").read_text(encoding="utf-8"))["signed"]["version"] == 10
+

@@ -410,11 +410,9 @@ def main() -> int:
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
-        json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "
-",
+        json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
         encoding="utf-8",
-        newline="
-",
+        newline="\n",
     )
     print(json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False))
     return 0 if passed else 1

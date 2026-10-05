@@ -12,13 +12,14 @@ from kodepoia.release.tuf_transition_staging import (
     REFERENCE_TIME,
     build_transition_request,
     build_v2_6_4_report,
+    historical_metadata_dir,
     isolated_updater_rehearsal,
     production_observation,
     validate_transition_request,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-METADATA = ROOT / "update-repository" / "metadata"
+METADATA = historical_metadata_dir(ROOT)
 DEVELOPMENT_SHA = "a" * 40
 
 
@@ -42,6 +43,12 @@ def test_production_observation_is_read_only_and_fail_closed() -> None:
     assert observation["fail_closed_required"] is True
     assert observation["rc8_target_present"] is True
     assert observation["stable_candidate_target_present"] is False
+    assert observation["versions"] == {
+        "root": 2,
+        "targets": 8,
+        "snapshot": 10,
+        "timestamp": 10,
+    }
 
 
 def test_transition_request_binds_exact_frozen_candidate() -> None:

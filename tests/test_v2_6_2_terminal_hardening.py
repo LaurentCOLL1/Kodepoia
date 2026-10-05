@@ -104,7 +104,9 @@ def test_v262_preserves_terminal_release_freeze_and_no_public_effects() -> None:
     assert freeze.production_tuf_repository_observation["resolution_phase"] == "V2.6.4"
     assert all(value is False for value in freeze.effects.values())
 
-    targets = (\n        ROOT / "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA/targets.json"\n    ).read_text(encoding="utf-8")
+    targets = (
+        ROOT / "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA/targets.json"
+    ).read_text(encoding="utf-8")
     assert "channels/stable/windows-x86_64/1.1.0/" not in targets
 
 
@@ -118,7 +120,8 @@ def test_v262_full_v2_acceptance_chain_is_wired_before_terminal_evidence() -> No
     for script in expected:
         assert f"python scripts/{script}" in workflow, script
 
-    full_pytest = "      - name: Test\n        run: pytest"
+    full_pytest = "      - name: Test
+        run: pytest"
     terminal_acceptance = (
         "      - name: Run V2.6.2 terminal integrated hardening exact-head acceptance"
     )

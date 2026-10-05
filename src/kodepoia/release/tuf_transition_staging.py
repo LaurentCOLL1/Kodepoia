@@ -37,6 +37,13 @@ PUBLIC_BASELINE_VERSION = "1.1.0-rc8"
 PUBLIC_BASELINE_SOURCE_SHA = "fa787ab7ef76f2556b56ac1f058916a1425455af"
 REFERENCE_TIME = datetime(2026, 10, 4, 0, 0, tzinfo=UTC)
 METADATA_NAMES = ("root.json", "targets.json", "snapshot.json", "timestamp.json")
+HISTORICAL_METADATA_RELATIVE = Path(
+    "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA"
+)
+
+
+def historical_metadata_dir(repository_root: Path) -> Path:
+    return repository_root / HISTORICAL_METADATA_RELATIVE
 
 
 def _canonical_digest(payload: dict[str, object]) -> str:
@@ -416,7 +423,7 @@ def build_v2_6_4_report(
     reference_time: datetime = REFERENCE_TIME,
 ) -> dict[str, object]:
     observation = production_observation(
-        repository_root / "update-repository" / "metadata",
+        historical_metadata_dir(repository_root),
         reference_time=reference_time,
     )
     request = build_transition_request(development_sha, observation)
@@ -514,6 +521,7 @@ __all__ = [
     "CANDIDATE_SOURCE_SHA",
     "REFERENCE_TIME",
     "build_transition_request",
+    "historical_metadata_dir",
     "build_v2_6_4_report",
     "candidate_target",
     "isolated_updater_rehearsal",

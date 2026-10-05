@@ -18,6 +18,7 @@ src/kodepoia/update/trusted_root.production.json text eol=lf
 src/kodepoia/update/trusted_root.production.manifest.json text eol=lf
 update-repository/metadata/*.json text eol=lf
 docs/release/evidence/V2_6_6_TARGETS_V9.json -text
+docs/release/evidence/V2_6_4_PRETRANSITION_METADATA/*.json -text
 
 # R20.3 returned public rotation evidence preserves exact accepted bytes.
 # Some returned files intentionally use CRLF while signed/canonical payloads use LF,

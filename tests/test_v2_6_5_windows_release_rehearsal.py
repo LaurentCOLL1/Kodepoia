@@ -72,6 +72,12 @@ def test_v265_reconstructs_exact_accepted_v264_request() -> None:
     assert target["length"] == CANDIDATE_INSTALLER_BYTES
     assert target["sha256"] == CANDIDATE_INSTALLER_SHA256
     assert dict(target["custom"])["authenticode_policy"] == "allow-unsigned"
+    assert dict(request["production_observation"])["versions"] == {
+        "root": 2,
+        "targets": 8,
+        "snapshot": 10,
+        "timestamp": 10,
+    }
 
 
 def test_v265_synthetic_transition_is_forward_then_up_to_date(tmp_path: Path) -> None:

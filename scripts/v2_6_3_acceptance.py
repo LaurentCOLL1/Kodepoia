@@ -107,7 +107,7 @@ def main() -> int:
     candidate_doc = read("docs/release/V2_6_3_TERMINAL_CANDIDATE.md")
     python_core = read(".github/workflows/python-core.yml")
     candidate_workflow = read(".github/workflows/v2-6-3-terminal-candidate.yml")
-    production_targets = read("update-repository/metadata/targets.json")
+    production_targets = read(\n        "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA/targets.json"\n    )
 
     checks = [
         _check(

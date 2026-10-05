@@ -11,6 +11,7 @@ from kodepoia.release.incident import run_synthetic_incident_drills
 from kodepoia.release.tuf_transition_staging import (
     REFERENCE_TIME,
     build_transition_request,
+    historical_metadata_dir,
     production_observation,
     validate_transition_request,
 )
@@ -122,7 +123,7 @@ def candidate_target() -> UpdateTargetSpec:
 
 def reconstruct_v264_request(repository_root: Path) -> dict[str, object]:
     observation = production_observation(
-        repository_root / "update-repository" / "metadata",
+        historical_metadata_dir(repository_root),
         reference_time=REFERENCE_TIME,
     )
     request = build_transition_request(V264_ACCEPTED_HEAD, observation)

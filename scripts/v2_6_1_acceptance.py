@@ -37,14 +37,15 @@ def main() -> int:
     rc8 = read("docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md")
     freeze_doc = read("docs/release/V2_6_1_TERMINAL_RELEASE_FREEZE.md")
     iss = read("packaging/windows/Kodepoia.iss")
-    targets = read("update-repository/metadata/targets.json")
+    historical_metadata = "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA"
+    historical_targets = read(f"{historical_metadata}/targets.json")
     authenticode_policy = read("docs/release/UPDATER_AUTHENTICODE_POLICY.md")
     r19_5_acceptance = read("scripts/r19_5_corrective_rc_acceptance.py")
     r20_5_tests = read("tests/test_r20_5_operations_health.py")
-    root_metadata = json.loads(read("update-repository/metadata/root.json"))
-    targets_metadata = json.loads(read("update-repository/metadata/targets.json"))
-    snapshot_metadata = json.loads(read("update-repository/metadata/snapshot.json"))
-    timestamp_metadata = json.loads(read("update-repository/metadata/timestamp.json"))
+    root_metadata = json.loads(read(f"{historical_metadata}/root.json"))
+    targets_metadata = json.loads(read(f"{historical_metadata}/targets.json"))
+    snapshot_metadata = json.loads(read(f"{historical_metadata}/snapshot.json"))
+    timestamp_metadata = json.loads(read(f"{historical_metadata}/timestamp.json"))
     python_core = read(".github/workflows/python-core.yml")
 
     freeze = TERMINAL_RELEASE_FREEZE
@@ -229,7 +230,7 @@ def main() -> int:
         _check(
             "no_public_effects",
             all(value is False for value in freeze.effects.values())
-            and "channels/stable/windows-x86_64/1.1.0/" not in targets,
+            and "channels/stable/windows-x86_64/1.1.0/" not in historical_targets,
             "V2.6.1 performs no public release/tag/TUF/updater/WinGet effect",
         ),
         _check(

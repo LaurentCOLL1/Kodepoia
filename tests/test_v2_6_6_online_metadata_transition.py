@@ -35,7 +35,9 @@ def test_v266_operator_targets_v9_is_exact_and_authorized() -> None:
     )
     assert hashlib.sha256(blob).hexdigest() == module.EXPECTED_TARGETS_SHA256
     data = STAGED.read_bytes()
-    current = ceremony._load_current_metadata(\n        ROOT / "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA"\n    )
+    current = ceremony._load_current_metadata(
+        ROOT / "docs/release/evidence/V2_6_4_PRETRANSITION_METADATA"
+    )
     report = ceremony.Report()
     root_md, targets_md, _, _ = ceremony._verify_current_state(
         current,

@@ -46,7 +46,8 @@
     "required_contents_permission": "read",
     "allow_write_workflows": [
       ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml",
-      ".github/workflows/r20-4-scheduled-metadata-refresh.yml"
+      ".github/workflows/r20-4-scheduled-metadata-refresh.yml",
+      ".github/workflows/v2-6-6-public-release.yml"
     ],
     "immutable_authority_workflows": [
       ".github/workflows/python-core.yml",
@@ -99,7 +100,8 @@
       ".github/workflows/v2-6-3-terminal-candidate.yml",
       ".github/workflows/v2-6-4-tuf-transition-staging.yml",
       ".github/workflows/v2-6-5-windows-release-rehearsal.yml",
-      ".github/workflows/v2-6-6-online-metadata-transition.yml"
+      ".github/workflows/v2-6-6-online-metadata-transition.yml",
+      ".github/workflows/v2-6-6-public-release.yml"
     ],
     "legacy_workflows_are_non_authoritative_for_v1_promotion": true,
     "forbid_pull_request_target": true,

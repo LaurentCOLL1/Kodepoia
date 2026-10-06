@@ -1,0 +1,281 @@
+name: V2.6.6 Public Release Publication
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: v2-6-6-public-release-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PUBLICATION_SHA: ${{ github.sha }}
+      GH_TOKEN: ${{ github.token }}
+      TAG: v1.1.0
+      PUBLIC_VERSION: 1.1.0
+      CANDIDATE_SHA: 46ed800888b4f19da9e984232dd1ad6cdb639cc1
+      CANDIDATE_BYTES: "38834833"
+      CANDIDATE_SHA256: 8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef
+      CANDIDATE_RUN_ID: "37151521725"
+      CANDIDATE_ARTIFACT: v2-6-3-windows-candidate-46ed800888b4f19da9e984232dd1ad6cdb639cc1
+      V263_EVIDENCE_SHA256: 80192b517ebd6a607536f52892e5b23d05448138e63d7d222c30c7f4444dc3d8
+      STABLE_TARGET: channels/stable/windows-x86_64/1.1.0/46ed800888b4f19da9e984232dd1ad6cdb639cc1/KodepoiaSetup.exe
+    steps:
+      - name: Checkout exact publication authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.PUBLICATION_SHA }}
+          fetch-depth: 0
+
+      - name: Require unchanged main and exact candidate source
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          current_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          test "$actual" = "$PUBLICATION_SHA"
+          test "$current_main" = "$PUBLICATION_SHA"
+          git cat-file -e "$CANDIDATE_SHA^{commit}"
+
+      - name: Verify coherent live production TUF v9 v11 v11
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          metadata = Path("update-repository/metadata")
+          targets_bytes = (metadata / "targets.json").read_bytes()
+          snapshot_bytes = (metadata / "snapshot.json").read_bytes()
+          timestamp_bytes = (metadata / "timestamp.json").read_bytes()
+          targets = json.loads(targets_bytes)
+          snapshot = json.loads(snapshot_bytes)
+          timestamp = json.loads(timestamp_bytes)
+
+          target_path = os.environ["STABLE_TARGET"]
+          expected_hash = os.environ["CANDIDATE_SHA256"]
+          expected_size = int(os.environ["CANDIDATE_BYTES"])
+          expected_source = os.environ["CANDIDATE_SHA"]
+
+          assert targets["signed"]["version"] == 9
+          assert snapshot["signed"]["version"] == 11
+          assert timestamp["signed"]["version"] == 11
+
+          target = targets["signed"]["targets"][target_path]
+          assert target["length"] == expected_size
+          assert target["hashes"]["sha256"] == expected_hash
+          assert target["custom"]["source_sha"] == expected_source
+          assert target["custom"]["public_version"] == "1.1.0"
+          assert target["custom"]["channel"] == "stable"
+          assert target["custom"]["authenticode_policy"] == "allow-unsigned"
+          assert target["custom"]["withdrawn"] is False
+
+          target_meta = snapshot["signed"]["meta"]["targets.json"]
+          assert target_meta["version"] == 9
+          assert target_meta["length"] == len(targets_bytes)
+          assert target_meta["hashes"]["sha256"] == hashlib.sha256(targets_bytes).hexdigest()
+
+          snapshot_meta = timestamp["signed"]["meta"]["snapshot.json"]
+          assert snapshot_meta["version"] == 11
+          assert snapshot_meta["length"] == len(snapshot_bytes)
+          assert snapshot_meta["hashes"]["sha256"] == hashlib.sha256(snapshot_bytes).hexdigest()
+
+          now = datetime.now(UTC)
+          for name, payload in (("snapshot", snapshot), ("timestamp", timestamp)):
+              expires = datetime.fromisoformat(payload["signed"]["expires"].replace("Z", "+00:00"))
+              if expires <= now:
+                  raise SystemExit(f"{name} metadata is expired at publication time")
+
+      - name: Download exact accepted V2.6.3 candidate artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/v2_6_6/candidate
+          gh run download "$CANDIDATE_RUN_ID"             --repo "$GITHUB_REPOSITORY"             --name "$CANDIDATE_ARTIFACT"             --dir artifacts/v2_6_6/candidate
+          test -f artifacts/v2_6_6/candidate/build1/KodepoiaSetup.exe
+          test -f artifacts/v2_6_6/candidate/V2_6_3_WINDOWS_CANDIDATE.json
+
+      - name: Verify exact installer and V2.6.3 evidence
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          installer = Path("artifacts/v2_6_6/candidate/build1/KodepoiaSetup.exe")
+          data = installer.read_bytes()
+          assert len(data) == int(os.environ["CANDIDATE_BYTES"])
+          assert hashlib.sha256(data).hexdigest() == os.environ["CANDIDATE_SHA256"]
+
+          evidence = json.loads(
+              Path("artifacts/v2_6_6/candidate/V2_6_3_WINDOWS_CANDIDATE.json")
+              .read_text(encoding="utf-8-sig")
+          )
+          assert evidence["status"] == "PASS"
+          assert evidence["candidate_source_sha"] == os.environ["CANDIDATE_SHA"]
+          assert evidence["evidence_sha256"] == os.environ["V263_EVIDENCE_SHA256"]
+
+      - name: Revalidate immutable public namespace
+        id: public_state
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/v2_6_6/publication
+          tag_exists=false
+          release_exists=false
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG"             > artifacts/v2_6_6/publication/tag-before.json 2>/dev/null; then
+            tag_exists=true
+            tag_sha="$(jq -r '.object.sha' artifacts/v2_6_6/publication/tag-before.json)"
+            if [[ "$tag_sha" != "$CANDIDATE_SHA" ]]; then
+              echo "Conflicting immutable tag $TAG points to $tag_sha" >&2
+              exit 1
+            fi
+          fi
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG"             > artifacts/v2_6_6/publication/release-before.json 2>/dev/null; then
+            release_exists=true
+          fi
+          echo "tag_exists=$tag_exists" >> "$GITHUB_OUTPUT"
+          echo "release_exists=$release_exists" >> "$GITHUB_OUTPUT"
+
+      - name: Write immutable release notes
+        shell: bash
+        run: |
+          cat > artifacts/v2_6_6/publication/release-notes.md <<'EOF'
+          # Kodepoia 1.1.0
+
+          Stable terminal V2 release.
+
+          - Exact source: `46ed800888b4f19da9e984232dd1ad6cdb639cc1`
+          - Windows installer: `KodepoiaSetup.exe`
+          - Installer SHA-256: `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`
+          - Installer size: `38,834,833` bytes
+          - Production updater metadata: Root v2 / Targets v9 / Snapshot v11 / Timestamp v11
+          - Authenticode: unsigned; no production signing trust is claimed
+          - WinGet: not published for 1.1.0
+
+          The stable updater target is exact-source/hash/length bound and preserves the accepted target-scoped `allow-unsigned` policy.
+          EOF
+
+      - name: Create or recover exact immutable GitHub Release
+        shell: bash
+        env:
+          TAG_EXISTS: ${{ steps.public_state.outputs.tag_exists }}
+          RELEASE_EXISTS: ${{ steps.public_state.outputs.release_exists }}
+        run: |
+          set -euo pipefail
+          installer="artifacts/v2_6_6/candidate/build1/KodepoiaSetup.exe"
+          notes="artifacts/v2_6_6/publication/release-notes.md"
+
+          if [[ "$RELEASE_EXISTS" == "false" ]]; then
+            if [[ "$TAG_EXISTS" == "true" ]]; then
+              gh release create "$TAG" "$installer#Kodepoia Windows installer"                 --repo "$GITHUB_REPOSITORY"                 --title "Kodepoia 1.1.0"                 --notes-file "$notes"                 --latest
+            else
+              gh release create "$TAG" "$installer#Kodepoia Windows installer"                 --repo "$GITHUB_REPOSITORY"                 --target "$CANDIDATE_SHA"                 --title "Kodepoia 1.1.0"                 --notes-file "$notes"                 --latest
+            fi
+          else
+            release_name="$(jq -r '.name' artifacts/v2_6_6/publication/release-before.json)"
+            draft="$(jq -r '.draft' artifacts/v2_6_6/publication/release-before.json)"
+            prerelease="$(jq -r '.prerelease' artifacts/v2_6_6/publication/release-before.json)"
+            if [[ "$release_name" != "Kodepoia 1.1.0" || "$draft" != "false" || "$prerelease" != "false" ]]; then
+              echo "Existing release conflicts with immutable terminal release identity" >&2
+              exit 1
+            fi
+            asset_count="$(jq '[.assets[] | select(.name=="KodepoiaSetup.exe")] | length' artifacts/v2_6_6/publication/release-before.json)"
+            if [[ "$asset_count" == "0" ]]; then
+              gh release upload "$TAG" "$installer#Kodepoia Windows installer"                 --repo "$GITHUB_REPOSITORY"
+            elif [[ "$asset_count" != "1" ]]; then
+              echo "Conflicting duplicate KodepoiaSetup.exe assets" >&2
+              exit 1
+            fi
+          fi
+
+      - name: Re-fetch and verify immutable public release
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG"             > artifacts/v2_6_6/publication/tag-after.json
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG"             > artifacts/v2_6_6/publication/release-after.json
+
+          tag_sha="$(jq -r '.object.sha' artifacts/v2_6_6/publication/tag-after.json)"
+          test "$tag_sha" = "$CANDIDATE_SHA"
+
+          jq -e '
+            .tag_name == "v1.1.0" and
+            .name == "Kodepoia 1.1.0" and
+            .draft == false and
+            .prerelease == false and
+            ([.assets[] | select(.name=="KodepoiaSetup.exe")] | length) == 1
+          ' artifacts/v2_6_6/publication/release-after.json >/dev/null
+
+          rm -rf artifacts/v2_6_6/public-refetch
+          mkdir -p artifacts/v2_6_6/public-refetch
+          gh release download "$TAG"             --repo "$GITHUB_REPOSITORY"             --pattern KodepoiaSetup.exe             --dir artifacts/v2_6_6/public-refetch
+
+      - name: Verify public asset bytes and emit publication evidence
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          asset = Path("artifacts/v2_6_6/public-refetch/KodepoiaSetup.exe")
+          data = asset.read_bytes()
+          if len(data) != int(os.environ["CANDIDATE_BYTES"]):
+              raise SystemExit("public installer byte length mismatch")
+          digest = hashlib.sha256(data).hexdigest()
+          if digest != os.environ["CANDIDATE_SHA256"]:
+              raise SystemExit("public installer SHA-256 mismatch")
+
+          release = json.loads(
+              Path("artifacts/v2_6_6/publication/release-after.json").read_text()
+          )
+          public_asset = next(
+              item for item in release["assets"] if item["name"] == "KodepoiaSetup.exe"
+          )
+          if int(public_asset["size"]) != int(os.environ["CANDIDATE_BYTES"]):
+              raise SystemExit("GitHub release asset size mismatch")
+
+          evidence = {
+              "schema_version": 1,
+              "subdivision": "V2.6.6",
+              "status": "PASS",
+              "publication_source_sha": os.environ["PUBLICATION_SHA"],
+              "candidate_source_sha": os.environ["CANDIDATE_SHA"],
+              "tag": os.environ["TAG"],
+              "release_id": release["id"],
+              "release_url": release["html_url"],
+              "asset_id": public_asset["id"],
+              "asset_url": public_asset["browser_download_url"],
+              "asset_name": public_asset["name"],
+              "asset_size": len(data),
+              "asset_sha256": digest,
+              "authenticode_policy": "allow-unsigned",
+              "production_signed": False,
+              "winget_submission": False,
+              "public_refetch_verified": True,
+          }
+          Path("artifacts/v2_6_6/publication/publication-evidence.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(evidence, indent=2, sort_keys=True))
+
+      - name: Upload V2.6.6 public publication evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-6-6-public-release-${{ env.CANDIDATE_SHA }}
+          path: artifacts/v2_6_6/publication/
+          if-no-files-found: error
+          retention-days: 30

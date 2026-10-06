@@ -813,3 +813,20 @@ V2.6.6 is **COMPLETE + NORMALIZED** and the complete V2 roadmap is closed.
 Current public Windows distribution authority is **Kodepoia 1.1.0** / tag `v1.1.0`, exact source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`, installer SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`, with live production TUF Root v2 / Targets v9 / Snapshot v11 / Timestamp v11.
 
 There is no authorized V2.7 and no R20.7. Do not reopen V2, R20, release publication, TUF mutation, updater activation or WinGet submission merely to continue numbering. Any post-V2 work requires a new, separate explicit authority and must begin from a fresh re-fetch of live `main` and the then-current continuity documents.
+
+
+## Kodepoia 1.1.1 V2 terminal consolidation — PREPARATION CURRENT
+
+The V2 roadmap remains **terminally COMPLETE + NORMALIZED**. This release work does not reopen V2,
+does not authorize V2.7 or R20.7, and adds no product capability.
+
+The user authorized a **1.1.1 consolidation release** from terminal V2 main
+`913aef2cf4673a2c8b8b7874204fe1b11edcf225`. Canonical source identity is advanced to 1.1.1 only for the new consolidation
+candidate. Historical V2.6.1-V2.6.6 evidence remains bound to its accepted 1.1.0 authorities.
+
+Until exact-source candidate qualification, production TUF transition, public publication and live
+updater closure all pass, the current public distribution authority remains **Kodepoia 1.1.0**.
+
+Current next action: qualify the exact-source **1.1.1 consolidation candidate** only. Do not create
+`v1.1.1`, publish a Release, mutate production TUF or activate the updater before that candidate
+is qualified from an unchanged merged main.

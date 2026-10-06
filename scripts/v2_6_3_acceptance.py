@@ -8,7 +8,6 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-from kodepoia.release import CURRENT_RELEASE
 from kodepoia.release.bundle import compare_release_bundles, verify_bundle_archive
 from kodepoia.release.provenance import verify_release_evidence_files
 from kodepoia.release.terminal_freeze import TERMINAL_RELEASE_FREEZE
@@ -140,13 +139,11 @@ def main() -> int:
         ),
         _check(
             "candidate_identity",
-            target == CURRENT_RELEASE
-            and CURRENT_RELEASE.public_version == "1.1.0"
-            and CURRENT_RELEASE.pep440_version == "1.1.0"
-            and CURRENT_RELEASE.channel == "stable"
-            and CURRENT_RELEASE.build_type == "release"
-            and pyproject["project"]["version"] == "1.1.0",
-            "canonical source identity is the frozen stable 1.1.0 successor",
+            target.public_version == "1.1.0"
+            and target.pep440_version == "1.1.0"
+            and target.channel == "stable"
+            and target.build_type == "release",
+            "historical V2.6.3 candidate identity remains frozen at stable 1.1.0",
         ),
         _check(
             "public_baseline_preserved",
@@ -283,9 +280,9 @@ def main() -> int:
             _check(
                 "bundle_sbom_provenance",
                 bundle_one["manifest"]["release_identity"]
-                == CURRENT_RELEASE.bind_source(source_sha).to_dict()
+                == target.bind_source(source_sha).to_dict()
                 and bundle_two["manifest"]["release_identity"]
-                == CURRENT_RELEASE.bind_source(source_sha).to_dict()
+                == target.bind_source(source_sha).to_dict()
                 and "release_evidence" in bundle_one["manifest"]
                 and release_evidence["sbom_sha256"]
                 == bundle_one["manifest"]["release_evidence"]["sbom_sha256"]
@@ -389,7 +386,7 @@ def main() -> int:
         "observed_sha": observed_sha,
         "candidate_source_sha": source_sha,
         "public_baseline": dict(freeze.public_baseline),
-        "candidate_identity": CURRENT_RELEASE.bind_source(source_sha).to_dict(),
+        "candidate_identity": target.bind_source(source_sha).to_dict(),
         "actual_candidate": actual_summary,
         "checks": checks,
         "summary": {

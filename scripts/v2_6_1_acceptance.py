@@ -6,7 +6,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from kodepoia.release import CURRENT_RELEASE, ReleaseIdentity
+from kodepoia.release import ReleaseIdentity
 from kodepoia.release.terminal_freeze import TERMINAL_RELEASE_FREEZE
 from kodepoia.release.winget import WinGetInstallerEvidence, build_winget_bundle
 
@@ -235,12 +235,11 @@ def main() -> int:
         ),
         _check(
             "runtime_identity_candidate_phase",
-            target == CURRENT_RELEASE
-            and '"channel": "stable"' in read("src/kodepoia/release/release_identity.json")
-            and '"stage": "final"' in read("src/kodepoia/release/release_identity.json")
-            and '"serial": 0' in read("src/kodepoia/release/release_identity.json")
-            and 'version = "1.1.0"' in read("pyproject.toml"),
-            "runtime canonical identity matches the frozen successor in the V2.6.3 candidate phase",
+            target.public_version == "1.1.0"
+            and target.pep440_version == "1.1.0"
+            and target.channel == "stable"
+            and target.build_type == "release",
+            "historical V2.6.1 successor identity remains frozen at stable 1.1.0",
         ),
         _check(
             "ci_exact_head",

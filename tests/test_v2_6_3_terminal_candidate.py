@@ -13,14 +13,16 @@ def _read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def test_v263_source_identity_matches_frozen_successor_while_public_baseline_stays_rc8() -> None:
+def test_v263_historical_candidate_remains_1_1_0_after_consolidation_bump() -> None:
     freeze = TERMINAL_RELEASE_FREEZE
 
-    assert freeze.successor_identity == CURRENT_RELEASE
-    assert CURRENT_RELEASE.public_version == "1.1.0"
-    assert CURRENT_RELEASE.pep440_version == "1.1.0"
+    assert freeze.successor_identity.public_version == "1.1.0"
+    assert freeze.successor_identity.pep440_version == "1.1.0"
+    assert CURRENT_RELEASE.public_version == "1.1.1"
+    assert CURRENT_RELEASE.pep440_version == "1.1.1"
     assert CURRENT_RELEASE.channel == "stable"
     assert CURRENT_RELEASE.build_type == "release"
+    assert CURRENT_RELEASE.is_newer_than(freeze.successor_identity)
 
     assert freeze.public_baseline["public_version"] == "1.1.0-rc8"
     assert freeze.public_baseline["tag"] == "v1.1.0-rc8"
@@ -28,7 +30,7 @@ def test_v263_source_identity_matches_frozen_successor_while_public_baseline_sta
     assert freeze.successor["candidate_source_sha"] is None
 
 
-def test_v263_release_identity_and_package_version_are_consistent() -> None:
+def test_current_release_identity_and_package_version_are_1_1_1_consolidation() -> None:
     identity = json.loads(_read("src/kodepoia/release/release_identity.json"))
     pyproject = _read("pyproject.toml")
 
@@ -37,11 +39,11 @@ def test_v263_release_identity_and_package_version_are_consistent() -> None:
     assert identity["version"] == {
         "major": 1,
         "minor": 1,
-        "patch": 0,
+        "patch": 1,
         "stage": "final",
         "serial": 0,
     }
-    assert 'version = "1.1.0"' in pyproject
+    assert 'version = "1.1.1"' in pyproject
     assert 'version = "1.1.0rc8"' not in pyproject
 
 

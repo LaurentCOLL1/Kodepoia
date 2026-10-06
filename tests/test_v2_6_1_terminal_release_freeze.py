@@ -44,7 +44,7 @@ def test_terminal_successor_is_stable_1_1_0_and_monotonic_from_rc8() -> None:
     assert target.is_newer_than(baseline)
 
 
-def test_v261_candidate_phase_promotion_matches_frozen_successor() -> None:
+def test_v261_historical_successor_remains_1_1_0_after_consolidation_bump() -> None:
     freeze = TERMINAL_RELEASE_FREEZE
     assert freeze.successor["candidate_source_freeze_phase"] == "V2.6.3"
     assert freeze.successor["candidate_source_sha"] is None
@@ -57,7 +57,9 @@ def test_v261_candidate_phase_promotion_matches_frozen_successor() -> None:
     assert runtime_payload["build_type"] == "release"
     assert runtime_payload["version"]["stage"] == "final"
     assert runtime_payload["version"]["serial"] == 0
-    assert freeze.successor_identity == CURRENT_RELEASE
+    assert freeze.successor_identity.public_version == "1.1.0"
+    assert CURRENT_RELEASE.public_version == "1.1.1"
+    assert CURRENT_RELEASE.is_newer_than(freeze.successor_identity)
 
 
 def test_windows_installer_and_update_identity_are_frozen_to_existing_contract() -> None:

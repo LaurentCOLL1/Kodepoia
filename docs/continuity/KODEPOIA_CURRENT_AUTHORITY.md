@@ -476,3 +476,16 @@ V2.6 planning and V2.6.1 through V2.6.6 are therefore **COMPLETE + NORMALIZED**.
 This closes the terminal V2 roadmap. **V2 is completely finished.** No V2.7 is authorized or reserved, R20 remains terminal with no R20.7, and no new post-V2 subdivision or release train may be invented without separate explicit authority.
 
 The current public Windows distribution authority is **Kodepoia 1.1.0**. `v1.1.0-rc8` remains historical updater-baseline evidence only and must not be treated as the current distribution.
+
+
+## Kodepoia 1.1.1 V2 terminal consolidation — PREPARATION CURRENT
+
+The V2 roadmap remains **terminally COMPLETE + NORMALIZED**. This release work does not reopen V2,
+does not authorize V2.7 or R20.7, and adds no product capability.
+
+The user authorized a **1.1.1 consolidation release** from terminal V2 main
+`913aef2cf4673a2c8b8b7874204fe1b11edcf225`. Canonical source identity is advanced to 1.1.1 only for the new consolidation
+candidate. Historical V2.6.1-V2.6.6 evidence remains bound to its accepted 1.1.0 authorities.
+
+Until exact-source candidate qualification, production TUF transition, public publication and live
+updater closure all pass, the current public distribution authority remains **Kodepoia 1.1.0**.

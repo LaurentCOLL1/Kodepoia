@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
-from kodepoia.release.identity import CURRENT_RELEASE
+from kodepoia.release.identity import CURRENT_RELEASE, ReleaseIdentity
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "v2_6_6_live_updater_closure.py"
@@ -25,8 +25,21 @@ def test_v266_live_closure_freezes_exact_public_identities() -> None:
     assert module.RC8_SOURCE_SHA == "fa787ab7ef76f2556b56ac1f058916a1425455af"
 
     assert module.STABLE_VERSION == "1.1.0"
+    historical_stable = ReleaseIdentity(
+        schema_version=1,
+        product="Kodepoia",
+        package="kodepoia",
+        channel="stable",
+        build_type="release",
+        source_binding="exact-head",
+        major=1,
+        minor=1,
+        patch=0,
+        stage="final",
+        serial=0,
+    )
     assert CURRENT_RELEASE.public_version == "1.1.1"
-    assert CURRENT_RELEASE.is_newer_than(module.stable_identity())
+    assert CURRENT_RELEASE.is_newer_than(historical_stable)
     assert CURRENT_RELEASE.channel == "stable"
     assert CURRENT_RELEASE.build_type == "release"
     assert module.STABLE_SOURCE_SHA == "46ed800888b4f19da9e984232dd1ad6cdb639cc1"

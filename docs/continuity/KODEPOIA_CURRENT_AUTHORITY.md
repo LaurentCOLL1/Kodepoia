@@ -489,3 +489,21 @@ candidate. Historical V2.6.1-V2.6.6 evidence remains bound to its accepted 1.1.0
 
 Until exact-source candidate qualification, production TUF transition, public publication and live
 updater closure all pass, the current public distribution authority remains **Kodepoia 1.1.0**.
+
+
+## Kodepoia 1.1.1 — candidate qualified; offline Targets custody next
+
+The exact-source 1.1.1 consolidation candidate is qualified from
+`aa1c80389b10f5ef44737241bf192c04f847e4ec` with installer SHA-256
+`c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd`
+and byte length `38880869`. Candidate evidence SHA-256 is
+`19a1fb1e73693f64cae7d1571c529b3f35625046ac4210375ad23ed2ac2b0d97`.
+
+The reviewed transition request is
+`docs/release/V1_1_1_TUF_TRANSITION_REQUEST.json` with request SHA-256
+`03f9225ae1529b1816f3e745f7c6a4f2e84400c7570f4c3ff02172102e857abe`.
+
+No 1.1.1 public release exists yet. Production TUF remains Root v2 / Targets v9 /
+Snapshot v11 / Timestamp v11. The next effect boundary is the operator-held offline Targets
+ceremony; no private key or passphrase may be pasted into chat, committed, uploaded, or emitted
+by CI.

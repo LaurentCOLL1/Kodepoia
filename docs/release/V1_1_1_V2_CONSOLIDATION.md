@@ -61,3 +61,36 @@ Only after a candidate is qualified from an unchanged merged `main`:
 
 Never paste Targets private keys, passphrases, Snapshot/Timestamp secret seeds or other production
 secrets into ChatGPT, Git, logs or artifacts.
+
+
+## Exact 1.1.1 candidate freeze — QUALIFIED
+
+The post-merge `Kodepoia 1.1.1 Consolidation Candidate` workflow run `37536813744`
+completed successfully on exact `main` source
+`aa1c80389b10f5ef44737241bf192c04f847e4ec`.
+
+Accepted candidate identity:
+
+- artifact ID: `11448467632`;
+- artifact: `v1-1-1-consolidation-aa1c80389b10f5ef44737241bf192c04f847e4ec`;
+- terminal candidate report: **9/9 PASS**;
+- candidate evidence SHA-256:
+  `19a1fb1e73693f64cae7d1571c529b3f35625046ac4210375ad23ed2ac2b0d97`;
+- installer: `KodepoiaSetup.exe`;
+- installer byte length: **38,880,869**;
+- installer SHA-256:
+  `c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd`;
+- Authenticode: `NotSigned`, `production_signed=false`;
+- target policy: `allow-unsigned`;
+- clean install, packaged smoke, uninstall and two-build semantic comparison: PASS;
+- public `v1.1.1` namespace remained absent;
+- no public tag/Release, production TUF or WinGet mutation occurred.
+
+The deterministic TUF transition request is
+`docs/release/V1_1_1_TUF_TRANSITION_REQUEST.json`, request SHA-256
+`03f9225ae1529b1816f3e745f7c6a4f2e84400c7570f4c3ff02172102e857abe`.
+
+Current production TUF input remains Root v2 / Targets v9 / Snapshot v11 / Timestamp v11.
+The next legitimate step is the existing **offline Targets custody ceremony**, signing only the
+new stable 1.1.1 target as Targets v10 while preserving every prior target. Snapshot/Timestamp
+v12 are a later online-signing step and must not be generated with synthetic or exposed secrets.

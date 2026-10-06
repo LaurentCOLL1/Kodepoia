@@ -1,12 +1,12 @@
 # Kodepoia next actions
 
-Last synchronized: 2026-09-21 after V2.4.4 implementation PR `#524` merge and post-merge normalization  
+Last synchronized: 2026-10-06 after V2.6.6 terminal live-updater closure qualification  
 Companion state: `docs/continuity/STATE.md`  
 Active roadmap: `docs/roadmap/KODEPOIA_ROADMAP_V2.md`
 
 ## Stable public boundary
 
-Public Windows **`v1.1.0-rc8`** remains the last fully real-machine updater-E2E-qualified distribution baseline. The updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 is terminal and remains **COMPLETE + NORMALIZED**; do not reopen it or invent `R20.7`.
+Public Windows **`v1.1.0`** is now the stable distribution authority. The terminal live closure proved real installed `v1.1.0-rc8 -> 1.1.0` upgrade and post-upgrade `up-to-date`; rc8 remains historical baseline evidence only. R20 is terminal and remains **COMPLETE + NORMALIZED**; do not reopen it or invent `R20.7`.
 
 V2.0 and V2.1.1 through V2.1.6 are **COMPLETE + NORMALIZED**.
 
@@ -805,3 +805,11 @@ Implement **V2.6.6 — Governed public release, production TUF transition and li
 Required sequence: re-fetch `main`, public `v1.1.0` tag/release state, exact V2.6.3 candidate artifact, production TUF metadata and required live signing authority; refuse if any frozen input drift exists; perform only the authorized production metadata transition with fresh Snapshot/Timestamp and preserved history; publish the immutable GitHub `v1.1.0` release/tag/assets exactly once from the frozen candidate; re-fetch and verify all public release assets; then prove the live installed `v1.1.0-rc8 -> 1.1.0` stable updater path and post-upgrade `up-to-date` state without bypassing TUF/hash/length/identity/consent checks.
 
 Do not rebuild/substitute the candidate, weaken expiry/rollback/Root/signature checks, invent Authenticode trust, expose signing secrets, repoint an existing `v1.1.0` tag, overwrite a conflicting public asset, or submit WinGet. If required production signing material or any other live authority is unavailable, stop at the exact manual/operator boundary rather than fabricating success.
+
+## Current next action — V2 terminally complete; await separate explicit post-V2 authority
+
+V2.6.6 is **COMPLETE + NORMALIZED** and the complete V2 roadmap is closed.
+
+Current public Windows distribution authority is **Kodepoia 1.1.0** / tag `v1.1.0`, exact source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`, installer SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`, with live production TUF Root v2 / Targets v9 / Snapshot v11 / Timestamp v11.
+
+There is no authorized V2.7 and no R20.7. Do not reopen V2, R20, release publication, TUF mutation, updater activation or WinGet submission merely to continue numbering. Any post-V2 work requires a new, separate explicit authority and must begin from a fresh re-fetch of live `main` and the then-current continuity documents.

@@ -441,3 +441,25 @@ Accepted V2.6.5 pre-publication truth:
 V2.6.6 is the terminal live-release step. It must first revalidate the unchanged frozen candidate and current public/TUF state. It may then execute only the governed sequence required to make `1.1.0` public and update-eligible: valid production TUF transition/freshness restoration preserving Root/history/rollback guarantees; immutable `v1.1.0` tag/release/public asset publication bound to the exact candidate; public re-fetch and hash/length/source verification; live installed rc8 -> stable 1.1.0 updater proof; post-upgrade stable-current proof; and final release-closure evidence.
 
 V2.6.6 must not rebuild/substitute the candidate, weaken TUF expiry/rollback/threshold/Root continuity, invent Authenticode trust, expose credentials, repoint an existing conflicting tag, overwrite conflicting public assets, or submit WinGet. If any required live signing authority or exact immutable input is unavailable, the subdivision must stop at that boundary and remain incomplete rather than fabricating success.
+
+## 19. V2.6.6 terminal qualification and V2 closure
+
+V2.6.6 completed the governed production/public sequence and final live updater proof.
+
+Terminal production truth:
+
+- public tag `v1.1.0` -> exact source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`;
+- public Release ID `404195689`, `draft=false`, `prerelease=false`;
+- `KodepoiaSetup.exe`: 38,834,833 bytes, SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- unsigned Authenticode truth preserved; target policy `allow-unsigned`;
+- WinGet OUT;
+- production TUF Root v2 / Targets v9 / Snapshot v11 / Timestamp v11;
+- stable target path `channels/stable/windows-x86_64/1.1.0/46ed800888b4f19da9e984232dd1ad6cdb639cc1/KodepoiaSetup.exe`.
+
+Terminal live closure authority was merged by PR `#574` as `fdede7f5eab314e322c9f97521652114ea194309` after 47/47 exact-head PR workflows succeeded on head `1e176b613695d2b7b5302a1acc2b60e45cce4d48`.
+
+The main-only Windows workflow run `37473587610` completed successfully on that exact merge. Its terminal report has 9/9 PASS, `critical_veto=false`, `go_no_go=GO`, `public_network_proof=true`, TUF versions 2/9/11/11, no closure-time metadata/release mutation, no WinGet submission, and logical evidence SHA-256 `614a3f564b0897b5f4a0eb32e295b408d0f225b6152190247434afccd99a51ed`.
+
+The run proved the real public installed updater path from `v1.1.0-rc8` to stable `1.1.0`, exact stable download verification, installer-driven upgrade/relaunch, installed version, custom-path preservation, post-upgrade `up-to-date`, packaged smoke and uninstall.
+
+V2.6.6 is **COMPLETE + NORMALIZED**. The six-subdivision V2.6 sequence is closed and the entire V2 roadmap is terminally complete. No V2.7 or R20.7 is authorized.

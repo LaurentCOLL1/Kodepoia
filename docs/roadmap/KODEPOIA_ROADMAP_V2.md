@@ -549,3 +549,13 @@ The deterministic terminal hardening gate passed **12/12 on Ubuntu** and **12/12
 The V2.6.1 release freeze remains unchanged and no publication effect occurred. **V2.6.3 — Exact-source Windows release candidate, SBOM, provenance and signing truth only** is now authorized. V2.6.4 through V2.6.6 remain unauthorized until sequential exact-head qualification, merge and post-merge normalization.
 
 V2.6.3 is candidate construction and qualification, not publication. It may build exact-source Windows artifacts, release bundle/manifest, SBOM/provenance, attestation and truthful signing evidence, exercise clean install/packaged smoke/uninstall, perform required two-build determinism checks and stage immutable release-description evidence. It must not publish a GitHub Release/tag/assets or mutate production TUF/update state.
+
+### V2.6.6 — COMPLETE + NORMALIZED; V2 TERMINAL COMPLETE
+
+The governed public-release sequence is complete.
+
+The stable public release is **Kodepoia 1.1.0** / `v1.1.0`, exact source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`, with public `KodepoiaSetup.exe` size 38,834,833 bytes and SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`. Production TUF is Root v2 / Targets v9 / Snapshot v11 / Timestamp v11 and the exact stable target retains `authenticode_policy=allow-unsigned`; no production Authenticode trust is claimed and WinGet remains OUT.
+
+Terminal live closure was proved by `V2.6.6 Live Updater Closure` run `37473587610` on exact merged source `fdede7f5eab314e322c9f97521652114ea194309`. Its evidence reports 9/9 PASS, `critical_veto=false`, `go_no_go=GO`, and evidence SHA-256 `614a3f564b0897b5f4a0eb32e295b408d0f225b6152190247434afccd99a51ed`. The real installed public path `v1.1.0-rc8 -> 1.1.0` succeeded and the post-upgrade live check reports `up-to-date`.
+
+V2.0 through the terminal V2.6.6 subdivision are **COMPLETE + NORMALIZED**. **V2 is completely finished.** No V2.7 is authorized; a later roadmap may begin only under separate explicit authority.

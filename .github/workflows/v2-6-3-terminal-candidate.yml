@@ -50,6 +50,10 @@ jobs:
       KODEPOIA_LOCALE: fr
       QT_QPA_PLATFORM: offscreen
       GH_TOKEN: ${{ github.token }}
+      PUBLISHED_STABLE_SOURCE_SHA: 46ed800888b4f19da9e984232dd1ad6cdb639cc1
+      PUBLISHED_STABLE_BYTES: "38834833"
+      PUBLISHED_STABLE_SHA256: 8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef
+      PUBLISHED_STABLE_RELEASE_ID: "404195689"
     steps:
       - name: Checkout exact candidate source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -72,14 +76,123 @@ jobs:
             throw "Expected exact candidate source $expected, got $actual"
           }
 
+
+      - name: Detect terminal publication state
+        id: publication
+        shell: pwsh
+        run: |
+          $tagExists = $false
+          $releaseExists = $false
+
+          gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/v1.1.0" *> $null
+          if ($LASTEXITCODE -eq 0) {
+            $tagExists = $true
+          } elseif ($LASTEXITCODE -ne 1) {
+            throw "Could not determine public tag state"
+          }
+          $global:LASTEXITCODE = 0
+
+          gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/v1.1.0" *> $null
+          if ($LASTEXITCODE -eq 0) {
+            $releaseExists = $true
+          } elseif ($LASTEXITCODE -ne 1) {
+            throw "Could not determine public release state"
+          }
+          $global:LASTEXITCODE = 0
+
+          if ($tagExists -xor $releaseExists) {
+            throw "Partial v1.1.0 publication state is not accepted"
+          }
+          $published = $tagExists -and $releaseExists
+          "published=$($published.ToString().ToLowerInvariant())" |
+            Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Verify terminal published stable authority
+        if: steps.publication.outputs.published == 'true'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "artifacts/v2_6_3" | Out-Null
+
+          $tagRef = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/v1.1.0" |
+            ConvertFrom-Json
+          $tagSha = [string]$tagRef.object.sha
+          if ([string]$tagRef.object.type -eq "tag") {
+            $tagObject = gh api "repos/$env:GITHUB_REPOSITORY/git/tags/$tagSha" |
+              ConvertFrom-Json
+            $tagSha = [string]$tagObject.object.sha
+          }
+          if ($tagSha.ToLowerInvariant() -ne $env:PUBLISHED_STABLE_SOURCE_SHA) {
+            throw "Published v1.1.0 tag source drift: $tagSha"
+          }
+
+          $release = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/v1.1.0" |
+            ConvertFrom-Json
+          if ([string]$release.id -ne $env:PUBLISHED_STABLE_RELEASE_ID) {
+            throw "Published v1.1.0 release identity drift"
+          }
+          if ([bool]$release.draft -or [bool]$release.prerelease) {
+            throw "Published v1.1.0 release state drift"
+          }
+          if ([string]$release.tag_name -ne "v1.1.0") {
+            throw "Published v1.1.0 release tag drift"
+          }
+          if ([string]$release.target_commitish -ne $env:PUBLISHED_STABLE_SOURCE_SHA) {
+            throw "Published v1.1.0 target source drift"
+          }
+          if ([string]$release.name -ne "Kodepoia 1.1.0") {
+            throw "Published v1.1.0 release name drift"
+          }
+
+          $assets = @($release.assets | Where-Object { $_.name -eq "KodepoiaSetup.exe" })
+          if ($assets.Count -ne 1) {
+            throw "Expected exactly one published KodepoiaSetup.exe"
+          }
+          $asset = $assets[0]
+          if ([int64]$asset.size -ne [int64]$env:PUBLISHED_STABLE_BYTES) {
+            throw "Published v1.1.0 installer size drift"
+          }
+          if ([string]$asset.digest -ne "sha256:$env:PUBLISHED_STABLE_SHA256") {
+            throw "Published v1.1.0 installer digest drift"
+          }
+
+          @{
+            schema_version = 1
+            mode = "post-publication-historical-verification"
+            source_sha = $env:EVIDENCE_SHA.ToLowerInvariant()
+            candidate_source_sha = $env:PUBLISHED_STABLE_SOURCE_SHA
+            tag = "v1.1.0"
+            release_id = [int64]$release.id
+            asset_name = [string]$asset.name
+            asset_size = [int64]$asset.size
+            asset_sha256 = $env:PUBLISHED_STABLE_SHA256
+            public_release_verified = $true
+            candidate_rebuilt = $false
+            candidate_republished = $false
+            production_tuf_mutated = $false
+            winget_submission = $false
+          } | ConvertTo-Json -Depth 5 |
+            Set-Content -Encoding UTF8 "artifacts/v2_6_3/post-publication.json"
+
+      - name: Upload V2.6.3 post-publication historical verification
+        if: steps.publication.outputs.published == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-6-3-post-publication-${{ env.EVIDENCE_SHA }}
+          path: artifacts/v2_6_3/post-publication.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Install candidate build dependencies
+        if: steps.publication.outputs.published != 'true'
         run: python -m pip install -e ".[dev,ui,code,packaging]"
 
       - name: Install Inno Setup 6
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: choco install innosetup --yes --no-progress
 
       - name: Compile and Ruff V2.6.3 release surfaces
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           python -m compileall -q `
@@ -100,6 +213,7 @@ jobs:
             tests/test_v2_6_3_terminal_candidate.py
 
       - name: Run focused candidate and inherited R18 tests
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           python -m pytest -q `
@@ -114,6 +228,7 @@ jobs:
             tests/test_v2_6_2_terminal_hardening.py
 
       - name: Generate exact-source SPDX SBOM and provenance
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "artifacts/v2_6_3/evidence" | Out-Null
@@ -130,6 +245,7 @@ jobs:
             --optional-group code
 
       - name: Build exact-source Windows candidate one
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           ./scripts/build_windows_installer.ps1 -SourceSha "$env:EVIDENCE_SHA"
@@ -157,6 +273,7 @@ jobs:
           "V263_BUNDLE_ONE=$bundle" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Inspect exact candidate Authenticode truth
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           python scripts/windows_authenticode.py `
@@ -166,6 +283,7 @@ jobs:
             --output "artifacts/v2_6_3/signing.json"
 
       - name: Build exact-source Windows candidate two
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           ./scripts/build_windows_installer.ps1 -SourceSha "$env:EVIDENCE_SHA"
@@ -193,6 +311,7 @@ jobs:
           "V263_BUNDLE_TWO=$bundle" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Compare two exact-source candidate builds
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           python scripts/r18_2_release_bundle_acceptance.py `
@@ -204,6 +323,7 @@ jobs:
           if ($report.status -ne "PASS") { throw "R18.2 two-build candidate comparison failed" }
 
       - name: Observe public tag and release state without mutation
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           $tagExists = $false
@@ -238,6 +358,7 @@ jobs:
             Set-Content -Encoding UTF8 "artifacts/v2_6_3/tag-state.json"
 
       - name: Stage immutable release description without publishing
+        if: steps.publication.outputs.published != 'true'
         shell: python
         run: |
           import json
@@ -290,6 +411,7 @@ jobs:
           )
 
       - name: Clean install, packaged smoke and uninstall
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           $setup = (Resolve-Path "artifacts/v2_6_3/build1/KodepoiaSetup.exe").Path
@@ -372,6 +494,7 @@ jobs:
             Set-Content -Encoding UTF8 "artifacts/v2_6_3/windows.json"
 
       - name: Run actual V2.6.3 exact-source candidate acceptance
+        if: steps.publication.outputs.published != 'true'
         shell: pwsh
         run: |
           python scripts/v2_6_3_acceptance.py `
@@ -405,6 +528,7 @@ jobs:
           }
 
       - name: Upload V2.6.3 exact-source candidate evidence
+        if: steps.publication.outputs.published != 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: v2-6-3-windows-candidate-${{ env.EVIDENCE_SHA }}

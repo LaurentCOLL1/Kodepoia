@@ -299,8 +299,9 @@ def main() -> int:
             domain="release-freeze",
             passed=(
                 freeze.public_baseline["public_version"] == "1.1.0-rc8"
-                and freeze.successor_identity == CURRENT_RELEASE
                 and freeze.successor_identity.public_version == "1.1.0"
+                and CURRENT_RELEASE.public_version == "1.1.1"
+                and CURRENT_RELEASE.is_newer_than(freeze.successor_identity)
                 and freeze.successor["candidate_source_sha"] is None
                 and freeze.authenticode["production_signing_verified"] is False
                 and freeze.winget["decision"] == "out"

@@ -57,7 +57,10 @@ def test_v261_candidate_phase_promotion_matches_frozen_successor() -> None:
     assert runtime_payload["build_type"] == "release"
     assert runtime_payload["version"]["stage"] == "final"
     assert runtime_payload["version"]["serial"] == 0
-    assert freeze.successor_identity == CURRENT_RELEASE
+    assert runtime_payload["version"]["patch"] == 1
+    assert freeze.successor_identity.public_version == "1.1.0"
+    assert CURRENT_RELEASE.public_version == "1.1.1"
+    assert CURRENT_RELEASE.is_newer_than(freeze.successor_identity)
 
 
 def test_windows_installer_and_update_identity_are_frozen_to_existing_contract() -> None:

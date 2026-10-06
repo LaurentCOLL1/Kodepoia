@@ -140,13 +140,18 @@ def main() -> int:
         ),
         _check(
             "candidate_identity",
-            target == CURRENT_RELEASE
-            and CURRENT_RELEASE.public_version == "1.1.0"
-            and CURRENT_RELEASE.pep440_version == "1.1.0"
+            target.public_version == "1.1.0"
+            and target.pep440_version == "1.1.0"
+            and CURRENT_RELEASE.public_version == "1.1.1"
+            and CURRENT_RELEASE.pep440_version == "1.1.1"
             and CURRENT_RELEASE.channel == "stable"
             and CURRENT_RELEASE.build_type == "release"
-            and pyproject["project"]["version"] == "1.1.0",
-            "canonical source identity is the frozen stable 1.1.0 successor",
+            and CURRENT_RELEASE.is_newer_than(target)
+            and pyproject["project"]["version"] == "1.1.1",
+            (
+                "historical V2.6.3 candidate remains frozen at stable 1.1.0 while "
+                "the authorized post-V2 consolidation identity is stable 1.1.1"
+            ),
         ),
         _check(
             "public_baseline_preserved",

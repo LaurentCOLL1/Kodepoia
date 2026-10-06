@@ -52,6 +52,9 @@ def test_v263_candidate_workflow_is_exact_source_and_non_publishing() -> None:
         "EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}",
         "Checkout exact candidate source",
         "Assert exact checkout provenance",
+        "Detect terminal publication state",
+        "Verify terminal published stable authority",
+        "Upload V2.6.3 post-publication historical verification",
         "Build exact-source Windows candidate one",
         "Build exact-source Windows candidate two",
         "Generate exact-source SPDX SBOM and provenance",
@@ -95,6 +98,9 @@ def test_v263_candidate_workflow_reuses_r17_r18_contracts() -> None:
     assert "synthetic-offline" in workflow
     assert "tag_exists = $false" in workflow
     assert "release_exists = $false" in workflow
+    assert "post-publication-historical-verification" in workflow
+    assert "candidate_rebuilt = $false" in workflow
+    assert "candidate_republished = $false" in workflow
 
 
 def test_v263_python_core_emits_cross_platform_synthetic_evidence() -> None:
@@ -134,3 +140,27 @@ def test_v263_release_candidate_contract_authorizes_v264_only_after_normalizatio
     assert "authorizes V2.6.4 only" in contract
     assert "No GitHub Release, public tag, public asset" in contract
     assert "production TUF mutation" in contract
+
+
+def test_v263_candidate_workflow_verifies_frozen_publication_after_release() -> None:
+    workflow = _read(".github/workflows/v2-6-3-terminal-candidate.yml")
+
+    for marker in (
+        "PUBLISHED_STABLE_SOURCE_SHA: 46ed800888b4f19da9e984232dd1ad6cdb639cc1",
+        'PUBLISHED_STABLE_BYTES: "38834833"',
+        "PUBLISHED_STABLE_SHA256: 8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef",
+        'PUBLISHED_STABLE_RELEASE_ID: "404195689"',
+        "steps.publication.outputs.published == 'true'",
+        "steps.publication.outputs.published != 'true'",
+        "Published v1.1.0 tag source drift",
+        "Published v1.1.0 installer digest drift",
+        "post-publication-historical-verification",
+    ):
+        assert marker in workflow, marker
+
+    assert "gh release create" not in workflow
+    assert "gh release upload" not in workflow
+    assert "contents: write" not in workflow
+    assert "candidate_rebuilt = $false" in workflow
+    assert "candidate_republished = $false" in workflow
+    assert "production_tuf_mutated = $false" in workflow

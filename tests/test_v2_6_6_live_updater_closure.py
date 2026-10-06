@@ -24,7 +24,9 @@ def test_v266_live_closure_freezes_exact_public_identities() -> None:
     assert rc8.public_version == module.RC8_VERSION == "1.1.0-rc8"
     assert module.RC8_SOURCE_SHA == "fa787ab7ef76f2556b56ac1f058916a1425455af"
 
-    assert CURRENT_RELEASE.public_version == module.STABLE_VERSION == "1.1.0"
+    assert module.STABLE_VERSION == "1.1.0"
+    assert CURRENT_RELEASE.public_version == "1.1.1"
+    assert CURRENT_RELEASE.is_newer_than(module.stable_identity())
     assert CURRENT_RELEASE.channel == "stable"
     assert CURRENT_RELEASE.build_type == "release"
     assert module.STABLE_SOURCE_SHA == "46ed800888b4f19da9e984232dd1ad6cdb639cc1"

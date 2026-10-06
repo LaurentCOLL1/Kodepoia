@@ -47,7 +47,8 @@
     "allow_write_workflows": [
       ".github/workflows/r18-3-sbom-provenance-attestation-acceptance.yml",
       ".github/workflows/r20-4-scheduled-metadata-refresh.yml",
-      ".github/workflows/v2-6-6-public-release.yml"
+      ".github/workflows/v2-6-6-public-release.yml",
+      ".github/workflows/v2-6-6-live-updater-closure.yml"
     ],
     "immutable_authority_workflows": [
       ".github/workflows/python-core.yml",

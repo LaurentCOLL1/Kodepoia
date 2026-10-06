@@ -51,7 +51,7 @@ def test_v111_authority_is_post_v2_release_maintenance_only() -> None:
     assert TERMINAL_V2_MAIN in contract
     assert "post-V2 maintenance consolidation release" in contract
     assert "does **not** create V2.7" in contract
-    assert "no new product capability" in contract.casefold()
+    assert "authorize any new product capability" in contract.casefold()
     assert "offline Targets custody" in contract
     assert "1.1.0 -> 1.1.1" in contract
 

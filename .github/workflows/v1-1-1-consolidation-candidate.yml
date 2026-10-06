@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - .github/workflows/v1-1-1-consolidation-candidate.yml
+      - configs/r16_supply_chain_policy.json
       - pyproject.toml
       - src/kodepoia/release/release_identity.json
       - scripts/v2_6_1_acceptance.py
@@ -79,6 +80,7 @@ jobs:
 
           $allowed = @(
             ".github/workflows/v1-1-1-consolidation-candidate.yml",
+            "configs/r16_supply_chain_policy.json",
             "docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md",
             "docs/continuity/NEXT.md",
             "docs/continuity/STATE.md",

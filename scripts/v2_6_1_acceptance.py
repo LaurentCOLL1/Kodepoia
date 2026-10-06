@@ -234,13 +234,20 @@ def main() -> int:
             "V2.6.1 performs no public release/tag/TUF/updater/WinGet effect",
         ),
         _check(
-            "runtime_identity_candidate_phase",
-            target == CURRENT_RELEASE
+            "runtime_identity_history_preserved",
+            target.public_version == "1.1.0"
+            and target.pep440_version == "1.1.0"
+            and CURRENT_RELEASE.public_version == "1.1.1"
+            and CURRENT_RELEASE.pep440_version == "1.1.1"
+            and CURRENT_RELEASE.is_newer_than(target)
             and '"channel": "stable"' in read("src/kodepoia/release/release_identity.json")
             and '"stage": "final"' in read("src/kodepoia/release/release_identity.json")
             and '"serial": 0' in read("src/kodepoia/release/release_identity.json")
-            and 'version = "1.1.0"' in read("pyproject.toml"),
-            "runtime canonical identity matches the frozen successor in the V2.6.3 candidate phase",
+            and 'version = "1.1.1"' in read("pyproject.toml"),
+            (
+                "historical V2.6 successor remains frozen at 1.1.0 while the "
+                "authorized post-V2 consolidation identity advances to 1.1.1"
+            ),
         ),
         _check(
             "ci_exact_head",

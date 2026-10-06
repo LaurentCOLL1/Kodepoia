@@ -44,15 +44,15 @@ def _release(
     )
 
 
-def test_current_release_identity_is_canonical_terminal_candidate() -> None:
+def test_current_release_identity_is_canonical_consolidation_release() -> None:
     assert CURRENT_RELEASE.package == "kodepoia"
     assert CURRENT_RELEASE.channel == "stable"
     assert CURRENT_RELEASE.build_type == "release"
     assert CURRENT_RELEASE.source_binding == "exact-head"
     assert CURRENT_RELEASE.stage == "final"
     assert CURRENT_RELEASE.serial == 0
-    assert CURRENT_RELEASE.public_version == "1.1.0"
-    assert CURRENT_RELEASE.pep440_version == "1.1.0"
+    assert CURRENT_RELEASE.public_version == "1.1.1"
+    assert CURRENT_RELEASE.pep440_version == "1.1.1"
     assert kodepoia.__version__ == CURRENT_RELEASE.pep440_version
 
     identity_path = ROOT / "src/kodepoia/release/release_identity.json"

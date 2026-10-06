@@ -813,3 +813,28 @@ V2.6.6 is **COMPLETE + NORMALIZED** and the complete V2 roadmap is closed.
 Current public Windows distribution authority is **Kodepoia 1.1.0** / tag `v1.1.0`, exact source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`, installer SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`, with live production TUF Root v2 / Targets v9 / Snapshot v11 / Timestamp v11.
 
 There is no authorized V2.7 and no R20.7. Do not reopen V2, R20, release publication, TUF mutation, updater activation or WinGet submission merely to continue numbering. Any post-V2 work requires a new, separate explicit authority and must begin from a fresh re-fetch of live `main` and the then-current continuity documents.
+
+## Current next action — Kodepoia 1.1.1 consolidation candidate
+
+The explicit post-V2 maintenance authority is now **Kodepoia 1.1.1 consolidation**.
+
+Required sequence:
+
+1. qualify and merge the release-preparation PR derived from terminal V2 main
+   `913aef2cf4673a2c8b8b7874204fe1b11edcf225`;
+2. run the dedicated exact-source Windows 1.1.1 candidate workflow on the unchanged merged
+   `main`;
+3. freeze the candidate source SHA, installer byte length/SHA-256 and candidate evidence;
+4. prepare the next stable production Targets generation while preserving every accepted
+   historical target and exact-target signing policy;
+5. perform the offline Targets signing step without exposing private key material in chat;
+6. generate and verify fresh online Snapshot/Timestamp metadata around that exact signed
+   Targets generation;
+7. publish exactly one `v1.1.1` GitHub Release/asset bound to the accepted candidate;
+8. prove the real installed public updater path `1.1.0 -> 1.1.1`, then prove
+   `1.1.1` is `up-to-date`;
+9. normalize continuity/release authorities after successful live closure.
+
+Until those gates pass, **1.1.0 remains the public stable authority**. No V2.7, R20.7,
+new feature, tag repoint, candidate substitution, TUF bypass, fabricated Authenticode trust
+or WinGet submission is authorized.

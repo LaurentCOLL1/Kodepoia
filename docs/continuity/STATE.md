@@ -1497,3 +1497,21 @@ V2.6 planning and V2.6.1 through V2.6.6 are therefore **COMPLETE + NORMALIZED**.
 This closes the terminal V2 roadmap. **V2 is completely finished.** No V2.7 is authorized or reserved, R20 remains terminal with no R20.7, and no new post-V2 subdivision or release train may be invented without separate explicit authority.
 
 The current public Windows distribution authority is **Kodepoia 1.1.0**. `v1.1.0-rc8` remains historical updater-baseline evidence only and must not be treated as the current distribution.
+
+## Post-V2 maintenance release — Kodepoia 1.1.1 consolidation — PREPARATION CURRENT
+
+On 2026-10-06 the user explicitly authorized a **Kodepoia 1.1.1 consolidation release**
+from the terminal post-normalization V2 main state
+`913aef2cf4673a2c8b8b7874204fe1b11edcf225`.
+
+This is a maintenance-release authority only. V2 remains terminally **COMPLETE + NORMALIZED**;
+no V2.7 or R20.7 is created or implied. No new product capability is authorized.
+
+The current public distribution remains **Kodepoia 1.1.0** until the 1.1.1 candidate,
+production TUF transition, public release and live updater closure all succeed.
+
+The 1.1.1 preparation must preserve the terminal V2 product payload and may change only
+release identity/versioning, historical-acceptance compatibility, release packaging/evidence,
+release workflows and continuity/release documentation required to produce the consolidation
+release. Production Authenticode remains truthfully unsigned unless independently proven;
+the exact-target `allow-unsigned` policy remains required and WinGet remains OUT.

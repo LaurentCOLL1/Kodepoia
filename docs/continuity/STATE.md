@@ -1,6 +1,6 @@
 # Kodepoia continuity state
 
-Last synchronized: 2026-09-21 after V2.4.4 implementation PR `#524` merge and post-merge normalization  
+Last synchronized: 2026-10-06 after V2.6.6 terminal live-updater closure qualification  
 Repository: `LaurentCOLL1/Kodepoia`  
 Canonical branch: `main`
 
@@ -8,7 +8,7 @@ Canonical branch: `main`
 
 Read this file together with `docs/continuity/NEXT.md` and re-fetch live GitHub state before acting. For V2 work, also read `docs/roadmap/KODEPOIA_ROADMAP_V2.md`; V2.1 completed Research authority is `docs/roadmap/V2_1_RESEARCH_WORKSPACE.md`, normalized V2.2 authority is `docs/roadmap/V2_2_PROJECT_KNOWLEDGE_CONTEXT_MEMORY.md`, and the normalized V2.3 authority is `docs/roadmap/V2_3_MODEL_LAB_GOVERNED_IMPROVEMENT_UX.md`.
 
-The public Windows distribution authority remains **`v1.1.0-rc8`**. The real installed Windows updater E2E `rc7 -> rc8` passed and the exercised updater incident is **CLOSED**. The historical `rc5 -> rc6` attempt remains failed/incomplete. R20 remains **COMPLETE + NORMALIZED**, terminal, and must not be reopened or extended as `R20.7`.
+The current public Windows distribution authority is **`v1.1.0`**. The terminal live updater closure proved the real installed public path `v1.1.0-rc8 -> 1.1.0` and a subsequent stable `up-to-date` check. `v1.1.0-rc8` is retained as historical updater-baseline evidence only. R20 remains **COMPLETE + NORMALIZED**, terminal, and must not be reopened or extended as `R20.7`.
 
 ## V2.0 — COMPLETE + NORMALIZED
 
@@ -1470,3 +1470,30 @@ V2.6.6 must consume the frozen publication inputs without rebuilding or substitu
 V2.6.6 may perform only the governed live effects needed for the terminal release: revalidate all exact inputs and current public state; perform the production TUF transition with valid authorized production signing material and fresh metadata; publish the immutable GitHub release/tag/assets exactly once; verify public asset/source/hash/length identity; verify the live stable updater from an installed rc8 baseline without bypass; prove the post-upgrade stable current state; preserve rollback/withdraw/recovery controls; and close the release with exact live evidence.
 
 Production Authenticode remains unsigned unless exact live evidence proves otherwise; no false trust claim is allowed. WinGet remains OUT for `v1.1.0` and must not be submitted.
+
+## V2.6.6 — terminal live release and updater closure — COMPLETE + NORMALIZED
+
+V2.6.6 reached its terminal live proof on 2026-10-06 without rebuilding or substituting the frozen candidate.
+
+Accepted terminal truth:
+
+- public stable tag `v1.1.0` points to exact candidate source `46ed800888b4f19da9e984232dd1ad6cdb639cc1`;
+- GitHub Release `Kodepoia 1.1.0` is public (`draft=false`, `prerelease=false`) with exactly one `KodepoiaSetup.exe`;
+- the public installer is 38,834,833 bytes with SHA-256 `8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef`;
+- Authenticode remains truthfully unsigned with `production_signed=false`; the exact stable target keeps `authenticode_policy=allow-unsigned`;
+- WinGet remains OUT for `1.1.0`;
+- live production TUF is Root v2 / Targets v9 / Snapshot v11 / Timestamp v11;
+- the stable target is `channels/stable/windows-x86_64/1.1.0/46ed800888b4f19da9e984232dd1ad6cdb639cc1/KodepoiaSetup.exe`;
+- terminal live-closure PR `#574` qualified 47/47 pull-request workflows on exact head `1e176b613695d2b7b5302a1acc2b60e45cce4d48` and merged as `fdede7f5eab314e322c9f97521652114ea194309`;
+- main-only workflow run `37473587610` (`V2.6.6 Live Updater Closure`) completed successfully on exact source `fdede7f5eab314e322c9f97521652114ea194309`;
+- artifact `v2-6-6-live-updater-closure-fdede7f5eab314e322c9f97521652114ea194309` (artifact ID `11418815205`) contains the terminal evidence;
+- `V2_6_6_LIVE_UPDATER_CLOSURE.json` reports **9/9 PASS**, `critical_veto=false`, `go_no_go=GO`, `summary.failed=[]`, `public_network_proof=true`, and logical evidence SHA-256 `614a3f564b0897b5f4a0eb32e295b408d0f225b6152190247434afccd99a51ed`;
+- the live installed path proved public `v1.1.0-rc8 -> 1.1.0` discovery as `update-available`, verified/downloaded the exact stable bytes through the production updater transport, performed the real installer upgrade and relaunch, preserved the custom installation directory, observed installed `DisplayVersion=1.1.0`, then proved a fresh stable check as `up-to-date`;
+- packaged smoke and uninstall both passed;
+- the closure workflow was read-only and reports `production_metadata_mutated=false`, `public_release_mutated=false`, and `winget_submission=false`.
+
+V2.6 planning and V2.6.1 through V2.6.6 are therefore **COMPLETE + NORMALIZED**.
+
+This closes the terminal V2 roadmap. **V2 is completely finished.** No V2.7 is authorized or reserved, R20 remains terminal with no R20.7, and no new post-V2 subdivision or release train may be invented without separate explicit authority.
+
+The current public Windows distribution authority is **Kodepoia 1.1.0**. `v1.1.0-rc8` remains historical updater-baseline evidence only and must not be treated as the current distribution.

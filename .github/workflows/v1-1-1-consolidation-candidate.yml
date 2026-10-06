@@ -1,0 +1,500 @@
+name: 1.1.1 Consolidation Candidate
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/v1-1-1-consolidation-candidate.yml
+      - pyproject.toml
+      - src/kodepoia/release/release_identity.json
+      - scripts/v2_6_1_acceptance.py
+      - scripts/v2_6_2_acceptance.py
+      - scripts/v2_6_3_acceptance.py
+      - scripts/build_windows_installer.ps1
+      - scripts/build_release_bundle.py
+      - scripts/generate_release_evidence.py
+      - scripts/r18_2_release_bundle_acceptance.py
+      - scripts/windows_authenticode.py
+      - tests/test_r18_release_identity.py
+      - tests/test_v2_6_1_terminal_release_freeze.py
+      - tests/test_v2_6_2_terminal_hardening.py
+      - tests/test_v2_6_3_terminal_candidate.py
+      - tests/test_v1_1_1_consolidation.py
+      - docs/continuity/STATE.md
+      - docs/continuity/NEXT.md
+      - docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md
+      - docs/release/V1_1_1_CONSOLIDATION.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-1-1-consolidation-candidate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-candidate:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      TERMINAL_V2_MAIN_SHA: 913aef2cf4673a2c8b8b7874204fe1b11edcf225
+      BASELINE_TAG: v1.1.0
+      BASELINE_SOURCE_SHA: 46ed800888b4f19da9e984232dd1ad6cdb639cc1
+      BASELINE_BYTES: "38834833"
+      BASELINE_SHA256: 8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef
+      TARGET_TAG: v1.1.1
+      TARGET_VERSION: 1.1.1
+      KODEPOIA_LOCALE: fr
+      QT_QPA_PLATFORM: offscreen
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout exact 1.1.1 source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Assert terminal V2 ancestry and release-only diff
+        shell: pwsh
+        run: |
+          $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
+          if ($actual -ne $env:EVIDENCE_SHA.ToLowerInvariant()) {
+            throw "Expected exact 1.1.1 source $env:EVIDENCE_SHA, got $actual"
+          }
+
+          git merge-base --is-ancestor $env:TERMINAL_V2_MAIN_SHA $env:EVIDENCE_SHA
+          if ($LASTEXITCODE -ne 0) {
+            throw "1.1.1 source does not descend from terminal V2 main"
+          }
+
+          $allowed = @(
+            ".github/workflows/v1-1-1-consolidation-candidate.yml",
+            "docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md",
+            "docs/continuity/NEXT.md",
+            "docs/continuity/STATE.md",
+            "docs/release/V1_1_1_CONSOLIDATION.md",
+            "pyproject.toml",
+            "scripts/v2_6_1_acceptance.py",
+            "scripts/v2_6_2_acceptance.py",
+            "scripts/v2_6_3_acceptance.py",
+            "src/kodepoia/release/release_identity.json",
+            "tests/test_r18_release_identity.py",
+            "tests/test_v1_1_1_consolidation.py",
+            "tests/test_v2_6_1_terminal_release_freeze.py",
+            "tests/test_v2_6_2_terminal_hardening.py",
+            "tests/test_v2_6_3_terminal_candidate.py"
+          )
+          $changed = @(git diff --name-only "$env:TERMINAL_V2_MAIN_SHA...$env:EVIDENCE_SHA")
+          $unexpected = @($changed | Where-Object { $_ -notin $allowed })
+          if ($unexpected.Count -gt 0) {
+            throw "Unexpected non-consolidation changes: $($unexpected -join ', ')"
+          }
+
+      - name: Install candidate build dependencies
+        run: python -m pip install -e ".[dev,ui,code,packaging]"
+
+      - name: Run focused 1.1.1 and historical compatibility tests
+        shell: pwsh
+        run: |
+          python -m pytest -q `
+            tests/test_r18_release_identity.py `
+            tests/test_v2_6_1_terminal_release_freeze.py `
+            tests/test_v2_6_2_terminal_hardening.py `
+            tests/test_v2_6_3_terminal_candidate.py `
+            tests/test_v1_1_1_consolidation.py
+
+      - name: Verify v1.1.1 public namespace is absent
+        shell: pwsh
+        run: |
+          gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/$env:TARGET_TAG" *> $null
+          if ($LASTEXITCODE -eq 0) {
+            throw "v1.1.1 tag already exists; refusing candidate reuse"
+          }
+          if ($LASTEXITCODE -ne 1) {
+            throw "Could not determine v1.1.1 tag state"
+          }
+          $global:LASTEXITCODE = 0
+
+          gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$env:TARGET_TAG" *> $null
+          if ($LASTEXITCODE -eq 0) {
+            throw "v1.1.1 Release already exists; refusing candidate reuse"
+          }
+          if ($LASTEXITCODE -ne 1) {
+            throw "Could not determine v1.1.1 Release state"
+          }
+          $global:LASTEXITCODE = 0
+
+      - name: Install Inno Setup 6
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Generate exact-source SPDX SBOM and provenance
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "artifacts/v1_1_1/evidence" | Out-Null
+          $created = (git show -s --format=%cI "$env:EVIDENCE_SHA").Trim()
+          python scripts/generate_release_evidence.py `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --output-dir "artifacts/v1_1_1/evidence" `
+            --repository "$env:GITHUB_REPOSITORY" `
+            --workflow-ref "$env:GITHUB_WORKFLOW_REF" `
+            --run-id "$env:GITHUB_RUN_ID" `
+            --run-attempt "$env:GITHUB_RUN_ATTEMPT" `
+            --created-at "$created" `
+            --optional-group ui `
+            --optional-group code
+
+      - name: Build 1.1.1 candidate one
+        shell: pwsh
+        run: |
+          ./scripts/build_windows_installer.ps1 -SourceSha "$env:EVIDENCE_SHA"
+          New-Item -ItemType Directory -Force -Path "artifacts/v1_1_1/build1" | Out-Null
+          Copy-Item "dist/windows/KodepoiaSetup.exe" "artifacts/v1_1_1/build1/KodepoiaSetup.exe"
+          Copy-Item "dist/windows/installer-manifest.json" "artifacts/v1_1_1/build1/installer-manifest.json"
+          python scripts/build_release_bundle.py `
+            --installer "artifacts/v1_1_1/build1/KodepoiaSetup.exe" `
+            --installer-manifest "artifacts/v1_1_1/build1/installer-manifest.json" `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --output-dir "artifacts/v1_1_1/bundle1" `
+            --repository "$env:GITHUB_REPOSITORY" `
+            --workflow-ref "$env:GITHUB_WORKFLOW_REF" `
+            --run-id "$env:GITHUB_RUN_ID" `
+            --run-attempt "$env:GITHUB_RUN_ATTEMPT" `
+            --sbom "artifacts/v1_1_1/evidence/release-sbom.spdx.json" `
+            --provenance "artifacts/v1_1_1/evidence/release-provenance.json"
+          $bundle = (Get-ChildItem "artifacts/v1_1_1/bundle1" -Filter "*.zip" | Select-Object -First 1).FullName
+          if (-not $bundle) { throw "1.1.1 candidate bundle one was not produced" }
+          "V111_BUNDLE_ONE=$bundle" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Inspect exact 1.1.1 Authenticode truth
+        shell: pwsh
+        run: |
+          python scripts/windows_authenticode.py `
+            --mode unsigned `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --subject "artifacts/v1_1_1/build1/KodepoiaSetup.exe" `
+            --output "artifacts/v1_1_1/signing.json"
+
+      - name: Build 1.1.1 candidate two
+        shell: pwsh
+        run: |
+          ./scripts/build_windows_installer.ps1 -SourceSha "$env:EVIDENCE_SHA"
+          New-Item -ItemType Directory -Force -Path "artifacts/v1_1_1/build2" | Out-Null
+          Copy-Item "dist/windows/KodepoiaSetup.exe" "artifacts/v1_1_1/build2/KodepoiaSetup.exe"
+          Copy-Item "dist/windows/installer-manifest.json" "artifacts/v1_1_1/build2/installer-manifest.json"
+          python scripts/build_release_bundle.py `
+            --installer "artifacts/v1_1_1/build2/KodepoiaSetup.exe" `
+            --installer-manifest "artifacts/v1_1_1/build2/installer-manifest.json" `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --output-dir "artifacts/v1_1_1/bundle2" `
+            --repository "$env:GITHUB_REPOSITORY" `
+            --workflow-ref "$env:GITHUB_WORKFLOW_REF" `
+            --run-id "$env:GITHUB_RUN_ID" `
+            --run-attempt "$env:GITHUB_RUN_ATTEMPT" `
+            --sbom "artifacts/v1_1_1/evidence/release-sbom.spdx.json" `
+            --provenance "artifacts/v1_1_1/evidence/release-provenance.json"
+          $bundle = (Get-ChildItem "artifacts/v1_1_1/bundle2" -Filter "*.zip" | Select-Object -First 1).FullName
+          if (-not $bundle) { throw "1.1.1 candidate bundle two was not produced" }
+          "V111_BUNDLE_TWO=$bundle" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Compare two exact-source 1.1.1 builds
+        shell: pwsh
+        run: |
+          python scripts/r18_2_release_bundle_acceptance.py `
+            --source-sha "$env:EVIDENCE_SHA" `
+            --bundle-one "$env:V111_BUNDLE_ONE" `
+            --bundle-two "$env:V111_BUNDLE_TWO" `
+            --output "artifacts/v1_1_1/two-build.json"
+          $report = Get-Content "artifacts/v1_1_1/two-build.json" -Raw | ConvertFrom-Json
+          if ($report.status -ne "PASS") { throw "1.1.1 two-build comparison failed" }
+
+      - name: Stage immutable 1.1.1 release description
+        shell: python
+        run: |
+          import json
+          import os
+          from pathlib import Path
+
+          from kodepoia.release.bundle import verify_bundle_archive
+          from kodepoia.release.promotion import stage_release_archive
+
+          bundle = Path(os.environ["V111_BUNDLE_ONE"])
+          verified = verify_bundle_archive(bundle, expected_source_sha=os.environ["EVIDENCE_SHA"])
+          attestation = {
+              "schema_version": 1,
+              "provider": "github-artifact-attestations",
+              "semantics": "provenance_only_not_security_verdict",
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "source_sha": os.environ["EVIDENCE_SHA"].lower(),
+              "verified": True,
+              "verification_mode": "synthetic-offline",
+              "subjects": [{
+                  "name": bundle.name,
+                  "sha256": verified["archive_sha256"],
+                  "size": verified["archive_size"],
+              }],
+          }
+          signing = json.loads(Path("artifacts/v1_1_1/signing.json").read_text(encoding="utf-8"))
+          staged = stage_release_archive(
+              archive_path=bundle,
+              source_sha=os.environ["EVIDENCE_SHA"],
+              repository=os.environ["GITHUB_REPOSITORY"],
+              signing_evidence=signing,
+              attestation_receipt=attestation,
+              tag_state={
+                  "tag": "v1.1.1",
+                  "tag_exists": False,
+                  "release_exists": False,
+                  "immutable_release_capability": "not-mutated-in-candidate",
+              },
+          )
+          if staged["tag"] != "v1.1.1":
+              raise SystemExit("staged tag mismatch")
+          if staged["github_release"]["target_commitish"] != os.environ["EVIDENCE_SHA"]:
+              raise SystemExit("staged source mismatch")
+          if staged["github_release"]["publication_triggered"]:
+              raise SystemExit("candidate unexpectedly triggered publication")
+          Path("artifacts/v1_1_1/staged-release.json").write_text(
+              json.dumps(staged, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+
+      - name: Clean install, packaged smoke and uninstall
+        shell: pwsh
+        run: |
+          $setup = (Resolve-Path "artifacts/v1_1_1/build1/KodepoiaSetup.exe").Path
+          $installDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v111-candidate"
+          $smokeDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v111-smoke"
+          $smokeReport = Join-Path $env:RUNNER_TEMP "kodepoia-v111-smoke.txt"
+          Remove-Item $installDir -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $smokeDir -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $smokeReport -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path $smokeDir | Out-Null
+
+          $install = Start-Process -FilePath $setup -ArgumentList @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/MERGETASKS=!desktopicon",
+            "/DIR=$installDir"
+          ) -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "1.1.1 candidate install failed: $($install.ExitCode)" }
+
+          $exe = Join-Path $installDir "KodepoiaStudio.exe"
+          $uninstaller = Join-Path $installDir "unins000.exe"
+          if (-not (Test-Path $exe)) { throw "Installed 1.1.1 executable missing" }
+          if (-not (Test-Path $uninstaller)) { throw "1.1.1 uninstaller missing" }
+
+          $originalPath = $env:PATH
+          $originalPythonHome = $env:PYTHONHOME
+          $originalPythonPath = $env:PYTHONPATH
+          $env:PATH = @(
+            (Join-Path $env:SystemRoot "System32"),
+            $env:SystemRoot,
+            (Join-Path $env:SystemRoot "System32\Wbem")
+          ) -join ";"
+          $env:PYTHONHOME = $null
+          $env:PYTHONPATH = $null
+          try {
+            if (Get-Command python.exe -ErrorAction SilentlyContinue) {
+              throw "Developer Python is visible during 1.1.1 packaged smoke"
+            }
+            if (Get-Command pip.exe -ErrorAction SilentlyContinue) {
+              throw "Developer pip is visible during 1.1.1 packaged smoke"
+            }
+            $smoke = Start-Process -FilePath $exe -ArgumentList @(
+              "--smoke-test",
+              "--smoke-report=$smokeReport"
+            ) -WorkingDirectory $smokeDir -Wait -PassThru
+            if ($smoke.ExitCode -ne 0) {
+              if (Test-Path $smokeReport) { Get-Content $smokeReport }
+              throw "1.1.1 packaged smoke failed: $($smoke.ExitCode)"
+            }
+          }
+          finally {
+            $env:PATH = $originalPath
+            $env:PYTHONHOME = $originalPythonHome
+            $env:PYTHONPATH = $originalPythonPath
+          }
+
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART"
+          ) -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "1.1.1 uninstall failed: $($uninstall.ExitCode)" }
+          for ($attempt = 0; $attempt -lt 40 -and (Test-Path $exe); $attempt++) {
+            Start-Sleep -Milliseconds 250
+          }
+          if (Test-Path $exe) { throw "1.1.1 executable remains after uninstall" }
+
+          @{
+            source_sha = $env:EVIDENCE_SHA.ToLowerInvariant()
+            clean_install_smoke = $true
+            clean_uninstall = $true
+            project_data_mutation = $false
+            public_release_effect = $false
+            production_tuf_mutation = $false
+          } | ConvertTo-Json -Depth 4 |
+            Set-Content -Encoding UTF8 "artifacts/v1_1_1/windows.json"
+
+      - name: Emit 1.1.1 consolidation candidate evidence
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          from kodepoia.release import CURRENT_RELEASE
+          from kodepoia.release.bundle import verify_bundle_archive
+
+          source = os.environ["EVIDENCE_SHA"].lower()
+          installer = Path("artifacts/v1_1_1/build1/KodepoiaSetup.exe")
+          manifest = json.loads(
+              Path("artifacts/v1_1_1/build1/installer-manifest.json").read_text(
+                  encoding="utf-8-sig"
+              )
+          )
+          two_build = json.loads(
+              Path("artifacts/v1_1_1/two-build.json").read_text(encoding="utf-8-sig")
+          )
+          signing = json.loads(
+              Path("artifacts/v1_1_1/signing.json").read_text(encoding="utf-8-sig")
+          )
+          windows = json.loads(
+              Path("artifacts/v1_1_1/windows.json").read_text(encoding="utf-8-sig")
+          )
+          staged = json.loads(
+              Path("artifacts/v1_1_1/staged-release.json").read_text(encoding="utf-8-sig")
+          )
+          bundle = verify_bundle_archive(
+              Path(os.environ["V111_BUNDLE_ONE"]),
+              expected_source_sha=source,
+          )
+
+          metadata = Path("update-repository/metadata")
+          root = json.loads((metadata / "root.json").read_text())
+          targets = json.loads((metadata / "targets.json").read_text())
+          snapshot = json.loads((metadata / "snapshot.json").read_text())
+          timestamp = json.loads((metadata / "timestamp.json").read_text())
+
+          installer_bytes = installer.stat().st_size
+          installer_sha256 = hashlib.sha256(installer.read_bytes()).hexdigest()
+
+          checks = {
+              "exact_source_identity": (
+                  CURRENT_RELEASE.public_version == "1.1.1"
+                  and CURRENT_RELEASE.pep440_version == "1.1.1"
+                  and CURRENT_RELEASE.channel == "stable"
+                  and CURRENT_RELEASE.build_type == "release"
+              ),
+              "installer_manifest_exact_source": (
+                  manifest["source_sha"] == source
+                  and manifest["public_version"] == "1.1.1"
+                  and manifest["pep440_version"] == "1.1.1"
+                  and manifest["installer_version"] == "1.1.1"
+                  and manifest["sha256"] == installer_sha256
+                  and manifest["production_signed"] is False
+              ),
+              "bundle_exact_source": (
+                  bundle["manifest"]["source_sha"] == source
+                  and bundle["manifest"]["release_identity"]["public_version"] == "1.1.1"
+              ),
+              "two_build_semantic_equivalence": (
+                  two_build["status"] == "PASS"
+                  and two_build["source_sha"] == source
+                  and two_build["semantic_equivalent"] is True
+              ),
+              "unsigned_authenticode_truth": (
+                  signing["source_sha"] == source
+                  and signing["mode"] == "unsigned"
+                  and signing["production_signed"] is False
+                  and signing["public_trust_claim"] is False
+              ),
+              "staged_release_non_publishing": (
+                  staged["state"] == "staged"
+                  and staged["source_sha"] == source
+                  and staged["tag"] == "v1.1.1"
+                  and staged["github_release"]["draft"] is True
+                  and staged["github_release"]["publication_triggered"] is False
+              ),
+              "clean_install_smoke_uninstall": (
+                  windows["source_sha"] == source
+                  and windows["clean_install_smoke"] is True
+                  and windows["clean_uninstall"] is True
+              ),
+              "prepublication_tuf_unchanged": (
+                  root["signed"]["version"] == 2
+                  and targets["signed"]["version"] == 9
+                  and snapshot["signed"]["version"] == 11
+                  and timestamp["signed"]["version"] == 11
+                  and not any(
+                      path.startswith("channels/stable/windows-x86_64/1.1.1/")
+                      for path in targets["signed"]["targets"]
+                  )
+              ),
+          }
+          failed = [name for name, passed in checks.items() if not passed]
+          evidence = {
+              "schema_version": 1,
+              "release": "1.1.1",
+              "status": "PASS" if not failed else "FAIL",
+              "source_sha": source,
+              "terminal_v2_main_sha": os.environ["TERMINAL_V2_MAIN_SHA"],
+              "baseline": {
+                  "tag": os.environ["BASELINE_TAG"],
+                  "source_sha": os.environ["BASELINE_SOURCE_SHA"],
+                  "installer_bytes": int(os.environ["BASELINE_BYTES"]),
+                  "installer_sha256": os.environ["BASELINE_SHA256"],
+              },
+              "candidate": {
+                  "tag": os.environ["TARGET_TAG"],
+                  "installer": "KodepoiaSetup.exe",
+                  "installer_bytes": installer_bytes,
+                  "installer_sha256": installer_sha256,
+                  "bundle_sha256": bundle["archive_sha256"],
+                  "bundle_bytes": bundle["archive_size"],
+                  "semantic_sha256": bundle["manifest"]["semantic_sha256"],
+              },
+              "checks": checks,
+              "summary": {
+                  "passed": len(checks) - len(failed),
+                  "total": len(checks),
+                  "failed": failed,
+              },
+              "critical_veto": bool(failed),
+              "go_no_go": "GO" if not failed else "NO-GO",
+              "public_release_triggered": False,
+              "public_tag_triggered": False,
+              "public_asset_upload_triggered": False,
+              "production_tuf_mutation_triggered": False,
+              "signing_secret_provisioned": False,
+              "winget_submission_triggered": False,
+          }
+          canonical = json.dumps(evidence, sort_keys=True, separators=(",", ":"))
+          evidence["evidence_sha256"] = hashlib.sha256(canonical.encode()).hexdigest()
+          Path("artifacts/v1_1_1/V1_1_1_CONSOLIDATION_CANDIDATE.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(evidence, indent=2, sort_keys=True))
+          if failed:
+              raise SystemExit("1.1.1 candidate failed: " + ", ".join(failed))
+
+      - name: Upload 1.1.1 consolidation candidate evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v1-1-1-consolidation-candidate-${{ env.EVIDENCE_SHA }}
+          path: artifacts/v1_1_1
+          if-no-files-found: error
+          retention-days: 30

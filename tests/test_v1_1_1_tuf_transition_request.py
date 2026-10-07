@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUEST = ROOT / "docs" / "release" / "V1_1_1_TUF_TRANSITION_REQUEST.json"
+PRETRANSITION = ROOT / "docs" / "release" / "evidence" / "V1_1_1_PRETRANSITION_METADATA"
 
 
 def _load_json(path: Path) -> dict:
@@ -37,13 +38,13 @@ def test_v111_transition_request_binds_qualified_candidate() -> None:
     assert candidate["production_signed"] is False
 
 
-def test_v111_transition_request_matches_current_tuf_generation() -> None:
+def test_v111_transition_request_matches_frozen_pretransition_tuf_generation() -> None:
     request = _load_json(REQUEST)
     current = request["current_tuf"]
-    root = _load_json(ROOT / "update-repository" / "metadata" / "root.json")
-    targets = _load_json(ROOT / "update-repository" / "metadata" / "targets.json")
-    snapshot = _load_json(ROOT / "update-repository" / "metadata" / "snapshot.json")
-    timestamp = _load_json(ROOT / "update-repository" / "metadata" / "timestamp.json")
+    root = _load_json(PRETRANSITION / "root.json")
+    targets = _load_json(PRETRANSITION / "targets.json")
+    snapshot = _load_json(PRETRANSITION / "snapshot.json")
+    timestamp = _load_json(PRETRANSITION / "timestamp.json")
 
     assert root["signed"]["version"] == current["root_version"] == 2
     assert targets["signed"]["version"] == current["targets_version"] == 9

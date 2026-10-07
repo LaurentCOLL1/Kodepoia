@@ -122,3 +122,21 @@ The next legitimate effect is the protected `Kodepoia 1.1.1 Online Metadata Tran
 workflow on an unchanged `main`. It may generate Snapshot v12 and Timestamp v12 around this
 exact Targets v10 using the existing `tuf-production-signing` environment, but it remains
 read-only and must not mutate production metadata or create the public 1.1.1 Release.
+
+
+## Pre-transition production TUF freeze — HISTORICAL EVIDENCE
+
+Before applying the accepted 1.1.1 metadata generation, the exact current production predecessor
+was frozen under `docs/release/evidence/V1_1_1_PRETRANSITION_METADATA/`:
+
+- Root v2;
+- Targets v9;
+- Snapshot v11;
+- Timestamp v11.
+
+This freeze is historical evidence only. It allows the already-accepted V2.6.6 public-release
+tests and the 1.1.1 transition/request tests to retain their original pre-transition semantics
+after live production metadata advances to Targets v10 / Snapshot v12 / Timestamp v12.
+
+This prerequisite does not mutate `update-repository/metadata`, does not publish v1.1.1,
+does not create or move a tag, and does not consume or expose signing material.

@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "v1_1_1_online_metadata_transition.py"
 STAGED = ROOT / "docs" / "release" / "evidence" / "V1_1_1_TARGETS_V10.json"
 WORKFLOW = ROOT / ".github" / "workflows" / "v1-1-1-online-metadata-transition.yml"
+PRETRANSITION = ROOT / "docs" / "release" / "evidence" / "V1_1_1_PRETRANSITION_METADATA"
 
 SCRIPTS = ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
@@ -35,7 +36,7 @@ def test_v111_operator_targets_v10_is_exact_and_authorized() -> None:
     )
     assert hashlib.sha256(blob).hexdigest() == module.EXPECTED_TARGETS_SHA256
 
-    current = ceremony._load_current_metadata(ROOT / "update-repository" / "metadata")
+    current = ceremony._load_current_metadata(PRETRANSITION)
     report = ceremony.Report()
     root_md, targets_md, _, _ = ceremony._verify_current_state(
         current,

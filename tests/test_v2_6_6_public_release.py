@@ -5,9 +5,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ROOT / ".github" / "workflows" / "v2-6-6-public-release.yml"
-TARGETS = ROOT / "update-repository" / "metadata" / "targets.json"
-SNAPSHOT = ROOT / "update-repository" / "metadata" / "snapshot.json"
-TIMESTAMP = ROOT / "update-repository" / "metadata" / "timestamp.json"
+PRETRANSITION = ROOT / "docs" / "release" / "evidence" / "V1_1_1_PRETRANSITION_METADATA"
+TARGETS = PRETRANSITION / "targets.json"
+SNAPSHOT = PRETRANSITION / "snapshot.json"
+TIMESTAMP = PRETRANSITION / "timestamp.json"
 
 CANDIDATE_SHA = "46ed800888b4f19da9e984232dd1ad6cdb639cc1"
 CANDIDATE_SHA256 = "8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef"
@@ -18,7 +19,7 @@ STABLE_TARGET = (
 )
 
 
-def test_v266_publication_inputs_match_live_tuf_transition() -> None:
+def test_v266_publication_inputs_match_frozen_tuf_transition() -> None:
     targets = json.loads(TARGETS.read_text(encoding="utf-8"))
     snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     timestamp = json.loads(TIMESTAMP.read_text(encoding="utf-8"))

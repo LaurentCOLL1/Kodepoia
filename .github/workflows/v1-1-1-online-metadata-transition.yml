@@ -1,0 +1,113 @@
+name: Kodepoia 1.1.1 Online Metadata Transition
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-1-1-online-metadata-transition
+  cancel-in-progress: false
+
+jobs:
+  sign-online-metadata:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: tuf-production-signing
+    permissions:
+      contents: read
+    env:
+      BASE_SHA: ${{ github.sha }}
+      GH_TOKEN: ${{ github.token }}
+      TUF_SNAPSHOT_ED25519_SEED_B64: ${{ secrets.TUF_SNAPSHOT_ED25519_SEED_B64 }}
+      TUF_TIMESTAMP_ED25519_SEED_B64: ${{ secrets.TUF_TIMESTAMP_ED25519_SEED_B64 }}
+    steps:
+      - name: Checkout exact trigger source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.BASE_SHA }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Require trigger to equal unchanged main
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_main="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          if [[ "$current_main" != "$BASE_SHA" ]]; then
+            echo "main advanced from trigger source $BASE_SHA to $current_main" >&2
+            exit 1
+          fi
+
+      - name: Require stable 1.1.0 baseline and absent 1.1.1 namespace
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v1.1.0" --jq '.object.sha')"
+          if [[ "$tag_sha" != "46ed800888b4f19da9e984232dd1ad6cdb639cc1" ]]; then
+            echo "v1.1.0 tag source drift: $tag_sha" >&2
+            exit 1
+          fi
+          release_id="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v1.1.0" --jq '.id')"
+          if [[ "$release_id" != "404195689" ]]; then
+            echo "v1.1.0 release identity drift: $release_id" >&2
+            exit 1
+          fi
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/v1.1.1" >/dev/null 2>&1; then
+            echo "v1.1.1 tag already exists; refusing conflicting transition" >&2
+            exit 1
+          fi
+          if gh api "repos/$GITHUB_REPOSITORY/releases/tags/v1.1.1" >/dev/null 2>&1; then
+            echo "v1.1.1 Release already exists; refusing conflicting transition" >&2
+            exit 1
+          fi
+
+      - name: Install focused dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Restore exact tracked source
+        shell: bash
+        run: |
+          git reset --hard "$BASE_SHA"
+          test -z "$(git status --porcelain --untracked-files=no)"
+
+      - name: Generate signed Snapshot and Timestamp v12 around accepted Targets v10
+        run: >-
+          python scripts/v1_1_1_online_metadata_transition.py
+          --source-sha "$BASE_SHA"
+          --staged-targets docs/release/evidence/V1_1_1_TARGETS_V10.json
+          --output-dir artifacts/v1_1_1/production-metadata
+          --report artifacts/v1_1_1/online-transition-report.json
+
+      - name: Require coherent v10 v12 v12 output and no live mutation
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          report = json.loads(Path("artifacts/v1_1_1/online-transition-report.json").read_text())
+          assert report["status"] == "PASS"
+          assert report["release"] == "1.1.1"
+          assert report["release_source_sha"] == "aa1c80389b10f5ef44737241bf192c04f847e4ec"
+          assert report["targets_version"] == 10
+          assert report["snapshot_version"] == 12
+          assert report["timestamp_version"] == 12
+          assert report["targets_sha256"] == "94107eb8bba745603eb27dc04c2060796c15d3977bd1a68abb3cb1bf74c7148e"
+          assert report["production_metadata_mutated"] is False
+          assert report["public_release_created"] is False
+          assert report["secret_values_emitted"] is False
+          assert report["private_material_in_output"] is False
+          assert report["winget_submission"] is False
+
+      - name: Upload 1.1.1 online signing evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v1-1-1-online-metadata-${{ env.BASE_SHA }}
+          path: artifacts/v1_1_1
+          if-no-files-found: error
+          retention-days: 30

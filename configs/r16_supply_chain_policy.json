@@ -96,6 +96,7 @@
       ".github/workflows/r20-5-expiry-monitoring.yml",
       ".github/workflows/r20-6-continuous-operations-acceptance.yml",
       ".github/workflows/ui-smoke.yml",
+      ".github/workflows/v1-1-1-online-metadata-transition.yml",
       ".github/workflows/v1-1-1-v2-consolidation-candidate.yml",
       ".github/workflows/v2-6-3-terminal-candidate.yml",
       ".github/workflows/v2-6-4-tuf-transition-staging.yml",

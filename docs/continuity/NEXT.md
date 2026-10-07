@@ -848,3 +848,31 @@ No 1.1.1 public release exists yet. Production TUF remains Root v2 / Targets v9 
 Snapshot v11 / Timestamp v11. The next effect boundary is the operator-held offline Targets
 ceremony; no private key or passphrase may be pasted into chat, committed, uploaded, or emitted
 by CI.
+
+
+## Offline Targets v10 qualified — online Snapshot/Timestamp v12 next
+
+The operator-held Targets custody ceremony completed successfully on 2026-10-07 using the
+already-authorized Targets role. The accepted public-only outputs are frozen under
+`docs/release/evidence/V1_1_1_TARGETS_V10.json`,
+`V1_1_1_TARGETS_V10_CEREMONY_REPORT.json` and
+`V1_1_1_TARGETS_V10_CEREMONY_SUMMARY.txt`.
+
+Accepted offline transition truth:
+
+- release source: `aa1c80389b10f5ef44737241bf192c04f847e4ec`;
+- installer: 38,880,869 bytes;
+- installer SHA-256: `c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd`;
+- Targets v9 -> v10;
+- Targets v10 SHA-256: `94107eb8bba745603eb27dc04c2060796c15d3977bd1a68abb3cb1bf74c7148e`;
+- Targets v10 length: `5902`;
+- all historical targets preserved; exactly one stable 1.1.1 target added;
+- Targets signature threshold satisfied by an already-authorized signer;
+- Authenticode policy remains `allow-unsigned`;
+- no private key path, private material, passphrase or secret value is recorded;
+- `applied=false`, `offline_targets_only=true`, `online_metadata_generated=false`.
+
+The next legitimate effect is the protected `Kodepoia 1.1.1 Online Metadata Transition`
+workflow on an unchanged `main`. It may generate Snapshot v12 and Timestamp v12 around this
+exact Targets v10 using the existing `tuf-production-signing` environment, but it remains
+read-only and must not mutate production metadata or create the public 1.1.1 Release.

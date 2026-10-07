@@ -28,6 +28,17 @@ def _module():
     return module
 
 
+def _tracked_pretransition_metadata() -> dict[str, bytes]:
+    base = "docs/release/evidence/V1_1_1_PRETRANSITION_METADATA"
+    return {
+        name: subprocess.check_output(
+            ["git", "show", f"HEAD:{base}/{name}"],
+            cwd=ROOT,
+        )
+        for name in ("root.json", "targets.json", "snapshot.json", "timestamp.json")
+    }
+
+
 def test_v111_operator_targets_v10_is_exact_and_authorized() -> None:
     module = _module()
     blob = subprocess.check_output(
@@ -36,7 +47,7 @@ def test_v111_operator_targets_v10_is_exact_and_authorized() -> None:
     )
     assert hashlib.sha256(blob).hexdigest() == module.EXPECTED_TARGETS_SHA256
 
-    current = ceremony._load_current_metadata(PRETRANSITION)
+    current = _tracked_pretransition_metadata()
     report = ceremony.Report()
     root_md, targets_md, _, _ = ceremony._verify_current_state(
         current,

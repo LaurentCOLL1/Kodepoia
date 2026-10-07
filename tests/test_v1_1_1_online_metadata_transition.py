@@ -46,7 +46,7 @@ def test_v111_operator_targets_v10_is_exact_and_authorized() -> None:
         root=root_md.signed,
         current_targets=targets_md,
         current_bytes=current["targets.json"],
-        staged_bytes=STAGED.read_bytes(),
+        staged_bytes=blob,
         report=report,
     )
     assert staged.signed.version == 10

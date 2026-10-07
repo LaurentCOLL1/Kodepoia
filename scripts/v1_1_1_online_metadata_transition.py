@@ -58,6 +58,18 @@ def _exact_head(expected: str, root: Path) -> None:
         raise SystemExit(f"exact-source mismatch: expected {expected}, got {actual}")
 
 
+def _tracked_blob_bytes(root: Path, path: Path) -> bytes:
+    resolved = path.resolve()
+    try:
+        relative = resolved.relative_to(root.resolve())
+    except ValueError as exc:
+        raise SystemExit("staged Targets must be a tracked repository file") from exc
+    return subprocess.check_output(
+        ["git", "show", f"HEAD:{relative.as_posix()}"],
+        cwd=root,
+    )
+
+
 def validate_staged_targets(*, root, current_targets, current_bytes: bytes, staged_bytes: bytes, report):
     if current_targets.signed.version != CURRENT_TARGETS_VERSION:
         raise ceremony.CeremonyError(
@@ -151,7 +163,7 @@ def main() -> int:
     if timestamp_md.signed.version != CURRENT_TIMESTAMP_VERSION:
         raise SystemExit("unexpected current Timestamp version")
 
-    staged_bytes = args.staged_targets.read_bytes()
+    staged_bytes = _tracked_blob_bytes(root_dir, args.staged_targets)
     staged_targets = validate_staged_targets(
         root=root_md.signed,
         current_targets=targets_md,

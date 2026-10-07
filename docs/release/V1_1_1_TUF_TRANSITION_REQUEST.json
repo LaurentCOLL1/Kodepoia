@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "release": "1.1.1",
+  "kind": "tuf-transition-request",
+  "candidate": {
+    "source_sha": "aa1c80389b10f5ef44737241bf192c04f847e4ec",
+    "workflow_run_id": 37536813744,
+    "artifact_id": 11448467632,
+    "artifact_name": "v1-1-1-consolidation-aa1c80389b10f5ef44737241bf192c04f847e4ec",
+    "candidate_evidence_sha256": "19a1fb1e73693f64cae7d1571c529b3f35625046ac4210375ad23ed2ac2b0d97",
+    "installer_name": "KodepoiaSetup.exe",
+    "installer_bytes": 38880869,
+    "installer_sha256": "c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd",
+    "authenticode_policy": "allow-unsigned",
+    "production_signed": false
+  },
+  "current_tuf": {
+    "root_version": 2,
+    "targets_version": 9,
+    "snapshot_version": 11,
+    "timestamp_version": 11,
+    "targets_sha256": "76bdee21278f1a2b5efada1c1d568277f766ef0ed364bd512814611e3169a275",
+    "targets_length": 5206,
+    "snapshot_sha256": "66197e6708f359cb554d7d66f48fa7b42543a1b0297e80da4b402fc95a44cfff",
+    "snapshot_length": 470,
+    "root_expires": "2027-09-08T14:59:19Z",
+    "targets_expires": "2027-09-12T20:49:31Z",
+    "snapshot_expires": "2026-10-08T13:40:24Z",
+    "timestamp_expires": "2026-10-07T13:40:24Z"
+  },
+  "requested_transition": {
+    "channel": "stable",
+    "platform": "windows-x86_64",
+    "public_version": "1.1.1",
+    "target_path": "channels/stable/windows-x86_64/1.1.1/aa1c80389b10f5ef44737241bf192c04f847e4ec/KodepoiaSetup.exe",
+    "payload_url": "https://github.com/LaurentCOLL1/Kodepoia/releases/download/v1.1.1/KodepoiaSetup.exe",
+    "release_notes_summary": "Kodepoia 1.1.1 stable V2 terminal consolidation release.",
+    "expected_targets_version": 10,
+    "expected_snapshot_version": 12,
+    "expected_timestamp_version": 12,
+    "preserve_all_prior_targets": true,
+    "offline_targets_custody_required": true,
+    "online_snapshot_timestamp_environment": "tuf-production-signing",
+    "public_release_before_metadata": false,
+    "winget_submission": false
+  },
+  "safety": {
+    "private_keys_in_request": false,
+    "passphrases_in_request": false,
+    "secret_values_in_request": false,
+    "candidate_rebuild_allowed": false,
+    "tag_repoint_allowed": false,
+    "asset_substitution_allowed": false
+  },
+  "request_sha256": "03f9225ae1529b1816f3e745f7c6a4f2e84400c7570f4c3ff02172102e857abe"
+}

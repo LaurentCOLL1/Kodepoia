@@ -1,0 +1,62 @@
+{
+  "automatic_fixes": [],
+  "checks": [
+    {
+      "detail": "aa1c80389b10f5ef44737241bf192c04f847e4ec declares 1.1.1",
+      "name": "source-identity",
+      "status": "pass"
+    },
+    {
+      "detail": "Root v2, Targets v9, Snapshot v11, Timestamp v11",
+      "name": "current-tuf-chain",
+      "status": "pass"
+    },
+    {
+      "detail": "KodepoiaSetup.exe: 38880869 bytes, sha256=c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd",
+      "name": "asset-identity",
+      "status": "pass"
+    },
+    {
+      "detail": "resolved 1 authorized Targets signer(s); private paths not recorded",
+      "name": "targets-signers",
+      "status": "pass"
+    },
+    {
+      "detail": "Targets v9 -> v10; prior targets preserved; one target added",
+      "name": "targets-transition",
+      "status": "pass"
+    },
+    {
+      "detail": "target policy=allow-unsigned",
+      "name": "authenticode-policy",
+      "status": "pass"
+    }
+  ],
+  "errors_encountered": [],
+  "format": "kodepoia-tuf-release-ceremony",
+  "generation": {
+    "applied": false,
+    "asset_name": "KodepoiaSetup.exe",
+    "asset_sha256": "c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd",
+    "asset_size": 38880869,
+    "authenticode_policy": "allow-unsigned",
+    "offline_targets_only": true,
+    "online_metadata_generated": false,
+    "payload_url": "https://github.com/LaurentCOLL1/Kodepoia/releases/download/v1.1.1/KodepoiaSetup.exe",
+    "public_version": "1.1.1",
+    "root_sha256": "c92b2165bcbf39f74599fbdf8cc30e203f8c93cc2f24c5c74012821646850ee7",
+    "root_version": 2,
+    "source_sha": "aa1c80389b10f5ef44737241bf192c04f847e4ec",
+    "target_path": "channels/stable/windows-x86_64/1.1.1/aa1c80389b10f5ef44737241bf192c04f847e4ec/KodepoiaSetup.exe",
+    "targets_length": 5902,
+    "targets_previous_version": 9,
+    "targets_sha256": "94107eb8bba745603eb27dc04c2060796c15d3977bd1a68abb3cb1bf74c7148e",
+    "targets_version": 10
+  },
+  "private_key_paths_in_report": false,
+  "private_material_in_report": false,
+  "reference_time": "2026-10-07T14:01:02Z",
+  "schema_version": 1,
+  "secret_values_emitted": false,
+  "status": "SUCCESS"
+}

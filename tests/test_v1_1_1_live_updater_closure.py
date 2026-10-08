@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
+import tomllib
 
 from kodepoia.release.identity import CURRENT_RELEASE
 
@@ -85,3 +86,8 @@ def test_v111_closed_fail_guards_reject_stale_tuf_versions() -> None:
     assert '"public_network_proof": True' in source
     assert '"production_metadata_mutated": False' in source
     assert '"public_release_mutated": False' in source
+
+def test_windows_ui_dependency_stays_on_qualified_qt_series() -> None:
+    """The 1.1.1 CI baseline passed on PySide6 6.11.2, not 6.12.0."""
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    assert "PySide6>=6.10,<6.12" in pyproject["project"]["optional-dependencies"]["ui"]

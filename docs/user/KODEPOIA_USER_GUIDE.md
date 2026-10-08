@@ -1,6 +1,6 @@
 # Guide d’utilisation de Kodepoia
 
-> Guide utilisateur de référence pour Kodepoia / KodeStudio. La release publique Windows actuellement validée reste `v1.1.0-rc8`. Les fonctions **Ouvrir un projet existant**, **Projets récents** et le **gestionnaire graphique de modèles Ollama** décrites ici sont introduites après rc8 dans le code source et seront disponibles dans la première build/release qui intégrera cette évolution.
+> Guide utilisateur de Kodepoia / KodeStudio. La version stable publique est désormais **[v1.1.1](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.1)**. Les fonctions de reprise de projets, d'historique récent et de gestion graphique des modèles Ollama sont décrites sous réserve des dépendances et capacités réellement présentes dans l'installation. Le test live de l'updater installé **1.1.0 → 1.1.1** reste à qualifier avant clôture de cette release.
 
 ## 1. À quoi sert Kodepoia ?
 
@@ -10,7 +10,7 @@ Kodepoia n’accorde pas un accès libre au système à un modèle. Les opérati
 
 ## 2. Installation sous Windows
 
-La release publique beta de référence est `v1.1.0-rc8`.
+La release Windows stable recommandée est **`v1.1.1`** (la beta `v1.1.0-rc8` est historique). Télécharger uniquement le fichier `KodepoiaSetup.exe` depuis [la Release 1.1.1](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.1). Sa taille est de **38 880 869 octets** et son SHA-256 est `c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd`.
 
 1. Télécharger `KodepoiaSetup.exe` depuis la release GitHub officielle de Kodepoia.
 2. Facultatif mais recommandé : vérifier le SHA-256 indiqué dans le README de la release.
@@ -18,7 +18,7 @@ La release publique beta de référence est `v1.1.0-rc8`.
 4. Choisir le **lecteur et le dossier d’installation** voulus.
 5. Terminer l’installation puis lancer Kodepoia depuis le menu Démarrer ou le raccourci Bureau.
 
-La build rc8 est une prerelease/beta et son installateur n’est pas signé avec un certificat de production. Windows peut donc afficher un avertissement de réputation ou de signature.
+L'installateur stable 1.1.1 reste **non signé avec un certificat Authenticode de production** (`production_signed=false`) ; Windows peut afficher un avertissement de réputation ou de signature. La politique TUF `allow-unsigned` est limitée à la cible exacte vérifiée. Vérifier la provenance et le SHA-256, sans supposer une signature inexistante.
 
 L’exécutable Windows embarque son runtime : Python et `pip` ne sont pas nécessaires pour l’utilisation normale de l’application installée.
 

@@ -37,27 +37,65 @@ def test_v111_transition_request_binds_qualified_candidate() -> None:
     assert candidate["production_signed"] is False
 
 
-def test_v111_transition_request_matches_current_tuf_generation() -> None:
+def test_v111_transition_request_records_pretransition_tuf_generation() -> None:
     request = _load_json(REQUEST)
     current = request["current_tuf"]
-    root = _load_json(ROOT / "update-repository" / "metadata" / "root.json")
-    targets = _load_json(ROOT / "update-repository" / "metadata" / "targets.json")
-    snapshot = _load_json(ROOT / "update-repository" / "metadata" / "snapshot.json")
-    timestamp = _load_json(ROOT / "update-repository" / "metadata" / "timestamp.json")
 
-    assert root["signed"]["version"] == current["root_version"] == 2
-    assert targets["signed"]["version"] == current["targets_version"] == 9
-    assert snapshot["signed"]["version"] == current["snapshot_version"] == 11
-    assert timestamp["signed"]["version"] == current["timestamp_version"] == 11
+    assert current["root_version"] == 2
+    assert current["targets_version"] == 9
+    assert current["snapshot_version"] == 11
+    assert current["timestamp_version"] == 11
+    assert current["targets_sha256"] == (
+        "76bdee21278f1a2b5efada1c1d568277f766ef0ed364bd512814611e3169a275"
+    )
+    assert current["targets_length"] == 5206
+    assert current["snapshot_sha256"] == (
+        "66197e6708f359cb554d7d66f48fa7b42543a1b0297e80da4b402fc95a44cfff"
+    )
+    assert current["snapshot_length"] == 470
 
+
+def test_v111_target_is_preserved_in_active_production_metadata() -> None:
+    request = _load_json(REQUEST)
+    current = request["current_tuf"]
+    transition = request["requested_transition"]
+    candidate = request["candidate"]
+
+    root_path = ROOT / "update-repository" / "metadata" / "root.json"
+    targets_path = ROOT / "update-repository" / "metadata" / "targets.json"
+    snapshot_path = ROOT / "update-repository" / "metadata" / "snapshot.json"
+    timestamp_path = ROOT / "update-repository" / "metadata" / "timestamp.json"
+
+    root = _load_json(root_path)
+    targets = _load_json(targets_path)
+    snapshot = _load_json(snapshot_path)
+    timestamp = _load_json(timestamp_path)
+
+    assert root["signed"]["version"] >= current["root_version"]
+    assert targets["signed"]["version"] >= transition["expected_targets_version"]
+    assert snapshot["signed"]["version"] >= transition["expected_snapshot_version"]
+    assert timestamp["signed"]["version"] >= transition["expected_timestamp_version"]
+
+    target = targets["signed"]["targets"][transition["target_path"]]
+    assert target["length"] == candidate["installer_bytes"]
+    assert target["hashes"]["sha256"] == candidate["installer_sha256"]
+    assert target["custom"]["source_sha"] == candidate["source_sha"]
+    assert target["custom"]["public_version"] == transition["public_version"]
+    assert target["custom"]["channel"] == transition["channel"]
+    assert target["custom"]["authenticode_policy"] == candidate["authenticode_policy"]
+    assert target["custom"]["withdrawn"] is False
+
+    targets_bytes = targets_path.read_bytes()
     target_ref = snapshot["signed"]["meta"]["targets.json"]
-    assert target_ref["hashes"]["sha256"] == current["targets_sha256"]
-    assert target_ref["length"] == current["targets_length"]
+    assert target_ref["version"] == targets["signed"]["version"]
+    assert target_ref["length"] == len(targets_bytes)
+    assert target_ref["hashes"]["sha256"] == hashlib.sha256(targets_bytes).hexdigest()
 
+    snapshot_bytes = snapshot_path.read_bytes()
     snapshot_ref = timestamp["signed"]["meta"]["snapshot.json"]
-    assert snapshot_ref["hashes"]["sha256"] == current["snapshot_sha256"]
-    assert snapshot_ref["length"] == current["snapshot_length"]
-
+    assert snapshot_ref["version"] == snapshot["signed"]["version"]
+    assert snapshot_ref["length"] == len(snapshot_bytes)
+    assert snapshot_ref["hashes"]["sha256"] == hashlib.sha256(snapshot_bytes).hexdigest()
 
 def test_v111_transition_request_is_monotonic_and_fail_closed() -> None:
     request = _load_json(REQUEST)

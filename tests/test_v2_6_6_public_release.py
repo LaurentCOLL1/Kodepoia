@@ -18,14 +18,14 @@ STABLE_TARGET = (
 )
 
 
-def test_v266_publication_inputs_match_live_tuf_transition() -> None:
+def test_v266_publication_target_remains_in_live_tuf_history() -> None:
     targets = json.loads(TARGETS.read_text(encoding="utf-8"))
     snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     timestamp = json.loads(TIMESTAMP.read_text(encoding="utf-8"))
 
-    assert targets["signed"]["version"] == 9
-    assert snapshot["signed"]["version"] == 11
-    assert timestamp["signed"]["version"] == 11
+    assert targets["signed"]["version"] >= 9
+    assert snapshot["signed"]["version"] >= 11
+    assert timestamp["signed"]["version"] >= 11
 
     target = targets["signed"]["targets"][STABLE_TARGET]
     assert target["length"] == CANDIDATE_BYTES

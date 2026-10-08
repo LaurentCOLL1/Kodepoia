@@ -4,12 +4,12 @@ import hashlib
 import importlib.util
 import subprocess
 import sys
-from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "v1_1_1_online_metadata_transition.py"
 STAGED = ROOT / "docs" / "release" / "evidence" / "V1_1_1_TARGETS_V10.json"
+PREDECESSOR = ROOT / "docs" / "release" / "evidence" / "V2_6_6_TARGETS_V9.json"
 WORKFLOW = ROOT / ".github" / "workflows" / "v1-1-1-online-metadata-transition.yml"
 
 SCRIPTS = ROOT / "scripts"
@@ -36,16 +36,16 @@ def test_v111_operator_targets_v10_is_exact_and_authorized() -> None:
     assert hashlib.sha256(blob).hexdigest() == module.EXPECTED_TARGETS_SHA256
 
     current = ceremony._load_current_metadata(ROOT / "update-repository" / "metadata")
+    root_md = ceremony._parse(current["root.json"], ceremony.Root, "current root.json")
+    predecessor_bytes = PREDECESSOR.read_bytes()
+    targets_md = ceremony._parse(predecessor_bytes, ceremony.Targets, "predecessor targets.json")
+    ceremony._verify_role(root_md.signed, "targets", targets_md)
+
     report = ceremony.Report()
-    root_md, targets_md, _, _ = ceremony._verify_current_state(
-        current,
-        datetime(2026, 10, 7, 14, 1, 2, tzinfo=UTC),
-        report,
-    )
     staged = module.validate_staged_targets(
         root=root_md.signed,
         current_targets=targets_md,
-        current_bytes=current["targets.json"],
+        current_bytes=predecessor_bytes,
         staged_bytes=blob,
         report=report,
     )

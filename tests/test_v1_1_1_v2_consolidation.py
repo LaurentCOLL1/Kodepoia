@@ -44,7 +44,7 @@ def test_consolidation_candidate_workflow_is_exact_source_and_non_publishing() -
         "EVIDENCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}",
         "Checkout exact consolidation source",
         "Assert exact checkout provenance",
-        "Verify public 1.1.0 baseline and absent 1.1.1 namespace",
+        "Verify public 1.1.0 baseline and coherent 1.1.1 namespace",
         "Build exact-source consolidation candidate one",
         "Build exact-source consolidation candidate two",
         "Run R18 two-build semantic comparison",
@@ -53,6 +53,14 @@ def test_consolidation_candidate_workflow_is_exact_source_and_non_publishing() -
         "Upload 1.1.1 consolidation candidate evidence",
     ):
         assert marker in workflow, marker
+
+    # Publication is immutable, so later PR checks must accept only the exact
+    # frozen tag and single public installer, not claim that a live tag is absent.
+    assert "Half-published 1.1.1 namespace" in workflow
+    assert "Published 1.1.1 source drift" in workflow
+    assert "Published 1.1.1 installer SHA256 drift" in workflow
+    assert 'target_namespace_coherent = $true' in workflow
+    assert '"target_namespace_coherent": baseline["target_namespace_coherent"] is True' in workflow
 
     assert "permissions:\n  contents: read" in workflow
     assert "contents: write" not in workflow

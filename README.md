@@ -1,78 +1,77 @@
 # Kodepoia
 
-**Environnement local-first de création et de développement assisté par IA pour jeux et applications.**
+**Studio local-first de développement assisté par IA pour jeux vidéo, applications et médias.**
 
-Kodepoia accompagne un projet depuis l'idée initiale jusqu'à sa maintenance. KodeStudio réunit création guidée, Project DNA, Vision produit, développement, recherche, médias, plateformes, sécurité, tests et outils IA locaux dans une interface unique. Kodepoia n'est pas un simple frontend de LLM : les actions restent gouvernées par les limites et preuves définies par l'architecture.
+Kodepoia rassemble dans **KodeStudio** la conception d'une Vision, la programmation, la recherche, les contenus numériques, la mémoire des projets et les outils IA locaux. Un projet peut évoluer de l'idée au prototype, puis aux tests et à la maintenance, avec validation humaine et actions gouvernées.
 
-**Guide utilisateur complet : [`docs/user/KODEPOIA_USER_GUIDE.md`](docs/user/KODEPOIA_USER_GUIDE.md)** — installation, création et reprise de projets, modèles Ollama, rôles FAST/CORE/CODE/HEAVY, tuning SFT/LoRA/QLoRA, sécurité, mises à jour et dépannage.
+[**Télécharger Kodepoia 1.1.1 (Windows)**](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.1) · [Guide utilisateur](docs/user/KODEPOIA_USER_GUIDE.md) · [Roadmap V2](docs/roadmap/KODEPOIA_ROADMAP_V2.md)
 
-## État du projet
+> **État au 8 octobre 2026 :** Kodepoia **1.1.1 stable est publiée**. La roadmap V2 et R1–R20 sont **COMPLETE + NORMALIZED**. L'upgrade réel installé **1.1.0 → 1.1.1** reste en qualification avant de pouvoir déclarer cette release elle-même **COMPLETE + NORMALIZED**.
 
-- Architecture **v1.0 : COMPLETE + NORMALIZED et gelée**.
-- Roadmap R1–R20 : **COMPLETE + NORMALIZED**. R20 est terminal ; aucun `R20.7` n'est autorisé.
-- R17 — Distribution & Guided Creation UX, R18 — Trusted Release, Updates & Distribution Channels, R19 — Trusted Self-Update Corrective Release et R20 — Continuous Trusted Update Operations sont **COMPLETE + NORMALIZED**.
-- R17 a livré l'installation Windows autonome, le français, la création guidée et le Chat/Vision local.
-- R18 a livré l'identité de release canonique, bundles/manifests vérifiables, SBOM/provenance, frontière Authenticode, staging/promotion gouvernés, métadonnées TUF anti-rollback/freeze, découverte et installation consentie des mises à jour, préparation WinGet, drills de révocation/rollback et acceptance adversariale intégrée.
-- R19 a établi le correctif de release et le parcours d'auto-mise-à-jour vérifié ; R20 a transformé cette chaîne en opération continue avec Root/Targets hors ligne, Snapshot/Timestamp en rôles online distincts, renouvellement planifié, monitoring/UX et acceptance long-offline.
-- Release publique beta actuelle : **`v1.1.0-rc8`**, source exacte `fa787ab7ef76f2556b56ac1f058916a1425455af`.
-- Le vrai E2E Windows installé **rc7 → rc8 est PASS** : découverte via métadonnées TUF, téléchargement, vérification, consentement explicite, lancement de l'installateur, upgrade, redémarrage en rc8 et nouvelle recherche confirmant rc8 comme version courante.
-- La clôture canonique de cet incident updater est enregistrée par la PR #467, fusionnée comme `e40477699d98bda2f804c269339929de719556b5`. Toute reprise doit néanmoins re-fetcher le `main` live plutôt que supposer que ce SHA restera éternellement HEAD.
-- Ancien nom de travail : `FORGEGAMEDEV`.
+## Différentes utilisations de Kodepoia
 
-La clôture des phases ne signifie pas qu'une release stable signée de production existe. Les releases `rc` restent des **prereleases / beta** et le manifeste de l'installateur rc8 indique `production_signed=false`.
+| Usage | Ce que Kodepoia aide à faire |
+| --- | --- |
+| **Jeux vidéo 2D** | Concevoir, programmer, tester et faire évoluer un projet Godot 2D : gameplay, scènes, scripts, prototypes. |
+| **Jeux vidéo 3D** | Organiser un projet Godot 3D, ses systèmes et scènes ; intégrer et contrôler les ressources graphiques et animations disponibles. |
+| **Applications Windows** | Définir une application de bureau, son interface et sa logique ; employer selon le projet Qt, WPF, WinUI 3, Avalonia ou Tauri, puis tester et préparer le packaging. |
+| **Projets Android et iOS** | Choisir la cible dès la création ; préparer code, builds et contrôles selon les outils disponibles. SDK, environnement Apple, signature et publication nécessitent leurs prérequis propres. |
+| **Utilitaires et logiciels métier** | Transformer un besoin en Vision, exigences, code, tests et maintenance traçable. |
+| **Recherche et documentation** | Découvrir des sources, inspecter et sélectionner des preuves, produire des synthèses citées et enregistrer des *Research Packs*. |
+| **Connaissances et mémoire de projet** | Rechercher dans les sources et fichiers gouvernés, composer un contexte traçable pour Chat, KodeCode et les espaces spécialisés. |
+| **Images, sons, voix et cinématiques** | Planifier et intégrer des ressources médias avec les workflows et outils (dont ComfyUI) réellement installés. |
+| **IA locale avec Ollama** | Choisir les modèles installés, attribuer FAST/CORE/CODE/HEAVY, dialoguer et comparer leurs capacités. |
+| **Amélioration de modèles IA** | Curater explicitement les données, benchmarker, décider TRAIN/NO_TRAIN, encadrer SFT/LoRA/QLoRA, évaluer/exporter/promouvoir un candidat avec contrôles de régression ; Kaggle reste conditionnel. |
+| **Orchestration de projet** | Coordonner plusieurs espaces de travail, dépendances, transferts de contexte, approbations et reprises contrôlées. |
 
-## Installer Kodepoia sur Windows — utilisateur final
+### Exemples concrets
 
-### Méthode recommandée — GitHub Release `v1.1.0-rc8`
+- **Créer un jeu d'aventure 2D** : créer un projet Godot, rédiger la Vision et le MVP, programmer les mécaniques, tester et conserver les décisions.
+- **Construire un jeu 3D narratif** : définir les scènes et interactions, travailler modèles/animations/audio avec des outils compatibles, puis vérifier leur provenance et leur intégration.
+- **Développer une application Windows** : choisir la pile technique, concevoir les écrans, programmer les fonctionnalités et préparer les tests et l'installateur.
+- **Conduire une recherche sourcée** : chercher des références, les examiner et produire un Research Pack avec citations pour le projet.
+- **Spécialiser une IA locale** : comparer les modèles Ollama, détecter les lacunes, puis préparer un entraînement seulement si l'utilisateur approuve les données et si le matériel et les évaluations le permettent.
 
-Télécharger **`KodepoiaSetup.exe`** depuis la release publique **[Kodepoia 1.1.0-rc8](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.0-rc8)**.
+### Les espaces de travail
 
-Installateur rc8 accepté :
+**Projets / Project DNA / Vision** structurent les objectifs, exigences et contraintes ; **Chat / KodeCode** aident à concevoir et programmer ; **Research / Evidence / Project Knowledge** assurent recherche, citations, contexte et mémoire ; **Model Lab** couvre modèles, benchmarks, tuning, évaluation, export et rollback ; les **spécialistes** couvrent jeux, applications et médias selon les dépendances ; **Orchestration** coordonne les espaces avec contrôle des mutations.
 
-- version : `1.1.0-rc8` ;
-- source exacte : `fa787ab7ef76f2556b56ac1f058916a1425455af` ;
-- taille : `37 730 750` octets ;
-- SHA-256 : `6d4a02dc448b075341baf4b6fb0caf4d0a116e1b82a6937a5911efc863611422` ;
-- canal : `beta` ;
-- signature de production revendiquée : **non** (`production_signed=false`) ;
-- politique TUF Authenticode ciblée pour cet artefact exact : `allow-unsigned`.
+Kodepoia **n'est pas une promesse de génération automatique d'un jeu AAA à partir d'une phrase**. Les résultats et actions sensibles doivent être vérifiés et approuvés. Les fichiers de projet, conversations et Research Packs ne sont jamais automatiquement considérés comme des données d'entraînement. Ollama, ComfyUI, GPU, Kaggle, recherche web et SDK restent optionnels ou dépendants de leur disponibilité ; les usages local-first compatibles peuvent fonctionner hors ligne.
 
-`v1.1.0-rc8` est un candidat de validation sans nouvelle fonctionnalité updater. Il a été construit pour confirmer le parcours réel de mise à jour depuis la baseline corrective rc7. Le parcours installé rc7 → rc8 a été exécuté avec succès sur Windows sans substitution manuelle de l'installateur rc8. Les correctifs précédents restent hérités, notamment l'embarquement des ressources TUF requises par l'updater et le choix du lecteur/dossier d'installation.
+## Installer Kodepoia sous Windows
 
-1. Télécharger `KodepoiaSetup.exe` depuis la release rc8.
-2. Facultatif mais recommandé : calculer son SHA-256 et le comparer à la valeur ci-dessus.
-3. Exécuter `KodepoiaSetup.exe`.
-4. Choisir le dossier d'installation souhaité dans l'assistant.
-5. Suivre l'assistant d'installation en français ou en anglais.
-6. Lancer **Kodepoia** depuis le menu Démarrer ou le raccourci Bureau.
+### Version stable actuelle : `v1.1.1`
 
-Cette version est une **prerelease / beta**. Elle ne doit pas être présentée comme une release stable signée de production ; Windows/SmartScreen peut afficher un avertissement de réputation ou de signature.
+Télécharger exclusivement **`KodepoiaSetup.exe`** depuis la [Release GitHub Kodepoia 1.1.1](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.1).
 
-`KodepoiaSetup.exe` installe KodeStudio dans le dossier choisi, crée une entrée de désinstallation et les raccourcis. L'exécutable embarque le runtime nécessaire : Python et `pip` ne sont pas requis sur la machine cible.
+| Vérification | Valeur |
+| --- | --- |
+| Canal et version | `stable` / `1.1.1` |
+| Source exacte | `aa1c80389b10f5ef44737241bf192c04f847e4ec` |
+| Taille | `38880869` octets |
+| SHA-256 | `c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd` |
+| Authenticode | `NotSigned`, `production_signed=false` |
+| Exception TUF ciblée | `allow-unsigned` pour cet installateur exact |
+| WinGet | Pas de publication pour 1.1.1 |
 
-### Miroir historique à la racine du dépôt
+1. Télécharger l'installateur depuis la release officielle.
+2. Vérifier si souhaité l'empreinte avec `Get-FileHash .\KodepoiaSetup.exe -Algorithm SHA256`.
+3. Ouvrir l'assistant et choisir librement le **lecteur et dossier** d'installation.
+4. Lancer **KodeStudio** depuis le menu Démarrer ou le raccourci créé.
 
-Le fichier `KodepoiaSetup.exe` présent à la racine du dépôt et `KodepoiaSetup.exe.sha256` restent un **miroir historique de `v1.1.0-rc1`**. Ils ne constituent plus la méthode d'installation recommandée et ne doivent pas être confondus avec l'asset rc8 actuel.
+L'installateur intègre le runtime : **Python et pip ne sont pas nécessaires** sur la machine cible. Il n'a pas de signature Authenticode de production ; Windows peut donc afficher un avertissement. Contrôler la provenance et l'empreinte plutôt que supposer une signature inexistante.
 
-Le checksum historique du miroir racine est `3d11af229392a6756a2bbc161af0150aca92168d843a42a3944ab5c01660b8e0`.
+### Chaîne de mises à jour TUF
 
-### Mise à jour intégrée et confiance TUF
+La génération publique 1.1.1 comprend **Root v2, Targets v10, Snapshot v12 et Timestamp v12**. Elle lie la cible stable à sa source, sa version, sa taille et son SHA-256 exacts ; l'updater refuse métadonnées expirées, rollback, signatures incorrectes et payloads modifiés. Snapshot et Timestamp sont à validité courte et exigent des renouvellements signés. Une indisponibilité de la recherche de mises à jour ne doit pas empêcher le travail local.
 
-La chaîne publique de mise à jour actuelle est :
+**La preuve live installée 1.1.0 → 1.1.1 (découverte, téléchargement, upgrade, relance, dossier personnalisé conservé, `up-to-date`, smoke et désinstallation) est encore en cours** ; sa validation ne doit pas être remplacée par les tests historiques.
 
-- Root **v2** — rôle haute autorité conservé hors ligne et protégé par seuil ;
-- Targets **v8** — signé hors ligne, préserve les targets rc3 à rc7 et autorise rc8 ;
-- Snapshot **v10** — rôle online dédié, lié aux octets/version/hash/longueur exacts de Targets v8 ;
-- Timestamp **v10** — rôle online séparé, lié aux octets/version/hash/longueur exacts de Snapshot v10 ;
-- rc8 est autorisé par Targets avec la taille `37 730 750` et le SHA-256 exacts ci-dessus, `withdrawn=false` et `authenticode_policy="allow-unsigned"` ciblé sur cet artefact.
+### Versions historiques et désinstallation
 
-Les mises à jour refusent les métadonnées expirées, les rollbacks, les vues mixtes Snapshot/Targets et les artefacts dont le hash ou la taille ne correspondent pas à l'autorité TUF. Une indisponibilité du service de mise à jour ne doit pas empêcher le démarrage de Kodepoia ni le travail local.
+La dernière version stable avant 1.1.1 était [Kodepoia 1.1.0](https://github.com/LaurentCOLL1/Kodepoia/releases/tag/v1.1.0). `v1.1.0-rc8` est une ancienne beta ayant servi aux qualifications `rc7 → rc8` et `rc8 → 1.1.0`, pas la version recommandée. Le `KodepoiaSetup.exe` présent à la racine du dépôt est un miroir historique de `rc1`, à ne pas confondre avec l'asset stable.
 
-Le vrai E2E Windows rc7 → rc8 est documenté dans `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md`. L'ancien essai rc5 → rc6 reste historiquement **failed/incomplete** et ne doit pas être requalifié rétrospectivement comme succès.
-
-### Désinstallation
-
-Utiliser **Paramètres Windows → Applications → Applications installées → Kodepoia**, ou le raccourci **Désinstaller Kodepoia** du menu Démarrer.
+Pour désinstaller : **Paramètres Windows → Applications → Applications installées → Kodepoia**, ou le raccourci de désinstallation.
 
 ## Français / English
 
@@ -182,7 +181,7 @@ Le workflow `.github/workflows/windows-installer.yml` effectue en plus une insta
 
 ### Signature
 
-Le manifeste rc8 indique `production_signed=false`. Une véritable signature Windows ne sera revendiquée qu'après utilisation explicite d'un certificat/identité de signature réel et validation des preuves correspondantes. L'exception `allow-unsigned` utilisée par TUF pour rc8 est strictement target-scoped et ne vaut pas autorisation générale d'accepter des exécutables non signés.
+Le candidat stable 1.1.1 est `NotSigned` (`production_signed=false`). L'exception TUF `allow-unsigned` est limitée à cet artefact exact et ne constitue pas une autorisation générale d'accepter des exécutables non signés.
 
 ## Principes non négociables
 
@@ -221,7 +220,9 @@ Documents principaux :
 - `docs/continuity/STATE.md` — autorité immédiate de reprise ;
 - `docs/continuity/NEXT.md` — prochaine frontière autorisée et prompt de reprise ;
 - `docs/continuity/KODEPOIA_CURRENT_AUTHORITY.md` — résumé compact de l'autorité publique courante ;
-- `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md` — preuve terminale du vrai E2E rc7 → rc8 ;
+- `docs/release/V1_1_1_V2_CONSOLIDATION.md` — autorité de release 1.1.1 ;
+- `docs/release/V2_6_6_TERMINAL_PUBLICATION.md` — clôture V2 et historique rc8 → 1.1.0 ;
+- `docs/release/RC8_WINDOWS_E2E_ACCEPTANCE.md` — historique rc7 → rc8 ;
 - `docs/architecture/KODEPOIA_ARCHITECTURE_V1_0.md` ;
 - `docs/architecture/KODEPOIA_ARCHITECTURE_DECISIONS.md` ;
 - `docs/roadmap/KODEPOIA_ROADMAP_V1_0.md` ;

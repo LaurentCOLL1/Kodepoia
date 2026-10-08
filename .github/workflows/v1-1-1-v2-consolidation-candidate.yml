@@ -50,6 +50,9 @@ jobs:
       BASELINE_SHA256: 8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef
       TARGET_TAG: v1.1.1
       TARGET_VERSION: 1.1.1
+      FROZEN_TARGET_SOURCE_SHA: aa1c80389b10f5ef44737241bf192c04f847e4ec
+      FROZEN_TARGET_BYTES: "38880869"
+      FROZEN_TARGET_SHA256: c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd
     steps:
       - name: Checkout exact consolidation source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -86,7 +89,7 @@ jobs:
           python -m ruff check src/kodepoia/release scripts/v2_6_1_acceptance.py scripts/v2_6_2_acceptance.py scripts/v2_6_3_acceptance.py tests/test_r18_release_identity.py tests/test_v2_6_1_terminal_release_freeze.py tests/test_v2_6_2_terminal_hardening.py tests/test_v2_6_3_terminal_candidate.py tests/test_v1_1_1_v2_consolidation.py
           python -m pytest -q tests/test_r18_release_identity.py tests/test_v2_6_1_terminal_release_freeze.py tests/test_v2_6_2_terminal_hardening.py tests/test_v2_6_3_terminal_candidate.py tests/test_v1_1_1_v2_consolidation.py
 
-      - name: Verify public 1.1.0 baseline and absent 1.1.1 namespace
+      - name: Verify public 1.1.0 baseline and coherent 1.1.1 namespace
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "artifacts/v1_1_1" | Out-Null
@@ -104,12 +107,31 @@ jobs:
           if ([int64]$assets[0].size -ne [int64]$env:BASELINE_BYTES) { throw "Public 1.1.0 installer length drift" }
           if ([string]$assets[0].digest -ne "sha256:$env:BASELINE_SHA256") { throw "Public 1.1.0 installer digest drift" }
 
+          # Before initial publication both names must be absent. After publication
+          # both must exist and match the ORIGINAL immutable candidate identity.
+          # A half-published namespace or any drift fails closed.
           gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/$env:TARGET_TAG" *> $null
-          if ($LASTEXITCODE -eq 0) { throw "$env:TARGET_TAG already exists" }
+          $tagPresent = $LASTEXITCODE -eq 0
           $global:LASTEXITCODE = 0
           gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$env:TARGET_TAG" *> $null
-          if ($LASTEXITCODE -eq 0) { throw "$env:TARGET_TAG Release already exists" }
+          $releasePresent = $LASTEXITCODE -eq 0
           $global:LASTEXITCODE = 0
+          if ($tagPresent -ne $releasePresent) { throw "Half-published 1.1.1 namespace" }
+          if ($tagPresent) {
+            $targetRef = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/$env:TARGET_TAG" | ConvertFrom-Json
+            $targetSha = [string]$targetRef.object.sha
+            if ([string]$targetRef.object.type -eq "tag") {
+              $targetObject = gh api "repos/$env:GITHUB_REPOSITORY/git/tags/$targetSha" | ConvertFrom-Json
+              $targetSha = [string]$targetObject.object.sha
+            }
+            if ($targetSha -ne $env:FROZEN_TARGET_SOURCE_SHA) { throw "Published 1.1.1 source drift" }
+            $targetRelease = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$env:TARGET_TAG" | ConvertFrom-Json
+            if ([bool]$targetRelease.draft -or [bool]$targetRelease.prerelease) { throw "Published 1.1.1 must be stable" }
+            $targetAssets = @($targetRelease.assets)
+            if ($targetAssets.Count -ne 1 -or [string]$targetAssets[0].name -ne "KodepoiaSetup.exe") { throw "Published 1.1.1 installer asset count/name drift" }
+            if ([int64]$targetAssets[0].size -ne [int64]$env:FROZEN_TARGET_BYTES) { throw "Published 1.1.1 installer length drift" }
+            if ([string]$targetAssets[0].digest -ne "sha256:$env:FROZEN_TARGET_SHA256") { throw "Published 1.1.1 installer SHA256 drift" }
+          }
 
           @{
             baseline_tag = $env:BASELINE_TAG
@@ -117,7 +139,9 @@ jobs:
             baseline_installer_bytes = [int64]$env:BASELINE_BYTES
             baseline_installer_sha256 = $env:BASELINE_SHA256
             target_tag = $env:TARGET_TAG
-            target_namespace_absent = $true
+            target_namespace_absent = (-not $tagPresent)
+            target_namespace_coherent = $true
+            published_target_verified = $tagPresent
           } | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 "artifacts/v1_1_1/public-baseline.json"
 
       - name: Generate exact-source SPDX SBOM and provenance
@@ -222,7 +246,9 @@ jobs:
               "unsigned_truth": signing["mode"] == "unsigned" and signing["production_signed"] is False,
               "windows_smoke": windows["clean_install_smoke"] is True and windows["clean_uninstall"] is True,
               "baseline_1_1_0": baseline["baseline_source_sha"] == os.environ["BASELINE_SOURCE_SHA"],
-              "target_namespace_absent": baseline["target_namespace_absent"] is True,
+              "target_namespace_coherent": baseline["target_namespace_coherent"] is True and (
+                  baseline["target_namespace_absent"] is True or baseline["published_target_verified"] is True
+              ),
           }
           failed=[name for name, ok in checks.items() if not ok]
           report={

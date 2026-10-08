@@ -103,7 +103,8 @@ def test_r16_9_policy_is_integrity_bound_and_provenance_only() -> None:
     assert policy.required_contents_permission == "read"
     assert ".github/workflows/v1-1-1-v2-consolidation-candidate.yml" in policy.immutable_authority_workflows
     assert ".github/workflows/v1-1-1-online-metadata-transition.yml" in policy.immutable_authority_workflows
-    assert len(policy.immutable_authority_workflows) == 55
+    assert len(policy.immutable_authority_workflows) == 56
+    assert ".github/workflows/v1-1-1-live-updater-closure.yml" in policy.immutable_authority_workflows
     assert (
         ".github/workflows/r16-15-project-durability-acceptance.yml"
         in policy.immutable_authority_workflows

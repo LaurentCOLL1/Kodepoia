@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-ui = ["PySide6>=6.10,<7"]
+ui = ["PySide6>=6.10,<6.12"]
 postgres = ["psycopg[binary]>=3.2,<4"]
 code = [
   "tree-sitter>=0.26,<0.27",

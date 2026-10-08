@@ -1,0 +1,263 @@
+name: Kodepoia 1.1.1 Live Updater Closure
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: v1-1-1-live-updater-closure
+  cancel-in-progress: false
+
+jobs:
+  live-updater-closure:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      EVIDENCE_SHA: ${{ github.sha }}
+      GH_TOKEN: ${{ github.token }}
+      BASELINE_VERSION: 1.1.0
+      BASELINE_SOURCE_SHA: 46ed800888b4f19da9e984232dd1ad6cdb639cc1
+      BASELINE_BYTES: "38834833"
+      BASELINE_SHA256: 8197bc9d8272b97394170a2c7c27b17c1e2f2849931587d21c7bdfda126da2ef
+      TARGET_VERSION: 1.1.1
+      TARGET_SOURCE_SHA: aa1c80389b10f5ef44737241bf192c04f847e4ec
+      TARGET_BYTES: "38880869"
+      TARGET_SHA256: c8e7949ead2e1e14adece7cb9826f0b1be689b81ac814eef2f041760b9f738cd
+    steps:
+      - name: Checkout exact 1.1.1 closure authority
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ env.EVIDENCE_SHA }}
+          fetch-depth: 0
+
+      - name: Require unchanged main
+        shell: pwsh
+        run: |
+          $actual = (git rev-parse HEAD).Trim().ToLowerInvariant()
+          $main = (gh api "repos/$env:GITHUB_REPOSITORY/git/ref/heads/main" --jq ".object.sha").Trim().ToLowerInvariant()
+          if ($actual -ne $env:EVIDENCE_SHA) { throw "Exact checkout mismatch: $actual" }
+          if ($main -ne $env:EVIDENCE_SHA) { throw "main advanced from closure authority $env:EVIDENCE_SHA to $main" }
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install focused closure dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Compile and test 1.1.1 closure surfaces
+        shell: pwsh
+        run: |
+          python -m compileall -q scripts/v1_1_1_live_updater_closure.py tests/test_v1_1_1_live_updater_closure.py
+          python -m ruff check scripts/v1_1_1_live_updater_closure.py tests/test_v1_1_1_live_updater_closure.py tests/test_supply_chain_r16_9.py
+          python -m pytest -q tests/test_v1_1_1_live_updater_closure.py tests/test_r19_3_network_update_transport.py tests/test_r18_7_update_discovery.py tests/test_r18_8_verified_delivery.py tests/test_supply_chain_r16_9.py
+
+      - name: Revalidate exact public 1.1.1 tag release and asset
+        shell: pwsh
+        run: |
+          $ref = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/v1.1.1" | ConvertFrom-Json
+          $sha = [string]$ref.object.sha
+          if ([string]$ref.object.type -eq "tag") {
+            $sha = [string](gh api "repos/$env:GITHUB_REPOSITORY/git/tags/$sha" --jq '.object.sha')
+          }
+          if ($sha -ne $env:TARGET_SOURCE_SHA) { throw "public 1.1.1 tag source drift" }
+          $release = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/v1.1.1" | ConvertFrom-Json
+          if ([bool]$release.draft -or [bool]$release.prerelease) { throw "1.1.1 release is not stable public" }
+          $assets = @($release.assets | Where-Object { $_.name -eq "KodepoiaSetup.exe" })
+          if ($assets.Count -ne 1 -or @($release.assets).Count -ne 1) { throw "public 1.1.1 assets drift" }
+          if ([int64]$assets[0].size -ne [int64]$env:TARGET_BYTES) { throw "public 1.1.1 asset length drift" }
+          if ([string]$assets[0].digest -ne "sha256:$env:TARGET_SHA256") { throw "public 1.1.1 asset digest drift" }
+
+      - name: Revalidate and download public baseline
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "artifacts/v1_1_1/baseline" | Out-Null
+          $release = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/v1.1.0" | ConvertFrom-Json
+          if ([bool]$release.draft -or [bool]$release.prerelease) { throw "baseline release state drift" }
+          $assets = @($release.assets | Where-Object { $_.name -eq "KodepoiaSetup.exe" })
+          if ($assets.Count -ne 1) { throw "Expected one baseline installer asset" }
+          if ([int64]$assets[0].size -ne [int64]$env:BASELINE_BYTES) { throw "baseline asset size drift" }
+          $tagRef = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/v1.1.0" | ConvertFrom-Json
+          $tagSha = [string]$tagRef.object.sha
+          if ([string]$tagRef.object.type -eq "tag") {
+            $tagObject = gh api "repos/$env:GITHUB_REPOSITORY/git/tags/$tagSha" | ConvertFrom-Json
+            $tagSha = [string]$tagObject.object.sha
+          }
+          if ($tagSha -ne $env:BASELINE_SOURCE_SHA) { throw "baseline source SHA drift" }
+          gh release download v1.1.0 --repo "$env:GITHUB_REPOSITORY" --pattern "KodepoiaSetup.exe" --dir "artifacts/v1_1_1/baseline" --clobber
+          if ($LASTEXITCODE -ne 0) { throw "baseline public download failed" }
+          $baseline = "artifacts/v1_1_1/baseline/KodepoiaSetup.exe"
+          if ((Get-Item $baseline).Length -ne [int64]$env:BASELINE_BYTES) { throw "baseline downloaded size mismatch" }
+          if ((Get-FileHash $baseline -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:BASELINE_SHA256) { throw "baseline downloaded hash mismatch" }
+
+      - name: Install exact public baseline
+        shell: pwsh
+        run: |
+          $baseline = (Resolve-Path "artifacts/v1_1_1/baseline/KodepoiaSetup.exe").Path
+          $installDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v266-live"
+          $defaultDir = Join-Path $env:LOCALAPPDATA "Programs\Kodepoia"
+          Remove-Item $installDir -Recurse -Force -ErrorAction SilentlyContinue
+          if ($defaultDir -ne $installDir) { Remove-Item $defaultDir -Recurse -Force -ErrorAction SilentlyContinue }
+          $install = Start-Process -FilePath $baseline -ArgumentList @("/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/MERGETASKS=!desktopicon","/DIR=$installDir") -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "baseline install failed: $($install.ExitCode)" }
+          $uninstallKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{A67EEAB5-46C2-4B21-A169-7E17275DE2F0}_is1"
+          $version = ([string](Get-ItemProperty -Path $uninstallKey -Name DisplayVersion -ErrorAction Stop).DisplayVersion).Trim()
+          if ($version -ne $env:BASELINE_VERSION) { throw "installed baseline version mismatch: $version" }
+          "V111_INSTALL_DIR=$installDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "V111_DEFAULT_DIR=$defaultDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "V111_UNINSTALL_KEY=$uninstallKey" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Discover and verify live stable update from installed baseline
+        shell: pwsh
+        run: |
+          python scripts/v1_1_1_live_updater_closure.py --source-sha "$env:EVIDENCE_SHA" --mode baseline --state-dir "artifacts/v1_1_1/live-baseline" --output "artifacts/v1_1_1/live-baseline.json"
+          $report = Get-Content "artifacts/v1_1_1/live-baseline.json" -Raw | ConvertFrom-Json
+          if ($report.status -ne "PASS" -or $report.discovery_status -ne "update-available") { throw "live baseline discovery did not pass" }
+          if ([int]$report.trusted_state.root_version -ne 2 -or [int]$report.trusted_state.targets_version -ne 10 -or [int]$report.trusted_state.snapshot_version -ne 12 -or [int]$report.trusted_state.timestamp_version -ne 12) { throw "live TUF generation mismatch" }
+          $staged = [string]$report.staged_artifact.path
+          if (-not (Test-Path $staged -PathType Leaf)) { throw "live verified stable installer is missing" }
+          "V111_LIVE_STAGED=$((Resolve-Path $staged).Path)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upgrade installed baseline from live verified public bytes
+        shell: pwsh
+        run: |
+          $staged = (Resolve-Path $env:V111_LIVE_STAGED).Path
+          if ((Get-Item $staged).Length -ne [int64]$env:TARGET_BYTES) { throw "live staged installer size drift" }
+          if ((Get-FileHash $staged -Algorithm SHA256).Hash.ToLowerInvariant() -ne $env:TARGET_SHA256) { throw "live staged installer hash drift" }
+          Get-Process -Name KodepoiaStudio -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+          $update = Start-Process -FilePath $staged -ArgumentList @("/SP-","/SILENT","/NORESTART","/CLOSEAPPLICATIONS","/NORESTARTAPPLICATIONS","/KODEPOIAUPDATE=1") -PassThru
+          $update.WaitForExit()
+          if ($update.ExitCode -ne 0) { throw "live stable update install failed: $($update.ExitCode)" }
+          $relaunch = $false
+          for ($attempt = 0; $attempt -lt 60; $attempt++) {
+            if (Get-Process -Name KodepoiaStudio -ErrorAction SilentlyContinue | Select-Object -First 1) { $relaunch = $true; break }
+            Start-Sleep -Seconds 1
+          }
+          if (-not $relaunch) { throw "live updater did not relaunch KodepoiaStudio" }
+          Get-Process -Name KodepoiaStudio -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+          $version = ([string](Get-ItemProperty -Path $env:V111_UNINSTALL_KEY -Name DisplayVersion -ErrorAction Stop).DisplayVersion).Trim()
+          if ($version -ne $env:TARGET_VERSION) { throw "live upgraded DisplayVersion mismatch: $version" }
+          $exe = Join-Path $env:V111_INSTALL_DIR "KodepoiaStudio.exe"
+          if (-not (Test-Path $exe -PathType Leaf)) { throw "upgraded executable missing from preserved install directory" }
+          if (Test-Path (Join-Path $env:V111_DEFAULT_DIR "KodepoiaStudio.exe")) { throw "live update escaped into default install directory" }
+          @{
+            update_exit_code = [int]$update.ExitCode
+            relaunch_observed = [bool]$relaunch
+            installed_version = $version
+            custom_install_directory_preserved = $true
+          } | ConvertTo-Json -Depth 5 | Set-Content -Encoding UTF8 "artifacts/v1_1_1/windows-upgrade.json"
+
+      - name: Prove stable 1.1.1 is current on the live updater
+        shell: pwsh
+        run: |
+          python scripts/v1_1_1_live_updater_closure.py --source-sha "$env:EVIDENCE_SHA" --mode stable --state-dir "artifacts/v1_1_1/live-stable" --output "artifacts/v1_1_1/live-stable.json"
+          $report = Get-Content "artifacts/v1_1_1/live-stable.json" -Raw | ConvertFrom-Json
+          if ($report.status -ne "PASS" -or $report.discovery_status -ne "up-to-date") { throw "live stable current-state proof failed" }
+
+      - name: Packaged smoke and uninstall live-upgraded Kodepoia
+        shell: pwsh
+        run: |
+          $exe = Join-Path $env:V111_INSTALL_DIR "KodepoiaStudio.exe"
+          $smokeDir = Join-Path $env:RUNNER_TEMP "Kodepoia-v266-live-smoke"
+          $smokeReport = Join-Path $env:RUNNER_TEMP "kodepoia-v266-live-smoke.txt"
+          New-Item -ItemType Directory -Force -Path $smokeDir | Out-Null
+          $originalPath = $env:PATH
+          $originalPythonHome = $env:PYTHONHOME
+          $originalPythonPath = $env:PYTHONPATH
+          $env:PATH = @((Join-Path $env:SystemRoot "System32"),$env:SystemRoot,(Join-Path $env:SystemRoot "System32\Wbem")) -join ";"
+          $env:PYTHONHOME = $null
+          $env:PYTHONPATH = $null
+          try {
+            if (Get-Command python.exe -ErrorAction SilentlyContinue) { throw "developer Python visible during packaged smoke" }
+            $smoke = Start-Process -FilePath $exe -ArgumentList @("--smoke-test","--smoke-report=$smokeReport") -WorkingDirectory $smokeDir -Wait -PassThru
+            if ($smoke.ExitCode -ne 0) {
+              if (Test-Path $smokeReport) { Get-Content $smokeReport }
+              throw "live-upgraded packaged smoke failed: $($smoke.ExitCode)"
+            }
+          } finally {
+            $env:PATH = $originalPath
+            $env:PYTHONHOME = $originalPythonHome
+            $env:PYTHONPATH = $originalPythonPath
+          }
+          $uninstaller = Join-Path $env:V111_INSTALL_DIR "unins000.exe"
+          if (-not (Test-Path $uninstaller -PathType Leaf)) { throw "live-upgraded uninstaller missing" }
+          $uninstall = Start-Process -FilePath $uninstaller -ArgumentList @("/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART") -Wait -PassThru
+          if ($uninstall.ExitCode -ne 0) { throw "live-upgraded uninstall failed: $($uninstall.ExitCode)" }
+          for ($attempt = 0; $attempt -lt 60 -and (Test-Path $exe); $attempt++) { Start-Sleep -Milliseconds 500 }
+          if (Test-Path $exe) { throw "live-upgraded executable remains after uninstall" }
+          @{
+            smoke_passed = $true
+            uninstall_exit_code = [int]$uninstall.ExitCode
+            executable_removed = $true
+          } | ConvertTo-Json -Depth 5 | Set-Content -Encoding UTF8 "artifacts/v1_1_1/windows-cleanup.json"
+
+      - name: Emit terminal 1.1.1 live closure evidence
+        shell: python
+        run: |
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          baseline = json.loads(Path("artifacts/v1_1_1/live-baseline.json").read_text(encoding="utf-8-sig"))
+          stable = json.loads(Path("artifacts/v1_1_1/live-stable.json").read_text(encoding="utf-8-sig"))
+          upgrade = json.loads(Path("artifacts/v1_1_1/windows-upgrade.json").read_text(encoding="utf-8-sig"))
+          cleanup = json.loads(Path("artifacts/v1_1_1/windows-cleanup.json").read_text(encoding="utf-8-sig"))
+          checks = {
+              "live_baseline_update_available": baseline["discovery_status"] == "update-available",
+              "live_public_installer_verified": baseline["staged_artifact"]["sha256"] == os.environ["TARGET_SHA256"],
+              "live_tuf_v2_v10_v12_v12": (
+                  int(baseline["trusted_state"]["root_version"]) == 2
+                  and int(baseline["trusted_state"]["targets_version"]) == 10
+                  and int(baseline["trusted_state"]["snapshot_version"]) == 12
+                  and int(baseline["trusted_state"]["timestamp_version"]) == 12
+              ),
+              "installed_upgrade_1_1_1": upgrade["installed_version"] == "1.1.1",
+              "installer_relaunch_observed": upgrade["relaunch_observed"] is True,
+              "custom_install_directory_preserved": upgrade["custom_install_directory_preserved"] is True,
+              "live_stable_up_to_date": stable["discovery_status"] == "up-to-date",
+              "packaged_smoke_passed": cleanup["smoke_passed"] is True,
+              "uninstall_passed": cleanup["executable_removed"] is True,
+          }
+          failed = [name for name, passed in checks.items() if not passed]
+          evidence = {
+              "schema_version": 1,
+              "release": "1.1.1",
+              "status": "PASS" if not failed else "FAIL",
+              "source_sha": os.environ["EVIDENCE_SHA"],
+              "candidate_source_sha": os.environ["TARGET_SOURCE_SHA"],
+              "checks": checks,
+              "summary": {"passed": len(checks) - len(failed), "total": len(checks), "failed": failed},
+              "critical_veto": bool(failed),
+              "go_no_go": "GO" if not failed else "NO-GO",
+              "production_tuf_versions": {"root": 2, "targets": 10, "snapshot": 12, "timestamp": 12},
+              "asset_size": int(os.environ["TARGET_BYTES"]),
+              "asset_sha256": os.environ["TARGET_SHA256"],
+              "tag": "v1.1.1",
+              "public_network_proof": True,
+              "production_metadata_mutated": False,
+              "public_release_mutated": False,
+              "winget_submission": False,
+          }
+          rendered = json.dumps(evidence, sort_keys=True, separators=(",", ":"))
+          evidence["evidence_sha256"] = hashlib.sha256(rendered.encode()).hexdigest()
+          Path("artifacts/v1_1_1/V1_1_1_LIVE_UPDATER_CLOSURE.json").write_text(
+              json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(evidence, indent=2, sort_keys=True))
+          if failed:
+              raise SystemExit("terminal live updater closure failed: " + ", ".join(failed))
+
+      - name: Upload 1.1.1 live closure evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v1-1-1-live-updater-closure-${{ env.EVIDENCE_SHA }}
+          path: artifacts/v1_1_1
+          if-no-files-found: error
+          retention-days: 30
